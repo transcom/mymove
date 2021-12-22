@@ -49,6 +49,10 @@ export const tioRoutes = {
   BILLABLE_WEIGHT_PATH: `/moves/:moveCode/billable-weight`,
 };
 
+export const tooRoutes = {
+  SHIPMENT_EDIT_PATH: `/moves/:moveCode/shipments/:shipmentId`,
+};
+
 // README: Prime API endpoints accept either a Move code or ID.
 // The base path doesn't have prime-simulator due to matching issues with /prime.
 const BASE_PRIME_SIMULATOR_PATH = '/simulator/moves/:moveCodeOrID';

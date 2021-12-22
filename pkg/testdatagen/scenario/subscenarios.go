@@ -82,8 +82,6 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 
 		// Onboarding
 		createUnsubmittedHHGMove(appCtx)
-		createUnsubmittedMoveWithNTSAndNTSR(appCtx, 1)
-		createUnsubmittedMoveWithNTSAndNTSR(appCtx, 2)
 		createUnsubmittedHHGMoveMultiplePickup(appCtx)
 		createUnsubmittedHHGMoveMultipleDestinations(appCtx)
 		createServiceMemberWithOrdersButNoMoveType(appCtx)
@@ -215,6 +213,42 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 		createTOO(appCtx)
 		createMoveWithSITExtensionHistory(appCtx, userUploader)
 		createMoveWithAllPendingTOOActions(appCtx, userUploader, primeUploader)
+	}
+}
+
+func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) func() {
+	return func() {
+		createTXO(appCtx)
+		createTXOServicesCounselor(appCtx)
+
+		// Create some submitted Moves for TXO users
+		createMoveWithHHGAndNTSRMissingInfo(appCtx, userUploader, moveRouter)
+		createMoveWithHHGAndNTSMissingInfo(appCtx, userUploader, moveRouter)
+		// uses external vendor
+		createMoveWithNTSAndNTSR(
+			appCtx,
+			userUploader,
+			moveRouter,
+			sceneOptionsNTS{
+				shipmentMoveCode:   "NTSSUB",
+				moveStatus:         models.MoveStatusSUBMITTED,
+				usesExternalVendor: true,
+			},
+		)
+
+		// Create some unsubmitted Moves for Customer users
+		// uses external vendor
+		createMoveWithNTSAndNTSR(
+			appCtx,
+			userUploader,
+			moveRouter,
+			sceneOptionsNTS{
+				shipmentMoveCode:   "NTSSUN",
+				moveStatus:         models.MoveStatusDRAFT,
+				usesExternalVendor: true,
+			},
+		)
+
 	}
 }
 

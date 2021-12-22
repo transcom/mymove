@@ -3,6 +3,7 @@ import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { generatePath } from 'react-router';
 
 import styles from './RequestedShipments.module.scss';
 
@@ -13,6 +14,12 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
+import { tooRoutes } from 'constants/routes';
+
+const errorIfMissing = {
+  HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'tacType'],
+  HHG_INTO_NTS_DOMESTIC: ['tacType'],
+};
 
 const RequestedShipments = ({
   mtoShipments,
@@ -26,6 +33,7 @@ const RequestedShipments = ({
   approveMTOShipment,
   handleAfterSuccess,
   missingRequiredOrdersInfo,
+  moveCode,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -157,17 +165,26 @@ const RequestedShipments = ({
             <h2>Requested shipments</h2>
             <div className={shipmentCardsStyles.shipmentCards}>
               {mtoShipments &&
-                mtoShipments.map((shipment) => (
-                  <ShipmentDisplay
-                    key={shipment.id}
-                    shipmentId={shipment.id}
-                    shipmentType={shipment.shipmentType}
-                    isSubmitted
-                    displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
-                    /* eslint-disable-next-line react/jsx-props-no-spreading */
-                    {...formik.getFieldProps(`shipments`)}
-                  />
-                ))}
+                mtoShipments.map((shipment) => {
+                  const editURL = generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
+                    moveCode,
+                    shipmentId: shipment.id,
+                  });
+
+                  return (
+                    <ShipmentDisplay
+                      key={shipment.id}
+                      shipmentId={shipment.id}
+                      shipmentType={shipment.shipmentType}
+                      isSubmitted
+                      displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                      errorIfMissing={errorIfMissing[shipment.shipmentType]}
+                      editURL={editURL}
+                      /* eslint-disable-next-line react/jsx-props-no-spreading */
+                      {...formik.getFieldProps(`shipments`)}
+                    />
+                  );
+                })}
             </div>
 
             <div className={styles.serviceItems}>
@@ -215,15 +232,23 @@ const RequestedShipments = ({
           <h2>Approved shipments</h2>
           <div className={shipmentCardsStyles.shipmentCards}>
             {mtoShipments &&
-              mtoShipments.map((shipment) => (
-                <ShipmentDisplay
-                  key={shipment.id}
-                  shipmentId={shipment.id}
-                  shipmentType={shipment.shipmentType}
-                  displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
-                  isSubmitted={false}
-                />
-              ))}
+              mtoShipments.map((shipment) => {
+                const editURL = generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
+                  moveCode,
+                  shipmentId: shipment.id,
+                });
+
+                return (
+                  <ShipmentDisplay
+                    key={shipment.id}
+                    shipmentId={shipment.id}
+                    shipmentType={shipment.shipmentType}
+                    displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                    isSubmitted={false}
+                    editURL={editURL}
+                  />
+                );
+              })}
           </div>
         </>
       )}
@@ -297,6 +322,7 @@ RequestedShipments.propTypes = {
   moveTaskOrder: MoveTaskOrderShape,
   missingRequiredOrdersInfo: PropTypes.bool,
   handleAfterSuccess: PropTypes.func,
+  moveCode: PropTypes.string.isRequired,
 };
 
 RequestedShipments.defaultProps = {

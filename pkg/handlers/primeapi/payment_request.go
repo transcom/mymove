@@ -35,7 +35,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	payload := params.Body
 	if payload == nil {
-		errPayload := payloads.ClientError(handlers.SQLErrMessage, "Invalid payment request: params Body is nil", h.GetTraceID())
+		errPayload := payloads.ClientError(handlers.SQLErrMessage, "Invalid payment request: params Body is nil", h.GetTraceIDFromRequest(params.HTTPRequest))
 		appCtx.Logger().Error("Invalid payment request: params Body is nil", zap.Any("payload", errPayload))
 		return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload)
 	}
@@ -53,7 +53,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				"move_id": {"id cannot be converted to UUID"},
 			},
 			}
-		errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), verrs)
+		errPayload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
 		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
@@ -77,7 +77,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		appCtx.Logger().Error("could not build service items", zap.Error(err))
 		// TODO: do not bail out before creating the payment request, we need the failed record
 		//       we should create the failed record and store it as failed with a rejection
-		errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), verrs)
+		errPayload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
 		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
@@ -88,26 +88,26 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		case apperror.InvalidCreateInputError:
 			verrs := e.ValidationErrors
 			detail := err.Error()
-			payload := payloads.ValidationError(detail, h.GetTraceID(), verrs)
+			payload := payloads.ValidationError(detail, h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
 
 			appCtx.Logger().Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
 
 		case apperror.NotFoundError:
-			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID())
+			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
 
 			appCtx.Logger().Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestNotFound().WithPayload(payload)
 		case apperror.ConflictError:
-			payload := payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID())
+			payload := payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
 
 			appCtx.Logger().Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payload)
 		case apperror.InvalidInputError:
-			payload := payloads.ValidationError(err.Error(), h.GetTraceID(), &validate.Errors{})
+			payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), &validate.Errors{})
 
 			appCtx.Logger().Error("Payment Request",
 				zap.Any("payload", payload))
@@ -117,10 +117,10 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				appCtx.Logger().Error("primeapi.CreatePaymentRequestHandler query error", zap.Error(e.Unwrap()))
 			}
-			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 
 		case *apperror.BadDataError:
-			payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID())
+			payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
 
 			appCtx.Logger().Error("Payment Request",
 				zap.Any("payload", payload))
@@ -128,7 +128,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		default:
 			appCtx.Logger().Error("Payment Request",
 				zap.Any("payload", payload))
-			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 	}
 

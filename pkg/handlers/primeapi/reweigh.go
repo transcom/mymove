@@ -40,29 +40,29 @@ func (h UpdateReweighHandler) Handle(params mtoshipmentops.UpdateReweighParams) 
 		switch e := err.(type) {
 		case apperror.PreconditionFailedError:
 			return mtoshipmentops.NewUpdateReweighPreconditionFailed().WithPayload(
-				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// Not Found Error -> Not Found Response
 		case apperror.NotFoundError:
 			return mtoshipmentops.NewUpdateReweighNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// InvalidInputError -> Unprocessable Entity Response
 		case apperror.InvalidInputError:
 			return mtoshipmentops.NewUpdateReweighUnprocessableEntity().WithPayload(
-				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
 		// ConflictError -> ConflictError Response
 		case apperror.ConflictError:
 			return mtoshipmentops.NewUpdateReweighConflict().WithPayload(
-				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// QueryError -> Internal Server Error
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				appCtx.Logger().Error("primeapi.UpdateReweighHandler error", zap.Error(e.Unwrap()))
 			}
-			return mtoshipmentops.NewUpdateReweighInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return mtoshipmentops.NewUpdateReweighInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		// Unknown -> Internal Server Error
 		default:
 			return mtoshipmentops.NewUpdateReweighInternalServerError().
-				WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+				WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 
 	}

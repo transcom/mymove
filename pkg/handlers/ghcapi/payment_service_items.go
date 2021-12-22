@@ -49,14 +49,14 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		case apperror.NotFoundError:
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "UpdatePaymentServiceItemStatus", h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError("Validation errors", "UpdatePaymentServiceItemStatus", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusUnprocessableEntity().WithPayload(payload)
 		default:
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError().WithPayload(&ghcmessages.Error{Message: handlers.FmtString("Error updating payment service item status")})
 		}
 	}
 	if verrs != nil {
-		payload := payloadForValidationError("Validation errors", "UpdatePaymentServiceItemStatus", h.GetTraceID(), verrs)
+		payload := payloadForValidationError("Validation errors", "UpdatePaymentServiceItemStatus", h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
 		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusUnprocessableEntity().WithPayload(payload)
 	}
 
@@ -71,9 +71,9 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		EventKey:        event.PaymentRequestUpdateEventKey,
 		MtoID:           updatedPaymentServiceItem.PaymentRequest.MoveTaskOrderID,
 		UpdatedObjectID: updatedPaymentServiceItem.PaymentRequestID,
-		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdatePaymentServiceItemStatusEndpointKey,
-		HandlerContext:  h,
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdatePaymentServiceItemStatusHandler could not generate the event")

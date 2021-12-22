@@ -168,6 +168,12 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		basicPaymentServiceItemParams,
 		assertions,
 	)
+	dnpk := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDNPK,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
 	dupk := testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDUPK,
@@ -263,7 +269,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		assertions,
 	)
 
-	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
+	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
 
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -330,7 +336,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("se segment has correct value", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(156, result.SE.NumberOfIncludedSegments)
+		suite.Equal(163, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -572,7 +578,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP,
 			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT,
 			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT,
-			models.ReServiceCodeDOSHUT, models.ReServiceCodeDDSHUT:
+			models.ReServiceCodeDOSHUT, models.ReServiceCodeDDSHUT,
+			models.ReServiceCodeDNPK:
 			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
 				l5 := result.ServiceItems[segmentOffset].L5
 				suite.Equal(hierarchicalNumberInt, l5.LadingLineItemNumber)
@@ -688,7 +695,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.T().Run("adds l3 service item segment", func(t *testing.T) {
 		l3 := result.L3
 		// Will need to be updated as more service items are supported
-		suite.Equal(int64(16872), l3.PriceCents)
+		suite.Equal(int64(17760), l3.PriceCents)
 	})
 }
 
@@ -819,7 +826,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		_, err := generator.Generate(suite.AppContextForTest(), nilPaymentRequest, false)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Invalid order. Must have an HHG TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
 	})
 
@@ -829,7 +836,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		_, err := generator.Generate(suite.AppContextForTest(), nilPaymentRequest, false)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Invalid order. Must have an HHG TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
 	})
 
@@ -930,6 +937,137 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 	suite.T().Run("Cost of service items that are not approved should not be included in L3", func(t *testing.T) {
 		l3 := result.L3
 		suite.Equal(int64(0), l3.PriceCents)
+	})
+}
+
+func (suite *GHCInvoiceSuite) TestTACs() {
+	mockClock := clock.NewMock()
+	currentTime := mockClock.Now()
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format(testDateFormat),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4242",
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip3,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "2424",
+		},
+	}
+
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
+
+	hhgTAC := "1111"
+	ntsTAC := "2222"
+	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			TAC:    &hhgTAC,
+			NtsTAC: &ntsTAC,
+		},
+	})
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: orders,
+	})
+
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		PaymentRequest: models.PaymentRequest{
+			IsFinal: false,
+			Status:  models.PaymentRequestStatusReviewed,
+		},
+	})
+
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDNPK,
+		basicPaymentServiceItemParams,
+		testdatagen.Assertions{
+			Move:           move,
+			MTOShipment:    mtoShipment,
+			PaymentRequest: paymentRequest,
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
+		},
+	)
+
+	suite.T().Run("shipment with no TAC type set", func(t *testing.T) {
+		mtoShipment.TACType = nil
+		suite.MustSave(&mtoShipment)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+		suite.Equal(hhgTAC, result.ServiceItems[0].FA2.FinancialInformationCode)
+	})
+
+	suite.T().Run("shipment with HHG TAC type set", func(t *testing.T) {
+		tacType := models.LOATypeHHG
+		mtoShipment.TACType = &tacType
+		suite.MustSave(&mtoShipment)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+		suite.Equal(hhgTAC, result.ServiceItems[0].FA2.FinancialInformationCode)
+	})
+
+	suite.T().Run("shipment with HHG TAC type set", func(t *testing.T) {
+		tacType := models.LOATypeNTS
+		mtoShipment.TACType = &tacType
+		suite.MustSave(&mtoShipment)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+		suite.Equal(ntsTAC, result.ServiceItems[0].FA2.FinancialInformationCode)
+	})
+
+	suite.T().Run("shipment with NTS TAC type set", func(t *testing.T) {
+		tacType := models.LOATypeNTS
+		mtoShipment.TACType = &tacType
+		suite.MustSave(&mtoShipment)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+		suite.Equal(ntsTAC, result.ServiceItems[0].FA2.FinancialInformationCode)
+	})
+
+	suite.T().Run("shipment with HHG TAC type set, but no HHG TAC", func(t *testing.T) {
+		tacType := models.LOATypeHHG
+		mtoShipment.TACType = &tacType
+		suite.MustSave(&mtoShipment)
+		paymentRequest.MoveTaskOrder.Orders.TAC = nil
+		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
+
+		_, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Must have an HHG TAC value")
+	})
+
+	suite.T().Run("shipment with NTS TAC type set, but no NTS TAC", func(t *testing.T) {
+		tacType := models.LOATypeNTS
+		mtoShipment.TACType = &tacType
+		suite.MustSave(&mtoShipment)
+		paymentRequest.MoveTaskOrder.Orders.NtsTAC = nil
+		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
+
+		_, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Must have an NTS TAC value")
 	})
 }
 

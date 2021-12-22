@@ -7,7 +7,6 @@ import { Home } from './index';
 
 import { MockProviders } from 'testUtils';
 import { formatCustomerDate } from 'utils/formatters';
-import { MOVE_STATUSES } from 'shared/constants';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -91,28 +90,6 @@ describe('Home component', () => {
       expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('HHG 1');
       expect(wrapper.find('ShipmentListItem').at(1).text()).toContain('PPM');
       expect(wrapper.find('ShipmentListItem').at(2).text()).toContain('HHG 2');
-    });
-  });
-
-  describe('contents of Step 4 (user has submitted move)', () => {
-    it('contains contacts box with additional information', () => {
-      const props = {
-        serviceMember: {
-          current_station: {
-            transportation_office: {
-              name: 'Fort Knox',
-              phone_lines: ['(777) 777-7777'],
-            },
-          },
-        },
-        move: {
-          id: 'testMoveId',
-          status: MOVE_STATUSES.SUBMITTED,
-        },
-      };
-
-      const wrapper = mountHomeWithProviders(props);
-      expect(wrapper.find('Contact').prop('moveSubmitted')).toEqual(true);
     });
   });
 

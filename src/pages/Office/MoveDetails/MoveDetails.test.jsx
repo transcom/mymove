@@ -21,6 +21,11 @@ const setUnapprovedServiceItemCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
 const setUnapprovedSITExtensionCount = jest.fn();
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: () => ({ moveCode: 'TE5TC0DE' }),
+}));
+
 const requestedMoveDetailsQuery = {
   move: {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -400,6 +405,38 @@ const requestedMoveDetailsMissingInfoQuery = {
       status: 'SUBMITTED',
       updatedAt: '2020-06-10T15:58:02.404031Z',
     },
+    {
+      customerRemarks: 'please treat gently',
+      destinationAddress: {
+        city: 'Fairfield',
+        country: 'US',
+        id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+        postalCode: '94535',
+        state: 'CA',
+        streetAddress1: '987 Any Avenue',
+        streetAddress2: 'P.O. Box 9876',
+        streetAddress3: 'c/o Some Person',
+      },
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+      id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4abf',
+      moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b7d',
+      pickupAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+        id: '1686751b-ab36-43cf-b3c9-ca1467d13c19',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      requestedPickupDate: '2018-03-15',
+      scheduledPickupDate: '2018-03-16',
+      shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+      status: 'SUBMITTED',
+      updatedAt: '2020-06-10T15:58:02.404031Z',
+    },
   ],
   mtoServiceItems: [],
   mtoAgents: [],
@@ -730,6 +767,25 @@ describe('MoveDetails page', () => {
 
     it('renders an error indicator in the sidebar', () => {
       expect(wrapper.find('a[href="#orders"] span[data-testid="tag"]').exists()).toBe(true);
+    });
+  });
+
+  describe('When required shipment information (like TAC) is missing', () => {
+    it('renders an error indicator in the sidebar', async () => {
+      useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
+
+      render(
+        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+          <MoveDetails
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
     });
   });
 });

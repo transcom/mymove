@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services/event"
+	"github.com/transcom/mymove/pkg/trace"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -29,6 +30,10 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 
 		// CREATE THE REQUEST
 		request := httptest.NewRequest("POST", "/webhook-notifications/", nil)
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		request = request.WithContext(trace.NewContext(request.Context(), traceID))
+
 		requestPayload := &supportmessages.WebhookNotification{
 			EventKey: "Test.Create",
 			Object:   swag.String("{ \"message\": \"This is an example notification.\" } "),
@@ -39,7 +44,6 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 		}
 
 		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		context.SetTraceID(uuid.Must(uuid.NewV4()))
 		handler := CreateWebhookNotificationHandler{context}
 
 		// CALL FUNCTION UNDER TEST
@@ -69,12 +73,14 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 
 		// CREATE THE REQUEST
 		request := httptest.NewRequest("POST", "/webhook-notifications/", nil)
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		request = request.WithContext(trace.NewContext(request.Context(), traceID))
 		params := webhookops.CreateWebhookNotificationParams{
 			HTTPRequest: request,
 		}
 
 		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		context.SetTraceID(uuid.Must(uuid.NewV4()))
 		handler := CreateWebhookNotificationHandler{context}
 
 		// CALL FUNCTION UNDER TEST
@@ -104,6 +110,10 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 
 		// CREATE THE REQUEST
 		request := httptest.NewRequest("POST", "/webhook-notifications/", nil)
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		request = request.WithContext(trace.NewContext(request.Context(), traceID))
+
 		moveTaskOrderID := uuid.Must(uuid.NewV4())
 		requestPayload := &supportmessages.WebhookNotification{
 			EventKey:        "Test.Create",
@@ -116,7 +126,6 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 		}
 
 		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		context.SetTraceID(uuid.Must(uuid.NewV4()))
 		handler := CreateWebhookNotificationHandler{context}
 
 		// CALL FUNCTION UNDER TEST

@@ -29,8 +29,13 @@
 <p>What if you’re missing documents?</p>
 
 <p>If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.</p>
+{{ if .TOName }}
+<p>If you’re missing certified weight tickets, your PPPO will have to help. Call {{.TOName}}{{if .TOPhone}} at {{.TOPhone}}{{end}} to have them walk you through it. Reference your move locator code: {{.Locator}}.</p>
+{{- end -}}
 
-<p>If you’re missing certified weight tickets, your PPPO will have to help. {{if .TOName}}Call {{.TOName}}{{if .TOPhone}} at {{.TOPhone}}{{end}} to have them walk you through it. Reference your move locator code: {{.Locator}}.{{end}}</p>
+{{ if not .TOName }}
+<p>If you are missing weight tickets, someone from the government will have to help. Consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to find your best contact and reference your move code {{.Locator}}.</p>
+{{- end }}
 
 <p>Log in to MilMove to complete your request and get paid.</p>
 

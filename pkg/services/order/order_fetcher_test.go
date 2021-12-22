@@ -218,7 +218,7 @@ func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
 
 	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
 		// Map default shipment ZIP code to default office user GBLOC
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", "LKNQ")
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", "KKFA")
 
 		marines := models.AffiliationMARINES
 		// It doesn't matter what the Origin GBLOC is for the move. Only the Marines
@@ -231,7 +231,7 @@ func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
 		officeUserOooRah := testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
-		// Create office user tied to the default LKNQ GBLOC
+		// Create office user tied to the default KKFA GBLOC
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}

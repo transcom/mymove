@@ -4,7 +4,12 @@
   with a different system.
 </p>
 
+{{ if .OriginDutyStation }}
 <p>
   Please call the PPPO at {{.OriginDutyStation}} at {{.OriginDutyStationPhoneLine}} and they’ll help you figure out what
   to do next.
 </p>
+{{ end }}
+{{ if not .OriginDutyStation }}
+<p>To talk with someone on what to do next, consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to find your best contact and reference move code {{.Locator}}.</p>
+{{ end }}
