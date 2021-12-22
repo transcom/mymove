@@ -58,7 +58,11 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
-		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
+		// Need to use left join because some duty locations do not have transportation offices
+		LeftJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
+		// and we don't want it to get hidden from services counselors.
+		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		Where("moves.show = ?", swag.Bool(true))
 
 	branchQuery := branchFilter(params.Branch)
@@ -67,8 +71,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	var gblocQuery QueryOption
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+		gblocQuery = nil
 	} else {
-		gblocQuery = gblocFilter(gbloc)
+		gblocQuery = shipmentGBLOCFilter(&gbloc)
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
@@ -99,7 +104,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	if err != nil {
 		return nil, 0, err
 	}
-
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
 
@@ -155,7 +159,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
 	} else {
-		gblocQuery = gblocFilter(gbloc)
+		gblocQuery = shipmentGBLOCFilter(&gbloc)
 	}
 	locatorQuery := locatorFilter(&locator)
 
@@ -267,9 +271,17 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 	}
 }
 
-func gblocFilter(gbloc string) QueryOption {
+//func gblocFilter(gbloc string) QueryOption {
+//	return func(query *pop.Query) {
+//		query.Where("transportation_offices.gbloc = ?", gbloc)
+//	}
+//}
+
+func shipmentGBLOCFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
-		query.Where("transportation_offices.gbloc = ?", gbloc)
+		if gbloc != nil {
+			query.Where("move_to_gbloc.gbloc = ?", *gbloc)
+		}
 	}
 }
 

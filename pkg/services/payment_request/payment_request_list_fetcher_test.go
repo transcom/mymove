@@ -46,9 +46,20 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
-	// The default GBLOC is "LKNQ" for office users and payment requests
-	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		expectedMove.MTOShipments[0].PickupAddress.PostalCode,
+		officeUser.TransportationOffice.Gbloc)
+
+	// We need a payment request with a move that has a shipment that's within the GBLOC
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			MoveTaskOrderID: expectedMove.ID,
+			MoveTaskOrder:   expectedMove,
+		},
+	})
+
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			Gbloc: "ABCD",
@@ -86,6 +97,9 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
+
+		paymentRequestsForComparison := *expectedPaymentRequests
+		suite.Equal(paymentRequest.ID, paymentRequestsForComparison[0].ID)
 	})
 
 	suite.T().Run("Returns payment request matching an arbitrary filter", func(t *testing.T) {
@@ -131,34 +145,60 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	// The default GBLOC is "LKNQ" for office users and payment requests
-	pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	expectedMove3 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	expectedMove4 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	expectedMove5 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	expectedMove6 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		expectedMove1.MTOShipments[0].PickupAddress.PostalCode,
+		officeUser.TransportationOffice.Gbloc)
 
 	reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
-			Status: models.PaymentRequestStatusReviewed,
+			Status:          models.PaymentRequestStatusReviewed,
+			MoveTaskOrderID: expectedMove1.ID,
+			MoveTaskOrder:   expectedMove1,
 		},
 	})
 
 	rejectedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
-			Status: models.PaymentRequestStatusReviewedAllRejected,
+			Status:          models.PaymentRequestStatusReviewedAllRejected,
+			MoveTaskOrderID: expectedMove2.ID,
+			MoveTaskOrder:   expectedMove2,
 		},
 	})
 
 	sentToGexPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
-			Status: models.PaymentRequestStatusSentToGex,
+			Status:          models.PaymentRequestStatusSentToGex,
+			MoveTaskOrderID: expectedMove3.ID,
+			MoveTaskOrder:   expectedMove3,
 		},
 	})
 	recByGexPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
-			Status: models.PaymentRequestStatusReceivedByGex,
+			Status:          models.PaymentRequestStatusReceivedByGex,
+			MoveTaskOrderID: expectedMove4.ID,
+			MoveTaskOrder:   expectedMove4,
 		},
 	})
 	paidPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
-			Status: models.PaymentRequestStatusPaid,
+			Status:          models.PaymentRequestStatusPaid,
+			MoveTaskOrderID: expectedMove5.ID,
+			MoveTaskOrder:   expectedMove5,
+		},
+	})
+
+	pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status:          models.PaymentRequestStatusPending,
+			MoveTaskOrderID: expectedMove6.ID,
+			MoveTaskOrder:   expectedMove6,
 		},
 	})
 
