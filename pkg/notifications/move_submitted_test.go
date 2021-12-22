@@ -215,6 +215,8 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyStation
   </li>
 </ul>
 
+<p>If you have any questions about the PPM part of your move, consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to best contact and reference move code abc123.</p>
+
 <p>
   Once you’ve completed your PPM shipment, you can request payment by
   <a href="https://my.move.mil/">logging in to MilMove</a>.

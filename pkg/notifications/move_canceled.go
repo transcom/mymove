@@ -83,6 +83,7 @@ func (m MoveCanceled) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 		OriginDutyStation:          originDutyStation,
 		DestinationDutyStation:     orders.NewDutyStation.Name,
 		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
+		Locator:                    move.Locator,
 	})
 
 	if err != nil {
@@ -116,6 +117,7 @@ type moveCanceledEmailData struct {
 	OriginDutyStation          *string
 	DestinationDutyStation     string
 	OriginDutyStationPhoneLine *string
+	Locator                    string
 }
 
 // RenderHTML renders the html for the email

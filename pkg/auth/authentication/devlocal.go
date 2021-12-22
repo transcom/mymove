@@ -67,8 +67,21 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// grab all GBLOCs
+	var gblocList []string
+	err = appCtx.DB().RawQuery("select distinct gbloc from transportation_offices").All(&gblocList)
+	if err != nil {
+		appCtx.Logger().Error("Could not load gblocs", zap.Error(err))
+		http.Error(w,
+			fmt.Sprintf("%s - Could not load gblocs, try migrating the DB", http.StatusText(500)),
+			http.StatusInternalServerError)
+		return
+	}
+
 	type TemplateData struct {
 		Identities                      []models.UserIdentity
+		Gblocs                          []string
+		GblocDefault                    string
 		IsMilApp                        bool
 		MilMoveUserType                 string
 		IsOfficeApp                     bool
@@ -86,6 +99,8 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	templateData := TemplateData{
 		Identities:                      identities,
+		Gblocs:                          gblocList,
+		GblocDefault:                    "KKFA", // Most seed data is tied to this
 		IsMilApp:                        auth.MilApp == appCtx.Session().ApplicationName,
 		MilMoveUserType:                 MilMoveUserType,
 		IsOfficeApp:                     auth.OfficeApp == appCtx.Session().ApplicationName,
@@ -102,6 +117,17 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		QueryLimit: limit,
 	}
 
+	gblocSelectHTML := `
+		<label for="gblocSelect">Select GBLOC:</label>
+		<select id="gblocSelect" name="gbloc">
+			{{ range $index, $element := .Gblocs }}
+				{{if eq $element $.GblocDefault}}
+					<option value="{{$element}}" selected="">{{$element}}</option>
+				{{else}}
+					<option value="{{$element}}">{{$element}}</option>
+				{{end}}
+			{{ end }}
+		</select>`
 	t := template.Must(template.New("users").Parse(`
 	  <html>
 	  <head>
@@ -153,68 +179,73 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			<div class="col-md-4">
 			  <h2 class="mt-4">Create a New User</h1>
 			  {{ if $.IsMilApp }}
-			  <form method="post" action="/devlocal-auth/new">
-				<p>
-				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				  <input type="hidden" name="userType" value="{{.MilMoveUserType}}">
-				  <button type="submit" data-hook="new-user-login-{{.MilMoveUserType}}">Create a New {{.MilMoveUserType}} User</button>
-				</p>
-			  </form>
-			  <form method="post" action="/devlocal-auth/new">
-				<p>
-				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				  <input type="hidden" name="userType" value="{{.DpsUserType}}">
-				  <button type="submit" data-hook="new-user-login-{{.DpsUserType}}">Create a New {{.DpsUserType}} User</button>
-				</p>
-			  </form>
+				  <form method="post" action="/devlocal-auth/new">
+					<p>
+					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+					  <input type="hidden" name="userType" value="{{.MilMoveUserType}}">
+					  <button type="submit" data-hook="new-user-login-{{.MilMoveUserType}}">Create a New {{.MilMoveUserType}} User</button>
+					</p>
+				  </form>
+				  <form method="post" action="/devlocal-auth/new">
+					<p>
+					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+					  <input type="hidden" name="userType" value="{{.DpsUserType}}">
+					  <button type="submit" data-hook="new-user-login-{{.DpsUserType}}">Create a New {{.DpsUserType}} User</button>
+					</p>
+				  </form>
 			  {{else if $.IsAdminApp }}
-			  <form method="post" action="/devlocal-auth/new">
-				<p>
-				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				  <input type="hidden" name="userType" value="{{.AdminUserType}}">
-				  <button type="submit" data-hook="new-user-login-{{.AdminUserType}}">Create a New {{.AdminUserType}} User</button>
-				</p>
-			  </form>
+				  <form method="post" action="/devlocal-auth/new">
+					<p>
+					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+					  <input type="hidden" name="userType" value="{{.AdminUserType}}">
+					  <button type="submit" data-hook="new-user-login-{{.AdminUserType}}">Create a New {{.AdminUserType}} User</button>
+					</p>
+				  </form>
 			  {{else if $.IsOfficeApp }}
-			  <form method="post" action="/devlocal-auth/new">
-				<p>
-				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				  <input type="hidden" name="userType" value="{{.PPMOfficeUserType}}">
-				  <button type="submit" data-hook="new-user-login-{{.PPMOfficeUserType}}">Create a New {{.PPMOfficeUserType}} User</button>
-				</p>
-			  </form>
+				  <form method="post" action="/devlocal-auth/new">
+					<p>
+					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+					  <input type="hidden" name="userType" value="{{.PPMOfficeUserType}}">
+					  ` + gblocSelectHTML + `
+					  <button type="submit" data-hook="new-user-login-{{.PPMOfficeUserType}}">Create a New {{.PPMOfficeUserType}} User</button>
+					</p>
+				  </form>
 
-			  <form method="post" action="/devlocal-auth/new">
-				<p>
-				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				  <input type="hidden" name="userType" value="{{.TOOOfficeUserType}}">
-				  <button type="submit" data-hook="new-user-login-{{.TOOOfficeUserType}}">Create a New {{.TOOOfficeUserType}} User</button>
-				</p>
-			  </form>
+				  <form method="post" action="/devlocal-auth/new">
+					<p>
+					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+					  <input type="hidden" name="userType" value="{{.TOOOfficeUserType}}">
+					  ` + gblocSelectHTML + `
+					  <button type="submit" data-hook="new-user-login-{{.TOOOfficeUserType}}">Create a New {{.TOOOfficeUserType}} User</button>
+					</p>
+				  </form>
 
-			  <form method="post" action="/devlocal-auth/new">
-				<p>
-				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				  <input type="hidden" name="userType" value="{{.TIOOfficeUserType}}">
-				  <button type="submit" data-hook="new-user-login-{{.TIOOfficeUserType}}">Create a New {{.TIOOfficeUserType}} User</button>
-				</p>
-			  </form>
+				  <form method="post" action="/devlocal-auth/new">
+					<p>
+					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+					  <input type="hidden" name="userType" value="{{.TIOOfficeUserType}}">
+					  ` + gblocSelectHTML + `
+					  <button type="submit" data-hook="new-user-login-{{.TIOOfficeUserType}}">Create a New {{.TIOOfficeUserType}} User</button>
+					</p>
+				  </form>
 
-			  <form method="post" action="/devlocal-auth/new">
-			  <p>
-				<input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				<input type="hidden" name="userType" value="{{.ServicesCounselorOfficeUserType}}">
-				<button type="submit" data-hook="new-user-login-{{.ServicesCounselorOfficeUserType}}">Create a New {{.ServicesCounselorOfficeUserType}} User</button>
-			  </p>
-			</form>
+				  <form method="post" action="/devlocal-auth/new">
+				  <p>
+					<input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+					<input type="hidden" name="userType" value="{{.ServicesCounselorOfficeUserType}}">
+					` + gblocSelectHTML + `
+					<button type="submit" data-hook="new-user-login-{{.ServicesCounselorOfficeUserType}}">Create a New {{.ServicesCounselorOfficeUserType}} User</button>
+				  </p>
+				  </form>
 
-			  <form method="post" action="/devlocal-auth/new">
-			  <p>
-				<input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				<input type="hidden" name="userType" value="{{.PrimeSimulatorOfficeUserType}}">
-				<button type="submit" data-hook="new-user-login-{{.PrimeSimulatorOfficeUserType}}">Create a New {{.PrimeSimulatorOfficeUserType}} User</button>
-			  </p>
-			</form>
+				  <form method="post" action="/devlocal-auth/new">
+				  <p>
+					<input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+					<input type="hidden" name="userType" value="{{.PrimeSimulatorOfficeUserType}}">
+					` + gblocSelectHTML + `
+					<button type="submit" data-hook="new-user-login-{{.PrimeSimulatorOfficeUserType}}">Create a New {{.PrimeSimulatorOfficeUserType}} User</button>
+				  </p>
+				</form>
 			  {{end}}
 			</div>
 		  </div>
@@ -378,6 +409,10 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		nonce := strings.Split(guid.String(), "-")[4]
 		email = fmt.Sprintf("%s-%s@example.com", now.Format("20060102150405"), nonce)
 	}
+	gbloc := r.PostFormValue("gbloc")
+	if gbloc == "" {
+		gbloc = "KKFA" // most seed data uses this
+	}
 
 	// Create the User (which is the basis of all Service Members)
 	user := models.User{
@@ -452,7 +487,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
-			Gbloc:     "LKNQ",
+			Gbloc:     gbloc,
 		}
 
 		verrs, err = appCtx.DB().ValidateAndSave(&office)
@@ -524,7 +559,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
-			Gbloc:     "LKNQ",
+			Gbloc:     gbloc,
 		}
 
 		verrs, err = appCtx.DB().ValidateAndSave(&office)
@@ -595,7 +630,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
-			Gbloc:     "LKNQ",
+			Gbloc:     gbloc,
 		}
 
 		verrs, err = appCtx.DB().ValidateAndSave(&office)
@@ -666,7 +701,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
-			Gbloc:     "LKNQ",
+			Gbloc:     gbloc,
 		}
 
 		verrs, err = appCtx.DB().ValidateAndSave(&office)
@@ -737,7 +772,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
-			Gbloc:     "LKNQ",
+			Gbloc:     gbloc,
 		}
 
 		verrs, err = appCtx.DB().ValidateAndSave(&office)

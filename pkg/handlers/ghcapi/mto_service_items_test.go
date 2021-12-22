@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/trace"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -321,6 +322,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status", availableMoveID, mtoServiceItemID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
 		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 			HTTPRequest:      req,
 			IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
@@ -337,10 +342,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
 			Fetcher:               fetcher,
 		}
-
-		traceID, err := uuid.NewV4()
-		suite.FatalNoError(err, "Error creating a new trace ID.")
-		handler.SetTraceID(traceID)
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)

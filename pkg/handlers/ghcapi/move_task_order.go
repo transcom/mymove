@@ -81,7 +81,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		case apperror.NotFoundError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -105,9 +105,9 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		EventKey:        event.MoveTaskOrderUpdateEventKey,
 		MtoID:           mto.ID,
 		UpdatedObjectID: mto.ID,
-		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMoveTaskOrderStatusEndpointKey,
-		HandlerContext:  h,
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc could not generate the event")
@@ -139,7 +139,7 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 		case apperror.NotFoundError:
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedNotFound()
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -163,9 +163,9 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 		EventKey:        event.MoveTaskOrderUpdateEventKey,
 		MtoID:           mto.ID,
 		UpdatedObjectID: mto.ID,
-		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMTOStatusServiceCounselingCompletedEndpointKey,
-		HandlerContext:  h,
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc could not generate the event")
@@ -195,7 +195,7 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 		case apperror.NotFoundError:
 			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtNotFound()
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtUnprocessableEntity().WithPayload(payload)
 		case apperror.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -219,9 +219,9 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 		EventKey:        event.MoveTaskOrderUpdateEventKey,
 		MtoID:           mto.ID,
 		UpdatedObjectID: mto.ID,
-		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMTOReviewedBillableWeightsEndpointKey,
-		HandlerContext:  h,
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateMTOReviewedBillableWeightsAtHandlerFunc could not generate the event")
@@ -272,9 +272,9 @@ func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMo
 		EventKey:        event.MoveTaskOrderUpdateEventKey,
 		MtoID:           mto.ID,
 		UpdatedObjectID: mto.ID,
-		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMoveTIORemarksEndpointKey,
-		HandlerContext:  h,
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateMoveTIORemarksHandlerFunc could not generate the event")
