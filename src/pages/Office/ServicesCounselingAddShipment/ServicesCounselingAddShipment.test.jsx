@@ -18,7 +18,7 @@ jest.mock('react-router-dom', () => ({
   useHistory: () => ({
     push: mockPush,
   }),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'move123' }),
+  useParams: jest.fn().mockReturnValue({ moveCode: 'move123', shipmentType: 'HHG' }),
 }));
 
 jest.mock('services/ghcApi', () => ({
