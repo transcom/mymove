@@ -141,7 +141,13 @@ const ServicesCounselingShipmentForm = ({
 
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
-      submitHandler({ body, normalize: false });
+      submitHandler({ body, normalize: false })
+        .then(() => {
+          history.push(moveDetailsPath);
+        })
+        .catch(() => {
+          setErrorMessage(`A server error occurred adding the shipment`);
+        });
     } else {
       const updateMTOShipmentPayload = {
         moveTaskOrderID,
