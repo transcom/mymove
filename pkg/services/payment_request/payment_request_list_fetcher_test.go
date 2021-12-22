@@ -48,6 +48,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
+	// we need a mapping for the pickup address postal code to our user's gbloc
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
 		expectedMove.MTOShipments[0].PickupAddress.PostalCode,
 		officeUser.TransportationOffice.Gbloc)
@@ -257,6 +258,13 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 	officeUUID, _ := uuid.NewV4()
 	marines := models.AffiliationMARINES
 	army := models.AffiliationARMY
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	expectedMoveNotUSMC := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		expectedMoveNotUSMC.MTOShipments[0].PickupAddress.PostalCode,
+		officeUser.TransportationOffice.Gbloc)
 
 	paymentRequestUSMC := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -288,16 +296,14 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 	})
 
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-		Move: models.Move{
-			Status: models.MoveStatusSUBMITTED,
+		PaymentRequest: models.PaymentRequest{
+			Status:          models.PaymentRequestStatusPending,
+			MoveTaskOrderID: expectedMoveNotUSMC.ID,
+			MoveTaskOrder:   expectedMoveNotUSMC,
 		},
 		ServiceMember: models.ServiceMember{Affiliation: &army},
 	})
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	officeUserUSMC := testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
 
 	suite.T().Run("returns USMC payment requests", func(t *testing.T) {
@@ -310,7 +316,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 		suite.Equal(2, len(paymentRequests))
 		suite.Equal(models.AffiliationMARINES, *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation)
 		suite.Equal(models.AffiliationMARINES, *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Affiliation)
-
 		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
 		paymentRequests = *expectedPaymentRequests
@@ -374,9 +379,27 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	for i := 0; i < 2; i++ {
-		testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	}
+	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+	_ = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status:          models.PaymentRequestStatusPending,
+			MoveTaskOrderID: expectedMove1.ID,
+			MoveTaskOrder:   expectedMove1,
+		},
+	})
+	_ = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status:          models.PaymentRequestStatusPending,
+			MoveTaskOrderID: expectedMove2.ID,
+			MoveTaskOrder:   expectedMove2,
+		},
+	})
+
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		expectedMove1.MTOShipments[0].PickupAddress.PostalCode,
+		officeUser.TransportationOffice.Gbloc)
 
 	expectedPaymentRequests, count, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(1)})
 

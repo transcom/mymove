@@ -159,7 +159,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
 	} else {
-		gblocQuery = shipmentGBLOCFilter(&gbloc)
+		gblocQuery = gblocFilter(gbloc)
 	}
 	locatorQuery := locatorFilter(&locator)
 
@@ -271,11 +271,11 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 	}
 }
 
-//func gblocFilter(gbloc string) QueryOption {
-//	return func(query *pop.Query) {
-//		query.Where("transportation_offices.gbloc = ?", gbloc)
-//	}
-//}
+func gblocFilter(gbloc string) QueryOption {
+	return func(query *pop.Query) {
+		query.Where("transportation_offices.gbloc = ?", gbloc)
+	}
+}
 
 func shipmentGBLOCFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
