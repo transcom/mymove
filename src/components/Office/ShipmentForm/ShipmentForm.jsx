@@ -228,15 +228,17 @@ const ShipmentForm = ({
 
                   <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
                 </div>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    handleShowCancellationModal();
-                  }}
-                  unstyled
-                >
-                  Delete shipment
-                </Button>
+                {!isCreatePage && (
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      handleShowCancellationModal();
+                    }}
+                    unstyled
+                  >
+                    Delete shipment
+                  </Button>
+                )}
               </div>
 
               <SectionWrapper className={styles.weightAllowance}>
