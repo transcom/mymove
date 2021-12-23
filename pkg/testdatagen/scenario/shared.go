@@ -1653,12 +1653,22 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		Move: move,
 	})
 
+	addressAssertion := testdatagen.Assertions{
+		Address: models.Address{
+			// This is a postal code that maps to the default office user gbloc LKNQ in the PostalCodeToGBLOC table
+			PostalCode: "85325",
+		}}
+
+	shipmentPickupAddress := testdatagen.MakeAddress(db, addressAssertion)
+
 	shipment := models.MTOShipment{
 		PrimeEstimatedWeight: &estimatedWeight,
 		PrimeActualWeight:    &actualWeight,
 		ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 		ApprovedDate:         swag.Time(time.Now()),
 		Status:               models.MTOShipmentStatusSubmitted,
+		PickupAddress:        &shipmentPickupAddress,
+		PickupAddressID:      &shipmentPickupAddress.ID,
 	}
 	testdatagen.MergeModels(&shipment, assertions.MTOShipment)
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{

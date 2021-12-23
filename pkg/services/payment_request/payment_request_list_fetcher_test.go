@@ -426,40 +426,17 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	originDutyStation1 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
-			Name: "Scott AFB",
-		},
-	})
-
-	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: models.StringPointer("Leo"),
-			LastName:  models.StringPointer("Spacemen"),
-			Edipi:     models.StringPointer("AZFG"),
-		},
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-			Locator:          "ZZZZ",
-		},
-		OriginDutyStation: originDutyStation1,
-	})
-	// Fake this as a day and a half in the past so floating point age values can be tested
-	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
-
-	paymentRequest1 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: hhgMove,
-		PaymentRequest: models.PaymentRequest{
-			Status:    models.PaymentRequestStatusReviewed,
-			CreatedAt: prevCreatedAt,
+			Name: "Applewood, CA 99999",
 		},
 	})
 
 	originDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
-			Name: "Applewood, CA 99999",
+			Name: "Scott AFB",
 		},
 	})
 
-	paymentRequest2 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			Edipi:       models.StringPointer("EZFG"),
 			LastName:    models.StringPointer("Spacemen"),
@@ -473,8 +450,43 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		PaymentRequest: models.PaymentRequest{
 			Status: models.PaymentRequestStatusPaid,
 		},
+		OriginDutyStation: originDutyStation1,
+	})
+
+	expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Leo"),
+			LastName:  models.StringPointer("Spacemen"),
+			Edipi:     models.StringPointer("AZFG"),
+		},
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Locator:          "ZZZZ",
+		},
 		OriginDutyStation: originDutyStation2,
 	})
+
+	// Fake this as a day and a half in the past so floating point age values can be tested
+	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
+	paymentRequest1 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			MoveTaskOrderID: expectedMove1.ID,
+			MoveTaskOrder:   expectedMove1,
+			Status:          models.PaymentRequestStatusPending,
+			CreatedAt:       prevCreatedAt,
+		},
+	})
+	paymentRequest2 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status:          models.PaymentRequestStatusReviewed,
+			MoveTaskOrderID: expectedMove2.ID,
+			MoveTaskOrder:   expectedMove2,
+		},
+	})
+
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		expectedMove1.MTOShipments[0].PickupAddress.PostalCode,
+		officeUser.TransportationOffice.Gbloc)
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: paymentRequest2.MoveTaskOrder,
