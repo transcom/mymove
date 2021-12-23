@@ -297,9 +297,9 @@ describe('EditShipmentDetails component', () => {
     await waitFor(() => {
       expect(h1).toBeInTheDocument();
     });
-    expect(await screen.findByLabelText('ZIP')).toBeInTheDocument();
-    expect(await screen.findByLabelText('1111 (NTS)')).toBeInTheDocument();
-    expect(await screen.findByLabelText('2222 (NTS)')).toBeInTheDocument();
+    expect(screen.getByLabelText('ZIP')).toBeInTheDocument();
+    expect(screen.getByLabelText('1111 (NTS)')).toBeInTheDocument();
+    expect(screen.getByLabelText('2222 (NTS)')).toBeInTheDocument();
   });
 
   it('routes to the move details page when the save button is clicked', async () => {
