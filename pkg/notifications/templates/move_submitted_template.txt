@@ -23,7 +23,11 @@ If you chose to do a full or partial PPM (DITY) move, <a href="{{.PpmLink}}"> re
 * Save receipts for PPM expenses to request reimbursement or to reduce taxes on your incentive payment
 {{ if .OriginDutyStation }}
 If you have any questions about the PPM part of your move, call the {{.OriginDutyStation}} PPPO at {{.OriginDutyStationPhoneLine}} and reference move code {{.Locator}}.
-{{ end }}
+{{- end }}
+{{- if not .OriginDutyStation }}
+If you have any questions about the PPM part of your move, consult Military OneSource's directory of PCS-related contacts to best contact and reference move code {{.Locator}}.
+{{- end }}
+
 Once you’ve completed your PPM shipment, you can request payment by <a href="{{.Link}}">logging in to MilMove</a>.
 
 For HHG and other government-funded shipments

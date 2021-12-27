@@ -139,7 +139,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	if existingPaymentRequest.Status != models.PaymentRequestStatusReviewed && existingPaymentRequest.Status != models.PaymentRequestStatusReviewedAllRejected {
 		payload := payloadForValidationError("Unable to complete request",
 			fmt.Sprintf("Incoming payment request status should be REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED instead it was: %s", existingPaymentRequest.Status.String()),
-			h.GetTraceID(), validate.NewErrors())
+			h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 		return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
 	}
 
@@ -167,7 +167,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		case apperror.PreconditionFailedError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 			return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
 		default:
 			appCtx.Logger().Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
@@ -179,9 +179,9 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		EventKey:        event.PaymentRequestUpdateEventKey,
 		MtoID:           updatedPaymentRequest.MoveTaskOrderID,
 		UpdatedObjectID: updatedPaymentRequest.ID,
-		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdatePaymentRequestStatusEndpointKey,
-		HandlerContext:  h,
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdatePaymentRequestStatusHandler could not generate the event")

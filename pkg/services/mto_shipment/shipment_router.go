@@ -47,6 +47,13 @@ func (router shipmentRouter) Approve(appCtx appcontext.AppContext, shipment *mod
 		)
 	}
 
+	if shipment.UsesExternalVendor {
+		return apperror.NewConflictError(
+			shipment.ID,
+			fmt.Sprintf("cannot approve a shipment if it uses an external vendor. The current status for the shipment with ID %s is %s", shipment.ID, shipment.Status),
+		)
+	}
+
 	if router.approvable(shipment) {
 		shipment.Status = models.MTOShipmentStatusApproved
 		approvedDate := time.Now()
@@ -132,6 +139,13 @@ func (router shipmentRouter) ApproveDiversion(appCtx appcontext.AppContext, ship
 		return apperror.NewConflictError(
 			shipment.ID,
 			fmt.Sprintf("Cannot approve the diversion because the shipment with id %s has the Diversion field set to false.", shipment.ID),
+		)
+	}
+
+	if shipment.UsesExternalVendor {
+		return apperror.NewConflictError(
+			shipment.ID,
+			fmt.Sprintf("shipmentRouter: cannot approve the diversion because the shipment with id %s has the UsesExternalVendor field set to true.", shipment.ID),
 		)
 	}
 

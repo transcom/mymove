@@ -303,6 +303,7 @@ export const withOneShipment = () => (
       mtoAgents={agents}
       shipmentsStatus="SUBMITTED"
       moveTaskOrder={moveTaskOrders[0]}
+      moveCode="TE5TC0DE"
     />
   </div>
 );
@@ -317,6 +318,7 @@ export const withCompletedServicesCounseling = () => (
       mtoAgents={agents}
       shipmentsStatus="SUBMITTED"
       moveTaskOrder={moveTaskOrders[1]}
+      moveCode="TE5TC0DE"
     />
   </div>
 );
@@ -331,6 +333,7 @@ export const withMultipleShipments = () => (
       mtoAgents={agents}
       shipmentsStatus="SUBMITTED"
       moveTaskOrder={moveTaskOrders[0]}
+      moveCode="TE5TC0DE"
     />
   </div>
 );
@@ -346,6 +349,7 @@ export const withOneApprovedShipment = () => (
       shipmentsStatus="APPROVED"
       mtoServiceItems={serviceItems}
       moveTaskOrder={moveTaskOrders[0]}
+      moveCode="TE5TC0DE"
     />
   </div>
 );
@@ -361,6 +365,7 @@ export const withMultipleApprovedShipments = () => (
       shipmentsStatus="APPROVED"
       mtoServiceItems={serviceItems}
       moveTaskOrder={moveTaskOrders[0]}
+      moveCode="TE5TC0DE"
     />
   </div>
 );

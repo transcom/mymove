@@ -1849,6 +1849,14 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	})
 
+	addressAssertion := testdatagen.Assertions{
+		Address: models.Address{
+			// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+			PostalCode: "85004",
+		}}
+
+	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), addressAssertion)
+
 	mtoShipmentHHG := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
@@ -1856,6 +1864,7 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
+			PickupAddress:        &shipmentPickupAddress,
 		},
 		Move: mto,
 	})
@@ -2152,7 +2161,7 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
 		},
@@ -2207,7 +2216,7 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
 		},
@@ -2506,7 +2515,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff2b5"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
 			SITDaysAllowance:     &sitDaysAllowance,

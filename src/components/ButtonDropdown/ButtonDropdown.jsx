@@ -5,8 +5,8 @@ import classnames from 'classnames';
 
 import styles from './ButtonDropdown.module.scss';
 
-const ButtonDropdown = ({ children, onChange, ariaLabel }) => (
-  <div className={styles.ButtonDropdown}>
+const ButtonDropdown = ({ children, onChange, ariaLabel, divClassName }) => (
+  <div className={classnames(styles.ButtonDropdown, divClassName)}>
     <Dropdown aria-label={ariaLabel} onChange={onChange} className={classnames(styles.ButtonDropdown, 'usa-button')}>
       {children}
     </Dropdown>
@@ -16,12 +16,14 @@ const ButtonDropdown = ({ children, onChange, ariaLabel }) => (
 
 ButtonDropdown.defaultProps = {
   ariaLabel: '',
+  divClassName: '',
 };
 
 ButtonDropdown.propTypes = {
   children: PropTypes.node.isRequired,
   onChange: PropTypes.func.isRequired,
   ariaLabel: PropTypes.string,
+  divClassName: PropTypes.string,
 };
 
 export default ButtonDropdown;

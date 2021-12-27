@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	paymentServiceItemService "github.com/transcom/mymove/pkg/services/payment_service_item"
+	"github.com/transcom/mymove/pkg/trace"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -161,6 +162,10 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", availableMTO.ID.String(), availablePaymentServiceItem.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
 		params := paymentServiceItemOp.UpdatePaymentServiceItemStatusParams{
 			HTTPRequest:          req,
 			IfMatch:              etag.GenerateEtag(availablePaymentServiceItem.UpdatedAt),
@@ -176,9 +181,6 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
-		traceID, err := uuid.NewV4()
-		suite.FatalNoError(err, "Error creating a new trace ID.")
-		handler.SetTraceID(traceID)
 
 		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)

@@ -40,7 +40,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 
 	if err != nil {
 		appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
-		return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
 
 	payload := payloads.ListMoves(&mtos)
@@ -75,9 +75,9 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 		switch err.(type) {
 		case apperror.NotFoundError:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		default:
-			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
@@ -100,7 +100,7 @@ func (h CreateExcessWeightRecordHandler) Handle(params movetaskorderops.CreateEx
 	if !ok {
 		appCtx.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return movetaskorderops.NewCreateExcessWeightRecordInternalServerError().WithPayload(
-			payloads.InternalServerError(nil, h.GetTraceID()))
+			payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
 
 	excessWeightRecord, err := h.uploader.CreateExcessWeightUpload(
@@ -110,22 +110,22 @@ func (h CreateExcessWeightRecordHandler) Handle(params movetaskorderops.CreateEx
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return movetaskorderops.NewCreateExcessWeightRecordNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		case apperror.InvalidInputError:
 			return movetaskorderops.NewCreateExcessWeightRecordUnprocessableEntity().WithPayload(
-				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
 		case apperror.InvalidCreateInputError:
 			return movetaskorderops.NewCreateExcessWeightRecordUnprocessableEntity().WithPayload(
-				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
 		case apperror.QueryError:
 			if e.Unwrap() != nil {
 				appCtx.Logger().Error("primeapi.CreateExcessWeightRecord QueryError", zap.Error(e.Unwrap()))
 			}
 			return movetaskorderops.NewCreateExcessWeightRecordInternalServerError().WithPayload(
-				payloads.InternalServerError(nil, h.GetTraceID()))
+				payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		default:
 			return movetaskorderops.NewCreateExcessWeightRecordInternalServerError().WithPayload(
-				payloads.InternalServerError(nil, h.GetTraceID()))
+				payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 	}
 
@@ -153,13 +153,13 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	if err != nil {
 		appCtx.Logger().Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
 		return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
-			payloads.ValidationError(err.Error(), h.GetTraceID(), nil))
+			payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil))
 	}
 
 	if !mtoAvailableToPrime {
 		appCtx.Logger().Error("primeapi.UpdateMTOPostCounselingInformationHandler error - MTO is not available to Prime")
 		return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound().WithPayload(payloads.ClientError(
-			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", mtoID), h.GetTraceID()))
+			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", mtoID), h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
 
 	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(appCtx, mtoID, params.Body, eTag)
@@ -168,15 +168,15 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 		switch e := err.(type) {
 		case apperror.NotFoundError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		case apperror.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed().WithPayload(
-				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 		case apperror.InvalidInputError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
-				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
 		default:
-			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 	}
 	mtoPayload := payloads.MoveTaskOrder(mto)
