@@ -1851,8 +1851,8 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 
 	addressAssertion := testdatagen.Assertions{
 		Address: models.Address{
-			// This is a postal code that maps to the default office user gbloc LKNQ in the PostalCodeToGBLOC table
-			PostalCode: "85325",
+			// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+			PostalCode: "85004",
 		}}
 
 	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), addressAssertion)
