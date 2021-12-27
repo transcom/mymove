@@ -823,7 +823,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(actualPaymentRequest.MoveTaskOrderID.String(), paymentRequest.MoveID.String())
 	suite.Equal(hhgMove.Orders.ServiceMemberID.String(), paymentRequest.Customer.ID.String())
 	suite.Equal(string(paymentRequest.Status), "Payment requested")
-	suite.Equal("LKNQ", string(paymentRequest.OriginGBLOC))
+	suite.Equal("KKFA", string(paymentRequest.OriginGBLOC))
 
 	//createdAt := actualPaymentRequest.CreatedAt
 	age := int64(2)
