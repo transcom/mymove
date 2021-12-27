@@ -71,8 +71,8 @@
   @include u-margin-y(2);
   @include u-padding(2);
   @include u-font-size('body', 2);
-  border: solid 1px #dcdee0;
-  background: #f9f9f9;
+  border: solid 1px $border-color;
+  background: $bg-gray;
   border-radius: 5px;
 
   ul {
