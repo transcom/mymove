@@ -101,12 +101,7 @@ const columns = () => [
 ];
 
 const ServicesCounselingQueue = () => {
-  const {
-    // eslint-disable-next-line camelcase
-    // data: { office_user },
-    isLoading,
-    isError,
-  } = useUserQueries();
+  const { isLoading, isError } = useUserQueries();
 
   const history = useHistory();
 
