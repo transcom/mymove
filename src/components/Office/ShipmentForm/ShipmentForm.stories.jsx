@@ -3,7 +3,7 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
-import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
+import ShipmentForm from './ShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
@@ -84,8 +84,8 @@ const mockMtoShipmentNoCustomerRemarks = {
 };
 
 export default {
-  title: 'Office Components / Forms / ServicesCounselingShipmentForm',
-  component: ServicesCounselingShipmentForm,
+  title: 'Office Components / Forms / ShipmentForm',
+  component: ShipmentForm,
   decorators: [
     (Story) => (
       <GridContainer className={styles.gridContainer}>
@@ -100,13 +100,11 @@ export default {
 };
 
 // create shipment stories (form should not prefill customer data)
-export const HHGShipment = () => (
-  <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />
-);
+export const HHGShipment = () => <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />;
 
 // edit shipment stories (form should prefill)
 export const EditHHGShipment = () => (
-  <ServicesCounselingShipmentForm
+  <ShipmentForm
     {...defaultProps}
     selectedMoveType={SHIPMENT_OPTIONS.HHG}
     isCreatePage={false}
@@ -116,7 +114,7 @@ export const EditHHGShipment = () => (
 
 // edit shipment stories, no customer remarks (form should prefill)
 export const EditHHGShipmentNoCustRemarks = () => (
-  <ServicesCounselingShipmentForm
+  <ShipmentForm
     {...defaultProps}
     selectedMoveType={SHIPMENT_OPTIONS.HHG}
     isCreatePage={false}
@@ -125,12 +123,12 @@ export const EditHHGShipmentNoCustRemarks = () => (
 );
 
 export const NTSShipmentWithoutCodes = () => {
-  return <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />;
+  return <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />;
 };
 
 export const NTSShipmentWithCodes = () => {
   return (
-    <ServicesCounselingShipmentForm
+    <ShipmentForm
       {...defaultProps}
       selectedMoveType={SHIPMENT_OPTIONS.NTS}
       TACs={{ HHG: '1234', NTS: '5678' }}
@@ -141,7 +139,7 @@ export const NTSShipmentWithCodes = () => {
 
 export const NTSReleaseShipment = () => {
   return (
-    <ServicesCounselingShipmentForm
+    <ShipmentForm
       {...defaultProps}
       selectedMoveType={SHIPMENT_OPTIONS.NTSR}
       TACs={{ HHG: '1234', NTS: '5678' }}

@@ -7,17 +7,21 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
-import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
+import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { createMTOShipment } from 'services/ghcApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
 const ServicesCounselingAddShipment = ({ match }) => {
-  const { moveCode } = useParams();
+  const { moveCode, shipmentType } = useParams();
+  let selectedMoveType = SHIPMENT_OPTIONS[shipmentType];
+  if (shipmentType === SHIPMENT_OPTIONS_URL.NTSrelease) {
+    selectedMoveType = SHIPMENT_OPTIONS.NTSR;
+  }
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const [mutateMTOShipments] = useMutation(createMTOShipment, {
@@ -52,14 +56,14 @@ const ServicesCounselingAddShipment = ({ match }) => {
           <GridContainer className={styles.gridContainer}>
             <Grid row>
               <Grid col desktop={{ col: 8, offset: 2 }}>
-                <ServicesCounselingShipmentForm
+                <ShipmentForm
                   match={match}
                   history={history}
                   submitHandler={mutateMTOShipments}
                   isCreatePage
                   currentResidence={customer.current_address}
                   newDutyStationAddress={order.destinationDutyStation?.address}
-                  selectedMoveType={SHIPMENT_OPTIONS.HHG}
+                  selectedMoveType={selectedMoveType}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}

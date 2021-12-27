@@ -784,13 +784,13 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Station GBLOC is LKNQ
-	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-		},
-	})
+	hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+	// we need a mapping for the pickup address postal code to our user's gbloc
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		hhgMove.MTOShipments[0].PickupAddress.PostalCode,
+		officeUser.TransportationOffice.Gbloc)
 
 	// Fake this as a day and a half in the past so floating point age values can be tested
 	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
@@ -802,22 +802,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		},
 	})
 
-	// Create an order with an origin duty station outside of office user GBLOC
-	excludedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "AGFM",
-		},
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-		},
-	})
-
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: excludedPaymentRequest.MoveTaskOrder,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
+	testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -844,6 +829,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(actualPaymentRequest.MoveTaskOrderID.String(), paymentRequest.MoveID.String())
 	suite.Equal(hhgMove.Orders.ServiceMemberID.String(), paymentRequest.Customer.ID.String())
 	suite.Equal(string(paymentRequest.Status), "Payment requested")
+	suite.Equal("LKNQ", string(paymentRequest.OriginGBLOC))
 
 	//createdAt := actualPaymentRequest.CreatedAt
 	age := int64(2)
@@ -862,16 +848,28 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 
 	outOfRangeDate, _ := time.Parse("2006-01-02", "2020-10-10")
 
+	hhgMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	hhgMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+	// we need a mapping for the pickup address postal code to our user's gbloc
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		hhgMove1.MTOShipments[0].PickupAddress.PostalCode,
+		officeUser.TransportationOffice.Gbloc)
+
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
-			CreatedAt: outOfRangeDate,
+			CreatedAt:       outOfRangeDate,
+			MoveTaskOrderID: hhgMove1.ID,
+			MoveTaskOrder:   hhgMove1,
 		},
 	})
 
 	createdAtTime := time.Date(2020, 10, 29, 0, 0, 0, 0, time.UTC)
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
-			CreatedAt: createdAtTime,
+			CreatedAt:       createdAtTime,
+			MoveTaskOrderID: hhgMove2.ID,
+			MoveTaskOrder:   hhgMove2,
 		},
 	})
 

@@ -16,7 +16,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
 
-const ServicesCounselingEditShipmentDetails = ({ match }) => {
+const EditShipmentDetails = ({ match }) => {
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
@@ -78,8 +78,8 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
   );
 };
 
-ServicesCounselingEditShipmentDetails.propTypes = {
+EditShipmentDetails.propTypes = {
   match: MatchShape.isRequired,
 };
 
-export default ServicesCounselingEditShipmentDetails;
+export default EditShipmentDetails;

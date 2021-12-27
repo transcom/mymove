@@ -9,7 +9,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 
 export default {
-  title: 'Office Components / Forms / ServicesCounselingShipmentForm / AccountingCodes',
+  title: 'Office Components / Forms / ShipmentForm / AccountingCodes',
   component: AccountingCodes,
   decorators: [
     (Story) => (

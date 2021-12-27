@@ -68,6 +68,15 @@ export const SHIPMENT_OPTIONS = {
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
 };
 
+// These constants are used for forming URLs that have the shipment type in
+// them so that they are human readable.
+export const SHIPMENT_OPTIONS_URL = {
+  HHG: 'HHG',
+  PPM: 'PPM',
+  NTS: 'NTS',
+  NTSrelease: 'NTSrelease',
+};
+
 export const LOA_TYPE = {
   HHG: 'HHG',
   NTS: 'NTS',
