@@ -17,7 +17,7 @@ describe('components/Office/ShipmentWeightInput', () => {
 
   it('populates Formik initialValues', () => {
     render(
-      <Formik initialValues={{ primeActualWeight: '4500' }}>
+      <Formik initialValues={{ ntsRecordedWeight: '4500' }}>
         <ShipmentWeightInput />
       </Formik>,
     );
