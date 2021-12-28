@@ -1795,7 +1795,7 @@ paths:
       description: >
         An office services counselor user will be assigned a transportation
         office that will determine which moves are displayed in their queue
-        based on the origin duty station.  GHC moves will show up here onced
+        based on the origin duty location.  GHC moves will show up here onced
         they have reached the NEEDS SERVICE COUNSELING status after submission
         from a customer or created on a customer's behalf.
       operationId: getServicesCounselingQueue
@@ -1861,7 +1861,7 @@ paths:
         - in: query
           name: originGBLOC
           type: string
-          description: filters the GBLOC of the service member's origin duty station
+          description: filters the GBLOC of the service member's origin duty location
         - in: query
           name: originDutyLocation
           type: string
@@ -1893,7 +1893,7 @@ paths:
       description: >
         An office TOO user will be assigned a transportation office that will
         determine which moves are displayed in their queue based on the origin
-        duty station.  GHC moves will show up here onced they have reached the
+        duty location.  GHC moves will show up here onced they have reached the
         submitted status sent by the customer and have move task orders,
         shipments, and service items to approve.
       operationId: getMovesQueue
@@ -1918,7 +1918,7 @@ paths:
             - locator
             - status
             - originDutyLocation
-            - destinationDutyStation
+            - destinationDutyLocation
           description: field that results should be sorted by
         - in: query
           name: order
@@ -1943,7 +1943,7 @@ paths:
           name: originDutyLocation
           type: string
         - in: query
-          name: destinationDutyStation
+          name: destinationDutyLocation
           type: string
         - in: query
           name: status
@@ -1973,7 +1973,7 @@ paths:
       description: >
         An office TIO user will be assigned a transportation office that will
         determine which payment requests are displayed in their queue based on
-        the origin duty station.
+        the origin duty location.
       operationId: getPaymentRequestsQueue
       tags:
         - queues
@@ -2026,7 +2026,7 @@ paths:
           name: dodID
           type: string
         - in: query
-          name: destinationDutyStation
+          name: destinationDutyLocation
           type: string
         - in: query
           name: originDutyLocation
@@ -2862,11 +2862,11 @@ definitions:
         $ref: '#/definitions/Address'
       pickupAddress:
         $ref: '#/definitions/Address'
-      destinationDutyStation:
+      destinationDutyLocation:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      originDutyStation:
+      originDutyLocation:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
@@ -3863,9 +3863,9 @@ definitions:
       shipmentsCount:
         type: integer
       originDutyLocation:
-        $ref: '#/definitions/DutyStation'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
+        $ref: '#/definitions/DutyLocation'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
   QueueMovesResult:
@@ -3914,7 +3914,7 @@ definitions:
       originGBLOC:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
-        $ref: '#/definitions/DutyStation'
+        $ref: '#/definitions/DutyLocation'
   QueuePaymentRequests:
     type: array
     items:
@@ -4345,6 +4345,24 @@ definitions:
       - SYSTEM
       - PRICER
       - PAYMENT_REQUEST
+  DutyLocation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid

@@ -1193,7 +1193,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result1.RequestedMoveDate).Format(time.RFC3339Nano))
 		suite.Equal(subtestData.needsCounselingMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result1.SubmittedAt).Format(time.RFC3339Nano))
 		suite.Equal(order.ServiceMember.Affiliation.String(), result1.Customer.Agency)
-		suite.Equal(order.NewDutyStation.ID.String(), result1.DestinationDutyStation.ID.String())
+		suite.Equal(order.NewDutyStation.ID.String(), result1.DestinationDutyLocation.ID.String())
 
 		suite.EqualValues(subtestData.needsCounselingMove.Status, result2.Status)
 		suite.Equal("MARINES", result2.Customer.Agency)
