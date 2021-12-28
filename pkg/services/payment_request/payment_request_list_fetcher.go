@@ -122,6 +122,10 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		if loadErr != nil {
 			return nil, 0, err
 		}
+		loadErr = appCtx.DB().Load(&paymentRequests[i].MoveTaskOrder, "ShipmentGBLOC")
+		if loadErr != nil {
+			return nil, 0, err
+		}
 	}
 
 	return &paymentRequests, count, nil
