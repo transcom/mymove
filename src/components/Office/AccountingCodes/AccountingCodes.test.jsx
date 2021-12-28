@@ -38,6 +38,19 @@ describe('components/Office/AccountingCodes', () => {
       expect(screen.getByRole('button', { name: 'Add or edit codes' })).toBeInTheDocument();
     });
 
+    it('doesnt render undefined TAC or SAC values', async () => {
+      render(
+        <Formik initialValues={{}}>
+          <AccountingCodes TACs={{ HHG: '1234', NTS: undefined }} />
+        </Formik>,
+      );
+
+      expect(screen.queryByText('(NTS)')).not.toBeInTheDocument();
+
+      // Single code for a category gets checked by defalt
+      await waitFor(() => expect(screen.getByLabelText('1234 (HHG)')).toBeChecked());
+    });
+
     it('applies Formik internal values', () => {
       render(
         <Formik initialValues={{ tacType: 'NTS' }}>
