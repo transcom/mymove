@@ -1109,6 +1109,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
+	// Create a move with an origin duty location outside of office user GBLOC
 	excludedGBLOCMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
