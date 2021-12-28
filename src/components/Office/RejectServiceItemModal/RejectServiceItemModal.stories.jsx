@@ -23,5 +23,7 @@ const serviceItem = {
 };
 
 export const Basic = () => (
-  <RejectServiceItemModal serviceItem={serviceItem} onSubmit={action('Submit')} onClose={action('Close')} />
+  <div className="officeApp">
+    <RejectServiceItemModal serviceItem={serviceItem} onSubmit={action('Submit')} onClose={action('Close')} />
+  </div>
 );

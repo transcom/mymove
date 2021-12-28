@@ -1,10 +1,12 @@
 @import 'shared/styles/basics';
 @import 'shared/styles/mixins';
+@import 'shared/styles/variables';
 @import 'shared/styles/colors';
 @import 'shared/styles/overrides';
 
 .approvalPreviewModal {
-  min-width: 80rem;
+  min-width: 100%;
+  width: 100%;
   @include u-margin-top(10);
   @include u-border('base-light');
   @include u-border('05');
@@ -12,6 +14,10 @@
   overflow-x: hidden;
   overflow-y: auto;
   max-height: 100vh;
+
+  :global(.usa-button) {
+    width: auto;
+  }
 
   button[type='submit'] {
     @include u-margin-left(0);
@@ -28,6 +34,10 @@
       @include u-margin-top(2);
       @include u-margin-bottom(4);
     }
+    @media (max-width: 700px) {
+      @include u-margin(0);
+      @include u-padding(1);
+    }
   }
 
   .basicMoveDetails {
@@ -37,6 +47,15 @@
       @include u-margin-top(3);
     }
   }
+  @media (max-width: 700px) {
+    @include u-padding(1);
+  }
+  @media (min-width: 700px) {
+    min-width: 50rem;
+  }
+  @media (min-width: 1240px) {
+    min-width: 80rem;
+  }
 }
 
 .previewShipments {
@@ -45,6 +64,9 @@
 
   .innerWrapper {
     @include u-margin-left(2);
+    @media (max-width: 700px) {
+      @include u-margin-left(0);
+    }
   }
 }
 
@@ -123,12 +145,21 @@
   .shipmentDetailWrapper {
     @include u-display(flex);
     align-items: flex-start; // prevents the child table rows from stretching to match service item height
+    @media (max-width: 700px) {
+      flex-direction: column;
+    }
   }
 
   :global .stackedtable-header {
     h4 {
       @include u-margin-bottom(2);
       max-width: 100%;
+    }
+  }
+  @media (max-width: 700px) {
+    :global(.container) {
+      @include u-margin(0);
+      width: 100%;
     }
   }
 }
