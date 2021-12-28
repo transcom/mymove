@@ -19,6 +19,9 @@ const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestRevie
 const ReviewBillableWeight = lazy(() => import('pages/Office/ReviewBillableWeight/ReviewBillableWeight'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
+const ServicesCounselingEditShipmentDetails = lazy(() =>
+  import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
+);
 
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
@@ -119,6 +122,10 @@ const TXOMoveInfo = () => {
 
           <Route path="/moves/:moveCode/history" exact>
             <MoveHistory />
+          </Route>
+
+          <Route path="/moves/:moveCode/shipments/:shipmentId" exact>
+            <ServicesCounselingEditShipmentDetails />
           </Route>
 
           {/* TODO - clarify role/tab access */}
