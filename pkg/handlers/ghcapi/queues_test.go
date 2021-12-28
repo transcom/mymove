@@ -1195,7 +1195,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 		suite.Assertions.IsType(&queues.GetServicesCounselingQueueOK{}, response)
 		payload := response.(*queues.GetServicesCounselingQueueOK).Payload
-		
+
 		order := subtestData.needsCounselingMove.Orders
 		result := payload.QueueMoves[0]
 
