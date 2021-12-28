@@ -14,7 +14,7 @@ const ShipmentFormRemarks = ({ userRole, customerRemarks, counselorRemarks }) =>
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset>
-        <h2>
+        <h2 className={styles.SectionHeaderExtraSpacing}>
           Remarks{' '}
           {userRole === roleTypes.SERVICES_COUNSELOR && (
             <span className="float-right">
@@ -22,6 +22,7 @@ const ShipmentFormRemarks = ({ userRole, customerRemarks, counselorRemarks }) =>
             </span>
           )}
         </h2>
+
         <DataTable custClass={styles.RemarksTable} columnHeaders={['Customer remarks']} dataRow={[customerRemarks]} />
 
         {userRole === roleTypes.TOO ? (

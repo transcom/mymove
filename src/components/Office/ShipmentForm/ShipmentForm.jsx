@@ -268,7 +268,7 @@ const ShipmentForm = ({
                 {showPickupFields && (
                   <>
                     <SectionWrapper className={formStyles.formSection}>
-                      <h2>Pickup details</h2>
+                      <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
                       <Fieldset>
                         <DatePickerInput
                           name="pickup.requestedDate"
@@ -321,7 +321,7 @@ const ShipmentForm = ({
                 {showDeliveryFields && (
                   <>
                     <SectionWrapper className={formStyles.formSection}>
-                      <h2>Delivery details</h2>
+                      <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
                       <Fieldset>
                         <DatePickerInput
                           name="delivery.requestedDate"

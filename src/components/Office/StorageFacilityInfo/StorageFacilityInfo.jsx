@@ -13,7 +13,7 @@ const StorageFacilityInfo = ({ userRole }) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
-        <h2>Storage facility info</h2>
+        <h2 className={styles.SectionHeader}>Storage facility info</h2>
         <Grid row>
           <Grid col={12}>
             <TextField label="Facility name" id="facilityName" name="storageFacility.facilityName" />

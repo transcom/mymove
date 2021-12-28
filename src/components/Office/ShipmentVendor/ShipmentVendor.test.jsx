@@ -27,7 +27,7 @@ describe('components/Office/ShipmentVendor', () => {
 
     expect(screen.getByLabelText('GHC prime contractor')).not.toBeChecked();
     expect(screen.getByLabelText('External vendor')).toBeChecked();
-    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    expect(screen.getByRole('list')).toBeInTheDocument();
   });
 
   it('changes messaging based on interaction', async () => {
@@ -36,6 +36,9 @@ describe('components/Office/ShipmentVendor', () => {
         <ShipmentVendor />
       </Formik>,
     );
+
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    expect(screen.queryByText('This shipment will be sent to the GHC prime contractor.')).not.toBeInTheDocument();
 
     userEvent.click(screen.getByLabelText('External vendor'));
     expect(await screen.findByRole('list')).toBeInTheDocument();
