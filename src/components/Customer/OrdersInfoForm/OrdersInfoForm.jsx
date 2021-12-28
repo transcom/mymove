@@ -49,7 +49,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
             <h1>Tell us about your move orders</h1>
 
-            <SectionWrapper className={formStyles.formSection}>
+            <SectionWrapper className={`tablet:padding-top-2 + ${formStyles.formSection}`}>
               <DropdownInput label="Orders type" name="orders_type" options={ordersTypeOptions} required />
               <DatePickerInput
                 name="issue_date"
