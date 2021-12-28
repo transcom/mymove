@@ -38,26 +38,30 @@ export const LoggedOutHeader = () => (
 );
 
 export const LoggedInOfficeHeader = () => (
-  <MilMoveHeader>
-    <OfficeUserInfo {...props} />
-  </MilMoveHeader>
+  <div className="officeApp">
+    <MilMoveHeader>
+      <OfficeUserInfo {...props} />
+    </MilMoveHeader>
+  </div>
 );
 
 export const LoggedInOfficeHeaderWithNavigation = () => (
-  <MilMoveHeader>
-    <ul className="usa-nav__primary">
-      <li className="usa-nav__primary-item">
-        <a href="#">Navigation Link</a>
-      </li>
-      <li className="usa-nav__primary-item">
-        <a href="#">Navigation Link</a>
-      </li>
-      <li className="usa-nav__primary-item">
-        <a href="#">Navigation Link</a>
-      </li>
-    </ul>
-    <OfficeUserInfo {...props} />
-  </MilMoveHeader>
+  <div style={{ minWidth: '1000px' }}>
+    <MilMoveHeader>
+      <ul className="usa-nav__primary">
+        <li className="usa-nav__primary-item">
+          <a href="#">Navigation Link</a>
+        </li>
+        <li className="usa-nav__primary-item">
+          <a href="#">Navigation Link</a>
+        </li>
+        <li className="usa-nav__primary-item">
+          <a href="#">Navigation Link</a>
+        </li>
+      </ul>
+      <OfficeUserInfo {...props} />
+    </MilMoveHeader>
+  </div>
 );
 
 export const LoggedInCustomerHeader = () => (

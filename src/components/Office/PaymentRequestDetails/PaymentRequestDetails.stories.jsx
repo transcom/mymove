@@ -11,7 +11,7 @@ export default {
   decorators: [
     (Story) => {
       return (
-        <div style={{ padding: '20px' }}>
+        <div className="officeApp" style={{ padding: '20px' }}>
           <Story />
         </div>
       );
