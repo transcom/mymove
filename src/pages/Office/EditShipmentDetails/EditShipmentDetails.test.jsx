@@ -3,9 +3,9 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ServicesCounselingAddShipment from './ServicesCounselingAddShipment';
+import EditShipmentDetails from './EditShipmentDetails';
 
-import { createMTOShipment } from 'services/ghcApi';
+import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
 
 const mockPush = jest.fn();
@@ -18,12 +18,12 @@ jest.mock('react-router-dom', () => ({
   useHistory: () => ({
     push: mockPush,
   }),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'move123', shipmentType: 'HHG' }),
+  useParams: jest.fn().mockReturnValue({ moveCode: 'move123', shipmentId: 'shipment123' }),
 }));
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
-  createMTOShipment: jest.fn(),
+  updateMTOShipment: jest.fn(),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -158,15 +158,16 @@ const props = {
     path: '',
     isExact: false,
     url: '',
-    params: { moveCode: 'move123' },
+    params: { moveCode: 'move123', shipmentId: 'shipment123' },
   },
 };
 
-describe('ServicesCounselingAddShipment component', () => {
+describe('EditShipmentDetails component', () => {
   describe('check different component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useEditShipmentQueries.mockReturnValue(loadingReturnValue);
-      render(<ServicesCounselingAddShipment {...props} />);
+
+      render(<EditShipmentDetails {...props} />);
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
@@ -175,71 +176,51 @@ describe('ServicesCounselingAddShipment component', () => {
     it('renders the Something Went Wrong component when the query errors', async () => {
       useEditShipmentQueries.mockReturnValue(errorReturnValue);
 
-      render(<ServicesCounselingAddShipment {...props} />);
+      render(<EditShipmentDetails {...props} />);
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
 
-  describe('Basic rendering', () => {
-    it('renders the Services Counseling Shipment Form', async () => {
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      render(<ServicesCounselingAddShipment {...props} />);
+  it('renders the Services Counseling Shipment Form', async () => {
+    useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+    render(<EditShipmentDetails {...props} />);
 
-      const h1 = await screen.getByRole('heading', { name: 'Add shipment details', level: 1 });
-      await waitFor(() => {
-        expect(h1).toBeInTheDocument();
-      });
+    const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
+    await waitFor(() => {
+      expect(h1).toBeInTheDocument();
     });
+  });
 
-    it('routes to the move details page when the save button is clicked', async () => {
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      createMTOShipment.mockImplementation(() => Promise.resolve({}));
+  it('routes to the move details page when the save button is clicked', async () => {
+    updateMTOShipment.mockImplementation(() => Promise.resolve({}));
 
-      render(<ServicesCounselingAddShipment {...props} />);
+    render(<EditShipmentDetails {...props} />);
 
-      const saveButton = screen.getByRole('button', { name: 'Save' });
+    const saveButton = screen.getByRole('button', { name: 'Save' });
 
-      expect(saveButton).toBeInTheDocument();
+    expect(saveButton).not.toBeDisabled();
 
-      await waitFor(() => {
-        expect(saveButton).toBeDisabled();
-      });
+    userEvent.click(saveButton);
 
-      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
-
-      userEvent.type(screen.getAllByLabelText('Address 1')[0], '812 S 129th St');
-      userEvent.type(screen.getAllByLabelText('City')[0], 'San Antonio');
-      userEvent.selectOptions(screen.getAllByLabelText('State')[0], ['TX']);
-      userEvent.type(screen.getAllByLabelText('ZIP')[0], '78234');
-      userEvent.type(screen.getByLabelText('Requested pickup date'), '01 Nov 2020');
-      userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
-
-      await waitFor(() => {
-        expect(saveButton).not.toBeDisabled();
-      });
-
-      userEvent.click(saveButton);
-
-      await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
-      });
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
     });
+  });
 
-    it('routes to the move details page when the cancel button is clicked', async () => {
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      render(<ServicesCounselingAddShipment {...props} />);
+  it('routes to the move details page when the cancel button is clicked', async () => {
+    useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+    render(<EditShipmentDetails {...props} />);
 
-      const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
-      expect(cancelButton).not.toBeDisabled();
+    expect(cancelButton).not.toBeDisabled();
 
-      userEvent.click(cancelButton);
+    userEvent.click(cancelButton);
 
-      await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
-      });
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
     });
   });
 });

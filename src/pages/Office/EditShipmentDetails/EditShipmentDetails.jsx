@@ -11,24 +11,20 @@ import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
-import { createMTOShipment } from 'services/ghcApi';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { updateMTOShipment } from 'services/ghcApi';
 
-const ServicesCounselingAddShipment = ({ match }) => {
-  const { moveCode, shipmentType } = useParams();
-  let selectedMoveType = SHIPMENT_OPTIONS[shipmentType];
-  if (shipmentType === SHIPMENT_OPTIONS_URL.NTSrelease) {
-    selectedMoveType = SHIPMENT_OPTIONS.NTSR;
-  }
+const EditShipmentDetails = ({ match }) => {
+  const { moveCode, shipmentId } = useParams();
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const [mutateMTOShipments] = useMutation(createMTOShipment, {
-    onSuccess: (newMTOShipment) => {
-      mtoShipments.push(newMTOShipment);
-      queryCache.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
+  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipment) => {
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
     },
   });
 
@@ -36,6 +32,8 @@ const ServicesCounselingAddShipment = ({ match }) => {
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
+
+  const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
 
   const TACs = {
@@ -59,12 +57,12 @@ const ServicesCounselingAddShipment = ({ match }) => {
                 <ShipmentForm
                   match={match}
                   history={history}
-                  submitHandler={mutateMTOShipments}
-                  isCreatePage
-                  ServicesCounselingShipmentForm
+                  submitHandler={mutateMTOShipment}
+                  isCreatePage={false}
                   currentResidence={customer.current_address}
                   newDutyStationAddress={order.destinationDutyStation?.address}
-                  selectedMoveType={selectedMoveType}
+                  selectedMoveType={SHIPMENT_OPTIONS.HHG}
+                  mtoShipment={matchingShipment}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}
@@ -80,8 +78,8 @@ const ServicesCounselingAddShipment = ({ match }) => {
   );
 };
 
-ServicesCounselingAddShipment.propTypes = {
+EditShipmentDetails.propTypes = {
   match: MatchShape.isRequired,
 };
 
-export default ServicesCounselingAddShipment;
+export default EditShipmentDetails;

@@ -406,7 +406,6 @@ export class Home extends Component {
                   dutyStationName={current_station?.transportation_office?.name}
                   officeType="Origin Transportation Office"
                   telephone={current_station?.transportation_office?.phone_lines[0]}
-                  moveSubmitted={move.status === MOVE_STATUSES.SUBMITTED}
                 />
               </>
             )}

@@ -40,13 +40,17 @@ export const servicesCounselingRoutes = {
   MOVE_VIEW_PATH: `${BASE_MOVE_PATH}/details`,
   ORDERS_EDIT_PATH: `${BASE_MOVE_PATH}/orders`,
   QUEUE_VIEW_PATH: '/counseling/queue',
-  SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-HHG`,
+  SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-:shipmentType`,
   SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId`,
 };
 
 export const tioRoutes = {
   PAYMENT_REQUESTS_PATH: '/moves/:moveCode/payment-requests',
   BILLABLE_WEIGHT_PATH: `/moves/:moveCode/billable-weight`,
+};
+
+export const tooRoutes = {
+  SHIPMENT_EDIT_PATH: `/moves/:moveCode/shipments/:shipmentId`,
 };
 
 // README: Prime API endpoints accept either a Move code or ID.

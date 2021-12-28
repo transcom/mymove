@@ -8,7 +8,7 @@ import { queryCache, useMutation } from 'react-query';
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import 'styles/office.scss';
-import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
+import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
@@ -61,7 +61,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
           <GridContainer className={styles.gridContainer}>
             <Grid row>
               <Grid col desktop={{ col: 8, offset: 2 }}>
-                <ServicesCounselingShipmentForm
+                <ShipmentForm
                   match={match}
                   history={history}
                   submitHandler={mutateMTOShipment}

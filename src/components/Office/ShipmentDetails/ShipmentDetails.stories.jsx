@@ -97,4 +97,8 @@ const order = {
   },
 };
 
-export const Default = () => <ShipmentDetails shipment={shipment} order={order} />;
+export const Default = () => (
+  <div className="officeApp">
+    <ShipmentDetails shipment={shipment} order={order} />
+  </div>
+);

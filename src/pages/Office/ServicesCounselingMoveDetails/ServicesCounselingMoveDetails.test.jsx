@@ -9,6 +9,7 @@ import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 import MOVE_STATUSES from 'constants/moves';
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
 import { MockProviders, renderWithRouter } from 'testUtils';
@@ -540,7 +541,6 @@ describe('MoveDetails page', () => {
       });
 
       it.each([
-        ['Add a new shipment', servicesCounselingRoutes.SHIPMENT_ADD_PATH],
         ['View and edit orders', servicesCounselingRoutes.ORDERS_EDIT_PATH],
         ['Edit allowances', servicesCounselingRoutes.ALLOWANCES_EDIT_PATH],
         ['Edit customer info', servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH],
@@ -562,6 +562,30 @@ describe('MoveDetails page', () => {
         await waitFor(() => {
           expect(history.location.pathname).toEqual(path);
         });
+      });
+
+      describe('shows the dropdown and navigates to each option', () => {
+        it.each([[SHIPMENT_OPTIONS_URL.HHG], [SHIPMENT_OPTIONS_URL.NTS], [SHIPMENT_OPTIONS_URL.NTSrelease]])(
+          'selects the %s option and navigates to the matching form for that shipment type',
+          async (shipmentType) => {
+            const { history } = renderWithRouter(<ServicesCounselingMoveDetails />, { route: detailsURL });
+
+            const path = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
+              moveCode: mockRequestedMoveCode,
+              shipmentType,
+            });
+
+            const buttonDropdown = await screen.findByRole('combobox');
+
+            expect(buttonDropdown).toBeInTheDocument();
+
+            userEvent.selectOptions(buttonDropdown, shipmentType);
+
+            await waitFor(() => {
+              expect(history.location.pathname).toEqual(path);
+            });
+          },
+        );
       });
 
       it('shows the edit shipment buttons', async () => {
@@ -608,7 +632,7 @@ describe('MoveDetails page', () => {
         render(mockedComponent);
 
         expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('link', { name: 'Add a new shipment' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument(); // Add a new shipment ButtonDropdown
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();

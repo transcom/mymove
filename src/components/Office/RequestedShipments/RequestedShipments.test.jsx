@@ -300,6 +300,7 @@ const requestedShipmentsComponent = (
     mtoShipments={shipments}
     approveMTO={approveMTO}
     shipmentsStatus="SUBMITTED"
+    moveCode="TE5TC0DE"
   />
 );
 
@@ -313,6 +314,7 @@ const requestedShipmentsComponentAvailableToPrimeAt = (
     approveMTO={approveMTO}
     shipmentsStatus="SUBMITTED"
     moveTaskOrder={moveTaskOrderAvailableToPrimeAt}
+    moveCode="TE5TC0DE"
   />
 );
 
@@ -326,6 +328,7 @@ const requestedShipmentsComponentServicesCounselingCompleted = (
     approveMTO={approveMTO}
     shipmentsStatus="SUBMITTED"
     moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+    moveCode="TE5TC0DE"
   />
 );
 
@@ -339,6 +342,7 @@ const requestedShipmentsComponentMissingRequiredInfo = (
     approveMTO={approveMTO}
     shipmentsStatus="SUBMITTED"
     missingRequiredOrdersInfo
+    moveCode="TE5TC0DE"
   />
 );
 
@@ -481,6 +485,7 @@ describe('RequestedShipments', () => {
         moveTaskOrder={moveTaskOrder}
         approveMTO={mockOnSubmit}
         shipmentsStatus="SUBMITTED"
+        moveCode="TE5TC0DE"
       />,
     );
 
@@ -538,6 +543,7 @@ describe('RequestedShipments', () => {
         approveMTO={approveMTO}
         shipmentsStatus="APPROVED"
         mtoServiceItems={serviceItems}
+        moveCode="TE5TC0DE"
       />,
     );
     const approvedServiceItemNames = wrapper.find('[data-testid="basicServiceItemName"]');
@@ -568,6 +574,7 @@ describe('RequestedShipments', () => {
           approveMTO={approveMTO}
           shipmentsStatus={status}
           mtoServiceItems={serviceItems}
+          moveCode="TE5TC0DE"
         />,
       );
 

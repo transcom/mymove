@@ -7,7 +7,7 @@ import { Alert, Button, Checkbox, Fieldset, FormGroup, Label, Radio, Textarea } 
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 
-import styles from './ServicesCounselingShipmentForm.module.scss';
+import styles from './ShipmentForm.module.scss';
 
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
@@ -35,7 +35,7 @@ import { AccountingCodesShape } from 'types/accountingCodes';
 import { validateDate } from 'utils/validation';
 import { deleteShipment } from 'services/ghcApi';
 
-const ServicesCounselingShipmentForm = ({
+const ShipmentForm = ({
   match,
   history,
   newDutyStationAddress,
@@ -226,22 +226,24 @@ const ServicesCounselingShipmentForm = ({
               </Alert>
             )}
 
-            <div className={styles.ServicesCounselingShipmentForm}>
+            <div className={styles.ShipmentForm}>
               <div className={styles.headerWrapper}>
                 <div>
                   <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
 
                   <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
                 </div>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    handleShowCancellationModal();
-                  }}
-                  unstyled
-                >
-                  Delete shipment
-                </Button>
+                {!isCreatePage && (
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      handleShowCancellationModal();
+                    }}
+                    unstyled
+                  >
+                    Delete shipment
+                  </Button>
+                )}
               </div>
 
               <SectionWrapper className={styles.weightAllowance}>
@@ -425,7 +427,7 @@ const ServicesCounselingShipmentForm = ({
   );
 };
 
-ServicesCounselingShipmentForm.propTypes = {
+ShipmentForm.propTypes = {
   match: MatchShape,
   history: shape({
     push: func.isRequired,
@@ -448,7 +450,7 @@ ServicesCounselingShipmentForm.propTypes = {
   SACs: AccountingCodesShape,
 };
 
-ServicesCounselingShipmentForm.defaultProps = {
+ShipmentForm.defaultProps = {
   isCreatePage: false,
   isForServicesCounseling: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
@@ -475,4 +477,4 @@ ServicesCounselingShipmentForm.defaultProps = {
   SACs: {},
 };
 
-export default ServicesCounselingShipmentForm;
+export default ShipmentForm;
