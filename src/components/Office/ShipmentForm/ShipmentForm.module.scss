@@ -24,6 +24,7 @@
   h1 {
     @include u-margin-top(1);
     @include u-margin-bottom(2);
+    min-width: 400px;
 
     @include at-media('tablet') {
       @include u-margin-top(2);
@@ -31,7 +32,11 @@
     }
   }
 
-  :global(h2) {
+  .SectionHeader {
+    @include u-margin-bottom(2);
+  }
+
+  .SectionHeaderExtraSpacing {
     @include u-margin-bottom(3);
   }
 
@@ -64,5 +69,27 @@
 .Label {
   span {
     font-weight: normal;
+  }
+}
+
+.VendorExplainerText {
+  @include u-margin-y(2);
+  @include u-padding(2);
+  @include u-font-size('body', 2);
+  border: solid 1px $border-color;
+  background: $bg-gray;
+  border-radius: 5px;
+
+  ul {
+    @include u-margin-x(1);
+    @include u-margin-y(0);
+  }
+}
+
+.RemarksTable {
+  width: 100%;
+
+  & + .RemarksTable {
+    margin-top: 16px;
   }
 }

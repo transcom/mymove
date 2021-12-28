@@ -129,7 +129,12 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillabl
           )}
           {paymentRequest.status === 'PENDING' && (
             <div className={styles.reviewButton}>
-              <Button onClick={handleClick} disabled={hasBillableWeightIssues} test-dataid="reviewBtn">
+              <Button
+                style={{ maxWidth: '225px' }}
+                onClick={handleClick}
+                disabled={hasBillableWeightIssues}
+                test-dataid="reviewBtn"
+              >
                 <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
                 Review service items
               </Button>

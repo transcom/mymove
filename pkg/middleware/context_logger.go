@@ -14,7 +14,7 @@ func ContextLogger(field string, original *zap.Logger) func(next http.Handler) h
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			logs := original
+			logs := original.With(zap.String("host", r.Host))
 			if id := trace.FromContext(ctx); !id.IsNil() {
 				logs = logs.With(zap.String(field, id.String()))
 			}

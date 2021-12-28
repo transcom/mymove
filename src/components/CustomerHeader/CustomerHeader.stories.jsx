@@ -28,4 +28,8 @@ const props = {
 };
 
 // eslint-disable-next-line react/jsx-props-no-spreading
-export const Customer = () => <CustomerHeader {...props} />;
+export const Customer = () => (
+  <div style={{ minWidth: '1000px' }}>
+    <CustomerHeader {...props} />
+  </div>
+);

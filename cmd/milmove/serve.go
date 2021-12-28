@@ -931,6 +931,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			internalMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
+		internalMux.Use(middleware.RequestLogger(logger))
 		internalMux.HandleFunc("/users/is_logged_in", isLoggedInMiddleware).Methods("GET")
 		// Mux for internal API that enforces auth
 		internalAPIMux := internalMux.PathPrefix("/").Subrouter()

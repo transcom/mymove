@@ -11,7 +11,7 @@ export default {
 };
 
 export const Card = (argTypes) => (
-  <div style={{ background: '#f9f9f9', width: '100%', height: '100%', paddingTop: 20 }}>
+  <div style={{ background: '#f9f9f9', width: '100%', minWidth: '1000px', height: '100%', paddingTop: 20 }}>
     <BillableWeightCard
       maxBillableWeight={13750}
       totalBillableWeight={12460}
