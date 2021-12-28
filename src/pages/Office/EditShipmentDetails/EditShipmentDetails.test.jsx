@@ -297,17 +297,18 @@ describe('EditShipmentDetails component', () => {
     await waitFor(() => {
       expect(h1).toBeInTheDocument();
     });
-    expect(screen.getByLabelText('ZIP')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('ZIP').length).toBe(2);
     expect(screen.getByLabelText('1111 (NTS)')).toBeInTheDocument();
     expect(screen.getByLabelText('2222 (NTS)')).toBeInTheDocument();
   });
 
   it('routes to the move details page when the save button is clicked', async () => {
+    useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
     updateMTOShipment.mockImplementation(() => Promise.resolve({}));
 
     render(<EditShipmentDetails {...props} />);
 
-    const saveButton = screen.getByRole('button', { name: 'Save' });
+    const saveButton = await screen.findByRole('button', { name: 'Save' });
 
     expect(saveButton).not.toBeDisabled();
 
