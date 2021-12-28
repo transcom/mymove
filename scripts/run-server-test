@@ -9,6 +9,7 @@
 # - COVERAGE: '1' will enable test coverage flags
 # - DRY_RUN: '1' will build the tests but not run them
 # - SERVER_REPORT: '1' will run go-junit-report and go coverage on output
+# - GO_JUNIT_REPORT: Use go-junit-report to generate the junit report
 # - LONG_TEST: '1' will remove the '-short' flag and run extended tests
 # - NO_DB: Will disable the db reset and migration steps
 #
@@ -17,50 +18,54 @@
 
 set -eu -o pipefail
 
+# default to gotestsum if GO_JUNIT is not defined
+if [[ "${SERVER_REPORT:-}" == "1" && -z "${GO_JUNIT_REPORT:-}" ]]; then
+  GOTESTSUM=1
+fi
+
 # colors
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 if [ "${APPLICATION}" == "app" ]; then
-  package_list=$(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/pkg/assets/|/cmd|mocks|/pkg/testdatagen)')
+  readarray -t package_list < <(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/pkg/assets/|/cmd|mocks|/pkg/testdatagen)')
 elif [ "${APPLICATION}" == "orders" ]; then
-  package_list=$(go list ./pkg/handlers/ordersapi)
+  readarray -t package_list < <(go list ./pkg/handlers/ordersapi)
 else
   echo "Must provider the environment variable APPLICATION and set to 'app' or 'orders'"
   exit 1
 fi
 
-verbose_flag=""
-parallel=8
-failfast_flag="-failfast"
+gotest_args=("-count" "1")
 if [ -n "${CIRCLECI+x}" ]; then
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
-  parallel=4
-	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
+  gotest_args+=("-parallel" "4")
+	# Add verbose (-v) so go-junit-report can parse it for CircleCI
+  # results
   verbose_flag="-v"
   # Don't fail fast in Circle CI so we can see all the tests that failed
-  failfast_flag=""
+else
+  verbose_flag=""
+  gotest_args+=("-parallel" "8")
+  gotest_args+=("-failfast")
 fi
 
 # Try to compile tests, but don't run them.
 if [[ "${DRY_RUN:-}" == "1" ]]; then
   echo "Compiling tests only, not running"
-  # shellcheck disable=SC2086
-	go test -run=nope -parallel ${parallel} -count 1 ${package_list}
+  go test -run=nope "${gotest_args[@]}" "${package_list[@]}"
   exit 0
 fi
 
 # Like server_test but runs extended tests that may hit external services.
-short_flag="-short"
-if [[ "${LONG_TEST:-}" == "1" ]]; then
-  short_flag=""
+if [[ "${LONG_TEST:-}" != "1" ]]; then
+  gotest_args+=("-short")
 fi
 
 # Add coverage tracker via go cover
-coverage_flag=""
 if [[ "${COVERAGE:-}" == "1" ]]; then
-  coverpkg=$(echo "${package_list}" | paste -s -d , - | tr '[:blank:]' ',')
-  coverage_flag="-coverprofile=coverage.out -covermode=count -coverpkg=${coverpkg}"
+  coverpkg=$(echo "${package_list[@]}" | paste -s -d , - | tr '[:blank:]' ',')
+  gotest_args+=(-coverprofile=coverage.out -covermode=count -coverpkg="${coverpkg}")
 fi
 
 # Set up the test DB instance and wipe it
@@ -77,8 +82,10 @@ mkdir -p "${test_dir}"
 
 function server_report_cleanup()
 {
-  # generate the junit report
-  bin/go-junit-report < "${test_output_file}" > "${test_report_file}"
+  if [[ "${GOTESTSUM:-}" != "1" ]]; then
+    # generate the junit report
+    bin/go-junit-report < "${test_output_file}" > "${test_report_file}"
+  fi
   if [[ "${COVERAGE:-}" == "1" ]]; then
     go tool cover -func=coverage.out -o "${test_dir}/go-coverage.txt"
     go tool cover -html=coverage.out -o "${test_dir}/go-coverage.html"
@@ -103,12 +110,38 @@ function server_report_cleanup()
 
 # Set up junit report and ensure its run on exit
 if [[ "${SERVER_REPORT:-}" == "1" ]]; then
-  if [ ! -f bin/go-junit-report ]; then
-    make bin/go-junit-report
+  if [[ "${GOTESTSUM:-}" != "1" ]]; then
+    if [ ! -f bin/go-junit-report ]; then
+      make bin/go-junit-report
+    fi
   fi
   # setup a trap incase the tests fail, we still want to generate the report
   trap server_report_cleanup EXIT
 fi
 
-# shellcheck disable=SC2086
-DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" go test ${failfast_flag} -vet=off -parallel "${parallel}" -count 1 ${verbose_flag} ${coverage_flag} ${short_flag} ${package_list} | tee "${test_output_file}"
+gotest_args+=("-vet=off")
+if [[ "${GOTESTSUM:-}" == "1" ]]; then
+  if [[ ! -f bin/gotestsum ]]; then
+    make bin/gotestsum
+  fi
+  gotestsum_args=(--format=standard-quiet)
+  if [[ -n "${verbose_flag}" ]]; then
+    gotestsum_args=(--format=standard-verbose)
+  fi
+  if [[ "${SERVER_REPORT:-}" == "1" ]]; then
+    gotestsum_args+=("--junitfile=${test_report_file}")
+  fi
+
+  DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" \
+         gotestsum "${gotestsum_args[@]}" -- \
+         "${gotest_args[@]}" \
+         "${package_list[@]}"
+else
+  if [[ -n "${verbose_flag}" ]]; then
+    gotest_args+=("-v")
+  fi
+  DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" \
+         go test \
+         "${gotest_args[@]}" \
+         "${package_list[@]}" | tee "${test_output_file}"
+fi

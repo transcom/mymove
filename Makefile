@@ -213,6 +213,10 @@ bin/soda: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
 
+# No static linking / $(LDFLAGS) because gotestsum is only used for building the CirlceCi test report
+bin/gotestsum: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
+	go build -o bin/gotestsum gotest.tools/gotestsum
+
 # No static linking / $(LDFLAGS) because mockery is only used for testing
 bin/mockery: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/mockery github.com/vektra/mockery/v2
