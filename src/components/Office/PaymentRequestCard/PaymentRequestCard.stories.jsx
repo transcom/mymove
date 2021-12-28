@@ -24,7 +24,7 @@ export default {
         addons.getChannel().on('storyRendered', MockDate.reset);
       }
       return (
-        <div style={{ padding: '1em', backgroundColor: '#f9f9f9' }}>
+        <div style={{ padding: '1em', backgroundColor: '#f9f9f9', minWidth: '1200px' }}>
           <MockProviders initialEntries={['/moves/L0CATR/payment-requests']}>
             <Story />
           </MockProviders>

@@ -107,7 +107,7 @@ const AccountingCodes = ({ optional, TACs, SACs, onEditCodesClick }) => {
           shipmentTypes={SACs}
         />
 
-        <Button type="button" onClick={onEditCodesClick} secondary={hasCodes}>
+        <Button type="button" onClick={onEditCodesClick} secondary={hasCodes} className={styles.addCodeBtn}>
           {hasCodes ? 'Add or edit codes' : 'Add code'}
         </Button>
       </Fieldset>

@@ -47,7 +47,7 @@ export default {
   component: OrdersDetailForm,
   decorators: [
     (Story) => (
-      <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+      <div className="officeApp" style={{ padding: `20px`, background: `#f0f0f0` }}>
         <Story />
       </div>
     ),

@@ -621,7 +621,6 @@ const testParams = {
     ZipDestAddress,
     ZipSITDestHHGFinalAddress,
   ],
-
   DomesticDestinationSITDeliveryLonghaul: [
     ContractCode,
     ContractYearName,
@@ -637,8 +636,7 @@ const testParams = {
     ZipDestAddress,
     ZipSITDestHHGFinalAddress,
   ],
-
-  DomesticDestinationSITDeliveryMachingZip3: [
+  DomesticDestinationSITDeliveryMatchingZip3: [
     ContractCode,
     ContractYearName,
     DistanceZipSITDestMatchingZip3,
@@ -653,10 +651,21 @@ const testParams = {
     ZipDestAddress,
     ZipSITDestHHGFinalAddressMatchingZip3,
   ],
-
   DomesticPacking: [
     ContractYearName,
     EscalationCompounded,
+    PriceRateOrFactor,
+    RequestedPickupDate,
+    ServicesScheduleOrigin,
+    WeightOriginal,
+    WeightBilled,
+    WeightEstimated,
+    ZipPickupAddress,
+  ],
+  DomesticNTSPacking: [
+    ContractYearName,
+    EscalationCompounded,
+    NTSPackingFactor,
     PriceRateOrFactor,
     RequestedPickupDate,
     ServicesScheduleOrigin,
@@ -770,18 +779,6 @@ const testParams = {
     PSIPriceDomOriginPrice,
     PSIPriceDomDest,
     PSIPriceDomDestPrice,
-  ],
-  DomesticNTSPacking: [
-    ContractYearName,
-    EscalationCompounded,
-    NTSPackingFactor,
-    PriceRateOrFactor,
-    RequestedPickupDate,
-    ServicesScheduleOrigin,
-    WeightOriginal,
-    WeightBilled,
-    WeightEstimated,
-    ZipPickupAddress,
   ],
   additionalCratingDataDCRT: {
     reServiceCode: 'DCRT',
