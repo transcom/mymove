@@ -3259,10 +3259,6 @@ definitions:
       serviceOrderNumber:
         type: string
         x-nullable: true
-      primeActualWeight:
-        x-nullable: true
-        example: 2000
-        type: integer
       ntsRecordedWeight:
         description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
         example: 2000
@@ -3344,10 +3340,6 @@ definitions:
       serviceOrderNumber:
         type: string
         x-nullable: true
-      primeActualWeight:
-        x-nullable: true
-        example: 2000
-        type: integer
       ntsRecordedWeight:
         description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
         example: 2000
