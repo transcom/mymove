@@ -24,7 +24,7 @@ const ShipmentVendor = () => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
-        <h2>Vendor</h2>
+        <h2 className={styles.SectionHeader}>Vendor</h2>
 
         <Grid row gap>
           <Grid col={12}>
@@ -50,7 +50,7 @@ const ShipmentVendor = () => {
               />
             </FormGroup>
 
-            {hasChangedValue && (
+            {(usingExternalVendor || hasChangedValue) && (
               <div className={styles.VendorExplainerText}>
                 {usingExternalVendor ? (
                   <ul>

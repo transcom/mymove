@@ -32,7 +32,11 @@
     }
   }
 
-  :global(h2) {
+  .SectionHeader {
+    @include u-margin-bottom(2);
+  }
+
+  .SectionHeaderExtraSpacing {
     @include u-margin-bottom(3);
   }
 
