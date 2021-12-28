@@ -32,7 +32,7 @@ ProfileComplete.args = {
   editBtnLabel: 'Edit',
   headerText: 'Profile',
   onEditBtnClick: action('edit button clicked'),
-  step: 1,
+  step: '1',
 };
 
 export const UploadOrders = Template.bind({});
@@ -43,7 +43,7 @@ UploadOrders.args = {
   editBtnLabel: 'Edit',
   headerText: 'Upload orders',
   onEditBtnClick: action('edit button clicked'),
-  step: 2,
+  step: '2',
 };
 
 export const OrdersUploaded = Template.bind({});
@@ -53,16 +53,16 @@ OrdersUploaded.args = {
   children: (
     <DocsUploaded
       files={[
-        { filename: 'Screen Shot 2020-09-11 at 12.56.58 PM.png' },
-        { filename: 'Screen Shot 2020-09-11 at 12.58.12 PM.png' },
-        { filename: 'orderspage3_20200723.png' },
+        { filename: 'Screen Shot 2020-09-11 at 12.56.58 PM.png', id: '1' },
+        { filename: 'Screen Shot 2020-09-11 at 12.58.12 PM.png', id: '2' },
+        { filename: 'orderspage3_20200723.png', id: '3' },
       ]}
     />
   ),
   editBtnLabel: 'Edit',
   headerText: 'Upload orders',
   onEditBtnClick: action('edit button clicked'),
-  step: 2,
+  step: '2',
 };
 
 export const OrdersAmended = Template.bind({});
@@ -82,7 +82,7 @@ OrdersAmended.args = {
   editBtnLabel: 'Upload documents',
   headerText: 'Orders',
   onEditBtnClick: action('edit button clicked'),
-  step: 2,
+  step: '2',
   containerClassName: 'step-amended-orders',
 };
 
@@ -97,7 +97,7 @@ ShipmentSelection.args = {
     </p>
   ),
   headerText: 'Set up shipments',
-  step: 3,
+  step: '3',
   actionBtnLabel: 'Set up your shipments',
 };
 
@@ -113,9 +113,11 @@ Shipments.args = {
         { id: '0003', shipmentType: SHIPMENT_OPTIONS.PPM },
       ]}
       onShipmentClick={action('shipment edit icon clicked')}
+      moveSubmitted={false}
     />
   ),
-  step: 3,
+  headerText: 'Shipments',
+  step: '3',
   actionBtnLabel: 'Add another shipment',
   onActionBtnClick: action('action button clicked'),
   secondaryBtn: true,
@@ -127,7 +129,7 @@ ConfirmMove.args = {
   completedHeaderText: 'Move request confirmed',
   children: <p>Review your move details and sign the legal paperwork, then send the info on to your move counselor</p>,
   headerText: 'Confirm move request',
-  step: 4,
+  step: '4',
   actionBtnLabel: 'Review and submit',
   onActionBtnClick: action('action button clicked'),
 };
@@ -140,17 +142,13 @@ MoveSubmitted.args = {
     <p>
       Move submitted 03 Nov 2020.
       <br />
-      <Button
-        unstyled
-        onClick={action('print button clicked')}
-        style={{ 'padding-left': 0, 'text-decoration': 'underline' }}
-      >
+      <Button unstyled onClick={action('print button clicked')} style={{ paddingLeft: 0, textDecoration: 'underline' }}>
         Print the legal agreement
       </Button>
     </p>
   ),
   headerText: 'Review your request',
-  step: 4,
+  step: '4',
   actionBtnLabel: 'Review your request',
   onActionBtnClick: action('action button clicked'),
   secondaryBtn: true,
