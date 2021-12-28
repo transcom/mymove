@@ -66,6 +66,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
                   history={history}
                   submitHandler={mutateMTOShipment}
                   isCreatePage={false}
+                  isForServicesCounseling
                   currentResidence={customer.current_address}
                   newDutyStationAddress={order.destinationDutyStation?.address}
                   selectedMoveType={SHIPMENT_OPTIONS.HHG}

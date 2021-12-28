@@ -41,6 +41,7 @@ const ServicesCounselingShipmentForm = ({
   newDutyStationAddress,
   selectedMoveType,
   isCreatePage,
+  isForServicesCounseling,
   mtoShipment,
   submitHandler,
   mtoShipments,
@@ -139,6 +140,14 @@ const ServicesCounselingShipmentForm = ({
       storageFacility,
     });
 
+    const updateMTOShipmentPayload = {
+      moveTaskOrderID,
+      shipmentID: mtoShipment.id,
+      ifMatchETag: mtoShipment.eTag,
+      normalize: false,
+      body: pendingMtoShipment,
+    };
+
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
       submitHandler({ body, normalize: false })
@@ -148,15 +157,17 @@ const ServicesCounselingShipmentForm = ({
         .catch(() => {
           setErrorMessage(`A server error occurred adding the shipment`);
         });
-    } else {
-      const updateMTOShipmentPayload = {
-        moveTaskOrderID,
-        shipmentID: mtoShipment.id,
-        ifMatchETag: mtoShipment.eTag,
-        normalize: false,
-        body: pendingMtoShipment,
-      };
+    } else if (isForServicesCounseling) {
+      // routing and error handling handled in parent components
       submitHandler(updateMTOShipmentPayload);
+    } else {
+      submitHandler(updateMTOShipmentPayload)
+        .then(() => {
+          history.push(moveDetailsPath);
+        })
+        .catch(() => {
+          setErrorMessage('A server error occurred editing the shipment details');
+        });
     }
   };
 
@@ -421,6 +432,7 @@ ServicesCounselingShipmentForm.propTypes = {
   }),
   submitHandler: func.isRequired,
   isCreatePage: bool,
+  isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
@@ -438,6 +450,7 @@ ServicesCounselingShipmentForm.propTypes = {
 
 ServicesCounselingShipmentForm.defaultProps = {
   isCreatePage: false,
+  isForServicesCounseling: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { push: () => {} },
   newDutyStationAddress: {

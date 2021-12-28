@@ -350,6 +350,44 @@ describe('ServicesCounselingShipmentForm component', () => {
   });
 
   describe('filling the form', () => {
+    it('shows an error if the submitHandler returns an error', async () => {
+      const mockSubmitHandler = jest.fn(() =>
+        // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
+        // eslint-disable-next-line prefer-promise-reject-errors
+        Promise.reject({
+          message: 'A server error occurred editing the shipment details',
+          response: {
+            body: {
+              detail: 'A server error occurred editing the shipment details',
+            },
+          },
+        }),
+      );
+
+      render(
+        <ServicesCounselingShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockMtoShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
+      );
+
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+
+      expect(saveButton).not.toBeDisabled();
+
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockSubmitHandler).toHaveBeenCalled();
+      });
+
+      expect(await screen.findByText('A server error occurred editing the shipment details')).toBeInTheDocument();
+      expect(defaultProps.history.push).not.toHaveBeenCalled();
+    });
+
     it('saves the update to the counselor remarks when the save button is clicked', async () => {
       const newCounselorRemarks = 'Counselor remarks';
 
