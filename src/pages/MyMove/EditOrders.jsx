@@ -107,7 +107,7 @@ export const EditOrders = ({
     })
       .then((response) => {
         updateOrders(response);
-
+        console.log(response);
         if (entitlementCouldChange) {
           setFlashMessage(
             'EDIT_ORDERS_SUCCESS',
@@ -118,16 +118,15 @@ export const EditOrders = ({
         } else {
           setFlashMessage('EDIT_ORDERS_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
-
         history.goBack();
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
+        console.log(response);
         const errorMessage = getResponseError(response, 'failed to update orders due to server error');
         setServerError(errorMessage);
-
         scrollToTop();
       });
   };
