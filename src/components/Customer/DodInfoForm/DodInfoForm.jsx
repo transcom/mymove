@@ -29,10 +29,10 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
-          <Form className={formStyles.form}>
+          <Form className={`tablet:padding-top-2 + ${formStyles.form}`}>
             <h1>Create your profile</h1>
             <p>Before we can schedule your move, we need to know a little more about you.</p>
-            <SectionWrapper className={formStyles.formSection}>
+            <SectionWrapper className={`tablet:padding-top-2 + ${formStyles.formSection}`}>
               <DropdownInput
                 label="Branch of service"
                 name="affiliation"
