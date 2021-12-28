@@ -17,6 +17,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { roleTypes } from 'constants/userRoles';
 
 const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
   const { moveCode, shipmentId } = useParams();
@@ -76,6 +77,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
                   mtoShipments={mtoShipments}
                   TACs={TACs}
                   SACs={SACs}
+                  userRole={roleTypes.SERVICES_COUNSELOR}
                 />
               </Grid>
             </Grid>
