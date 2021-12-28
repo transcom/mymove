@@ -154,6 +154,7 @@ const errorReturnValue = {
 };
 
 const props = {
+  onUpdate: () => {},
   match: {
     path: '',
     isExact: false,
