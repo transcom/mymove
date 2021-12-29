@@ -3,14 +3,14 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
-import AccountingCodes from './AccountingCodes';
+import ShipmentAccountingCodes from './ShipmentAccountingCodes';
 
-describe('components/Office/AccountingCodes', () => {
+describe('components/Office/ShipmentAccountingCodes', () => {
   describe('rendering', () => {
     it('renders with minimal props', () => {
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes />
+          <ShipmentAccountingCodes />
         </Formik>,
       );
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(/Accounting codes/);
@@ -24,7 +24,7 @@ describe('components/Office/AccountingCodes', () => {
     it('renders one or multiple TACs and SACs', async () => {
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} SACs={{ HHG: '000012345' }} />
+          <ShipmentAccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} SACs={{ HHG: '000012345' }} />
         </Formik>,
       );
 
@@ -41,7 +41,7 @@ describe('components/Office/AccountingCodes', () => {
     it('doesnt render undefined TAC or SAC values', async () => {
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes TACs={{ HHG: '1234', NTS: undefined }} />
+          <ShipmentAccountingCodes TACs={{ HHG: '1234', NTS: undefined }} />
         </Formik>,
       );
 
@@ -54,7 +54,7 @@ describe('components/Office/AccountingCodes', () => {
     it('applies Formik internal values', () => {
       render(
         <Formik initialValues={{ tacType: 'NTS' }}>
-          <AccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} />
+          <ShipmentAccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} />
         </Formik>,
       );
 
@@ -65,7 +65,7 @@ describe('components/Office/AccountingCodes', () => {
     it('does not render the "optional" text when the appropriate param is passed in', () => {
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes optional={false} />
+          <ShipmentAccountingCodes optional={false} />
         </Formik>,
       );
 
@@ -78,7 +78,7 @@ describe('components/Office/AccountingCodes', () => {
       const onEditCodesClick = jest.fn();
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes onEditCodesClick={onEditCodesClick} />
+          <ShipmentAccountingCodes onEditCodesClick={onEditCodesClick} />
         </Formik>,
       );
 
@@ -89,7 +89,7 @@ describe('components/Office/AccountingCodes', () => {
     it('clicking a code sets the value', async () => {
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} />
+          <ShipmentAccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} />
         </Formik>,
       );
 
@@ -103,7 +103,7 @@ describe('components/Office/AccountingCodes', () => {
     it('clicking "Clear selection" clears the value', async () => {
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} />
+          <ShipmentAccountingCodes TACs={{ HHG: '1234', NTS: '5678' }} />
         </Formik>,
       );
 
@@ -122,7 +122,7 @@ describe('components/Office/AccountingCodes', () => {
     it('clicking "Clear selection" on a single code clears the value', async () => {
       render(
         <Formik initialValues={{}}>
-          <AccountingCodes TACs={{ NTS: '5678' }} />
+          <ShipmentAccountingCodes TACs={{ NTS: '5678' }} />
         </Formik>,
       );
 

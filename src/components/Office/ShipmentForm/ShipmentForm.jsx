@@ -14,7 +14,7 @@ import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCo
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
-import AccountingCodes from 'components/Office/AccountingCodes/AccountingCodes';
+import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
 import { DatePickerInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
@@ -385,7 +385,7 @@ const ShipmentForm = ({
                 />
 
                 {showAccountingCodes && (
-                  <AccountingCodes
+                  <ShipmentAccountingCodes
                     TACs={TACs}
                     SACs={SACs}
                     onEditCodesClick={() => history.push(editOrdersPath)}
