@@ -129,6 +129,8 @@ const Orders = () => {
     ordersTypeDetail: order?.order_type_detail,
     tac: order?.tac || '',
     sac: order?.sac || '',
+    ntsTac: order?.ntsTac,
+    ntsSac: order?.ntsSac,
     ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
   };
 

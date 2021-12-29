@@ -11,7 +11,6 @@ import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
@@ -39,12 +38,12 @@ const EditShipmentDetails = ({ match }) => {
 
   const TACs = {
     HHG: order.tac,
-    NTS: order.nts_tac,
+    NTS: order.ntsTac,
   };
 
   const SACs = {
     HHG: order.sac,
-    NTS: order.nts_sac,
+    NTS: order.ntsSac,
   };
 
   return (
@@ -62,7 +61,7 @@ const EditShipmentDetails = ({ match }) => {
                   isCreatePage={false}
                   currentResidence={customer.current_address}
                   newDutyStationAddress={order.destinationDutyStation?.address}
-                  selectedMoveType={SHIPMENT_OPTIONS.HHG}
+                  selectedMoveType={matchingShipment.shipmentType}
                   mtoShipment={matchingShipment}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
