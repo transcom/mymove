@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import { arrayOf, bool, func, number, shape, string, oneOf } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
 import { queryCache, useMutation } from 'react-query';
-import { Alert, Button, Checkbox, Fieldset, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
+import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 
@@ -14,7 +14,6 @@ import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCo
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
-import DataTable from 'components/DataTable';
 import AccountingCodes from 'components/Office/AccountingCodes/AccountingCodes';
 import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
 import { DatePickerInput } from 'components/form/fields';
@@ -22,9 +21,8 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFacilityInfo';
 import StorageFacilityAddress from 'components/Office/StorageFacilityAddress/StorageFacilityAddress';
-import Hint from 'components/Hint/index';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -34,6 +32,9 @@ import { MatchShape } from 'types/officeShapes';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { validateDate } from 'utils/validation';
 import { deleteShipment } from 'services/ghcApi';
+import { officeRoles, roleTypes } from 'constants/userRoles';
+import ShipmentFormRemarks from 'components/Office/ShipmentFormRemarks/ShipmentFormRemarks';
+import ShipmentVendor from 'components/Office/ShipmentVendor/ShipmentVendor';
 
 const ShipmentForm = ({
   match,
@@ -41,6 +42,7 @@ const ShipmentForm = ({
   newDutyStationAddress,
   selectedMoveType,
   isCreatePage,
+  isForServicesCounseling,
   mtoShipment,
   submitHandler,
   mtoShipments,
@@ -49,6 +51,7 @@ const ShipmentForm = ({
   moveTaskOrderID,
   TACs,
   SACs,
+  userRole,
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
@@ -93,19 +96,27 @@ const ShipmentForm = ({
   };
 
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
-  const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, false);
+  const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, userRole);
+
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const showAccountingCodes = isNTS || isNTSR;
+
+  const isTOO = userRole === roleTypes.TOO;
+  const isServiceCounselor = userRole === roleTypes.SERVICES_COUNSELOR;
+
   const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
-    isCreatePage ? {} : { agents: mtoShipment.mtoAgents, ...mtoShipment },
+    isCreatePage ? { userRole } : { userRole, agents: mtoShipment.mtoAgents, ...mtoShipment },
   );
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
-  const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
-  const editOrdersPath = generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode });
-  const customerRemarksDisplay = mtoShipment.customerRemarks ? mtoShipment.customerRemarks : '-';
+
+  const moveDetailsRoute = isTOO ? tooRoutes.MOVE_VIEW_PATH : servicesCounselingRoutes.MOVE_VIEW_PATH;
+  const moveDetailsPath = generatePath(moveDetailsRoute, { moveCode });
+
+  const editOrdersRoute = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
+  const editOrdersPath = generatePath(editOrdersRoute, { moveCode });
 
   const submitMTOShipment = ({
     shipmentOption,
@@ -119,6 +130,7 @@ const ShipmentForm = ({
     sacType,
     serviceOrderNumber,
     storageFacility,
+    usesExternalVendor,
   }) => {
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no') {
@@ -137,7 +149,16 @@ const ShipmentForm = ({
       sacType,
       serviceOrderNumber,
       storageFacility,
+      usesExternalVendor,
     });
+
+    const updateMTOShipmentPayload = {
+      moveTaskOrderID,
+      shipmentID: mtoShipment.id,
+      ifMatchETag: mtoShipment.eTag,
+      normalize: false,
+      body: pendingMtoShipment,
+    };
 
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
@@ -148,14 +169,10 @@ const ShipmentForm = ({
         .catch(() => {
           setErrorMessage(`A server error occurred adding the shipment`);
         });
+    } else if (isForServicesCounseling) {
+      // routing and error handling handled in parent components
+      submitHandler(updateMTOShipmentPayload);
     } else {
-      const updateMTOShipmentPayload = {
-        moveTaskOrderID,
-        shipmentID: mtoShipment.id,
-        ifMatchETag: mtoShipment.eTag,
-        normalize: false,
-        body: pendingMtoShipment,
-      };
       submitHandler(updateMTOShipmentPayload)
         .then(() => {
           history.push(moveDetailsPath);
@@ -249,17 +266,14 @@ const ShipmentForm = ({
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isNTSR && (
-                  <>
-                    <ShipmentWeightInput />
-                    <StorageFacilityInfo />
-                    <StorageFacilityAddress />
-                  </>
-                )}
+                {isTOO && <ShipmentVendor />}
+
+                {isNTSR && <ShipmentWeightInput />}
+
                 {showPickupFields && (
                   <>
                     <SectionWrapper className={formStyles.formSection}>
-                      {showDeliveryFields && <h2>Pickup information</h2>}
+                      <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
                       <Fieldset>
                         <DatePickerInput
                           name="pickup.requestedDate"
@@ -295,10 +309,24 @@ const ShipmentForm = ({
                   </>
                 )}
 
+                {isTOO && (isNTS || isNTSR) && (
+                  <>
+                    <StorageFacilityInfo userRole={userRole} />
+                    <StorageFacilityAddress />
+                  </>
+                )}
+
+                {isServiceCounselor && isNTSR && (
+                  <>
+                    <StorageFacilityInfo userRole={userRole} />
+                    <StorageFacilityAddress />
+                  </>
+                )}
+
                 {showDeliveryFields && (
                   <>
                     <SectionWrapper className={formStyles.formSection}>
-                      {showPickupFields && <h2>Delivery information</h2>}
+                      <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
                       <Fieldset>
                         <DatePickerInput
                           name="delivery.requestedDate"
@@ -355,48 +383,19 @@ const ShipmentForm = ({
                   </>
                 )}
 
-                {isNTS && (
-                  <>
-                    <SectionWrapper className={formStyles.formSection} data-testid="nts-what-to-expect">
-                      <Fieldset legend="What you can expect">
-                        <p>
-                          The moving company will find a storage facility approved by the government, and will move your
-                          belongings there.
-                        </p>
-                        <p>
-                          You’ll need to schedule an NTS release shipment to get your items back, most likely as part of
-                          a future move.
-                        </p>
-                      </Fieldset>
-                    </SectionWrapper>
-                  </>
-                )}
-
-                <SectionWrapper className={formStyles.formSection}>
-                  <Fieldset>
-                    <h2>
-                      Remarks <span className="float-right">{optionalLabel}</span>
-                    </h2>
-                    <DataTable columnHeaders={['Customer remarks']} dataRow={[customerRemarksDisplay]} />
-
-                    <Label htmlFor="counselorRemarks">Counselor remarks</Label>
-                    <Hint>
-                      <p>500 characters</p>
-                    </Hint>
-                    <Field
-                      as={Textarea}
-                      data-testid="counselor-remarks"
-                      name="counselorRemarks"
-                      className={`${formStyles.remarks}`}
-                      placeholder=""
-                      id="counselorRemarks"
-                      maxLength={500}
-                    />
-                  </Fieldset>
-                </SectionWrapper>
+                <ShipmentFormRemarks
+                  userRole={userRole}
+                  customerRemarks={mtoShipment.customerRemarks}
+                  counselorRemarks={mtoShipment.counselorRemarks}
+                />
 
                 {showAccountingCodes && (
-                  <AccountingCodes TACs={TACs} SACs={SACs} onEditCodesClick={() => history.push(editOrdersPath)} />
+                  <AccountingCodes
+                    TACs={TACs}
+                    SACs={SACs}
+                    onEditCodesClick={() => history.push(editOrdersPath)}
+                    optional={isServiceCounselor}
+                  />
                 )}
 
                 <div className={`${formStyles.formActions} ${styles.buttonGroup}`}>
@@ -429,6 +428,7 @@ ShipmentForm.propTypes = {
   }),
   submitHandler: func.isRequired,
   isCreatePage: bool,
+  isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
@@ -442,10 +442,12 @@ ShipmentForm.propTypes = {
   }).isRequired,
   TACs: AccountingCodesShape,
   SACs: AccountingCodesShape,
+  userRole: oneOf(officeRoles).isRequired,
 };
 
 ShipmentForm.defaultProps = {
   isCreatePage: false,
+  isForServicesCounseling: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { push: () => {} },
   newDutyStationAddress: {
