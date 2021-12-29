@@ -148,6 +148,7 @@ export const Standard = () => {
     <DutyStationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
+      name="test_component"
       searchDutyStations={mockSearchDutyStations}
       showAddress={mockShowAddress}
     />
