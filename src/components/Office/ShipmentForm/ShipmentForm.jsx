@@ -42,6 +42,7 @@ const ShipmentForm = ({
   newDutyStationAddress,
   selectedMoveType,
   isCreatePage,
+  isForServicesCounseling,
   mtoShipment,
   submitHandler,
   mtoShipments,
@@ -151,6 +152,14 @@ const ShipmentForm = ({
       usesExternalVendor,
     });
 
+    const updateMTOShipmentPayload = {
+      moveTaskOrderID,
+      shipmentID: mtoShipment.id,
+      ifMatchETag: mtoShipment.eTag,
+      normalize: false,
+      body: pendingMtoShipment,
+    };
+
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
       submitHandler({ body, normalize: false })
@@ -160,14 +169,10 @@ const ShipmentForm = ({
         .catch(() => {
           setErrorMessage(`A server error occurred adding the shipment`);
         });
+    } else if (isForServicesCounseling) {
+      // routing and error handling handled in parent components
+      submitHandler(updateMTOShipmentPayload);
     } else {
-      const updateMTOShipmentPayload = {
-        moveTaskOrderID,
-        shipmentID: mtoShipment.id,
-        ifMatchETag: mtoShipment.eTag,
-        normalize: false,
-        body: pendingMtoShipment,
-      };
       submitHandler(updateMTOShipmentPayload)
         .then(() => {
           history.push(moveDetailsPath);
@@ -423,6 +428,7 @@ ShipmentForm.propTypes = {
   }),
   submitHandler: func.isRequired,
   isCreatePage: bool,
+  isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
@@ -441,6 +447,7 @@ ShipmentForm.propTypes = {
 
 ShipmentForm.defaultProps = {
   isCreatePage: false,
+  isForServicesCounseling: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { push: () => {} },
   newDutyStationAddress: {
