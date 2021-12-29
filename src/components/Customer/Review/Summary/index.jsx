@@ -330,12 +330,11 @@ Summary.propTypes = {
   mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
-  schemaRank: shape({}),
+  schemaRank: shape({}).isRequired,
 };
 
 Summary.defaultProps = {
   currentPPM: null,
-  schemaRank: {},
 };
 
 function mapStateToProps(state) {
