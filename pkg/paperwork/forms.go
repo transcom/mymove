@@ -25,7 +25,7 @@ var rankDisplayValue = map[models.ServiceMemberRank]string{
 	models.ServiceMemberRankE7:                      "E-7",
 	models.ServiceMemberRankE8:                      "E-8",
 	models.ServiceMemberRankE9:                      "E-9",
-	models.ServiceMemberRankE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enslisted",
+	models.ServiceMemberRankE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted",
 	models.ServiceMemberRankO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
 	models.ServiceMemberRankO2:                      "O-2",
 	models.ServiceMemberRankO3:                      "O-3",
