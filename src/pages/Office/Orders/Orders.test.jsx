@@ -78,6 +78,8 @@ const useOrdersDocumentQueriesReturnValue = {
       report_by_date: '2018-08-01',
       tac: 'F8E1',
       sac: 'E2P3',
+      ntsTac: '1111',
+      ntsSac: '2222',
     },
   },
 };
@@ -134,7 +136,10 @@ describe('Orders page', () => {
           <Orders />
         </MockProviders>,
       );
+
       expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
+      expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
+      expect(screen.getByTestId('ntsSacInput')).toHaveValue('2222');
     });
   });
 });
