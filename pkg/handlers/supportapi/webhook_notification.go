@@ -58,13 +58,13 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhook
 		message := "{ \"message\": \"This is a test notification\" }"
 		payload = &supportmessages.WebhookNotification{
 			EventKey: string(event.TestCreateEventKey),
-			TraceID:  *handlers.FmtUUID(h.GetTraceID()),
+			TraceID:  *handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest)),
 			Object:   swag.String(message),
 			Status:   supportmessages.WebhookNotificationStatusPENDING,
 		}
 	}
 	// Convert to model and create in DB
-	notification, verrs := payloads.WebhookNotificationModel(payload, h.GetTraceID())
+	notification, verrs := payloads.WebhookNotificationModel(payload, h.GetTraceIDFromRequest(params.HTTPRequest))
 	if verrs == nil {
 		verrs, err = appCtx.DB().ValidateAndCreate(notification)
 	}
@@ -72,11 +72,11 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhook
 		appCtx.Logger().Error("Error validating WebhookNotification: ", zap.Error(verrs))
 
 		return webhookops.NewCreateWebhookNotificationUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"The notification definition is invalid.", h.GetTraceID(), verrs))
+			"The notification definition is invalid.", h.GetTraceIDFromRequest(params.HTTPRequest), verrs))
 	}
 	if err != nil {
 		appCtx.Logger().Error("Error creating WebhookNotification: ", zap.Error(err))
-		return webhookops.NewCreateWebhookNotificationInternalServerError().WithPayload(payloads.InternalServerError(swag.String(err.Error()), h.GetTraceID()))
+		return webhookops.NewCreateWebhookNotificationInternalServerError().WithPayload(payloads.InternalServerError(swag.String(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
 
 	payload = payloads.WebhookNotification(notification)

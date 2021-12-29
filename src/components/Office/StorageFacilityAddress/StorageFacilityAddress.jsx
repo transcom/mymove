@@ -3,7 +3,7 @@ import { Fieldset, FormGroup, Label, TextInput, Grid } from '@trussworks/react-u
 import { Field } from 'formik';
 
 import formStyles from 'styles/form.module.scss';
-import styles from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm.module.scss';
+import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 
@@ -11,7 +11,7 @@ const StorageFacilityAddress = () => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
-        <h2>Storage facility address</h2>
+        <h2 className={styles.SectionHeader}>Storage facility address</h2>
         <AddressFields
           name="storageFacility.address"
           render={(fields) => (

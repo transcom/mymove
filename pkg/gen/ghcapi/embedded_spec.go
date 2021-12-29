@@ -3387,11 +3387,6 @@ func init() {
             }
           ]
         },
-        "primeActualWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "example": 2000
-        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
@@ -5712,11 +5707,6 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
-        },
-        "primeActualWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "example": 2000
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -10064,11 +10054,6 @@ func init() {
             }
           ]
         },
-        "primeActualWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "example": 2000
-        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
@@ -12395,11 +12380,6 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
-        },
-        "primeActualWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "example": 2000
         },
         "requestedDeliveryDate": {
           "type": "string",

@@ -778,7 +778,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		var gbloc ghcmessages.GBLOC
 		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			gbloc = ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc)
+			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
 		} else if len(move.ShipmentGBLOC) > 0 {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
@@ -854,7 +854,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			Age:                int64(math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0)),
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
-			OriginGBLOC:        ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),
+			OriginGBLOC:        ghcmessages.GBLOC(moveTaskOrder.ShipmentGBLOC[0].GBLOC),
 			OriginDutyLocation: DutyStationToLocation(orders.OriginDutyStation),
 		}
 

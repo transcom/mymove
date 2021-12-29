@@ -301,6 +301,10 @@
   @include u-padding-x(4);
   @include u-padding-y(3);
 
+  @media (max-width: 700px) {
+    @include u-padding-x(1);
+  }
+
   h4 {
     @include u-margin-y(0);
     @include u-margin-bottom(3);

@@ -43,12 +43,25 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// Essentially these are private functions that return query objects that we can mash together to form a complete
 	// query from modular parts.
 
-	branchQuery := branchFilter(params.Branch)
+	// The services counselot queue does not base exclude marine results.
+	// Only the TIO and TOO queues should.
+	needsCounseling := false
+	if len(params.Status) > 0 {
+		for _, status := range params.Status {
+			if status == string(models.MoveStatusNeedsServiceCounseling) || status == string(models.MoveStatusServiceCounselingCompleted) {
+				needsCounseling = true
+			}
+		}
+	}
+
+	branchQuery := branchFilter(params.Branch, needsCounseling)
+
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
+	// var gblocQuery QueryOption
 	var gblocToFilterBy *string
-	if officeUserGbloc == "USMC" {
-		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+	if officeUserGbloc == "USMC" && !needsCounseling {
+		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling)
 		gblocToFilterBy = params.OriginGBLOC
 	} else {
 		gblocToFilterBy = &officeUserGbloc
@@ -58,7 +71,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	//  - The Services Counselor queue filters based on the GBLOC of the transportation office
 	//  - The TOO queue uses the GBLOC we get from the first shipment's postal code
 	var gblocQuery QueryOption
-	if len(params.Status) == 1 && params.Status[0] == string(models.MoveStatusNeedsServiceCounseling) {
+	if needsCounseling {
 		gblocQuery = gblocFilter(gblocToFilterBy)
 	} else {
 		gblocQuery = shipmentGBLOCFilter(gblocToFilterBy)
@@ -85,6 +98,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		"MTOShipments",
 		"MTOServiceItems",
 		"ShipmentGBLOC",
+		"OriginDutyLocationGBLOC",
 	).InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -94,10 +108,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
+		InnerJoin("origin_duty_location_to_gbloc as o_gbloc", "o_gbloc.move_id = moves.id").
 		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
 		Where("show = ?", swag.Bool(true)).
 		Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
-
 	for _, option := range options {
 		if option != nil {
 			option(query) // mutates
@@ -146,6 +160,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		//   cannot eager load the address as "OriginDutyStation.Address" because
 		//   OriginDutyStation is a pointer.
 		if moves[i].Orders.OriginDutyStation != nil {
+			fmt.Println("POSTAL CODE: ", moves[i].Orders.OriginDutyStation.Address.PostalCode)
 			loadErr := appCtx.DB().Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
 			if loadErr != nil {
 				return []models.Move{}, 0, err
@@ -198,9 +213,9 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 }
 
 // These are a bunch of private functions that are used to cobble our list Orders filters together.
-func branchFilter(branch *string) QueryOption {
+func branchFilter(branch *string, needsCounseling bool) QueryOption {
 	return func(query *pop.Query) {
-		if branch == nil {
+		if branch == nil && !needsCounseling {
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {
@@ -291,10 +306,13 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	}
 }
 
+// Need to fix GBLOC for services counselor
 func gblocFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
+		fmt.Println("🍉🍉🍉🍉🍉")
+		fmt.Println(gbloc)
 		if gbloc != nil {
-			query.Where("origin_to.gbloc ILIKE ?", *gbloc)
+			query.Where("o_gbloc.gbloc = ?", *gbloc)
 		}
 	}
 }

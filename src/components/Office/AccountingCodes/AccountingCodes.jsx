@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Fieldset, Label, FormGroup, Radio, Button } from '@trussworks/react-uswds';
+import { Fieldset, Label, FormGroup, Radio, Button, Grid } from '@trussworks/react-uswds';
 import { useField } from 'formik';
 
 import styles from './AccountingCodes.module.scss';
 
 import formStyles from 'styles/form.module.scss';
+import shipmentFormStyles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AccountingCodesShape } from 'types/accountingCodes';
 
@@ -13,7 +14,7 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
   const [inputProps, , helperProps] = useField(fieldName);
   const [hasSetDefaultValue, setHasSetDefaultValue] = useState(false);
 
-  const shipmentTypePairs = Object.entries(shipmentTypes);
+  const shipmentTypePairs = Object.entries(shipmentTypes).filter(([, value]) => !!value);
 
   useEffect(() => {
     if (hasSetDefaultValue === false && shipmentTypePairs.length === 1) {
@@ -26,10 +27,14 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
 
   if (shipmentTypePairs.length === 0) {
     return (
-      <FormGroup>
-        <Label>{label}</Label>
-        <p className={styles.SectionDefaultText}>{emptyMessage}</p>
-      </FormGroup>
+      <Grid row>
+        <Grid col={12}>
+          <FormGroup>
+            <Label>{label}</Label>
+            <p className={styles.SectionDefaultText}>{emptyMessage}</p>
+          </FormGroup>
+        </Grid>
+      </Grid>
     );
   }
 
@@ -52,16 +57,18 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
   });
 
   return (
-    <>
-      <FormGroup className={styles.Section}>
-        <Label>{label}</Label>
-        {fields}
-      </FormGroup>
+    <Grid row>
+      <Grid col={12}>
+        <FormGroup className={styles.Section}>
+          <Label>{label}</Label>
+          {fields}
+        </FormGroup>
 
-      <button type="button" onClick={handleClear} className={styles.SectionClear}>
-        Clear selection
-      </button>
-    </>
+        <button type="button" onClick={handleClear} className={styles.SectionClear}>
+          Clear selection
+        </button>
+      </Grid>
+    </Grid>
   );
 };
 
@@ -78,7 +85,7 @@ const AccountingCodes = ({ optional, TACs, SACs, onEditCodesClick }) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset>
-        <h2>
+        <h2 className={shipmentFormStyles.SectionHeader}>
           Accounting codes
           {optional && (
             <span className="float-right">
@@ -100,7 +107,7 @@ const AccountingCodes = ({ optional, TACs, SACs, onEditCodesClick }) => {
           shipmentTypes={SACs}
         />
 
-        <Button type="button" onClick={onEditCodesClick} secondary={hasCodes}>
+        <Button type="button" onClick={onEditCodesClick} secondary={hasCodes} className={styles.addCodeBtn}>
           {hasCodes ? 'Add or edit codes' : 'Add code'}
         </Button>
       </Fieldset>

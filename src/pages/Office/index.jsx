@@ -31,7 +31,7 @@ import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
-import { servicesCounselingRoutes, primeSimulatorRoutes } from 'constants/routes';
+import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
@@ -52,12 +52,10 @@ const ServicesCounselingMoveInfo = lazy(() =>
   import('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo'),
 );
 const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounselingQueue/ServicesCounselingQueue'));
-const ServicesCounselingEditShipmentDetails = lazy(() =>
-  import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
-);
 const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
+const EditShipmentDetails = lazy(() => import('pages/Office/EditShipmentDetails/EditShipmentDetails'));
 const PrimeSimulatorAvailableMoves = lazy(() => import('pages/PrimeUI/AvailableMoves/AvailableMovesQueue'));
 const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder/MoveDetails'));
 const PrimeSimulatorCreatePaymentRequest = lazy(() =>
@@ -223,14 +221,6 @@ export class OfficeApp extends Component {
                       component={ServicesCounselingAddShipment}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
-
-                    <PrivateRoute
-                      key="servicesCounselingEditShipmentDetailsRoute"
-                      exact
-                      path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
-                      component={ServicesCounselingEditShipmentDetails}
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
-                    />
                     <PrivateRoute
                       path={servicesCounselingRoutes.QUEUE_VIEW_PATH}
                       exact
@@ -242,6 +232,15 @@ export class OfficeApp extends Component {
                       path={servicesCounselingRoutes.BASE_MOVE_PATH}
                       component={ServicesCounselingMoveInfo}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+
+                    {/* TOO */}
+                    <PrivateRoute
+                      key="tooEditShipmentDetailsRoute"
+                      exact
+                      path={tooRoutes.SHIPMENT_EDIT_PATH}
+                      component={EditShipmentDetails}
+                      requiredRoles={[roleTypes.TOO]}
                     />
 
                     {/* PRIME SIMULATOR */}

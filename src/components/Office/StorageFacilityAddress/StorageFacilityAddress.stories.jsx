@@ -5,11 +5,12 @@ import { Formik } from 'formik';
 import StorageFacilityAddress from './StorageFacilityAddress';
 
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
+import shipmentFormStyles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 
 export default {
-  title: 'Office Components / Forms / ServicesCounselingShipmentForm / StorageFacilityAddress',
+  title: 'Office Components / Forms / ShipmentForm / StorageFacilityAddress',
   component: StorageFacilityAddress,
   decorators: [
     (Story) => (
@@ -20,7 +21,9 @@ export default {
               {() => {
                 return (
                   <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
-                    <Story />
+                    <div className={shipmentFormStyles.ShipmentForm}>
+                      <Story />
+                    </div>
                   </Form>
                 );
               }}

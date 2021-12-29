@@ -1,13 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useHistory, useParams } from 'react-router-dom';
+import { generatePath } from 'react-router';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import 'styles/office.scss';
-import CustomerHeader from 'components/CustomerHeader';
-import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
+import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
@@ -15,8 +16,10 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
+import { servicesCounselingRoutes } from 'constants/routes';
+import { roleTypes } from 'constants/userRoles';
 
-const ServicesCounselingEditShipmentDetails = ({ match }) => {
+const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
@@ -25,6 +28,12 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+      onUpdate('success');
+    },
+    onError: () => {
+      history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+      onUpdate('error');
     },
   });
 
@@ -48,17 +57,17 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
 
   return (
     <>
-      <CustomerHeader order={order} customer={customer} moveCode={moveCode} />
       <div className={styles.tabContent}>
         <div className={styles.container}>
           <GridContainer className={styles.gridContainer}>
             <Grid row>
               <Grid col desktop={{ col: 8, offset: 2 }}>
-                <ServicesCounselingShipmentForm
+                <ShipmentForm
                   match={match}
                   history={history}
                   submitHandler={mutateMTOShipment}
                   isCreatePage={false}
+                  isForServicesCounseling
                   currentResidence={customer.current_address}
                   newDutyStationAddress={order.destinationDutyStation?.address}
                   selectedMoveType={SHIPMENT_OPTIONS.HHG}
@@ -68,6 +77,7 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
                   mtoShipments={mtoShipments}
                   TACs={TACs}
                   SACs={SACs}
+                  userRole={roleTypes.SERVICES_COUNSELOR}
                 />
               </Grid>
             </Grid>
@@ -80,6 +90,7 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
 
 ServicesCounselingEditShipmentDetails.propTypes = {
   match: MatchShape.isRequired,
+  onUpdate: PropTypes.func.isRequired,
 };
 
 export default ServicesCounselingEditShipmentDetails;

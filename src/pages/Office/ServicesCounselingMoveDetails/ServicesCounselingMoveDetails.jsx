@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useHistory } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import classnames from 'classnames';
@@ -22,16 +22,18 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 
-const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
+const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   const { moveCode } = useParams();
+  const history = useHistory();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
@@ -128,6 +130,17 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     ntsSAC: order.ntsSac,
   };
 
+  const handleButtonDropdownChange = (e) => {
+    const selectedOption = e.target.value;
+
+    const addShipmentPath = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
+      moveCode,
+      shipmentType: selectedOption,
+    });
+
+    history.push(addShipmentPath);
+  };
+
   // use mutation calls
   const [mutateMoveStatus] = useMutation(updateMoveStatusServiceCounselingCompleted, {
     onSuccess: (data) => {
@@ -216,10 +229,10 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                 </Alert>
               </Grid>
             )}
-            {customerEditAlert && (
+            {infoSavedAlert && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-                <Alert slim type={customerEditAlert.alertType}>
-                  {customerEditAlert.message}
+                <Alert slim type={infoSavedAlert.alertType}>
+                  {infoSavedAlert.message}
                 </Alert>
               </Grid>
             )}
@@ -244,12 +257,12 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
                 counselorCanEdit && (
-                  <Link
-                    className="usa-button usa-button--secondary"
-                    to={generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, { moveCode })}
-                  >
-                    Add a new shipment
-                  </Link>
+                  <ButtonDropdown onChange={handleButtonDropdownChange}>
+                    <option value="">Add a new shipment</option>
+                    <option value={SHIPMENT_OPTIONS_URL.HHG}>HHG</option>
+                    <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+                    <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+                  </ButtonDropdown>
                 )
               }
               financialReviewOpen={handleShowFinancialReviewModal}
@@ -340,11 +353,11 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 };
 
 ServicesCounselingMoveDetails.propTypes = {
-  customerEditAlert: AlertStateShape,
+  infoSavedAlert: AlertStateShape,
 };
 
 ServicesCounselingMoveDetails.defaultProps = {
-  customerEditAlert: null,
+  infoSavedAlert: null,
 };
 
 export default ServicesCounselingMoveDetails;

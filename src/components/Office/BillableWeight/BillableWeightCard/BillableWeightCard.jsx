@@ -35,7 +35,7 @@ export default function BillableWeightCard({
             </div>
           )}
         </div>
-        <Button onClick={onReviewWeights} secondary={secondaryReviewWeightsBtn}>
+        <Button onClick={onReviewWeights} secondary={secondaryReviewWeightsBtn} style={{ maxWidth: '160px' }}>
           Review weights
         </Button>
       </div>

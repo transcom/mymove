@@ -144,7 +144,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		suite.Equal("X", officeUser.LastName)
 		suite.Equal("222-222-2222", officeUser.Telephone)
 		suite.Equal(newOfficeUser.roleType, officeUser.User.Roles[0].RoleType)
-		suite.Equal("LKNQ", officeUser.TransportationOffice.Gbloc)
+		suite.Equal("KKFA", officeUser.TransportationOffice.Gbloc)
 	}
 }
 
