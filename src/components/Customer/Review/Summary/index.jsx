@@ -208,7 +208,8 @@ export class Summary extends Component {
   };
 
   render() {
-    const { currentMove, currentOrders, currentPPM, match, moveIsApproved, mtoShipments, serviceMember } = this.props;
+    const { currentMove, currentOrders, currentPPM, match, moveIsApproved, mtoShipments, serviceMember, schemaRank } =
+      this.props;
     const { entitlementWarning, showModal } = this.state;
 
     const { moveId } = match.params;
@@ -253,7 +254,7 @@ export class Summary extends Component {
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postalCode}
-            rank={currentOrders.grade}
+            rank={get(schemaRank['x-display-value'], get(currentOrders, 'grade'))}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}
@@ -327,10 +328,12 @@ Summary.propTypes = {
   mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
+  schemaRank: shape({}),
 };
 
 Summary.defaultProps = {
   currentPPM: null,
+  schemaRank: {},
 };
 
 function mapStateToProps(state) {
