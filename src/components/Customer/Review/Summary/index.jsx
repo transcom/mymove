@@ -344,7 +344,7 @@ function mapStateToProps(state) {
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove: selectCurrentMove(state) || {},
     currentOrders: selectCurrentOrders(state) || {},
-    schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
+    schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
     moveIsApproved: selectMoveIsApproved(state),
