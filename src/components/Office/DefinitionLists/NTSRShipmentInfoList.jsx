@@ -168,7 +168,7 @@ const NTSRShipmentInfoList = ({
     </div>
   );
   return (
-    <dl className={classNames(className, styles.ShipmentDefinitionLists)} data-testid="shipment-info-list">
+    <dl className={classNames(className, styles.ShipmentDefinitionLists)} data-testid="nts-release-shipment-info-list">
       {(isExpanded || primeActualWeightElementFlags.alwaysShow) && primeActualWeightElement}
       {(isExpanded || storageFacilityInfoElementFlags.alwaysShow) && storageFacilityInfoElement}
       {(isExpanded || serviceOrderNumberElementFlags.alwaysShow) && serviceOrderNumberElement}
