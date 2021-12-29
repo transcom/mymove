@@ -235,6 +235,8 @@ export class Summary extends Component {
     const thirdSectionHasContent =
       showMoveSetup || showPPMShipmentSummary || (isReviewPage && (mtoShipments.length > 0 || currentPPM));
 
+    const formattedRank = get(schemaRank['x-display-value'], get(serviceMember, 'rank'));
+
     return (
       <>
         {entitlementWarning && (
@@ -254,7 +256,7 @@ export class Summary extends Component {
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postalCode}
-            rank={get(schemaRank['x-display-value'], get(serviceMember, 'rank'))}
+            rank={formattedRank}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}
