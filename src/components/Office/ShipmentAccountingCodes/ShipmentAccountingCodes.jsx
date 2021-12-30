@@ -16,7 +16,7 @@ const AccountingCodes = ({ optional, TACs, SACs, onEditCodesClick }) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset>
-        <h2 className={shipmentFormStyles.SectionHeader}>
+        <h2 className={shipmentFormStyles.SectionHeaderExtraSpacing}>
           Accounting codes
           {optional && (
             <span className="float-right">

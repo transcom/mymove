@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Label, FormGroup, Radio, Grid } from '@trussworks/react-uswds';
+import { Label, FormGroup, Radio } from '@trussworks/react-uswds';
 import { useField } from 'formik';
 
 import styles from './AccountingCodeSection.module.scss';
@@ -24,14 +24,10 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
 
   if (shipmentTypePairs.length === 0) {
     return (
-      <Grid row>
-        <Grid col={12}>
-          <FormGroup>
-            <Label>{label}</Label>
-            <p className={styles.SectionDefaultText}>{emptyMessage}</p>
-          </FormGroup>
-        </Grid>
-      </Grid>
+      <FormGroup>
+        <Label>{label}</Label>
+        <p className={styles.SectionDefaultText}>{emptyMessage}</p>
+      </FormGroup>
     );
   }
 
@@ -54,18 +50,16 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
   });
 
   return (
-    <Grid row>
-      <Grid col={12}>
-        <FormGroup className={styles.Section}>
-          <Label>{label}</Label>
-          {fields}
-        </FormGroup>
+    <>
+      <FormGroup className={styles.Section}>
+        <Label>{label}</Label>
+        {fields}
+      </FormGroup>
 
-        <button type="button" onClick={handleClear} className={styles.SectionClear}>
-          Clear selection
-        </button>
-      </Grid>
-    </Grid>
+      <button type="button" onClick={handleClear} className={styles.SectionClear}>
+        Clear selection
+      </button>
+    </>
   );
 };
 
