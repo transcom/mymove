@@ -21,6 +21,7 @@ const ShipmentInfoListSelector = ({
     case SHIPMENT_OPTIONS.NTSR:
       return (
         <NTSRShipmentInfoList
+          className={className}
           shipment={shipment}
           isExpanded={isExpanded}
           warnIfMissing={warnIfMissing}
