@@ -55,6 +55,7 @@ describe('Shipment Info List', () => {
   it.each([
     ['HHG', SHIPMENT_OPTIONS.HHG, 'shipment-info-list'],
     ['NTS-release', SHIPMENT_OPTIONS.NTSR, 'nts-release-shipment-info-list'],
+    ['default', SHIPMENT_OPTIONS.HHG, 'shipment-info-list'],
   ])('when the shipment type is %s it selects the %s shipment', async (_, shipmentType, testId) => {
     render(<ShipmentInfoListSelector shipment={info} shipmentType={shipmentType} />);
 
