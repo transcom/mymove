@@ -35,7 +35,12 @@ const ShipmentDetails = ({
       <ShipmentDetailsSidebar
         className={styles.ShipmentDetailsSidebar}
         agents={shipment.agents}
-        secondaryAddresses={shipment}
+        secondaryAddresses={{
+          secondaryPickupAddress: shipment.secondaryPickupAddress,
+          secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
+        }}
+        storageFacility={shipment.storageFacility}
+        serviceOrderNumber={shipment.serviceOrderNumber}
       />
     </div>
   );
