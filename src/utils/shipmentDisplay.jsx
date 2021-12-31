@@ -15,6 +15,10 @@ export function formatAddress(address) {
   );
 }
 
+export function formatAccountingCode(accountingCode, accountingCodeType) {
+  return String(accountingCode).concat(' (', accountingCodeType, ')');
+}
+
 // Display street address 1, street address 2, city, state, and zip
 // for Prime API Prime Simulator UI shipment
 export function formatPrimeAPIShipmentAddress(address) {
