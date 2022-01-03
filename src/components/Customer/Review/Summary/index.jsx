@@ -235,8 +235,6 @@ export class Summary extends Component {
     const thirdSectionHasContent =
       showMoveSetup || showPPMShipmentSummary || (isReviewPage && (mtoShipments.length > 0 || currentPPM));
 
-    const formattedRank = get(schemaRank['x-display-value'], get(serviceMember, 'rank'));
-
     return (
       <>
         {entitlementWarning && (
@@ -256,7 +254,7 @@ export class Summary extends Component {
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postalCode}
-            rank={formattedRank}
+            rank={schemaRank?.['x-display-value']?.[serviceMember.rank] || ''}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}
@@ -330,11 +328,12 @@ Summary.propTypes = {
   mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
-  schemaRank: shape({}).isRequired,
+  schemaRank: shape({}),
 };
 
 Summary.defaultProps = {
   currentPPM: null,
+  schemaRank: {},
 };
 
 function mapStateToProps(state) {
@@ -344,7 +343,7 @@ function mapStateToProps(state) {
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove: selectCurrentMove(state) || {},
     currentOrders: selectCurrentOrders(state) || {},
-    schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
+    schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
     moveIsApproved: selectMoveIsApproved(state),
