@@ -232,6 +232,21 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 }
 
+func DutyStationToLocation(dutyStation *models.DutyStation) *ghcmessages.DutyLocation {
+	if dutyStation == nil {
+		return nil
+	}
+	address := Address(&dutyStation.Address)
+	payload := ghcmessages.DutyLocation{
+		Address:   address,
+		AddressID: address.ID,
+		ID:        strfmt.UUID(dutyStation.ID.String()),
+		Name:      dutyStation.Name,
+		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
+	}
+	return &payload
+}
+
 // DutyStation payload
 func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
 	if dutyStation == nil {
@@ -762,7 +777,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		var gbloc ghcmessages.GBLOC
 		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			gbloc = ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc)
+			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
 		} else if len(move.ShipmentGBLOC) > 0 {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
@@ -774,17 +789,17 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		}
 
 		queueMoves[i] = &ghcmessages.QueueMove{
-			Customer:               Customer(&customer),
-			Status:                 ghcmessages.QueueMoveStatus(move.Status),
-			ID:                     *handlers.FmtUUID(move.ID),
-			Locator:                move.Locator,
-			SubmittedAt:            handlers.FmtDateTimePtr(move.SubmittedAt),
-			RequestedMoveDate:      handlers.FmtDatePtr(earliestRequestedPickup),
-			DepartmentIndicator:    &deptIndicator,
-			ShipmentsCount:         int64(len(validMTOShipments)),
-			OriginDutyLocation:     DutyStation(move.Orders.OriginDutyStation),
-			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
-			OriginGBLOC:            gbloc,
+			Customer:                Customer(&customer),
+			Status:                  ghcmessages.QueueMoveStatus(move.Status),
+			ID:                      *handlers.FmtUUID(move.ID),
+			Locator:                 move.Locator,
+			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
+			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
+			DepartmentIndicator:     &deptIndicator,
+			ShipmentsCount:          int64(len(validMTOShipments)),
+			OriginDutyLocation:      DutyStationToLocation(move.Orders.OriginDutyStation),
+			DestinationDutyLocation: DutyStationToLocation(&move.Orders.NewDutyStation),
+			OriginGBLOC:             gbloc,
 		}
 	}
 	return &queueMoves
@@ -839,7 +854,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        ghcmessages.GBLOC(moveTaskOrder.ShipmentGBLOC[0].GBLOC),
-			OriginDutyLocation: DutyStation(orders.OriginDutyStation),
+			OriginDutyLocation: DutyStationToLocation(orders.OriginDutyStation),
 		}
 
 		if orders.DepartmentIndicator != nil {

@@ -33,7 +33,7 @@ func NewGetMovesQueue(ctx *middleware.Context, handler GetMovesQueueHandler) *Ge
 
 Gets queued list of all customer moves by GBLOC origin
 
-An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.
+An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.
 
 
 */

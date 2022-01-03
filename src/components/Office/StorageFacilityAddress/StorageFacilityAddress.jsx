@@ -11,7 +11,7 @@ const StorageFacilityAddress = () => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
-        <h2>Storage facility address</h2>
+        <h2 className={styles.SectionHeader}>Storage facility address</h2>
         <AddressFields
           name="storageFacility.address"
           render={(fields) => (

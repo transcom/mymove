@@ -35,6 +35,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
+import { roleTypes } from 'constants/userRoles';
 
 const blankAddress = {
   address: {
@@ -137,7 +138,7 @@ class MtoShipmentForm extends Component {
     const { errorMessage } = this.state;
 
     const shipmentType = mtoShipment.shipmentType || selectedMoveType;
-    const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, true);
+    const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, roleTypes.CUSTOMER);
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;

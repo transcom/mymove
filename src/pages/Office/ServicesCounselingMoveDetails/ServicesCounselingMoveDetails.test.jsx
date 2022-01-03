@@ -434,8 +434,8 @@ describe('MoveDetails page', () => {
       expect(await screen.findByRole('heading', { name: 'Customer info', level: 2 })).toBeInTheDocument();
     });
 
-    it('renders customer edit alert', () => {
-      renderMockedComponent({ customerEditAlert: { alertType: 'success', message: 'great success!' } });
+    it('renders info saved alert', () => {
+      renderMockedComponent({ infoSavedAlert: { alertType: 'success', message: 'great success!' } });
       expect(screen.getByText('great success!')).toBeInTheDocument();
     });
 

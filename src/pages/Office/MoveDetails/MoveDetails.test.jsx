@@ -92,6 +92,8 @@ const requestedMoveDetailsQuery = {
     order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
     tac: '9999',
+    ntsTac: '1111',
+    ntsSac: '2222',
   },
   mtoShipments: [
     {
@@ -649,6 +651,8 @@ describe('MoveDetails page', () => {
 
     it('renders the Orders Table', () => {
       expect(wrapper.find('#orders h2').text()).toEqual('Orders');
+      expect(wrapper.find('dd[data-testid="NTStac"]').text()).toEqual('1111');
+      expect(wrapper.find('dd[data-testid="NTSsac"]').text()).toEqual('2222');
     });
 
     it('renders the Allowances Table', () => {
