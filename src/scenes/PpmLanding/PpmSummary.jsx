@@ -165,7 +165,7 @@ export class PpmSummaryComponent extends React.Component {
             </div>
             <div className="contact_block">
               <h2>Contacts</h2>
-              <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
+              <TransportationOfficeContactInfo dutyLocation={profile.current_station} isOrigin={true} />
             </div>
           </div>
         </div>

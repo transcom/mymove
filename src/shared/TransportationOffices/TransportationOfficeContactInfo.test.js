@@ -9,7 +9,7 @@ describe('TransportationOfficeContactInfo tests', () => {
     const div = document.createElement('div');
     wrapper = shallow(
       <TransportationOfficeContactInfo
-        dutyStation={{ id: '123', name: 'Test Duty Station' }}
+        dutyLocation={{ id: '123', name: 'Test Duty Location' }}
         loadDutyLocationTransportationOffice={loadFn}
       />,
       div,
