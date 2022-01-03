@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 
 import ShipmentDetailsSidebar from './ShipmentDetailsSidebar';
 
-const info = {
+const shipment = {
   agents: [
     {
       agentType: 'RELEASING_AGENT',
@@ -40,19 +40,19 @@ const headers = ['Releasing agent', 'Receiving agent', 'Secondary addresses', 'P
 
 describe('Shipment Details Sidebar', () => {
   it('renders all fields when provided', () => {
-    render(<ShipmentDetailsSidebar {...info} />);
+    render(<ShipmentDetailsSidebar shipment={shipment} />);
 
     headers.forEach((header) => {
       expect(screen.getByText(header)).toBeInTheDocument();
     });
 
-    expect(screen.getByText(info.agents[0].email)).toBeInTheDocument();
-    expect(screen.getByText(info.agents[1].email)).toBeInTheDocument();
+    expect(screen.getByText(shipment.agents[0].email)).toBeInTheDocument();
+    expect(screen.getByText(shipment.agents[1].email)).toBeInTheDocument();
     expect(
-      screen.getByText(info.secondaryAddresses.secondaryPickupAddress.streetAddress1, { exact: false }),
+      screen.getByText(shipment.secondaryAddresses.secondaryPickupAddress.streetAddress1, { exact: false }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(info.secondaryAddresses.secondaryDeliveryAddress.streetAddress1, { exact: false }),
+      screen.getByText(shipment.secondaryAddresses.secondaryDeliveryAddress.streetAddress1, { exact: false }),
     ).toBeInTheDocument();
   });
 

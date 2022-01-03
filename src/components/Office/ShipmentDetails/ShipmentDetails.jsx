@@ -32,16 +32,7 @@ const ShipmentDetails = ({
         handleReviewSITExtension={handleReviewSITExtension}
         handleSubmitSITExtension={handleSubmitSITExtension}
       />
-      <ShipmentDetailsSidebar
-        className={styles.ShipmentDetailsSidebar}
-        agents={shipment.agents}
-        secondaryAddresses={{
-          secondaryPickupAddress: shipment.secondaryPickupAddress,
-          secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
-        }}
-        storageFacility={shipment.storageFacility}
-        serviceOrderNumber={shipment.serviceOrderNumber}
-      />
+      <ShipmentDetailsSidebar className={styles.ShipmentDetailsSidebar} shipment={shipment} />
     </div>
   );
 };

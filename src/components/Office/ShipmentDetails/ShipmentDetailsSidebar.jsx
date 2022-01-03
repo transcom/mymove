@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 
 import SimpleSection from 'containers/SimpleSection/SimpleSection';
-import { AddressShape } from 'types/address';
-import { AgentShape } from 'types/agent';
 import { formatAgent, formatAddress } from 'utils/shipmentDisplay';
+import { ShipmentShape } from 'types/shipment';
 
-const ShipmentDetailsSidebar = ({ className, agents, secondaryAddresses, storageFacility, serviceOrderNumber }) => {
-  const { secondaryPickupAddress, secondaryDeliveryAddress } = secondaryAddresses;
+const ShipmentDetailsSidebar = ({ className, shipment }) => {
+  const { agents, secondaryPickupAddress, secondaryDeliveryAddress, serviceOrderNumber, storageFacility } = shipment;
 
   return (
     <div className={className}>
@@ -93,21 +92,12 @@ const ShipmentDetailsSidebar = ({ className, agents, secondaryAddresses, storage
 
 ShipmentDetailsSidebar.propTypes = {
   className: PropTypes.string,
-  agents: PropTypes.arrayOf(AgentShape),
-  secondaryAddresses: PropTypes.shape({
-    secondaryPickupAddress: AddressShape,
-    secondaryDeliveryAddress: AddressShape,
-  }),
-  storageFacility: AddressShape,
-  serviceOrderNumber: PropTypes.string,
+  shipment: ShipmentShape,
 };
 
 ShipmentDetailsSidebar.defaultProps = {
   className: '',
-  agents: [],
-  secondaryAddresses: {},
-  storageFacility: {},
-  serviceOrderNumber: '',
+  shipment: {},
 };
 
 export default ShipmentDetailsSidebar;
