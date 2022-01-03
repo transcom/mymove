@@ -107,7 +107,6 @@ export const EditOrders = ({
     })
       .then((response) => {
         updateOrders(response);
-
         if (entitlementCouldChange) {
           setFlashMessage(
             'EDIT_ORDERS_SUCCESS',
@@ -118,7 +117,6 @@ export const EditOrders = ({
         } else {
           setFlashMessage('EDIT_ORDERS_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
-
         history.goBack();
       })
       .catch((e) => {
@@ -127,7 +125,6 @@ export const EditOrders = ({
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update orders due to server error');
         setServerError(errorMessage);
-
         scrollToTop();
       });
   };
