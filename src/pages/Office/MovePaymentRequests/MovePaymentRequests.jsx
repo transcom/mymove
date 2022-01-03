@@ -236,7 +236,7 @@ const MovePaymentRequests = ({
             <h1>Payment Requests</h1>
             <FinancialReviewButton
               onClick={handleShowFinancialReviewModal}
-              reviewRequested={move.financialReviewFlag}
+              reviewRequested={move?.financialReviewFlag}
             />
           </div>
           {isFinancialModalVisible && (
