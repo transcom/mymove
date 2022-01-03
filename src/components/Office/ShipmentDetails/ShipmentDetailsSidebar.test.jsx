@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 
 import ShipmentDetailsSidebar from './ShipmentDetailsSidebar';
 
+import { MockProviders } from 'testUtils';
+
 const shipment = {
   agents: [
     {
@@ -40,7 +42,11 @@ const headers = ['Releasing agent', 'Receiving agent', 'Secondary addresses', 'P
 
 describe('Shipment Details Sidebar', () => {
   it('renders all fields when provided', () => {
-    render(<ShipmentDetailsSidebar shipment={shipment} />);
+    render(
+      <MockProviders>
+        <ShipmentDetailsSidebar shipment={shipment} />
+      </MockProviders>,
+    );
 
     headers.forEach((header) => {
       expect(screen.getByText(header)).toBeInTheDocument();
@@ -57,7 +63,11 @@ describe('Shipment Details Sidebar', () => {
   });
 
   it('renders nothing with no info passed in', () => {
-    render(<ShipmentDetailsSidebar />);
+    render(
+      <MockProviders>
+        <ShipmentDetailsSidebar />
+      </MockProviders>,
+    );
 
     headers.forEach((header) => {
       expect(screen.queryByText(header)).toBeNull();

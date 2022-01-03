@@ -7,7 +7,7 @@ import { formatAgent, formatAddress } from 'utils/shipmentDisplay';
 import { ShipmentShape } from 'types/shipment';
 
 const ShipmentDetailsSidebar = ({ className, shipment }) => {
-  const { agents, secondaryPickupAddress, secondaryDeliveryAddress, serviceOrderNumber, storageFacility } = shipment;
+  const { agents, secondaryAddresses, serviceOrderNumber, storageFacility } = shipment;
 
   return (
     <div className={className}>
@@ -71,17 +71,17 @@ const ShipmentDetailsSidebar = ({ className, shipment }) => {
         <div>{}</div>
       </SimpleSection>
 
-      {(secondaryPickupAddress || secondaryDeliveryAddress) && (
+      {(secondaryAddresses?.secondaryPickupAddress || secondaryAddresses?.secondaryDeliveryAddress) && (
         <SimpleSection header="Secondary addresses" border>
-          {secondaryPickupAddress && (
+          {secondaryAddresses?.secondaryPickupAddress && (
             <SimpleSection header="Pickup">
-              <div>{formatAddress(secondaryPickupAddress)}</div>
+              <div>{formatAddress(secondaryAddresses?.secondaryPickupAddress)}</div>
             </SimpleSection>
           )}
 
-          {secondaryDeliveryAddress && (
+          {secondaryAddresses?.secondaryDeliveryAddress && (
             <SimpleSection header="Destination">
-              <div>{formatAddress(secondaryDeliveryAddress)}</div>
+              <div>{formatAddress(secondaryAddresses?.secondaryDeliveryAddress)}</div>
             </SimpleSection>
           )}
         </SimpleSection>
