@@ -44,16 +44,11 @@ const RequestedShipments = ({
 
   const shipmentDisplayInfo = (shipment, dutyStationPostal) => {
     return {
+      ...shipment,
       heading: shipmentTypeLabels[shipment.shipmentType],
       isDiversion: shipment.diversion,
       shipmentStatus: shipment.status,
-      requestedPickupDate: shipment.requestedPickupDate,
-      pickupAddress: shipment.pickupAddress,
-      secondaryPickupAddress: shipment.secondaryPickupAddress,
       destinationAddress: shipment.destinationAddress || dutyStationPostal,
-      secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
-      counselorRemarks: shipment.counselorRemarks,
-      customerRemarks: shipment.customerRemarks,
     };
   };
 
