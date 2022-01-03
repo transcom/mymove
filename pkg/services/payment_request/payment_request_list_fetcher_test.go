@@ -20,13 +20,23 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	// The default GBLOC is "LKNQ" for office users and payment requests
-	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{Move: models.Move{Locator: "ABC123"}})
-	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "ABCD",
+	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{Locator: "ABC123"},
+	})
+
+	// we need a mapping for the pickup address postal code to our user's gbloc
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		expectedMove.MTOShipments[0].PickupAddress.PostalCode,
+		officeUser.TransportationOffice.Gbloc)
+
+	// We need a payment request with a move that has a shipment that's within the GBLOC
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			MoveTaskOrderID: expectedMove.ID,
+			MoveTaskOrder:   expectedMove,
 		},
 	})
+
 	// Hidden move should not be returned
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -39,6 +49,8 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
+		paymentRequestsToCheck := *expectedPaymentRequests
+		suite.Equal(paymentRequest.ID, paymentRequestsToCheck[0].ID)
 	})
 
 }

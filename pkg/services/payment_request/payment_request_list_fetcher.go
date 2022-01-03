@@ -153,7 +153,11 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("contractors", "contractors.id = moves.contractor_id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
-		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
+		// Need to use left join because some duty locations do not have transportation offices
+		LeftJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
+		// and we don't want it to get hidden from services counselors.
+		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		Where("moves.show = ?", swag.Bool(true))
 
 	var branchQuery QueryOption
@@ -163,7 +167,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
 	} else {
-		gblocQuery = gblocFilter(gbloc)
+		gblocQuery = shipmentGBLOCFilter(&gbloc)
 	}
 	locatorQuery := locatorFilter(&locator)
 
@@ -272,12 +276,6 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 			submittedAtEnd := submittedAt.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
 			query.Where("payment_requests.created_at between ? and ?", submittedAt.Format(time.RFC3339), submittedAtEnd.Format(time.RFC3339))
 		}
-	}
-}
-
-func gblocFilter(gbloc string) QueryOption {
-	return func(query *pop.Query) {
-		query.Where("transportation_offices.gbloc = ?", gbloc)
 	}
 }
 
