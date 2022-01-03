@@ -7,7 +7,7 @@ import ShipmentWeightInput from './ShipmentWeightInput';
 describe('components/Office/ShipmentWeightInput', () => {
   it('renders correctly', () => {
     render(
-      <Formik initialValues={{}}>
+      <Formik initialValues={{ ntsRecordedWeight: '' }}>
         <ShipmentWeightInput />
       </Formik>,
     );
