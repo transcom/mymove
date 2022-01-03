@@ -15,7 +15,7 @@ const SimpleSection = ({ children, header, border }) => {
 
 SimpleSection.propTypes = {
   children: PropTypes.node.isRequired,
-  header: PropTypes.string.isRequired,
+  header: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
   border: PropTypes.bool,
 };
 
