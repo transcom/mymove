@@ -256,7 +256,8 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 		case fmt.Stringer:
 			displayValue = v.String()
 		default:
-			fmt.Println(v)
+			// TODO: error out?
+			// fmt.Println(v)
 		}
 
 		// Apply custom formatting options

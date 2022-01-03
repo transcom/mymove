@@ -216,7 +216,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewQueryError("MTOShipment", errors.New("query error"), ""))
 
-		fmt.Println("failure list fetch test 500")
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)
 	})
@@ -235,7 +234,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewNotFoundError(uuid.FromStringOrNil(params.MoveTaskOrderID.String()), "move not found"))
 
-		fmt.Println("failure list fetch 404")
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
 	})

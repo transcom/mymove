@@ -160,7 +160,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		//   cannot eager load the address as "OriginDutyStation.Address" because
 		//   OriginDutyStation is a pointer.
 		if moves[i].Orders.OriginDutyStation != nil {
-			fmt.Println("POSTAL CODE: ", moves[i].Orders.OriginDutyStation.Address.PostalCode)
 			loadErr := appCtx.DB().Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
 			if loadErr != nil {
 				return []models.Move{}, 0, err
@@ -309,8 +308,6 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 // Need to fix GBLOC for services counselor
 func gblocFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
-		fmt.Println("🍉🍉🍉🍉🍉")
-		fmt.Println(gbloc)
 		if gbloc != nil {
 			query.Where("o_gbloc.gbloc = ?", *gbloc)
 		}
