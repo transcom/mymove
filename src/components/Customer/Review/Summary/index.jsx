@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './Summary.module.scss';
 
 import { customerRoutes } from 'constants/routes';
+import { ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { validateEntitlement } from 'services/internalApi';
 import ConnectedPPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
@@ -208,8 +209,7 @@ export class Summary extends Component {
   };
 
   render() {
-    const { currentMove, currentOrders, currentPPM, match, moveIsApproved, mtoShipments, serviceMember, schemaRank } =
-      this.props;
+    const { currentMove, currentOrders, currentPPM, match, moveIsApproved, mtoShipments, serviceMember } = this.props;
     const { entitlementWarning, showModal } = this.state;
 
     const { moveId } = match.params;
@@ -254,7 +254,7 @@ export class Summary extends Component {
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postalCode}
-            rank={schemaRank?.['x-display-value']?.[serviceMember.rank] || ''}
+            rank={ORDERS_RANK_OPTIONS[serviceMember?.rank] || ''}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}
@@ -328,12 +328,10 @@ Summary.propTypes = {
   mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
-  schemaRank: shape({}),
 };
 
 Summary.defaultProps = {
   currentPPM: null,
-  schemaRank: {},
 };
 
 function mapStateToProps(state) {
