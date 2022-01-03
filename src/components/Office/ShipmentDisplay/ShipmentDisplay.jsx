@@ -7,8 +7,7 @@ import classnames from 'classnames';
 
 import { EditButton } from 'components/form/IconButtons';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
-import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
+import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
 import { LOA_TYPE, SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
@@ -32,7 +31,6 @@ const ShipmentDisplay = ({
   const history = useHistory();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
   const [isExpanded, setIsExpanded] = useState(false);
-  let infoList;
   let tac;
   switch (displayInfo.tacType) {
     case LOA_TYPE.HHG:
@@ -57,41 +55,8 @@ const ShipmentDisplay = ({
       sac = ordersLOA.sac;
   }
 
-  const setDisplayInfo = () => {
-    switch (shipmentType) {
-      case SHIPMENT_OPTIONS.HHG:
-        infoList = (
-          <ShipmentInfoList className={styles.shipmentDisplayInfo} shipment={displayInfo} shipmentType={shipmentType} />
-        );
-        break;
-      case SHIPMENT_OPTIONS.NTSR:
-        infoList = (
-          <NTSRShipmentInfoList
-            className={styles.shipmentDisplayInfo}
-            shipment={{ ...displayInfo, tac, sac }}
-            isExpanded={isExpanded}
-            warnIfMissing={warnIfMissing}
-            errorIfMissing={errorIfMissing}
-            showWhenCollapsed={showWhenCollapsed}
-          />
-        );
-        break;
-      default:
-        infoList = (
-          <ShipmentInfoList
-            className={styles.shipmentDisplayInfo}
-            shipment={displayInfo}
-            shipmentType={shipmentType}
-            isExpanded={isExpanded}
-          />
-        );
-    }
-  };
-  setDisplayInfo();
-
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
-    setDisplayInfo();
   };
   const expandableIconClasses = classnames({
     'chevron-up': isExpanded,
@@ -129,7 +94,15 @@ const ShipmentDisplay = ({
 
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
-        {infoList}
+        <ShipmentInfoListSelector
+          className={styles.shipmentDisplayInfo}
+          shipment={{ ...displayInfo, tac, sac }}
+          shipmentType={shipmentType}
+          isExpanded={isExpanded}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          showWhenCollapsed={showWhenCollapsed}
+        />
         {editURL && (
           <EditButton
             onClick={() => {
