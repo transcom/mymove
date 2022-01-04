@@ -52,7 +52,7 @@ const ShipmentDetailsSidebar = ({ className, shipment }) => {
           }
           border
         >
-          <div>{}</div>
+          <div>{serviceOrderNumber}</div>
         </SimpleSection>
       )}
 
