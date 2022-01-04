@@ -19,4 +19,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: baseline;
+  :global(.usa-button) {
+    padding-right: 0;
+  }
 }
