@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS list_delete;
 CREATE TEMP TABLE list_delete
-(id uuid);
+(id uuid)
+ON COMMIT DROP;
 
 INSERT INTO list_delete VALUES
 	('9df25ba4-34ed-4e8f-bb48-769085bfc545'),
