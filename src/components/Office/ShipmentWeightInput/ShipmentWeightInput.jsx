@@ -14,11 +14,11 @@ const ShipmentWeightInput = () => {
         <Grid row gap>
           <Grid col={6}>
             <FormGroup>
-              <Label htmlFor="primeActualWeight" className={styles.Label}>
+              <Label htmlFor="ntsRecordedWeight" className={styles.Label}>
                 Shipment weight (lbs)
                 <span className="float-right">Optional</span>
               </Label>
-              <Field as={TextInput} id="primeActualWeight" name="primeActualWeight" />
+              <Field as={TextInput} id="ntsRecordedWeight" name="ntsRecordedWeight" />
             </FormGroup>
           </Grid>
         </Grid>

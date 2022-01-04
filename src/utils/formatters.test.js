@@ -80,4 +80,21 @@ describe('formatters', () => {
       expect(formatters.formatDaysInTransit(2)).toEqual('2 days');
     });
   });
+
+  describe('formatDelimitedNumber', () => {
+    it('works for simple string numbers', () => {
+      expect(formatters.formatDelimitedNumber('500')).toEqual(500);
+      expect(formatters.formatDelimitedNumber('1,234')).toEqual(1234);
+      expect(formatters.formatDelimitedNumber('12,345,678,901')).toEqual(12345678901);
+    });
+
+    it('works for actual numbers', () => {
+      expect(formatters.formatDelimitedNumber(500)).toEqual(500);
+      expect(formatters.formatDelimitedNumber(1234)).toEqual(1234);
+    });
+
+    it('works for non-integers', () => {
+      expect(formatters.formatDelimitedNumber('1,234.56')).toEqual(1234.56);
+    });
+  });
 });
