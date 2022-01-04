@@ -4,6 +4,7 @@ import moment from 'moment';
 import { MTOAgentType } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { parseSwaggerDate } from 'shared/formatters';
+import { formatDelimitedNumber } from 'utils/formatters';
 import { roleTypes } from 'constants/userRoles';
 
 const formatDateForSwagger = (date) => {
@@ -80,7 +81,7 @@ export function formatMtoShipmentForDisplay({
   moveTaskOrderID,
   secondaryPickupAddress,
   secondaryDeliveryAddress,
-  primeActualWeight,
+  ntsRecordedWeight,
   tacType,
   sacType,
   serviceOrderNumber,
@@ -112,7 +113,7 @@ export function formatMtoShipmentForDisplay({
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
     hasSecondaryDelivery: 'no',
-    primeActualWeight,
+    ntsRecordedWeight,
     tacType,
     sacType,
     serviceOrderNumber,
@@ -195,7 +196,7 @@ export function formatMtoShipmentForAPI({
   counselorRemarks,
   secondaryPickup,
   secondaryDelivery,
-  primeActualWeight,
+  ntsRecordedWeight,
   tacType,
   sacType,
   serviceOrderNumber,
@@ -249,8 +250,8 @@ export function formatMtoShipmentForAPI({
     formattedMtoShipment.agents = undefined;
   }
 
-  if (primeActualWeight) {
-    formattedMtoShipment.primeActualWeight = Number(primeActualWeight);
+  if (ntsRecordedWeight) {
+    formattedMtoShipment.ntsRecordedWeight = formatDelimitedNumber(ntsRecordedWeight);
   }
 
   if (tacType) {

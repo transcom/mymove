@@ -192,11 +192,11 @@ describe('formatMtoShipmentForDisplay', () => {
   it('can format a shipment with shipment weight', () => {
     const params = {
       ...mtoShipment,
-      primeActualWeight: 4000,
+      ntsRecordedWeight: 4000,
     };
 
     const displayValues = formatMtoShipmentForDisplay(params);
-    expect(displayValues.primeActualWeight).toEqual(4000);
+    expect(displayValues.ntsRecordedWeight).toEqual(4000);
   });
 });
 
@@ -327,12 +327,25 @@ describe('formatMtoShipmentForAPI', () => {
       ...mtoShipmentParams,
       shipmentType: SHIPMENT_OPTIONS.NTSR,
       delivery: { ...deliveryInfo },
-      primeActualWeight: '4000',
+      ntsRecordedWeight: '4000',
       storageFacility,
     };
 
     const actual = formatMtoShipmentForAPI(params);
-    expect(actual.primeActualWeight).toEqual(4000);
+    expect(actual.ntsRecordedWeight).toEqual(4000);
+  });
+
+  it('can format a shipment with shipment weight including delimiters', () => {
+    const params = {
+      ...mtoShipmentParams,
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      delivery: { ...deliveryInfo },
+      ntsRecordedWeight: '4,500',
+      storageFacility,
+    };
+
+    const actual = formatMtoShipmentForAPI(params);
+    expect(actual.ntsRecordedWeight).toEqual(4500);
   });
 
   it('can format an HHG shipment with a secondary pickup/destination', () => {

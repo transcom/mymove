@@ -89,3 +89,9 @@ export function fromPrimeAPIAddressFormat(address) {
     postalCode: address.postalCode,
   };
 }
+
+export const formatDelimitedNumber = (number) => {
+  // Fail-safe in case an actual number value is passed in
+  const numberString = number.toString();
+  return Number(numberString.replace(/,/g, ''));
+};
