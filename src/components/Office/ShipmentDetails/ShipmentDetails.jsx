@@ -17,6 +17,13 @@ const ShipmentDetails = ({
   handleSubmitSITExtension,
 }) => {
   const { originDutyStation, destinationDutyStation, entitlement } = order;
+  const ordersLOA = {
+    tac: order.tac,
+    sac: order.sac,
+    ntsTAC: order.ntsTAC,
+    ntsSAC: order.ntsSac,
+  };
+
   return (
     <div className={styles.ShipmentDetails}>
       <ShipmentDetailsMain
@@ -32,7 +39,7 @@ const ShipmentDetails = ({
         handleReviewSITExtension={handleReviewSITExtension}
         handleSubmitSITExtension={handleSubmitSITExtension}
       />
-      <ShipmentDetailsSidebar className={styles.ShipmentDetailsSidebar} shipment={shipment} />
+      <ShipmentDetailsSidebar className={styles.ShipmentDetailsSidebar} shipment={shipment} ordersLOA={ordersLOA} />
     </div>
   );
 };

@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 
 import SimpleSection from 'containers/SimpleSection/SimpleSection';
-import { formatAgent, formatAddress } from 'utils/shipmentDisplay';
+import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingCode } from 'utils/shipmentDisplay';
 import { ShipmentShape } from 'types/shipment';
 
-const ShipmentDetailsSidebar = ({ className, shipment }) => {
-  const { agents, secondaryAddresses, serviceOrderNumber, storageFacility } = shipment;
+const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
+  const { agents, secondaryAddresses, serviceOrderNumber, storageFacility, sacType, tacType } = shipment;
+  const tac = retrieveTAC(shipment.tacType, ordersLOA);
+  const sac = retrieveSAC(shipment.sacType, ordersLOA);
 
   return (
     <div className={className}>
@@ -56,20 +58,23 @@ const ShipmentDetailsSidebar = ({ className, shipment }) => {
         </SimpleSection>
       )}
 
-      <SimpleSection
-        key="accounting-codes"
-        header={
-          <>
-            Accounting codes
-            <Link to="" className="usa-link float-right">
-              Edit
-            </Link>
-          </>
-        }
-        border
-      >
-        <div>{}</div>
-      </SimpleSection>
+      {(tacType || sacType) && (
+        <SimpleSection
+          key="accounting-codes"
+          header={
+            <>
+              Accounting codes
+              <Link to="" className="usa-link float-right">
+                Edit
+              </Link>
+            </>
+          }
+          border
+        >
+          {tacType && tac && <div>{formatAccountingCode(tac, tacType)}</div>}
+          {sacType && sac && <div>{formatAccountingCode(sac, sacType)}</div>}
+        </SimpleSection>
+      )}
 
       {(secondaryAddresses?.secondaryPickupAddress || secondaryAddresses?.secondaryDeliveryAddress) && (
         <SimpleSection header="Secondary addresses" border>
@@ -93,11 +98,23 @@ const ShipmentDetailsSidebar = ({ className, shipment }) => {
 ShipmentDetailsSidebar.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape,
+  ordersLOA: PropTypes.shape({
+    tac: PropTypes.string,
+    sac: PropTypes.string,
+    ntsTAC: PropTypes.string,
+    ntsSAC: PropTypes.string,
+  }),
 };
 
 ShipmentDetailsSidebar.defaultProps = {
   className: '',
   shipment: {},
+  ordersLOA: {
+    tac: '',
+    sac: '',
+    ntsTAC: '',
+    ntsSAC: '',
+  },
 };
 
 export default ShipmentDetailsSidebar;

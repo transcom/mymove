@@ -4,6 +4,8 @@ import { render, screen } from '@testing-library/react';
 import ShipmentDetailsSidebar from './ShipmentDetailsSidebar';
 
 import { MockProviders } from 'testUtils';
+import { LOA_TYPE } from 'shared/constants';
+import { formatAccountingCode } from 'utils/shipmentDisplay';
 
 const shipment = {
   agents: [
@@ -44,6 +46,15 @@ const shipment = {
     postalCode: '78212',
   },
   serviceOrderNumber: '1234',
+  tacType: LOA_TYPE.HHG,
+  sacType: LOA_TYPE.NTS,
+};
+
+const ordersLOA = {
+  tac: '1234',
+  sac: '567',
+  ntsTAC: '8912',
+  ntsSAC: '345',
 };
 
 const headers = [
@@ -54,13 +65,14 @@ const headers = [
   'Secondary addresses',
   'Pickup',
   'Destination',
+  'Accounting codes',
 ];
 
 describe('Shipment Details Sidebar', () => {
   it('renders all fields when provided', () => {
     render(
       <MockProviders>
-        <ShipmentDetailsSidebar shipment={shipment} />
+        <ShipmentDetailsSidebar shipment={shipment} ordersLOA={ordersLOA} />
       </MockProviders>,
     );
 
@@ -78,6 +90,8 @@ describe('Shipment Details Sidebar', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(shipment.storageFacility.streetAddress1, { exact: false })).toBeInTheDocument();
     expect(screen.getByText(shipment.serviceOrderNumber)).toBeInTheDocument();
+    expect(screen.getByText(formatAccountingCode(ordersLOA.tac, shipment.tacType))).toBeInTheDocument();
+    expect(screen.getByText(formatAccountingCode(ordersLOA.ntsSAC, shipment.sacType))).toBeInTheDocument();
   });
 
   it('renders nothing with no info passed in', () => {
