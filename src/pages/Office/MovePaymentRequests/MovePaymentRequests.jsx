@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { queryCache, useMutation } from 'react-query';
 import { useParams, useHistory } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { GridContainer, Tag } from '@trussworks/react-uswds';
+import { Alert, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -29,8 +29,10 @@ import {
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
 } from 'hooks/custom';
-import { updateMTOReviewedBillableWeights } from 'services/ghcApi';
+import { updateFinancialFlag, updateMTOReviewedBillableWeights } from 'services/ghcApi';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
+import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 
 const sectionLabels = {
   'billable-weights': 'Billable weights',
@@ -47,9 +49,12 @@ const MovePaymentRequests = ({
 
   const { move, paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [alertType, setAlertType] = useState('success');
   const sections = useMemo(() => {
     return ['billable-weights', 'payment-requests'];
   }, []);
+  const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const filteredShipments = mtoShipments?.filter((shipment) => {
     return includedStatusesForCalculatingWeights(shipment.status);
   });
@@ -65,6 +70,43 @@ const MovePaymentRequests = ({
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
   });
+
+  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([MOVES, data.locator], data);
+      queryCache.invalidateQueries([MOVES, data.locator]);
+      if (data.financialReviewFlag) {
+        setAlertMessage('Move flagged for financial review.');
+        setAlertType('success');
+      } else {
+        setAlertMessage('Move unflagged for financial review.');
+        setAlertType('success');
+      }
+    },
+    onError: () => {
+      setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
+      setAlertType('error');
+    },
+  });
+
+  const handleShowFinancialReviewModal = () => {
+    setIsFinancialModalVisible(true);
+  };
+
+  const handleSubmitFinancialReviewModal = (remarks, flagForReview) => {
+    // if it's set to yes let's send a true to the backend. If not we'll send false.
+    const flagForReviewBool = flagForReview === 'yes';
+    mutateFinancialReview({
+      moveID: move.id,
+      ifMatchETag: move.eTag,
+      body: { remarks, flagForReview: flagForReviewBool },
+    });
+    setIsFinancialModalVisible(false);
+  };
+
+  const handleCancelFinancialReviewModal = () => {
+    setIsFinancialModalVisible(false);
+  };
 
   useEffect(() => {
     const shipmentCount = mtoShipments
@@ -181,7 +223,30 @@ const MovePaymentRequests = ({
           })}
         </LeftNav>
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
-          <h1>Payment requests</h1>
+          <Grid row className={txoStyles.pageHeader}>
+            {alertMessage && (
+              <Grid col={12} className={txoStyles.alertContainer}>
+                <Alert slim type={alertType}>
+                  {alertMessage}
+                </Alert>
+              </Grid>
+            )}
+          </Grid>
+          <div className={styles.tioPaymentRequestsHeadingFlexbox}>
+            <h1>Payment Requests</h1>
+            <FinancialReviewButton
+              onClick={handleShowFinancialReviewModal}
+              reviewRequested={move?.financialReviewFlag}
+            />
+          </div>
+          {isFinancialModalVisible && (
+            <FinancialReviewModal
+              onClose={handleCancelFinancialReviewModal}
+              onSubmit={handleSubmitFinancialReviewModal}
+              initialRemarks={move?.financialReviewRemarks}
+              initialSelection={move?.financialReviewFlag}
+            />
+          )}
           <div className={txoStyles.section} id="billable-weights">
             {/* Only show shipments in statuses of approved, diversion requested, or cancellation requested */}
             <BillableWeightCard
