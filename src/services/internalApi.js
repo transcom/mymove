@@ -316,13 +316,13 @@ export async function patchPPM(moveId, ppm) {
   );
 }
 
-export async function calculatePPMEstimate(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) {
+export async function calculatePPMEstimate(moveDate, originZip, originDutyLocationZip, ordersId, weightEstimate) {
   return makeInternalRequest(
     'ppm.showPPMEstimate',
     {
       original_move_date: moveDate,
       origin_zip: originZip,
-      origin_duty_station_zip: originDutyStationZip,
+      origin_duty_location_zip: originDutyLocationZip,
       orders_id: ordersId,
       weight_estimate: weightEstimate,
     },
