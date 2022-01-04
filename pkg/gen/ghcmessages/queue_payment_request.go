@@ -40,7 +40,7 @@ type QueuePaymentRequest struct {
 	MoveID strfmt.UUID `json:"moveID,omitempty"`
 
 	// origin duty location
-	OriginDutyLocation *DutyStation `json:"originDutyLocation,omitempty"`
+	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
 
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`

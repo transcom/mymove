@@ -309,10 +309,10 @@ describe('Shipment preview modal', () => {
         shipmentManagementFee
       />,
     );
-    expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(0).text()).toEqual(
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toEqual(
       '987 Any Avenue, Fairfield, CA 94535',
     );
-    expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(1).text()).toEqual(
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(1).text()).toEqual(
       ordersInfo.newDutyStation.address.postalCode,
     );
   });

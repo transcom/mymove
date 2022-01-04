@@ -40,7 +40,7 @@ const ShipmentInfoList = ({ className, shipment }) => {
       )}
       <div className={styles.row}>
         <dt>Destination address</dt>
-        <dd data-testid="shipmentDestinationAddress">{formatAddress(destinationAddress)}</dd>
+        <dd data-testid="destinationAddress">{formatAddress(destinationAddress)}</dd>
       </div>
       {secondaryDeliveryAddress && (
         <div className={styles.row}>

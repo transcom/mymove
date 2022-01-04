@@ -14,7 +14,7 @@ import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCo
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
-import AccountingCodes from 'components/Office/AccountingCodes/AccountingCodes';
+import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
 import { DatePickerInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
@@ -42,6 +42,7 @@ const ShipmentForm = ({
   newDutyStationAddress,
   selectedMoveType,
   isCreatePage,
+  isForServicesCounseling,
   mtoShipment,
   submitHandler,
   mtoShipments,
@@ -124,7 +125,7 @@ const ShipmentForm = ({
     delivery,
     customerRemarks,
     counselorRemarks,
-    primeActualWeight,
+    ntsRecordedWeight,
     tacType,
     sacType,
     serviceOrderNumber,
@@ -143,13 +144,21 @@ const ShipmentForm = ({
       counselorRemarks,
       pickup,
       delivery: deliveryDetails,
-      primeActualWeight,
+      ntsRecordedWeight,
       tacType,
       sacType,
       serviceOrderNumber,
       storageFacility,
       usesExternalVendor,
     });
+
+    const updateMTOShipmentPayload = {
+      moveTaskOrderID,
+      shipmentID: mtoShipment.id,
+      ifMatchETag: mtoShipment.eTag,
+      normalize: false,
+      body: pendingMtoShipment,
+    };
 
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
@@ -160,14 +169,10 @@ const ShipmentForm = ({
         .catch(() => {
           setErrorMessage(`A server error occurred adding the shipment`);
         });
+    } else if (isForServicesCounseling) {
+      // routing and error handling handled in parent components
+      submitHandler(updateMTOShipmentPayload);
     } else {
-      const updateMTOShipmentPayload = {
-        moveTaskOrderID,
-        shipmentID: mtoShipment.id,
-        ifMatchETag: mtoShipment.eTag,
-        normalize: false,
-        body: pendingMtoShipment,
-      };
       submitHandler(updateMTOShipmentPayload)
         .then(() => {
           history.push(moveDetailsPath);
@@ -385,7 +390,7 @@ const ShipmentForm = ({
                 />
 
                 {showAccountingCodes && (
-                  <AccountingCodes
+                  <ShipmentAccountingCodes
                     TACs={TACs}
                     SACs={SACs}
                     onEditCodesClick={() => history.push(editOrdersPath)}
@@ -423,6 +428,7 @@ ShipmentForm.propTypes = {
   }),
   submitHandler: func.isRequired,
   isCreatePage: bool,
+  isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
@@ -441,6 +447,7 @@ ShipmentForm.propTypes = {
 
 ShipmentForm.defaultProps = {
   isCreatePage: false,
+  isForServicesCounseling: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { push: () => {} },
   newDutyStationAddress: {

@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './Summary.module.scss';
 
 import { customerRoutes } from 'constants/routes';
+import { ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { validateEntitlement } from 'services/internalApi';
 import ConnectedPPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
@@ -253,7 +254,7 @@ export class Summary extends Component {
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postalCode}
-            rank={currentOrders.grade}
+            rank={ORDERS_RANK_OPTIONS[serviceMember?.rank] || ''}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}

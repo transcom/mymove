@@ -33,7 +33,7 @@ func NewGetPaymentRequestsQueue(ctx *middleware.Context, handler GetPaymentReque
 
 Gets queued list of all payment requests by GBLOC origin
 
-An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.
+An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty location.
 
 
 */

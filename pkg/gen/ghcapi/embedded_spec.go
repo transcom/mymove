@@ -1930,7 +1930,7 @@ func init() {
     },
     "/queues/counseling": {
       "get": {
-        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
         "produces": [
           "application/json"
         ],
@@ -2018,7 +2018,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the GBLOC of the service member's origin duty station",
+            "description": "filters the GBLOC of the service member's origin duty location",
             "name": "originGBLOC",
             "in": "query"
           },
@@ -2061,7 +2061,7 @@ func init() {
     },
     "/queues/moves": {
       "get": {
-        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
         "produces": [
           "application/json"
         ],
@@ -2091,7 +2091,7 @@ func init() {
               "locator",
               "status",
               "originDutyLocation",
-              "destinationDutyStation"
+              "destinationDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2135,7 +2135,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -2172,7 +2172,7 @@ func init() {
     },
     "/queues/payment-requests": {
       "get": {
-        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.\n",
+        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty location.\n",
         "produces": [
           "application/json"
         ],
@@ -2249,7 +2249,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -3594,6 +3594,31 @@ func init() {
         }
       }
     },
+    "DutyLocation": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -3737,6 +3762,7 @@ func init() {
         "E_7",
         "E_8",
         "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
         "O_1_ACADEMY_GRADUATE",
         "O_2",
         "O_3",
@@ -3770,9 +3796,10 @@ func init() {
         "E_7": "E-7",
         "E_8": "E-8",
         "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
         "MIDSHIPMAN": "Midshipman",
         "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1/Service Academy Graduate",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
         "O_2": "O-2",
         "O_3": "O-3",
         "O_4": "O-4",
@@ -4439,7 +4466,7 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -4464,7 +4491,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -4919,8 +4946,8 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "id": {
           "type": "string",
@@ -4930,7 +4957,7 @@ func init() {
           "type": "string"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -5010,7 +5037,7 @@ func init() {
           "format": "uuid"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -8368,7 +8395,7 @@ func init() {
     },
     "/queues/counseling": {
       "get": {
-        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
         "produces": [
           "application/json"
         ],
@@ -8456,7 +8483,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the GBLOC of the service member's origin duty station",
+            "description": "filters the GBLOC of the service member's origin duty location",
             "name": "originGBLOC",
             "in": "query"
           },
@@ -8505,7 +8532,7 @@ func init() {
     },
     "/queues/moves": {
       "get": {
-        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
         "produces": [
           "application/json"
         ],
@@ -8535,7 +8562,7 @@ func init() {
               "locator",
               "status",
               "originDutyLocation",
-              "destinationDutyStation"
+              "destinationDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8579,7 +8606,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -8622,7 +8649,7 @@ func init() {
     },
     "/queues/payment-requests": {
       "get": {
-        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.\n",
+        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty location.\n",
         "produces": [
           "application/json"
         ],
@@ -8699,7 +8726,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -10236,6 +10263,31 @@ func init() {
         }
       }
     },
+    "DutyLocation": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -10379,6 +10431,7 @@ func init() {
         "E_7",
         "E_8",
         "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
         "O_1_ACADEMY_GRADUATE",
         "O_2",
         "O_3",
@@ -10412,9 +10465,10 @@ func init() {
         "E_7": "E-7",
         "E_8": "E-8",
         "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
         "MIDSHIPMAN": "Midshipman",
         "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1/Service Academy Graduate",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
         "O_2": "O-2",
         "O_3": "O-3",
         "O_4": "O-4",
@@ -11081,7 +11135,7 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -11106,7 +11160,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -11561,8 +11615,8 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "id": {
           "type": "string",
@@ -11572,7 +11626,7 @@ func init() {
           "type": "string"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -11652,7 +11706,7 @@ func init() {
           "format": "uuid"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"

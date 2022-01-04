@@ -2,8 +2,9 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import styles from './ShipmentDefinitionLists.module.scss';
+import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
+import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
@@ -39,7 +40,7 @@ const NTSRShipmentInfoList = ({
 
     if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
       alwaysShow = true;
-      classes = classNames(styles.row, styles.missingInfoError);
+      classes = classNames(styles.row, shipmentDefinitionListsStyles.missingInfoError);
       return {
         alwaysShow,
         classes,
@@ -47,7 +48,7 @@ const NTSRShipmentInfoList = ({
     }
     if (warnIfMissing.includes(fieldname) && !shipment[fieldname]) {
       alwaysShow = true;
-      classes = classNames(styles.row, styles.warning);
+      classes = classNames(styles.row, shipmentDefinitionListsStyles.warning);
       return {
         alwaysShow,
         classes,
@@ -168,7 +169,16 @@ const NTSRShipmentInfoList = ({
     </div>
   );
   return (
-    <dl className={classNames(className, styles.ShipmentDefinitionLists)} data-testid="shipment-info-list">
+    <dl
+      className={classNames(
+        shipmentDefinitionListsStyles.ShipmentDefinitionLists,
+        styles.descriptionList,
+        styles.tableDisplay,
+        styles.compact,
+        className,
+      )}
+      data-testid="nts-release-shipment-info-list"
+    >
       {(isExpanded || primeActualWeightElementFlags.alwaysShow) && primeActualWeightElement}
       {(isExpanded || storageFacilityInfoElementFlags.alwaysShow) && storageFacilityInfoElement}
       {(isExpanded || serviceOrderNumberElementFlags.alwaysShow) && serviceOrderNumberElement}
