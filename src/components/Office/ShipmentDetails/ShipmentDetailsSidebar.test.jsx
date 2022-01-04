@@ -36,9 +36,25 @@ const shipment = {
       postalCode: '78722',
     },
   },
+  storageFacility: {
+    facilityName: 'Some storage facility',
+    streetAddress1: '456 S 131st St',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78212',
+  },
+  serviceOrderNumber: '1234',
 };
 
-const headers = ['Releasing agent', 'Receiving agent', 'Secondary addresses', 'Pickup', 'Destination'];
+const headers = [
+  'Releasing agent',
+  'Receiving agent',
+  'Service order number',
+  'Facility info and address',
+  'Secondary addresses',
+  'Pickup',
+  'Destination',
+];
 
 describe('Shipment Details Sidebar', () => {
   it('renders all fields when provided', () => {
@@ -60,6 +76,8 @@ describe('Shipment Details Sidebar', () => {
     expect(
       screen.getByText(shipment.secondaryAddresses.secondaryDeliveryAddress.streetAddress1, { exact: false }),
     ).toBeInTheDocument();
+    expect(screen.getByText(shipment.storageFacility.streetAddress1, { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(shipment.serviceOrderNumber)).toBeInTheDocument();
   });
 
   it('renders nothing with no info passed in', () => {
