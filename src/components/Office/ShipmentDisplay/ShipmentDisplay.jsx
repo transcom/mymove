@@ -9,11 +9,12 @@ import { EditButton } from 'components/form/IconButtons';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
-import { LOA_TYPE, SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { AgentShape } from 'types/agent';
+import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -31,29 +32,8 @@ const ShipmentDisplay = ({
   const history = useHistory();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
   const [isExpanded, setIsExpanded] = useState(false);
-  let tac;
-  switch (displayInfo.tacType) {
-    case LOA_TYPE.HHG:
-      tac = ordersLOA.tac;
-      break;
-    case LOA_TYPE.NTS:
-      tac = ordersLOA.ntsTAC;
-      break;
-    default:
-      tac = ordersLOA.tac;
-  }
-
-  let sac;
-  switch (displayInfo.sacType) {
-    case LOA_TYPE.HHG:
-      sac = ordersLOA.sac;
-      break;
-    case LOA_TYPE.NTS:
-      sac = ordersLOA.ntsSAC;
-      break;
-    default:
-      sac = ordersLOA.sac;
-  }
+  const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
+  const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
