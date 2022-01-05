@@ -36,7 +36,7 @@
     "ra-language-english": "^3.19.6",
     "react": "^17.0.1",
     "react-admin": "^3.19.5",
-    "react-admin-import-csv": "^1.0.26",
+    "react-admin-import-csv": "^1.0.27",
     "react-app-polyfill": "^3.0.0",
     "react-day-picker": "=7.4.10",
     "react-dom": "^17.0.1",
