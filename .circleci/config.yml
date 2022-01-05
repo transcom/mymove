@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-cf2249e54c69b52625f1ab04eb79f37381d0d3bf
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-cde63c429c58d28362cd7a11300101970cf39212
 
   # the cypress image to use
   cypress: &cypress milmove/circleci-docker:milmove-cypress-cf2249e54c69b52625f1ab04eb79f37381d0d3bf
