@@ -436,6 +436,8 @@ func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 		if err := m.mtoServiceItemsField[i].Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
 			}
 			return err
 		}
@@ -453,6 +455,8 @@ func (m *MoveTaskOrder) validateMtoShipments(formats strfmt.Registry) error {
 	if err := m.MtoShipments.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mtoShipments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("mtoShipments")
 		}
 		return err
 	}
@@ -470,6 +474,8 @@ func (m *MoveTaskOrder) validateOrder(formats strfmt.Registry) error {
 		if err := m.Order.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("order")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("order")
 			}
 			return err
 		}
@@ -498,6 +504,8 @@ func (m *MoveTaskOrder) validatePaymentRequests(formats strfmt.Registry) error {
 	if err := m.PaymentRequests.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("paymentRequests")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("paymentRequests")
 		}
 		return err
 	}
@@ -556,6 +564,8 @@ func (m *MoveTaskOrder) validateSelectedMoveType(formats strfmt.Registry) error 
 		if err := m.SelectedMoveType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("selectedMoveType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("selectedMoveType")
 			}
 			return err
 		}
@@ -572,6 +582,8 @@ func (m *MoveTaskOrder) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -692,6 +704,8 @@ func (m *MoveTaskOrder) contextValidateMtoServiceItems(ctx context.Context, form
 		if err := m.mtoServiceItemsField[i].ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
 			}
 			return err
 		}
@@ -706,6 +720,8 @@ func (m *MoveTaskOrder) contextValidateMtoShipments(ctx context.Context, formats
 	if err := m.MtoShipments.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mtoShipments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("mtoShipments")
 		}
 		return err
 	}
@@ -719,6 +735,8 @@ func (m *MoveTaskOrder) contextValidateOrder(ctx context.Context, formats strfmt
 		if err := m.Order.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("order")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("order")
 			}
 			return err
 		}
@@ -732,6 +750,8 @@ func (m *MoveTaskOrder) contextValidatePaymentRequests(ctx context.Context, form
 	if err := m.PaymentRequests.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("paymentRequests")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("paymentRequests")
 		}
 		return err
 	}
@@ -754,6 +774,8 @@ func (m *MoveTaskOrder) contextValidateSelectedMoveType(ctx context.Context, for
 		if err := m.SelectedMoveType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("selectedMoveType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("selectedMoveType")
 			}
 			return err
 		}
@@ -767,6 +789,8 @@ func (m *MoveTaskOrder) contextValidateStatus(ctx context.Context, formats strfm
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}

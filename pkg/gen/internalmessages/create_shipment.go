@@ -111,6 +111,8 @@ func (m *CreateShipment) validateAgents(formats strfmt.Registry) error {
 	if err := m.Agents.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -127,6 +129,8 @@ func (m *CreateShipment) validateDestinationAddress(formats strfmt.Registry) err
 		if err := m.DestinationAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -157,6 +161,8 @@ func (m *CreateShipment) validatePickupAddress(formats strfmt.Registry) error {
 		if err := m.PickupAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pickupAddress")
 			}
 			return err
 		}
@@ -198,6 +204,8 @@ func (m *CreateShipment) validateSecondaryDeliveryAddress(formats strfmt.Registr
 		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -215,6 +223,8 @@ func (m *CreateShipment) validateSecondaryPickupAddress(formats strfmt.Registry)
 		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
 			}
 			return err
 		}
@@ -237,6 +247,8 @@ func (m *CreateShipment) validateShipmentType(formats strfmt.Registry) error {
 		if err := m.ShipmentType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("shipmentType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("shipmentType")
 			}
 			return err
 		}
@@ -284,6 +296,8 @@ func (m *CreateShipment) contextValidateAgents(ctx context.Context, formats strf
 	if err := m.Agents.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -297,6 +311,8 @@ func (m *CreateShipment) contextValidateDestinationAddress(ctx context.Context, 
 		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -311,6 +327,8 @@ func (m *CreateShipment) contextValidatePickupAddress(ctx context.Context, forma
 		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pickupAddress")
 			}
 			return err
 		}
@@ -325,6 +343,8 @@ func (m *CreateShipment) contextValidateSecondaryDeliveryAddress(ctx context.Con
 		if err := m.SecondaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -339,6 +359,8 @@ func (m *CreateShipment) contextValidateSecondaryPickupAddress(ctx context.Conte
 		if err := m.SecondaryPickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
 			}
 			return err
 		}
@@ -353,6 +375,8 @@ func (m *CreateShipment) contextValidateShipmentType(ctx context.Context, format
 		if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("shipmentType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("shipmentType")
 			}
 			return err
 		}

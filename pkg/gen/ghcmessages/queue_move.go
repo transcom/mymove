@@ -111,6 +111,8 @@ func (m *QueueMove) validateCustomer(formats strfmt.Registry) error {
 		if err := m.Customer.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("customer")
 			}
 			return err
 		}
@@ -128,6 +130,8 @@ func (m *QueueMove) validateDepartmentIndicator(formats strfmt.Registry) error {
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("departmentIndicator")
 			}
 			return err
 		}
@@ -145,6 +149,8 @@ func (m *QueueMove) validateDestinationDutyLocation(formats strfmt.Registry) err
 		if err := m.DestinationDutyLocation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationDutyLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationDutyLocation")
 			}
 			return err
 		}
@@ -174,6 +180,8 @@ func (m *QueueMove) validateOriginDutyLocation(formats strfmt.Registry) error {
 		if err := m.OriginDutyLocation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originDutyLocation")
 			}
 			return err
 		}
@@ -190,6 +198,8 @@ func (m *QueueMove) validateOriginGBLOC(formats strfmt.Registry) error {
 	if err := m.OriginGBLOC.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("originGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("originGBLOC")
 		}
 		return err
 	}
@@ -217,6 +227,8 @@ func (m *QueueMove) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -276,6 +288,8 @@ func (m *QueueMove) contextValidateCustomer(ctx context.Context, formats strfmt.
 		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("customer")
 			}
 			return err
 		}
@@ -290,6 +304,8 @@ func (m *QueueMove) contextValidateDepartmentIndicator(ctx context.Context, form
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("departmentIndicator")
 			}
 			return err
 		}
@@ -304,6 +320,8 @@ func (m *QueueMove) contextValidateDestinationDutyLocation(ctx context.Context, 
 		if err := m.DestinationDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationDutyLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationDutyLocation")
 			}
 			return err
 		}
@@ -318,6 +336,8 @@ func (m *QueueMove) contextValidateOriginDutyLocation(ctx context.Context, forma
 		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originDutyLocation")
 			}
 			return err
 		}
@@ -331,6 +351,8 @@ func (m *QueueMove) contextValidateOriginGBLOC(ctx context.Context, formats strf
 	if err := m.OriginGBLOC.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("originGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("originGBLOC")
 		}
 		return err
 	}
@@ -343,6 +365,8 @@ func (m *QueueMove) contextValidateStatus(ctx context.Context, formats strfmt.Re
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}

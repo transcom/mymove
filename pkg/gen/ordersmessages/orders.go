@@ -117,6 +117,8 @@ func (m *Orders) validateIssuer(formats strfmt.Registry) error {
 		if err := m.Issuer.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("issuer")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("issuer")
 			}
 			return err
 		}
@@ -149,6 +151,8 @@ func (m *Orders) validateRevisions(formats strfmt.Registry) error {
 			if err := m.Revisions[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("revisions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("revisions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -195,6 +199,8 @@ func (m *Orders) contextValidateIssuer(ctx context.Context, formats strfmt.Regis
 		if err := m.Issuer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("issuer")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("issuer")
 			}
 			return err
 		}
@@ -211,6 +217,8 @@ func (m *Orders) contextValidateRevisions(ctx context.Context, formats strfmt.Re
 			if err := m.Revisions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("revisions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("revisions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
