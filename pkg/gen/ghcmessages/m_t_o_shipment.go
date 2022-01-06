@@ -45,7 +45,6 @@ type MTOShipment struct {
 	//   * bulky or fragile items,
 	//   * weapons,
 	//   * access info for their address.
-	//
 	// Counselors enters this information when creating or editing an MTO Shipment. Optional field.
 	//
 	// Example: handle with care

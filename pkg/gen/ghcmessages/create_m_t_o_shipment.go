@@ -28,7 +28,6 @@ type CreateMTOShipment struct {
 	//   * bulky or fragile items,
 	//   * weapons,
 	//   * access info for their address.
-	//
 	// Counselors enters this information when creating or editing an MTO Shipment. Optional field.
 	//
 	// Example: handle with care
@@ -39,7 +38,6 @@ type CreateMTOShipment struct {
 	//   * bulky or fragile items,
 	//   * weapons,
 	//   * access info for their address.
-	//
 	// Customer enters this information during onboarding. Optional field.
 	//
 	// Example: handle with care
