@@ -1,0 +1,9 @@
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/basics';
+
+.EditFacilityInfoModal {
+  min-width: 45rem !important;
+  .CancelButton {
+    @include u-bg('transparent');
+  }
+}
