@@ -5,6 +5,7 @@ import * as PropTypes from 'prop-types';
 import SimpleSection from 'containers/SimpleSection/SimpleSection';
 import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingCode } from 'utils/shipmentDisplay';
 import { ShipmentShape } from 'types/shipment';
+import { OrdersLOAShape } from 'types/order';
 
 const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
   const { agents, secondaryAddresses, serviceOrderNumber, storageFacility, sacType, tacType } = shipment;
@@ -100,12 +101,7 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
 ShipmentDetailsSidebar.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape,
-  ordersLOA: PropTypes.shape({
-    tac: PropTypes.string,
-    sac: PropTypes.string,
-    ntsTAC: PropTypes.string,
-    ntsSAC: PropTypes.string,
-  }),
+  ordersLOA: OrdersLOAShape,
 };
 
 ShipmentDetailsSidebar.defaultProps = {

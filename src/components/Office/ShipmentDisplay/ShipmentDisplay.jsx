@@ -13,6 +13,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
+import { OrdersLOAShape } from 'types/order';
 import { AgentShape } from 'types/agent';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 
@@ -138,12 +139,7 @@ ShipmentDisplay.propTypes = {
   }).isRequired,
   showIcon: PropTypes.bool,
   editURL: PropTypes.string,
-  ordersLOA: PropTypes.shape({
-    tac: PropTypes.string,
-    sac: PropTypes.string,
-    ntsTac: PropTypes.string,
-    ntsSac: PropTypes.string,
-  }),
+  ordersLOA: OrdersLOAShape,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
