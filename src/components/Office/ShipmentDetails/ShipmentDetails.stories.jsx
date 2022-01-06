@@ -4,8 +4,18 @@ import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestPar
 
 import ShipmentDetails from './ShipmentDetails';
 
+import { LOA_TYPE } from 'shared/constants';
+import { MockProviders } from 'testUtils';
+
 export default {
   title: 'Office Components/Shipment Details',
+  decorators: [
+    (Story) => (
+      <MockProviders>
+        <Story />
+      </MockProviders>
+    ),
+  ],
 };
 
 const shipment = {
@@ -76,6 +86,17 @@ const shipment = {
   ],
   sitStatus: SITStatusOrigin,
   sitDaysAllowance: 270,
+  storageFacility: {
+    facilityName: 'Most Excellent Storage',
+    streetAddress1: '3373 NW Martin Luther King Jr Blvd',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78212',
+    phone: '555-555-5555',
+  },
+  serviceOrderNumber: '1234',
+  tacType: LOA_TYPE.HHG,
+  sacType: LOA_TYPE.NTS,
 };
 
 const order = {
@@ -95,6 +116,10 @@ const order = {
       postalCode: '78751',
     },
   },
+  tac: '1234',
+  sac: '567',
+  ntsTAC: '8912',
+  ntsSAC: '345',
 };
 
 export const Default = () => (

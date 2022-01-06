@@ -21,7 +21,7 @@ const ShipmentDetails = ({
     tac: order.tac,
     sac: order.sac,
     ntsTAC: order.ntsTAC,
-    ntsSAC: order.ntsSac,
+    ntsSAC: order.ntsSAC,
   };
 
   return (

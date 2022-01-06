@@ -37,6 +37,8 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
           }
           border
         >
+          <div>{storageFacility.facilityName}</div>
+          <div>{storageFacility.phone}</div>
           <div>{formatAddress(storageFacility)}</div>
         </SimpleSection>
       )}
