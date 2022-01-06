@@ -71,6 +71,8 @@ func (m *DutyLocation) validateAddress(formats strfmt.Registry) error {
 		if err := m.Address.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("address")
 			}
 			return err
 		}
@@ -123,6 +125,8 @@ func (m *DutyLocation) contextValidateAddress(ctx context.Context, formats strfm
 		if err := m.Address.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("address")
 			}
 			return err
 		}
