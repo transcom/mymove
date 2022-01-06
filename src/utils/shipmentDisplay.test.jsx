@@ -26,9 +26,9 @@ describe('shipmentDisplay utils', () => {
 
   describe('retrieveTAC', () => {
     it.each([
-      [LOA_TYPE.HHG, { tac: '1234', ntsTAC: '456' }, '1234'],
-      [LOA_TYPE.NTS, { tac: '1234', ntsTAC: '456' }, '456'],
-      ['default', { tac: '1234', ntsTAC: '456' }, '1234'],
+      [LOA_TYPE.HHG, { tac: '1234', ntsTac: '456' }, '1234'],
+      [LOA_TYPE.NTS, { tac: '1234', ntsTac: '456' }, '456'],
+      ['default', { tac: '1234', ntsTac: '456' }, '1234'],
     ])('returns the correct tac when provided the tac type of %s', (tacType, ordersLOA, expectedTAC) => {
       const retrievedTAC = retrieveTAC(tacType, ordersLOA, expectedTAC);
       expect(retrievedTAC).toEqual(expectedTAC);
@@ -37,9 +37,9 @@ describe('shipmentDisplay utils', () => {
 
   describe('retrieveSAC', () => {
     it.each([
-      [LOA_TYPE.HHG, { sac: '1234', ntsSAC: '456' }, '1234'],
-      [LOA_TYPE.NTS, { sac: '1234', ntsSAC: '456' }, '456'],
-      ['default', { sac: '1234', ntsTAC: '456' }, '1234'],
+      [LOA_TYPE.HHG, { sac: '1234', ntsSac: '456' }, '1234'],
+      [LOA_TYPE.NTS, { sac: '1234', ntsSac: '456' }, '456'],
+      ['default', { sac: '1234', ntsTac: '456' }, '1234'],
     ])('returns the correct SAC when provided the tac type of %s', (sacType, ordersLOA, expectedSAC) => {
       const retrievedSAC = retrieveSAC(sacType, ordersLOA, expectedSAC);
       expect(retrievedSAC).toEqual(expectedSAC);

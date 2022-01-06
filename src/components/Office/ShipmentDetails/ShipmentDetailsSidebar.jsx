@@ -114,8 +114,8 @@ ShipmentDetailsSidebar.defaultProps = {
   ordersLOA: {
     tac: '',
     sac: '',
-    ntsTAC: '',
-    ntsSAC: '',
+    ntsTac: '',
+    ntsSac: '',
   },
 };
 

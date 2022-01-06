@@ -20,7 +20,7 @@ export function retrieveTAC(tacType, ordersLOA) {
     case LOA_TYPE.HHG:
       return ordersLOA.tac;
     case LOA_TYPE.NTS:
-      return ordersLOA.ntsTAC;
+      return ordersLOA.ntsTac;
     default:
       return ordersLOA.tac;
   }
@@ -31,7 +31,7 @@ export function retrieveSAC(sacType, ordersLOA) {
     case LOA_TYPE.HHG:
       return ordersLOA.sac;
     case LOA_TYPE.NTS:
-      return ordersLOA.ntsSAC;
+      return ordersLOA.ntsSac;
     default:
       return ordersLOA.sac;
   }

@@ -20,8 +20,8 @@ const ShipmentDetails = ({
   const ordersLOA = {
     tac: order.tac,
     sac: order.sac,
-    ntsTAC: order.ntsTAC,
-    ntsSAC: order.ntsSAC,
+    ntsTac: order.ntsTac,
+    ntsSac: order.ntsSac,
   };
 
   return (

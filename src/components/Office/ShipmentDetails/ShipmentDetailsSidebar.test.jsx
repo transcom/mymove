@@ -53,8 +53,8 @@ const shipment = {
 const ordersLOA = {
   tac: '1234',
   sac: '567',
-  ntsTAC: '8912',
-  ntsSAC: '345',
+  ntsTac: '8912',
+  ntsSac: '345',
 };
 
 const headers = [
@@ -91,7 +91,7 @@ describe('Shipment Details Sidebar', () => {
     expect(screen.getByText(shipment.storageFacility.streetAddress1, { exact: false })).toBeInTheDocument();
     expect(screen.getByText(shipment.serviceOrderNumber)).toBeInTheDocument();
     expect(screen.getByText(formatAccountingCode(ordersLOA.tac, shipment.tacType))).toBeInTheDocument();
-    expect(screen.getByText(formatAccountingCode(ordersLOA.ntsSAC, shipment.sacType))).toBeInTheDocument();
+    expect(screen.getByText(formatAccountingCode(ordersLOA.ntsSac, shipment.sacType))).toBeInTheDocument();
   });
 
   it('renders nothing with no info passed in', () => {

@@ -118,8 +118,8 @@ const order = {
   },
   tac: '1234',
   sac: '567',
-  ntsTAC: '8912',
-  ntsSAC: '345',
+  ntsTac: '8912',
+  ntsSac: '345',
 };
 
 export const Default = () => (

@@ -2335,11 +2335,20 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 
 	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 
+	hhgTAC := "1111"
+	ntsTAC := "2222"
+	hhgSAC := "3333"
+	ntsSAC := "4444"
+
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.Must(uuid.NewV4()),
 			ServiceMemberID: customer.ID,
 			ServiceMember:   customer,
+			TAC:             &hhgTAC,
+			NtsTAC:          &ntsTAC,
+			SAC:             &hhgSAC,
+			NtsSAC:          &ntsSAC,
 		},
 		UserUploader: userUploader,
 	})
@@ -2396,6 +2405,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		Move: move,
 	})
 
+	storageFacility := testdatagen.MakeStorageFacility(db, testdatagen.Assertions{
+		StorageFacility: models.StorageFacility{
+			Address: testdatagen.MakeAddress(db, testdatagen.Assertions{
+				Address: models.Address{
+					StreetAddress1: "1234 Over Here Street",
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+					Country:        swag.String("US"),
+				},
+			}),
+			Email:        swag.String("old@email.com"),
+			FacilityName: "Storage R Us",
+		},
+	})
+
+	tacType := models.LOATypeNTS
+	sacType := models.LOATypeNTS
+
+	serviceOrderNumber := "1234"
+
 	// Create an NTSR MTO Shipment
 	ntsrShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -2405,6 +2435,10 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
+			StorageFacility:      &storageFacility,
+			TACType:              &tacType,
+			SACType:              &sacType,
+			ServiceOrderNumber:   &serviceOrderNumber,
 		},
 		Move: move,
 	})

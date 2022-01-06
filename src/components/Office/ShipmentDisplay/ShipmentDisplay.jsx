@@ -141,8 +141,8 @@ ShipmentDisplay.propTypes = {
   ordersLOA: PropTypes.shape({
     tac: PropTypes.string,
     sac: PropTypes.string,
-    ntsTAC: PropTypes.string,
-    ntsSAC: PropTypes.string,
+    ntsTac: PropTypes.string,
+    ntsSac: PropTypes.string,
   }),
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
@@ -157,8 +157,8 @@ ShipmentDisplay.defaultProps = {
   ordersLOA: {
     tac: '',
     sac: '',
-    ntsTAC: '',
-    ntsSAC: '',
+    ntsTac: '',
+    ntsSac: '',
   },
   warnIfMissing: [],
   errorIfMissing: [],
