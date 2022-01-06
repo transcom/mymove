@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		},
 	})
 
-	// Create a move with an origin duty station outside of office user GBLOC
+	// Create a move with an origin duty location outside of office user GBLOC
 	excludedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -215,7 +215,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	hhgMoveType := models.SelectedMoveTypeHHG
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -241,7 +241,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	})
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "06001", "AGFM")
 
-	// Create an order with an origin duty station outside of office user GBLOC
+	// Create an order with an origin duty location outside of office user GBLOC
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			Name:  "Fort Punxsutawney",
@@ -743,7 +743,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	// Create an order with an origin duty station outside of office user GBLOC
+	// Create an order with an origin duty location outside of office user GBLOC
 	hhgMoveType := models.SelectedMoveTypeHHG
 	excludedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -1029,7 +1029,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 	subtestData.needsCounselingMove = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -1112,7 +1112,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
-	// Create a move with an origin duty station outside of office user GBLOC
+	// Create a move with an origin duty location outside of office user GBLOC
 	excludedStatusMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,

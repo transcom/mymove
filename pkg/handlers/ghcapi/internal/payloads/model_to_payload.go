@@ -232,6 +232,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 }
 
+// TODO: Temporary workaround for transforming duty stations into location model, once changes to dutyStation are fully complete we can change this to just DutyLocation
 func DutyStationToLocation(dutyStation *models.DutyStation) *ghcmessages.DutyLocation {
 	if dutyStation == nil {
 		return nil

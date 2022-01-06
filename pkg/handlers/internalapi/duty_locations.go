@@ -14,40 +14,39 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForDutyStationModel(station models.DutyStation) *internalmessages.DutyStationPayload {
-	// If the station ID has no UUID then it isn't real data
+func payloadForDutyLocationModel(location models.DutyLocation) *internalmessages.DutyLocationPayload {
+	// If the location ID has no UUID then it isn't real data
 	// Unlike other payloads the
-	if station.ID == uuid.Nil {
+	if location.ID == uuid.Nil {
 		return nil
 	}
-	payload := internalmessages.DutyStationPayload{
-		ID:          handlers.FmtUUID(station.ID),
-		CreatedAt:   handlers.FmtDateTime(station.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(station.UpdatedAt),
-		Name:        swag.String(station.Name),
-		Affiliation: station.Affiliation,
-		AddressID:   handlers.FmtUUID(station.AddressID),
-		Address:     payloads.Address(&station.Address),
+	payload := internalmessages.DutyLocationPayload{
+		ID:          handlers.FmtUUID(location.ID),
+		CreatedAt:   handlers.FmtDateTime(location.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(location.UpdatedAt),
+		Name:        swag.String(location.Name),
+		Affiliation: location.Affiliation,
+		AddressID:   handlers.FmtUUID(location.AddressID),
+		Address:     payloads.Address(&location.Address),
 	}
 
-	payload.TransportationOffice = payloads.TransportationOffice(station.TransportationOffice)
+	payload.TransportationOffice = payloads.TransportationOffice(location.TransportationOffice)
 
 	return &payload
 }
 
-// SearchDutyStationsHandler returns a list of all issues
-type SearchDutyStationsHandler struct {
+// SearchDutyLocationsHandler returns a list of all issues
+type SearchDutyLocationsHandler struct {
 	handlers.HandlerContext
 }
 
-// TODO: temporary workaround until this file gets deleted entirely
-// Handle returns a list of stations based on the search query
-func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyLocationsParams) middleware.Responder {
+// Handle returns a list of locations based on the search query
+func (h SearchDutyLocationsHandler) Handle(params stationop.SearchDutyLocationsParams) middleware.Responder {
 	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	locations, err := models.FindDutyLocations(appCtx.DB(), params.Search)
 	if err != nil {
-		appCtx.Logger().Error("Finding duty stations", zap.Error(err))
+		appCtx.Logger().Error("Finding duty locations", zap.Error(err))
 		return stationop.NewSearchDutyLocationsInternalServerError()
 
 	}

@@ -6,12 +6,12 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
+	locationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *HandlerSuite) TestSearchDutyStationHandler() {
+func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 	t := suite.T()
 
 	// Need a logged in user
@@ -30,19 +30,19 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	}
 	suite.MustSave(&address)
 
-	station1 := models.DutyStation{
-		Name:      "First Station",
+	location1 := models.DutyLocation{
+		Name:      "First Location",
 		AddressID: address.ID,
 	}
-	suite.MustSave(&station1)
+	suite.MustSave(&location1)
 
-	station2 := models.DutyStation{
-		Name:      "Second Station",
+	location2 := models.DutyLocation{
+		Name:      "Second Location",
 		AddressID: address.ID,
 	}
-	suite.MustSave(&station2)
+	suite.MustSave(&location2)
 
-	req := httptest.NewRequest("GET", "/duty_stations", nil)
+	req := httptest.NewRequest("GET", "/duty_locations", nil)
 
 	// Make sure the context contains the auth values
 	session := &auth.Session{
@@ -52,24 +52,24 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, session)
 
-	newSearchParams := stationop.SearchDutyLocationsParams{
+	newSearchParams := locationop.SearchDutyLocationsParams{
 		HTTPRequest: req.WithContext(ctx),
 		Search:      "first",
 	}
 
-	handler := SearchDutyStationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := SearchDutyLocationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response
-	searchResponse := response.(*stationop.SearchDutyLocationsOK)
-	stationPayloads := searchResponse.Payload
+	searchResponse := response.(*locationop.SearchDutyLocationsOK)
+	locationPayloads := searchResponse.Payload
 
-	if len(stationPayloads) != 1 {
-		t.Errorf("Should have 1 responses, got %v", len(stationPayloads))
+	if len(locationPayloads) != 1 {
+		t.Errorf("Should have 1 responses, got %v", len(locationPayloads))
 	}
 
-	if *stationPayloads[0].Name != "First Station" {
-		t.Errorf("Station name should have been \"First Station \", got %v", stationPayloads[0].Name)
+	if *locationPayloads[0].Name != "First Location" {
+		t.Errorf("Location name should have been \"First Location \", got %v", locationPayloads[0].Name)
 	}
 
 }
