@@ -1127,7 +1127,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -1373,7 +1373,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
         "consumes": [
           "application/json"
         ],
@@ -3340,13 +3340,13 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
         },
         "customerRemarks": {
-          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -4148,7 +4148,7 @@ func init() {
           "example": 2000
         },
         "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -7375,7 +7375,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -7678,7 +7678,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
         "consumes": [
           "application/json"
         ],
@@ -10009,13 +10009,13 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
         },
         "customerRemarks": {
-          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -10817,7 +10817,7 @@ func init() {
           "example": 2000
         },
         "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"

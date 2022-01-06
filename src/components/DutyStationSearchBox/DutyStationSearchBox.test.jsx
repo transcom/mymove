@@ -122,7 +122,7 @@ const testStations = [
 ];
 
 jest.mock('./api.js', () => ({
-  SearchDutyStations: async (search) => {
+  SearchDutyLocations: async (search) => {
     if (search === 'empty') {
       return [];
     }

@@ -218,7 +218,7 @@ function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   const defaultPickupZip = serviceMember?.residential_address?.postalCode;
-  const originDutyStationZip = serviceMember?.current_station?.address?.postalCode;
+  const originDutyLocationZip = serviceMember?.current_station?.address?.postalCode;
   const serviceMemberId = serviceMember?.id;
 
   const props = {
@@ -228,7 +228,7 @@ function mapStateToProps(state) {
     currentOrders: selectCurrentOrders(state),
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
-    originDutyStationZip: serviceMember?.current_station?.address?.postalCode,
+    originDutyLocationZip: serviceMember?.current_station?.address?.postalCode,
   };
 
   props.initialValues = !isEmpty(props.currentPPM)
@@ -236,7 +236,7 @@ function mapStateToProps(state) {
     : defaultPickupZip
     ? {
         pickup_postal_code: defaultPickupZip,
-        origin_duty_station_zip: originDutyStationZip,
+        origin_duty_location_zip: originDutyLocationZip,
       }
     : null;
 

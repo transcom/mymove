@@ -462,7 +462,10 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		PaymentRequest: models.PaymentRequest{
 			Status: models.PaymentRequestStatusPaid,
 		},
-		OriginDutyStation: originDutyStation1,
+		Order: models.Order{
+			OriginDutyStationID: &originDutyStation1.ID,
+			OriginDutyStation:   &originDutyStation1,
+		},
 	})
 
 	expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -475,7 +478,10 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			SelectedMoveType: &hhgMoveType,
 			Locator:          "ZZZZ",
 		},
-		OriginDutyStation: originDutyStation2,
+		Order: models.Order{
+			OriginDutyStationID: &originDutyStation2.ID,
+			OriginDutyStation:   &originDutyStation2,
+		},
 	})
 
 	// Fake this as a day and a half in the past so floating point age values can be tested

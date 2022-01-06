@@ -1,4 +1,4 @@
-import { SearchDutyStations, ShowAddress } from './api';
+import { SearchDutyLocations, ShowAddress } from './api';
 
 jest.mock('shared/Swagger/api.js', () => ({
   ...jest.requireActual('shared/Swagger/api.js'),
@@ -14,8 +14,8 @@ jest.mock('shared/Swagger/api.js', () => ({
             return { ok: true, body: `address ${addressId}` };
           },
         },
-        duty_stations: {
-          searchDutyStations: ({ search }) => {
+        duty_locations: {
+          searchDutyLocations: ({ search }) => {
             if (search === 'broken') {
               return { ok: false };
             }
@@ -29,15 +29,15 @@ jest.mock('shared/Swagger/api.js', () => ({
 }));
 
 describe('scenes ServiceMembers api', () => {
-  describe('SearchDutyStations', () => {
+  describe('SearchDutyLocations', () => {
     it('retrieves a response from the server', async () => {
-      const response = await SearchDutyStations('ok');
+      const response = await SearchDutyLocations('ok');
       expect(response).toEqual('queried ok');
     });
 
     it('throws an error when appropriate', async () => {
       await expect(async () => {
-        await SearchDutyStations('broken');
+        await SearchDutyLocations('broken');
       }).rejects.toThrow('failed to query duty stations due to server error');
     });
   });

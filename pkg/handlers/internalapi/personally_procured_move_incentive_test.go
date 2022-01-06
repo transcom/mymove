@@ -145,12 +145,12 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMIncentiveParams{
-		HTTPRequest:          req,
-		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:            "94540",
-		OriginDutyStationZip: "50309",
-		Weight:               7500,
-		OrdersID:             strfmt.UUID(ordersID.String()),
+		HTTPRequest:           req,
+		OriginalMoveDate:      *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:             "94540",
+		OriginDutyLocationZip: "50309",
+		Weight:                7500,
+		OrdersID:              strfmt.UUID(ordersID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
@@ -181,12 +181,12 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
-		HTTPRequest:          req,
-		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:            "94540",
-		OriginDutyStationZip: "50309",
-		Weight:               7500,
-		OrdersID:             strfmt.UUID(ordersID.String()),
+		HTTPRequest:           req,
+		OriginalMoveDate:      *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:             "94540",
+		OriginDutyLocationZip: "50309",
+		Weight:                7500,
+		OrdersID:              strfmt.UUID(ordersID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
@@ -224,12 +224,12 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
-		HTTPRequest:          req,
-		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:            "94540",
-		OriginDutyStationZip: "50309",
-		Weight:               600,
-		OrdersID:             strfmt.UUID(ordersID.String()),
+		HTTPRequest:           req,
+		OriginalMoveDate:      *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:             "94540",
+		OriginDutyLocationZip: "50309",
+		Weight:                600,
+		OrdersID:              strfmt.UUID(ordersID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())

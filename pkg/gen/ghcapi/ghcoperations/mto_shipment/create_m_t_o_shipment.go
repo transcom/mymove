@@ -40,7 +40,6 @@ Required fields include:
 * Pick-up Address
 * Delivery Address
 * Releasing / Receiving agents
-
 Optional fields include:
 * Customer Remarks
 * Releasing / Receiving agents

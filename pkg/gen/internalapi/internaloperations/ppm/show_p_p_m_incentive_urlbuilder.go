@@ -16,11 +16,11 @@ import (
 
 // ShowPPMIncentiveURL generates an URL for the show p p m incentive operation
 type ShowPPMIncentiveURL struct {
-	OrdersID             strfmt.UUID
-	OriginDutyStationZip string
-	OriginZip            string
-	OriginalMoveDate     strfmt.Date
-	Weight               int64
+	OrdersID              strfmt.UUID
+	OriginDutyLocationZip string
+	OriginZip             string
+	OriginalMoveDate      strfmt.Date
+	Weight                int64
 
 	_basePath string
 	// avoid unkeyed usage
@@ -61,9 +61,9 @@ func (o *ShowPPMIncentiveURL) Build() (*url.URL, error) {
 		qs.Set("orders_id", ordersIDQ)
 	}
 
-	originDutyStationZipQ := o.OriginDutyStationZip
-	if originDutyStationZipQ != "" {
-		qs.Set("origin_duty_station_zip", originDutyStationZipQ)
+	originDutyLocationZipQ := o.OriginDutyLocationZip
+	if originDutyLocationZipQ != "" {
+		qs.Set("origin_duty_location_zip", originDutyLocationZipQ)
 	}
 
 	originZipQ := o.OriginZip

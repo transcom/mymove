@@ -46,7 +46,7 @@ type MoveQueueItem struct {
 
 	// Destination
 	// Example: Dover AFB
-	DestinationDutyStationName *string `json:"destination_duty_station_name,omitempty"`
+	DestinationDutyLocationName *string `json:"destination_duty_location_name,omitempty"`
 
 	// Destination GBLOC
 	// Example: LKNQ
@@ -102,7 +102,7 @@ type MoveQueueItem struct {
 
 	// Origin
 	// Example: Dover AFB
-	OriginDutyStationName *string `json:"origin_duty_station_name,omitempty"`
+	OriginDutyLocationName *string `json:"origin_duty_location_name,omitempty"`
 
 	// Origin GBLOC
 	// Example: LKNQ

@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
@@ -235,9 +235,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.RequestPPMPayment has not yet been implemented")
 		})
 	}
-	if api.DutyStationsSearchDutyStationsHandler == nil {
-		api.DutyStationsSearchDutyStationsHandler = duty_stations.SearchDutyStationsHandlerFunc(func(params duty_stations.SearchDutyStationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation duty_stations.SearchDutyStations has not yet been implemented")
+	if api.DutyLocationsSearchDutyLocationsHandler == nil {
+		api.DutyLocationsSearchDutyLocationsHandler = duty_locations.SearchDutyLocationsHandlerFunc(func(params duty_locations.SearchDutyLocationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation duty_locations.SearchDutyLocations has not yet been implemented")
 		})
 	}
 	if api.AddressesShowAddressHandler == nil {
@@ -255,9 +255,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation documents.ShowDocument has not yet been implemented")
 		})
 	}
-	if api.TransportationOfficesShowDutyStationTransportationOfficeHandler == nil {
-		api.TransportationOfficesShowDutyStationTransportationOfficeHandler = transportation_offices.ShowDutyStationTransportationOfficeHandlerFunc(func(params transportation_offices.ShowDutyStationTransportationOfficeParams) middleware.Responder {
-			return middleware.NotImplemented("operation transportation_offices.ShowDutyStationTransportationOffice has not yet been implemented")
+	if api.TransportationOfficesShowDutyLocationTransportationOfficeHandler == nil {
+		api.TransportationOfficesShowDutyLocationTransportationOfficeHandler = transportation_offices.ShowDutyLocationTransportationOfficeHandlerFunc(func(params transportation_offices.ShowDutyLocationTransportationOfficeParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_offices.ShowDutyLocationTransportationOffice has not yet been implemented")
 		})
 	}
 	if api.UsersShowLoggedInUserHandler == nil {
