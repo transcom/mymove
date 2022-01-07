@@ -9,6 +9,7 @@ import { SITExtensionShape } from '../../../types/sitExtensions';
 import styles from './EditFacilityInfoModal.module.scss';
 
 import { Form } from 'components/form';
+import formStyles from 'styles/form.module.scss';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -39,105 +40,100 @@ const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, storageFaci
         <Modal className={styles.EditFacilityInfoModal}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
-            <h2>Edit facility info and</h2>
+            <h2>Edit facility info and address</h2>
           </ModalTitle>
-          <div className={styles.ModalPanel}>
-            <Formik
-              validationSchema={editFacilityInfoSchema}
-              onSubmit={onSubmit}
-              initialValues={{
-                storageFacility,
-                storageFacilityAddress,
-              }}
-            >
-              {({ isValid }) => {
-                return (
-                  <Form>
-                    <Fieldset className={styles.Fieldset}>
-                      <h3 className={styles.SectionHeader}>Facility info</h3>
-                      <Grid row>
-                        <Grid col={12}>
-                          <TextField label="Facility name" id="facilityName" name="storageFacility.facilityName" />
-                        </Grid>
+          <Formik
+            validationSchema={editFacilityInfoSchema}
+            onSubmit={onSubmit}
+            initialValues={{
+              storageFacility,
+              storageFacilityAddress,
+            }}
+          >
+            {({ isValid }) => {
+              return (
+                <Form className={formStyles.form}>
+                  <Fieldset>
+                    <h3 className={styles.ModalSubTitle}>Facility info</h3>
+                    <Grid row>
+                      <Grid col={12}>
+                        <TextField label="Facility name" id="facilityName" name="storageFacility.facilityName" />
                       </Grid>
+                    </Grid>
 
-                      <Grid row gap>
-                        <Grid col={6}>
-                          <MaskedTextField
-                            label="Phone"
-                            id="facilityPhone"
-                            name="storageFacility.phone"
-                            type="tel"
-                            minimum="12"
-                            mask="000{-}000{-}0000"
-                            optional
+                    <Grid row gap>
+                      <Grid col={6}>
+                        <MaskedTextField
+                          label="Phone"
+                          id="facilityPhone"
+                          name="storageFacility.phone"
+                          type="tel"
+                          minimum="12"
+                          mask="000{-}000{-}0000"
+                          optional
+                        />
+                      </Grid>
+                    </Grid>
+
+                    <Grid row>
+                      <Grid col={12}>
+                        <TextField label="Email" id="facilityEmail" name="storageFacility.email" optional />
+                      </Grid>
+                    </Grid>
+
+                    <Grid row gap>
+                      <Grid col={6}>
+                        <FormGroup>
+                          <TextField
+                            label="Service order number"
+                            id="facilityServiceOrderNumber"
+                            name="storageFacility.serviceOrderNumber"
                           />
-                        </Grid>
+                        </FormGroup>
                       </Grid>
-
-                      <Grid row>
-                        <Grid col={12}>
-                          <TextField label="Email" id="facilityEmail" name="storageFacility.email" optional />
-                        </Grid>
-                      </Grid>
-
-                      <Grid row gap>
-                        <Grid col={6}>
-                          <FormGroup>
-                            <TextField
-                              label="Service order number"
-                              id="facilityServiceOrderNumber"
-                              name="storageFacility.serviceOrderNumber"
-                            />
-                          </FormGroup>
-                        </Grid>
-                      </Grid>
-                    </Fieldset>
-                    <Fieldset className={styles.Fieldset}>
-                      <h3 className={styles.SectionHeader}>Storage facility address</h3>
-                      <AddressFields
-                        name="storageFacilityAddress.address"
-                        render={(fields) => (
-                          <>
-                            {fields}
-                            <Grid row gap>
-                              <Grid col={6}>
-                                <FormGroup>
-                                  <Label htmlFor="facilityLotNumber" className={styles.Label}>
-                                    Lot number
-                                    <span className="float-right">Optional</span>
-                                  </Label>
-                                  <Field
-                                    as={TextInput}
-                                    id="facilityLotNumber"
-                                    name="storageFacilityAddress.lotNumber"
-                                  />
-                                </FormGroup>
-                              </Grid>
+                    </Grid>
+                  </Fieldset>
+                  <Fieldset>
+                    <h3 className={styles.ModalSubTitle}>Storage facility address</h3>
+                    <AddressFields
+                      name="storageFacilityAddress.address"
+                      className={styles.AddressFields}
+                      render={(fields) => (
+                        <>
+                          {fields}
+                          <Grid row gap>
+                            <Grid col={6}>
+                              <FormGroup>
+                                <Label htmlFor="facilityLotNumber">
+                                  Lot number
+                                  <span className="float-right usa-hint">Optional</span>
+                                </Label>
+                                <Field as={TextInput} id="facilityLotNumber" name="storageFacilityAddress.lotNumber" />
+                              </FormGroup>
                             </Grid>
-                          </>
-                        )}
-                      />
-                    </Fieldset>
-                    <ModalActions>
-                      <Button type="submit" disabled={!isValid}>
-                        Save
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => onClose()}
-                        data-testid="modalCancelButton"
-                        outline
-                        className={styles.CancelButton}
-                      >
-                        Cancel
-                      </Button>
-                    </ModalActions>
-                  </Form>
-                );
-              }}
-            </Formik>
-          </div>
+                          </Grid>
+                        </>
+                      )}
+                    />
+                  </Fieldset>
+                  <ModalActions>
+                    <Button type="submit" disabled={!isValid}>
+                      Save
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => onClose()}
+                      data-testid="modalCancelButton"
+                      outline
+                      className={styles.CancelButton}
+                    >
+                      Cancel
+                    </Button>
+                  </ModalActions>
+                </Form>
+              );
+            }}
+          </Formik>
         </Modal>
       </ModalContainer>
     </div>

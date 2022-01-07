@@ -32,3 +32,17 @@ export const Basic = () => (
     storageFacilityAddress={storageFacilityAddress}
   />
 );
+
+export const WithInfoMissing = () => (
+  <EditFacilityInfoModal
+    onSubmit={() => {}}
+    onClose={() => {}}
+    storageFacility={{
+      facilityName: '',
+      phone: '1235553434',
+      email: 'my@email.com',
+      serviceOrderNumber: '12345',
+    }}
+    storageFacilityAddress={storageFacilityAddress}
+  />
+);

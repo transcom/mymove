@@ -2,7 +2,16 @@
 @import 'shared/styles/basics';
 
 .EditFacilityInfoModal {
-  min-width: 45rem !important;
+  min-width: 40rem !important;
+  fieldset,
+  fieldset + fieldset {
+    margin-top: 0;
+    margin-bottom: 0;
+    border: none;
+  }
+  .ModalSubTitle {
+    margin-bottom: 0;
+  }
   .CancelButton {
     @include u-bg('transparent');
   }
