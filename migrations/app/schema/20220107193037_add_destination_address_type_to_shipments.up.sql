@@ -1,3 +1,4 @@
+-- This address type is ONLY applicable for destination addresses for retirees and separatees
 CREATE TYPE address_type AS ENUM (
 	'HOME_OF_RECORD',
 	'HOME_OF_SELECTION',
