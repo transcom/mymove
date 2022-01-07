@@ -2443,6 +2443,30 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		Move: move,
 	})
 
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("d432a296-6f5d-11ec-90d6-0242ac120003"),
+			MTOShipment:   ntsrShipment,
+			MTOShipmentID: ntsrShipment.ID,
+			FirstName:     swag.String("Releasing"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("e338e05c-6f5d-11ec-90d6-0242ac120003"),
+			MTOShipment:   ntsrShipment,
+			MTOShipmentID: ntsrShipment.ID,
+			FirstName:     swag.String("Receiving"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
 	ntsrShipment.PickupAddressID = &pickupAddress.ID
 	ntsrShipment.PickupAddress = &pickupAddress
 	saveErr := db.Save(&ntsrShipment)
