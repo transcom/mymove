@@ -49,7 +49,7 @@ const shipment = {
   },
   primeEstimatedWeight: 4000,
   primeActualWeight: 3800,
-  agents: [
+  mtoAgents: [
     {
       agentType: 'RELEASING_AGENT',
       firstName: 'Quinn',

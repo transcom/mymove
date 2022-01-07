@@ -8,7 +8,7 @@ import { LOA_TYPE } from 'shared/constants';
 import { formatAccountingCode } from 'utils/shipmentDisplay';
 
 const shipment = {
-  agents: [
+  mtoAgents: [
     {
       agentType: 'RELEASING_AGENT',
       firstName: 'Quinn',
@@ -80,8 +80,8 @@ describe('Shipment Details Sidebar', () => {
       expect(screen.getByText(header)).toBeInTheDocument();
     });
 
-    expect(screen.getByText(shipment.agents[0].email)).toBeInTheDocument();
-    expect(screen.getByText(shipment.agents[1].email)).toBeInTheDocument();
+    expect(screen.getByText(shipment.mtoAgents[0].email)).toBeInTheDocument();
+    expect(screen.getByText(shipment.mtoAgents[1].email)).toBeInTheDocument();
     expect(
       screen.getByText(shipment.secondaryAddresses.secondaryPickupAddress.streetAddress1, { exact: false }),
     ).toBeInTheDocument();

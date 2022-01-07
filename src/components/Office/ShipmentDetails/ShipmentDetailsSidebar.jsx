@@ -8,14 +8,14 @@ import { ShipmentShape } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
 
 const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
-  const { agents, secondaryAddresses, serviceOrderNumber, storageFacility, sacType, tacType } = shipment;
+  const { mtoAgents, secondaryAddresses, serviceOrderNumber, storageFacility, sacType, tacType } = shipment;
   const tac = retrieveTAC(shipment.tacType, ordersLOA);
   const sac = retrieveSAC(shipment.sacType, ordersLOA);
 
   return (
     <div className={className}>
-      {agents &&
-        agents.map((agent) => (
+      {mtoAgents &&
+        mtoAgents.map((agent) => (
           <SimpleSection
             key={`${agent.agentType}-${agent.email}`}
             header={agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}
