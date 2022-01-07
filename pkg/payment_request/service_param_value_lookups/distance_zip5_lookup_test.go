@@ -2,7 +2,6 @@ package serviceparamvaluelookups
 
 import (
 	"strconv"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -12,7 +11,7 @@ import (
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 	key := models.ServiceItemParamNameDistanceZip5
 
-	suite.T().Run("golden path", func(t *testing.T) {
+	suite.Run("golden path", func() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -47,7 +46,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 		suite.Equal(unit.Miles(defaultZip5Distance), *mtoShipment.Distance)
 	})
 
-	suite.T().Run("doesn't update mtoShipment distance when the pickup and destination zip3s are different", func(t *testing.T) {
+	suite.Run("doesn't update mtoShipment distance when the pickup and destination zip3s are different", func() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -83,7 +82,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 		suite.Nil(mtoShipment.Distance)
 	})
 
-	suite.T().Run("returns error if the pickup zipcode isn't at least 5 digits", func(t *testing.T) {
+	suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -112,7 +111,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 		suite.Contains(err.Error(), "Shipment must have valid pickup zipcode")
 	})
 
-	suite.T().Run("returns error if the destination zipcode isn't at least 5 digits", func(t *testing.T) {
+	suite.Run("returns error if the destination zipcode isn't at least 5 digits", func() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
