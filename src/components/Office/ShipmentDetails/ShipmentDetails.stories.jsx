@@ -88,11 +88,14 @@ const shipment = {
   sitDaysAllowance: 270,
   storageFacility: {
     facilityName: 'Most Excellent Storage',
-    streetAddress1: '3373 NW Martin Luther King Jr Blvd',
-    city: 'San Antonio',
-    state: 'TX',
-    postalCode: '78212',
+    address: {
+      streetAddress1: '3373 NW Martin Luther King Jr Blvd',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78212',
+    },
     phone: '555-555-5555',
+    lotNumber: '64321',
   },
   serviceOrderNumber: '1234',
   tacType: LOA_TYPE.HHG,

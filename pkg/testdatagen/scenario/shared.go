@@ -2405,6 +2405,8 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		Move: move,
 	})
 
+	lotNumber := "654321"
+
 	storageFacility := testdatagen.MakeStorageFacility(db, testdatagen.Assertions{
 		StorageFacility: models.StorageFacility{
 			Address: testdatagen.MakeAddress(db, testdatagen.Assertions{
@@ -2418,6 +2420,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			}),
 			Email:        swag.String("old@email.com"),
 			FacilityName: "Storage R Us",
+			LotNumber:    &lotNumber,
 		},
 	})
 

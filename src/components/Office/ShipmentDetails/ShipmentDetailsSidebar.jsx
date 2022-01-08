@@ -40,7 +40,8 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
         >
           <div>{storageFacility.facilityName}</div>
           <div>{storageFacility.phone}</div>
-          <div>{formatAddress(storageFacility)}</div>
+          <div>{formatAddress(storageFacility.address)}</div>
+          <div>{storageFacility.lotNumber}</div>
         </SimpleSection>
       )}
 

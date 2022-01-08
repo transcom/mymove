@@ -39,11 +39,14 @@ const shipment = {
     },
   },
   storageFacility: {
+    address: {
+      streetAddress1: '456 S 131st St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78212',
+    },
+    lotNumber: '654321',
     facilityName: 'Some storage facility',
-    streetAddress1: '456 S 131st St',
-    city: 'San Antonio',
-    state: 'TX',
-    postalCode: '78212',
   },
   serviceOrderNumber: '1234',
   tacType: LOA_TYPE.HHG,
@@ -88,7 +91,7 @@ describe('Shipment Details Sidebar', () => {
     expect(
       screen.getByText(shipment.secondaryAddresses.secondaryDeliveryAddress.streetAddress1, { exact: false }),
     ).toBeInTheDocument();
-    expect(screen.getByText(shipment.storageFacility.streetAddress1, { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(shipment.storageFacility.address.streetAddress1, { exact: false })).toBeInTheDocument();
     expect(screen.getByText(shipment.serviceOrderNumber)).toBeInTheDocument();
     expect(screen.getByText(formatAccountingCode(ordersLOA.tac, shipment.tacType))).toBeInTheDocument();
     expect(screen.getByText(formatAccountingCode(ordersLOA.ntsSac, shipment.sacType))).toBeInTheDocument();
