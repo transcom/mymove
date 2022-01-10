@@ -94,6 +94,23 @@ func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uu
 		return nil, notFoundError
 	}
 
+	// If this shipment uses external vendor do not send updates for this shipment.
+	if model.UsesExternalVendor {
+		newEventError := apperror.NewEventError(
+			"MTOShipment uses external vendor",
+			fmt.Errorf("MTOShipment ID %s using external vendor", updatedObjectID.String()))
+		return nil, newEventError
+	}
+
+	if model.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom || model.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		// TODO: Don't think the address is working here, UT is failing have to load another way
+		err = appCtx.DB().Load(&model, "StorageFacility", "StorageFacility.Address")
+		if err != nil {
+			unknownErr := apperror.NewEventError("database error loading storage facility", err)
+			return nil, unknownErr
+		}
+	}
+
 	payload := payloads.MTOShipment(&model)
 	payloadArray, err := json.Marshal(payload)
 	if err != nil {

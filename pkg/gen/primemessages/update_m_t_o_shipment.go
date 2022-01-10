@@ -81,6 +81,9 @@ type UpdateMTOShipment struct {
 
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+
+	// storage facility
+	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
 }
 
 // Validate validates this update m t o shipment
@@ -116,6 +119,10 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStorageFacility(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -208,6 +215,23 @@ func (m *UpdateMTOShipment) validateShipmentType(formats strfmt.Registry) error 
 	return nil
 }
 
+func (m *UpdateMTOShipment) validateStorageFacility(formats strfmt.Registry) error {
+	if swag.IsZero(m.StorageFacility) { // not required
+		return nil
+	}
+
+	if m.StorageFacility != nil {
+		if err := m.StorageFacility.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storageFacility")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update m t o shipment based on the context it is used
 func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -229,6 +253,10 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStorageFacility(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -265,6 +293,20 @@ func (m *UpdateMTOShipment) contextValidateShipmentType(ctx context.Context, for
 			return ve.ValidateName("shipmentType")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidateStorageFacility(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.StorageFacility != nil {
+		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storageFacility")
+			}
+			return err
+		}
 	}
 
 	return nil

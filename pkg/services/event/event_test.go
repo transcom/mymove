@@ -216,20 +216,19 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 
 	now := time.Now()
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-	})
-
-	mtoShipmentID := mtoShipment.ID
-	mtoID := mtoShipment.MoveTaskOrderID
-
-	traceID := uuid.Must(uuid.NewV4())
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC MTOShipment endpoint", func(t *testing.T) {
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+		})
 
+		mtoShipmentID := mtoShipment.ID
+		mtoID := mtoShipment.MoveTaskOrderID
+
+		traceID := uuid.Must(uuid.NewV4())
 		_, err := TriggerEvent(Event{
 			EventKey:        MTOShipmentUpdateEventKey,
 			MtoID:           mtoID,
@@ -258,10 +257,100 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		//RA Modified Severity: N/A
 		// nolint:errcheck
 		json.Unmarshal([]byte(notification.Payload), &mtoShipmentInPayload)
+
 		// Check some params
 		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
 		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())
 
+	})
+
+	// Test successful event passing with Support API
+	suite.T().Run("Success with GHC MTOShipment endpoint for NTS Shipment", func(t *testing.T) {
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+			},
+		})
+
+		mtoShipmentID := mtoShipment.ID
+		mtoID := mtoShipment.MoveTaskOrderID
+
+		traceID := uuid.Must(uuid.NewV4())
+
+		_, err := TriggerEvent(Event{
+			EventKey:        MTOShipmentUpdateEventKey,
+			MtoID:           mtoID,
+			UpdatedObjectID: mtoShipmentID,
+			EndpointKey:     GhcApproveShipmentEndpointKey,
+			AppContext:      suite.AppContextForTest(),
+			TraceID:         traceID,
+		})
+		suite.Nil(err)
+
+		// Get the notification
+		notification, err := suite.getNotification(mtoShipmentID, traceID)
+		suite.NoError(err)
+		suite.Equal(&mtoShipmentID, notification.ObjectID)
+
+		// Reinflate the json from the notification payload
+		suite.NotEmpty(notification.Payload)
+		var mtoShipmentInPayload primemessages.MTOShipment
+		unmarshallErr := json.Unmarshal([]byte(notification.Payload), &mtoShipmentInPayload)
+		suite.NoError(unmarshallErr)
+		// Check some params
+		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
+		suite.NotNil(mtoShipment.RequestedPickupDate)
+		suite.NotNil(mtoShipmentInPayload.RequestedPickupDate)
+		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())
+		suite.NoError(suite.DB().Load(&mtoShipment, "StorageFacility"))
+		var storageFacility models.StorageFacility
+		suite.NoError(suite.DB().Eager("Address").Find(&storageFacility, mtoShipment.StorageFacility.ID))
+		suite.Equal(storageFacility.FacilityName, mtoShipmentInPayload.StorageFacility.FacilityName)
+		suite.Equal(storageFacility.LotNumber, mtoShipmentInPayload.StorageFacility.LotNumber)
+		suite.Equal(storageFacility.Address.StreetAddress1, *mtoShipmentInPayload.StorageFacility.Address.StreetAddress1)
+		suite.Equal(storageFacility.Address.State, *mtoShipmentInPayload.StorageFacility.Address.State)
+		suite.Equal(storageFacility.Address.City, *mtoShipmentInPayload.StorageFacility.Address.City)
+		suite.Equal(storageFacility.Address.PostalCode, *mtoShipmentInPayload.StorageFacility.Address.PostalCode)
+	})
+
+	// Test successful event passing with Support API
+	suite.T().Run("Error with GHC MTOShipment endpoint for NTS Shipment using external vendor", func(t *testing.T) {
+
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGIntoNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+
+		mtoShipmentID := mtoShipment.ID
+		mtoID := mtoShipment.MoveTaskOrderID
+
+		traceID := uuid.Must(uuid.NewV4())
+
+		_, err := TriggerEvent(Event{
+			EventKey:        MTOShipmentUpdateEventKey,
+			MtoID:           mtoID,
+			UpdatedObjectID: mtoShipmentID,
+			EndpointKey:     GhcApproveShipmentEndpointKey,
+			AppContext:      suite.AppContextForTest(),
+			TraceID:         traceID,
+		})
+		suite.Equal("MTOShipment uses external vendor. ", err.Error())
+
+		// Get the notification
+		notification, err := suite.getNotification(mtoShipmentID, traceID)
+		suite.Equal("sql: no rows in result set", err.Error())
+		suite.Equal(uuid.NullUUID{}.UUID, *notification.ObjectID)
+
+		// Reinflate the json from the notification payload
+		suite.Empty(notification.Payload)
 	})
 }
 

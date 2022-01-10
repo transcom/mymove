@@ -80,8 +80,24 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	}
 
 	var storageFacilityID *uuid.UUID
-	if mtoShipment.StorageFacility != nil {
-		storageFacilityID = &mtoShipment.StorageFacility.ID
+	if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom ||
+		mtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+		var storageFacility models.StorageFacility
+		if mtoShipment.StorageFacility != nil {
+			if isZeroUUID(mtoShipment.StorageFacility.ID) {
+				storageFacility = MakeStorageFacility(db, Assertions{
+					StorageFacility: *mtoShipment.StorageFacility,
+				})
+				storageFacilityID = &storageFacility.ID
+			} else {
+				storageFacilityID = &mtoShipment.StorageFacility.ID
+			}
+		} else if !isZeroUUID(assertions.StorageFacility.ID) {
+			storageFacilityID = &assertions.StorageFacility.ID
+		} else {
+			storageFacility = MakeDefaultStorageFacility(db)
+			storageFacilityID = &storageFacility.ID
+		}
 	}
 
 	MTOShipment := models.MTOShipment{

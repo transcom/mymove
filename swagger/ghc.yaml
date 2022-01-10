@@ -3995,6 +3995,7 @@ definitions:
       - MLNQ
       - XXXX
   Address:
+    description: A postal address
     type: object
     properties:
       id:
@@ -4021,6 +4022,7 @@ definitions:
         title: City
       eTag:
         type: string
+        readOnly: true
       state:
         title: State
         type: string

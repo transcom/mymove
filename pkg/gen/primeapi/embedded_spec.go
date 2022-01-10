@@ -1040,7 +1040,7 @@ func init() {
   },
   "definitions": {
     "Address": {
-      "description": "A postal address.",
+      "description": "A postal address",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -2222,6 +2222,10 @@ func init() {
           ],
           "readOnly": true
         },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -2911,6 +2915,43 @@ func init() {
         "BOOLEAN"
       ]
     },
+    "StorageFacility": {
+      "description": "The Storage Facility information for the shipment",
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "facilityName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lotNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMTOServiceItem": {
       "description": "UpdateMTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
@@ -3084,6 +3125,10 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
         }
       }
     },
@@ -4636,7 +4681,7 @@ func init() {
   },
   "definitions": {
     "Address": {
-      "description": "A postal address.",
+      "description": "A postal address",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -5818,6 +5863,10 @@ func init() {
           ],
           "readOnly": true
         },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -6510,6 +6559,43 @@ func init() {
         }
       }
     },
+    "StorageFacility": {
+      "description": "The Storage Facility information for the shipment",
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "facilityName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lotNumber": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMTOServiceItem": {
       "description": "UpdateMTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
@@ -6683,6 +6769,10 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "storageFacility": {
+          "x-nullable": true,
+          "$ref": "#/definitions/StorageFacility"
         }
       }
     },

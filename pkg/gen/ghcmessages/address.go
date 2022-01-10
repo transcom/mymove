@@ -15,7 +15,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Address address
+// Address A postal address
 //
 // swagger:model Address
 type Address struct {
@@ -30,6 +30,7 @@ type Address struct {
 	Country *string `json:"country,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -325,8 +326,26 @@ func (m *Address) validateStreetAddress1(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this address based on context it is used
+// ContextValidate validate this address based on the context it is used
 func (m *Address) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Address) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
