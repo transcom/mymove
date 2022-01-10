@@ -526,10 +526,20 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		suite.Require().NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
-		suite.Equal(phone, *updatedMTOShipment.MTOAgents[0].Phone)
-		suite.Equal(*mtoAgentToCreate.FirstName, *updatedMTOShipment.MTOAgents[1].FirstName)
-		suite.Equal(*mtoAgentToCreate.LastName, *updatedMTOShipment.MTOAgents[1].LastName)
-		suite.Equal(*mtoAgentToCreate.Email, *updatedMTOShipment.MTOAgents[1].Email)
+		// the returned updatedMTOShipment does not guarantee the same
+		// order of MTOAgents
+		suite.Equal(len(updatedAgents), len(updatedMTOShipment.MTOAgents))
+		for i := range updatedMTOShipment.MTOAgents {
+			agent := updatedMTOShipment.MTOAgents[i]
+			if agent.ID == existingAgent.ID {
+				suite.Equal(phone, *agent.Phone)
+			} else {
+				// this must be the newly created agent
+				suite.Equal(*mtoAgentToCreate.FirstName, *agent.FirstName)
+				suite.Equal(*mtoAgentToCreate.LastName, *agent.LastName)
+				suite.Equal(*mtoAgentToCreate.Email, *agent.Email)
+			}
+		}
 
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
