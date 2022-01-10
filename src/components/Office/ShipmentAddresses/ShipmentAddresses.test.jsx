@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 
 import ShipmentAddresses from './ShipmentAddresses';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 const testProps = {
   pickupAddress: {
     city: 'Fairfax',
@@ -34,6 +36,7 @@ const testProps = {
     shipmentID: '456',
     ifMatchEtag: 'abc123',
     shipmentStatus: 'APPROVED',
+    shipmentType: SHIPMENT_OPTIONS.HHG,
   },
 };
 
@@ -67,6 +70,7 @@ const cancelledShipment = {
     shipmentID: '456',
     ifMatchEtag: 'abc123',
     shipmentStatus: 'CANCELED',
+    shipmentType: SHIPMENT_OPTIONS.HHG,
   },
 };
 
@@ -92,5 +96,30 @@ describe('ShipmentAddresses', () => {
     await waitFor(() => {
       expect(requestDiversionBtn).toBeNull();
     });
+  });
+
+  it('shows correct headings for HHG', () => {
+    render(<ShipmentAddresses {...testProps} />);
+    expect(screen.getByText("Customer's addresses")).toBeInTheDocument();
+  });
+
+  it('shows correct headings for NTS', () => {
+    const NTSProps = {
+      ...testProps,
+      shipmentInfo: { ...testProps.shipmentInfo, shipmentType: SHIPMENT_OPTIONS.NTS },
+    };
+    render(<ShipmentAddresses {...NTSProps} />);
+    expect(screen.getByText('Pickup address')).toBeInTheDocument();
+    expect(screen.getByText('Facility address')).toBeInTheDocument();
+  });
+
+  it('shows correct headings for NTSR', () => {
+    const NTSRProps = {
+      ...testProps,
+      shipmentInfo: { ...testProps.shipmentInfo, shipmentType: SHIPMENT_OPTIONS.NTSR },
+    };
+    render(<ShipmentAddresses {...NTSRProps} />);
+    expect(screen.getByText('Facility address')).toBeInTheDocument();
+    expect(screen.getByText('Delivery address')).toBeInTheDocument();
   });
 });
