@@ -30,6 +30,7 @@ export const Basic = () => (
     onClose={() => {}}
     storageFacility={storageFacility}
     storageFacilityAddress={storageFacilityAddress}
+    shipmentType="HHG_INTO_NTS_DOMESTIC"
   />
 );
 
@@ -44,5 +45,6 @@ export const WithInfoMissing = () => (
       serviceOrderNumber: '12345',
     }}
     storageFacilityAddress={storageFacilityAddress}
+    shipmentType="HHG_INTO_NTS_DOMESTIC"
   />
 );

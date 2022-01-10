@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { Button, Label, TextInput, Fieldset, FormGroup, Grid } from '@trussworks/react-uswds';
 
-import { SITExtensionShape } from '../../../types/sitExtensions';
+import { StorageFacilityAddressShape, StorageFacilityShape, ShipmentOptionsOneOf } from '../../../types/shipment';
 
 import styles from './EditFacilityInfoModal.module.scss';
 
@@ -15,9 +15,10 @@ import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Mo
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { requiredAddressSchema, phoneSchema, emailSchema } from 'utils/validation';
 
-const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, storageFacilityAddress }) => {
+const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, storageFacilityAddress, shipmentType }) => {
   const editFacilityInfoSchema = Yup.object().shape({
     storageFacility: Yup.object().shape({
       facilityName: Yup.string().required('Required'),
@@ -38,6 +39,7 @@ const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, storageFaci
       <Overlay />
       <ModalContainer>
         <Modal className={styles.EditFacilityInfoModal}>
+          <ShipmentTag shipmentType={shipmentType} />
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
             <h2>Edit facility info and address</h2>
@@ -143,7 +145,8 @@ const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, storageFaci
 EditFacilityInfoModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  storageFacility: SITExtensionShape.isRequired,
-  storageFacilityAddress: SITExtensionShape.isRequired,
+  storageFacility: StorageFacilityShape.isRequired,
+  storageFacilityAddress: StorageFacilityAddressShape.isRequired,
+  shipmentType: ShipmentOptionsOneOf.isRequired,
 };
 export default EditFacilityInfoModal;

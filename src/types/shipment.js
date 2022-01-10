@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import PropTypes from 'prop-types';
 
-import { AddressShape } from 'types/address';
+import { AddressShape, ResidentialAddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentStatuses } from 'constants/shipments';
@@ -45,3 +45,15 @@ export const ShipmentStatusesOneOf = PropTypes.oneOf([
   shipmentStatuses.CANCELED,
   shipmentStatuses.REJECTED,
 ]);
+
+export const StorageFacilityAddressShape = PropTypes.shape({
+  address: ResidentialAddressShape,
+  lotNumber: PropTypes.string,
+});
+
+export const StorageFacilityShape = PropTypes.shape({
+  facilityName: PropTypes.string,
+  phone: PropTypes.string,
+  email: PropTypes.string,
+  serviceOrderNumber: PropTypes.string,
+});
