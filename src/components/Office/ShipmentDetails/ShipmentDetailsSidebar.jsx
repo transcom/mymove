@@ -41,7 +41,7 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
           <div>{storageFacility.facilityName}</div>
           <div>{storageFacility.phone}</div>
           <div>{formatAddress(storageFacility.address)}</div>
-          <div>{storageFacility.lotNumber}</div>
+          <div>Lot {storageFacility.lotNumber}</div>
         </SimpleSection>
       )}
 
@@ -75,8 +75,8 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
           }
           border
         >
-          {tacType && tac && <div>{formatAccountingCode(tac, tacType)}</div>}
-          {sacType && sac && <div>{formatAccountingCode(sac, sacType)}</div>}
+          {tacType && tac && <div>TAC: {formatAccountingCode(tac, tacType)}</div>}
+          {sacType && sac && <div>SAC: {formatAccountingCode(sac, sacType)}</div>}
         </SimpleSection>
       )}
 

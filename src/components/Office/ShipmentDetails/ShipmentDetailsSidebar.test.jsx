@@ -92,9 +92,10 @@ describe('Shipment Details Sidebar', () => {
       screen.getByText(shipment.secondaryAddresses.secondaryDeliveryAddress.streetAddress1, { exact: false }),
     ).toBeInTheDocument();
     expect(screen.getByText(shipment.storageFacility.address.streetAddress1, { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(`Lot ${shipment.storageFacility.lotNumber}`)).toBeInTheDocument();
     expect(screen.getByText(shipment.serviceOrderNumber)).toBeInTheDocument();
-    expect(screen.getByText(formatAccountingCode(ordersLOA.tac, shipment.tacType))).toBeInTheDocument();
-    expect(screen.getByText(formatAccountingCode(ordersLOA.ntsSac, shipment.sacType))).toBeInTheDocument();
+    expect(screen.getByText(`TAC: ${formatAccountingCode(ordersLOA.tac, shipment.tacType)}`)).toBeInTheDocument();
+    expect(screen.getByText(`SAC: ${formatAccountingCode(ordersLOA.ntsSac, shipment.sacType)}`)).toBeInTheDocument();
   });
 
   it('renders nothing with no info passed in', () => {
