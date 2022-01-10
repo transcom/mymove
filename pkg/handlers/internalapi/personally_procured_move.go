@@ -116,7 +116,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		advance = &a
 	}
 
-	destinationZip, err := GetDestinationDutyStationPostalCode(appCtx, move.OrdersID)
+	destinationZip, err := GetDestinationDutyLocationPostalCode(appCtx, move.OrdersID)
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}

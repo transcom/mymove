@@ -145,11 +145,11 @@ const InternalShowServiceMemberBackupContactEndpointKey = "Internal.ShowServiceM
 // InternalUpdateServiceMemberBackupContactEndpointKey is the key for the updateServiceMemberBackupContact endpoint in internal
 const InternalUpdateServiceMemberBackupContactEndpointKey = "Internal.UpdateServiceMemberBackupContact"
 
-// InternalSearchDutyStationsEndpointKey is the key for the searchDutyStations endpoint in internal
-const InternalSearchDutyStationsEndpointKey = "Internal.SearchDutyStations"
+// InternalSearchDutyLocationsEndpointKey is the key for the searchDutyLocations endpoint in internal
+const InternalSearchDutyLocationsEndpointKey = "Internal.SearchDutyLocations"
 
-// InternalShowDutyStationTransportationOfficeEndpointKey is the key for the showDutyStationTransportationOffice endpoint in internal
-const InternalShowDutyStationTransportationOfficeEndpointKey = "Internal.ShowDutyStationTransportationOffice"
+// InternalShowDutyLocationsTransportationOfficeEndpointKey is the key for the showDutyLocationTransportationOffice endpoint in internal
+const InternalShowDutyLocationTransportationOfficeEndpointKey = "Internal.ShowDutyLocationTransportationOffice"
 
 // InternalShowQueueEndpointKey is the key for the showQueue endpoint in internal
 const InternalShowQueueEndpointKey = "Internal.ShowQueue"
@@ -373,13 +373,13 @@ var internalEndpoints = EndpointMapType{
 		APIName:     InternalAPIName,
 		OperationID: "updateServiceMemberBackupContact",
 	},
-	InternalSearchDutyStationsEndpointKey: {
+	InternalSearchDutyLocationsEndpointKey: {
 		APIName:     InternalAPIName,
-		OperationID: "searchDutyStations",
+		OperationID: "searchDutyLocations",
 	},
-	InternalShowDutyStationTransportationOfficeEndpointKey: {
+	InternalShowDutyLocationTransportationOfficeEndpointKey: {
 		APIName:     InternalAPIName,
-		OperationID: "showDutyStationTransportationOffice",
+		OperationID: "showDutyLocationTransportationOffice",
 	},
 	InternalShowQueueEndpointKey: {
 		APIName:     InternalAPIName,

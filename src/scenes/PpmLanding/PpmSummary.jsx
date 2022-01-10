@@ -78,7 +78,7 @@ export class PpmSummaryComponent extends React.Component {
           calculatePPMEstimate(
             this.props.ppm.original_move_date,
             this.props.ppm.pickup_postal_code,
-            this.props.originDutyStationZip,
+            this.props.originDutyLocationZip,
             this.props.orders.id,
             netWeight,
           )
@@ -165,7 +165,7 @@ export class PpmSummaryComponent extends React.Component {
             </div>
             <div className="contact_block">
               <h2>Contacts</h2>
-              <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
+              <TransportationOfficeContactInfo dutyLocation={profile.current_station} isOrigin={true} />
             </div>
           </div>
         </div>
@@ -182,7 +182,7 @@ function mapStateToProps(state, ownProps) {
 
   return {
     isMissingWeightTicketDocuments,
-    originDutyStationZip: serviceMember?.current_station?.address?.postalCode,
+    originDutyLocationZip: serviceMember?.current_station?.address?.postalCode,
   };
 }
 

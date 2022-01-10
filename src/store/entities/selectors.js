@@ -22,7 +22,7 @@ export const selectServiceMemberFromLoggedInUser = (state) => {
   return state.entities.serviceMembers?.[`${user.service_member}`] || null;
 };
 
-export const selectCurrentDutyStation = (state) => {
+export const selectCurrentDutyLocation = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   return serviceMember?.current_station || null;
 };
