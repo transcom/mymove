@@ -47,6 +47,10 @@ type CounselingUpdateAllowancePayload struct {
 	// Example: 2000
 	// Minimum: 0
 	RequiredMedicalEquipmentWeight *int64 `json:"requiredMedicalEquipmentWeight,omitempty"`
+
+	// the number of storage in transit days that the customer is entitled to for a given shipment on their move
+	// Minimum: 0
+	SitAllowance *int64 `json:"sitAllowance,omitempty"`
 }
 
 // Validate validates this counseling update allowance payload
@@ -70,6 +74,10 @@ func (m *CounselingUpdateAllowancePayload) Validate(formats strfmt.Registry) err
 	}
 
 	if err := m.validateRequiredMedicalEquipmentWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitAllowance(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -149,6 +157,18 @@ func (m *CounselingUpdateAllowancePayload) validateRequiredMedicalEquipmentWeigh
 	}
 
 	if err := validate.MinimumInt("requiredMedicalEquipmentWeight", "body", *m.RequiredMedicalEquipmentWeight, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CounselingUpdateAllowancePayload) validateSitAllowance(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitAllowance) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("sitAllowance", "body", *m.SitAllowance, 0, false); err != nil {
 		return err
 	}
 
