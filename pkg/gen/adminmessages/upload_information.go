@@ -137,6 +137,8 @@ func (m *UploadInformation) validateUpload(formats strfmt.Registry) error {
 		if err := m.Upload.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("upload")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("upload")
 			}
 			return err
 		}
@@ -165,6 +167,8 @@ func (m *UploadInformation) contextValidateUpload(ctx context.Context, formats s
 		if err := m.Upload.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("upload")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("upload")
 			}
 			return err
 		}

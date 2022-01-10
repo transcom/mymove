@@ -88,6 +88,8 @@ func (m *CreateSignedCertificationPayload) validateCertificationType(formats str
 		if err := m.CertificationType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("certification_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("certification_type")
 			}
 			return err
 		}
@@ -150,6 +152,8 @@ func (m *CreateSignedCertificationPayload) contextValidateCertificationType(ctx 
 		if err := m.CertificationType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("certification_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("certification_type")
 			}
 			return err
 		}

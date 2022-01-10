@@ -94,6 +94,8 @@ func (m *AuthenticationUserPayload) validateAffiliation(formats strfmt.Registry)
 		if err := m.Affiliation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -162,6 +164,8 @@ func (m *AuthenticationUserPayload) contextValidateAffiliation(ctx context.Conte
 		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}

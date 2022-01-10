@@ -110,6 +110,8 @@ func (m *DutyLocationPayload) validateAddress(formats strfmt.Registry) error {
 		if err := m.Address.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("address")
 			}
 			return err
 		}
@@ -145,6 +147,8 @@ func (m *DutyLocationPayload) validateAffiliation(formats strfmt.Registry) error
 		if err := m.Affiliation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -197,6 +201,8 @@ func (m *DutyLocationPayload) validateTransportationOffice(formats strfmt.Regist
 		if err := m.TransportationOffice.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("transportation_office")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("transportation_office")
 			}
 			return err
 		}
@@ -246,6 +252,8 @@ func (m *DutyLocationPayload) contextValidateAddress(ctx context.Context, format
 		if err := m.Address.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("address")
 			}
 			return err
 		}
@@ -260,6 +268,8 @@ func (m *DutyLocationPayload) contextValidateAffiliation(ctx context.Context, fo
 		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -274,6 +284,8 @@ func (m *DutyLocationPayload) contextValidateTransportationOffice(ctx context.Co
 		if err := m.TransportationOffice.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("transportation_office")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("transportation_office")
 			}
 			return err
 		}

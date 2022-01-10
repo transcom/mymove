@@ -133,6 +133,8 @@ func (m *CreateUpdateOrders) validateDepartmentIndicator(formats strfmt.Registry
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("department_indicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("department_indicator")
 			}
 			return err
 		}
@@ -190,6 +192,8 @@ func (m *CreateUpdateOrders) validateOrdersType(formats strfmt.Registry) error {
 		if err := m.OrdersType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type")
 			}
 			return err
 		}
@@ -207,6 +211,8 @@ func (m *CreateUpdateOrders) validateOrdersTypeDetail(formats strfmt.Registry) e
 		if err := m.OrdersTypeDetail.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type_detail")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type_detail")
 			}
 			return err
 		}
@@ -278,6 +284,8 @@ func (m *CreateUpdateOrders) contextValidateDepartmentIndicator(ctx context.Cont
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("department_indicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("department_indicator")
 			}
 			return err
 		}
@@ -292,6 +300,8 @@ func (m *CreateUpdateOrders) contextValidateOrdersType(ctx context.Context, form
 		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type")
 			}
 			return err
 		}
@@ -306,6 +316,8 @@ func (m *CreateUpdateOrders) contextValidateOrdersTypeDetail(ctx context.Context
 		if err := m.OrdersTypeDetail.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type_detail")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type_detail")
 			}
 			return err
 		}

@@ -111,6 +111,8 @@ func (m *Reweigh) validateRequestedBy(formats strfmt.Registry) error {
 	if err := m.RequestedBy.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("requestedBy")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("requestedBy")
 		}
 		return err
 	}
@@ -161,6 +163,8 @@ func (m *Reweigh) contextValidateRequestedBy(ctx context.Context, formats strfmt
 	if err := m.RequestedBy.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("requestedBy")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("requestedBy")
 		}
 		return err
 	}
