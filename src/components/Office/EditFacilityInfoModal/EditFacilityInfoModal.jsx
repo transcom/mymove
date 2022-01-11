@@ -4,10 +4,9 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { Button, Label, TextInput, Fieldset, FormGroup, Grid } from '@trussworks/react-uswds';
 
-import { StorageFacilityAddressShape, StorageFacilityShape, ShipmentOptionsOneOf } from '../../../types/shipment';
-
 import styles from './EditFacilityInfoModal.module.scss';
 
+import { StorageFacilityAddressShape, StorageFacilityShape, ShipmentOptionsOneOf } from 'types/shipment';
 import { Form } from 'components/form';
 import formStyles from 'styles/form.module.scss';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
