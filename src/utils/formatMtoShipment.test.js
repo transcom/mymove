@@ -219,6 +219,7 @@ describe('formatMtoShipmentForAPI', () => {
       lastName: 'mockLastName',
       email: 'mockAgentEmail@example.com',
       phone: '222-555-1234',
+      id: '123',
     },
   };
 
@@ -248,6 +249,7 @@ describe('formatMtoShipmentForAPI', () => {
       state: 'TX',
       ZIP: '78234',
     },
+    eTag: '456',
   };
 
   it('can format an HHG shipment', () => {
@@ -270,6 +272,7 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.agents[1].agentType).toBe('RECEIVING_AGENT');
     expect(actual.customerRemarks).toBe('some mock remarks');
 
+    expect(actual.agents[0].id).toBeUndefined();
     expect(actual.secondaryPickupAddress).toBeUndefined();
     expect(actual.secondaryDeliveryAddress).toBeUndefined();
   });
@@ -290,6 +293,8 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.agents[0].phone).toBe('222-555-1234');
     expect(actual.agents[0].agentType).toBe('RELEASING_AGENT');
     expect(actual.customerRemarks).toBe('some mock remarks');
+
+    expect(actual.storageFacility.eTag).toBeUndefined();
   });
 
   it('can format an NTS shipment', () => {

@@ -30,12 +30,29 @@ function formatAgentForAPI(agent) {
       // These fields are readOnly so we don't want to send them in requests
       sanitizedKey === 'updatedAt' ||
       sanitizedKey === 'createdAt' ||
-      sanitizedKey === 'mtoShipmentID'
+      sanitizedKey === 'mtoShipmentID' ||
+      sanitizedKey === 'id'
     ) {
       delete agentCopy[sanitizedKey];
     }
   });
   return agentCopy;
+}
+
+function formatStorageFacilityForAPI(storageFacility) {
+  const storageFacilityCopy = { ...storageFacility };
+  Object.keys(storageFacilityCopy).forEach((key) => {
+    const sanitizedKey = `${key}`;
+    if (storageFacilityCopy[sanitizedKey] === '') {
+      delete storageFacilityCopy[sanitizedKey];
+    } else if (
+      // These fields are readOnly so we don't want to send them in requests
+      sanitizedKey === 'eTag'
+    ) {
+      delete storageFacilityCopy[sanitizedKey];
+    }
+  });
+  return storageFacilityCopy;
 }
 
 function formatAddressForAPI(address) {
@@ -267,8 +284,9 @@ export function formatMtoShipmentForAPI({
   }
 
   if (storageFacility?.address) {
+    const sanitizedStorageFacility = formatStorageFacilityForAPI(storageFacility);
     formattedMtoShipment.storageFacility = {
-      ...storageFacility,
+      ...sanitizedStorageFacility,
       address: formatAddressForAPI(storageFacility.address),
     };
   }
