@@ -24,8 +24,8 @@ const showWhenCollapsed = ['counselorRemarks'];
 const ordersLOA = {
   tac: '1111',
   sac: '2222222222',
-  ntsTAC: '3333',
-  ntsSAC: '4444444444',
+  ntsTac: '3333',
+  ntsSac: '4444444444',
 };
 
 const hhgInfo = {
