@@ -126,8 +126,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   const ordersLOA = {
     tac: order.tac,
     sac: order.sac,
-    ntsTAC: order.ntsTAC,
-    ntsSAC: order.ntsSac,
+    ntsTac: order.ntsTac,
+    ntsSac: order.ntsSac,
   };
 
   const handleButtonDropdownChange = (e) => {

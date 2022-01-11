@@ -7,7 +7,7 @@ import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
-import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
+import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
 import { formatWeight } from 'shared/formatters';
 
 const NTSRShipmentInfoList = ({
@@ -133,7 +133,7 @@ const NTSRShipmentInfoList = ({
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
-      <dd data-testid="tacType">{tacType && tac ? String(tac).concat(' (', tacType, ')') : '—'}</dd>
+      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : '—'}</dd>
     </div>
   );
 
@@ -141,7 +141,7 @@ const NTSRShipmentInfoList = ({
   const sacElement = (
     <div className={sacElementFlags.classes}>
       <dt>SAC</dt>
-      <dd data-testid="sacType">{sacType && sac ? String(sac).concat(' (', sacType, ')') : '—'}</dd>
+      <dd data-testid="sacType">{sacType && sac ? formatAccountingCode(sac, sacType) : '—'}</dd>
     </div>
   );
 
