@@ -138,9 +138,9 @@ const ShipmentDetailsMain = ({
         originDutyStation={originDutyStationAddress}
         destinationDutyStation={destinationDutyStationAddress}
         shipmentInfo={{
-          shipmentID: shipment.id,
-          ifMatchEtag: shipment.eTag,
-          shipmentStatus: shipment.status,
+          id: shipment.id,
+          eTag: shipment.eTag,
+          status: shipment.status,
           shipmentType: shipment.shipmentType,
         }}
         handleDivertShipment={handleDivertShipment}

@@ -68,9 +68,9 @@ export const MTOAccessorial = () => (
     />
     <ShipmentAddresses
       shipmentInfo={object('MTOShipment.shipmentInfo', {
-        shipmentID: '1',
-        ifMatchEtag: '1',
-        shipmentStatus: 'APPROVED',
+        id: '1',
+        eTag: '1',
+        status: 'APPROVED',
         shipmentType: SHIPMENT_OPTIONS.HHG,
       })}
       handleDivertShipment={() => {}}

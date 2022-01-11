@@ -33,9 +33,9 @@ const testProps = {
   },
   handleDivertShipment: jest.fn(),
   shipmentInfo: {
-    shipmentID: '456',
-    ifMatchEtag: 'abc123',
-    shipmentStatus: 'APPROVED',
+    id: '456',
+    eTag: 'abc123',
+    status: 'APPROVED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
   },
 };
@@ -67,9 +67,9 @@ const cancelledShipment = {
   },
   handleDivertShipment: jest.fn(),
   shipmentInfo: {
-    shipmentID: '456',
-    ifMatchEtag: 'abc123',
-    shipmentStatus: 'CANCELED',
+    id: '456',
+    eTag: 'abc123',
+    status: 'CANCELED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
   },
 };
@@ -83,8 +83,8 @@ describe('ShipmentAddresses', () => {
     await waitFor(() => {
       expect(testProps.handleDivertShipment).toHaveBeenCalled();
       expect(testProps.handleDivertShipment).toHaveBeenCalledWith(
-        testProps.shipmentInfo.shipmentID,
-        testProps.shipmentInfo.ifMatchEtag,
+        testProps.shipmentInfo.id,
+        testProps.shipmentInfo.eTag,
       );
     });
   });

@@ -49,12 +49,8 @@ const ShipmentAddresses = ({
         columnHeaders={[
           'Authorized addresses',
           <div className={styles.rightAlignButtonWrapper}>
-            {shipmentInfo.shipmentStatus !== shipmentStatuses.CANCELED && (
-              <Button
-                type="button"
-                onClick={() => handleDivertShipment(shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag)}
-                unstyled
-              >
+            {shipmentInfo.status !== shipmentStatuses.CANCELED && (
+              <Button type="button" onClick={() => handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag)} unstyled>
                 Request diversion
               </Button>
             )}
@@ -82,9 +78,9 @@ ShipmentAddresses.propTypes = {
   destinationDutyStation: AddressShape,
   handleDivertShipment: PropTypes.func.isRequired,
   shipmentInfo: PropTypes.shape({
-    shipmentID: PropTypes.string.isRequired,
-    ifMatchEtag: PropTypes.string.isRequired,
-    shipmentStatus: ShipmentStatusesOneOf.isRequired,
+    id: PropTypes.string.isRequired,
+    eTag: PropTypes.string.isRequired,
+    status: ShipmentStatusesOneOf.isRequired,
     shipmentType: ShipmentOptionsOneOf.isRequired,
   }).isRequired,
 };
