@@ -807,6 +807,46 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 			})
 		}
 	})
+
+	suite.T().Run("TIO is able to update shipments in approved status", func(t *testing.T) {
+		tio := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *tio.UserID,
+			OfficeUserID:    tio.ID,
+		}
+		session.Roles = append(session.Roles, tio.User.Roles...)
+
+		var statusTests = []struct {
+			name      string
+			status    models.MTOShipmentStatus
+			updatable bool
+		}{
+			{"Draft isn't updatable", models.MTOShipmentStatusDraft, false},
+			{"Submitted isn't updatable", models.MTOShipmentStatusSubmitted, false},
+			{"Approved is updatable", models.MTOShipmentStatusApproved, true},
+			{"Rejected isn't updatable", models.MTOShipmentStatusRejected, false},
+			{"Cancellation requested isn't updatable", models.MTOShipmentStatusCancellationRequested, false},
+			{"Canceled isn't updatable", models.MTOShipmentStatusCanceled, false},
+			{"Diversion requested isn't updatable", models.MTOShipmentStatusDiversionRequested, false},
+		}
+
+		for _, tt := range statusTests {
+			suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
+				shipment := models.MTOShipment{
+					Status: tt.status,
+				}
+
+				updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
+
+				suite.NoError(err)
+
+				suite.Equal(tt.updatable, updatable,
+					"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
+			})
+		}
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
