@@ -24,7 +24,7 @@ swagger_func() {
   if [ -n "${CIRCLECI+x}" ]; then
     # In CircleCI the docker image has the binary installed
     echo "RUNNING IN CIRCLECI"
-    /usr/bin/env swagger "$@"
+    /usr/local/bin/swagger "$@"
   else
     docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger "$@"
   fi
