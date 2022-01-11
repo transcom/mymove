@@ -692,3 +692,4 @@
 20211214234555_move_to_gbloc_view.up.sql
 20211221182830_origin_duty_location_to_gbloc_view.up.sql
 20211222193432_regrant_access_to_views_for_crud.up.sql
+20211229190325_delete_incorrect_duty_stations.up.sql
