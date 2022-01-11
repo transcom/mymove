@@ -3,7 +3,7 @@ CREATE TYPE destination_address_type AS ENUM (
 	'HOME_OF_RECORD',
 	'HOME_OF_SELECTION',
 	'PLACE_ENTERED_ACTIVE_DUTY',
-	'OTHER'
+	'OTHER_THAN_AUTHORIZED'
 );
 
 -- The destination_address_type column is used to determine the type of location
