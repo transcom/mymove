@@ -34,6 +34,13 @@ export const ShipmentShape = PropTypes.shape({
   reweigh: PropTypes.shape({
     id: PropTypes.string,
   }),
+  storageFacility: PropTypes.shape({
+    address: AddressShape.isRequired,
+    facilityName: PropTypes.string.isRequired,
+    lotNumber: PropTypes.string,
+    phone: PropTypes.string,
+    email: PropTypes.string,
+  }),
 });
 
 export const ShipmentStatusesOneOf = PropTypes.oneOf([

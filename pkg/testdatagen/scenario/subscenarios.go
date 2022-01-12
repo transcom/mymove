@@ -224,15 +224,13 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 		// Create some submitted Moves for TXO users
 		createMoveWithHHGAndNTSRMissingInfo(appCtx, userUploader, moveRouter)
 		createMoveWithHHGAndNTSMissingInfo(appCtx, userUploader, moveRouter)
-		// uses external vendor
 		createMoveWithNTSAndNTSR(
 			appCtx,
 			userUploader,
 			moveRouter,
 			sceneOptionsNTS{
-				shipmentMoveCode:   "NTSSUB",
-				moveStatus:         models.MoveStatusSUBMITTED,
-				usesExternalVendor: true,
+				shipmentMoveCode: "NTSSUB",
+				moveStatus:       models.MoveStatusSUBMITTED,
 			},
 		)
 
