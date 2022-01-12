@@ -29,7 +29,7 @@ export const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, serv
       <ShipmentTag shipmentType={shipmentType} />
       <ModalClose handleClick={() => onClose()} />
       <ModalTitle>
-        <h2>Edit facility info and address</h2>
+        <h2 className={styles.ModalTitle}>Edit facility info and address</h2>
       </ModalTitle>
       <Formik
         validationSchema={editFacilityInfoSchema}
