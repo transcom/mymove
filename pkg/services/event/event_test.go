@@ -314,7 +314,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		suite.Equal(storageFacility.Address.PostalCode, *mtoShipmentInPayload.StorageFacility.Address.PostalCode)
 	})
 
-	// Test successful event passing with Support API
+	// Test the failure of event passing with Support API when shipment is assigned to external vendor
 	suite.T().Run("Error with GHC MTOShipment endpoint for NTS Shipment using external vendor", func(t *testing.T) {
 
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
