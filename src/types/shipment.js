@@ -46,14 +46,10 @@ export const ShipmentStatusesOneOf = PropTypes.oneOf([
   shipmentStatuses.REJECTED,
 ]);
 
-export const StorageFacilityAddressShape = PropTypes.shape({
-  address: ResidentialAddressShape,
-  lotNumber: PropTypes.string,
-});
-
 export const StorageFacilityShape = PropTypes.shape({
   facilityName: PropTypes.string,
   phone: PropTypes.string,
   email: PropTypes.string,
-  serviceOrderNumber: PropTypes.string,
+  address: ResidentialAddressShape,
+  lotNumber: PropTypes.string,
 });

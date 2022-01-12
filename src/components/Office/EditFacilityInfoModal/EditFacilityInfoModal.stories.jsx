@@ -2,7 +2,7 @@ import React from 'react';
 
 import EditFacilityInfoModal from './EditFacilityInfoModal';
 
-const storageFacilityAddress = {
+const storageFacility = {
   address: {
     streetAddress1: '123 Fake Street',
     streetAddress2: '',
@@ -11,12 +11,23 @@ const storageFacilityAddress = {
     postalCode: '90210',
   },
   lotNumber: '11232',
-};
-const storageFacility = {
   facilityName: 'My Facility',
-  phone: '1235553434',
+  phone: '915-555-2942',
   email: 'my@email.com',
-  serviceOrderNumber: '12345',
+};
+
+const storageFacilityInfoMissing = {
+  address: {
+    streetAddress1: '123 Fake Street',
+    streetAddress2: '',
+    city: 'Pasadena',
+    state: 'CA',
+    postalCode: '90210',
+  },
+  lotNumber: '11232',
+  facilityName: '',
+  phone: '915-555-2942',
+  email: 'my@email.com',
 };
 
 export default {
@@ -28,8 +39,8 @@ export const Basic = () => (
   <EditFacilityInfoModal
     onSubmit={() => {}}
     onClose={() => {}}
+    serviceOrderNumber="12345"
     storageFacility={storageFacility}
-    storageFacilityAddress={storageFacilityAddress}
     shipmentType="HHG_INTO_NTS_DOMESTIC"
   />
 );
@@ -38,13 +49,8 @@ export const WithInfoMissing = () => (
   <EditFacilityInfoModal
     onSubmit={() => {}}
     onClose={() => {}}
-    storageFacility={{
-      facilityName: '',
-      phone: '1235553434',
-      email: 'my@email.com',
-      serviceOrderNumber: '12345',
-    }}
-    storageFacilityAddress={storageFacilityAddress}
+    serviceOrderNumber="12345"
+    storageFacility={storageFacilityInfoMissing}
     shipmentType="HHG_INTO_NTS_DOMESTIC"
   />
 );

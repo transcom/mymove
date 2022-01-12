@@ -6,7 +6,7 @@ import { Button, Label, TextInput, Fieldset, FormGroup, Grid } from '@trussworks
 
 import styles from './EditFacilityInfoModal.module.scss';
 
-import { StorageFacilityAddressShape, StorageFacilityShape, ShipmentOptionsOneOf } from 'types/shipment';
+import { StorageFacilityShape, ShipmentOptionsOneOf } from 'types/shipment';
 import { Form } from 'components/form';
 import formStyles from 'styles/form.module.scss';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
@@ -15,22 +15,14 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { requiredAddressSchema, phoneSchema, emailSchema } from 'utils/validation';
+import { StorageFacilityAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 
-const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, storageFacilityAddress, shipmentType }) => {
+const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, serviceOrderNumber, shipmentType }) => {
   const editFacilityInfoSchema = Yup.object().shape({
-    storageFacility: Yup.object().shape({
-      facilityName: Yup.string().required('Required'),
-      phone: phoneSchema,
-      email: emailSchema,
-      serviceOrderNumber: Yup.string()
-        .required('Required')
-        .matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
-    }),
-    storageFacilityAddress: Yup.object().shape({
-      address: requiredAddressSchema,
-      lotNumber: Yup.string(),
-    }),
+    serviceOrderNumber: Yup.string()
+      .required('Required')
+      .matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
+    storageFacility: StorageFacilityAddressSchema,
   });
 
   return (
@@ -48,7 +40,7 @@ const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, storageFaci
             onSubmit={onSubmit}
             initialValues={{
               storageFacility,
-              storageFacilityAddress,
+              serviceOrderNumber,
             }}
           >
             {({ isValid }) => {
@@ -88,7 +80,7 @@ const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, storageFaci
                           <TextField
                             label="Service order number"
                             id="facilityServiceOrderNumber"
-                            name="storageFacility.serviceOrderNumber"
+                            name="serviceOrderNumber"
                           />
                         </FormGroup>
                       </Grid>
@@ -97,7 +89,7 @@ const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, storageFaci
                   <Fieldset>
                     <h3 className={styles.ModalSubTitle}>Storage facility address</h3>
                     <AddressFields
-                      name="storageFacilityAddress.address"
+                      name="storageFacility.address"
                       className={styles.AddressFields}
                       render={(fields) => (
                         <>
@@ -109,7 +101,7 @@ const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, storageFaci
                                   Lot number
                                   <span className="float-right usa-hint">Optional</span>
                                 </Label>
-                                <Field as={TextInput} id="facilityLotNumber" name="storageFacilityAddress.lotNumber" />
+                                <Field as={TextInput} id="facilityLotNumber" name="storageFacility.lotNumber" />
                               </FormGroup>
                             </Grid>
                           </Grid>
@@ -145,7 +137,7 @@ EditFacilityInfoModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   storageFacility: StorageFacilityShape.isRequired,
-  storageFacilityAddress: StorageFacilityAddressShape.isRequired,
+  serviceOrderNumber: PropTypes.string.isRequired,
   shipmentType: ShipmentOptionsOneOf.isRequired,
 };
 export default EditFacilityInfoModal;

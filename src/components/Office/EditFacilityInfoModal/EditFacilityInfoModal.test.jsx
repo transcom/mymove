@@ -5,7 +5,10 @@ import userEvent from '@testing-library/user-event';
 import EditFacilityInfoModal from './EditFacilityInfoModal';
 
 describe('EditFacilityInfoModal', () => {
-  const validStorageFacilityAddress = {
+  const storageFacility = {
+    facilityName: 'My Facility',
+    phone: '915-555-2942',
+    email: 'my@email.com',
     address: {
       streetAddress1: '123 Fake Street',
       streetAddress2: '',
@@ -15,7 +18,10 @@ describe('EditFacilityInfoModal', () => {
     },
     lotNumber: '11232',
   };
-  const invalidStorageFacilityAddress = {
+  const incompleteStorageFacility = {
+    facilityName: 'My Facility',
+    phone: '915-555-2942',
+    email: 'my@email.com',
     address: {
       streetAddress1: '',
       streetAddress2: '',
@@ -25,12 +31,6 @@ describe('EditFacilityInfoModal', () => {
     },
     lotNumber: '11232',
   };
-  const storageFacility = {
-    facilityName: 'My Facility',
-    phone: '1235553434',
-    email: 'my@email.com',
-    serviceOrderNumber: '12345',
-  };
 
   it('calls onSubmit prop on save button click when the form has valid data', async () => {
     const mockOnSubmit = jest.fn();
@@ -39,7 +39,7 @@ describe('EditFacilityInfoModal', () => {
         onClose={() => {}}
         onSubmit={mockOnSubmit}
         storageFacility={storageFacility}
-        storageFacilityAddress={validStorageFacilityAddress}
+        serviceOrderNumber="12345"
         shipmentType="HHG_INTO_NTS_DOMESTIC"
       />,
     );
@@ -58,8 +58,8 @@ describe('EditFacilityInfoModal', () => {
       <EditFacilityInfoModal
         onClose={() => {}}
         onSubmit={mockOnSubmit}
-        storageFacility={storageFacility}
-        storageFacilityAddress={invalidStorageFacilityAddress}
+        storageFacility={incompleteStorageFacility}
+        serviceOrderNumber="12345"
         shipmentType="HHG_INTO_NTS_DOMESTIC"
       />,
     );
@@ -79,8 +79,8 @@ describe('EditFacilityInfoModal', () => {
       <EditFacilityInfoModal
         onClose={() => {}}
         onSubmit={() => {}}
-        storageFacility={storageFacility}
-        storageFacilityAddress={invalidStorageFacilityAddress}
+        storageFacility={incompleteStorageFacility}
+        serviceOrderNumber="12345"
         shipmentType="HHG_INTO_NTS_DOMESTIC"
       />,
     );
@@ -97,7 +97,7 @@ describe('EditFacilityInfoModal', () => {
         onClose={mockClose}
         onSubmit={() => {}}
         storageFacility={storageFacility}
-        storageFacilityAddress={validStorageFacilityAddress}
+        serviceOrderNumber="12345"
         shipmentType="HHG_INTO_NTS_DOMESTIC"
       />,
     );
