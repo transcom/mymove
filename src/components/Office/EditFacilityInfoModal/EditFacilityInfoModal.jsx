@@ -117,7 +117,7 @@ const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, serviceOrde
                       type="button"
                       onClick={() => onClose()}
                       data-testid="modalCancelButton"
-                      outline
+                      secondary
                       className={styles.CancelButton}
                     >
                       Cancel

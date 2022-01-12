@@ -36,21 +36,25 @@ export default {
 };
 
 export const Basic = () => (
-  <EditFacilityInfoModal
-    onSubmit={() => {}}
-    onClose={() => {}}
-    serviceOrderNumber="12345"
-    storageFacility={storageFacility}
-    shipmentType="HHG_INTO_NTS_DOMESTIC"
-  />
+  <div className="officeApp">
+    <EditFacilityInfoModal
+      onSubmit={() => {}}
+      onClose={() => {}}
+      serviceOrderNumber="12345"
+      storageFacility={storageFacility}
+      shipmentType="HHG_INTO_NTS_DOMESTIC"
+    />
+  </div>
 );
 
 export const WithInfoMissing = () => (
-  <EditFacilityInfoModal
-    onSubmit={() => {}}
-    onClose={() => {}}
-    serviceOrderNumber="12345"
-    storageFacility={storageFacilityInfoMissing}
-    shipmentType="HHG_INTO_NTS_DOMESTIC"
-  />
+  <div className="officeApp">
+    <EditFacilityInfoModal
+      onSubmit={() => {}}
+      onClose={() => {}}
+      serviceOrderNumber="12345"
+      storageFacility={storageFacilityInfoMissing}
+      shipmentType="HHG_INTO_NTS_DOMESTIC"
+    />
+  </div>
 );
