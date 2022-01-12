@@ -2,7 +2,7 @@ import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import EditFacilityInfoModal from './EditFacilityInfoModal';
+import { EditFacilityInfoModal } from './EditFacilityInfoModal';
 
 describe('EditFacilityInfoModal', () => {
   const storageFacility = {
