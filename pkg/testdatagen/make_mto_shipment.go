@@ -116,6 +116,11 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		}
 	}
 
+	var storageFacilityPtr *models.StorageFacility
+	if storageFacilityID != nil {
+		storageFacilityPtr = &storageFacility
+	}
+
 	MTOShipment := models.MTOShipment{
 		MoveTaskOrder:         moveTaskOrder,
 		MoveTaskOrderID:       moveTaskOrder.ID,
@@ -129,7 +134,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		ShipmentType:          shipmentType,
 		Status:                shipmentStatus,
 		StorageFacilityID:     storageFacilityID,
-		StorageFacility:       &storageFacility,
+		StorageFacility:       storageFacilityPtr,
 	}
 
 	if shipmentHasDeliveryDetails {
