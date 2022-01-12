@@ -82,18 +82,18 @@ WHERE name IN ('Dover AFB',
 			   'Sector Humboldt Bay');
 
 INSERT INTO duty_station_names (id, name, duty_station_id, created_at, updated_at)
-VALUES ('35897b57-f9cc-49f4-9d08-21b65aeb9a48', 'USCG SFLC', (SELECT id FROM duty_locations WHERE name = 'Coast Guard Yard'), now(), now()),
-	   ('ad83d3b3-52b9-48fc-acd1-7992b2d2a130', 'FLC Norfolk', (SELECT id FROM duty_locations WHERE name = 'NS Norfolk'), now(), now()),
-	   ('dbe0c825-a5e0-4fe3-9d37-405151a65256', 'NTC Great Lakes', (SELECT id FROM duty_locations WHERE name = 'DET 1 CI/HUMINT CO A.'), now(), now()),
-	   ('3838bb28-de7c-4219-a2af-e4f5078b9d8a', 'USAG-Miami Southern Command', (SELECT id FROM duty_locations WHERE name = 'MARFOR SOUTHCOM'), now(), now()),
-	   ('407a4acd-05ae-436a-a337-50310283d1a7', 'Fort Stewart-Hunter AAF', (SELECT id FROM duty_locations WHERE name = 'Fort Stewart-Hunter'), now(), now()),
-	   ('add9ebb0-2f4c-48b7-8cac-35861219efef', 'USCG Aviation Training Center Mobile', (SELECT id FROM duty_locations WHERE name = 'Sector Mobile'), now(), now()),
-	   ('301726bb-19c9-4bee-bab0-9c6bdcfc224b', 'McAlester AAP', (SELECT id FROM duty_locations WHERE name = 'McAlester AAP'), now(), now()),
-	   ('bbf36280-0e81-42c0-9ca4-50e8299e3aa1', 'JBLM-McChord', (SELECT id FROM duty_locations WHERE name = 'JB Lewis-McChord'), now(), now()),
-	   ('f269b109-9a17-43a2-bd55-865798baeb53', 'MCAS Yuma', (SELECT id FROM duty_locations WHERE name = 'Marine Air Station Yuma'), now(), now()),
-	   ('46b69a9f-2055-47ae-af63-f7171f2d6529', '29 Palms', (SELECT id FROM duty_locations WHERE name = '29 Palms CA'), now(), now()),
-	   ('0938f1ed-6889-4eec-a280-ae6c85117fd4', 'Fort Irwin (NTC)', (SELECT id FROM duty_locations WHERE name = 'Fort Irwin'), now(), now()),
-	   ('d8f992ae-c668-4782-b4a3-083b60202be0', 'Marine Corps Mountain Warfare Training Center - Bridgeport', (SELECT id FROM duty_locations WHERE name = 'MCMWTC Bridgeport'), now(), now());
+VALUES ('36f6cfdc-6dbc-47a3-927c-b02fc3da3c9e', 'USCG SFLC', (SELECT id FROM duty_locations WHERE name = 'Coast Guard Yard'), now(), now()),
+	   ('b9164027-6a4e-4a20-9637-3f4f9607a610', 'FLC Norfolk', (SELECT id FROM duty_locations WHERE name = 'NS Norfolk'), now(), now()),
+	   ('1e7f8f05-61bc-44f1-8736-5221bf056cda', 'NTC Great Lakes', (SELECT id FROM duty_locations WHERE name = 'DET 1 CI/HUMINT CO A.'), now(), now()),
+	   ('b740c542-0435-493f-a6ca-e42fd0be7333', 'USAG-Miami Southern Command', (SELECT id FROM duty_locations WHERE name = 'MARFOR SOUTHCOM'), now(), now()),
+	   ('0681151e-d77a-47da-b945-50beeec3fa9e', 'Fort Stewart-Hunter AAF', (SELECT id FROM duty_locations WHERE name = 'Fort Stewart-Hunter'), now(), now()),
+	   ('c4ff7c06-2b0f-4d9d-9f3b-646fda421b61', 'USCG Aviation Training Center Mobile', (SELECT id FROM duty_locations WHERE name = 'Sector Mobile'), now(), now()),
+	   ('552787f2-805a-43b3-88cd-fbceaa675c5f', 'McAlester AAP', (SELECT id FROM duty_locations WHERE name = 'McAlester AAP'), now(), now()),
+	   ('5ea2d87d-33ed-4a4a-8f56-79ceb4deaa10', 'JBLM-McChord', (SELECT id FROM duty_locations WHERE name = 'JB Lewis-McChord'), now(), now()),
+	   ('cdf8cbd3-f042-42d1-8587-044adf9a33a7', 'MCAS Yuma', (SELECT id FROM duty_locations WHERE name = 'Marine Air Station Yuma'), now(), now()),
+	   ('903ca038-116b-4c58-898f-fbaba64eded5', '29 Palms', (SELECT id FROM duty_locations WHERE name = '29 Palms CA'), now(), now()),
+	   ('1bb3dd32-ed44-46bc-9410-558aba18b0b7', 'Fort Irwin (NTC)', (SELECT id FROM duty_locations WHERE name = 'Fort Irwin'), now(), now()),
+	   ('d197a611-a270-4938-8c5d-c631565e0452', 'Marine Corps Mountain Warfare Training Center - Bridgeport', (SELECT id FROM duty_locations WHERE name = 'MCMWTC Bridgeport'), now(), now());
 
 UPDATE transportation_offices SET gbloc = 'BGAC'
 WHERE id IN (SELECT transportation_office_id FROM duty_locations
@@ -112,9 +112,6 @@ WHERE id = (select transportation_office_id FROM duty_locations WHERE duty_locat
 
 UPDATE transportation_offices SET gbloc = 'CNNQ'
 WHERE id = (select transportation_office_id FROM duty_locations WHERE duty_locations.name = 'MCLB Albany, Ga');
-
-UPDATE transportation_offices SET gbloc = 'LHNQ'
-WHERE id = (select transportation_office_id FROM duty_locations WHERE duty_locations.name = 'Base Alameda');
 
 UPDATE transportation_offices SET gbloc = 'JEAT'
 WHERE id IN (SELECT transportation_office_id FROM duty_locations
@@ -136,7 +133,6 @@ UPDATE duty_locations SET name = 'USCG Base Elizabeth City' WHERE name = 'Base E
 UPDATE duty_locations SET name = 'USCG Base Miami Beach' WHERE name = 'Base Miami Beach';
 UPDATE duty_locations SET name = 'FLC Jacksonville' WHERE name = 'Fleet Logistics Center';
 UPDATE duty_locations SET name = 'NSA Mid-South Millington' WHERE name = 'NSA Mid-South';
-UPDATE duty_locations SET name = 'USCG Base Alameda' WHERE name = 'Base Alameda';
 UPDATE duty_locations SET name = 'Hurlburt Field' WHERE name = 'Hurlburt Field AFB';
 UPDATE duty_locations SET name = 'NAS Fort Worth' WHERE name = 'NAS Fort Worth JRB';
 UPDATE duty_locations SET name = 'Buckley SFB' WHERE name = 'Buckley AFB';
@@ -168,6 +164,10 @@ UPDATE duty_locations SET name = 'Naval Training Center Great Lakes', affiliatio
 UPDATE duty_locations SET name = 'MCLB Albany' WHERE name = 'MCLB Albany, Ga';
 UPDATE duty_locations SET name = 'US Army Garrison-Miami Southern Command', affiliation = 'ARMY' WHERE name = 'MARFOR SOUTHCOM';
 UPDATE duty_locations SET name = 'Fort Stewart' WHERE name = 'Fort Stewart-Hunter';
+
+INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('285a4915-b427-43b1-9add-4937430d1e77', '123 Any St', NULL, 'Alameda', 'CA', '94501', now(), now());
+INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('3fc4b408-1197-430a-a96a-24a5a1685b45', 'Base Alameda', 'LHNQ', '285a4915-b427-43b1-9add-4937430d1e77', 20, 20, '', now(), now());
+UPDATE duty_locations SET name = 'USCG Base Alameda', transportation_office_id = '3fc4b408-1197-430a-a96a-24a5a1685b45' WHERE name = 'Base Alameda';
 UPDATE duty_locations SET name = 'USCG Sector Mobile' WHERE name = 'Sector Mobile';
 UPDATE duty_locations SET name = 'McAlester Army Ammunition Plant' WHERE name = 'McAlester AAP';
 UPDATE duty_locations SET name = 'Joint Base Lewis-McChord (McChord AFB)' WHERE name = 'JB Lewis-McChord';
@@ -177,26 +177,26 @@ UPDATE duty_locations SET name = 'Naval Surface Warfare Center - Corona', affili
 UPDATE duty_locations SET name = 'USCG Sector New York' WHERE name = 'Station New York';
 UPDATE duty_locations SET name = 'USCG Base Seattle' WHERE name = 'Base Seattle';
 
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('89c34986-4207-4cfc-a032-3de81aef8264', '431 Battlefield Memorial Hwy', 'Bldg. 15', 'Richmond', 'KY', '40475', now(), now());
-INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('7b52853b-885c-4961-baad-22970c5c33f4', 'Blue Grass Army Depot', 'KKFA', '89c34986-4207-4cfc-a032-3de81aef8264', 20, 20, '', now(), now());
-UPDATE duty_locations SET transportation_office_id = '7b52853b-885c-4961-baad-22970c5c33f4' WHERE name = 'Blue Grass Army Depot';
+INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('f020253b-2ce0-477f-bbd7-37bf44711131', '431 Battlefield Memorial Hwy', 'Bldg. 15', 'Richmond', 'KY', '40475', now(), now());
+INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('175a4999-ccf7-4077-b25f-955e19fd5873', 'Blue Grass Army Depot', 'KKFA', 'f020253b-2ce0-477f-bbd7-37bf44711131', 20, 20, '', now(), now());
+UPDATE duty_locations SET transportation_office_id = '175a4999-ccf7-4077-b25f-955e19fd5873' WHERE name = 'Blue Grass Army Depot';
 
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('22d3a14b-7936-4b46-8891-c60b57098e2f', '727 2nd St.', 'Suite 129', 'Whiteman AFB', 'MO', '65305', now(), now());
-INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('65ffbafa-74ee-4de3-b231-592839414dd1', 'Whiteman AFB', 'KKFA', '22d3a14b-7936-4b46-8891-c60b57098e2f', 20, 20, 'Mon - Fri – 7:30 a.m. - 3:30 p.m. Sat, Sun, Holidays – closed', now(), now());
-UPDATE duty_locations SET transportation_office_id = '65ffbafa-74ee-4de3-b231-592839414dd1' WHERE name = 'Whiteman AFB';
+INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('4c6af64c-bd13-49d7-8340-f9482b5f480b', '727 2nd St.', 'Suite 129', 'Whiteman AFB', 'MO', '65305', now(), now());
+INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('658e2bce-b24c-4972-89c8-1676242bacdc', 'Whiteman AFB', 'KKFA', '4c6af64c-bd13-49d7-8340-f9482b5f480b', 20, 20, 'Mon - Fri – 7:30 a.m. - 3:30 p.m. Sat, Sun, Holidays – closed', now(), now());
+UPDATE duty_locations SET transportation_office_id = '658e2bce-b24c-4972-89c8-1676242bacdc' WHERE name = 'Whiteman AFB';
 
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('7a4b6863-1ef5-4a9d-8587-dff27f244ff7', 'Building 431', NULL, 'Texarkana', 'TX', '75507', now(), now());
-INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('01dbde94-452d-4750-b0fd-dd149b3cfee9', 'Red River Army Depot', 'HAFC', '7a4b6863-1ef5-4a9d-8587-dff27f244ff7', 20, 20, 'Mon - Thurs 6:15 a.m. - 4:45 p.m. Fri - Sun - Closed', now(), now());
-UPDATE duty_locations SET transportation_office_id = '01dbde94-452d-4750-b0fd-dd149b3cfee9' WHERE name = 'Red River Army Depot';
+INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('1c6ae149-2ee1-4f25-b729-7b88b23628c6', 'Building 431', NULL, 'Texarkana', 'TX', '75507', now(), now());
+INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('6192fd68-d5f2-4f06-9cb0-f1a1c8f00b93', 'Red River Army Depot', 'HAFC', '1c6ae149-2ee1-4f25-b729-7b88b23628c6', 20, 20, 'Mon - Thurs 6:15 a.m. - 4:45 p.m. Fri - Sun - Closed', now(), now());
+UPDATE duty_locations SET transportation_office_id = '6192fd68-d5f2-4f06-9cb0-f1a1c8f00b93' WHERE name = 'Red River Army Depot';
 
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('096c445d-f7b6-4e67-8644-580dfb87b01d', '75 LRS/LGRT', '7336 6th St, Bldg 308 North', 'Tooele', 'UT', '84074', now(), now());
-INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('09f2a952-4fc9-4d0e-8fbe-c2e130d4d56e', 'Tooele Army Depot', 'KKFA', '096c445d-f7b6-4e67-8644-580dfb87b01d', 20, 20, '', now(), now());
-UPDATE duty_locations SET transportation_office_id = '09f2a952-4fc9-4d0e-8fbe-c2e130d4d56e' WHERE name = 'Tooele Army Depot';
+INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('e69345e1-9919-421e-985a-2022e238fb3b', '75 LRS/LGRT', '7336 6th St, Bldg 308 North', 'Tooele', 'UT', '84074', now(), now());
+INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('41b95c70-f4a5-4e55-94e2-4d3ba44c8e38', 'Tooele Army Depot', 'KKFA', 'e69345e1-9919-421e-985a-2022e238fb3b', 20, 20, '', now(), now());
+UPDATE duty_locations SET transportation_office_id = '41b95c70-f4a5-4e55-94e2-4d3ba44c8e38' WHERE name = 'Tooele Army Depot';
 
-INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at) VALUES ('ca1363fb-28ac-418a-8646-c914d8c46bc3', 'n/a', 'FORT DOUGLAS', 'UT', '84413', now(), now());
-INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('7401e3b0-20d8-4985-9e69-5132e0ce18ec', 'MEPS', 'KKFA', 'ca1363fb-28ac-418a-8646-c914d8c46bc3', 20, 20, '', now(), now());
-UPDATE duty_locations SET transportation_office_id = '7401e3b0-20d8-4985-9e69-5132e0ce18ec' WHERE name = 'MEPS';
+INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at) VALUES ('5240070c-4163-44b8-a4ed-1aa577a18b5e', 'n/a', 'FORT DOUGLAS', 'UT', '84413', now(), now());
+INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('8f849395-2dfb-48ee-9bc5-704189a3b366', 'MEPS', 'KKFA', '5240070c-4163-44b8-a4ed-1aa577a18b5e', 20, 20, '', now(), now());
+UPDATE duty_locations SET transportation_office_id = '8f849395-2dfb-48ee-9bc5-704189a3b366' WHERE name = 'MEPS';
 
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('67790c1e-19d8-4f5f-8c7b-89c4bddf7e77', '1001 Lycoming Ave', NULL, 'Mckinleyville', 'CA', '95519', now(), now());
-INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('9e73776b-cf84-4785-9f98-73c04800c6e4', 'Sector Humboldt Bay', 'KKFA', '67790c1e-19d8-4f5f-8c7b-89c4bddf7e77', 20, 20, '', now(), now());
-UPDATE duty_locations SET name = 'USCG Sector Humboldt Bay', transportation_office_id = '9e73776b-cf84-4785-9f98-73c04800c6e4' WHERE name = 'Sector Humboldt Bay';
+INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('e84be30c-84dc-47c8-97c3-88917711196d', '1001 Lycoming Ave', NULL, 'Mckinleyville', 'CA', '95519', now(), now());
+INSERT INTO transportation_offices (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at) VALUES ('15ca034d-89bb-4124-ad20-4b75d7f0c101', 'Sector Humboldt Bay', 'KKFA', 'e84be30c-84dc-47c8-97c3-88917711196d', 20, 20, '', now(), now());
+UPDATE duty_locations SET name = 'USCG Sector Humboldt Bay', transportation_office_id = '15ca034d-89bb-4124-ad20-4b75d7f0c101' WHERE name = 'Sector Humboldt Bay';
