@@ -1,6 +1,6 @@
 import React from 'react';
 
-import EditFacilityInfoModal from './EditFacilityInfoModal';
+import { EditFacilityInfoModal } from './EditFacilityInfoModal';
 
 const storageFacility = {
   address: {
