@@ -82,16 +82,26 @@ func checkAvailabilityToPrime(event *Event) (bool, error) {
 // assembleMTOShipmentPayload assembles the MTOShipment Payload and returns the JSON in bytes
 func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUID) ([]byte, error) {
 	model := models.MTOShipment{}
+	var err error
 
 	// Important to be specific about which addl associations to load to reduce DB hits
-	err := appCtx.DB().Eager("PickupAddress", "DestinationAddress",
+	err = appCtx.DB().Eager("PickupAddress", "DestinationAddress",
 		"SecondaryPickupAddress", "SecondaryDeliveryAddress",
-		"MTOAgents").Find(&model, updatedObjectID.String())
+		"MTOAgents", "StorageFacility").Find(&model, updatedObjectID.String())
 
 	if err != nil {
 		notFoundError := apperror.NewNotFoundError(updatedObjectID, "looking for MTOShipment")
 		notFoundError.Wrap(err)
 		return nil, notFoundError
+	}
+
+	if model.StorageFacility != nil && uuid.Nil != model.StorageFacility.AddressID {
+		err = appCtx.DB().Load(model.StorageFacility, "Address")
+		if err != nil {
+			notFoundError := apperror.NewNotFoundError(updatedObjectID, "looking for MTOShipment.StorageFacility.Address")
+			notFoundError.Wrap(err)
+			return nil, notFoundError
+		}
 	}
 
 	// If this shipment uses external vendor do not send updates for this shipment.
@@ -100,15 +110,6 @@ func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uu
 			"MTOShipment uses external vendor",
 			fmt.Errorf("MTOShipment ID %s using external vendor", updatedObjectID.String()))
 		return nil, newEventError
-	}
-
-	if model.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom || model.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
-		// TODO: Don't think the address is working here, UT is failing have to load another way
-		err = appCtx.DB().Load(&model, "StorageFacility", "StorageFacility.Address")
-		if err != nil {
-			unknownErr := apperror.NewEventError("database error loading storage facility", err)
-			return nil, unknownErr
-		}
 	}
 
 	payload := payloads.MTOShipment(&model)

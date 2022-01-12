@@ -1709,8 +1709,8 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       storageFacility:
         allOf:
-          x-nullable: true
-          $ref: 'definitions/StorageFacility.yaml'
+          - x-nullable: true
+          - $ref: 'definitions/StorageFacility.yaml'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
@@ -2167,8 +2167,8 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       storageFacility:
         allOf:
-          x-nullable: true
-          $ref: 'definitions/StorageFacility.yaml'
+          - x-nullable: true
+          - $ref: 'definitions/StorageFacility.yaml'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:

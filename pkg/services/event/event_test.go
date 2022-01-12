@@ -305,9 +305,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		suite.NotNil(mtoShipment.RequestedPickupDate)
 		suite.NotNil(mtoShipmentInPayload.RequestedPickupDate)
 		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())
-		suite.NoError(suite.DB().Load(&mtoShipment, "StorageFacility"))
-		var storageFacility models.StorageFacility
-		suite.NoError(suite.DB().Eager("Address").Find(&storageFacility, mtoShipment.StorageFacility.ID))
+		storageFacility := *mtoShipment.StorageFacility
 		suite.Equal(storageFacility.FacilityName, mtoShipmentInPayload.StorageFacility.FacilityName)
 		suite.Equal(storageFacility.LotNumber, mtoShipmentInPayload.StorageFacility.LotNumber)
 		suite.Equal(storageFacility.Address.StreetAddress1, *mtoShipmentInPayload.StorageFacility.Address.StreetAddress1)

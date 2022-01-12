@@ -2223,8 +2223,14 @@ func init() {
           "readOnly": true
         },
         "storageFacility": {
-          "x-nullable": true,
-          "$ref": "#/definitions/StorageFacility"
+          "allOf": [
+            {
+              "x-nullable": true
+            },
+            {
+              "$ref": "#/definitions/StorageFacility"
+            }
+          ]
         },
         "updatedAt": {
           "type": "string",
@@ -3127,8 +3133,14 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "storageFacility": {
-          "x-nullable": true,
-          "$ref": "#/definitions/StorageFacility"
+          "allOf": [
+            {
+              "x-nullable": true
+            },
+            {
+              "$ref": "#/definitions/StorageFacility"
+            }
+          ]
         }
       }
     },
@@ -5864,8 +5876,14 @@ func init() {
           "readOnly": true
         },
         "storageFacility": {
-          "x-nullable": true,
-          "$ref": "#/definitions/StorageFacility"
+          "allOf": [
+            {
+              "x-nullable": true
+            },
+            {
+              "$ref": "#/definitions/StorageFacility"
+            }
+          ]
         },
         "updatedAt": {
           "type": "string",
@@ -6771,8 +6789,14 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "storageFacility": {
-          "x-nullable": true,
-          "$ref": "#/definitions/StorageFacility"
+          "allOf": [
+            {
+              "x-nullable": true
+            },
+            {
+              "$ref": "#/definitions/StorageFacility"
+            }
+          ]
         }
       }
     },

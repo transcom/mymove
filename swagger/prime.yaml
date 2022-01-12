@@ -1976,8 +1976,9 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
       storageFacility:
-        x-nullable: true
-        $ref: '#/definitions/StorageFacility'
+        allOf:
+          - x-nullable: true
+          - $ref: '#/definitions/StorageFacility'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
@@ -2473,8 +2474,9 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
       storageFacility:
-        x-nullable: true
-        $ref: '#/definitions/StorageFacility'
+        allOf:
+          - x-nullable: true
+          - $ref: '#/definitions/StorageFacility'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:

@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"log"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -80,9 +81,9 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	}
 
 	var storageFacilityID *uuid.UUID
+	var storageFacility models.StorageFacility
 	if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom ||
 		mtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
-		var storageFacility models.StorageFacility
 		if mtoShipment.StorageFacility != nil {
 			if isZeroUUID(mtoShipment.StorageFacility.ID) {
 				storageFacility = MakeStorageFacility(db, Assertions{
@@ -91,12 +92,27 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 				storageFacilityID = &storageFacility.ID
 			} else {
 				storageFacilityID = &mtoShipment.StorageFacility.ID
+				err := db.Eager().Find(&storageFacility, storageFacilityID)
+				if err != nil {
+					log.Panic(err)
+				}
 			}
 		} else if !isZeroUUID(assertions.StorageFacility.ID) {
 			storageFacilityID = &assertions.StorageFacility.ID
+			err := db.Eager().Find(&storageFacility, storageFacilityID)
+			if err != nil {
+				log.Panic(err)
+			}
 		} else {
 			storageFacility = MakeDefaultStorageFacility(db)
 			storageFacilityID = &storageFacility.ID
+		}
+	}
+
+	if uuid.Nil != storageFacility.AddressID {
+		err := db.Find(&storageFacility.Address, storageFacility.AddressID)
+		if err != nil {
+			log.Panic(err)
 		}
 	}
 
@@ -113,6 +129,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		ShipmentType:          shipmentType,
 		Status:                shipmentStatus,
 		StorageFacilityID:     storageFacilityID,
+		StorageFacility:       &storageFacility,
 	}
 
 	if shipmentHasDeliveryDetails {
