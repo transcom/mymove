@@ -233,6 +233,10 @@ func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.Ap
 			if isTOO {
 				return true, nil
 			}
+		case models.MTOShipmentStatusCanceled:
+			if isTOO {
+				return true, nil
+			}
 		case models.MTOShipmentStatusDiversionRequested:
 			if isTOO {
 				return true, nil

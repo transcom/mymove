@@ -768,7 +768,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 		}
 	})
 
-	suite.T().Run("TOO is able to update shipments in approved, cancellation requested, diversion requested", func(t *testing.T) {
+	suite.T().Run("TOO is able to update shipments in approved, cancellation requested, canceled, diversion requested", func(t *testing.T) {
 		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 		session := auth.Session{
@@ -788,7 +788,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 			{"Approved is updatable", models.MTOShipmentStatusApproved, true},
 			{"Rejected isn't updatable", models.MTOShipmentStatusRejected, false},
 			{"Cancellation requested is updatable", models.MTOShipmentStatusCancellationRequested, true},
-			{"Canceled isn't updatable", models.MTOShipmentStatusCanceled, false},
+			{"Canceled is updatable", models.MTOShipmentStatusCanceled, true},
 			{"Diversion requested is updatable", models.MTOShipmentStatusDiversionRequested, true},
 		}
 
