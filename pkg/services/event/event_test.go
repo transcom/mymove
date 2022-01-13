@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
@@ -214,21 +215,17 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 }
 
 func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
-
-	now := time.Now()
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-	})
-
-	mtoShipmentID := mtoShipment.ID
-	mtoID := mtoShipment.MoveTaskOrderID
-
-	traceID := uuid.Must(uuid.NewV4())
-
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC MTOShipment endpoint", func(t *testing.T) {
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: swag.Time(time.Now()),
+			},
+		})
+
+		mtoShipmentID := mtoShipment.ID
+		mtoID := mtoShipment.MoveTaskOrderID
+		traceID := uuid.Must(uuid.NewV4())
 
 		_, err := TriggerEvent(Event{
 			EventKey:        MTOShipmentUpdateEventKey,
@@ -238,7 +235,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			AppContext:      suite.AppContextForTest(),
 			TraceID:         traceID,
 		})
-		suite.Nil(err)
+		suite.NoError(err)
 
 		// Get the notification
 		notification, err := suite.getNotification(mtoShipmentID, traceID)
@@ -261,16 +258,46 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		// Check some params
 		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
 		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())
+	})
 
+	suite.T().Run("No notification for GHC MTOShipment endpoint when shipment uses external vendor", func(t *testing.T) {
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: true,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: swag.Time(time.Now()),
+			},
+		})
+
+		mtoShipmentID := mtoShipment.ID
+		mtoID := mtoShipment.MoveTaskOrderID
+		traceID := uuid.Must(uuid.NewV4())
+
+		count, err := suite.DB().Count(&models.WebhookNotification{})
+		suite.NoError(err)
+
+		_, err = TriggerEvent(Event{
+			EventKey:        MTOShipmentUpdateEventKey,
+			MtoID:           mtoID,
+			UpdatedObjectID: mtoShipmentID,
+			EndpointKey:     GhcApproveShipmentEndpointKey,
+			AppContext:      suite.AppContextForTest(),
+			TraceID:         traceID,
+		})
+		suite.NoError(err)
+
+		// Get the notification
+		newCount, err := suite.DB().Count(&models.WebhookNotification{})
+		suite.NoError(err)
+		suite.Equal(count, newCount)
 	})
 }
 
 func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
-
-	now := time.Now()
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			AvailableToPrimeAt: &now,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 

@@ -46,7 +46,7 @@ type MoveQueueItem struct {
 
 	// Destination
 	// Example: Dover AFB
-	DestinationDutyStationName *string `json:"destination_duty_station_name,omitempty"`
+	DestinationDutyLocationName *string `json:"destination_duty_location_name,omitempty"`
 
 	// Destination GBLOC
 	// Example: LKNQ
@@ -102,7 +102,7 @@ type MoveQueueItem struct {
 
 	// Origin
 	// Example: Dover AFB
-	OriginDutyStationName *string `json:"origin_duty_station_name,omitempty"`
+	OriginDutyLocationName *string `json:"origin_duty_location_name,omitempty"`
 
 	// Origin GBLOC
 	// Example: LKNQ
@@ -444,6 +444,8 @@ func (m *MoveQueueItem) validateRank(formats strfmt.Registry) error {
 		if err := m.Rank.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
 			}
 			return err
 		}
@@ -482,6 +484,8 @@ func (m *MoveQueueItem) validateWeightAllotment(formats strfmt.Registry) error {
 		if err := m.WeightAllotment.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_allotment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("weight_allotment")
 			}
 			return err
 		}
@@ -514,6 +518,8 @@ func (m *MoveQueueItem) contextValidateRank(ctx context.Context, formats strfmt.
 		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
 			}
 			return err
 		}
@@ -528,6 +534,8 @@ func (m *MoveQueueItem) contextValidateWeightAllotment(ctx context.Context, form
 		if err := m.WeightAllotment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_allotment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("weight_allotment")
 			}
 			return err
 		}

@@ -947,7 +947,6 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 			PrimeEstimatedWeight: &estimatedNTSWeight,
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
 			UsesExternalVendor:   opts.usesExternalVendor,
 		},
@@ -965,7 +964,6 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 			PrimeEstimatedWeight: &estimatedNTSWeight,
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
 			UsesExternalVendor:   opts.usesExternalVendor,
 		},
@@ -2335,11 +2333,20 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 
 	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 
+	hhgTAC := "1111"
+	ntsTAC := "2222"
+	hhgSAC := "3333"
+	ntsSAC := "4444"
+
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.Must(uuid.NewV4()),
 			ServiceMemberID: customer.ID,
 			ServiceMember:   customer,
+			TAC:             &hhgTAC,
+			NtsTAC:          &ntsTAC,
+			SAC:             &hhgSAC,
+			NtsSAC:          &ntsSAC,
 		},
 		UserUploader: userUploader,
 	})
@@ -2396,6 +2403,30 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		Move: move,
 	})
 
+	lotNumber := "654321"
+
+	storageFacility := testdatagen.MakeStorageFacility(db, testdatagen.Assertions{
+		StorageFacility: models.StorageFacility{
+			Address: testdatagen.MakeAddress(db, testdatagen.Assertions{
+				Address: models.Address{
+					StreetAddress1: "1234 Over Here Street",
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+					Country:        swag.String("US"),
+				},
+			}),
+			Email:        swag.String("old@email.com"),
+			FacilityName: "Storage R Us",
+			LotNumber:    &lotNumber,
+		},
+	})
+
+	tacType := models.LOATypeNTS
+	sacType := models.LOATypeNTS
+
+	serviceOrderNumber := "1234"
+
 	// Create an NTSR MTO Shipment
 	ntsrShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -2405,8 +2436,24 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
+			StorageFacility:      &storageFacility,
+			TACType:              &tacType,
+			SACType:              &sacType,
+			ServiceOrderNumber:   &serviceOrderNumber,
 		},
 		Move: move,
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("e338e05c-6f5d-11ec-90d6-0242ac120003"),
+			MTOShipment:   ntsrShipment,
+			MTOShipmentID: ntsrShipment.ID,
+			FirstName:     swag.String("Receiving"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
 	})
 
 	ntsrShipment.PickupAddressID = &pickupAddress.ID

@@ -569,7 +569,6 @@ paths:
         * Pick-up Address
         * Delivery Address
         * Releasing / Receiving agents
-
         Optional fields include:
         * Customer Remarks
         * Releasing / Receiving agents
@@ -659,12 +658,10 @@ paths:
       summary: updateMTOShipment
       description: |
         Updates a specified MTO shipment.
-
         Required fields include:
         * MTO Shipment ID required in path
         * If-Match required in headers
         * No fields required in body
-
         Optional fields include:
         * New shipment status type
         * Shipment Type
@@ -2763,6 +2760,12 @@ definitions:
         description: only for Army
         type: boolean
         x-nullable: true
+      sitAllowance:
+        description: >-
+          the number of storage in transit days that the customer is entitled to
+          for a given shipment on their move
+        type: integer
+        minimum: 0
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -2829,6 +2832,12 @@ definitions:
         description: only for Army
         type: boolean
         x-nullable: true
+      sitAllowance:
+        description: >-
+          the number of storage in transit days that the customer is entitled to
+          for a given shipment on their move
+        type: integer
+        minimum: 0
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -3243,7 +3252,6 @@ definitions:
             * bulky or fragile items,
             * weapons,
             * access info for their address.
-
           Counselors enters this information when creating or editing an MTO
           Shipment. Optional field.
         type: string
@@ -3398,7 +3406,6 @@ definitions:
             * bulky or fragile items,
             * weapons,
             * access info for their address.
-
           Customer enters this information during onboarding. Optional field.
         type: string
         example: handle with care
@@ -3412,7 +3419,6 @@ definitions:
             * bulky or fragile items,
             * weapons,
             * access info for their address.
-
           Counselors enters this information when creating or editing an MTO
           Shipment. Optional field.
         type: string

@@ -52,6 +52,10 @@ type UpdateAllowancePayload struct {
 	// Example: 2000
 	// Minimum: 0
 	RequiredMedicalEquipmentWeight *int64 `json:"requiredMedicalEquipmentWeight,omitempty"`
+
+	// the number of storage in transit days that the customer is entitled to for a given shipment on their move
+	// Minimum: 0
+	SitAllowance *int64 `json:"sitAllowance,omitempty"`
 }
 
 // Validate validates this update allowance payload
@@ -82,6 +86,10 @@ func (m *UpdateAllowancePayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSitAllowance(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -96,6 +104,8 @@ func (m *UpdateAllowancePayload) validateAgency(formats strfmt.Registry) error {
 	if err := m.Agency.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agency")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agency")
 		}
 		return err
 	}
@@ -124,6 +134,8 @@ func (m *UpdateAllowancePayload) validateGrade(formats strfmt.Registry) error {
 		if err := m.Grade.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grade")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("grade")
 			}
 			return err
 		}
@@ -176,6 +188,18 @@ func (m *UpdateAllowancePayload) validateRequiredMedicalEquipmentWeight(formats 
 	return nil
 }
 
+func (m *UpdateAllowancePayload) validateSitAllowance(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitAllowance) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("sitAllowance", "body", *m.SitAllowance, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update allowance payload based on the context it is used
 func (m *UpdateAllowancePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -199,6 +223,8 @@ func (m *UpdateAllowancePayload) contextValidateAgency(ctx context.Context, form
 	if err := m.Agency.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agency")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agency")
 		}
 		return err
 	}
@@ -212,6 +238,8 @@ func (m *UpdateAllowancePayload) contextValidateGrade(ctx context.Context, forma
 		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grade")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("grade")
 			}
 			return err
 		}

@@ -130,7 +130,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	}
 	pusher := controller.New(
 		processor.NewFactory(
-			simple.NewWithExactDistribution(),
+			simple.NewWithHistogramDistribution(),
 			metricExporter,
 		),
 		controller.WithResource(ecsResource),
