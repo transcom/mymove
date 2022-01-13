@@ -8,6 +8,28 @@ import { formatCustomerDate } from 'utils/formatters';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders.js';
 
 const CustomerHeader = ({ customer, order, moveCode }) => {
+  // eslint-disable-next-line camelcase
+  const { order_type } = order;
+
+  /**
+   * Depending on the order type, this row dt label can be either:
+   * Report by date (PERMANENT_CHANGE_OF_STATION)
+   * Date of retirement (RETIREMENT)
+   * Date of separation (SEPARATION)
+   */
+  const reportDateLabel = ((type) => {
+    switch (type) {
+      case 'PERMANENT_CHANGE_OF_STATION':
+        return 'Report by date';
+      case 'RETIREMENT':
+        return 'Date of retirement';
+      case 'SEPARATION':
+        return 'Date of separation';
+      default:
+        return '';
+    }
+  })(order_type);
+
   return (
     <div className={styles.custHeader}>
       <div>
@@ -39,7 +61,7 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
           <h4>{order.destinationDutyStation.name}</h4>
         </div>
         <div>
-          <p>Report by</p>
+          <p>{reportDateLabel}</p>
           <h4>{formatCustomerDate(order.report_by_date)}</h4>
         </div>
       </div>
