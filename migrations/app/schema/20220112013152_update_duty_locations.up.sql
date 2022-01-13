@@ -35,6 +35,12 @@ DELETE FROM duty_locations WHERE id IN (select id from list_delete);
 
 -- Update existing duty locations
 
+-- Request from Dan Schuster: "Schriever AFB does not have a transportation office ... all personnel should go to nearby Peterson AFB for government counseling"
+-- https://ustcdp3.slack.com/archives/C02AXHB7YRE/p1641927179003700?thread_ts=1641242926.121900&cid=C02AXHB7YRE
+UPDATE duty_locations
+SET transportation_office_id = 'cc107598-3d72-4679-a4aa-c28d1fd2a016'
+WHERE name = 'Schriever AFB';
+
 -- Update duty locations that need new Transportation Offices
 INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at)
 VALUES ('285a4915-b427-43b1-9add-4937430d1e77', '123 Any St', NULL, 'Alameda', 'CA', '94501', now(), now());
@@ -165,6 +171,11 @@ WHERE id IN (SELECT transportation_office_id FROM duty_locations
 
 UPDATE transportation_offices SET gbloc = 'KKFA'
 WHERE id = (select transportation_office_id FROM duty_locations WHERE duty_locations.name = 'MCMWTC Bridgeport');
+
+-- Update hours for Beale AFB's transportation office. https://ustcdp3.slack.com/archives/C02AXHB7YRE/p1641593820002000?thread_ts=1640902686.117800&cid=C02AXHB7YRE
+UPDATE transportation_offices
+SET hours = 'Mon - Fri 7:30 a.m. - 4:00 p.m. Sat and Sun - closed Holidays - closed Currently all appointments are conducted via telephone or online'
+WHERE id = (SELECT transportation_office_id FROM duty_locations WHERE duty_locations.name = 'Beale AFB');
 
 -- Update addresses
 UPDATE addresses SET postal_code = '29404' WHERE id = (SELECT address_id FROM duty_locations WHERE duty_locations.name = 'NAVCON BRIG (PERM PERS)');
