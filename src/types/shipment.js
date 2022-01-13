@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import PropTypes from 'prop-types';
 
-import { AddressShape } from 'types/address';
+import { AddressShape, ResidentialAddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentStatuses } from 'constants/shipments';
@@ -34,6 +34,13 @@ export const ShipmentShape = PropTypes.shape({
   reweigh: PropTypes.shape({
     id: PropTypes.string,
   }),
+  storageFacility: PropTypes.shape({
+    address: AddressShape.isRequired,
+    facilityName: PropTypes.string.isRequired,
+    lotNumber: PropTypes.string,
+    phone: PropTypes.string,
+    email: PropTypes.string,
+  }),
 });
 
 export const ShipmentStatusesOneOf = PropTypes.oneOf([
@@ -45,3 +52,11 @@ export const ShipmentStatusesOneOf = PropTypes.oneOf([
   shipmentStatuses.CANCELED,
   shipmentStatuses.REJECTED,
 ]);
+
+export const StorageFacilityShape = PropTypes.shape({
+  facilityName: PropTypes.string,
+  phone: PropTypes.string,
+  email: PropTypes.string,
+  address: ResidentialAddressShape,
+  lotNumber: PropTypes.string,
+});

@@ -155,8 +155,8 @@ export const FieldsHidden = (args) => {
           ordersTypeDetail: Yup.string().required('Required'),
           tac: Yup.string().required('Required'),
           sac: Yup.string().required('Required'),
-          nts_tac: Yup.string().required('Required'),
-          nts_sac: Yup.string().required('Required'),
+          ntsTac: Yup.string().required('Required'),
+          ntsSac: Yup.string().required('Required'),
         })}
       >
         <form>

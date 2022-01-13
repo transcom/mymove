@@ -217,13 +217,28 @@ func (e StaleIdentifierError) Error() string {
 //CheckIfMTOShipmentCanBeUpdated checks if a shipment should be updatable
 func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error) {
 	if session.IsOfficeApp() && session.IsOfficeUser() {
+		isServiceCounselor := session.Roles.HasRole(roles.RoleTypeServicesCounselor)
+		isTOO := session.Roles.HasRole(roles.RoleTypeTOO)
+		isTIO := session.Roles.HasRole(roles.RoleTypeTIO)
 		switch mtoShipment.Status {
 		case models.MTOShipmentStatusSubmitted:
-			if session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+			if isServiceCounselor || isTOO {
 				return true, nil
 			}
 		case models.MTOShipmentStatusApproved:
-			if session.Roles.HasRole(roles.RoleTypeTIO) {
+			if isTIO || isTOO {
+				return true, nil
+			}
+		case models.MTOShipmentStatusCancellationRequested:
+			if isTOO {
+				return true, nil
+			}
+		case models.MTOShipmentStatusCanceled:
+			if isTOO {
+				return true, nil
+			}
+		case models.MTOShipmentStatusDiversionRequested:
+			if isTOO {
 				return true, nil
 			}
 		default:
@@ -433,19 +448,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		}
 
 		if len(newShipment.MTOAgents) != 0 {
-			agentQuery := `UPDATE mto_agents
-					SET
-				`
-			for _, agent := range newShipment.MTOAgents {
-				copyOfAgent := agent // Make copy to avoid implicit memory aliasing of items from a range statement.
+			for i := range newShipment.MTOAgents {
+				copyOfAgent := newShipment.MTOAgents[i]
 
-				for _, dbAgent := range dbShipment.MTOAgents {
+				for j := range dbShipment.MTOAgents {
+					dbAgent := dbShipment.MTOAgents[j]
 					// if the updates already have an agent in the system
 					if dbAgent.ID == copyOfAgent.ID {
-						updateAgentQuery := generateAgentQuery()
-						params := generateMTOAgentsParams(copyOfAgent)
-
-						if err := txnAppCtx.DB().RawQuery(agentQuery+updateAgentQuery, params...).Exec(); err != nil {
+						if err := txnAppCtx.DB().Update(&copyOfAgent); err != nil {
 							return err
 						}
 					}
@@ -556,24 +566,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
-		//
-		// Save all of the updated values from newShipment (MTOShipment) in raw query call to the database
-		//
-
-		// Generate query to update all mto_shipments columns
-		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
-		// Generate slice of column values to be used for the update from the MTOShipment model
-		params := generateMTOShipmentParams(*newShipment)
-
-		// Execute query to update all mto_shipments columns with values from MTOShipment
-		if err := txnAppCtx.DB().RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
+		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
 		}
-		// #TODO: Is there any reason we can't remove updateMTOShipmentQuery and use tx.Update?
-		//
-		// if err := tx.Update(newShipment); err != nil {
-		// 	return err
-		// }
 
 		//
 		// Perform shipment recalculate payment request
@@ -612,129 +607,6 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 	return nil
 
-}
-
-func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
-	return []interface{}{
-		mtoShipment.ScheduledPickupDate,
-		mtoShipment.RequestedPickupDate,
-		mtoShipment.RequestedDeliveryDate,
-		mtoShipment.CustomerRemarks,
-		mtoShipment.CounselorRemarks,
-		mtoShipment.PrimeEstimatedWeight,
-		mtoShipment.PrimeEstimatedWeightRecordedDate,
-		mtoShipment.PrimeActualWeight,
-		mtoShipment.NTSRecordedWeight,
-		mtoShipment.ShipmentType,
-		mtoShipment.ActualPickupDate,
-		mtoShipment.ApprovedDate,
-		mtoShipment.FirstAvailableDeliveryDate,
-		mtoShipment.RequiredDeliveryDate,
-		mtoShipment.Status,
-		mtoShipment.DestinationAddressID,
-		mtoShipment.PickupAddressID,
-		mtoShipment.SecondaryDeliveryAddressID,
-		mtoShipment.SecondaryPickupAddressID,
-		mtoShipment.Diversion,
-		mtoShipment.BillableWeightCap,
-		mtoShipment.BillableWeightJustification,
-		mtoShipment.TACType,
-		mtoShipment.SACType,
-		mtoShipment.UsesExternalVendor,
-		mtoShipment.ServiceOrderNumber,
-		mtoShipment.StorageFacilityID,
-		mtoShipment.ID,
-	}
-}
-
-func generateUpdateMTOShipmentQuery() string {
-	return `UPDATE mto_shipments
-		SET
-			updated_at = NOW(),
-			scheduled_pickup_date = ?,
-			requested_pickup_date = ?,
-			requested_delivery_date = ?,
-			customer_remarks = ?,
-			counselor_remarks = ?,
-			prime_estimated_weight = ?,
-			prime_estimated_weight_recorded_date = ?,
-			prime_actual_weight = ?,
-            nts_recorded_weight = ?,
-			shipment_type = ?,
-			actual_pickup_date = ?,
-			approved_date = ?,
-			first_available_delivery_date = ?,
-			required_delivery_date = ?,
-			status = ?,
-			destination_address_id = ?,
-			pickup_address_id = ?,
-			secondary_delivery_address_id = ?,
-			secondary_pickup_address_id = ?,
-			diversion = ?,
-			billable_weight_cap = ?,
-			billable_weight_justification = ?,
-			tac_type = ?,
-			sac_type = ?,
-			uses_external_vendor = ?,
-			service_order_number = ?,
-			storage_facility_id = ?
-		WHERE
-			id = ?
-	`
-}
-
-func generateMTOAgentsParams(agent models.MTOAgent) []interface{} {
-	agentID := agent.ID
-	agentType := agent.MTOAgentType
-	firstName := agent.FirstName
-	lastName := agent.LastName
-	email := agent.Email
-	phoneNo := agent.Phone
-
-	paramsArr := []interface{}{
-		agentID,
-		agentID,
-		agentType,
-		agentID,
-		firstName,
-		agentID,
-		lastName,
-		agentID,
-		email,
-		agentID,
-		phoneNo,
-	}
-
-	return paramsArr
-}
-
-func generateAgentQuery() string {
-	return `
-		updated_at =
-			CASE
-			   WHEN id = ? THEN NOW() ELSE updated_at
-			END,
-		agent_type =
-			CASE
-			   WHEN id = ? THEN ? ELSE agent_type
-			END,
-		first_name =
-			CASE
-			   WHEN id = ? THEN ? ELSE first_name
-			END,
-		last_name =
-			CASE
-			   WHEN id = ? THEN ? ELSE last_name
-			END,
-		email =
-			CASE
-			   WHEN id = ? THEN ? ELSE email
-			END,
-		phone =
-			CASE
-			   WHEN id = ? THEN ? ELSE phone
-			END;
-	`
 }
 
 type mtoShipmentStatusUpdater struct {
