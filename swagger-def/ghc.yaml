@@ -1763,17 +1763,7 @@ paths:
           name: sort
           type: string
           enum:
-            [
-                lastName,
-                dodID,
-                branch,
-                locator,
-                status,
-                requestedMoveDate,
-                submittedAt,
-                originGBLOC,
-                originDutyLocation,
-            ]
+            [lastName, dodID, branch, locator, status, requestedMoveDate, submittedAt, originGBLOC, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2815,7 +2805,6 @@ definitions:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
-        readOnly: true
         type: string
       mtoShipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054

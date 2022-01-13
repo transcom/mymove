@@ -3859,7 +3859,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {
@@ -10537,7 +10536,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {

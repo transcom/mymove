@@ -30,8 +30,7 @@ function formatAgentForAPI(agent) {
       // These fields are readOnly so we don't want to send them in requests
       sanitizedKey === 'updatedAt' ||
       sanitizedKey === 'createdAt' ||
-      sanitizedKey === 'mtoShipmentID' ||
-      sanitizedKey === 'id'
+      sanitizedKey === 'mtoShipmentID'
     ) {
       delete agentCopy[sanitizedKey];
     }

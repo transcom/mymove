@@ -219,7 +219,6 @@ describe('formatMtoShipmentForAPI', () => {
       lastName: 'mockLastName',
       email: 'mockAgentEmail@example.com',
       phone: '222-555-1234',
-      id: '123',
     },
   };
 
@@ -272,7 +271,6 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.agents[1].agentType).toBe('RECEIVING_AGENT');
     expect(actual.customerRemarks).toBe('some mock remarks');
 
-    expect(actual.agents[0].id).toBeUndefined();
     expect(actual.secondaryPickupAddress).toBeUndefined();
     expect(actual.secondaryDeliveryAddress).toBeUndefined();
   });
