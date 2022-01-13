@@ -205,45 +205,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
 
-	servicesCounselor := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
-
-	session := auth.Session{
-		ApplicationName: auth.OfficeApp,
-		UserID:          *servicesCounselor.UserID,
-		OfficeUserID:    servicesCounselor.ID,
-	}
-	session.Roles = append(session.Roles, servicesCounselor.User.Roles...)
-
-	var statusTests = []struct {
-		name      string
-		status    models.MTOShipmentStatus
-		updatable bool
-	}{
-		{"Draft isn't updatable", models.MTOShipmentStatusDraft, false},
-		{"Submitted is updatable", models.MTOShipmentStatusSubmitted, true},
-		{"Approved isn't updatable", models.MTOShipmentStatusApproved, false},
-	}
-
-	for _, tt := range statusTests {
-		suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
-			shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
-					Status: tt.status,
-				},
-			})
-
-			updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
-
-			suite.NoError(err)
-
-			suite.Equal(tt.updatable, updatable,
-				"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
-
-			// Verify that shipment recalculate was handled correctly
-			mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
-		})
-	}
-
 	suite.T().Run("Etag is stale", func(t *testing.T) {
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(suite.AppContextForTest(), &mtoShipment, eTag)
@@ -735,6 +696,156 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(t, "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
+	})
+}
+
+func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() {
+	builder := query.NewQueryBuilder()
+	fetcher := fetch.NewFetcher(builder)
+	planner := &mocks.Planner{}
+	planner.On("TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(500, nil)
+	moveRouter := moveservices.NewMoveRouter()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
+
+	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
+	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("uuid.UUID"),
+	).Return(&models.PaymentRequests{}, nil)
+	mockSender := setUpMockNotificationSender()
+	mtoShipmentUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
+
+	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+		MaxDaysTransitTime: 12,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     10000,
+		DistanceMilesLower: 0,
+		DistanceMilesUpper: 10000,
+	}
+	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+	suite.T().Run("Services Counselor is able to update shipments in Submitted status", func(t *testing.T) {
+		servicesCounselor := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *servicesCounselor.UserID,
+			OfficeUserID:    servicesCounselor.ID,
+		}
+		session.Roles = append(session.Roles, servicesCounselor.User.Roles...)
+
+		var statusTests = []struct {
+			name      string
+			status    models.MTOShipmentStatus
+			updatable bool
+		}{
+			{"Draft isn't updatable", models.MTOShipmentStatusDraft, false},
+			{"Submitted is updatable", models.MTOShipmentStatusSubmitted, true},
+			{"Approved isn't updatable", models.MTOShipmentStatusApproved, false},
+			{"Rejected isn't updatable", models.MTOShipmentStatusRejected, false},
+			{"Cancellation requested isn't updatable", models.MTOShipmentStatusCancellationRequested, false},
+			{"Canceled isn't updatable", models.MTOShipmentStatusCanceled, false},
+			{"Diversion requested isn't updatable", models.MTOShipmentStatusDiversionRequested, false},
+		}
+
+		for _, tt := range statusTests {
+			suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
+				shipment := models.MTOShipment{
+					Status: tt.status,
+				}
+
+				updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
+
+				suite.NoError(err)
+
+				suite.Equal(tt.updatable, updatable,
+					"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
+			})
+		}
+	})
+
+	suite.T().Run("TOO is able to update shipments in approved, cancellation requested, canceled, diversion requested", func(t *testing.T) {
+		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *too.UserID,
+			OfficeUserID:    too.ID,
+		}
+		session.Roles = append(session.Roles, too.User.Roles...)
+
+		var statusTests = []struct {
+			name      string
+			status    models.MTOShipmentStatus
+			updatable bool
+		}{
+			{"Draft isn't updatable", models.MTOShipmentStatusDraft, false},
+			{"Submitted isn't updatable", models.MTOShipmentStatusSubmitted, true},
+			{"Approved is updatable", models.MTOShipmentStatusApproved, true},
+			{"Rejected isn't updatable", models.MTOShipmentStatusRejected, false},
+			{"Cancellation requested is updatable", models.MTOShipmentStatusCancellationRequested, true},
+			{"Canceled is updatable", models.MTOShipmentStatusCanceled, true},
+			{"Diversion requested is updatable", models.MTOShipmentStatusDiversionRequested, true},
+		}
+
+		for _, tt := range statusTests {
+			suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
+				shipment := models.MTOShipment{
+					Status: tt.status,
+				}
+
+				updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
+
+				suite.NoError(err)
+
+				suite.Equal(tt.updatable, updatable,
+					"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
+			})
+		}
+	})
+
+	suite.T().Run("TIO is able to update shipments in approved status", func(t *testing.T) {
+		tio := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *tio.UserID,
+			OfficeUserID:    tio.ID,
+		}
+		session.Roles = append(session.Roles, tio.User.Roles...)
+
+		var statusTests = []struct {
+			name      string
+			status    models.MTOShipmentStatus
+			updatable bool
+		}{
+			{"Draft isn't updatable", models.MTOShipmentStatusDraft, false},
+			{"Submitted isn't updatable", models.MTOShipmentStatusSubmitted, false},
+			{"Approved is updatable", models.MTOShipmentStatusApproved, true},
+			{"Rejected isn't updatable", models.MTOShipmentStatusRejected, false},
+			{"Cancellation requested isn't updatable", models.MTOShipmentStatusCancellationRequested, false},
+			{"Canceled isn't updatable", models.MTOShipmentStatusCanceled, false},
+			{"Diversion requested isn't updatable", models.MTOShipmentStatusDiversionRequested, false},
+		}
+
+		for _, tt := range statusTests {
+			suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
+				shipment := models.MTOShipment{
+					Status: tt.status,
+				}
+
+				updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
+
+				suite.NoError(err)
+
+				suite.Equal(tt.updatable, updatable,
+					"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
+			})
+		}
 	})
 }
 
