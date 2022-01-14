@@ -57,7 +57,6 @@ type WebhookNotification struct {
 
 	// trace ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
-	// Read Only: true
 	// Format: uuid
 	TraceID strfmt.UUID `json:"traceID,omitempty"`
 
@@ -228,10 +227,6 @@ func (m *WebhookNotification) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateTraceID(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -275,15 +270,6 @@ func (m *WebhookNotification) contextValidateStatus(ctx context.Context, formats
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *WebhookNotification) contextValidateTraceID(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "traceID", "body", strfmt.UUID(m.TraceID)); err != nil {
 		return err
 	}
 
