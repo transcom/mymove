@@ -11,6 +11,8 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
   // eslint-disable-next-line camelcase
   const { order_type } = order;
 
+  const isRetireeOrSeparatee = ['RETIREMENT', 'SEPARATION'].includes(order_type);
+
   /**
    * Depending on the order type, this row dt label can be either:
    * Report by date (PERMANENT_CHANGE_OF_STATION)
@@ -56,10 +58,12 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
           <p>Authorized origin</p>
           <h4>{order.originDutyStation.name}</h4>
         </div>
-        <div>
-          <p>Authorized destination</p>
-          <h4>{order.destinationDutyStation.name}</h4>
-        </div>
+        {order.destinationDutyStation.name && (
+          <div>
+            <p>{isRetireeOrSeparatee ? 'HOR, HOS or PLEAD' : 'Authorized destination'}</p>
+            <h4>{order.destinationDutyStation.name}</h4>
+          </div>
+        )}
         <div>
           <p>{reportDateLabel}</p>
           <h4>{formatCustomerDate(order.report_by_date)}</h4>
