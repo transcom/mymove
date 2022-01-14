@@ -9,6 +9,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -259,7 +261,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		// Check some params
 		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
 		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())
-
+		suite.Nil(mtoShipment.NTSRecordedWeight)
 	})
 
 	suite.T().Run("No notification for GHC MTOShipment endpoint when shipment uses external vendor", func(t *testing.T) {
@@ -297,12 +299,14 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC MTOShipment endpoint for NTS Shipment", func(t *testing.T) {
+		ntsRecordedWeight := unit.Pound(6989)
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				AvailableToPrimeAt: swag.Time(time.Now()),
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType:      models.MTOShipmentTypeHHGIntoNTSDom,
+				NTSRecordedWeight: &ntsRecordedWeight,
 			},
 		})
 
@@ -335,6 +339,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
 		suite.NotNil(mtoShipment.RequestedPickupDate)
 		suite.NotNil(mtoShipmentInPayload.RequestedPickupDate)
+		suite.Equal(ntsRecordedWeight, *mtoShipment.NTSRecordedWeight)
 		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())
 		storageFacility := *mtoShipment.StorageFacility
 		suite.Equal(storageFacility.FacilityName, mtoShipmentInPayload.StorageFacility.FacilityName)
