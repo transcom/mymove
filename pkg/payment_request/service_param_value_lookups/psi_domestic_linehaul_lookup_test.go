@@ -50,7 +50,7 @@ package serviceparamvaluelookups
 // func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomLookup() {
 // 	key := models.ServiceItemParamNamePSILinehaulDom.String()
 //
-// 	suite.T().Run("Domestic Linehaul Price has been calculated", func(t *testing.T) {
+// 	suite.Run("Domestic Linehaul Price has been calculated", func() {
 //
 // 		psiLinehaulDom, expectedPSILinehaulDom := suite.setupPSILinehaulTestData(nil, nil)
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
@@ -60,7 +60,7 @@ package serviceparamvaluelookups
 // 		suite.Equal(expectedPSILinehaulDom.ID.String(), valueStr)
 // 	})
 //
-// 	suite.T().Run("Domestic Linehaul Price has been calculated twice use latest", func(t *testing.T) {
+// 	suite.Run("Domestic Linehaul Price has been calculated twice use latest", func() {
 // 		psiLinehaulDom, psiLinehaulDomDLH := suite.setupPSILinehaulTestData(nil, nil)
 //
 // 		priceCents := unit.Cents(204800)
@@ -85,7 +85,7 @@ package serviceparamvaluelookups
 // 		suite.Equal(psiLinehaulDomSecond.ID.String(), valueStr)
 // 	})
 //
-// 	suite.T().Run("Domestic Linehaul Price has been calculated and Denied", func(t *testing.T) {
+// 	suite.Run("Domestic Linehaul Price has been calculated and Denied", func() {
 // 		price := unit.Cents(102400)
 // 		status := models.PaymentServiceItemStatusDenied
 // 		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(&price, &status)
@@ -98,7 +98,7 @@ package serviceparamvaluelookups
 // 		suite.Equal(expected, err.Error())
 // 	})
 //
-// 	suite.T().Run("Invalid MTO Service ID", func(t *testing.T) {
+// 	suite.Run("Invalid MTO Service ID", func() {
 // 		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(nil, nil)
 //
 // 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
@@ -110,7 +110,7 @@ package serviceparamvaluelookups
 // 		suite.Equal(expected, err.Error())
 // 	})
 //
-// 	suite.T().Run("Domestic Linehaul Price has NOT been calculated", func(t *testing.T) {
+// 	suite.Run("Domestic Linehaul Price has NOT been calculated", func() {
 // 		code := models.ReServiceCodeFSC
 // 		psiLinehaulDomFSC := testdatagen.MakePaymentServiceItem(suite.DB(),
 // 			testdatagen.Assertions{
@@ -136,7 +136,7 @@ package serviceparamvaluelookups
 // func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomPriceLookup() {
 // 	key := models.ServiceItemParamNamePSILinehaulDomPrice.String()
 //
-// 	suite.T().Run("Domestic Linehaul Price has been calculated", func(t *testing.T) {
+// 	suite.Run("Domestic Linehaul Price has been calculated", func() {
 //
 // 		psiLinehaulDom, expectedPSILinehaulDom := suite.setupPSILinehaulTestData(nil, nil)
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
@@ -146,7 +146,7 @@ package serviceparamvaluelookups
 // 		suite.Equal(expectedPSILinehaulDom.PriceCents.String(), valueStr)
 // 	})
 //
-// 	suite.T().Run("Domestic Linehaul Price has been calculated twice use latest", func(t *testing.T) {
+// 	suite.Run("Domestic Linehaul Price has been calculated twice use latest", func() {
 // 		psiLinehaulDom, psiLinehaulDomDLH := suite.setupPSILinehaulTestData(nil, nil)
 //
 // 		priceCents := unit.Cents(204800)
@@ -171,7 +171,7 @@ package serviceparamvaluelookups
 // 		suite.Equal(psiLinehaulDomSecond.PriceCents.String(), valueStr)
 // 	})
 //
-// 	suite.T().Run("Domestic Linehaul Price has been calculated and Denied", func(t *testing.T) {
+// 	suite.Run("Domestic Linehaul Price has been calculated and Denied", func() {
 // 		price := unit.Cents(102400)
 // 		status := models.PaymentServiceItemStatusDenied
 // 		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(&price, &status)
@@ -184,7 +184,7 @@ package serviceparamvaluelookups
 // 		suite.Equal(expected, err.Error())
 // 	})
 //
-// 	suite.T().Run("Invalid MTO Service ID", func(t *testing.T) {
+// 	suite.Run("Invalid MTO Service ID", func() {
 // 		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(nil, nil)
 //
 // 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
@@ -196,7 +196,7 @@ package serviceparamvaluelookups
 // 		suite.Equal(expected, err.Error())
 // 	})
 //
-// 	suite.T().Run("Domestic Linehaul Price has NOT been calculated", func(t *testing.T) {
+// 	suite.Run("Domestic Linehaul Price has NOT been calculated", func() {
 // 		code := models.ReServiceCodeFSC
 // 		psiLinehaulDomFSC := testdatagen.MakePaymentServiceItem(suite.DB(),
 // 			testdatagen.Assertions{
