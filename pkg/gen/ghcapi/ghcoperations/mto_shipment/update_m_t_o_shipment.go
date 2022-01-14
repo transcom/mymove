@@ -44,6 +44,7 @@ Optional fields include:
 * Customer requested pick-up date
 * Pick-up Address
 * Delivery Address
+* Delivery Address Type
 * Customer Remarks
 * Counselor Remarks
 * Releasing / Receiving agents

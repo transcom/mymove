@@ -170,8 +170,6 @@ func (m *MovePayload) validateMtoShipments(formats strfmt.Registry) error {
 	if err := m.MtoShipments.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mto_shipments")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("mto_shipments")
 		}
 		return err
 	}
@@ -200,8 +198,6 @@ func (m *MovePayload) validatePersonallyProcuredMoves(formats strfmt.Registry) e
 	if err := m.PersonallyProcuredMoves.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("personally_procured_moves")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("personally_procured_moves")
 		}
 		return err
 	}
@@ -218,8 +214,6 @@ func (m *MovePayload) validateSelectedMoveType(formats strfmt.Registry) error {
 		if err := m.SelectedMoveType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("selected_move_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("selected_move_type")
 			}
 			return err
 		}
@@ -248,8 +242,6 @@ func (m *MovePayload) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -317,8 +309,6 @@ func (m *MovePayload) contextValidateMtoShipments(ctx context.Context, formats s
 	if err := m.MtoShipments.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mto_shipments")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("mto_shipments")
 		}
 		return err
 	}
@@ -331,8 +321,6 @@ func (m *MovePayload) contextValidatePersonallyProcuredMoves(ctx context.Context
 	if err := m.PersonallyProcuredMoves.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("personally_procured_moves")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("personally_procured_moves")
 		}
 		return err
 	}
@@ -346,8 +334,6 @@ func (m *MovePayload) contextValidateSelectedMoveType(ctx context.Context, forma
 		if err := m.SelectedMoveType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("selected_move_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("selected_move_type")
 			}
 			return err
 		}
@@ -370,8 +356,6 @@ func (m *MovePayload) contextValidateStatus(ctx context.Context, formats strfmt.
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}

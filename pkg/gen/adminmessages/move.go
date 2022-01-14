@@ -151,8 +151,6 @@ func (m *Move) validateServiceMember(formats strfmt.Registry) error {
 		if err := m.ServiceMember.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("serviceMember")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("serviceMember")
 			}
 			return err
 		}
@@ -169,8 +167,6 @@ func (m *Move) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -215,8 +211,6 @@ func (m *Move) contextValidateServiceMember(ctx context.Context, formats strfmt.
 		if err := m.ServiceMember.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("serviceMember")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("serviceMember")
 			}
 			return err
 		}
@@ -230,8 +224,6 @@ func (m *Move) contextValidateStatus(ctx context.Context, formats strfmt.Registr
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}

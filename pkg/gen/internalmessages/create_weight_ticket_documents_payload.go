@@ -220,8 +220,6 @@ func (m *CreateWeightTicketDocumentsPayload) validateWeightTicketSetType(formats
 		if err := m.WeightTicketSetType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_ticket_set_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("weight_ticket_set_type")
 			}
 			return err
 		}
@@ -250,8 +248,6 @@ func (m *CreateWeightTicketDocumentsPayload) contextValidateWeightTicketSetType(
 		if err := m.WeightTicketSetType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_ticket_set_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("weight_ticket_set_type")
 			}
 			return err
 		}

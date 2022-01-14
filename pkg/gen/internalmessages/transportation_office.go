@@ -110,8 +110,6 @@ func (m *TransportationOffice) validateAddress(formats strfmt.Registry) error {
 		if err := m.Address.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("address")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("address")
 			}
 			return err
 		}
@@ -216,8 +214,6 @@ func (m *TransportationOffice) contextValidateAddress(ctx context.Context, forma
 		if err := m.Address.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("address")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("address")
 			}
 			return err
 		}

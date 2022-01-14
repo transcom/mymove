@@ -201,8 +201,6 @@ func (m *UpdateMTOShipment) validateShipmentType(formats strfmt.Registry) error 
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -265,8 +263,6 @@ func (m *UpdateMTOShipment) contextValidateShipmentType(ctx context.Context, for
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}

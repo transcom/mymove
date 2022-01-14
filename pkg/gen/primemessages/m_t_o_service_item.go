@@ -329,8 +329,6 @@ func (m *mTOServiceItem) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status().Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -395,8 +393,6 @@ func (m *mTOServiceItem) contextValidateModelType(ctx context.Context, formats s
 	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("modelType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("modelType")
 		}
 		return err
 	}
@@ -427,8 +423,6 @@ func (m *mTOServiceItem) contextValidateStatus(ctx context.Context, formats strf
 	if err := m.Status().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}

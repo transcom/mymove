@@ -95,8 +95,6 @@ func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 		if err := m.CurrentAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("currentAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("currentAddress")
 			}
 			return err
 		}
@@ -165,8 +163,6 @@ func (m *Customer) contextValidateCurrentAddress(ctx context.Context, formats st
 		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("currentAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("currentAddress")
 			}
 			return err
 		}

@@ -32,8 +32,6 @@ func (m TransportationServiceProviderPerformances) Validate(formats strfmt.Regis
 			if err := m[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName(strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName(strconv.Itoa(i))
 				}
 				return err
 			}
@@ -57,8 +55,6 @@ func (m TransportationServiceProviderPerformances) ContextValidate(ctx context.C
 			if err := m[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName(strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName(strconv.Itoa(i))
 				}
 				return err
 			}

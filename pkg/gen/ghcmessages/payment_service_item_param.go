@@ -97,8 +97,6 @@ func (m *PaymentServiceItemParam) validateKey(formats strfmt.Registry) error {
 	if err := m.Key.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("key")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("key")
 		}
 		return err
 	}
@@ -114,8 +112,6 @@ func (m *PaymentServiceItemParam) validateOrigin(formats strfmt.Registry) error 
 	if err := m.Origin.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("origin")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("origin")
 		}
 		return err
 	}
@@ -143,8 +139,6 @@ func (m *PaymentServiceItemParam) validateType(formats strfmt.Registry) error {
 	if err := m.Type.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("type")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("type")
 		}
 		return err
 	}
@@ -192,8 +186,6 @@ func (m *PaymentServiceItemParam) contextValidateKey(ctx context.Context, format
 	if err := m.Key.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("key")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("key")
 		}
 		return err
 	}
@@ -206,8 +198,6 @@ func (m *PaymentServiceItemParam) contextValidateOrigin(ctx context.Context, for
 	if err := m.Origin.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("origin")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("origin")
 		}
 		return err
 	}
@@ -220,8 +210,6 @@ func (m *PaymentServiceItemParam) contextValidateType(ctx context.Context, forma
 	if err := m.Type.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("type")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("type")
 		}
 		return err
 	}

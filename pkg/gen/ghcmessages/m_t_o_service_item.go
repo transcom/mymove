@@ -259,8 +259,6 @@ func (m *MTOServiceItem) validateCustomerContacts(formats strfmt.Registry) error
 	if err := m.CustomerContacts.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("customerContacts")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("customerContacts")
 		}
 		return err
 	}
@@ -297,8 +295,6 @@ func (m *MTOServiceItem) validateDimensions(formats strfmt.Registry) error {
 	if err := m.Dimensions.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("dimensions")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("dimensions")
 		}
 		return err
 	}
@@ -486,8 +482,6 @@ func (m *MTOServiceItem) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -559,8 +553,6 @@ func (m *MTOServiceItem) contextValidateCustomerContacts(ctx context.Context, fo
 	if err := m.CustomerContacts.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("customerContacts")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("customerContacts")
 		}
 		return err
 	}
@@ -573,8 +565,6 @@ func (m *MTOServiceItem) contextValidateDimensions(ctx context.Context, formats 
 	if err := m.Dimensions.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("dimensions")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("dimensions")
 		}
 		return err
 	}
@@ -587,8 +577,6 @@ func (m *MTOServiceItem) contextValidateStatus(ctx context.Context, formats strf
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}

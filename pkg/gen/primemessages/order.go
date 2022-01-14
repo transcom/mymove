@@ -122,8 +122,6 @@ func (m *Order) validateCustomer(formats strfmt.Registry) error {
 		if err := m.Customer.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("customer")
 			}
 			return err
 		}
@@ -153,8 +151,6 @@ func (m *Order) validateDestinationDutyStation(formats strfmt.Registry) error {
 		if err := m.DestinationDutyStation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationDutyStation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationDutyStation")
 			}
 			return err
 		}
@@ -172,8 +168,6 @@ func (m *Order) validateEntitlement(formats strfmt.Registry) error {
 		if err := m.Entitlement.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("entitlement")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("entitlement")
 			}
 			return err
 		}
@@ -221,8 +215,6 @@ func (m *Order) validateOriginDutyStation(formats strfmt.Registry) error {
 		if err := m.OriginDutyStation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyStation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("originDutyStation")
 			}
 			return err
 		}
@@ -288,8 +280,6 @@ func (m *Order) contextValidateCustomer(ctx context.Context, formats strfmt.Regi
 		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("customer")
 			}
 			return err
 		}
@@ -304,8 +294,6 @@ func (m *Order) contextValidateDestinationDutyStation(ctx context.Context, forma
 		if err := m.DestinationDutyStation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationDutyStation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationDutyStation")
 			}
 			return err
 		}
@@ -329,8 +317,6 @@ func (m *Order) contextValidateEntitlement(ctx context.Context, formats strfmt.R
 		if err := m.Entitlement.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("entitlement")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("entitlement")
 			}
 			return err
 		}
@@ -345,8 +331,6 @@ func (m *Order) contextValidateOriginDutyStation(ctx context.Context, formats st
 		if err := m.OriginDutyStation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyStation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("originDutyStation")
 			}
 			return err
 		}

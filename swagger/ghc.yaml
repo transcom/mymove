@@ -570,6 +570,7 @@ paths:
         * Delivery Address
         * Releasing / Receiving agents
         Optional fields include:
+        * Delivery Address Type
         * Customer Remarks
         * Releasing / Receiving agents
         * An array of optional accessorial service item codes
@@ -668,6 +669,7 @@ paths:
         * Customer requested pick-up date
         * Pick-up Address
         * Delivery Address
+        * Delivery Address Type
         * Customer Remarks
         * Counselor Remarks
         * Releasing / Receiving agents
@@ -3233,6 +3235,16 @@ definitions:
       destinationAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: Other than authorized
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
+        x-nullable: true
       secondaryPickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -3347,6 +3359,16 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
         x-nullable: true
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: Other than authorized
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
+        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
@@ -3439,6 +3461,16 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: Other than authorized
+        x-nullable: true
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       tacType:

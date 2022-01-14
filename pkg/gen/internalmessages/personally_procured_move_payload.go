@@ -263,8 +263,6 @@ func (m *PersonallyProcuredMovePayload) validateAdvance(formats strfmt.Registry)
 		if err := m.Advance.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advance")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("advance")
 			}
 			return err
 		}
@@ -282,8 +280,6 @@ func (m *PersonallyProcuredMovePayload) validateAdvanceWorksheet(formats strfmt.
 		if err := m.AdvanceWorksheet.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advance_worksheet")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("advance_worksheet")
 			}
 			return err
 		}
@@ -505,8 +501,6 @@ func (m *PersonallyProcuredMovePayload) validateSize(formats strfmt.Registry) er
 		if err := m.Size.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("size")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("size")
 			}
 			return err
 		}
@@ -523,8 +517,6 @@ func (m *PersonallyProcuredMovePayload) validateStatus(formats strfmt.Registry) 
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -601,8 +593,6 @@ func (m *PersonallyProcuredMovePayload) contextValidateAdvance(ctx context.Conte
 		if err := m.Advance.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advance")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("advance")
 			}
 			return err
 		}
@@ -617,8 +607,6 @@ func (m *PersonallyProcuredMovePayload) contextValidateAdvanceWorksheet(ctx cont
 		if err := m.AdvanceWorksheet.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advance_worksheet")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("advance_worksheet")
 			}
 			return err
 		}
@@ -633,8 +621,6 @@ func (m *PersonallyProcuredMovePayload) contextValidateSize(ctx context.Context,
 		if err := m.Size.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("size")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("size")
 			}
 			return err
 		}
@@ -648,8 +634,6 @@ func (m *PersonallyProcuredMovePayload) contextValidateStatus(ctx context.Contex
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}

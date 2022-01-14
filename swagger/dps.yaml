@@ -16,7 +16,7 @@ definitions:
     type: string
     x-nullable: true
     title: Branch of service
-    enum: &AFFILIATION
+    enum: &AFFILIATIOn
       - Army
       - Navy
       - Marines

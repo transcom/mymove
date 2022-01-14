@@ -54,8 +54,6 @@ func (m *CategoryExpenseSummary) validateCategory(formats strfmt.Registry) error
 	if err := m.Category.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("category")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("category")
 		}
 		return err
 	}
@@ -72,8 +70,6 @@ func (m *CategoryExpenseSummary) validatePaymentMethods(formats strfmt.Registry)
 		if err := m.PaymentMethods.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("payment_methods")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("payment_methods")
 			}
 			return err
 		}
@@ -105,8 +101,6 @@ func (m *CategoryExpenseSummary) contextValidateCategory(ctx context.Context, fo
 	if err := m.Category.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("category")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("category")
 		}
 		return err
 	}
@@ -120,8 +114,6 @@ func (m *CategoryExpenseSummary) contextValidatePaymentMethods(ctx context.Conte
 		if err := m.PaymentMethods.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("payment_methods")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("payment_methods")
 			}
 			return err
 		}

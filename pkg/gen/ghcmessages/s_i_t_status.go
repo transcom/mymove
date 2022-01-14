@@ -101,8 +101,6 @@ func (m *SITStatus) validatePastSITServiceItems(formats strfmt.Registry) error {
 	if err := m.PastSITServiceItems.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("pastSITServiceItems")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("pastSITServiceItems")
 		}
 		return err
 	}
@@ -177,8 +175,6 @@ func (m *SITStatus) contextValidatePastSITServiceItems(ctx context.Context, form
 	if err := m.PastSITServiceItems.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("pastSITServiceItems")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("pastSITServiceItems")
 		}
 		return err
 	}

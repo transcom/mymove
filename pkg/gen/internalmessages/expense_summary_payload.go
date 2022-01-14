@@ -58,8 +58,6 @@ func (m *ExpenseSummaryPayload) validateCategories(formats strfmt.Registry) erro
 			if err := m.Categories[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("categories" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("categories" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -79,8 +77,6 @@ func (m *ExpenseSummaryPayload) validateGrandTotal(formats strfmt.Registry) erro
 		if err := m.GrandTotal.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grand_total")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("grand_total")
 			}
 			return err
 		}
@@ -115,8 +111,6 @@ func (m *ExpenseSummaryPayload) contextValidateCategories(ctx context.Context, f
 			if err := m.Categories[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("categories" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("categories" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -133,8 +127,6 @@ func (m *ExpenseSummaryPayload) contextValidateGrandTotal(ctx context.Context, f
 		if err := m.GrandTotal.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grand_total")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("grand_total")
 			}
 			return err
 		}
@@ -196,8 +188,6 @@ func (m *ExpenseSummaryPayloadGrandTotal) validatePaymentMethodTotals(formats st
 		if err := m.PaymentMethodTotals.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grand_total" + "." + "payment_method_totals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("grand_total" + "." + "payment_method_totals")
 			}
 			return err
 		}
@@ -226,8 +216,6 @@ func (m *ExpenseSummaryPayloadGrandTotal) contextValidatePaymentMethodTotals(ctx
 		if err := m.PaymentMethodTotals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grand_total" + "." + "payment_method_totals")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("grand_total" + "." + "payment_method_totals")
 			}
 			return err
 		}

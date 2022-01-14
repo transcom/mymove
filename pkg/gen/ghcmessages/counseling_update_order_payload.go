@@ -166,8 +166,6 @@ func (m *CounselingUpdateOrderPayload) validateOrdersType(formats strfmt.Registr
 		if err := m.OrdersType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ordersType")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ordersType")
 			}
 			return err
 		}
@@ -238,8 +236,6 @@ func (m *CounselingUpdateOrderPayload) contextValidateOrdersType(ctx context.Con
 		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ordersType")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ordersType")
 			}
 			return err
 		}
