@@ -70,9 +70,8 @@ type CreateMTOShipment struct {
 
 	// The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
 	//
-	// Required: true
 	// Format: date
-	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// sac type
 	SacType *LOAType `json:"sacType,omitempty"`
@@ -211,9 +210,8 @@ func (m *CreateMTOShipment) validatePickupAddress(formats strfmt.Registry) error
 }
 
 func (m *CreateMTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
-
-	if err := validate.Required("requestedPickupDate", "body", m.RequestedPickupDate); err != nil {
-		return err
+	if swag.IsZero(m.RequestedPickupDate) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {

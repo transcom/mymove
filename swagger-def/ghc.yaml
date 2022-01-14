@@ -3285,6 +3285,7 @@ definitions:
           pack date, are derived from this date.
         format: date
         type: string
+        x-nullable: true
       customerRemarks:
         description: |
           The customer can use the customer remarks field to inform the services counselor and the movers about any
@@ -3350,7 +3351,6 @@ definitions:
         $ref: 'definitions/StorageFacility.yaml'
     required:
       - moveTaskOrderID
-      - requestedPickupDate
       - pickupAddress
       - destinationAddress
   MTOShipmentStatus:

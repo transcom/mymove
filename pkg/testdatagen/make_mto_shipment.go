@@ -68,16 +68,16 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	}
 	actualWeight := unit.Pound(980)
 
-	// mock dates
-	var requestedPickupDate, scheduledPickupDate, actualPickupDate, requestedDeliveryDate time.Time
+	// mock dates -- set to nil initially since these are all nullable
+	var requestedPickupDate, scheduledPickupDate, actualPickupDate, requestedDeliveryDate *time.Time
 
 	if shipmentHasPickupDetails {
-		requestedPickupDate = time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-		scheduledPickupDate = time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
-		actualPickupDate = time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
+		requestedPickupDate = swag.Time(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+		scheduledPickupDate = swag.Time(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+		actualPickupDate = swag.Time(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
 	}
 	if shipmentHasDeliveryDetails {
-		requestedDeliveryDate = time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+		requestedDeliveryDate = swag.Time(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
 	}
 
 	var storageFacilityID *uuid.UUID
@@ -124,10 +124,10 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	MTOShipment := models.MTOShipment{
 		MoveTaskOrder:         moveTaskOrder,
 		MoveTaskOrderID:       moveTaskOrder.ID,
-		RequestedPickupDate:   &requestedPickupDate,
-		ScheduledPickupDate:   &scheduledPickupDate,
-		ActualPickupDate:      &actualPickupDate,
-		RequestedDeliveryDate: &requestedDeliveryDate,
+		RequestedPickupDate:   requestedPickupDate,
+		ScheduledPickupDate:   scheduledPickupDate,
+		ActualPickupDate:      actualPickupDate,
+		RequestedDeliveryDate: requestedDeliveryDate,
 		CustomerRemarks:       swag.String("Please treat gently"),
 		PrimeEstimatedWeight:  estimatedWeight,
 		PrimeActualWeight:     &actualWeight,
