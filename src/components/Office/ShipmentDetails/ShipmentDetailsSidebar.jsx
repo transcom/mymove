@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import SimpleSection from 'containers/SimpleSection/SimpleSection';
+import { EditFacilityInfoModal } from 'components/Office/EditFacilityInfoModal/EditFacilityInfoModal';
 import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingCode } from 'utils/shipmentDisplay';
 import { ShipmentShape } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
@@ -12,8 +14,28 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
   const tac = retrieveTAC(shipment.tacType, ordersLOA);
   const sac = retrieveSAC(shipment.sacType, ordersLOA);
 
+  const [isEditFacilityInfoModalVisible, setIsEditFacilityInfoModalVisible] = useState(false);
+
+  const handleEditFacilityInfoModal = () => {
+    setIsEditFacilityInfoModalVisible(true);
+  };
+
+  const editFacilityInfo = () => {};
+
   return (
     <div className={className}>
+      {isEditFacilityInfoModalVisible && (
+        <EditFacilityInfoModal
+          onSubmit={editFacilityInfo}
+          onClose={() => {
+            setIsEditFacilityInfoModalVisible(false);
+          }}
+          storageFacility={shipment.storageFacility}
+          serviceOrderNumber={shipment.serviceOrderNumber}
+          shipmentType={shipment.shipmentType}
+        />
+      )}
+
       {mtoAgents &&
         mtoAgents.map((agent) => (
           <SimpleSection
@@ -31,9 +53,15 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
           header={
             <>
               Facility info and address
-              <Link to="" className="usa-link float-right">
+              <Button
+                size="small"
+                type="button"
+                onClick={handleEditFacilityInfoModal}
+                className="float-right usa-link padding-right-0"
+                unstyled
+              >
                 Edit
-              </Link>
+              </Button>
             </>
           }
           border
