@@ -50,7 +50,7 @@ describe('orders entry', function () {
     });
 
     cy.setFeatureFlag('ppmPaymentRequest=false', '/ppm');
-    cy.contains('NAS Fort Worth JRB (from Yuma AFB)');
+    cy.contains('NAS Fort Worth (from Yuma AFB)');
     cy.get('[data-testid="move-header-weight-estimate"]').contains('5,000 lbs');
     cy.contains('Continue Move Setup').click();
     cy.location().should((loc) => {

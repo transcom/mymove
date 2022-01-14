@@ -2441,7 +2441,6 @@ func init() {
         "traceID": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updatedAt": {
@@ -5234,7 +5233,6 @@ func init() {
         "traceID": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updatedAt": {

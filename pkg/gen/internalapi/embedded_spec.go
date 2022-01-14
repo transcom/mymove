@@ -3155,6 +3155,7 @@ func init() {
       }
     },
     "Address": {
+      "description": "A postal address",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -3176,7 +3177,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -9812,6 +9814,7 @@ func init() {
       }
     },
     "Address": {
+      "description": "A postal address",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -9833,7 +9836,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",

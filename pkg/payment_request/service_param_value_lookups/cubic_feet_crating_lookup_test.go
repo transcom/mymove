@@ -1,7 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -13,7 +12,7 @@ import (
 func (suite *ServiceParamValueLookupsSuite) TestCubicFeetCratingLookup() {
 	key := models.ServiceItemParamNameCubicFeetCrating
 
-	suite.T().Run("successful CubicFeetCrating lookup", func(t *testing.T) {
+	suite.Run("successful CubicFeetCrating lookup", func() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDCRT,
@@ -54,7 +53,7 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetCratingLookup() {
 		suite.Equal("1029.33", stringValue)
 	})
 
-	suite.T().Run("missing dimension should error", func(t *testing.T) {
+	suite.Run("missing dimension should error", func() {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)

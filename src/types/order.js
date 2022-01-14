@@ -176,6 +176,6 @@ export const ExistingUploadsShape = PropTypes.arrayOf(
 export const OrdersLOAShape = PropTypes.shape({
   tac: PropTypes.string,
   sac: PropTypes.string,
-  ntsTAC: PropTypes.string,
-  ntsSAC: PropTypes.string,
+  ntsTac: PropTypes.string,
+  ntsSac: PropTypes.string,
 });

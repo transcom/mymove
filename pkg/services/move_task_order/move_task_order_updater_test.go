@@ -41,7 +41,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		moveRouter,
 	)
 
-	suite.RunWithRollback("MTO status is updated succesfully", func() {
+	suite.RunWithRollback("MTO status is updated successfully", func() {
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
 		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTO.ID, eTag)
@@ -52,7 +52,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
 	})
 
-	suite.RunWithRollback("MTO status is updated succesfully with facility info", func() {
+	suite.RunWithRollback("MTO status is updated successfully with facility info", func() {
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
 			StorageFacility: models.StorageFacility{
 				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -98,12 +98,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 			},
 			Order: expectedOrder,
 		})
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
 			},
 			Move: noFacilityInfoMove,
 		})
+
+		// Clear out the NTS Storage Facility
+		mtoShipment.StorageFacility = nil
+		mtoShipment.StorageFacilityID = nil
+		testdatagen.MustSave(suite.DB(), &mtoShipment)
+
 		eTag := etag.GenerateEtag(noFacilityInfoMove.UpdatedAt)
 
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), noFacilityInfoMove.ID, eTag)
