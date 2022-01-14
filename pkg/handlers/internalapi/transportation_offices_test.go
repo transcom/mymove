@@ -11,41 +11,41 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
-	station := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+func (suite *HandlerSuite) TestShowDutyLocationTransportationOfficeHandler() {
+	location := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
 
-	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
+	path := fmt.Sprintf("/duty_locations/%v/transportation_offices", location.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 
-	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{
-		HTTPRequest:   req,
-		DutyStationID: *handlers.FmtUUID(station.ID),
+	params := transportationofficeop.ShowDutyLocationTransportationOfficeParams{
+		HTTPRequest:    req,
+		DutyLocationID: *handlers.FmtUUID(location.ID),
 	}
-	showHandler := ShowDutyStationTransportationOfficeHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	showHandler := ShowDutyLocationTransportationOfficeHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := showHandler.Handle(params)
 
-	suite.Assertions.IsType(&transportationofficeop.ShowDutyStationTransportationOfficeOK{}, response)
-	okResponse := response.(*transportationofficeop.ShowDutyStationTransportationOfficeOK)
+	suite.Assertions.IsType(&transportationofficeop.ShowDutyLocationTransportationOfficeOK{}, response)
+	okResponse := response.(*transportationofficeop.ShowDutyLocationTransportationOfficeOK)
 
-	suite.Assertions.Equal(station.TransportationOffice.ID.String(), okResponse.Payload.ID.String())
-	suite.Assertions.Equal(station.TransportationOffice.PhoneLines[0].Number, okResponse.Payload.PhoneLines[0])
+	suite.Assertions.Equal(location.TransportationOffice.ID.String(), okResponse.Payload.ID.String())
+	suite.Assertions.Equal(location.TransportationOffice.PhoneLines[0].Number, okResponse.Payload.PhoneLines[0])
 
 }
 
-func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffice() {
-	station := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	station.TransportationOffice = models.TransportationOffice{}
-	station.TransportationOfficeID = nil
-	suite.MustSave(&station)
+func (suite *HandlerSuite) TestShowDutyLocationTransportationOfficeHandlerNoOffice() {
+	location := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	location.TransportationOffice = models.TransportationOffice{}
+	location.TransportationOfficeID = nil
+	suite.MustSave(&location)
 
-	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
+	path := fmt.Sprintf("/duty_locations/%v/transportation_offices", location.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 
-	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{
-		HTTPRequest:   req,
-		DutyStationID: *handlers.FmtUUID(station.ID),
+	params := transportationofficeop.ShowDutyLocationTransportationOfficeParams{
+		HTTPRequest:    req,
+		DutyLocationID: *handlers.FmtUUID(location.ID),
 	}
-	showHandler := ShowDutyStationTransportationOfficeHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	showHandler := ShowDutyLocationTransportationOfficeHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
 	response := showHandler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)

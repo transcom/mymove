@@ -102,6 +102,8 @@ func (m *UpdateServiceMemberBackupContactPayload) validatePermission(formats str
 		if err := m.Permission.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("permission")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("permission")
 			}
 			return err
 		}
@@ -142,6 +144,8 @@ func (m *UpdateServiceMemberBackupContactPayload) contextValidatePermission(ctx 
 		if err := m.Permission.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("permission")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("permission")
 			}
 			return err
 		}

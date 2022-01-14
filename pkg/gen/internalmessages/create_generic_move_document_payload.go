@@ -83,6 +83,8 @@ func (m *CreateGenericMoveDocumentPayload) validateMoveDocumentType(formats strf
 		if err := m.MoveDocumentType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("move_document_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("move_document_type")
 			}
 			return err
 		}
@@ -149,6 +151,8 @@ func (m *CreateGenericMoveDocumentPayload) contextValidateMoveDocumentType(ctx c
 		if err := m.MoveDocumentType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("move_document_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("move_document_type")
 			}
 			return err
 		}

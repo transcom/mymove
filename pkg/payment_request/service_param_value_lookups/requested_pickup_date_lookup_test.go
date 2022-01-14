@@ -2,7 +2,6 @@ package serviceparamvaluelookups
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -14,19 +13,27 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 	key := models.ServiceItemParamNameRequestedPickupDate
 
 	requestedPickupDate := time.Date(testdatagen.TestYear, time.May, 18, 0, 0, 0, 0, time.UTC)
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedPickupDate,
-			},
-		})
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: mtoServiceItem.MoveTaskOrder,
-		})
+	var mtoServiceItem models.MTOServiceItem
+	var paymentRequest models.PaymentRequest
 
-	suite.T().Run("golden path", func(t *testing.T) {
+	setupTestData := func() {
+		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(),
+			testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+				},
+			})
+
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
+	}
+
+	suite.Run("golden path", func() {
+		setupTestData()
+
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
@@ -36,7 +43,9 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 		suite.Equal(expected, valueStr)
 	})
 
-	suite.T().Run("nil requested pickup date", func(t *testing.T) {
+	suite.Run("nil requested pickup date", func() {
+		setupTestData()
+
 		// Set the requested pickup date to nil
 		mtoShipment := mtoServiceItem.MTOShipment
 		oldRequestedPickupDate := mtoShipment.RequestedPickupDate

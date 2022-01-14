@@ -53,6 +53,8 @@ func (m *QueuePaymentRequestsResult) validateQueuePaymentRequests(formats strfmt
 	if err := m.QueuePaymentRequests.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("queuePaymentRequests")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("queuePaymentRequests")
 		}
 		return err
 	}
@@ -79,6 +81,8 @@ func (m *QueuePaymentRequestsResult) contextValidateQueuePaymentRequests(ctx con
 	if err := m.QueuePaymentRequests.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("queuePaymentRequests")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("queuePaymentRequests")
 		}
 		return err
 	}

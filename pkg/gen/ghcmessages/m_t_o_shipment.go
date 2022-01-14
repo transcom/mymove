@@ -45,7 +45,6 @@ type MTOShipment struct {
 	//   * bulky or fragile items,
 	//   * weapons,
 	//   * access info for their address.
-	//
 	// Counselors enters this information when creating or editing an MTO Shipment. Optional field.
 	//
 	// Example: handle with care
@@ -328,6 +327,8 @@ func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error 
 		if err := m.DestinationAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -368,6 +369,8 @@ func (m *MTOShipment) validateMtoAgents(formats strfmt.Registry) error {
 	if err := m.MtoAgents.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mtoAgents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("mtoAgents")
 		}
 		return err
 	}
@@ -383,6 +386,8 @@ func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
 	if err := m.MtoServiceItems.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mtoServiceItems")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("mtoServiceItems")
 		}
 		return err
 	}
@@ -399,6 +404,8 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 		if err := m.PickupAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pickupAddress")
 			}
 			return err
 		}
@@ -440,6 +447,8 @@ func (m *MTOShipment) validateReweigh(formats strfmt.Registry) error {
 		if err := m.Reweigh.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reweigh")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reweigh")
 			}
 			return err
 		}
@@ -457,6 +466,8 @@ func (m *MTOShipment) validateSacType(formats strfmt.Registry) error {
 		if err := m.SacType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sacType")
 			}
 			return err
 		}
@@ -486,6 +497,8 @@ func (m *MTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) 
 		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -503,6 +516,8 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
 			}
 			return err
 		}
@@ -519,6 +534,8 @@ func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -534,6 +551,8 @@ func (m *MTOShipment) validateSitExtensions(formats strfmt.Registry) error {
 	if err := m.SitExtensions.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("sitExtensions")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sitExtensions")
 		}
 		return err
 	}
@@ -550,6 +569,8 @@ func (m *MTOShipment) validateSitStatus(formats strfmt.Registry) error {
 		if err := m.SitStatus.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitStatus")
 			}
 			return err
 		}
@@ -566,6 +587,8 @@ func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -582,6 +605,8 @@ func (m *MTOShipment) validateStorageFacility(formats strfmt.Registry) error {
 		if err := m.StorageFacility.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storageFacility")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storageFacility")
 			}
 			return err
 		}
@@ -599,6 +624,8 @@ func (m *MTOShipment) validateTacType(formats strfmt.Registry) error {
 		if err := m.TacType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("tacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tacType")
 			}
 			return err
 		}
@@ -704,6 +731,8 @@ func (m *MTOShipment) contextValidateDestinationAddress(ctx context.Context, for
 		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -717,6 +746,8 @@ func (m *MTOShipment) contextValidateMtoAgents(ctx context.Context, formats strf
 	if err := m.MtoAgents.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mtoAgents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("mtoAgents")
 		}
 		return err
 	}
@@ -729,6 +760,8 @@ func (m *MTOShipment) contextValidateMtoServiceItems(ctx context.Context, format
 	if err := m.MtoServiceItems.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mtoServiceItems")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("mtoServiceItems")
 		}
 		return err
 	}
@@ -742,6 +775,8 @@ func (m *MTOShipment) contextValidatePickupAddress(ctx context.Context, formats 
 		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pickupAddress")
 			}
 			return err
 		}
@@ -756,6 +791,8 @@ func (m *MTOShipment) contextValidateReweigh(ctx context.Context, formats strfmt
 		if err := m.Reweigh.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reweigh")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reweigh")
 			}
 			return err
 		}
@@ -770,6 +807,8 @@ func (m *MTOShipment) contextValidateSacType(ctx context.Context, formats strfmt
 		if err := m.SacType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sacType")
 			}
 			return err
 		}
@@ -784,6 +823,8 @@ func (m *MTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Contex
 		if err := m.SecondaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -798,6 +839,8 @@ func (m *MTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context,
 		if err := m.SecondaryPickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
 			}
 			return err
 		}
@@ -811,6 +854,8 @@ func (m *MTOShipment) contextValidateShipmentType(ctx context.Context, formats s
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -823,6 +868,8 @@ func (m *MTOShipment) contextValidateSitExtensions(ctx context.Context, formats 
 	if err := m.SitExtensions.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("sitExtensions")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sitExtensions")
 		}
 		return err
 	}
@@ -836,6 +883,8 @@ func (m *MTOShipment) contextValidateSitStatus(ctx context.Context, formats strf
 		if err := m.SitStatus.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitStatus")
 			}
 			return err
 		}
@@ -849,6 +898,8 @@ func (m *MTOShipment) contextValidateStatus(ctx context.Context, formats strfmt.
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -862,6 +913,8 @@ func (m *MTOShipment) contextValidateStorageFacility(ctx context.Context, format
 		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storageFacility")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storageFacility")
 			}
 			return err
 		}
@@ -876,6 +929,8 @@ func (m *MTOShipment) contextValidateTacType(ctx context.Context, formats strfmt
 		if err := m.TacType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("tacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tacType")
 			}
 			return err
 		}

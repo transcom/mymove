@@ -63,6 +63,8 @@ func (m *CreateReimbursement) validateMethodOfReceipt(formats strfmt.Registry) e
 		if err := m.MethodOfReceipt.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("method_of_receipt")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("method_of_receipt")
 			}
 			return err
 		}
@@ -104,6 +106,8 @@ func (m *CreateReimbursement) contextValidateMethodOfReceipt(ctx context.Context
 		if err := m.MethodOfReceipt.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("method_of_receipt")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("method_of_receipt")
 			}
 			return err
 		}

@@ -909,6 +909,7 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
+		SitAllowance:                   swag.Int64(60),
 	}
 	return subtestData
 }
@@ -989,6 +990,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
+		suite.Equal(*body.SitAllowance, *ordersPayload.Entitlement.StorageInTransit)
 	})
 
 	suite.Run("Returns a 403 when the user does not have TOO role", func() {
@@ -1175,6 +1177,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
+		SitAllowance:                   swag.Int64(80),
 	}
 
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)
@@ -1216,6 +1219,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
+		suite.Equal(*body.SitAllowance, *ordersPayload.Entitlement.StorageInTransit)
 	})
 
 	suite.Run("Returns a 403 when the user does not have Counselor role", func() {

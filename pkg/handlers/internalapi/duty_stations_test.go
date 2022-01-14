@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
+	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -52,7 +52,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, session)
 
-	newSearchParams := stationop.SearchDutyStationsParams{
+	newSearchParams := stationop.SearchDutyLocationsParams{
 		HTTPRequest: req.WithContext(ctx),
 		Search:      "first",
 	}
@@ -61,7 +61,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response
-	searchResponse := response.(*stationop.SearchDutyStationsOK)
+	searchResponse := response.(*stationop.SearchDutyLocationsOK)
 	stationPayloads := searchResponse.Payload
 
 	if len(stationPayloads) != 1 {

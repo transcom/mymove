@@ -88,6 +88,8 @@ func (m *Member) validateAffiliation(formats strfmt.Registry) error {
 		if err := m.Affiliation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -128,6 +130,8 @@ func (m *Member) validateRank(formats strfmt.Registry) error {
 		if err := m.Rank.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
 			}
 			return err
 		}
@@ -160,6 +164,8 @@ func (m *Member) contextValidateAffiliation(ctx context.Context, formats strfmt.
 		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -174,6 +180,8 @@ func (m *Member) contextValidateRank(ctx context.Context, formats strfmt.Registr
 		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
 			}
 			return err
 		}

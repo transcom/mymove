@@ -4,7 +4,7 @@ import {
   selectServiceMemberProfileState,
   selectIsProfileComplete,
   selectBackupContacts,
-  selectCurrentDutyStation,
+  selectCurrentDutyLocation,
   selectOrdersForLoggedInUser,
   selectCurrentOrders,
   selectMovesForLoggedInUser,
@@ -416,8 +416,8 @@ describe('selectServiceMemberProfileState', () => {
   });
 });
 
-describe('selectCurrentDutyStation', () => {
-  it('returns the service member’s current duty station', () => {
+describe('selectCurrentDutyLocation', () => {
+  it('returns the service member’s current duty location', () => {
     const testState = {
       entities: {
         user: {
@@ -437,12 +437,12 @@ describe('selectCurrentDutyStation', () => {
       },
     };
 
-    expect(selectCurrentDutyStation(testState)).toEqual(
+    expect(selectCurrentDutyLocation(testState)).toEqual(
       testState.entities.serviceMembers.serviceMemberId456.current_station,
     );
   });
 
-  it('returns null if there is the service member has no current station', () => {
+  it('returns null if there is the service member has no current location', () => {
     const testState = {
       entities: {
         user: {
@@ -459,7 +459,7 @@ describe('selectCurrentDutyStation', () => {
       },
     };
 
-    expect(selectCurrentDutyStation(testState)).toEqual(null);
+    expect(selectCurrentDutyLocation(testState)).toEqual(null);
   });
 });
 

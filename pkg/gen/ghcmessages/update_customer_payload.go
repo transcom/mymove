@@ -85,6 +85,8 @@ func (m *UpdateCustomerPayload) validateBackupContact(formats strfmt.Registry) e
 		if err := m.BackupContact.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("backup_contact")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("backup_contact")
 			}
 			return err
 		}
@@ -102,6 +104,8 @@ func (m *UpdateCustomerPayload) validateCurrentAddress(formats strfmt.Registry) 
 		if err := m.CurrentAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("current_address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("current_address")
 			}
 			return err
 		}
@@ -158,6 +162,8 @@ func (m *UpdateCustomerPayload) contextValidateBackupContact(ctx context.Context
 		if err := m.BackupContact.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("backup_contact")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("backup_contact")
 			}
 			return err
 		}
@@ -172,6 +178,8 @@ func (m *UpdateCustomerPayload) contextValidateCurrentAddress(ctx context.Contex
 		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("current_address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("current_address")
 			}
 			return err
 		}

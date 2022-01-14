@@ -8,7 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 
-	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
+	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -40,21 +40,22 @@ type SearchDutyStationsHandler struct {
 	handlers.HandlerContext
 }
 
+// TODO: temporary workaround until this file gets deleted entirely
 // Handle returns a list of stations based on the search query
-func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsParams) middleware.Responder {
+func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyLocationsParams) middleware.Responder {
 	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
-	stations, err := models.FindDutyStations(appCtx.DB(), params.Search)
+	locations, err := models.FindDutyLocations(appCtx.DB(), params.Search)
 	if err != nil {
 		appCtx.Logger().Error("Finding duty stations", zap.Error(err))
-		return stationop.NewSearchDutyStationsInternalServerError()
+		return stationop.NewSearchDutyLocationsInternalServerError()
 
 	}
 
-	stationPayloads := make(internalmessages.DutyStationsPayload, len(stations))
-	for i, station := range stations {
-		stationPayload := payloadForDutyStationModel(station)
-		stationPayloads[i] = stationPayload
+	locationPayloads := make(internalmessages.DutyLocationsPayload, len(locations))
+	for i, location := range locations {
+		locationPayload := payloadForDutyLocationModel(location)
+		locationPayloads[i] = locationPayload
 	}
-	return stationop.NewSearchDutyStationsOK().WithPayload(stationPayloads)
+	return stationop.NewSearchDutyLocationsOK().WithPayload(locationPayloads)
 }
