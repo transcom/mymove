@@ -188,12 +188,14 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		creator := subtestData.shipmentCreator
 
 		ntsRecordedWeight := unit.Pound(980)
+		requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, time.April, 5, 0, 0, 0, 0, time.UTC)
 		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			MTOShipment: models.MTOShipment{
-				ShipmentType:      models.MTOShipmentTypeHHGOutOfNTSDom,
-				Status:            models.MTOShipmentStatusSubmitted,
-				NTSRecordedWeight: &ntsRecordedWeight,
+				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
+				Status:                models.MTOShipmentStatusSubmitted,
+				NTSRecordedWeight:     &ntsRecordedWeight,
+				RequestedDeliveryDate: &requestedDeliveryDate,
 			},
 			Stub: true,
 		})
@@ -201,8 +203,14 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
 		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
-		suite.NoError(err)
-		suite.Equal(ntsRecordedWeight, *createdShipment.NTSRecordedWeight)
+		if suite.NoError(err) {
+			if suite.NotNil(createdShipment.NTSRecordedWeight) {
+				suite.Equal(ntsRecordedWeight, *createdShipment.NTSRecordedWeight)
+			}
+			if suite.NotNil(createdShipment.RequestedDeliveryDate) {
+				suite.Equal(requestedDeliveryDate, *createdShipment.RequestedDeliveryDate)
+			}
+		}
 	})
 
 	suite.Run("When NTSRecordedWeight it set for a non NTS Release shipment", func() {

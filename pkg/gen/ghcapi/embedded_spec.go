@@ -3392,6 +3392,12 @@ func init() {
             }
           ]
         },
+        "requestedDeliveryDate": {
+          "description": "The customer's preferred delivery date.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
@@ -10070,6 +10076,12 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "requestedDeliveryDate": {
+          "description": "The customer's preferred delivery date.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
