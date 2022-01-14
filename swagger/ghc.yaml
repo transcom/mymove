@@ -2760,6 +2760,12 @@ definitions:
         description: only for Army
         type: boolean
         x-nullable: true
+      sitAllowance:
+        description: >-
+          the number of storage in transit days that the customer is entitled to
+          for a given shipment on their move
+        type: integer
+        minimum: 0
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -2826,6 +2832,12 @@ definitions:
         description: only for Army
         type: boolean
         x-nullable: true
+      sitAllowance:
+        description: >-
+          the number of storage in transit days that the customer is entitled to
+          for a given shipment on their move
+        type: integer
+        minimum: 0
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -2894,7 +2906,6 @@ definitions:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
-        readOnly: true
         type: string
       mtoShipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054

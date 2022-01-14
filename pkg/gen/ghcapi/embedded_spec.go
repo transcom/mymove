@@ -3257,6 +3257,10 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 2000
+        },
+        "sitAllowance": {
+          "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
+          "type": "integer"
         }
       }
     },
@@ -3855,7 +3859,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {
@@ -5477,6 +5480,10 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 2000
+        },
+        "sitAllowance": {
+          "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
+          "type": "integer"
         }
       }
     },
@@ -9926,6 +9933,11 @@ func init() {
           "minimum": 0,
           "x-formatting": "weight",
           "example": 2000
+        },
+        "sitAllowance": {
+          "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -10524,7 +10536,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {
@@ -12152,6 +12163,11 @@ func init() {
           "minimum": 0,
           "x-formatting": "weight",
           "example": 2000
+        },
+        "sitAllowance": {
+          "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
+          "type": "integer",
+          "minimum": 0
         }
       }
     },

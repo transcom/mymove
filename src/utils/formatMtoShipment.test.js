@@ -248,6 +248,7 @@ describe('formatMtoShipmentForAPI', () => {
       state: 'TX',
       ZIP: '78234',
     },
+    eTag: '456',
   };
 
   it('can format an HHG shipment', () => {
@@ -290,6 +291,8 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.agents[0].phone).toBe('222-555-1234');
     expect(actual.agents[0].agentType).toBe('RELEASING_AGENT');
     expect(actual.customerRemarks).toBe('some mock remarks');
+
+    expect(actual.storageFacility.eTag).toBeUndefined();
   });
 
   it('can format an NTS shipment', () => {

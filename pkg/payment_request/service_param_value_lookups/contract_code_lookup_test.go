@@ -1,8 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -14,7 +12,7 @@ import (
 func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 	key := models.ServiceItemParamNameContractCode
 
-	suite.T().Run("golden path", func(t *testing.T) {
+	suite.Run("golden path", func() {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
@@ -25,7 +23,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		suite.Equal(ghcrateengine.DefaultContractCode, valueStr)
 	})
 
-	suite.T().Run("golden path with param cache", func(t *testing.T) {
+	suite.Run("golden path with param cache", func() {
 
 		// MS
 		reService1 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{

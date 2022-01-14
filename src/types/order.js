@@ -172,3 +172,10 @@ export const ExistingUploadsShape = PropTypes.arrayOf(
     filename: PropTypes.string.isRequired,
   }),
 );
+
+export const OrdersLOAShape = PropTypes.shape({
+  tac: PropTypes.string,
+  sac: PropTypes.string,
+  ntsTac: PropTypes.string,
+  ntsSac: PropTypes.string,
+});
