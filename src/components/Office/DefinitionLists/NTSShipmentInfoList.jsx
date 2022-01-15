@@ -160,7 +160,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
         styles.compact,
         className,
       )}
-      data-testid="nts-release-shipment-info-list"
+      data-testid="nts-shipment-info-list"
     >
       {requestedPickupDateElement}
       {pickupAddressElement}
