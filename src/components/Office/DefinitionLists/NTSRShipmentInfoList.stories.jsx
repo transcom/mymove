@@ -43,13 +43,6 @@ const info = {
       phone: '419-555-9999',
       email: 'ksmith@email.com',
     },
-    {
-      agentType: 'RELEASING_AGENT',
-      firstName: 'Jason',
-      lastName: 'Ash',
-      phone: '419-555-5555',
-      email: 'jash@email.com',
-    },
   ],
   counselorRemarks:
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ' +
@@ -101,7 +94,7 @@ export const NTSRWithAllInfo = () => (
       serviceOrderNumber: info.serviceOrderNumber,
       destinationAddress: info.destinationAddress,
       secondaryDeliveryAddress: info.secondaryDeliveryAddress,
-      agents: [info.agents[0], info.agents[1]],
+      agents: info.agents,
       counselorRemarks: info.counselorRemarks,
       customerRemarks: info.customerRemarks,
     }}

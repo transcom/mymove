@@ -36,13 +36,6 @@ const info = {
   },
   agents: [
     {
-      agentType: 'RECEIVING_AGENT',
-      firstName: 'Kate',
-      lastName: 'Smith',
-      phone: '419-555-9999',
-      email: 'ksmith@email.com',
-    },
-    {
       agentType: 'RELEASING_AGENT',
       firstName: 'Jason',
       lastName: 'Ash',
