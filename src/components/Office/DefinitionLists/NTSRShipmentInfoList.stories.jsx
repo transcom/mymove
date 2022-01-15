@@ -43,6 +43,13 @@ const info = {
       phone: '419-555-9999',
       email: 'ksmith@email.com',
     },
+    {
+      agentType: 'RELEASING_AGENT',
+      firstName: 'Jason',
+      lastName: 'Ash',
+      phone: '419-555-5555',
+      email: 'jash@email.com',
+    },
   ],
   counselorRemarks:
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ' +
@@ -69,6 +76,7 @@ export const NTSRBasic = () => (
 
 export const NTSRMissingInfo = () => (
   <NTSRShipmentInfoList
+    isExpanded
     shipment={{
       requestedDeliveryDate: info.requestedDeliveryDate,
       destinationAddress: info.destinationAddress,
@@ -81,36 +89,9 @@ export const NTSRMissingInfo = () => (
   />
 );
 
-export const WithAgents = () => (
+export const NTSRWithAllInfo = () => (
   <NTSRShipmentInfoList
-    shipment={{
-      counselorRemarks: info.counselorRemarks,
-      requestedDeliveryDate: info.requestedDeliveryDate,
-      storageFacility: info.storageFacility,
-      destinationAddress: info.destinationAddress,
-      tacType: info.tacType,
-      sacType: info.sacType,
-      primeActualWeight: info.primeActualWeight,
-      serviceOrderNumber: info.serviceOrderNumber,
-      agents: [info.agents[0], info.agents[1]],
-    }}
-  />
-);
-
-export const WithRemarks = () => (
-  <NTSRShipmentInfoList
-    shipment={{
-      requestedPickupDate: info.requestedPickupDate,
-      pickupAddress: info.pickupAddress,
-      destinationAddress: info.destinationAddress,
-      counselorRemarks: info.counselorRemarks,
-      customerRemarks: info.customerRemarks,
-    }}
-  />
-);
-
-export const WithAllInfo = () => (
-  <NTSRShipmentInfoList
+    isExpanded
     shipment={{
       requestedDeliveryDate: info.requestedDeliveryDate,
       storageFacility: info.storageFacility,
