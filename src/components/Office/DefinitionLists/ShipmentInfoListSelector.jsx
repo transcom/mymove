@@ -4,6 +4,7 @@ import * as PropTypes from 'prop-types';
 import { ShipmentShape } from 'types/shipment';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
+import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const ShipmentInfoListSelector = ({
@@ -21,6 +22,17 @@ const ShipmentInfoListSelector = ({
     case SHIPMENT_OPTIONS.NTSR:
       return (
         <NTSRShipmentInfoList
+          className={className}
+          shipment={shipment}
+          isExpanded={isExpanded}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          showWhenCollapsed={showWhenCollapsed}
+        />
+      );
+    case SHIPMENT_OPTIONS.NTS:
+      return (
+        <NTSShipmentInfoList
           className={className}
           shipment={shipment}
           isExpanded={isExpanded}
