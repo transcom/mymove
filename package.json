@@ -81,7 +81,7 @@
     "immer": "^9.0.2",
     "url-parse": "^1.5.1",
     "y18n": "^5.0.5",
-    "webpack": "4.44.2",
+    "webpack": "^5.64.4",
     "**/ua-parser-js": "0.7.28"
   },
   "name": "client",
@@ -153,7 +153,7 @@
     "mockdate": "^3.0.5",
     "node-sass": "^6.0.1",
     "prettier": "2.5.1",
-    "react-scripts": "^4.0.3",
+    "react-scripts": "^5.0.0",
     "react-select-event": "^5.3.0",
     "react-test-renderer": "^17.0.1",
     "source-map-explorer": "^2.5.2",

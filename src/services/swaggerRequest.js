@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import { get } from 'lodash';
 import { normalize } from 'normalizr';
-import * as Cookies from 'js-cookie';
+import Cookies from 'js-cookie';
 
 import * as schema from 'shared/Entities/schema';
 import { interceptInjection } from 'store/interceptor/injectionMiddleware';
