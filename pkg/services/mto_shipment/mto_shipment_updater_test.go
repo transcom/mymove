@@ -430,6 +430,49 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
+	suite.Run("Can update destination address type on shipment", func() {
+		setupTestData()
+
+		// This test was added because of a bug that nullified the ApprovedDate
+		// when ScheduledPickupDate was included in the payload. See PR #6919.
+		// ApprovedDate affects shipment diversions, so we want to make sure it
+		// never gets nullified, regardless of which fields are being updated.
+		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		})
+
+		suite.NotNil(oldShipment.ApprovedDate)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
+		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
+		customerRemarks := "I have a grandfather clock"
+		counselorRemarks := "Counselor approved"
+		destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+		updatedShipment := models.MTOShipment{
+			ID:                       oldShipment.ID,
+			DestinationAddress:       &newDestinationAddress,
+			DestinationAddressID:     &newDestinationAddress.ID,
+			DestinationAddressType:   &destinationAddressType,
+			PickupAddress:            &newPickupAddress,
+			PickupAddressID:          &newPickupAddress.ID,
+			SecondaryPickupAddress:   &secondaryPickupAddress,
+			SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+			RequestedPickupDate:      &requestedPickupDate,
+			RequestedDeliveryDate:    &requestedDeliveryDate,
+			CustomerRemarks:          &customerRemarks,
+			CounselorRemarks:         &counselorRemarks,
+		}
+
+		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.Equal(destinationAddressType, *newShipment.DestinationAddressType)
+	})
+
 	suite.Run("Successfully update MTO Agents", func() {
 		setupTestData()
 
@@ -636,25 +679,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
 		suite.Equal(ntsRecorededWeight, *updatedMTOShipment.NTSRecordedWeight)
 
-	})
-	suite.T().Run("Successfully update destination address address type for shipment", func(t *testing.T) {
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
-		destinationAddressType := models.DestinationAddressTypeHomeOfRecord
-
-		updatedShipment := models.MTOShipment{
-			ShipmentType:           models.MTOShipmentTypeHHG,
-			ID:                     shipment.ID,
-			DestinationAddressID:   &destinationAddress.ID,
-			DestinationAddressType: &destinationAddressType,
-		}
-		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
-
-		suite.Require().NoError(err)
-		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
-		suite.Equal(string(models.DestinationAddressTypeHomeOfRecord), string(*updatedMTOShipment.DestinationAddressType))
 	})
 
 	suite.Run("Unable to update NTS previously recorded weight due to shipment type", func() {
