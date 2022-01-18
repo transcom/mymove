@@ -16,6 +16,7 @@ import {
   HelperSubmittedPPM,
 } from './HomeHelpers';
 
+import { formatWeight } from 'shared/formatters';
 import ScrollToTop from 'components/ScrollToTop';
 import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
@@ -173,7 +174,7 @@ export class Home extends Component {
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
             <dt>Weight allowance</dt>
-            <dd>{serviceMember.weight_allotment.total_weight_self} lbs.</dd>
+            <dd>{formatWeight(serviceMember.weight_allotment.total_weight_self)} lbs.</dd>
           </div>
           {move.locator && (
             <div className={styles.subheaderSubsection}>
