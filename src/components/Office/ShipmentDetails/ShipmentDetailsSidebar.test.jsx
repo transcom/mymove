@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ShipmentDetailsSidebar from './ShipmentDetailsSidebar';
 
@@ -108,5 +109,20 @@ describe('Shipment Details Sidebar', () => {
     headers.forEach((header) => {
       expect(screen.queryByText(header)).toBeNull();
     });
+  });
+
+  it('shows edit facility info modal on edit button click', () => {
+    render(
+      <MockProviders>
+        <ShipmentDetailsSidebar shipment={shipment} ordersLOA={ordersLOA} />
+      </MockProviders>,
+    );
+
+    const openEditFacilityModalButton = screen.getByTestId('edit-facility-info-modal-open');
+
+    userEvent.click(openEditFacilityModalButton);
+
+    // This text is in the edit facility info modal
+    expect(screen.getByText('Edit facility info and address')).toBeInTheDocument();
   });
 });

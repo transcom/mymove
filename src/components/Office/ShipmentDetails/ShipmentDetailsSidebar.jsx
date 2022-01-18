@@ -16,7 +16,7 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditFaci
 
   const [isEditFacilityInfoModalVisible, setIsEditFacilityInfoModalVisible] = useState(false);
 
-  const handleEditFacilityInfoModal = () => {
+  const handleShowEditFacilityInfoModal = () => {
     setIsEditFacilityInfoModalVisible(true);
   };
 
@@ -57,8 +57,9 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditFaci
               <Button
                 size="small"
                 type="button"
-                onClick={handleEditFacilityInfoModal}
+                onClick={handleShowEditFacilityInfoModal}
                 className="float-right usa-link padding-right-0"
+                data-testid="edit-facility-info-modal-open"
                 unstyled
               >
                 Edit

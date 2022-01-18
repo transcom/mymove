@@ -164,10 +164,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   });
 
   const [mutateMTOShipment] = useMutation(updateMTOShipment, {
-    onSuccess: (updatedMTOShipment) => {
-      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+    onSuccess: (_, variables) => {
+      queryCache.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
     },
   });
 
