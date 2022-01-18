@@ -44,10 +44,8 @@ const defaultProps = {
     streetAddress1: '123 Main',
     streetAddress2: '',
   },
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self: 5000,
-    },
+  orders: {
+    authorizedWeight: 5000,
   },
 };
 

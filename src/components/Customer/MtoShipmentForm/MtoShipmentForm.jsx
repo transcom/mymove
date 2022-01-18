@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { bool, func, number, shape, string } from 'prop-types';
+import { bool, func, string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
 import {
@@ -21,7 +21,7 @@ import formStyles from 'styles/form.module.scss';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
+import { HhgShipmentShape, HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
 import { shipmentForm } from 'content/shipments';
@@ -131,7 +131,7 @@ class MtoShipmentForm extends Component {
       selectedMoveType,
       isCreatePage,
       mtoShipment,
-      serviceMember,
+      orders,
       currentResidence,
     } = this.props;
 
@@ -207,8 +207,8 @@ class MtoShipmentForm extends Component {
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
 
                     <Alert type="info" noIcon>
-                      Remember: You can move {serviceMember.weight_allotment.total_weight_self} lbs total. You’ll be
-                      billed for any excess weight you move.
+                      Remember: You can move {orders.authorizedWeight} lbs total. You’ll be billed for any excess weight
+                      you move.
                     </Alert>
 
                     <Form className={formStyles.form}>
@@ -486,11 +486,7 @@ MtoShipmentForm.propTypes = {
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: HhgShipmentShape,
-  serviceMember: shape({
-    weight_allotment: shape({
-      total_weight_self: number,
-    }),
-  }).isRequired,
+  orders: OrdersShape,
 };
 
 MtoShipmentForm.defaultProps = {
@@ -514,6 +510,14 @@ MtoShipmentForm.defaultProps = {
       streetAddress1: '',
     },
   },
+  orders: {},
 };
+
+// const mapStateToProps = (state) => {
+
+//   return {
+//     orders: selectCurrentOrders(state) || {},
+//   };
+// };
 
 export default MtoShipmentForm;

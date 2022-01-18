@@ -37,10 +37,8 @@ const defaultProps = {
   selectedMoveType: '',
   mtoShipment: {},
   currentResidence: {},
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self: 5000,
-    },
+  orders: {
+    authorizedWeight: 5000,
   },
 };
 
