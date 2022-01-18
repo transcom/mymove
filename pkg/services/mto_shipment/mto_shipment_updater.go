@@ -104,6 +104,10 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.DestinationAddress = requestedUpdatedShipment.DestinationAddress
 	}
 
+	if requestedUpdatedShipment.DestinationAddressType != nil {
+		dbShipment.DestinationAddressType = requestedUpdatedShipment.DestinationAddressType
+	}
+
 	if requestedUpdatedShipment.SecondaryPickupAddress != nil {
 		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
 	}
@@ -318,7 +322,6 @@ func (f *mtoShipmentUpdater) updateMTOShipment(appCtx appcontext.AppContext, mto
 	if err != nil {
 		return nil, fmt.Errorf("error copying shipment data %w", err)
 	}
-
 	setNewShipmentFields(appCtx, oldShipment, mtoShipment)
 	newShipment := oldShipment // old shipment has now been updated with requested changes
 	// db version is used to check if agents need creating or updating
@@ -632,6 +635,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.RequiredDeliveryDate,
 		mtoShipment.Status,
 		mtoShipment.DestinationAddressID,
+		mtoShipment.DestinationAddressType,
 		mtoShipment.PickupAddressID,
 		mtoShipment.SecondaryDeliveryAddressID,
 		mtoShipment.SecondaryPickupAddressID,
@@ -667,6 +671,7 @@ func generateUpdateMTOShipmentQuery() string {
 			required_delivery_date = ?,
 			status = ?,
 			destination_address_id = ?,
+			destination_address_type = ?,
 			pickup_address_id = ?,
 			secondary_delivery_address_id = ?,
 			secondary_pickup_address_id = ?,

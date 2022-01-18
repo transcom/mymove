@@ -612,6 +612,25 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(ntsRecorededWeight, *updatedMTOShipment.NTSRecordedWeight)
 
 	})
+	suite.T().Run("Successfully update destination address address type for shipment", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+		destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+
+		updatedShipment := models.MTOShipment{
+			ShipmentType:           models.MTOShipmentTypeHHG,
+			ID:                     shipment.ID,
+			DestinationAddressID:   &destinationAddress.ID,
+			DestinationAddressType: &destinationAddressType,
+		}
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(string(models.DestinationAddressTypeHomeOfRecord), string(*updatedMTOShipment.DestinationAddressType))
+	})
 
 	suite.T().Run("Unable to update NTS previously recorded weight due to shipment type", func(t *testing.T) {
 		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
