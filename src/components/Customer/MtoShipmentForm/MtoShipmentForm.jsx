@@ -513,11 +513,4 @@ MtoShipmentForm.defaultProps = {
   orders: {},
 };
 
-// const mapStateToProps = (state) => {
-
-//   return {
-//     orders: selectCurrentOrders(state) || {},
-//   };
-// };
-
 export default MtoShipmentForm;
