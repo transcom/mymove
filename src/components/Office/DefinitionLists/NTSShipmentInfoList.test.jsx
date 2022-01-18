@@ -52,10 +52,12 @@ const shipment = {
   sacType: 'NTS',
   tac: '1234',
   sac: '1234123412',
+  usesExternalVendor: true,
 };
 
 describe('NTS Shipment Info List renders all fields when provided and expanded', () => {
   it.each([
+    ['usesExternalVendor', 'External vendor'],
     ['storageFacilityName', shipment.storageFacility.facilityName],
     ['serviceOrderNumber', shipment.serviceOrderNumber],
     ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
@@ -133,6 +135,7 @@ describe('NTS Shipment Info List collapsed view', () => {
       />,
     );
 
+    expect(screen.queryByTestId('usesExternalVendor')).toBeNull();
     expect(screen.queryByTestId('storageFacility')).toBeNull();
     expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
     expect(screen.queryByTestId('secondaryPickupAddress')).toBeNull();

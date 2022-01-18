@@ -23,6 +23,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
     sacType,
     tac,
     sac,
+    usesExternalVendor,
   } = shipment;
 
   function getFlags(fieldname) {
@@ -53,6 +54,15 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
       classes,
     };
   }
+
+  const usesExternalVendorElementFlags = getFlags('usesExternalVendor');
+  const usesExternalVendorElement = (
+    <div className={usesExternalVendorElementFlags.classes}>
+      <dt>Vendor</dt>
+      <dd data-testid="usesExternalVendor">{usesExternalVendor ? 'External vendor' : 'GHC prime contractor'}</dd>
+    </div>
+  );
+
   const storageFacilityAddressElementFlags = getFlags('storageFacility');
   const storageFacilityAddressElement = (
     <div className={storageFacilityAddressElementFlags.classes}>
@@ -162,6 +172,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
       )}
       data-testid="nts-shipment-info-list"
     >
+      {isExpanded && usesExternalVendorElement}
       {requestedPickupDateElement}
       {pickupAddressElement}
       {isExpanded && secondaryPickupAddressElement}
