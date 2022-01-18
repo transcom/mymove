@@ -136,8 +136,6 @@ func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 		if err := m.CurrentAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("currentAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("currentAddress")
 			}
 			return err
 		}
@@ -223,8 +221,6 @@ func (m *Customer) validateRank(formats strfmt.Registry) error {
 		if err := m.Rank.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("rank")
 			}
 			return err
 		}
@@ -277,8 +273,6 @@ func (m *Customer) contextValidateCurrentAddress(ctx context.Context, formats st
 		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("currentAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("currentAddress")
 			}
 			return err
 		}
@@ -311,8 +305,6 @@ func (m *Customer) contextValidateRank(ctx context.Context, formats strfmt.Regis
 		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("rank")
 			}
 			return err
 		}

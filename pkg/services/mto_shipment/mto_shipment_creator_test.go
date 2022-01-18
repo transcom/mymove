@@ -134,6 +134,31 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.NotEmpty(createdShipment.DestinationAddressID)
 	})
 
+	suite.Run("If the shipment is created successfully with a destination address type it should be returned", func() {
+		destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
+		creator := subtestData.shipmentCreator
+
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			Move:        subtestData.move,
+			MTOShipment: models.MTOShipment{DestinationAddressType: &destinationAddressType},
+			Stub:        true,
+		})
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+		serviceItemsList := models.MTOServiceItems{}
+
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, serviceItemsList)
+
+		suite.NoError(err)
+		suite.NotNil(createdShipment)
+		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
+		suite.NotEmpty(createdShipment.PickupAddressID)
+		suite.NotEmpty(createdShipment.DestinationAddressID)
+		suite.Equal(string(models.DestinationAddressTypeHomeOfRecord), string(*createdShipment.DestinationAddressType))
+	})
+
 	suite.Run("If the shipment is created successfully with submitted status it should be returned", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		appCtx := subtestData.appCtx

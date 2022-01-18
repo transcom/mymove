@@ -175,8 +175,6 @@ func (m *MoveTaskOrder) validateDestinationAddress(formats strfmt.Registry) erro
 		if err := m.DestinationAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -206,8 +204,6 @@ func (m *MoveTaskOrder) validateEntitlements(formats strfmt.Registry) error {
 		if err := m.Entitlements.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("entitlements")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("entitlements")
 			}
 			return err
 		}
@@ -261,8 +257,6 @@ func (m *MoveTaskOrder) validatePickupAddress(formats strfmt.Registry) error {
 		if err := m.PickupAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pickupAddress")
 			}
 			return err
 		}
@@ -335,8 +329,6 @@ func (m *MoveTaskOrder) contextValidateDestinationAddress(ctx context.Context, f
 		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -351,8 +343,6 @@ func (m *MoveTaskOrder) contextValidateEntitlements(ctx context.Context, formats
 		if err := m.Entitlements.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("entitlements")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("entitlements")
 			}
 			return err
 		}
@@ -367,8 +357,6 @@ func (m *MoveTaskOrder) contextValidatePickupAddress(ctx context.Context, format
 		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pickupAddress")
 			}
 			return err
 		}

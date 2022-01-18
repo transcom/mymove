@@ -104,6 +104,10 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.DestinationAddress = requestedUpdatedShipment.DestinationAddress
 	}
 
+	if requestedUpdatedShipment.DestinationAddressType != nil {
+		dbShipment.DestinationAddressType = requestedUpdatedShipment.DestinationAddressType
+	}
+
 	if requestedUpdatedShipment.SecondaryPickupAddress != nil {
 		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
 	}

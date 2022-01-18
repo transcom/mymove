@@ -151,8 +151,6 @@ func (m *PaymentRequest) validateMoveTaskOrder(formats strfmt.Registry) error {
 		if err := m.MoveTaskOrder.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("moveTaskOrder")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("moveTaskOrder")
 			}
 			return err
 		}
@@ -181,8 +179,6 @@ func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) err
 	if err := m.ProofOfServiceDocs.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("proofOfServiceDocs")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("proofOfServiceDocs")
 		}
 		return err
 	}
@@ -222,8 +218,6 @@ func (m *PaymentRequest) validateServiceItems(formats strfmt.Registry) error {
 	if err := m.ServiceItems.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("serviceItems")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("serviceItems")
 		}
 		return err
 	}
@@ -239,8 +233,6 @@ func (m *PaymentRequest) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -301,8 +293,6 @@ func (m *PaymentRequest) contextValidateMoveTaskOrder(ctx context.Context, forma
 		if err := m.MoveTaskOrder.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("moveTaskOrder")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("moveTaskOrder")
 			}
 			return err
 		}
@@ -325,8 +315,6 @@ func (m *PaymentRequest) contextValidateProofOfServiceDocs(ctx context.Context, 
 	if err := m.ProofOfServiceDocs.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("proofOfServiceDocs")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("proofOfServiceDocs")
 		}
 		return err
 	}
@@ -348,8 +336,6 @@ func (m *PaymentRequest) contextValidateServiceItems(ctx context.Context, format
 	if err := m.ServiceItems.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("serviceItems")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("serviceItems")
 		}
 		return err
 	}
@@ -362,8 +348,6 @@ func (m *PaymentRequest) contextValidateStatus(ctx context.Context, formats strf
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}

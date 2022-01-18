@@ -104,8 +104,6 @@ func (m *MTOAgent) validateAgentType(formats strfmt.Registry) error {
 	if err := m.AgentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agentType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("agentType")
 		}
 		return err
 	}
@@ -216,8 +214,6 @@ func (m *MTOAgent) contextValidateAgentType(ctx context.Context, formats strfmt.
 	if err := m.AgentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agentType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("agentType")
 		}
 		return err
 	}

@@ -430,8 +430,6 @@ func (m *MTOServiceItemOriginSIT) validateStatus(formats strfmt.Registry) error 
 	if err := m.Status().Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -518,8 +516,6 @@ func (m *MTOServiceItemOriginSIT) validateSitHHGActualOrigin(formats strfmt.Regi
 		if err := m.SitHHGActualOrigin.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitHHGActualOrigin")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("sitHHGActualOrigin")
 			}
 			return err
 		}
@@ -598,8 +594,6 @@ func (m *MTOServiceItemOriginSIT) contextValidateModelType(ctx context.Context, 
 	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("modelType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("modelType")
 		}
 		return err
 	}
@@ -630,8 +624,6 @@ func (m *MTOServiceItemOriginSIT) contextValidateStatus(ctx context.Context, for
 	if err := m.Status().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -645,8 +637,6 @@ func (m *MTOServiceItemOriginSIT) contextValidateSitHHGActualOrigin(ctx context.
 		if err := m.SitHHGActualOrigin.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitHHGActualOrigin")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("sitHHGActualOrigin")
 			}
 			return err
 		}

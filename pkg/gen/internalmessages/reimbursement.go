@@ -100,8 +100,6 @@ func (m *Reimbursement) validateMethodOfReceipt(formats strfmt.Registry) error {
 		if err := m.MethodOfReceipt.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("method_of_receipt")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("method_of_receipt")
 			}
 			return err
 		}
@@ -144,8 +142,6 @@ func (m *Reimbursement) validateStatus(formats strfmt.Registry) error {
 		if err := m.Status.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("status")
 			}
 			return err
 		}
@@ -178,8 +174,6 @@ func (m *Reimbursement) contextValidateMethodOfReceipt(ctx context.Context, form
 		if err := m.MethodOfReceipt.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("method_of_receipt")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("method_of_receipt")
 			}
 			return err
 		}
@@ -194,8 +188,6 @@ func (m *Reimbursement) contextValidateStatus(ctx context.Context, formats strfm
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("status")
 			}
 			return err
 		}

@@ -53,8 +53,6 @@ func (m *QueueMovesResult) validateQueueMoves(formats strfmt.Registry) error {
 	if err := m.QueueMoves.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("queueMoves")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("queueMoves")
 		}
 		return err
 	}
@@ -81,8 +79,6 @@ func (m *QueueMovesResult) contextValidateQueueMoves(ctx context.Context, format
 	if err := m.QueueMoves.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("queueMoves")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("queueMoves")
 		}
 		return err
 	}

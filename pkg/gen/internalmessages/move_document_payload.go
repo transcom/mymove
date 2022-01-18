@@ -203,8 +203,6 @@ func (m *MoveDocumentPayload) validateDocument(formats strfmt.Registry) error {
 		if err := m.Document.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("document")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("document")
 			}
 			return err
 		}
@@ -264,8 +262,6 @@ func (m *MoveDocumentPayload) validateMoveDocumentType(formats strfmt.Registry) 
 		if err := m.MoveDocumentType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("move_document_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("move_document_type")
 			}
 			return err
 		}
@@ -295,8 +291,6 @@ func (m *MoveDocumentPayload) validateMovingExpenseType(formats strfmt.Registry)
 	if err := m.MovingExpenseType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("moving_expense_type")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("moving_expense_type")
 		}
 		return err
 	}
@@ -384,8 +378,6 @@ func (m *MoveDocumentPayload) validateStatus(formats strfmt.Registry) error {
 		if err := m.Status.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("status")
 			}
 			return err
 		}
@@ -448,8 +440,6 @@ func (m *MoveDocumentPayload) validateWeightTicketSetType(formats strfmt.Registr
 		if err := m.WeightTicketSetType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_ticket_set_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("weight_ticket_set_type")
 			}
 			return err
 		}
@@ -494,8 +484,6 @@ func (m *MoveDocumentPayload) contextValidateDocument(ctx context.Context, forma
 		if err := m.Document.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("document")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("document")
 			}
 			return err
 		}
@@ -510,8 +498,6 @@ func (m *MoveDocumentPayload) contextValidateMoveDocumentType(ctx context.Contex
 		if err := m.MoveDocumentType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("move_document_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("move_document_type")
 			}
 			return err
 		}
@@ -525,8 +511,6 @@ func (m *MoveDocumentPayload) contextValidateMovingExpenseType(ctx context.Conte
 	if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("moving_expense_type")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("moving_expense_type")
 		}
 		return err
 	}
@@ -540,8 +524,6 @@ func (m *MoveDocumentPayload) contextValidateStatus(ctx context.Context, formats
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("status")
 			}
 			return err
 		}
@@ -556,8 +538,6 @@ func (m *MoveDocumentPayload) contextValidateWeightTicketSetType(ctx context.Con
 		if err := m.WeightTicketSetType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_ticket_set_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("weight_ticket_set_type")
 			}
 			return err
 		}

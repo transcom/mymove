@@ -132,8 +132,6 @@ func (m *CreateMovingExpenseDocumentPayload) validateMoveDocumentType(formats st
 		if err := m.MoveDocumentType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("move_document_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("move_document_type")
 			}
 			return err
 		}
@@ -156,8 +154,6 @@ func (m *CreateMovingExpenseDocumentPayload) validateMovingExpenseType(formats s
 		if err := m.MovingExpenseType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("moving_expense_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("moving_expense_type")
 			}
 			return err
 		}
@@ -307,8 +303,6 @@ func (m *CreateMovingExpenseDocumentPayload) contextValidateMoveDocumentType(ctx
 		if err := m.MoveDocumentType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("move_document_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("move_document_type")
 			}
 			return err
 		}
@@ -323,8 +317,6 @@ func (m *CreateMovingExpenseDocumentPayload) contextValidateMovingExpenseType(ct
 		if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("moving_expense_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("moving_expense_type")
 			}
 			return err
 		}

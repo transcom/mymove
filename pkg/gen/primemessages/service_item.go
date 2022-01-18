@@ -77,8 +77,6 @@ func (m *ServiceItem) validateParams(formats strfmt.Registry) error {
 			if err := m.Params[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("params" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("params" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -124,8 +122,6 @@ func (m *ServiceItem) contextValidateParams(ctx context.Context, formats strfmt.
 			if err := m.Params[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("params" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("params" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
