@@ -21,7 +21,6 @@ const uploadOrdersProps = {
         phone_lines: ['555-555-5555'],
       },
     },
-    weight_allotment: {},
   },
   showLoggedInUser() {},
   loadMTOShipments() {},
@@ -34,7 +33,9 @@ const uploadOrdersProps = {
   loggedInUserSuccess: true,
   isProfileComplete: true,
   currentPpm: {},
-  orders: {},
+  orders: {
+    authorizedWeight: 10000,
+  },
   location: {},
   move: {
     locator: 'XYZ890',
@@ -48,9 +49,6 @@ const shipmentSelectionProps = {
   ...uploadOrdersProps,
   serviceMember: {
     ...uploadOrdersProps.serviceMember,
-    weight_allotment: {
-      total_weight_self: 10000,
-    },
   },
   orders: {
     ...uploadOrdersProps.orders,
