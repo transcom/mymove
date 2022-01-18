@@ -2908,7 +2908,6 @@ definitions:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
-        readOnly: true
         type: string
       mtoShipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -4033,6 +4032,7 @@ definitions:
       - MLNQ
       - XXXX
   Address:
+    description: A postal address
     type: object
     properties:
       id:
@@ -4059,6 +4059,7 @@ definitions:
         title: City
       eTag:
         type: string
+        readOnly: true
       state:
         title: State
         type: string

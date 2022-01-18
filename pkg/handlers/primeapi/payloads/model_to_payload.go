@@ -225,6 +225,23 @@ func Address(address *models.Address) *primemessages.Address {
 	}
 }
 
+// StorageFacility payload
+func StorageFacility(storage *models.StorageFacility) *primemessages.StorageFacility {
+	if storage == nil {
+		return nil
+	}
+
+	return &primemessages.StorageFacility{
+		ID:           strfmt.UUID(storage.ID.String()),
+		Address:      Address(&storage.Address),
+		ETag:         etag.GenerateEtag(storage.UpdatedAt),
+		Email:        storage.Email,
+		FacilityName: storage.FacilityName,
+		LotNumber:    storage.LotNumber,
+		Phone:        storage.Phone,
+	}
+}
+
 // MTOAgent payload
 func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
 	if mtoAgent == nil {
@@ -408,6 +425,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.SecondaryDeliveryAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
 	}
 
+	if mtoShipment.StorageFacility != nil {
+		payload.StorageFacility = StorageFacility(mtoShipment.StorageFacility)
+	}
+
 	if mtoShipment.MTOServiceItems != nil {
 		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
 	}
@@ -421,8 +442,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	}
 
 	if mtoShipment.NTSRecordedWeight != nil {
-		ntsRecordedWeight := int64(*mtoShipment.NTSRecordedWeight)
-		payload.NtsRecordedWeight = &ntsRecordedWeight
+		payload.NtsRecordedWeight = handlers.FmtInt64(mtoShipment.NTSRecordedWeight.Int64())
 	}
 
 	return payload

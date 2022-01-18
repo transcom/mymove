@@ -2954,6 +2954,7 @@ func init() {
   },
   "definitions": {
     "Address": {
+      "description": "A postal address",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -2975,7 +2976,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3871,7 +3873,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {
@@ -9664,6 +9665,7 @@ func init() {
   },
   "definitions": {
     "Address": {
+      "description": "A postal address",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -9685,7 +9687,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -10585,7 +10588,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {

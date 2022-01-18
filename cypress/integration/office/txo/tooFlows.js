@@ -242,7 +242,7 @@ describe('TOO user', () => {
         .type('JB McGuire-Dix-Lakehurst')
         .get('[class*="-menu"]')
         .find('[class*="-option"]')
-        .eq(3)
+        .eq(5)
         .click(0, 0);
 
       cy.get('input[name="issueDate"]').click({ force: true }).clear().type('16 Mar 2018');
@@ -261,7 +261,7 @@ describe('TOO user', () => {
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="currentDutyLocation"]').contains('Fort Irwin');
-    cy.get('[data-testid="newDutyLocation"]').contains('JB Lewis-McChord');
+    cy.get('[data-testid="newDutyLocation"]').contains('Joint Base Lewis-McChord (McChord AFB)');
     cy.get('[data-testid="issuedDate"]').contains('16 Mar 2018');
     cy.get('[data-testid="reportByDate"]').contains('22 Mar 2018');
     cy.get('[data-testid="departmentIndicator"]').contains('Army');
