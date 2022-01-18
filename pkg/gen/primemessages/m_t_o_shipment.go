@@ -637,6 +637,8 @@ func (m *MTOShipment) validateAgents(formats strfmt.Registry) error {
 	if err := m.Agents.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -722,6 +724,8 @@ func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
 		if err := m.mtoServiceItemsField[i].Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
 			}
 			return err
 		}
@@ -784,6 +788,8 @@ func (m *MTOShipment) validateReweigh(formats strfmt.Registry) error {
 		if err := m.Reweigh.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reweigh")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reweigh")
 			}
 			return err
 		}
@@ -828,6 +834,8 @@ func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -843,6 +851,8 @@ func (m *MTOShipment) validateSitExtensions(formats strfmt.Registry) error {
 	if err := m.SitExtensions.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("sitExtensions")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sitExtensions")
 		}
 		return err
 	}
@@ -1019,6 +1029,8 @@ func (m *MTOShipment) contextValidateAgents(ctx context.Context, formats strfmt.
 	if err := m.Agents.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -1105,6 +1117,8 @@ func (m *MTOShipment) contextValidateMtoServiceItems(ctx context.Context, format
 		if err := m.mtoServiceItemsField[i].ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
 			}
 			return err
 		}
@@ -1161,6 +1175,8 @@ func (m *MTOShipment) contextValidateReweigh(ctx context.Context, formats strfmt
 		if err := m.Reweigh.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reweigh")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reweigh")
 			}
 			return err
 		}
@@ -1184,6 +1200,8 @@ func (m *MTOShipment) contextValidateShipmentType(ctx context.Context, formats s
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -1196,6 +1214,8 @@ func (m *MTOShipment) contextValidateSitExtensions(ctx context.Context, formats 
 	if err := m.SitExtensions.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("sitExtensions")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sitExtensions")
 		}
 		return err
 	}

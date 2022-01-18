@@ -179,6 +179,8 @@ func (m *updateMTOServiceItem) contextValidateModelType(ctx context.Context, for
 	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("modelType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("modelType")
 		}
 		return err
 	}

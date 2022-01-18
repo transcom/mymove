@@ -45,6 +45,8 @@ func (m *SubmitMoveForApprovalPayload) validateCertificate(formats strfmt.Regist
 		if err := m.Certificate.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("certificate")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("certificate")
 			}
 			return err
 		}
@@ -73,6 +75,8 @@ func (m *SubmitMoveForApprovalPayload) contextValidateCertificate(ctx context.Co
 		if err := m.Certificate.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("certificate")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("certificate")
 			}
 			return err
 		}

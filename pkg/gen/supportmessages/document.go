@@ -99,6 +99,8 @@ func (m *Document) validateUploads(formats strfmt.Registry) error {
 			if err := m.Uploads[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("uploads" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("uploads" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -131,6 +133,8 @@ func (m *Document) contextValidateUploads(ctx context.Context, formats strfmt.Re
 			if err := m.Uploads[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("uploads" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("uploads" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

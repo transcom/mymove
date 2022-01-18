@@ -95,6 +95,8 @@ func (m *CounselingUpdateAllowancePayload) validateAgency(formats strfmt.Registr
 	if err := m.Agency.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agency")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agency")
 		}
 		return err
 	}
@@ -111,6 +113,8 @@ func (m *CounselingUpdateAllowancePayload) validateGrade(formats strfmt.Registry
 		if err := m.Grade.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grade")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("grade")
 			}
 			return err
 		}
@@ -198,6 +202,8 @@ func (m *CounselingUpdateAllowancePayload) contextValidateAgency(ctx context.Con
 	if err := m.Agency.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agency")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agency")
 		}
 		return err
 	}
@@ -211,6 +217,8 @@ func (m *CounselingUpdateAllowancePayload) contextValidateGrade(ctx context.Cont
 		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grade")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("grade")
 			}
 			return err
 		}

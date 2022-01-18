@@ -175,6 +175,8 @@ func (m *PaymentServiceItem) validateMtoShipmentType(formats strfmt.Registry) er
 	if err := m.MtoShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mtoShipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("mtoShipmentType")
 		}
 		return err
 	}
@@ -202,6 +204,8 @@ func (m *PaymentServiceItem) validatePaymentServiceItemParams(formats strfmt.Reg
 	if err := m.PaymentServiceItemParams.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("paymentServiceItemParams")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("paymentServiceItemParams")
 		}
 		return err
 	}
@@ -217,6 +221,8 @@ func (m *PaymentServiceItem) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -268,6 +274,8 @@ func (m *PaymentServiceItem) contextValidateMtoShipmentType(ctx context.Context,
 	if err := m.MtoShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mtoShipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("mtoShipmentType")
 		}
 		return err
 	}
@@ -280,6 +288,8 @@ func (m *PaymentServiceItem) contextValidatePaymentServiceItemParams(ctx context
 	if err := m.PaymentServiceItemParams.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("paymentServiceItemParams")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("paymentServiceItemParams")
 		}
 		return err
 	}
@@ -301,6 +311,8 @@ func (m *PaymentServiceItem) contextValidateStatus(ctx context.Context, formats 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
