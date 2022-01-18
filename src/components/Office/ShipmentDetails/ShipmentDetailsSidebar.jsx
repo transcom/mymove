@@ -9,7 +9,7 @@ import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingC
 import { ShipmentShape } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
 
-const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
+const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditFacilityInfo }) => {
   const { mtoAgents, secondaryAddresses, serviceOrderNumber, storageFacility, sacType, tacType } = shipment;
   const tac = retrieveTAC(shipment.tacType, ordersLOA);
   const sac = retrieveSAC(shipment.sacType, ordersLOA);
@@ -20,13 +20,14 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
     setIsEditFacilityInfoModalVisible(true);
   };
 
-  const editFacilityInfo = () => {};
-
   return (
     <div className={className}>
       {isEditFacilityInfoModalVisible && (
         <EditFacilityInfoModal
-          onSubmit={editFacilityInfo}
+          onSubmit={(e) => {
+            handleEditFacilityInfo(e, shipment);
+            setIsEditFacilityInfoModalVisible(false);
+          }}
           onClose={() => {
             setIsEditFacilityInfoModalVisible(false);
           }}
@@ -131,6 +132,7 @@ ShipmentDetailsSidebar.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape,
   ordersLOA: OrdersLOAShape,
+  handleEditFacilityInfo: PropTypes.func.isRequired,
 };
 
 ShipmentDetailsSidebar.defaultProps = {
