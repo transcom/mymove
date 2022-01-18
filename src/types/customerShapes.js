@@ -61,6 +61,7 @@ export const OrdersShape = shape({
     id: string,
     uploads: UploadsShape,
   }),
+  authorizedWeight: number,
 });
 
 export const DocumentShape = shape({});
