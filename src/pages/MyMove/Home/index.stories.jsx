@@ -33,9 +33,7 @@ const uploadOrdersProps = {
   loggedInUserSuccess: true,
   isProfileComplete: true,
   currentPpm: {},
-  orders: {
-    authorizedWeight: 10000,
-  },
+  orders: {},
   location: {},
   move: {
     locator: 'XYZ890',
@@ -59,6 +57,7 @@ const shipmentSelectionProps = {
       name: 'NAS Norfolk',
     },
     report_by_date: '25 December 2020',
+    authorizedWeight: 10000,
   },
   uploadedOrderDocuments: [
     {
