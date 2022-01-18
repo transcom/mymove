@@ -77,11 +77,17 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
+  const getMissingOrDash = (fieldName) => {
+    return errorIfMissing.includes(fieldName) ? 'Missing' : '—';
+  };
+
   const primeActualWeightElementFlags = getFlags('primeActualWeight');
   const primeActualWeightElement = (
     <div className={primeActualWeightElementFlags.classes}>
       <dt>Shipment weight</dt>
-      <dd data-testid="primeActualWeight">{primeActualWeight ? formatWeight(primeActualWeight) : 'Missing'}</dd>
+      <dd data-testid="primeActualWeight">
+        {primeActualWeight ? formatWeight(primeActualWeight) : getMissingOrDash('primeActualWeight')}
+      </dd>
     </div>
   );
 
@@ -99,7 +105,7 @@ const NTSRShipmentInfoList = ({
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
-      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || 'Missing'}</dd>
+      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || getMissingOrDash('serviceOrderNumber')}</dd>
     </div>
   );
 
@@ -133,7 +139,7 @@ const NTSRShipmentInfoList = ({
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
-      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : 'Missing'}</dd>
+      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : getMissingOrDash('tacType')}</dd>
     </div>
   );
 

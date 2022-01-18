@@ -55,6 +55,10 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
     };
   }
 
+  const getMissingOrDash = (fieldName) => {
+    return errorIfMissing.includes(fieldName) ? 'Missing' : '—';
+  };
+
   const usesExternalVendorElementFlags = getFlags('usesExternalVendor');
   const usesExternalVendorElement = (
     <div className={usesExternalVendorElementFlags.classes}>
@@ -128,7 +132,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
-      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : 'Missing'}</dd>
+      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : getMissingOrDash('tacType')}</dd>
     </div>
   );
 
