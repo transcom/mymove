@@ -67,14 +67,13 @@ export const NTSBasic = () => (
 
 export const NTSMissingInfo = () => (
   <NTSShipmentInfoList
+    isExpanded
     shipment={{
       requestedPickupDate: info.requestedPickupDate,
       pickupAddress: info.pickupAddress,
-      tacType: info.tacType,
       sacType: info.sacType,
-      serviceOrderNumber: info.serviceOrderNumber,
     }}
-    errorIfMissing={['storageFacility']}
+    errorIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
   />
 );
 

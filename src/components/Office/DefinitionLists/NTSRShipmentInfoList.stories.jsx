@@ -73,12 +73,11 @@ export const NTSRMissingInfo = () => (
     shipment={{
       requestedDeliveryDate: info.requestedDeliveryDate,
       destinationAddress: info.destinationAddress,
-      tacType: info.tacType,
       sacType: info.sacType,
       primeActualWeight: info.primeActualWeight,
       serviceOrderNumber: info.serviceOrderNumber,
     }}
-    errorIfMissing={['storageFacility']}
+    errorIfMissing={['storageFacility', 'tacType']}
   />
 );
 

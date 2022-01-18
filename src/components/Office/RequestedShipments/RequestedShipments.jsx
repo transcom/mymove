@@ -18,7 +18,7 @@ import { tooRoutes } from 'constants/routes';
 
 const errorIfMissing = {
   HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'tacType'],
-  HHG_INTO_NTS_DOMESTIC: ['tacType'],
+  HHG_INTO_NTS_DOMESTIC: ['storageFacility', 'serviceOrderNumber', 'tacType'],
 };
 
 const RequestedShipments = ({

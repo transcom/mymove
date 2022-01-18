@@ -81,7 +81,7 @@ const NTSRShipmentInfoList = ({
   const primeActualWeightElement = (
     <div className={primeActualWeightElementFlags.classes}>
       <dt>Shipment weight</dt>
-      <dd data-testid="primeActualWeight">{primeActualWeight ? formatWeight(primeActualWeight) : '—'}</dd>
+      <dd data-testid="primeActualWeight">{primeActualWeight ? formatWeight(primeActualWeight) : 'Missing'}</dd>
     </div>
   );
 
@@ -99,7 +99,7 @@ const NTSRShipmentInfoList = ({
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
-      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || '—'}</dd>
+      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || 'Missing'}</dd>
     </div>
   );
 
@@ -133,7 +133,7 @@ const NTSRShipmentInfoList = ({
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
-      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : '—'}</dd>
+      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : 'Missing'}</dd>
     </div>
   );
 

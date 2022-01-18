@@ -92,7 +92,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
-      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || '—'}</dd>
+      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || 'Missing'}</dd>
     </div>
   );
 
@@ -126,7 +126,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
-      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : '—'}</dd>
+      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : 'Missing'}</dd>
     </div>
   );
 

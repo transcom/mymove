@@ -15,6 +15,11 @@
       @include u-border-left(0.5); //4px
       @include u-padding-left(0.5); // Adjust padding so that content still ines up
     }
+
+    dd {
+      color: $error;
+      font-weight: bold;
+    }
   }
 
   .warning {
