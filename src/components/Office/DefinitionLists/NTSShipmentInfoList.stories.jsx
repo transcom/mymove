@@ -49,6 +49,8 @@ const info = {
   customerRemarks: 'Ut enim ad minima veniam',
   tacType: 'HHG',
   sacType: 'NTS',
+  tac: '123',
+  sac: '456',
 };
 
 export const NTSBasic = () => (
@@ -60,6 +62,36 @@ export const NTSBasic = () => (
       pickupAddress: info.pickupAddress,
       tacType: info.tacType,
       sacType: info.sacType,
+      serviceOrderNumber: info.serviceOrderNumber,
+    }}
+  />
+);
+
+export const NTSCollapsedExternalVendor = () => (
+  <NTSShipmentInfoList
+    shipment={{
+      counselorRemarks: info.counselorRemarks,
+      requestedPickupDate: info.requestedPickupDate,
+      storageFacility: info.storageFacility,
+      pickupAddress: info.pickupAddress,
+      tacType: info.tacType,
+      sacType: info.sacType,
+      serviceOrderNumber: info.serviceOrderNumber,
+      usesExternalVendor: true,
+    }}
+  />
+);
+
+export const NTSCollapsedGHCPrimeContractor = () => (
+  <NTSShipmentInfoList
+    shipment={{
+      counselorRemarks: info.counselorRemarks,
+      requestedPickupDate: info.requestedPickupDate,
+      storageFacility: info.storageFacility,
+      pickupAddress: info.pickupAddress,
+      tacType: info.tacType,
+      sacType: info.sacType,
+      tac: info.tac,
       serviceOrderNumber: info.serviceOrderNumber,
     }}
   />
@@ -85,6 +117,8 @@ export const NTSWithAllInfo = () => (
       storageFacility: info.storageFacility,
       tacType: info.tacType,
       sacType: info.sacType,
+      tac: info.tac,
+      sac: info.sac,
       serviceOrderNumber: info.serviceOrderNumber,
       pickupAddress: info.pickupAddress,
       secondaryPickupAddress: info.secondaryPickupAddress,

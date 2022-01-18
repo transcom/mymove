@@ -4,9 +4,9 @@ import { object, text } from '@storybook/addon-knobs';
 
 import NTSShipmentInfoList from './NTSShipmentInfoList';
 
-const showWhenCollapsed = ['counselorRemarks'];
-const warnIfMissing = ['serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
-const errorIfMissing = ['storageFacility'];
+const showWhenCollapsed = [];
+const warnIfMissing = [];
+const errorIfMissing = ['storageFacility', 'serviceOrderNumber', 'tacType'];
 
 const shipment = {
   storageFacility: {
@@ -52,55 +52,80 @@ const shipment = {
   sacType: 'NTS',
   tac: '1234',
   sac: '1234123412',
-  usesExternalVendor: true,
 };
 
 describe('NTS Shipment Info List renders all fields when provided and expanded', () => {
-  it.each([
-    ['usesExternalVendor', 'External vendor'],
-    ['storageFacilityName', shipment.storageFacility.facilityName],
-    ['serviceOrderNumber', shipment.serviceOrderNumber],
-    ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
-    ['pickupAddress', shipment.pickupAddress.streetAddress1],
-    ['secondaryPickupAddress', shipment.secondaryPickupAddress.streetAddress1],
-    ['agent', shipment.agents[0].email, { exact: false }],
-    ['counselorRemarks', shipment.counselorRemarks],
-    ['customerRemarks', shipment.customerRemarks],
-    ['tacType', '1234 (HHG)'],
-    ['sacType', '1234123412 (NTS)'],
-  ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
-    render(<NTSShipmentInfoList isExpanded shipment={shipment} />);
-    const shipmentFieldElement = screen.getByTestId(shipmentField);
-    expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+  describe('For external vendors', () => {
+    it.each([
+      ['usesExternalVendor', 'External vendor'],
+      ['requestedPickupDate', shipment.requestedPickupDate],
+      ['storageFacilityName', shipment.storageFacility.facilityName],
+      ['serviceOrderNumber', shipment.serviceOrderNumber],
+      ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
+      ['pickupAddress', shipment.pickupAddress.streetAddress1],
+      ['secondaryPickupAddress', shipment.secondaryPickupAddress.streetAddress1],
+      ['agent', shipment.agents[0].email, { exact: false }],
+      ['counselorRemarks', shipment.counselorRemarks],
+      ['customerRemarks', shipment.customerRemarks],
+      ['tacType', '1234 (HHG)'],
+      ['sacType', '1234123412 (NTS)'],
+    ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+      render(<NTSShipmentInfoList isExpanded shipment={{ ...shipment, usesExternalVendor: true }} />);
+      const shipmentFieldElement = screen.getByTestId(shipmentField);
+      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+    });
+  });
+
+  describe('For GHC prime contractor', () => {
+    it.each([
+      ['usesExternalVendor', 'GHC prime contractor'],
+      ['requestedPickupDate', shipment.requestedPickupDate],
+      ['storageFacilityName', shipment.storageFacility.facilityName],
+      ['serviceOrderNumber', shipment.serviceOrderNumber],
+      ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
+      ['pickupAddress', shipment.pickupAddress.streetAddress1],
+      ['secondaryPickupAddress', shipment.secondaryPickupAddress.streetAddress1],
+      ['agent', shipment.agents[0].email, { exact: false }],
+      ['counselorRemarks', shipment.counselorRemarks],
+      ['customerRemarks', shipment.customerRemarks],
+      ['tacType', '1234 (HHG)'],
+      ['sacType', '1234123412 (NTS)'],
+    ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+      render(<NTSShipmentInfoList isExpanded shipment={shipment} />);
+      const shipmentFieldElement = screen.getByTestId(shipmentField);
+      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+    });
   });
 });
 
-describe('NTS Shipment Info List renders missing non-required items correctly', () => {
-  it.each(['counselorRemarks', 'tacType', 'sacType', 'serviceOrderNumber'])(
-    'Verify Shipment field %s displays "—" with a warning class',
-    async (shipmentField) => {
-      render(
-        <NTSShipmentInfoList
-          isExpanded
-          shipment={{
-            requestedDeliveryDate: text('requestedDeliveryDate', shipment.requestedDeliveryDate),
-            storageFacility: object('storageFacility', shipment.storageFacility),
-            pickupAddress: object('pickupAddress', shipment.pickupAddress),
-          }}
-          warnIfMissing={warnIfMissing}
-          errorIfMissing={errorIfMissing}
-          showWhenCollapsed={showWhenCollapsed}
-        />,
-      );
+describe('NTS Shipment Info List renders all fields when provided and collapsed', () => {
+  describe('For external vendors', () => {
+    it.each([
+      ['requestedPickupDate', shipment.requestedPickupDate],
+      ['serviceOrderNumber', shipment.serviceOrderNumber],
+      ['pickupAddress', shipment.pickupAddress.streetAddress1],
+    ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+      render(<NTSShipmentInfoList isExpanded shipment={{ ...shipment, usesExternalVendor: true }} />);
       const shipmentFieldElement = screen.getByTestId(shipmentField);
-      expect(shipmentFieldElement).toHaveTextContent('—');
-      expect(shipmentFieldElement.parentElement).toHaveClass('warning');
-    },
-  );
+      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+    });
+  });
+
+  describe('For GHC prime contractor', () => {
+    it.each([
+      ['requestedPickupDate', shipment.requestedPickupDate],
+      ['pickupAddress', shipment.pickupAddress.streetAddress1],
+      ['tacType', '1234 (HHG)'],
+    ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+      render(<NTSShipmentInfoList isExpanded shipment={shipment} />);
+      const shipmentFieldElement = screen.getByTestId(shipmentField);
+      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+    });
+  });
 });
 
 describe('NTS Shipment Info List renders missing required items correctly', () => {
-  it.each(['storageFacilityName', 'storageFacilityAddress'])(
+  it.each(['storageFacilityName', 'storageFacilityAddress', 'serviceOrderNumber', 'tacType'])(
     'Verify Shipment field %s displays "Missing" with an error class',
     async (shipmentField) => {
       render(
@@ -124,7 +149,7 @@ describe('NTS Shipment Info List renders missing required items correctly', () =
 });
 
 describe('NTS Shipment Info List collapsed view', () => {
-  it('hides fields when collapsed unless explicitly passed', () => {
+  it('hides fields when collapsed', () => {
     render(
       <NTSShipmentInfoList
         isExpanded={false}
@@ -140,6 +165,6 @@ describe('NTS Shipment Info List collapsed view', () => {
     expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
     expect(screen.queryByTestId('secondaryPickupAddress')).toBeNull();
     expect(screen.queryByTestId('agents')).toBeNull();
-    expect(screen.getByTestId('counselorRemarks')).toBeInTheDocument();
+    expect(screen.queryByTestId('counselorRemarks')).toBeNull();
   });
 });

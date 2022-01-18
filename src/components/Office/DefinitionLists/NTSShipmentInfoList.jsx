@@ -100,7 +100,9 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
   const requestedPickupDateElement = (
     <div className={requestedPickupDateElementFlags.classes}>
       <dt>Preferred pickup date</dt>
-      <dd>{(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) || '—'}</dd>
+      <dd data-testid="requestedPickupDate">
+        {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) || '—'}
+      </dd>
     </div>
   );
 
@@ -177,13 +179,13 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
       {pickupAddressElement}
       {isExpanded && secondaryPickupAddressElement}
       {isExpanded && agentsElement}
-      {(isExpanded || storageFacilityInfoElementFlags.alwaysShow) && storageFacilityInfoElement}
-      {(isExpanded || serviceOrderNumberElementFlags.alwaysShow) && serviceOrderNumberElement}
+      {isExpanded && storageFacilityInfoElement}
+      {(isExpanded || usesExternalVendor) && serviceOrderNumberElement}
       {isExpanded && storageFacilityAddressElement}
       {isExpanded && customerRemarksElement}
-      {(isExpanded || counselorRemarksElementFlags.alwaysShow) && counselorRemarksElement}
-      {(isExpanded || tacElementFlags.alwaysShow) && tacElement}
-      {(isExpanded || sacElementFlags.alwaysShow) && sacElement}
+      {isExpanded && counselorRemarksElement}
+      {(isExpanded || !usesExternalVendor) && tacElement}
+      {isExpanded && sacElement}
     </dl>
   );
 };
