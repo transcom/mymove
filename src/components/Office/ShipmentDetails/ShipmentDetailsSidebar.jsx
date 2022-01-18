@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
+import styles from 'components/Office/ShipmentDetails/ShipmentDetailsSidebar.module.scss';
 import SimpleSection from 'containers/SimpleSection/SimpleSection';
 import { EditFacilityInfoModal } from 'components/Office/EditFacilityInfoModal/EditFacilityInfoModal';
 import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingCode } from 'utils/shipmentDisplay';
@@ -52,19 +53,19 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditFaci
         <SimpleSection
           key="facility-info-and-address"
           header={
-            <>
+            <div className={styles.ShipmentDetailsSidebar}>
               Facility info and address
               <Button
                 size="small"
                 type="button"
                 onClick={handleShowEditFacilityInfoModal}
-                className="float-right usa-link padding-right-0"
+                className="float-right usa-link modal-link"
                 data-testid="edit-facility-info-modal-open"
                 unstyled
               >
                 Edit
               </Button>
-            </>
+            </div>
           }
           border
         >
