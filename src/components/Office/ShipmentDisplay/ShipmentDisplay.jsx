@@ -71,6 +71,7 @@ const ShipmentDisplay = ({
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
               <Tag>cancellation requested</Tag>
             )}
+            {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
           </div>
 
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
