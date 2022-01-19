@@ -25,6 +25,9 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditAcco
     setIsEditFacilityInfoModalVisible(true);
   };
 
+  const handleShowAccountingCodesModal = () => {
+    setIsAccountingCodesModalVisible(true);
+  };
 
   return (
     <div className={className}>
@@ -121,9 +124,16 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditAcco
           header={
             <>
               Accounting codes
-              <Link to="" className="usa-link float-right">
+              <Button
+                size="small"
+                type="button"
+                onClick={handleShowAccountingCodesModal}
+                className="float-right usa-link padding-right-0"
+                data-testid="edit-accounting-code-modal-open"
+                unstyled
+              >
                 Edit
-              </Link>
+              </Button>
             </>
           }
           border
