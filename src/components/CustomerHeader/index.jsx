@@ -21,14 +21,12 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
    */
   const reportDateLabel = ((type) => {
     switch (type) {
-      case 'PERMANENT_CHANGE_OF_STATION':
-        return 'Report by date';
       case 'RETIREMENT':
         return 'Date of retirement';
       case 'SEPARATION':
         return 'Date of separation';
       default:
-        return '';
+        return 'Report by date';
     }
   })(order_type);
 
