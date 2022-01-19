@@ -61,7 +61,7 @@ require (
 	github.com/pkg/sftp v1.13.4
 	github.com/pterm/pterm v0.12.34
 	github.com/rickar/cal v1.0.5
-	github.com/spf13/afero v1.7.1
+	github.com/spf13/afero v1.8.0
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
