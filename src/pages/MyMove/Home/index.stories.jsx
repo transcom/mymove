@@ -21,6 +21,7 @@ const uploadOrdersProps = {
         phone_lines: ['555-555-5555'],
       },
     },
+    weight_allotment: {},
   },
   showLoggedInUser() {},
   loadMTOShipments() {},
@@ -47,6 +48,9 @@ const shipmentSelectionProps = {
   ...uploadOrdersProps,
   serviceMember: {
     ...uploadOrdersProps.serviceMember,
+    weight_allotment: {
+      total_weight_self: 10000,
+    },
   },
   orders: {
     ...uploadOrdersProps.orders,
@@ -57,7 +61,6 @@ const shipmentSelectionProps = {
       name: 'NAS Norfolk',
     },
     report_by_date: '25 December 2020',
-    authorizedWeight: 10000,
   },
   uploadedOrderDocuments: [
     {

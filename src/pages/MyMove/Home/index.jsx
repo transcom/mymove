@@ -161,7 +161,7 @@ export class Home extends Component {
   };
 
   renderCustomerHeaderText = () => {
-    const { orders, move } = this.props;
+    const { serviceMember, orders, move } = this.props;
     return (
       <>
         <p>
@@ -173,7 +173,12 @@ export class Home extends Component {
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
             <dt>Weight allowance</dt>
-            <dd>{orders.authorizedWeight} lbs.</dd>
+            <dd>
+              {orders.has_dependents
+                ? serviceMember.weight_allotment.total_weight_self_plus_dependents
+                : serviceMember.weight_allotment.total_weight_self}{' '}
+              lbs.
+            </dd>
           </div>
           {move.locator && (
             <div className={styles.subheaderSubsection}>

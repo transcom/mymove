@@ -23,6 +23,7 @@ const defaultProps = {
         phone_lines: ['555-555-5555'],
       },
     },
+    weight_allotment: {},
   },
   showLoggedInUser: jest.fn(),
   createServiceMember: jest.fn(),
