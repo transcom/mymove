@@ -58,7 +58,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 </p>
 
 <p>
-  <strong>Your weight allowance: 7999 pounds</strong>
+  <strong>Your weight allowance: 7,999 pounds</strong>
   That’s how much the government will pay to ship for you on this move. You won’t owe anything if all your shipments
   combined weigh less than that.
 </p>
