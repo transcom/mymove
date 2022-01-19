@@ -487,6 +487,31 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
 	})
 
+	// TODO: test not implemented yet
+	suite.Run("failed create payment request -- shipment has external vendor", func() {
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			paymentRequestCreator,
+		}
+
+		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
+	})
+
 	suite.Run("successful create payment request payload audit", func() {
 		subtestData := suite.makeCreatePaymentRequestHandlerSubtestData()
 
