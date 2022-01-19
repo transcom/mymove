@@ -1,6 +1,7 @@
 @import 'shared/styles/basics';
 
 div.EditFacilityInfoModal {
+  min-width: 40rem;
   fieldset,
   fieldset + fieldset {
     @include u-margin-top(0);
