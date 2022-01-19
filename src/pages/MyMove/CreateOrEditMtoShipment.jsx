@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { func } from 'prop-types';
+import { func, number, shape } from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import qs from 'query-string';
 
@@ -33,6 +33,7 @@ export class CreateOrEditMtoShipment extends Component {
       currentResidence,
       newDutyStationAddress,
       updateMTOShipment,
+      serviceMember,
       orders,
     } = this.props;
 
@@ -57,6 +58,7 @@ export class CreateOrEditMtoShipment extends Component {
           currentResidence={currentResidence}
           newDutyStationAddress={newDutyStationAddress}
           updateMTOShipment={updateMTOShipment}
+          serviceMember={serviceMember}
           orders={orders}
         />
       );
@@ -77,13 +79,17 @@ CreateOrEditMtoShipment.propTypes = {
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
   updateMTOShipment: func.isRequired,
+  serviceMember: shape({
+    weight_allotment: shape({
+      total_weight_self: number,
+    }),
+  }).isRequired,
   orders: OrdersShape,
 };
 
 CreateOrEditMtoShipment.defaultProps = {
   match: { isExact: false, params: { moveID: '' } },
   history: { goBack: () => {}, push: () => {} },
-  orders: {},
   mtoShipment: {
     customerRemarks: '',
     requestedPickupDate: '',
@@ -100,12 +106,14 @@ CreateOrEditMtoShipment.defaultProps = {
     state: '',
     postalCode: '',
   },
+  orders: {},
 };
 
 function mapStateToProps(state, ownProps) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   const props = {
+    serviceMember,
     orders: selectCurrentOrders(state) || {},
     mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
