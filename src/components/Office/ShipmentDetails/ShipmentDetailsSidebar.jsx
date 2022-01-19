@@ -5,7 +5,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from 'components/Office/ShipmentDetails/ShipmentDetailsSidebar.module.scss';
 import SimpleSection from 'containers/SimpleSection/SimpleSection';
-import { EditFacilityInfoModal } from 'components/Office/EditFacilityInfoModal/EditFacilityInfoModal';
+import ConnectedEditFacilityInfoModal from 'components/Office/EditFacilityInfoModal/EditFacilityInfoModal';
 import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingCode } from 'utils/shipmentDisplay';
 import { ShipmentShape } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
@@ -23,20 +23,19 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditFaci
 
   return (
     <div className={className}>
-      {isEditFacilityInfoModalVisible && (
-        <EditFacilityInfoModal
-          onSubmit={(e) => {
-            handleEditFacilityInfo(e, shipment);
-            setIsEditFacilityInfoModalVisible(false);
-          }}
-          onClose={() => {
-            setIsEditFacilityInfoModalVisible(false);
-          }}
-          storageFacility={shipment.storageFacility}
-          serviceOrderNumber={shipment.serviceOrderNumber}
-          shipmentType={shipment.shipmentType}
-        />
-      )}
+      <ConnectedEditFacilityInfoModal
+        isOpen={isEditFacilityInfoModalVisible}
+        onSubmit={(e) => {
+          handleEditFacilityInfo(e, shipment);
+          setIsEditFacilityInfoModalVisible(false);
+        }}
+        onClose={() => {
+          setIsEditFacilityInfoModalVisible(false);
+        }}
+        storageFacility={shipment.storageFacility}
+        serviceOrderNumber={shipment.serviceOrderNumber}
+        shipmentType={shipment.shipmentType}
+      />
 
       {mtoAgents &&
         mtoAgents.map((agent) => (
