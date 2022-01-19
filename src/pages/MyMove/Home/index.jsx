@@ -16,7 +16,6 @@ import {
   HelperSubmittedPPM,
 } from './HomeHelpers';
 
-import { formatWeight } from 'shared/formatters';
 import ScrollToTop from 'components/ScrollToTop';
 import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
@@ -42,7 +41,7 @@ import {
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatCustomerDate } from 'utils/formatters';
+import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
