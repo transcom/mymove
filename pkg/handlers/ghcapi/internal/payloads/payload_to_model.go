@@ -218,6 +218,11 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.DestinationAddress = addressModel
 	}
 
+	if mtoShipment.DestinationAddressType != nil {
+		valDestinationAddressType := models.DestinationAddressType(*mtoShipment.DestinationAddressType)
+		model.DestinationAddressType = &valDestinationAddressType
+	}
+
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
@@ -290,6 +295,11 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
 	model.DestinationAddress = AddressModel(&mtoShipment.DestinationAddress.Address)
+
+	if mtoShipment.DestinationAddressType != nil {
+		valDestinationAddressType := models.DestinationAddressType(*mtoShipment.DestinationAddressType)
+		model.DestinationAddressType = &valDestinationAddressType
+	}
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)

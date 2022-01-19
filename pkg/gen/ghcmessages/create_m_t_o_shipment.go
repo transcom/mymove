@@ -7,6 +7,7 @@ package ghcmessages
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -48,6 +49,11 @@ type CreateMTOShipment struct {
 	DestinationAddress struct {
 		Address
 	} `json:"destinationAddress"`
+
+	// Destination Address Type
+	// Example: Other than authorized
+	// Enum: [HOME_OF_RECORD HOME_OF_SELECTION PLACE_ENTERED_ACTIVE_DUTY OTHER_THAN_AUTHORIZED]
+	DestinationAddressType *string `json:"destinationAddressType,omitempty"`
 
 	// The ID of the move this new shipment is for.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -107,6 +113,10 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationAddressType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -170,6 +180,54 @@ func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 }
 
 func (m *CreateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
+
+	return nil
+}
+
+var createMTOShipmentTypeDestinationAddressTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["HOME_OF_RECORD","HOME_OF_SELECTION","PLACE_ENTERED_ACTIVE_DUTY","OTHER_THAN_AUTHORIZED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		createMTOShipmentTypeDestinationAddressTypePropEnum = append(createMTOShipmentTypeDestinationAddressTypePropEnum, v)
+	}
+}
+
+const (
+
+	// CreateMTOShipmentDestinationAddressTypeHOMEOFRECORD captures enum value "HOME_OF_RECORD"
+	CreateMTOShipmentDestinationAddressTypeHOMEOFRECORD string = "HOME_OF_RECORD"
+
+	// CreateMTOShipmentDestinationAddressTypeHOMEOFSELECTION captures enum value "HOME_OF_SELECTION"
+	CreateMTOShipmentDestinationAddressTypeHOMEOFSELECTION string = "HOME_OF_SELECTION"
+
+	// CreateMTOShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY captures enum value "PLACE_ENTERED_ACTIVE_DUTY"
+	CreateMTOShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY string = "PLACE_ENTERED_ACTIVE_DUTY"
+
+	// CreateMTOShipmentDestinationAddressTypeOTHERTHANAUTHORIZED captures enum value "OTHER_THAN_AUTHORIZED"
+	CreateMTOShipmentDestinationAddressTypeOTHERTHANAUTHORIZED string = "OTHER_THAN_AUTHORIZED"
+)
+
+// prop value enum
+func (m *CreateMTOShipment) validateDestinationAddressTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createMTOShipmentTypeDestinationAddressTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *CreateMTOShipment) validateDestinationAddressType(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationAddressType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateDestinationAddressTypeEnum("destinationAddressType", "body", *m.DestinationAddressType); err != nil {
+		return err
+	}
 
 	return nil
 }
