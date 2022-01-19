@@ -60,12 +60,14 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
         </div>
         {order.destinationDutyStation.name && (
           <div>
-            <p>{isRetireeOrSeparatee ? 'HOR, HOS or PLEAD' : 'Authorized destination'}</p>
+            <p data-testid="destinationLabel">
+              {isRetireeOrSeparatee ? 'HOR, HOS or PLEAD' : 'Authorized destination'}
+            </p>
             <h4>{order.destinationDutyStation.name}</h4>
           </div>
         )}
         <div>
-          <p>{reportDateLabel}</p>
+          <p data-testid="reportDateLabel">{reportDateLabel}</p>
           <h4>{formatCustomerDate(order.report_by_date)}</h4>
         </div>
       </div>

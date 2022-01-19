@@ -50,7 +50,7 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
           <dd data-testid="issuedDate">{formatDate(ordersInfo.issuedDate, 'DD MMM YYYY')}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>{reportDateRowLabel}</dt>
+          <dt data-testid="reportByDateLabel">{reportDateRowLabel}</dt>
           <dd data-testid="reportByDate">{formatDate(ordersInfo.reportByDate, 'DD MMM YYYY')}</dd>
         </div>
         <div className={descriptionListStyles.row}>
@@ -62,7 +62,9 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
             [styles.missingInfoError]: !ordersInfo.newDutyStation?.name,
           })}
         >
-          <dt>{isRetiree || isSeparatee ? 'HOR, HOS, or PLEAD' : 'New duty location'}</dt>
+          <dt data-testid="newDutyLocationLabel">
+            {isRetiree || isSeparatee ? 'HOR, HOS, or PLEAD' : 'New duty location'}
+          </dt>
           <dd data-testid="newDutyLocation">
             {ordersInfo.newDutyStation?.name ? ordersInfo.newDutyStation?.name : '-'}
           </dd>
