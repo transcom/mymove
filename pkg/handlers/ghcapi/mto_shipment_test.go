@@ -74,6 +74,18 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	})
 
+	// third shipment with destination address and type
+	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+	_ = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+		MTOShipment: models.MTOShipment{
+			Status:                 models.MTOShipmentStatusSubmitted,
+			DestinationAddressID:   &destinationAddress.ID,
+			DestinationAddressType: &destinationAddressType,
+		},
+	})
+
 	subtestData.mtoAgent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			MTOShipmentID: mtoShipment.ID,
@@ -157,7 +169,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
-		suite.Len(okResponse.Payload, 2)
+		suite.Len(okResponse.Payload, 3)
 
 		payloadShipment := okResponse.Payload[0]
 		suite.Equal(shipments[0].ID.String(), payloadShipment.ID.String())
@@ -184,6 +196,10 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		year, month, day := time.Now().Date()
 		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
 		suite.Equal(lastMonthEntry.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.PastSITServiceItems[0].SitEntryDate.String())
+
+		// This one has a destination shipment type
+		payloadShipment3 := okResponse.Payload[2]
+		suite.Equal(string(models.DestinationAddressTypeHomeOfRecord), *payloadShipment3.DestinationAddressType)
 
 	})
 
