@@ -94,8 +94,8 @@ export const PaymentRequestReview = ({ history, match, order }) => {
         mtoShipmentDestinationAddress: selectedShipment
           ? formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress)
           : undefined,
-        mtoShipmentTacType: selectedShipment?.tacType,
-        mtoShipmentSacType: selectedShipment?.tacSype,
+        mtoShipmentTacType: item.mtoShipmentType === 'HHG' ? 'HHG' : selectedShipment?.tacType,
+        mtoShipmentSacType: item.mtoShipmentType === 'HHG' ? 'HHG' : selectedShipment?.sacType,
         mtoShipmentModificationType: selectedShipment ? getShipmentModificationType(selectedShipment) : undefined,
         mtoServiceItemCode: item.mtoServiceItemCode,
         mtoServiceItemName: item.mtoServiceItemName,
