@@ -17,7 +17,7 @@ export default {
   ],
 };
 
-const warnIfMissing = ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
+const warnIfMissing = ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
 const errorIfMissing = ['storageFacility'];
 const showWhenCollapsed = ['counselorRemarks'];
 
@@ -67,7 +67,7 @@ const ntsInfo = {
 const ntsReleaseInfo = {
   heading: 'NTS-release',
   shipmentId: 'testShipmentId111',
-  primeActualWeight: 2000,
+  ntsRecordedWeight: 2000,
   storageFacility: {
     address: {
       city: 'Anytown',
@@ -114,7 +114,7 @@ const ntsReleaseInfo = {
 const ntsReleaseMissingInfo = {
   heading: 'NTS-release',
   shipmentId: 'testShipmentId222',
-  primeActualWeight: 2000,
+  ntsRecordedWeight: 2000,
   requestedDeliveryDate: '26 Mar 2020',
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
