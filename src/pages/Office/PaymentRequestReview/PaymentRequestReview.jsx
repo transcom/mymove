@@ -14,10 +14,12 @@ import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { patchPaymentRequest, patchPaymentServiceItemStatus } from 'services/ghcApi';
 import { usePaymentRequestQueries } from 'hooks/queries';
 import { PAYMENT_REQUESTS } from 'constants/queryKeys';
+import { OrderShape } from 'types';
 
-export const PaymentRequestReview = ({ history, match }) => {
+export const PaymentRequestReview = ({ history, match, order }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
   const { paymentRequestId, moveCode } = match.params;
+  const { tac, sac, ntsTac, ntsSac } = order;
   const {
     paymentRequest,
     paymentRequests,
@@ -92,6 +94,8 @@ export const PaymentRequestReview = ({ history, match }) => {
         mtoShipmentDestinationAddress: selectedShipment
           ? formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress)
           : undefined,
+        mtoShipmentTacType: selectedShipment?.tacType,
+        mtoShipmentSacType: selectedShipment?.tacSype,
         mtoShipmentModificationType: selectedShipment ? getShipmentModificationType(selectedShipment) : undefined,
         mtoServiceItemCode: item.mtoServiceItemCode,
         mtoServiceItemName: item.mtoServiceItemName,
@@ -155,6 +159,8 @@ export const PaymentRequestReview = ({ history, match }) => {
           patchPaymentServiceItem={handleUpdatePaymentServiceItemStatus}
           onCompleteReview={handleCompleteReview}
           completeReviewError={completeReviewError}
+          TACs={{ HHG: tac, NTS: ntsTac }}
+          SACs={{ HHG: sac, NTS: ntsSac }}
         />
       </div>
     </div>
@@ -164,6 +170,7 @@ export const PaymentRequestReview = ({ history, match }) => {
 PaymentRequestReview.propTypes = {
   history: HistoryShape.isRequired,
   match: MatchShape.isRequired,
+  order: OrderShape.isRequired,
 };
 
 export default withRouter(PaymentRequestReview);

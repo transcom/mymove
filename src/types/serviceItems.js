@@ -8,6 +8,8 @@ export const ServiceItemCardShape = PropTypes.shape({
   id: PropTypes.string, // service item id
   mtoShipmentID: PropTypes.string,
   mtoShipmentType: ShipmentOptionsOneOf,
+  mtoShipmentTacType: PropTypes.string,
+  mtoShipmentSacType: PropTypes.string,
   mtoServiceItemCode: PropTypes.string,
   mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number,
