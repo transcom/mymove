@@ -3337,7 +3337,6 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "requestedPickupDate",
         "pickupAddress",
         "destinationAddress"
       ],
@@ -3405,10 +3404,17 @@ func init() {
             }
           ]
         },
+        "requestedDeliveryDate": {
+          "description": "The customer's preferred delivery date.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "sacType": {
           "allOf": [
@@ -10052,7 +10058,6 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "requestedPickupDate",
         "pickupAddress",
         "destinationAddress"
       ],
@@ -10120,10 +10125,17 @@ func init() {
             }
           ]
         },
+        "requestedDeliveryDate": {
+          "description": "The customer's preferred delivery date.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "sacType": {
           "allOf": [

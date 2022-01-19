@@ -3418,6 +3418,13 @@ definitions:
           this date.
         format: date
         type: string
+        x-nullable: true
+      requestedDeliveryDate:
+        description: |
+          The customer's preferred delivery date.
+        format: date
+        type: string
+        x-nullable: true
       customerRemarks:
         description: >
           The customer can use the customer remarks field to inform the services
@@ -3501,7 +3508,6 @@ definitions:
         $ref: '#/definitions/StorageFacility'
     required:
       - moveTaskOrderID
-      - requestedPickupDate
       - pickupAddress
       - destinationAddress
   MTOShipmentStatus:

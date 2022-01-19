@@ -201,6 +201,10 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
 	}
 
+	if mtoShipment.RequestedDeliveryDate != nil {
+		model.RequestedDeliveryDate = swag.Time(time.Time(*mtoShipment.RequestedDeliveryDate))
+	}
+
 	// Set up address models
 	var addressModel *models.Address
 
