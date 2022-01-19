@@ -227,6 +227,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 			FROM service_members as sm
 			JOIN users on sm.user_id = users.id
 			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
+            WHERE users.login_gov_email != 'first.last@login.gov.test'
 			ORDER BY users.created_at LIMIT $1`
 	}
 
