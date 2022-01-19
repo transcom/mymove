@@ -4,6 +4,8 @@ import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from 'components/Office/ShipmentDetails/ShipmentDetailsSidebar.module.scss';
+import AccountingCodesModal from '../AccountingCodesModal/AccountingCodesModal';
+
 import SimpleSection from 'containers/SimpleSection/SimpleSection';
 import ConnectedEditFacilityInfoModal from 'components/Office/EditFacilityInfoModal/EditFacilityInfoModal';
 import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingCode } from 'utils/shipmentDisplay';
@@ -11,15 +13,18 @@ import { ShipmentShape } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
 
 const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditFacilityInfo }) => {
+const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditAccountingCodes }) => {
   const { mtoAgents, secondaryAddresses, serviceOrderNumber, storageFacility, sacType, tacType } = shipment;
   const tac = retrieveTAC(shipment.tacType, ordersLOA);
   const sac = retrieveSAC(shipment.sacType, ordersLOA);
 
   const [isEditFacilityInfoModalVisible, setIsEditFacilityInfoModalVisible] = useState(false);
+  const [isAccountingCodesModalVisible, setIsAccountingCodesModalVisible] = useState(false);
 
   const handleShowEditFacilityInfoModal = () => {
     setIsEditFacilityInfoModalVisible(true);
   };
+
 
   return (
     <div className={className}>
@@ -36,6 +41,24 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditFaci
         serviceOrderNumber={shipment.serviceOrderNumber}
         shipmentType={shipment.shipmentType}
       />
+
+    <div className={className}>
+      {isAccountingCodesModalVisible && (
+        <AccountingCodesModal
+          onSubmit={(e) => {
+            handleEditAccountingCodes(e, shipment);
+            setIsAccountingCodesModalVisible(false);
+          }}
+          onClose={() => {
+            setIsAccountingCodesModalVisible(false);
+          }}
+          onEditCodesClick={() => {}}
+          TACs={tac}
+          SACs={sac}
+          tacType={shipment.tacType}
+          sacType={shipment.sacType}
+        />
+      )}
 
       {mtoAgents &&
         mtoAgents.map((agent) => (
@@ -134,6 +157,7 @@ ShipmentDetailsSidebar.propTypes = {
   shipment: ShipmentShape,
   ordersLOA: OrdersLOAShape,
   handleEditFacilityInfo: PropTypes.func.isRequired,
+  handleEditAccountingCodes: PropTypes.func.isRequired,
 };
 
 ShipmentDetailsSidebar.defaultProps = {
