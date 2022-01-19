@@ -145,8 +145,8 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 		return nil
 	}
 	var totalWeight int64
-	if entitlement.WeightAllotment() != nil {
-		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
+	if weightAllowance := entitlement.WeightAllowance(); weightAllowance != nil {
+		totalWeight = int64(*weightAllowance)
 	}
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {
@@ -170,10 +170,11 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 		ProGearWeight:                  int64(entitlement.ProGearWeight),
 		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
-		StorageInTransit:               sit,
-		TotalDependents:                totalDependents,
-		TotalWeight:                    totalWeight,
-		ETag:                           etag.GenerateEtag(entitlement.UpdatedAt),
+		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
+		StorageInTransit: sit,
+		TotalDependents:  totalDependents,
+		TotalWeight:      totalWeight,
+		ETag:             etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 

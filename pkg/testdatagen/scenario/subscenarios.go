@@ -102,6 +102,7 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 		createHHGNeedsServicesCounselingUSMC2(appCtx, userUploader)
 		createHHGServicesCounselingCompleted(appCtx)
 		createHHGNoShipments(appCtx)
+		createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx)
 
 		for i := 0; i < 12; i++ {
 			validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}

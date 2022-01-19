@@ -8,7 +8,7 @@ export default {
 };
 
 const info = {
-  primeActualWeight: 2000,
+  ntsRecordedWeight: 2000,
   storageFacility: {
     address: {
       city: 'Anytown',
@@ -61,7 +61,7 @@ export const NTSRBasic = () => (
       destinationAddress: info.destinationAddress,
       tacType: info.tacType,
       sacType: info.sacType,
-      primeActualWeight: info.primeActualWeight,
+      ntsRecordedWeight: info.ntsRecordedWeight,
       serviceOrderNumber: info.serviceOrderNumber,
     }}
   />
@@ -73,11 +73,12 @@ export const NTSRMissingInfo = () => (
     shipment={{
       requestedDeliveryDate: info.requestedDeliveryDate,
       destinationAddress: info.destinationAddress,
+      tacType: info.tacType,
       sacType: info.sacType,
-      primeActualWeight: info.primeActualWeight,
+      ntsRecordedWeight: info.ntsRecordedWeight,
       serviceOrderNumber: info.serviceOrderNumber,
     }}
-    errorIfMissing={['storageFacility', 'tacType']}
+    errorIfMissing={['storageFacility']}
   />
 );
 
@@ -89,7 +90,7 @@ export const NTSRWithAllInfo = () => (
       storageFacility: info.storageFacility,
       tacType: info.tacType,
       sacType: info.sacType,
-      primeActualWeight: info.primeActualWeight,
+      ntsRecordedWeight: info.ntsRecordedWeight,
       serviceOrderNumber: info.serviceOrderNumber,
       destinationAddress: info.destinationAddress,
       secondaryDeliveryAddress: info.secondaryDeliveryAddress,

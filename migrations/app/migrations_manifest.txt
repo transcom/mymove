@@ -695,3 +695,4 @@
 20211229190325_delete_incorrect_duty_stations.up.sql
 20220107193037_add_destination_address_type_to_shipments.up.sql
 20220112013152_update_duty_locations.up.sql
+20220113172826_create_new_duty_locations.up.sql

@@ -24,7 +24,7 @@ const NTSRShipmentInfoList = ({
     agents,
     counselorRemarks,
     customerRemarks,
-    primeActualWeight,
+    ntsRecordedWeight,
     requestedDeliveryDate,
     storageFacility,
     serviceOrderNumber,
@@ -81,12 +81,12 @@ const NTSRShipmentInfoList = ({
     return errorIfMissing.includes(fieldName) ? 'Missing' : '—';
   };
 
-  const primeActualWeightElementFlags = getFlags('primeActualWeight');
-  const primeActualWeightElement = (
-    <div className={primeActualWeightElementFlags.classes}>
+  const ntsRecordedWeightElementFlags = getFlags('ntsRecordedWeight');
+  const ntsRecordedWeightElement = (
+    <div className={ntsRecordedWeightElementFlags.classes}>
       <dt>Shipment weight</dt>
-      <dd data-testid="primeActualWeight">
-        {primeActualWeight ? formatWeight(primeActualWeight) : getMissingOrDash('primeActualWeight')}
+      <dd data-testid="ntsRecordedWeight">
+        {ntsRecordedWeight ? formatWeight(ntsRecordedWeight) : getMissingOrDash('primeActualWeight')}
       </dd>
     </div>
   );
@@ -185,7 +185,7 @@ const NTSRShipmentInfoList = ({
       )}
       data-testid="nts-release-shipment-info-list"
     >
-      {(isExpanded || primeActualWeightElementFlags.alwaysShow) && primeActualWeightElement}
+      {(isExpanded || ntsRecordedWeightElementFlags.alwaysShow) && ntsRecordedWeightElement}
       {(isExpanded || storageFacilityInfoElementFlags.alwaysShow) && storageFacilityInfoElement}
       {(isExpanded || serviceOrderNumberElementFlags.alwaysShow) && serviceOrderNumberElement}
       {storageFacilityAddressElement}
