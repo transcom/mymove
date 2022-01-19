@@ -162,6 +162,7 @@ const usePaymentRequestQueriesReturnValue = {
 const requiredProps = {
   match: { params: { paymentRequestId: testPaymentRequestId } },
   history: { push: jest.fn() },
+  order: { tac: '1234', sac: '5678', ntsTac: 'AB12', ntsSac: 'CD34' },
 };
 
 const loadingReturnValue = {
