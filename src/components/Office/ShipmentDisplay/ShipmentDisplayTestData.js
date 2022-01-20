@@ -51,7 +51,7 @@ export const ntsReleaseInfo = {
   heading: 'NTS-release',
   shipmentId: 'testShipmentId111',
   shipmentStatus: shipmentStatuses.SUBMITTED,
-  primeActualWeight: 2000,
+  ntsRecordedWeight: 2000,
   isDiversion: false,
   storageFacility: {
     address: {
@@ -89,7 +89,7 @@ export const ntsReleaseInfo = {
 export const ntsReleaseMissingInfo = {
   heading: 'NTS-release',
   shipmentId: 'testShipmentId222',
-  primeActualWeight: 2000,
+  ntsRecordedWeight: 2000,
   requestedDeliveryDate: '26 Mar 2020',
   destinationAddress,
   agents: [

@@ -27,7 +27,6 @@ const showWhenCollapsedWithExternalVendor = {
 const showWhenCollapsedWithGHCPrime = {
   HHG_INTO_NTS_DOMESTIC: ['tacType'],
   HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
-  HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'tacType', 'storageFacility'],
 };
 
 const errorIfMissing = {
