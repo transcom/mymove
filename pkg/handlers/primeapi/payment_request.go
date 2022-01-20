@@ -150,8 +150,8 @@ func (h CreatePaymentRequestHandler) validShipments(appCtx appcontext.AppContext
 			shipmentID := paymentServiceItem.MTOServiceItem.MTOShipmentID.String()
 			if _, found := shipmentIDs[shipmentID]; !found {
 				shipmentIDs[shipmentID] = true
-				var mtoShipment *models.MTOShipment
-				err := appCtx.DB().Find(mtoShipment, shipmentID)
+				var mtoShipment models.MTOShipment
+				err := appCtx.DB().Find(&mtoShipment, shipmentID)
 				if err != nil {
 					appCtx.Logger().Error("primeapi.CreatePaymentRequestHandler query error", zap.Error(err))
 					message := err.Error()

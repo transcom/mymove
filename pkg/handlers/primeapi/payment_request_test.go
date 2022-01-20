@@ -86,6 +86,52 @@ func (suite *HandlerSuite) makeCreatePaymentRequestHandlerSubtestData() (subtest
 	return subtestData
 }
 
+func (suite *HandlerSuite) makeCreatePaymentRequestHandlerSubtestDataWithExternalShipment() (subtestData *createPaymentRequestHandlerSubtestData) {
+	subtestData = &createPaymentRequestHandlerSubtestData{}
+	subtestData.moveTaskOrderID, _ = uuid.NewV4()
+	subtestData.paymentRequestID, _ = uuid.NewV4()
+
+	subtestData.requestUser = testdatagen.MakeStubbedUser(suite.DB())
+
+	subtestData.serviceItemID1, _ = uuid.NewV4()
+	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code:     models.ReServiceCodeDLH,
+			Priority: 1,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			ID: subtestData.serviceItemID1,
+		},
+	})
+	subtestData.serviceItemID2, _ = uuid.NewV4()
+	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code:     models.ReServiceCodeFSC,
+			Priority: 99,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			ID: subtestData.serviceItemID2,
+		},
+	})
+
+	subtestData.serviceItemID3, _ = uuid.NewV4()
+	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code:     models.ReServiceCodeDOASIT,
+			Priority: 99,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			ID: subtestData.serviceItemID3,
+		},
+		MTOShipment: models.MTOShipment{
+			UsesExternalVendor: true,
+		},
+	})
+
+	return subtestData
+
+}
+
 func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	suite.Run("successful create payment request", func() {
 		subtestData := suite.makeCreatePaymentRequestHandlerSubtestData()
@@ -487,14 +533,14 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
 	})
 
-	// TODO: test not implemented yet
 	suite.Run("failed create payment request -- shipment has external vendor", func() {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		subtestData := suite.makeCreatePaymentRequestHandlerSubtestDataWithExternalShipment()
+		returnedPaymentRequest := models.PaymentRequest{}
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
@@ -502,14 +548,33 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		}
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
+		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequest{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
+				ServiceItems: []*primemessages.ServiceItem{
+					{
+						ID: *handlers.FmtUUID(subtestData.serviceItemID2),
+					},
+					{
+						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
+					},
+					{
+						ID: *handlers.FmtUUID(subtestData.serviceItemID3),
+					},
+				},
+				PointOfContact: "user@prime.com",
+			},
 		}
-
 		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestConflict)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestConflict{}, response)
+
+		suite.Contains(*typedResponse.Payload.Detail, "MTOShipmentID: ")
+		suite.Equal("Shipment uses external vendor", *typedResponse.Payload.Title)
 	})
 
 	suite.Run("successful create payment request payload audit", func() {
