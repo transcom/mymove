@@ -72,7 +72,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
     <div className={storageFacilityAddressElementFlags.classes}>
       <dt>Storage facility address</dt>
       <dd data-testid="storageFacilityAddress">
-        {storageFacility ? formatAddress(storageFacility.address) : 'Missing'}
+        {storageFacility ? formatAddress(storageFacility.address) : getMissingOrDash('storageFacility')}
         {storageFacility && storageFacility.lotNumber && isExpanded && (
           <>
             <br /> Lot #{storageFacility.lotNumber}
@@ -87,7 +87,9 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
     <div className={storageFacilityInfoElementFlags.classes}>
       <dt>Storage facility info</dt>
       <dd data-testid="storageFacilityName">
-        {storageFacility && storageFacility.facilityName ? storageFacility.facilityName : 'Missing'}
+        {storageFacility && storageFacility.facilityName
+          ? storageFacility.facilityName
+          : getMissingOrDash('storageFacility')}
       </dd>
     </div>
   );
