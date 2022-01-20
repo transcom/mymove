@@ -136,6 +136,7 @@ ShipmentDisplay.propTypes = {
     }),
     tacType: PropTypes.string,
     sacType: PropTypes.string,
+    ntsRecordedWeight: PropTypes.number,
   }).isRequired,
   showIcon: PropTypes.bool,
   editURL: PropTypes.string,

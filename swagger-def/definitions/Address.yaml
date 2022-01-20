@@ -1,3 +1,4 @@
+description: A postal address
 type: object
 properties:
   id:
@@ -24,6 +25,7 @@ properties:
     title: City
   eTag:
     type: string
+    readOnly: true
   state:
     title: State
     type: string
