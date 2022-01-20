@@ -47,7 +47,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
   const showWhenCollapsed = { HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'] }; // add any additional fields that we also want to always show
   const warnIfMissing = {
-    HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
+    HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
   };
   const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
 

@@ -556,6 +556,7 @@ paths:
         * Delivery Address
         * Releasing / Receiving agents
         Optional fields include:
+        * Delivery Address Type
         * Customer Remarks
         * Releasing / Receiving agents
         * An array of optional accessorial service item codes
@@ -654,6 +655,7 @@ paths:
         * Customer requested pick-up date
         * Pick-up Address
         * Delivery Address
+        * Delivery Address Type
         * Customer Remarks
         * Counselor Remarks
         * Releasing / Receiving agents
@@ -3128,6 +3130,16 @@ definitions:
       destinationAddress:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: Other than authorized
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
+        x-nullable: true
       secondaryPickupAddress:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
@@ -3239,6 +3251,16 @@ definitions:
         allOf:
           - $ref: 'definitions/Address.yaml'
         x-nullable: true
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: Other than authorized
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
+        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
@@ -3285,6 +3307,13 @@ definitions:
           pack date, are derived from this date.
         format: date
         type: string
+        x-nullable: true
+      requestedDeliveryDate:
+        description: >
+          The customer's preferred delivery date.
+        format: date
+        type: string
+        x-nullable: true
       customerRemarks:
         description: |
           The customer can use the customer remarks field to inform the services counselor and the movers about any
@@ -3322,6 +3351,16 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: Other than authorized
+        x-nullable: true
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       tacType:
@@ -3350,7 +3389,6 @@ definitions:
         $ref: 'definitions/StorageFacility.yaml'
     required:
       - moveTaskOrderID
-      - requestedPickupDate
       - pickupAddress
       - destinationAddress
   MTOShipmentStatus:

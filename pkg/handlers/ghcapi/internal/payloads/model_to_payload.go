@@ -448,6 +448,11 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
+	if mtoShipment.DestinationAddressType != nil {
+		destinationAddressType := string(*mtoShipment.DestinationAddressType)
+		payload.DestinationAddressType = &destinationAddressType
+	}
+
 	if sitStatusPayload != nil {
 		payload.SitStatus = sitStatusPayload
 	}
