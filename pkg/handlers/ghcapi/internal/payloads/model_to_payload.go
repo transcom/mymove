@@ -782,7 +782,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			if queueIncludeShipmentStatus(shipment.Status) {
 				if earliestRequestedPickup == nil {
 					earliestRequestedPickup = shipment.RequestedPickupDate
-				} else if shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
+				} else if (shipment.RequestedPickupDate != nil) && shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
 					earliestRequestedPickup = shipment.RequestedPickupDate
 				}
 				validMTOShipments = append(validMTOShipments, shipment)

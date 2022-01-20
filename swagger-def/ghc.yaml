@@ -3134,6 +3134,8 @@ definitions:
           - PLACE_ENTERED_ACTIVE_DUTY
           - OTHER_THAN_AUTHORIZED
         x-nullable: true
+        p
+
       secondaryPickupAddress:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
