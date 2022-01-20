@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -76,18 +77,25 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		// Service Item Param Cache
 		serviceParamCache := serviceparamlookups.NewServiceParamsCache()
 
+		// Track which shipments have been verified already
+		shipmentIDs := make(map[string]bool)
+
 		// Create a payment service item for each incoming payment service item in the payment request
 		// These incoming payment service items have not been created in the database yet
 		var newPaymentServiceItems models.PaymentServiceItems
 		for _, paymentServiceItem := range paymentRequestArg.PaymentServiceItems {
-			var mtoServiceItem models.MTOServiceItem
+
+			// check if shipment is valid for creating a payment request
+			validShipmentError := p.validShipment(appCtx, paymentServiceItem.MTOServiceItem.MTOShipmentID, shipmentIDs)
+			if validShipmentError != nil {
+				return validShipmentError
+			}
 
 			// Gather message information for logging
-			mtoServiceItemString := " MTO Service item ID <" + paymentServiceItem.MTOServiceItemID.String() + ">"
-			reServiceItem := paymentServiceItem.MTOServiceItem.ReService
-			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
-			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
+			errMessageString := p.serviceItemErrorMessage(paymentServiceItem.MTOServiceItemID, paymentServiceItem.MTOServiceItem, mtoMessageString, prMessageString)
+
 			// Create the payment service item
+			var mtoServiceItem models.MTOServiceItem
 			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(txnAppCtx, paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
 				if _, ok := err.(apperror.InvalidCreateInputError); ok {
@@ -200,6 +208,40 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 	}
 
 	return paymentRequestArg, nil
+}
+
+func (p *paymentRequestCreator) serviceItemErrorMessage(
+	mtoServiceItemID uuid.UUID,
+	mtoServiceItem models.MTOServiceItem,
+	mtoMessageString string,
+	prMessageString string,
+) string {
+	mtoServiceItemString := " MTO Service item ID <" + mtoServiceItemID.String() + ">"
+	reServiceItem := mtoServiceItem.ReService
+	serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
+	return mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
+}
+
+func (p *paymentRequestCreator) validShipment(appCtx appcontext.AppContext, shipmentID *uuid.UUID, shipmentIDs map[string]bool) error {
+	if shipmentID != nil {
+		shipmentIDStr := shipmentID.String()
+		if _, found := shipmentIDs[shipmentIDStr]; !found {
+			shipmentIDs[shipmentIDStr] = true
+			var mtoShipment models.MTOShipment
+			err := appCtx.DB().Find(&mtoShipment, shipmentIDStr)
+			if err != nil {
+				appCtx.Logger().Error("paymentRequestCreator.validShipment query error", zap.Error(err))
+				return fmt.Errorf("validateShipment: %w for MTOShipmentID %s", err, shipmentIDStr)
+			}
+			if mtoShipment.UsesExternalVendor {
+				appCtx.Logger().Error("paymentRequestCreator.validShipment",
+					zap.Any("mtoShipment.UsesExternalVendor", mtoShipment.UsesExternalVendor),
+					zap.String("MTOShipmentID", shipmentIDStr))
+				return fmt.Errorf("paymentRequestCreator.validShipment: Shipment uses external vendor for MTOShipmentID %s", shipmentIDStr)
+			}
+		}
+	}
+	return nil
 }
 
 func (p *paymentRequestCreator) createPaymentRequestSaveToDB(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {

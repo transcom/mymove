@@ -39,6 +39,16 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			PrimeEstimatedWeight: &estimatedWeight,
 		},
 	})
+	mtoServiceItem3 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrder,
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOP,
+		},
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
+			UsesExternalVendor:   true,
+		},
+	})
 	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key:         models.ServiceItemParamNameWeightEstimated,
@@ -365,6 +375,37 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				}
 			}
 		}
+	})
+
+	suite.T().Run("Payment request fails when MTOShipment uses external vendor", func(t *testing.T) {
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID:         mtoServiceItem1.ID,
+					MTOServiceItem:           mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem2.ID,
+					MTOServiceItem:           mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem3.ID,
+					MTOServiceItem:           mtoServiceItem3,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+			},
+		}
+
+		paymentRequestResult, err := creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequest)
+		suite.Error(err)
+		suite.Contains(err.Error(), "paymentRequestCreator.validShipment: Shipment uses external vendor for MTOShipmentID")
+
+		// Verify some of the data that came back
+		suite.Nil(paymentRequestResult)
 	})
 
 	suite.T().Run("Payment request fails when pricing", func(t *testing.T) {

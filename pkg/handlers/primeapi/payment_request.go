@@ -81,12 +81,6 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
-	// Verify that all shipments are valid
-	validShipmentError := h.validShipments(appCtx, paymentRequest.PaymentServiceItems, h.GetTraceIDFromRequest(params.HTTPRequest))
-	if validShipmentError != nil {
-		return validShipmentError
-	}
-
 	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(appCtx, &paymentRequest)
 	if err != nil {
 		appCtx.Logger().Error("Error creating payment request", zap.Error(err))
@@ -141,32 +135,6 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	returnPayload := payloads.PaymentRequest(createdPaymentRequest)
 	appCtx.Logger().Info("Successful payment request creation for mto ID", zap.String("moveID", moveTaskOrderIDString))
 	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
-}
-
-func (h CreatePaymentRequestHandler) validShipments(appCtx appcontext.AppContext, paymentServiceItems models.PaymentServiceItems, traceID uuid.UUID) middleware.Responder {
-	shipmentIDs := make(map[string]bool)
-	for _, paymentServiceItem := range paymentServiceItems {
-		if paymentServiceItem.MTOServiceItem.MTOShipmentID != nil {
-			shipmentID := paymentServiceItem.MTOServiceItem.MTOShipmentID.String()
-			if _, found := shipmentIDs[shipmentID]; !found {
-				shipmentIDs[shipmentID] = true
-				var mtoShipment models.MTOShipment
-				err := appCtx.DB().Find(&mtoShipment, shipmentID)
-				if err != nil {
-					appCtx.Logger().Error("primeapi.CreatePaymentRequestHandler query error", zap.Error(err))
-					message := err.Error()
-					return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(&message, traceID))
-				}
-				if mtoShipment.UsesExternalVendor {
-					appCtx.Logger().Error("primeapi.CreatePaymentRequestHandler",
-						zap.Any("mtoShipment.UsesExternalVendor", mtoShipment.UsesExternalVendor),
-						zap.String("MTOShipmentID", shipmentID))
-					return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payloads.ClientError("Shipment uses external vendor", fmt.Sprintf("MTOShipmentID: %s", shipmentID), traceID))
-				}
-			}
-		}
-	}
-	return nil
 }
 
 func (h CreatePaymentRequestHandler) buildPaymentServiceItems(appCtx appcontext.AppContext, payload *primemessages.CreatePaymentRequest) (models.PaymentServiceItems, *validate.Errors, error) {
