@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import styles from './ReviewAccountingCodes.module.scss';
 
+import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { toDollarString } from 'shared/formatters';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { ServiceItemCardsShape } from 'types/serviceItems';
@@ -37,8 +38,7 @@ ReviewAccountingCodesItem.defaultProps = {
 const ReviewAccountingCodes = ({ TACs, SACs, cards }) => {
   const shipments = Object.values(
     cards
-      .filter((card) => card.mtoShipmentID)
-      .filter((card) => card.status === 'APPROVED')
+      .filter((card) => !!card.mtoShipmentID && card.status === PAYMENT_SERVICE_ITEM_STATUS.APPROVED)
       .reduce((mem, card) => {
         const shipment = mem[card.mtoShipmentID] || {
           id: card.mtoShipmentID,
