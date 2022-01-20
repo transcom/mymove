@@ -289,7 +289,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
                     key={shipment.id}
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
-                    showIcon={false}
+                    allowApproval={false}
                     ordersLOA={ordersLOA}
                     warnIfMissing={warnIfMissing[shipment.shipmentType]}
                     errorIfMissing={errorIfMissing[shipment.shipmentType]}

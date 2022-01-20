@@ -27,6 +27,7 @@ const showWhenCollapsedWithExternalVendor = {
 const showWhenCollapsedWithGHCPrime = {
   HHG_INTO_NTS_DOMESTIC: ['tacType'],
   HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
+  HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'tacType', 'storageFacility'],
 };
 
 const errorIfMissing = {
@@ -193,6 +194,7 @@ const RequestedShipments = ({
                           : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
                       }
                       editURL={editURL}
+                      usesExternalVendor={shipment.usesExternalVendor}
                       /* eslint-disable-next-line react/jsx-props-no-spreading */
                       {...formik.getFieldProps(`shipments`)}
                     />
@@ -264,6 +266,7 @@ const RequestedShipments = ({
                     }
                     isSubmitted={false}
                     editURL={editURL}
+                    usesExternalVendor={shipment.usesExternalVendor}
                   />
                 );
               })}

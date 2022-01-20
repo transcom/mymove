@@ -1,5 +1,17 @@
 import React from 'react';
-import { object } from '@storybook/addon-knobs';
+
+import {
+  ordersLOA,
+  hhgInfo,
+  ntsInfo,
+  ntsMissingInfo,
+  ntsReleaseInfo,
+  ntsReleaseMissingInfo,
+  postalOnlyInfo,
+  diversionInfo,
+  cancelledInfo,
+  usesExternalVendor,
+} from './ShipmentDisplayTestData';
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -19,6 +31,10 @@ export default {
 
 const warnIfMissing = ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
 const errorIfMissing = ['storageFacility'];
+const errorIfMissingTACType = ['tacType'];
+const errorIfMissingStorageFacility = ['storageFacility'];
+
+const warnIfMissing = ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
 const showWhenCollapsed = ['counselorRemarks'];
 
 const ordersLOA = {
@@ -190,17 +206,18 @@ const cancelledInfo = {
 
 export const HHGShipment = () => (
   <div style={{ padding: '20px' }}>
-    <ShipmentDisplay displayInfo={object('displayInfo', hhgInfo)} shipmentType={SHIPMENT_OPTIONS.HHG} isSubmitted />
+    <ShipmentDisplay displayInfo={hhgInfo} ordersLOA={ordersLOA} shipmentType={SHIPMENT_OPTIONS.HHG} isSubmitted />
   </div>
 );
 
-export const HHGShipmentNoIcon = () => (
+export const HHGShipmentServiceCounselor = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={object('displayInfo', hhgInfo)}
+      displayInfo={hhgInfo}
+      ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.HHG}
       isSubmitted
-      showIcon={false}
+      allowApproval={false}
     />
   </div>
 );
@@ -210,8 +227,8 @@ export const HHGShipmentWithCounselorRemarks = () => (
     <ShipmentDisplay
       displayInfo={{ ...hhgInfo, counselorRemarks: 'counselor approved' }}
       shipmentType={SHIPMENT_OPTIONS.HHG}
+      ordersLOA={ordersLOA}
       isSubmitted
-      showIcon={false}
     />
   </div>
 );
@@ -221,8 +238,8 @@ export const HHGShipmentEditable = () => (
     <ShipmentDisplay
       displayInfo={{ ...hhgInfo, counselorRemarks: 'counselor approved' }}
       shipmentType={SHIPMENT_OPTIONS.HHG}
+      ordersLOA={ordersLOA}
       isSubmitted
-      showIcon={false}
       editURL="/"
     />
   </div>
@@ -230,19 +247,70 @@ export const HHGShipmentEditable = () => (
 
 export const NTSShipment = () => (
   <div style={{ padding: '20px' }}>
-    <ShipmentDisplay displayInfo={object('displayInfo', ntsInfo)} shipmentType={SHIPMENT_OPTIONS.NTS} isSubmitted />
+    <ShipmentDisplay
+      displayInfo={ntsInfo}
+      ordersLOA={ordersLOA}
+      shipmentType={SHIPMENT_OPTIONS.NTS}
+      isSubmitted
+      editURL="/"
+    />
+  </div>
+);
+
+export const NTSShipmentMissingInfo = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={ntsMissingInfo}
+      shipmentType={SHIPMENT_OPTIONS.NTS}
+      shipmentId={ntsMissingInfo.shipmentId}
+      ordersLOA={ordersLOA}
+      isSubmitted
+      warnIfMissing={warnIfMissing}
+      errorIfMissing={errorIfMissingTACType}
+      showWhenCollapsed={showWhenCollapsed}
+      editURL="/"
+    />
+  </div>
+);
+
+export const NTSShipmentExternalVendor = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={ntsInfo}
+      shipmentType={SHIPMENT_OPTIONS.NTS}
+      ordersLOA={ordersLOA}
+      usesExternalVendor={usesExternalVendor}
+      isSubmitted
+      editURL="/"
+    />
   </div>
 );
 
 export const NTSReleaseShipment = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={{ ...ntsReleaseInfo }}
+      displayInfo={ntsReleaseInfo}
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       shipmentId={ntsReleaseInfo.shipmentId}
       ordersLOA={ordersLOA}
       showWhenCollapsed={showWhenCollapsed}
       isSubmitted
+      editURL="/"
+    />
+  </div>
+);
+
+export const NTSReleaseShipmentExternalVendor = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={ntsReleaseInfo}
+      shipmentType={SHIPMENT_OPTIONS.NTSR}
+      shipmentId={ntsReleaseInfo.shipmentId}
+      ordersLOA={ordersLOA}
+      showWhenCollapsed={showWhenCollapsed}
+      usesExternalVendor={usesExternalVendor}
+      isSubmitted
+      editURL="/"
     />
   </div>
 );
@@ -250,16 +318,16 @@ export const NTSReleaseShipment = () => (
 export const NTSReleaseShipmentMissingInfo = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={{ ...ntsReleaseMissingInfo }}
+      displayInfo={ntsReleaseMissingInfo}
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       shipmentId={ntsReleaseMissingInfo.shipmentId}
       ordersLOA={ordersLOA}
       isSubmitted
       warnIfMissing={warnIfMissing}
-      errorIfMissing={errorIfMissing}
+      errorIfMissing={errorIfMissingStorageFacility}
       showWhenCollapsed={showWhenCollapsed}
       editURL="/"
-      showIcon={false}
+      allowApproval={false}
     />
   </div>
 );
@@ -267,7 +335,8 @@ export const NTSReleaseShipmentMissingInfo = () => (
 export const ApprovedShipment = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={object('displayInfo', hhgInfo)}
+      displayInfo={hhgInfo}
+      ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.HHG}
       isSubmitted={false}
     />
@@ -277,9 +346,11 @@ export const ApprovedShipment = () => (
 export const PostalOnlyDestination = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={object('displayInfo', postalOnlyInfo)}
+      displayInfo={postalOnlyInfo}
+      ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.HHG}
       isSubmitted
+      editURL="/"
     />
   </div>
 );
@@ -288,9 +359,11 @@ export const DivertedShipment = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
       shipmentId="1"
-      displayInfo={object('displayInfo', diversionInfo)}
+      displayInfo={diversionInfo}
       shipmentType={SHIPMENT_OPTIONS.HHG}
+      ordersLOA={ordersLOA}
       isSubmitted
+      editURL="/"
     />
   </div>
 );
@@ -299,7 +372,8 @@ export const CancelledShipment = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
       shipmentId="1"
-      displayInfo={object('displayInfo', cancelledInfo)}
+      displayInfo={cancelledInfo}
+      ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.HHG}
       isSubmitted
     />
