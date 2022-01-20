@@ -23,6 +23,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
+import { formatWeight } from 'utils/formatters';
 import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
 import { shipmentForm } from 'content/shipments';
 import { DatePickerInput } from 'components/form/fields';
@@ -210,8 +211,8 @@ class MtoShipmentForm extends Component {
                     <Alert type="info" noIcon>
                       Remember: You can move{' '}
                       {orders.has_dependents
-                        ? serviceMember.weight_allotment.total_weight_self_plus_dependents
-                        : serviceMember.weight_allotment.total_weight_self}{' '}
+                        ? formatWeight(serviceMember.weight_allotment.total_weight_self_plus_dependents)
+                        : formatWeight(serviceMember.weight_allotment.total_weight_self)}{' '}
                       lbs total. You’ll be billed for any excess weight you move.
                     </Alert>
 
