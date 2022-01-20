@@ -208,7 +208,7 @@ class MtoShipmentForm extends Component {
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
 
                     <Alert type="info" noIcon>
-                      Remember: You can move {formatWeight(serviceMember.weight_allotment.total_weight_self)} lbs total.
+                      Remember: You can move {formatWeight(serviceMember.weight_allotment.total_weight_self)} total.
                       You’ll be billed for any excess weight you move.
                     </Alert>
 
