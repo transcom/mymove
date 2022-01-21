@@ -169,7 +169,7 @@ const NTSShipmentInfoList = ({
   const agentsElementFlags = getFlags('agents');
   const agentsElement = agents
     ? agents.map((agent) => (
-        <div className={styles.row} key={`${agent.agentType}-${agent.email}`}>
+        <div className={agentsElementFlags.classes} key={`${agent.agentType}-${agent.email}`}>
           <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
           <dd data-testid="agent">{formatAgent(agent)}</dd>
         </div>
@@ -186,7 +186,7 @@ const NTSShipmentInfoList = ({
 
   const customerRemarksElementFlags = getFlags('customerRemarks');
   const customerRemarksElement = (
-    <div className={styles.row}>
+    <div className={customerRemarksElementFlags.classes}>
       <dt>Customer remarks</dt>
       <dd data-testid="customerRemarks">{customerRemarks || '—'}</dd>
     </div>

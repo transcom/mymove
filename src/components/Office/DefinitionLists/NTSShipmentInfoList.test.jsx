@@ -1,12 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { object, text } from '@storybook/addon-knobs';
 
 import NTSShipmentInfoList from './NTSShipmentInfoList';
-
-const showWhenCollapsed = [];
-const warnIfMissing = [];
-const errorIfMissing = ['storageFacility', 'serviceOrderNumber', 'tacType'];
 
 const shipment = {
   storageFacility: {
@@ -98,73 +93,77 @@ describe('NTS Shipment Info List renders all fields when provided and expanded',
   });
 });
 
-describe('NTS Shipment Info List renders all fields when provided and collapsed', () => {
-  describe('For external vendors', () => {
-    it.each([
-      ['requestedPickupDate', shipment.requestedPickupDate],
-      ['serviceOrderNumber', shipment.serviceOrderNumber],
-      ['pickupAddress', shipment.pickupAddress.streetAddress1],
-    ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
-      render(<NTSShipmentInfoList isExpanded shipment={{ ...shipment, usesExternalVendor: true }} />);
-      const shipmentFieldElement = screen.getByTestId(shipmentField);
-      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
-    });
+describe('NTS Shipment Info List renders only the requested pickup date and requested pickup address by default when collapsed when there are no props to control otherwise', () => {
+  it.each([
+    ['requestedPickupDate', shipment.requestedPickupDate],
+    ['pickupAddress', shipment.pickupAddress.streetAddress1],
+  ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+    render(<NTSShipmentInfoList isExpanded shipment={{ ...shipment, usesExternalVendor: true }} />);
+    const shipmentFieldElement = screen.getByTestId(shipmentField);
+    expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
   });
 
-  describe('For GHC prime contractor', () => {
-    it.each([
-      ['requestedPickupDate', shipment.requestedPickupDate],
-      ['pickupAddress', shipment.pickupAddress.streetAddress1],
-      ['tacType', '1234 (HHG)'],
-    ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
-      render(<NTSShipmentInfoList isExpanded shipment={shipment} />);
-      const shipmentFieldElement = screen.getByTestId(shipmentField);
-      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
-    });
-  });
+  // it.each([])('Verify shipment field %s is not present',)
 });
 
-describe('NTS Shipment Info List renders missing required items correctly', () => {
-  it.each(['storageFacilityName', 'storageFacilityAddress', 'serviceOrderNumber', 'tacType'])(
-    'Verify Shipment field %s displays "Missing" with an error class',
-    async (shipmentField) => {
-      render(
-        <NTSShipmentInfoList
-          isExpanded
-          shipment={{
-            counselorRemarks: text('counselorRemarks', shipment.counselorRemarks),
-            requestedPickupDate: text('requestedPickupDate', shipment.requestedPickupDate),
-            pickupAddress: object('pickupAddress', shipment.pickupAddress),
-          }}
-          warnIfMissing={warnIfMissing}
-          errorIfMissing={errorIfMissing}
-          showWhenCollapsed={showWhenCollapsed}
-        />,
-      );
-      const shipmentFieldElement = screen.getByTestId(shipmentField);
-      expect(shipmentFieldElement).toHaveTextContent('Missing');
-      expect(shipmentFieldElement.parentElement).toHaveClass('missingInfoError');
-    },
-  );
-});
-
-describe('NTS Shipment Info List collapsed view', () => {
-  it('hides fields when collapsed', () => {
+describe.each([
+  ['usesExternalVendor', 'usesExternalVendor'],
+  ['storageFacility', 'storageFacilityName'],
+  ['serviceOrderNumber', 'serviceOrderNumber'],
+  ['storageFacility', 'storageFacilityAddress'],
+  ['secondaryPickupAddress', 'secondaryPickupAddress'],
+  ['counselorRemarks', 'counselorRemarks'],
+  ['customerRemarks', 'customerRemarks'],
+  ['tacType', 'tacType'],
+  ['sacType', 'sacType'],
+])('NTS Shipment Info List toggles the fields', (shipmentField, testId) => {
+  it(`renders ${testId} as missing and always shows when collapsed`, () => {
     render(
       <NTSShipmentInfoList
-        isExpanded={false}
-        shipment={shipment}
-        warnIfMissing={warnIfMissing}
-        errorIfMissing={errorIfMissing}
-        showWhenCollapsed={showWhenCollapsed}
+        errorIfMissing={[shipmentField]}
+        shipment={{
+          pickupAddress: {
+            streetAddress1: '441 SW Rio de la Plata Drive',
+            city: 'Tacoma',
+            state: 'WA',
+            postalCode: '98421',
+          },
+        }}
       />,
     );
 
-    expect(screen.queryByTestId('usesExternalVendor')).toBeNull();
-    expect(screen.queryByTestId('storageFacility')).toBeNull();
-    expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
-    expect(screen.queryByTestId('secondaryPickupAddress')).toBeNull();
-    expect(screen.queryByTestId('agents')).toBeNull();
-    expect(screen.queryByTestId('counselorRemarks')).toBeNull();
+    const shipmentFieldElement = screen.getByTestId(testId);
+    expect(shipmentFieldElement.parentElement).toHaveClass('missingInfoError');
+  });
+
+  it(`renders ${testId} with a warning and always shows when collapsed`, () => {
+    render(
+      <NTSShipmentInfoList
+        warnIfMissing={[shipmentField]}
+        shipment={{
+          pickupAddress: {
+            streetAddress1: '441 SW Rio de la Plata Drive',
+            city: 'Tacoma',
+            state: 'WA',
+            postalCode: '98421',
+          },
+        }}
+      />,
+    );
+
+    const shipmentFieldElement = screen.getByTestId(testId);
+    expect(shipmentFieldElement.parentElement).toHaveClass('warning');
+  });
+
+  it(`hides ${testId} even if it has the content and the list is expanded`, () => {
+    render(<NTSShipmentInfoList isExpanded neverShow={[shipmentField]} shipment={{ ...shipment }} />);
+
+    expect(screen.queryByTestId(testId)).toBeNull();
+  });
+
+  it(`always shows ${testId} when it has been marked as show when collapsed and the shipment list is collapsed`, () => {
+    render(<NTSShipmentInfoList showWhenCollapsed={[shipmentField]} shipment={{ ...shipment }} />);
+
+    expect(screen.getByTestId(testId)).toBeInTheDocument();
   });
 });
