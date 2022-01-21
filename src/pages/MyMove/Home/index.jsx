@@ -176,8 +176,8 @@ export class Home extends Component {
             <dd>
               {orders.has_dependents
                 ? formatWeight(serviceMember.weight_allotment.total_weight_self_plus_dependents)
-                : formatWeight(serviceMember.weight_allotment.total_weight_self)}{' '}
-              lbs.
+                : formatWeight(serviceMember.weight_allotment.total_weight_self)}
+              .
             </dd>
           </div>
           {move.locator && (
