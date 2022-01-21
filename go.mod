@@ -52,7 +52,7 @@ require (
 	github.com/leodido/go-urn v1.2.1
 	github.com/lib/pq v1.10.4
 	github.com/luna-duclos/instrumentedsql v1.1.3
-	github.com/markbates/goth v1.68.0
+	github.com/markbates/goth v1.69.0
 	github.com/mattn/go-shellwords v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/namsral/flag v1.7.4-pre
