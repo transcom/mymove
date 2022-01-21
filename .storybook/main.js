@@ -15,6 +15,9 @@ module.exports = {
     // 'storybook-addons-abstract',
     '@dump247/storybook-state',
   ],
+  core: {
+    builder: 'webpack5',
+  },
   refs: {
     'design-system': {
       title: 'ReactUSWDS',
