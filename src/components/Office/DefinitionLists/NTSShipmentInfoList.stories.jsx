@@ -67,36 +67,6 @@ export const NTSBasic = () => (
   />
 );
 
-export const NTSCollapsedExternalVendor = () => (
-  <NTSShipmentInfoList
-    shipment={{
-      counselorRemarks: info.counselorRemarks,
-      requestedPickupDate: info.requestedPickupDate,
-      storageFacility: info.storageFacility,
-      pickupAddress: info.pickupAddress,
-      tacType: info.tacType,
-      sacType: info.sacType,
-      serviceOrderNumber: info.serviceOrderNumber,
-      usesExternalVendor: true,
-    }}
-  />
-);
-
-export const NTSCollapsedGHCPrimeContractor = () => (
-  <NTSShipmentInfoList
-    shipment={{
-      counselorRemarks: info.counselorRemarks,
-      requestedPickupDate: info.requestedPickupDate,
-      storageFacility: info.storageFacility,
-      pickupAddress: info.pickupAddress,
-      tacType: info.tacType,
-      sacType: info.sacType,
-      tac: info.tac,
-      serviceOrderNumber: info.serviceOrderNumber,
-    }}
-  />
-);
-
 export const NTSMissingInfo = () => (
   <NTSShipmentInfoList
     isExpanded
@@ -106,6 +76,18 @@ export const NTSMissingInfo = () => (
       sacType: info.sacType,
     }}
     errorIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
+  />
+);
+
+export const NTSWarning = () => (
+  <NTSShipmentInfoList
+    isExpanded
+    shipment={{
+      requestedPickupDate: info.requestedPickupDate,
+      pickupAddress: info.pickupAddress,
+      sacType: info.sacType,
+    }}
+    warnIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
   />
 );
 
