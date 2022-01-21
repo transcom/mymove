@@ -61,7 +61,7 @@ require (
 	github.com/pkg/sftp v1.13.4
 	github.com/pterm/pterm v0.12.34
 	github.com/rickar/cal v1.0.5
-	github.com/spf13/afero v1.7.1
+	github.com/spf13/afero v1.8.0
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
@@ -72,7 +72,7 @@ require (
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/vektra/mockery/v2 v2.9.4
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
-	go.uber.org/zap v1.19.1
+	go.uber.org/zap v1.20.0
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
