@@ -89,6 +89,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
+	// add log call here
 
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
@@ -129,6 +130,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	payload := params.Body
+	fmt.Printf("this is a test %+v\n", payload)
 	if payload == nil {
 		appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
 
@@ -242,6 +244,11 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateMTOShipment could not generate the event")
 	}
+
+	// activityLogError := models.CreateActivityLog(appCtx.DB())
+	// if activityLogError != nil {
+	// 	appCtx.Logger().Error(activityLogError.Error())
+	// }
 
 	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
