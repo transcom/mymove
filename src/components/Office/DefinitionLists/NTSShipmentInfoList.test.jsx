@@ -102,8 +102,6 @@ describe('NTS Shipment Info List renders only the requested pickup date and requ
     const shipmentFieldElement = screen.getByTestId(shipmentField);
     expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
   });
-
-  // it.each([])('Verify shipment field %s is not present',)
 });
 
 describe.each([
