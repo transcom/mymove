@@ -139,9 +139,15 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if entitlementErr != nil {
 		return handlers.ResponseForError(appCtx.Logger(), entitlementErr)
 	}
+
+	// Assign default sitDaysAllowance based on customer type...but we only have service members right now.
+	// Once we introduce more, this logic will have to change.
+	sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
+
 	entitlement := models.Entitlement{
 		DependentsAuthorized: payload.HasDependents,
 		DBAuthorizedWeight:   models.IntPointer(weight),
+		StorageInTransit:     models.IntPointer(sitDaysAllowance),
 	}
 
 	if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
