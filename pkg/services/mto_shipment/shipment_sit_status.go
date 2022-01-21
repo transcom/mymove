@@ -71,12 +71,34 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		shipmentSITStatus.SITDepartureDate = currentSIT.SITDepartureDate
 	}
 
-	// previously created shipments will not have a value here
-	if shipment.SITDaysAllowance != nil {
-		shipmentSITStatus.TotalDaysRemaining = *shipment.SITDaysAllowance - shipmentSITStatus.TotalSITDaysUsed
+	entitlement, err := fetchEntitlement(appCtx, shipment)
+	if err != nil {
+		return nil // TODO lol this is quite bad, we may need to take it as an argument
 	}
 
+	totalSITAllowance := 0
+	if entitlement.StorageInTransit != nil {
+		totalSITAllowance = *entitlement.StorageInTransit
+	}
+	for _, ext := range shipment.SITExtensions {
+		if ext.ApprovedDays != nil {
+			totalSITAllowance += *ext.ApprovedDays
+		}
+	}
+	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
+
 	return &shipmentSITStatus
+}
+
+func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (*models.Entitlement, error) {
+	var move models.Move
+	err := appCtx.DB().Q().EagerPreload("Orders.Entitlement").Find(&move, mtoShipment.MoveTaskOrderID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return move.Orders.Entitlement, nil
 }
 
 func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {

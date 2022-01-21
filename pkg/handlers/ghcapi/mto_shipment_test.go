@@ -187,7 +187,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Equal(int64(90), *payloadShipment.SitDaysAllowance)
 		suite.Equal(mtoshipment.OriginSITLocation, payloadShipment.SitStatus.Location)
 		suite.Equal(int64(7), *payloadShipment.SitStatus.DaysInSIT)
-		suite.Equal(int64(76), *payloadShipment.SitStatus.TotalDaysRemaining)
+		suite.Equal(int64(176), *payloadShipment.SitStatus.TotalDaysRemaining)
 		suite.Equal(int64(14), *payloadShipment.SitStatus.TotalSITDaysUsed) // 7 from the previous SIT and 7 from the current
 		suite.Equal(subtestData.sit.SITEntryDate.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.SitEntryDate.String())
 		suite.Equal(subtestData.sit.SITDepartureDate.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.SitDepartureDate.String())
