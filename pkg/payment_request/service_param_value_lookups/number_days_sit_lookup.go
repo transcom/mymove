@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"strconv"
@@ -46,11 +47,29 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 		return "", errors.New("new requested SIT dates overlap previously requested dates")
 	}
 
-	if s.MTOShipment.SITDaysAllowance == nil {
-		return "", fmt.Errorf("MTOShipment %v is missing SITDaysAllowance", s.MTOShipment.ID)
+	entitlement, err := fetchEntitlement(appCtx, s.MTOShipment)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return "", fmt.Errorf("MTOShipment %v does not have an Entitlement", s.MTOShipment.ID)
+		default:
+			return "", fmt.Errorf("failed to get Entitlement for MTOShipment %v: %w", s.MTOShipment.ID, err)
+		}
 	}
 
-	remainingShipmentSITDays, err := calculateRemainingSITDays(priorPaymentServiceItems, *s.MTOShipment.SITDaysAllowance)
+	// TODO I'll have to do this calculation in other places too, may be able to refactor it out
+	totalSITAllowance := 0
+	if entitlement.StorageInTransit != nil {
+		totalSITAllowance = *entitlement.StorageInTransit
+	}
+	for _, ext := range s.MTOShipment.SITExtensions {
+		if ext.ApprovedDays != nil {
+			totalSITAllowance += *ext.ApprovedDays
+		}
+	}
+
+	remainingShipmentSITDays, err := calculateRemainingSITDays(priorPaymentServiceItems, totalSITAllowance)
+
 	if err != nil {
 		return "", err
 	}
@@ -127,6 +146,20 @@ func fetchMTOShipmentSITPaymentServiceItems(appCtx appcontext.AppContext, mtoShi
 	}
 
 	return mtoShipmentSITPaymentServiceItems, nil
+}
+
+func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (models.Entitlement, error) {
+	var move models.Move
+	err := appCtx.DB().Q().EagerPreload("Orders.Entitlement").Find(&move, mtoShipment.MoveTaskOrderID)
+
+	if err != nil {
+		return models.Entitlement{}, err
+	}
+	if move.Orders.Entitlement == nil {
+		return models.Entitlement{}, fmt.Errorf("no entitlement found for move %v", mtoShipment.MoveTaskOrderID)
+	}
+
+	return *move.Orders.Entitlement, nil
 }
 
 func calculateRemainingSITDays(sitPaymentServiceItems models.PaymentServiceItems, sitDaysAllowance int) (int, error) {
