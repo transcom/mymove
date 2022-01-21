@@ -65,6 +65,27 @@ Description.defaultProps = {
 };
 
 export class Home extends Component {
+  static sortAllShipments = (mtoShipments, currentPpm) => {
+    const allShipments = JSON.parse(JSON.stringify(mtoShipments));
+    if (Object.keys(currentPpm).length) {
+      const ppm = JSON.parse(JSON.stringify(currentPpm));
+      ppm.shipmentType = SHIPMENT_OPTIONS.PPM;
+      // workaround for differing cases between mtoShipments and ppms (bigger change needed on yaml)
+      ppm.createdAt = ppm.created_at;
+      delete ppm.created_at;
+
+      allShipments.push(ppm);
+    }
+    allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+
+    return allShipments;
+  };
+
+  static handlePrintLegalese = (e) => {
+    e.preventDefault();
+    window.print();
+  };
+
   componentDidMount() {
     const { move, getSignedCertification } = this.props;
     if (Object.entries(move).length && move.status === MOVE_STATUSES.SUBMITTED) {
@@ -217,27 +238,6 @@ export class Home extends Component {
     history.push(path);
   };
 
-  sortAllShipments = (mtoShipments, currentPpm) => {
-    const allShipments = JSON.parse(JSON.stringify(mtoShipments));
-    if (Object.keys(currentPpm).length) {
-      const ppm = JSON.parse(JSON.stringify(currentPpm));
-      ppm.shipmentType = SHIPMENT_OPTIONS.PPM;
-      // workaround for differing cases between mtoShipments and ppms (bigger change needed on yaml)
-      ppm.createdAt = ppm.created_at;
-      delete ppm.created_at;
-
-      allShipments.push(ppm);
-    }
-    allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
-
-    return allShipments;
-  };
-
-  handlePrintLegalese = (e) => {
-    e.preventDefault();
-    window.print();
-  };
-
   render() {
     const {
       currentPpm,
@@ -274,7 +274,7 @@ export class Home extends Component {
     const profileEditPath = customerRoutes.PROFILE_PATH;
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
-    const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
+    const allSortedShipments = Home.sortAllShipments(mtoShipments, currentPpm);
 
     return (
       <>
@@ -403,8 +403,10 @@ export class Home extends Component {
                 </SectionWrapper>
                 <Contact
                   header="Contacts"
+                  // eslint-disable-next-line camelcase
                   dutyStationName={current_station?.transportation_office?.name}
                   officeType="Origin Transportation Office"
+                  // eslint-disable-next-line camelcase
                   telephone={current_station?.transportation_office?.phone_lines[0]}
                 />
               </>

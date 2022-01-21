@@ -56,6 +56,15 @@ class MtoShipmentForm extends Component {
     };
   }
 
+  static getShipmentNumber = () => {
+    // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
+    // we should fix this also b/c it doesn't display correctly in storybook
+    const { search } = window.location;
+    const params = new URLSearchParams(search);
+    const shipmentNumber = params.get('shipmentNumber');
+    return shipmentNumber;
+  };
+
   submitMTOShipment = ({
     shipmentType,
     pickup,
@@ -114,15 +123,6 @@ class MtoShipmentForm extends Component {
     }
   };
 
-  getShipmentNumber = () => {
-    // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
-    // we should fix this also b/c it doesn't display correctly in storybook
-    const { search } = window.location;
-    const params = new URLSearchParams(search);
-    const shipmentNumber = params.get('shipmentNumber');
-    return shipmentNumber;
-  };
-
   render() {
     const {
       match,
@@ -141,7 +141,7 @@ class MtoShipmentForm extends Component {
     const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, roleTypes.CUSTOMER);
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
-    const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;
+    const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? MtoShipmentForm.getShipmentNumber() : null;
 
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
