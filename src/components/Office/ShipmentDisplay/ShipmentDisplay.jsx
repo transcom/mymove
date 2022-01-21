@@ -29,6 +29,7 @@ const ShipmentDisplay = ({
   warnIfMissing,
   errorIfMissing,
   showWhenCollapsed,
+  neverShow,
 }) => {
   const history = useHistory();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
@@ -84,6 +85,7 @@ const ShipmentDisplay = ({
           warnIfMissing={warnIfMissing}
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
+          neverShow={neverShow}
         />
         {editURL && (
           <EditButton
@@ -145,6 +147,7 @@ ShipmentDisplay.propTypes = {
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  neverShow: PropTypes.arrayOf(PropTypes.string),
 };
 
 ShipmentDisplay.defaultProps = {
@@ -161,6 +164,7 @@ ShipmentDisplay.defaultProps = {
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  neverShow: [],
 };
 
 export default ShipmentDisplay;

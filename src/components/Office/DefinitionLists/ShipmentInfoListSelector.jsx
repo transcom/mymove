@@ -14,6 +14,7 @@ const ShipmentInfoListSelector = ({
   warnIfMissing,
   errorIfMissing,
   showWhenCollapsed,
+  neverShow,
   shipmentType,
 }) => {
   switch (shipmentType) {
@@ -39,6 +40,7 @@ const ShipmentInfoListSelector = ({
           warnIfMissing={warnIfMissing}
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
+          neverShow={neverShow}
         />
       );
     default:
@@ -60,6 +62,7 @@ ShipmentInfoListSelector.propTypes = {
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  neverShow: PropTypes.arrayOf(PropTypes.string),
   shipmentType: PropTypes.oneOf([
     SHIPMENT_OPTIONS.HHG,
     SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
@@ -76,6 +79,7 @@ ShipmentInfoListSelector.defaultProps = {
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  neverShow: [],
 };
 
 export default ShipmentInfoListSelector;

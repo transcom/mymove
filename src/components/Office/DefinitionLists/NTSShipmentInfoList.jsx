@@ -9,7 +9,15 @@ import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
 
-const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, errorIfMissing, showWhenCollapsed }) => {
+const NTSShipmentInfoList = ({
+  className,
+  shipment,
+  isExpanded,
+  warnIfMissing,
+  errorIfMissing,
+  showWhenCollapsed,
+  neverShow,
+}) => {
   const {
     pickupAddress,
     secondaryPickupAddress,
@@ -29,6 +37,8 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
   function getFlags(fieldname) {
     let alwaysShow = false;
     let classes = styles.row;
+    // Hide row will override any always show that is set.
+    let hideRow = false;
 
     if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
       alwaysShow = true;
@@ -49,7 +59,13 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
     if (showWhenCollapsed.includes(fieldname)) {
       alwaysShow = true;
     }
+
+    if (neverShow.includes(fieldname)) {
+      hideRow = true;
+    }
+
     return {
+      hideRow,
       alwaysShow,
       classes,
     };
@@ -57,6 +73,10 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
 
   const getMissingOrDash = (fieldName) => {
     return errorIfMissing.includes(fieldName) ? 'Missing' : '—';
+  };
+
+  const showElement = (elementFlags) => {
+    return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
   };
 
   const usesExternalVendorElementFlags = getFlags('usesExternalVendor');
@@ -146,6 +166,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
     </div>
   );
 
+  const agentsElementFlags = getFlags('agents');
   const agentsElement = agents
     ? agents.map((agent) => (
         <div className={styles.row} key={`${agent.agentType}-${agent.email}`}>
@@ -163,6 +184,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
     </div>
   );
 
+  const customerRemarksElementFlags = getFlags('customerRemarks');
   const customerRemarksElement = (
     <div className={styles.row}>
       <dt>Customer remarks</dt>
@@ -180,18 +202,18 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded, warnIfMissing, e
       )}
       data-testid="nts-shipment-info-list"
     >
-      {isExpanded && usesExternalVendorElement}
+      {showElement(usesExternalVendorElementFlags) && usesExternalVendorElement}
       {requestedPickupDateElement}
       {pickupAddressElement}
-      {isExpanded && secondaryPickupAddressElement}
-      {isExpanded && agentsElement}
-      {isExpanded && storageFacilityInfoElement}
-      {(isExpanded || usesExternalVendor) && serviceOrderNumberElement}
-      {isExpanded && storageFacilityAddressElement}
-      {isExpanded && customerRemarksElement}
-      {isExpanded && counselorRemarksElement}
-      {(isExpanded || !usesExternalVendor) && tacElement}
-      {isExpanded && sacElement}
+      {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
+      {showElement(agentsElementFlags) && agentsElement}
+      {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
+      {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}
+      {showElement(storageFacilityAddressElementFlags) && storageFacilityAddressElement}
+      {showElement(customerRemarksElementFlags) && customerRemarksElement}
+      {showElement(counselorRemarksElementFlags) && counselorRemarksElement}
+      {showElement(tacElementFlags) && tacElement}
+      {showElement(sacElementFlags) && sacElement}
     </dl>
   );
 };
@@ -203,6 +225,9 @@ NTSShipmentInfoList.propTypes = {
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  // Never show is added as an option since NTSShipmentInfoList is used by both the TOO
+  // and services counselor and show different things.
+  neverShow: PropTypes.arrayOf(PropTypes.string),
 };
 
 NTSShipmentInfoList.defaultProps = {
@@ -211,6 +236,7 @@ NTSShipmentInfoList.defaultProps = {
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  neverShow: [],
 };
 
 export default NTSShipmentInfoList;

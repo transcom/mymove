@@ -16,6 +16,19 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { tooRoutes } from 'constants/routes';
 
+// nts defauls show preferred pickup date and pickup address, flagged items when collapsed
+// ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
+// Different things show when collapsed depending on if the shipment is an external vendor or not.
+const showWhenCollapsedWithExternalVendor = {
+  HHG_INTO_NTS_DOMESTIC: ['serviceOrderNumber'],
+  HHG_OUTOF_NTS_DOMESTIC: ['serviceOrderNumber'],
+};
+
+const showWhenCollapsedWithGHCPrime = {
+  HHG_INTO_NTS_DOMESTIC: ['tacType'],
+  HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
+};
+
 const errorIfMissing = {
   HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
   HHG_INTO_NTS_DOMESTIC: ['storageFacility', 'serviceOrderNumber', 'tacType'],
@@ -174,6 +187,11 @@ const RequestedShipments = ({
                       isSubmitted
                       displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
                       errorIfMissing={errorIfMissing[shipment.shipmentType]}
+                      showWhenCollapsed={
+                        shipment.usesExternalVendor
+                          ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
+                          : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
+                      }
                       editURL={editURL}
                       /* eslint-disable-next-line react/jsx-props-no-spreading */
                       {...formik.getFieldProps(`shipments`)}
@@ -239,6 +257,11 @@ const RequestedShipments = ({
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
                     displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                    showWhenCollapsed={
+                      shipment.usesExternalVendor
+                        ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
+                        : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
+                    }
                     isSubmitted={false}
                     editURL={editURL}
                   />
