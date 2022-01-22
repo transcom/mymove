@@ -30,7 +30,7 @@
     "numeral": "^2.0.6",
     "path": "^0.12.7",
     "path-to-regexp": "^6.2.0",
-    "prop-types": "^15.8.0",
+    "prop-types": "^15.8.1",
     "query-string": "7",
     "ra-data-simple-rest": "^3.19.6",
     "ra-language-english": "^3.19.6",
