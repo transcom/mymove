@@ -82,17 +82,6 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	return &shipmentSITStatus
 }
 
-func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (*models.Entitlement, error) {
-	var move models.Move
-	err := appCtx.DB().Q().EagerPreload("Orders.Entitlement").Find(&move, mtoShipment.MoveTaskOrderID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return move.Orders.Entitlement, nil
-}
-
 func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {
 	if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
 		return int(serviceItem.SITDepartureDate.Sub(*serviceItem.SITEntryDate).Hours()) / 24
@@ -133,4 +122,15 @@ func (f shipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.AppCo
 		}
 	}
 	return totalSITAllowance, nil
+}
+
+func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (*models.Entitlement, error) {
+	var move models.Move
+	err := appCtx.DB().Q().EagerPreload("Orders.Entitlement").Find(&move, mtoShipment.MoveTaskOrderID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return move.Orders.Entitlement, nil
 }
