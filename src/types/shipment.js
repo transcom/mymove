@@ -27,6 +27,7 @@ export const ShipmentShape = PropTypes.shape({
   agents: PropTypes.arrayOf(AgentShape),
   primeEstimatedWeight: PropTypes.number,
   primeActualWeight: PropTypes.number,
+  ntsRecordedWeight: PropTypes.number,
   diversion: PropTypes.bool,
   counselorRemarks: PropTypes.string,
   customerRemarks: PropTypes.string,

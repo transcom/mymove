@@ -41,7 +41,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 		DestinationDutyStation:     "destDutyStation",
 		OriginDutyStationPhoneLine: &originDutyStationPhoneLine,
 		Locator:                    "abc123",
-		WeightAllowance:            7999,
+		WeightAllowance:            "7,999",
 	}
 	expectedHTMLContent := `<p>
   This is a confirmation that you’ve submitted the details for your move from origDutyStation to destDutyStation.
@@ -58,13 +58,13 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 </p>
 
 <p>
-  <strong>Your weight allowance: 7999 pounds</strong>
+  <strong>Your weight allowance: 7,999 pounds</strong>
   That’s how much the government will pay to ship for you on this move. You won’t owe anything if all your shipments
   combined weigh less than that.
 </p>
 
 <p>
-  If you move more than 7999 pounds, you will owe the government the difference between that and the
+  If you move more than 7,999 pounds, you will owe the government the difference between that and the
   total amount you move.
 </p>
 
@@ -160,7 +160,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyStation
 		DestinationDutyStation:     "destDutyStation",
 		OriginDutyStationPhoneLine: nil,
 		Locator:                    "abc123",
-		WeightAllowance:            7999,
+		WeightAllowance:            "7,999",
 	}
 	expectedHTMLContent := `<p>
   This is a confirmation that you’ve submitted the details for your move to destDutyStation.
@@ -177,13 +177,13 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyStation
 </p>
 
 <p>
-  <strong>Your weight allowance: 7999 pounds</strong>
+  <strong>Your weight allowance: 7,999 pounds</strong>
   That’s how much the government will pay to ship for you on this move. You won’t owe anything if all your shipments
   combined weigh less than that.
 </p>
 
 <p>
-  If you move more than 7999 pounds, you will owe the government the difference between that and the
+  If you move more than 7,999 pounds, you will owe the government the difference between that and the
   total amount you move.
 </p>
 
@@ -280,7 +280,7 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 		DestinationDutyStation:     "destDutyStation",
 		OriginDutyStationPhoneLine: &originDutyStationPhoneLine,
 		Locator:                    "abc123",
-		WeightAllowance:            7999,
+		WeightAllowance:            "7,999",
 	}
 
 	expectedTextContent := `This is a confirmation that you’ve submitted the details for your move from origDutyStation to destDutyStation.
@@ -289,10 +289,10 @@ We’ve assigned you a move code: abc123. You can use this code when talking to 
 
 To change any other information about your move, or to add or cancel shipments, you should tell your movers (if you’re using them) or your move counselor.
 
-Your weight allowance: 7999 pounds
+Your weight allowance: 7,999 pounds
 That’s how much the government will pay to ship for you on this move. You won’t owe anything if all your shipments combined weigh less than that.
 
-If you move more than 7999 pounds, you will owe the government the difference between that and the total amount you move.
+If you move more than 7,999 pounds, you will owe the government the difference between that and the total amount you move.
 
 Your movers will estimate the total weight of your belongings, and you will be notified if it looks like you might exceed your weight allowance. But you’re ultimately responsible for the weight you move.
 
