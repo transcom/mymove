@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -122,4 +123,23 @@ func (f shipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppCo
 	}
 
 	return shipmentsSITStatuses
+}
+
+// CalculateShipmentSITAllowance finds the number of days allowed in SIT for a shipment based on its entitlement and any approved SIT extensions
+func (f shipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error) {
+	entitlement, err := fetchEntitlement(appCtx, shipment)
+	if err != nil {
+		return 0, apperror.NewNotFoundError(shipment.ID, "shipment is missing entitlement")
+	}
+
+	totalSITAllowance := 0
+	if entitlement.StorageInTransit != nil {
+		totalSITAllowance = *entitlement.StorageInTransit
+	}
+	for _, ext := range shipment.SITExtensions {
+		if ext.ApprovedDays != nil {
+			totalSITAllowance += *ext.ApprovedDays
+		}
+	}
+	return totalSITAllowance, nil
 }

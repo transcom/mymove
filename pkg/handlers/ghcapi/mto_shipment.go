@@ -75,6 +75,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerContext
 	mtoShipmentCreator services.MTOShipmentCreator
+	shipmentStatus     services.ShipmentSITStatus
 }
 
 // Handle creates the mto shipment
@@ -87,10 +88,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
 	}
 
-	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
-
-	if err != nil {
+	handleError := func(err error) middleware.Responder {
 		appCtx.Logger().Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
@@ -111,6 +109,27 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
 		}
 	}
+
+	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
+
+	if err != nil {
+		return handleError(err)
+	}
+
+	if mtoShipment == nil {
+		appCtx.Logger().Error("Unexpected nil shipment from CreateMTOShipment")
+		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+	}
+
+	// TODO this function requests extensions as well which is unnecessary because we're creating the shipment, so there
+	//      cannot be any extensions yet. Am I gonna use this anywhere else? or should I just change it to just use entitlement?
+	sitAllowance, err := h.shipmentStatus.CalculateShipmentSITAllowance(appCtx, *mtoShipment)
+	if err != nil {
+		return handleError(err)
+	}
+
+	mtoShipment.SITDaysAllowance = &sitAllowance
 
 	returnPayload := payloads.MTOShipment(mtoShipment, nil)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
