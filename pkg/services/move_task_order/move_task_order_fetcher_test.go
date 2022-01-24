@@ -14,13 +14,26 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
-	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
-	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: expectedOrder,
+	expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+
+	// Make a couple of shipments for the move; one prime, one external
+	primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+		Move: expectedMTO,
+		MTOShipment: models.MTOShipment{
+			UsesExternalVendor: false,
+		},
 	})
+	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+		Move: expectedMTO,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+			UsesExternalVendor: true,
+		},
+	})
+
 	mtoFetcher := NewMoveTaskOrderFetcher()
 
-	suite.T().Run("Success with Prime-available move by ID", func(t *testing.T) {
+	suite.T().Run("Success with Prime-available move by ID, fetch all shipments", func(t *testing.T) {
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:   false,
 			MoveTaskOrderID: expectedMTO.ID,
@@ -36,12 +49,16 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.NotNil(expectedMTO.Locator)
 		suite.Nil(expectedMTO.AvailableToPrimeAt)
 		suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
+
+		// Should get two shipments back since we didn't set searchParams to exclude external ones.
+		suite.Len(actualMTO.MTOShipments, 2)
 	})
 
-	suite.T().Run("Success with Prime-available move by Locator", func(t *testing.T) {
+	suite.T().Run("Success with Prime-available move by Locator, no external shipments", func(t *testing.T) {
 		searchParams := services.MoveTaskOrderFetcherParams{
-			IncludeHidden: false,
-			Locator:       expectedMTO.Locator,
+			IncludeHidden:            false,
+			Locator:                  expectedMTO.Locator,
+			ExcludeExternalShipments: true,
 		}
 
 		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
@@ -54,6 +71,24 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.NotNil(expectedMTO.Locator)
 		suite.Nil(expectedMTO.AvailableToPrimeAt)
 		suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
+
+		// Should get one shipment back since we requested no external shipments.
+		if suite.Len(actualMTO.MTOShipments, 1) {
+			suite.Equal(expectedMTO.ID.String(), actualMTO.ID.String())
+			suite.Equal(primeShipment.ID.String(), actualMTO.MTOShipments[0].ID.String())
+		}
+	})
+
+	suite.T().Run("Failure - nil searchParams", func(t *testing.T) {
+		_, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), nil)
+		suite.Error(err)
+		suite.Contains(err.Error(), "searchParams should not be nil")
+	})
+
+	suite.T().Run("Failure - searchParams with no ID/locator set", func(t *testing.T) {
+		_, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &services.MoveTaskOrderFetcherParams{})
+		suite.Error(err)
+		suite.Contains(err.Error(), "searchParams should have either a move ID or locator set")
 	})
 
 	suite.T().Run("Failure - Not Found with Bad ID", func(t *testing.T) {

@@ -152,6 +152,41 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(strfmt.UUID(sitExtension.ID.String()), reweighPayload.ID)
 	})
 
+	suite.T().Run("Success - filters shipments handled by an external vendor", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+
+		// Create two shipments, one prime, one external.  Only prime one should be returned.
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: false,
+			},
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      move.Locator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+		if suite.Len(movePayload.MtoShipments, 1) {
+			suite.Equal(move.ID.String(), movePayload.ID.String())
+			suite.Equal(primeShipment.ID.String(), movePayload.MtoShipments[0].ID.String())
+		}
+	})
+
 	suite.T().Run("Failure 'Not Found' for non-available move", func(t *testing.T) {
 		failureMove := testdatagen.MakeDefaultMove(suite.DB()) // default is not available to Prime
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -259,6 +294,21 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	}
 
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
+		// Create two shipments, one prime, one external.  Only prime one should be returned.
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: false,
+			},
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+
 		queryBuilder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(queryBuilder)
 		moveRouter := moverouter.NewMoveRouter()
@@ -277,10 +327,17 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationOK{}, response)
 
 		okResponse := response.(*movetaskorderops.UpdateMTOPostCounselingInformationOK)
-		suite.Equal(mto.ID.String(), okResponse.Payload.ID.String())
-		suite.NotNil(okResponse.Payload.ETag)
-		suite.Equal(okResponse.Payload.PpmType, "FULL")
-		suite.Equal(okResponse.Payload.PpmEstimatedWeight, int64(3000))
+		okPayload := okResponse.Payload
+
+		suite.Equal(mto.ID.String(), okPayload.ID.String())
+		suite.NotNil(okPayload.ETag)
+		suite.Equal(okPayload.PpmType, "FULL")
+		suite.Equal(okPayload.PpmEstimatedWeight, int64(3000))
+
+		if suite.Len(okPayload.MtoShipments, 1) {
+			suite.Equal(mto.ID.String(), okPayload.ID.String())
+			suite.Equal(primeShipment.ID.String(), okPayload.MtoShipments[0].ID.String())
+		}
 	})
 
 	suite.T().Run("Unsuccessful patch - Integration Test - patch fail MTO not available", func(t *testing.T) {
