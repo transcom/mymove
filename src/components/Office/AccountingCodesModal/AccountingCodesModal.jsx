@@ -6,7 +6,7 @@ import { Button } from '@trussworks/react-uswds';
 import styles from './AccountingCodesModal.module.scss';
 
 import AccountingCodeSection from 'components/Office/AccountingCodeSection/AccountingCodeSection';
-import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
+import Modal, { ModalActions, ModalClose, ModalTitle, connectModal } from 'components/Modal/Modal';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { Form } from 'components/form';
 import { shipmentTypes } from 'constants/shipments';
@@ -78,4 +78,4 @@ AccountingCodesModal.defaultProps = {
   sacType: '',
 };
 
-export default AccountingCodesModal;
+export default connectModal(AccountingCodesModal);

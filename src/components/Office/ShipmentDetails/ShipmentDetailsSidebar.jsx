@@ -4,7 +4,7 @@ import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from 'components/Office/ShipmentDetails/ShipmentDetailsSidebar.module.scss';
-import AccountingCodesModal from '../AccountingCodesModal/AccountingCodesModal';
+import ConnectedAccountingCodesModal from '../AccountingCodesModal/AccountingCodesModal';
 
 import SimpleSection from 'containers/SimpleSection/SimpleSection';
 import ConnectedEditFacilityInfoModal from 'components/Office/EditFacilityInfoModal/EditFacilityInfoModal';
@@ -46,22 +46,28 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditAcco
       />
 
     <div className={className}>
-      {isAccountingCodesModalVisible && (
-        <AccountingCodesModal
-          onSubmit={(e) => {
-            handleEditAccountingCodes(e, shipment);
+        <ConnectedAccountingCodesModal
+          isOpen={isAccountingCodesModalVisible}
+          onSubmit={(accountingTypes) => {
+            handleEditAccountingCodes(accountingTypes, shipment);
             setIsAccountingCodesModalVisible(false);
           }}
           onClose={() => {
             setIsAccountingCodesModalVisible(false);
           }}
           onEditCodesClick={() => {}}
-          TACs={tac}
-          SACs={sac}
+          shipmentType={shipment.shipmentType}
+          TACs={{
+            HHG: ordersLOA.tac,
+            NTS: ordersLOA.ntsTac,
+          }}
+          SACs={{
+            HHG: ordersLOA.sac,
+            NTS: ordersLOA.ntsSac,
+          }}
           tacType={shipment.tacType}
           sacType={shipment.sacType}
         />
-      )}
 
       {mtoAgents &&
         mtoAgents.map((agent) => (
