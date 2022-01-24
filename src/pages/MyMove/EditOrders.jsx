@@ -24,9 +24,9 @@ import {
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
-import { formatYesNoInputValue } from 'utils/formatters';
+import { formatWeight, formatYesNoInputValue } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import { dropdownInputOptions, formatWeight } from 'shared/formatters';
+import { dropdownInputOptions } from 'shared/formatters';
 import { ExistingUploadsShape } from 'types';
 
 export const EditOrders = ({

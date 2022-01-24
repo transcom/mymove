@@ -16,7 +16,7 @@ import {
 } from 'store/entities/selectors';
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 
 export const EditServiceInfo = ({
   serviceMember,
