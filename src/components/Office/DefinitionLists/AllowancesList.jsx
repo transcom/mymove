@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import styles from './OfficeDefinitionLists.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import friendlyBranchRank from 'utils/branchRankFormatters';
 
 const AllowancesList = ({ info, showVisualCues }) => {
