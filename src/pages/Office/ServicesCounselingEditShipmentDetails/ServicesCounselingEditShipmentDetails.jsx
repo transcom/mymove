@@ -77,6 +77,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
                   TACs={TACs}
                   SACs={SACs}
                   userRole={roleTypes.SERVICES_COUNSELOR}
+                  orderType={order.order_type}
                 />
               </Grid>
             </Grid>
