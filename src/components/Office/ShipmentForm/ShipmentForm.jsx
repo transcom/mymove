@@ -416,7 +416,12 @@ const ShipmentForm = ({
                 )}
 
                 <div className={`${formStyles.formActions} ${styles.buttonGroup}`}>
-                  <Button disabled={isSubmitting || !isValid} type="submit" onClick={handleSubmit}>
+                  <Button
+                    data-testid="submitForm"
+                    disabled={isSubmitting || !isValid}
+                    type="submit"
+                    onClick={handleSubmit}
+                  >
                     Save
                   </Button>
                   <Button
