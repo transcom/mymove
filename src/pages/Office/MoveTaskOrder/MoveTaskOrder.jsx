@@ -210,7 +210,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateOrders] = useMutation(updateBillableWeight, {
+  const [mutateOrderBillableWeight] = useMutation(updateBillableWeight, {
     onSuccess: (data, variables) => {
       queryCache.invalidateQueries([MOVES, move.locator]);
       const updatedOrder = data.orders[variables.orderID];
@@ -417,7 +417,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   };
 
   const handleUpdateBillableWeight = (maxBillableWeight) => {
-    mutateOrders({ orderID: order.id, ifMatchETag: order.eTag, body: { authorizedWeight: maxBillableWeight } });
+    mutateOrderBillableWeight({
+      orderID: order.id,
+      ifMatchETag: order.eTag,
+      body: { authorizedWeight: maxBillableWeight },
+    });
   };
 
   const handleAcknowledgeExcessWeightRisk = () => {
