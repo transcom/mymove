@@ -31,6 +31,7 @@ const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentTyp
           <Formik initialValues={{ tacType, sacType }} onSubmit={handleFormSubmit}>
             <Form>
               <AccountingCodeSection
+                key={1}
                 label="TAC"
                 emptyMessage="No TAC code entered."
                 fieldName="tacType"
@@ -38,6 +39,7 @@ const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentTyp
               />
 
               <AccountingCodeSection
+                key={2}
                 label="SAC (optional)"
                 emptyMessage="No SAC code entered."
                 fieldName="sacType"

@@ -38,8 +38,10 @@ export default {
 const itsBeenOneWeek = moment(mockedDate).subtract(7, 'days').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
 
 const order = {
-  sac: '1234456',
   tac: '1213',
+  // sac: 'CD7890',
+  ntsTac: '4546',
+  ntsSac: 'AB7890',
 };
 
 const contractor = {
@@ -62,11 +64,15 @@ const shipmentsInfo = [
     mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
     departureDate: '2020-01-09T00:00:00.000Z',
     address: shipmentAddress,
+    tacType: 'HHG',
+    sacType: 'HHG',
   },
   {
     mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
     departureDate: '2020-01-09T00:00:00.000Z',
     address: shipmentAddress,
+    tacType: 'NTS',
+    sacType: 'NTS',
   },
 ];
 

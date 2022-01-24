@@ -20,6 +20,7 @@ import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequ
 import BillableWeightCard from 'components/Office/BillableWeight/BillableWeightCard/BillableWeightCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SHIPMENT_OPTIONS, LOA_TYPE } from 'shared/constants';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
@@ -146,12 +147,17 @@ const MovePaymentRequests = ({
 
   if (paymentRequests.length) {
     mtoShipments.forEach((shipment) => {
+      const tacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.tacType;
+      const sacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.sacType;
+
       shipmentsInfo.push({
         mtoShipmentID: shipment.id,
         address: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
         departureDate: shipment.actualPickupDate,
         modificationType: getShipmentModificationType(shipment),
         mtoServiceItems: shipment.mtoServiceItems,
+        tacType,
+        sacType,
       });
     });
   }
@@ -164,6 +170,8 @@ const MovePaymentRequests = ({
     };
     mutateMoves(payload);
   };
+
+  const handleEditAccountingCodes = () => {};
 
   const anyShipmentOverweight = (shipments) => {
     return shipments.some((shipment) => {
@@ -268,6 +276,7 @@ const MovePaymentRequests = ({
                   hasBillableWeightIssues={!noBillableWeightIssues}
                   shipmentsInfo={shipmentsInfo}
                   key={paymentRequest.id}
+                  onEditAccountingCodes={handleEditAccountingCodes}
                 />
               ))
             ) : (
