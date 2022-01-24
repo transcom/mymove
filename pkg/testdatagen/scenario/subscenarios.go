@@ -96,15 +96,36 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 		createTXOServicesCounselor(appCtx)
 		createTXOServicesUSMCCounselor(appCtx)
 
-		// Services Counseling
-		createHHGNeedsServicesCounseling(appCtx)
+		//Order Types -- PCoS, Retr, Sep
+		var pcos = internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		var retirement = internalmessages.OrdersTypeRETIREMENT
+		var separation = internalmessages.OrdersTypeSEPARATION
+
+		//Shipment Types -- HHG, NTS, NTSR
+		var hhg = models.MTOShipmentTypeHHG
+		var nts = models.MTOShipmentTypeHHGIntoNTSDom
+		var ntsR = models.MTOShipmentTypeHHGOutOfNTSDom
+
+		//PCOS
+		createNeedsServicesCounseling(appCtx, pcos, hhg)
+		createNeedsServicesCounseling(appCtx, pcos, nts)
+		createNeedsServicesCounseling(appCtx, pcos, ntsR)
+
+		//Retr
+		createNeedsServicesCounseling(appCtx, retirement, hhg)
+		createNeedsServicesCounseling(appCtx, retirement, nts)
+		createNeedsServicesCounseling(appCtx, retirement, ntsR)
+
+		//Separation
+		createNeedsServicesCounseling(appCtx, separation, hhg)
+		createNeedsServicesCounseling(appCtx, separation, nts)
+		createNeedsServicesCounseling(appCtx, separation, ntsR)
+
+		//MC
 		createHHGNeedsServicesCounselingUSMC(appCtx, userUploader)
 		createHHGNeedsServicesCounselingUSMC2(appCtx, userUploader)
 		createHHGServicesCounselingCompleted(appCtx)
 		createHHGNoShipments(appCtx)
-		//Retirees and Separatees
-		createHHGNeedsServicesCounselingOrdersType(appCtx, internalmessages.OrdersTypeRETIREMENT)
-		createHHGNeedsServicesCounselingOrdersType(appCtx, internalmessages.OrdersTypeSEPARATION)
 
 		for i := 0; i < 12; i++ {
 			validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
