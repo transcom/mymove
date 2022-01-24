@@ -197,6 +197,17 @@ const PaymentRequestCard = ({
           </div>
         </div>
       </div>
+      {showModal && (
+        <AccountingCodesModal
+          shipmentType={modalShipment.shipmentType}
+          TACs={tacs}
+          SACs={sacs}
+          onClose={handleModalCancel}
+          onSubmit={handleModalSave}
+          sacType={modalShipment.sacType}
+          tacType={modalShipment.tacType}
+        />
+      )}
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
           {sortedShipments.map((serviceItems) => {
@@ -220,17 +231,6 @@ const PaymentRequestCard = ({
                   sacs={sacs}
                   onEditClick={onEditClick}
                 />
-                {showModal && (
-                  <AccountingCodesModal
-                    shipmentType={modalShipment.shipmentType}
-                    TACs={tacs}
-                    SACs={sacs}
-                    onClose={handleModalCancel}
-                    onSubmit={handleModalSave}
-                    sacType={modalShipment.sacType}
-                    tacType={modalShipment.tacType}
-                  />
-                )}
               </>
             );
           })}
