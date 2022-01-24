@@ -12,7 +12,7 @@ import ScrollToTop from 'components/ScrollToTop';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import { selectCurrentOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { RouteProps } from 'types/router';
 
