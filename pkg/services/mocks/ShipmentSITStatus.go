@@ -38,7 +38,7 @@ func (_m *ShipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.App
 }
 
 // CalculateShipmentSITStatus provides a mock function with given fields: appCtx, shipment
-func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) *services.SITStatus {
+func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
 	ret := _m.Called(appCtx, shipment)
 
 	var r0 *services.SITStatus
@@ -50,7 +50,7 @@ func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppCon
 		}
 	}
 
-	return r0
+	return r0, nil
 }
 
 // CalculateShipmentsSITStatuses provides a mock function with given fields: appCtx, shipments

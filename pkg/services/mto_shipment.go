@@ -129,6 +129,6 @@ type SITStatus struct {
 //go:generate mockery --name ShipmentSITStatus --disable-version-string
 type ShipmentSITStatus interface {
 	CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]SITStatus
-	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) *SITStatus
+	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*SITStatus, error)
 	CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error)
 }

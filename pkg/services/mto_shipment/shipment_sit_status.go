@@ -23,9 +23,9 @@ func NewShipmentSITStatus() services.ShipmentSITStatus {
 	return &shipmentSITStatus{}
 }
 
-func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) *services.SITStatus {
+func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
 	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	var shipmentSITStatus services.SITStatus
@@ -56,7 +56,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	// There were no departure SIT service items for this shipment
 	if currentSIT == nil && len(shipmentSITStatus.PastSITs) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	shipmentSITStatus.ShipmentID = shipment.ID
@@ -74,12 +74,12 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
 	if err != nil {
-		return nil // TODO lol this is quite bad, we may need to take it as an argument
+		return nil, err
 	}
 
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
 
-	return &shipmentSITStatus
+	return &shipmentSITStatus, nil
 }
 
 func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {
@@ -96,7 +96,7 @@ func (f shipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppCo
 	shipmentsSITStatuses := map[string]services.SITStatus{}
 
 	for _, shipment := range shipments {
-		shipmentSITStatus := f.CalculateShipmentSITStatus(appCtx, shipment)
+		shipmentSITStatus, _ := f.CalculateShipmentSITStatus(appCtx, shipment)
 		if shipmentSITStatus != nil {
 			shipmentsSITStatuses[shipment.ID.String()] = *shipmentSITStatus
 		}
