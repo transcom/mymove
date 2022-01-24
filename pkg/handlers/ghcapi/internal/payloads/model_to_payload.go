@@ -428,9 +428,9 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 	}
 
-	totalSITAllowance := 0
 	if sitStatusPayload != nil {
 		// If we have a sitStatusPayload, overwrite SitDaysAllowance from the shipment model.
+		totalSITAllowance := 0
 		if sitStatusPayload.TotalDaysRemaining != nil {
 			totalSITAllowance += int(*sitStatusPayload.TotalDaysRemaining)
 		}
