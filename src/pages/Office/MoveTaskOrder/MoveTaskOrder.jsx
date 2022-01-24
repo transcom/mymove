@@ -380,6 +380,16 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     });
   };
 
+  const handleEditAccountingCodes = (fields, shipment) => {
+    const body = { tacType: null, sacType: null, ...fields };
+    mutateMTOShipment({
+      moveTaskOrderID: shipment.moveTaskOrderID,
+      shipmentID: shipment.id,
+      ifMatchETag: shipment.eTag,
+      body,
+    });
+  };
+
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
       shipmentID: mtoShipmentID,
@@ -747,6 +757,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
                   handleEditFacilityInfo={handleEditFacilityInfo}
+                  handleEditAccountingCodes={handleEditAccountingCodes}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
