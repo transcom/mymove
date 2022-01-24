@@ -72,20 +72,11 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		shipmentSITStatus.SITDepartureDate = currentSIT.SITDepartureDate
 	}
 
-	entitlement, err := fetchEntitlement(appCtx, shipment)
+	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
 	if err != nil {
 		return nil // TODO lol this is quite bad, we may need to take it as an argument
 	}
 
-	totalSITAllowance := 0
-	if entitlement.StorageInTransit != nil {
-		totalSITAllowance = *entitlement.StorageInTransit
-	}
-	for _, ext := range shipment.SITExtensions {
-		if ext.ApprovedDays != nil {
-			totalSITAllowance += *ext.ApprovedDays
-		}
-	}
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
 
 	return &shipmentSITStatus
