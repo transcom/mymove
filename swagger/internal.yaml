@@ -52,7 +52,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       original_move_date:
         type: string
-        example: 2018-04-26
+        example: '2018-04-26'
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -136,12 +136,12 @@ definitions:
       original_move_date:
         type: string
         format: date
-        example: 2018-04-26
+        example: '2018-04-26'
         title: When do you plan to move?
         x-nullable: true
       actual_move_date:
         type: string
-        example: 2018-04-26
+        example: '2018-04-26'
         format: date
         title: When did you actually move?
         x-nullable: true
@@ -230,13 +230,13 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       original_move_date:
         type: string
-        example: 2018-04-26
+        example: '2018-04-26'
         format: date
         title: When do you plan to move?
         x-nullable: true
       actual_move_date:
         type: string
-        example: 2018-04-26
+        example: '2018-04-26'
         format: date
         title: When did you actually move?
         x-nullable: true
@@ -341,11 +341,11 @@ definitions:
         type: string
         format: date
         title: When do you plan to move?
-        example: 2018-04-26
+        example: '2018-04-26'
         x-nullable: true
       actual_move_date:
         type: string
-        example: 2018-04-26
+        example: '2018-04-26'
         format: date
         title: When did you actually move?
         x-nullable: true
@@ -353,13 +353,13 @@ definitions:
         type: string
         format: date-time
         title: When was the ppm move submitted?
-        example: 2019-03-26T13:19:56-04:00
+        example: '2019-03-26T13:19:56-04:00'
         x-nullable: true
       approve_date:
         type: string
         format: date-time
         title: When was the ppm move approved?
-        example: 2019-03-26T13:19:56-04:00
+        example: '2019-03-26T13:19:56-04:00'
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -493,7 +493,7 @@ definitions:
         type: string
         format: date-time
         title: When was the ppm move submitted?
-        example: 2019-03-26T13:19:56-04:00
+        example: '2019-03-26T13:19:56-04:00'
     required:
       - submit_date
   PPMSitEstimate:
@@ -567,7 +567,7 @@ definitions:
         type: string
         format: date-time
         title: When was the ppm move approved?
-        example: 2019-03-26T13:19:56-04:00
+        example: '2019-03-26T13:19:56-04:00'
     required:
       - approve_date
   IndexPersonallyProcuredMovePayload:
@@ -766,7 +766,7 @@ definitions:
       weight_ticket_date:
         title: Weight ticket date
         type: string
-        example: 2018-04-26
+        example: '2018-04-26'
         format: date
         x-nullable: true
       trailer_ownership_missing:
@@ -777,13 +777,13 @@ definitions:
         type: string
         format: date
         title: Start date of storage for storage expenses
-        example: 2018-04-26
+        example: '2018-04-26'
         x-nullable: true
       storage_end_date:
         type: string
         format: date
         title: End date of storage for storage expenses
-        example: 2018-04-26
+        example: '2018-04-26'
         x-nullable: true
     required:
       - id
@@ -886,13 +886,13 @@ definitions:
         type: string
         format: date
         title: Start date of storage for storage expenses
-        example: 2018-04-26
+        example: '2018-04-26'
         x-nullable: true
       storage_end_date:
         type: string
         format: date
         title: End date of storage for storage expenses
-        example: 2018-04-26
+        example: '2018-04-26'
         x-nullable: true
     required:
       - title
@@ -980,7 +980,7 @@ definitions:
       weight_ticket_date:
         title: Full Weight Ticket Date
         type: string
-        example: 2018-04-26
+        example: '2018-04-26'
         format: date
         x-nullable: true
       trailer_ownership_missing:
@@ -1696,7 +1696,7 @@ definitions:
       requested_date:
         x-nullable: true
         type: string
-        example: 2018-04-26
+        example: '2018-04-26'
         format: date
         title: Requested Date
     required:
@@ -1819,13 +1819,13 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: 2018-04-26
+        example: '2018-04-26'
         title: Date issued
       report_by_date:
         type: string
         description: Report By Date
         format: date
-        example: 2018-04-26
+        example: '2018-04-26'
         title: Report by
       status:
         $ref: '#/definitions/OrdersStatus'
@@ -1906,13 +1906,13 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: 2018-04-26
+        example: '2018-04-26'
         title: Orders date
       report_by_date:
         type: string
         description: Report By Date
         format: date
-        example: 2018-04-26
+        example: '2018-04-26'
         title: Report-by date
       orders_type:
         $ref: '#/definitions/OrdersType'
@@ -2013,17 +2013,17 @@ definitions:
       move_date:
         type: string
         format: date
-        example: 2018-04-25
+        example: '2018-04-25'
         x-nullable: true
       submitted_date:
         type: string
         format: date-time
-        example: 2018-04-25
+        example: '2018-04-25'
         x-nullable: true
       last_modified_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28Z
+        example: '2017-07-21T17:32:28Z'
       created_at:
         type: string
         format: date-time
@@ -2040,7 +2040,7 @@ definitions:
       pm_survey_conducted_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28Z
+        example: '2017-07-21T17:32:28Z'
         x-nullable: true
       origin_gbloc:
         type: string
@@ -2055,12 +2055,12 @@ definitions:
       delivered_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28Z
+        example: '2017-07-21T17:32:28Z'
         x-nullable: true
       invoice_approved_date:
         type: string
         format: date-time
-        example: 2017-07-21T17:32:28Z
+        example: '2017-07-21T17:32:28Z'
         x-nullable: true
       weight_allotment:
         $ref: '#/definitions/WeightAllotment'
@@ -2069,12 +2069,12 @@ definitions:
       actual_move_date:
         type: string
         format: date
-        example: 2018-04-25
+        example: '2018-04-25'
         x-nullable: true
       original_move_date:
         type: string
         format: date
-        example: 2018-04-25
+        example: '2018-04-25'
         x-nullable: true
     required:
       - id
@@ -2100,37 +2100,37 @@ definitions:
       move_date:
         type: string
         format: date
-        example: 2018-09-25
+        example: '2018-09-25'
       pack:
         type: array
         items:
           type: string
           format: date
-          example: 2018-09-25
+          example: '2018-09-25'
       pickup:
         type: array
         items:
           type: string
           format: date
-          example: 2018-09-25
+          example: '2018-09-25'
       transit:
         type: array
         items:
           type: string
           format: date
-          example: 2018-09-25
+          example: '2018-09-25'
       delivery:
         type: array
         items:
           type: string
           format: date
-          example: 2018-09-25
+          example: '2018-09-25'
       report:
         type: array
         items:
           type: string
           format: date
-          example: 2018-09-25
+          example: '2018-09-25'
     required:
       - id
       - move_id
@@ -2146,13 +2146,13 @@ definitions:
       start_date:
         type: string
         format: date
-        example: 2018-09-25
+        example: '2018-09-25'
       available:
         type: array
         items:
           type: string
           format: date
-          example: 2018-09-25
+          example: '2018-09-25'
     required:
       - start_date
       - available
@@ -2227,7 +2227,7 @@ definitions:
       claimed_at:
         type: string
         format: date-time
-        example: 2018-04-12T23:20:50.52Z
+        example: '2018-04-12T23:20:50.52Z'
         description: when the access code was claimed or used
         x-nullable: true
     required:
