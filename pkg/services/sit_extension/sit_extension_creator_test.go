@@ -74,12 +74,30 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("Failure - Not Found Error", func(t *testing.T) {
+	suite.T().Run("Failure - Not Found Error because shipment not found", func(t *testing.T) {
 		// Create a SIT Extension for the move
 		sit := &models.SITExtension{
-			RequestReason: models.SITExtensionRequestReason("none"),
-			MTOShipmentID: uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
-			RequestedDays: 10,
+			MTOShipmentID: uuid.Must(uuid.NewV4()),
+		}
+
+		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(suite.AppContextForTest(), sit)
+
+		suite.Nil(createdSITExtension)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.T().Run("Failure - Not Found Error because shipment uses external vendor", func(t *testing.T) {
+		externalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+
+		// Create a SIT Extension for the move
+		sit := &models.SITExtension{
+			MTOShipmentID: externalShipment.ID,
 		}
 
 		createdSITExtension, err := sitExtensionCreator.CreateSITExtension(suite.AppContextForTest(), sit)
