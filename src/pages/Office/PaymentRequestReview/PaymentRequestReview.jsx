@@ -10,7 +10,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { HistoryShape, MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
-import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
+import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { patchPaymentRequest, patchPaymentServiceItemStatus } from 'services/ghcApi';
 import { usePaymentRequestQueries } from 'hooks/queries';
 import { PAYMENT_REQUESTS } from 'constants/queryKeys';
@@ -94,8 +94,8 @@ export const PaymentRequestReview = ({ history, match, order }) => {
         mtoShipmentDestinationAddress: selectedShipment
           ? formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress)
           : undefined,
-        mtoShipmentTacType: item.mtoShipmentType === 'HHG' ? 'HHG' : selectedShipment?.tacType,
-        mtoShipmentSacType: item.mtoShipmentType === 'HHG' ? 'HHG' : selectedShipment?.sacType,
+        mtoShipmentTacType: item.mtoShipmentType === LOA_TYPE.HHG ? LOA_TYPE.HHG : selectedShipment?.tacType,
+        mtoShipmentSacType: item.mtoShipmentType === LOA_TYPE.HHG ? LOA_TYPE.HHG : selectedShipment?.sacType,
         mtoShipmentModificationType: selectedShipment ? getShipmentModificationType(selectedShipment) : undefined,
         mtoServiceItemCode: item.mtoServiceItemCode,
         mtoServiceItemName: item.mtoServiceItemName,

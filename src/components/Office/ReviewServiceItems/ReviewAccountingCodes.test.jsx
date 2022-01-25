@@ -3,7 +3,7 @@ import { screen, render, within } from '@testing-library/react';
 
 import ReviewAccountingCodes from './ReviewAccountingCodes';
 
-import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
+import { LOA_TYPE, PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 
 describe('components/Office/ReviewServiceItems/ReviewAccountingCodes', () => {
   describe('can display nothing if there are no valid service items', () => {
@@ -56,14 +56,14 @@ describe('components/Office/ReviewServiceItems/ReviewAccountingCodes', () => {
               mtoShipmentID: '1',
               mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
-              mtoShipmentTacType: 'HHG',
+              mtoShipmentTacType: LOA_TYPE.HHG,
             },
             {
               amount: 20,
               mtoShipmentID: '1',
               mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
-              mtoShipmentTacType: 'HHG',
+              mtoShipmentTacType: LOA_TYPE.HHG,
             },
           ]}
         />,
@@ -85,23 +85,23 @@ describe('components/Office/ReviewServiceItems/ReviewAccountingCodes', () => {
               mtoShipmentID: '1',
               mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
-              mtoShipmentTacType: 'HHG',
+              mtoShipmentTacType: LOA_TYPE.HHG,
             },
             {
               amount: 20,
               mtoShipmentID: '2',
               mtoShipmentType: SHIPMENT_OPTIONS.NTS,
               status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
-              mtoShipmentTacType: 'NTS',
-              mtoShipmentSacType: 'HHG',
+              mtoShipmentTacType: LOA_TYPE.NTS,
+              mtoShipmentSacType: LOA_TYPE.HHG,
             },
             {
               amount: 30,
               mtoShipmentID: '3',
               mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
               status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
-              mtoShipmentTacType: 'NTS',
-              mtoShipmentSacType: 'NTS',
+              mtoShipmentTacType: LOA_TYPE.NTS,
+              mtoShipmentSacType: LOA_TYPE.NTS,
             },
           ]}
         />,

@@ -24,7 +24,7 @@ const ReviewDetailsCard = ({
 }) => {
   return (
     <div data-testid="ReviewDetailsCard" className={styles.ReviewDetailsCard}>
-      <h4 className={styles.cardHeader}>Review details</h4>
+      <h3 className={styles.cardHeader}>Review details</h3>
 
       {authorized && <PaymentReviewed authorizedAmount={acceptedAmount} dateAuthorized={dateAuthorized} />}
 

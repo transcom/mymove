@@ -2,7 +2,7 @@ import React from 'react';
 
 import ReviewAccountingCodes from './ReviewAccountingCodes';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { LOA_TYPE, SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
   title: 'Office Components/ReviewServiceItems/ReviewAccountingCodes',
@@ -15,14 +15,14 @@ const SACs = { HHG: 'AB12', NTS: 'CD34' };
 const serviceItemsHHG = [
   {
     status: 'APPROVED',
-    mtoShipmentTacType: 'HHG',
+    mtoShipmentTacType: LOA_TYPE.HHG,
     mtoShipmentID: '10',
     mtoShipmentType: SHIPMENT_OPTIONS.HHG,
     amount: 23.45,
   },
   {
     status: 'APPROVED',
-    mtoShipmentTacType: 'HHG',
+    mtoShipmentTacType: LOA_TYPE.HHG,
     mtoShipmentID: '10',
     mtoShipmentType: SHIPMENT_OPTIONS.HHG,
     amount: 99.55,
@@ -32,16 +32,16 @@ const serviceItemsHHG = [
 const serviceItemsNTSR = [
   {
     status: 'APPROVED',
-    mtoShipmentTacType: 'NTS',
-    mtoShipmentSacType: 'NTS',
+    mtoShipmentTacType: LOA_TYPE.NTS,
+    mtoShipmentSacType: LOA_TYPE.NTS,
     mtoShipmentID: '20',
     mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
     amount: 559,
   },
   {
     status: 'APPROVED',
-    mtoShipmentTacType: 'NTS',
-    mtoShipmentSacType: 'NTS',
+    mtoShipmentTacType: LOA_TYPE.NTS,
+    mtoShipmentSacType: LOA_TYPE.NTS,
     mtoShipmentID: '20',
     mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
     amount: 552.11,
