@@ -371,12 +371,14 @@ const ShipmentForm = ({
                         {hasDeliveryAddress === 'yes' ? (
                           <>
                             <AddressFields name="delivery.address" render={(fields) => <>{fields}</>} />
-                            <DropdownInput
-                              label="Destination type"
-                              name="destinationAddressType"
-                              options={shipmentDestinationAddressOptions}
-                              id="destinationAddressType"
-                            />
+                            {isRetirementOrSeparation && (
+                              <DropdownInput
+                                label="Destination type"
+                                name="destinationAddressType"
+                                options={shipmentDestinationAddressOptions}
+                                id="destinationAddressType"
+                              />
+                            )}
                           </>
                         ) : (
                           <p>
