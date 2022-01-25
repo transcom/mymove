@@ -1127,7 +1127,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -1373,7 +1373,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
         "consumes": [
           "application/json"
         ],
@@ -2954,6 +2954,7 @@ func init() {
   },
   "definitions": {
     "Address": {
+      "description": "A postal address",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -2975,7 +2976,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3335,7 +3337,6 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "requestedPickupDate",
         "pickupAddress",
         "destinationAddress"
       ],
@@ -3362,6 +3363,18 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "destinationAddressType": {
+          "type": "string",
+          "title": "Destination Address Type",
+          "enum": [
+            "HOME_OF_RECORD",
+            "HOME_OF_SELECTION",
+            "PLACE_ENTERED_ACTIVE_DUTY",
+            "OTHER_THAN_AUTHORIZED"
+          ],
+          "x-nullable": true,
+          "example": "Other than authorized"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -3391,10 +3404,17 @@ func init() {
             }
           ]
         },
+        "requestedDeliveryDate": {
+          "description": "The customer's preferred delivery date.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "sacType": {
           "allOf": [
@@ -4173,6 +4193,18 @@ func init() {
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "destinationAddressType": {
+          "type": "string",
+          "title": "Destination Address Type",
+          "enum": [
+            "HOME_OF_RECORD",
+            "HOME_OF_SELECTION",
+            "PLACE_ENTERED_ACTIVE_DUTY",
+            "OTHER_THAN_AUTHORIZED"
+          ],
+          "x-nullable": true,
+          "example": "Other than authorized"
         },
         "diversion": {
           "type": "boolean",
@@ -5702,6 +5734,18 @@ func init() {
             }
           ],
           "x-nullable": true
+        },
+        "destinationAddressType": {
+          "type": "string",
+          "title": "Destination Address Type",
+          "enum": [
+            "HOME_OF_RECORD",
+            "HOME_OF_SELECTION",
+            "PLACE_ENTERED_ACTIVE_DUTY",
+            "OTHER_THAN_AUTHORIZED"
+          ],
+          "x-nullable": true,
+          "example": "Other than authorized"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -7382,7 +7426,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -7685,7 +7729,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
         "consumes": [
           "application/json"
         ],
@@ -9627,6 +9671,7 @@ func init() {
   },
   "definitions": {
     "Address": {
+      "description": "A postal address",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -9648,7 +9693,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -10012,7 +10058,6 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "requestedPickupDate",
         "pickupAddress",
         "destinationAddress"
       ],
@@ -10039,6 +10084,18 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "destinationAddressType": {
+          "type": "string",
+          "title": "Destination Address Type",
+          "enum": [
+            "HOME_OF_RECORD",
+            "HOME_OF_SELECTION",
+            "PLACE_ENTERED_ACTIVE_DUTY",
+            "OTHER_THAN_AUTHORIZED"
+          ],
+          "x-nullable": true,
+          "example": "Other than authorized"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -10068,10 +10125,17 @@ func init() {
             }
           ]
         },
+        "requestedDeliveryDate": {
+          "description": "The customer's preferred delivery date.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "sacType": {
           "allOf": [
@@ -10850,6 +10914,18 @@ func init() {
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "destinationAddressType": {
+          "type": "string",
+          "title": "Destination Address Type",
+          "enum": [
+            "HOME_OF_RECORD",
+            "HOME_OF_SELECTION",
+            "PLACE_ENTERED_ACTIVE_DUTY",
+            "OTHER_THAN_AUTHORIZED"
+          ],
+          "x-nullable": true,
+          "example": "Other than authorized"
         },
         "diversion": {
           "type": "boolean",
@@ -12386,6 +12462,18 @@ func init() {
             }
           ],
           "x-nullable": true
+        },
+        "destinationAddressType": {
+          "type": "string",
+          "title": "Destination Address Type",
+          "enum": [
+            "HOME_OF_RECORD",
+            "HOME_OF_SELECTION",
+            "PLACE_ENTERED_ACTIVE_DUTY",
+            "OTHER_THAN_AUTHORIZED"
+          ],
+          "x-nullable": true,
+          "example": "Other than authorized"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",

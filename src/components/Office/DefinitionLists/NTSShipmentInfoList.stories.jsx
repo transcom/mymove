@@ -1,14 +1,13 @@
 import React from 'react';
 
-import NTSRShipmentInfoList from './NTSRShipmentInfoList';
+import NTSShipmentInfoList from './NTSShipmentInfoList';
 
 export default {
   title: 'Office Components/Shipment Info List',
-  component: NTSRShipmentInfoList,
+  component: NTSShipmentInfoList,
 };
 
 const info = {
-  ntsRecordedWeight: 2000,
   storageFacility: {
     address: {
       city: 'Anytown',
@@ -22,14 +21,14 @@ const info = {
     lotNumber: '2222',
   },
   serviceOrderNumber: '12341234',
-  requestedDeliveryDate: '26 Mar 2020',
-  destinationAddress: {
+  requestedPickupDate: '26 Mar 2020',
+  pickupAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
   },
-  secondaryDeliveryAddress: {
+  secondaryPickupAddress: {
     streetAddress1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -37,11 +36,11 @@ const info = {
   },
   agents: [
     {
-      agentType: 'RECEIVING_AGENT',
-      firstName: 'Kate',
-      lastName: 'Smith',
-      phone: '419-555-9999',
-      email: 'ksmith@email.com',
+      agentType: 'RELEASING_AGENT',
+      firstName: 'Jason',
+      lastName: 'Ash',
+      phone: '419-555-5555',
+      email: 'jash@email.com',
     },
   ],
   counselorRemarks:
@@ -50,50 +49,61 @@ const info = {
   customerRemarks: 'Ut enim ad minima veniam',
   tacType: 'HHG',
   sacType: 'NTS',
+  tac: '123',
+  sac: '456',
 };
 
-export const NTSRBasic = () => (
-  <NTSRShipmentInfoList
+export const NTSBasic = () => (
+  <NTSShipmentInfoList
     shipment={{
       counselorRemarks: info.counselorRemarks,
-      requestedDeliveryDate: info.requestedDeliveryDate,
+      requestedPickupDate: info.requestedPickupDate,
       storageFacility: info.storageFacility,
-      destinationAddress: info.destinationAddress,
+      pickupAddress: info.pickupAddress,
       tacType: info.tacType,
       sacType: info.sacType,
-      ntsRecordedWeight: info.ntsRecordedWeight,
       serviceOrderNumber: info.serviceOrderNumber,
     }}
   />
 );
 
-export const NTSRMissingInfo = () => (
-  <NTSRShipmentInfoList
+export const NTSMissingInfo = () => (
+  <NTSShipmentInfoList
     isExpanded
     shipment={{
-      requestedDeliveryDate: info.requestedDeliveryDate,
-      destinationAddress: info.destinationAddress,
-      tacType: info.tacType,
+      requestedPickupDate: info.requestedPickupDate,
+      pickupAddress: info.pickupAddress,
       sacType: info.sacType,
-      ntsRecordedWeight: info.ntsRecordedWeight,
-      serviceOrderNumber: info.serviceOrderNumber,
     }}
-    errorIfMissing={['storageFacility']}
+    errorIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
   />
 );
 
-export const NTSRWithAllInfo = () => (
-  <NTSRShipmentInfoList
+export const NTSWarning = () => (
+  <NTSShipmentInfoList
     isExpanded
     shipment={{
-      requestedDeliveryDate: info.requestedDeliveryDate,
+      requestedPickupDate: info.requestedPickupDate,
+      pickupAddress: info.pickupAddress,
+      sacType: info.sacType,
+    }}
+    warnIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
+  />
+);
+
+export const NTSWithAllInfo = () => (
+  <NTSShipmentInfoList
+    isExpanded
+    shipment={{
+      requestedPickupDate: info.requestedPickupDate,
       storageFacility: info.storageFacility,
       tacType: info.tacType,
       sacType: info.sacType,
-      ntsRecordedWeight: info.ntsRecordedWeight,
+      tac: info.tac,
+      sac: info.sac,
       serviceOrderNumber: info.serviceOrderNumber,
-      destinationAddress: info.destinationAddress,
-      secondaryDeliveryAddress: info.secondaryDeliveryAddress,
+      pickupAddress: info.pickupAddress,
+      secondaryPickupAddress: info.secondaryPickupAddress,
       agents: info.agents,
       counselorRemarks: info.counselorRemarks,
       customerRemarks: info.customerRemarks,
