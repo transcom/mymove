@@ -21,7 +21,7 @@ import formStyles from 'styles/form.module.scss';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
+import { HhgShipmentShape, HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 import { formatWeight } from 'utils/formatters';
 import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
@@ -133,6 +133,7 @@ class MtoShipmentForm extends Component {
       isCreatePage,
       mtoShipment,
       serviceMember,
+      orders,
       currentResidence,
     } = this.props;
 
@@ -208,8 +209,11 @@ class MtoShipmentForm extends Component {
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
 
                     <Alert type="info" noIcon>
-                      Remember: You can move {formatWeight(serviceMember.weight_allotment.total_weight_self)} total.
-                      You’ll be billed for any excess weight you move.
+                      Remember: You can move{' '}
+                      {orders.has_dependents
+                        ? formatWeight(serviceMember.weight_allotment.total_weight_self_plus_dependents)
+                        : formatWeight(serviceMember.weight_allotment.total_weight_self)}{' '}
+                      total. You’ll be billed for any excess weight you move.
                     </Alert>
 
                     <Form className={formStyles.form}>
@@ -492,6 +496,7 @@ MtoShipmentForm.propTypes = {
       total_weight_self: number,
     }),
   }).isRequired,
+  orders: OrdersShape,
 };
 
 MtoShipmentForm.defaultProps = {
@@ -515,6 +520,7 @@ MtoShipmentForm.defaultProps = {
       streetAddress1: '',
     },
   },
+  orders: {},
 };
 
 export default MtoShipmentForm;

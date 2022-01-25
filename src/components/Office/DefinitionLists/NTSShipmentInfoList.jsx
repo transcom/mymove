@@ -8,35 +8,37 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
-import { formatWeight } from 'utils/formatters';
 
-const NTSRShipmentInfoList = ({
+const NTSShipmentInfoList = ({
   className,
   shipment,
   isExpanded,
   warnIfMissing,
   errorIfMissing,
   showWhenCollapsed,
+  neverShow,
 }) => {
   const {
-    destinationAddress,
-    secondaryDeliveryAddress,
+    pickupAddress,
+    secondaryPickupAddress,
     agents,
     counselorRemarks,
     customerRemarks,
-    ntsRecordedWeight,
-    requestedDeliveryDate,
+    requestedPickupDate,
     storageFacility,
     serviceOrderNumber,
     tacType,
     sacType,
     tac,
     sac,
+    usesExternalVendor,
   } = shipment;
 
   function getFlags(fieldname) {
     let alwaysShow = false;
     let classes = styles.row;
+    // Hide row will override any always show that is set.
+    let hideRow = false;
 
     if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
       alwaysShow = true;
@@ -57,17 +59,40 @@ const NTSRShipmentInfoList = ({
     if (showWhenCollapsed.includes(fieldname)) {
       alwaysShow = true;
     }
+
+    if (neverShow.includes(fieldname)) {
+      hideRow = true;
+    }
+
     return {
+      hideRow,
       alwaysShow,
       classes,
     };
   }
+
+  const getMissingOrDash = (fieldName) => {
+    return errorIfMissing.includes(fieldName) ? 'Missing' : '—';
+  };
+
+  const showElement = (elementFlags) => {
+    return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
+  };
+
+  const usesExternalVendorElementFlags = getFlags('usesExternalVendor');
+  const usesExternalVendorElement = (
+    <div className={usesExternalVendorElementFlags.classes}>
+      <dt>Vendor</dt>
+      <dd data-testid="usesExternalVendor">{usesExternalVendor ? 'External vendor' : 'GHC prime contractor'}</dd>
+    </div>
+  );
+
   const storageFacilityAddressElementFlags = getFlags('storageFacility');
   const storageFacilityAddressElement = (
     <div className={storageFacilityAddressElementFlags.classes}>
       <dt>Storage facility address</dt>
       <dd data-testid="storageFacilityAddress">
-        {storageFacility ? formatAddress(storageFacility.address) : 'Missing'}
+        {storageFacility ? formatAddress(storageFacility.address) : getMissingOrDash('storageFacility')}
         {storageFacility && storageFacility.lotNumber && isExpanded && (
           <>
             <br /> Lot #{storageFacility.lotNumber}
@@ -77,26 +102,14 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const getMissingOrDash = (fieldName) => {
-    return errorIfMissing.includes(fieldName) ? 'Missing' : '—';
-  };
-
-  const ntsRecordedWeightElementFlags = getFlags('ntsRecordedWeight');
-  const ntsRecordedWeightElement = (
-    <div className={ntsRecordedWeightElementFlags.classes}>
-      <dt>Shipment weight</dt>
-      <dd data-testid="ntsRecordedWeight">
-        {ntsRecordedWeight ? formatWeight(ntsRecordedWeight) : getMissingOrDash('ntsRecordedWeight')}
-      </dd>
-    </div>
-  );
-
   const storageFacilityInfoElementFlags = getFlags('storageFacility');
   const storageFacilityInfoElement = (
     <div className={storageFacilityInfoElementFlags.classes}>
       <dt>Storage facility info</dt>
       <dd data-testid="storageFacilityName">
-        {storageFacility && storageFacility.facilityName ? storageFacility.facilityName : 'Missing'}
+        {storageFacility && storageFacility.facilityName
+          ? storageFacility.facilityName
+          : getMissingOrDash('storageFacility')}
       </dd>
     </div>
   );
@@ -105,32 +118,34 @@ const NTSRShipmentInfoList = ({
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
-      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || getMissingOrDash('serviceOrderNumber')}</dd>
+      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || 'Missing'}</dd>
     </div>
   );
 
-  const requestedDeliveryDateElementFlags = getFlags('requestedDeliveryDate');
-  const requestedDeliveryDateElement = (
-    <div className={requestedDeliveryDateElementFlags.classes}>
-      <dt>Preferred delivery date</dt>
-      <dd>{(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) || '—'}</dd>
+  const requestedPickupDateElementFlags = getFlags('requestedPickupDate');
+  const requestedPickupDateElement = (
+    <div className={requestedPickupDateElementFlags.classes}>
+      <dt>Preferred pickup date</dt>
+      <dd data-testid="requestedPickupDate">
+        {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) || '—'}
+      </dd>
     </div>
   );
 
-  const destinationAddressElementFlags = getFlags('destinationAddress');
-  const destinationAddressElement = (
-    <div className={destinationAddressElementFlags.classes}>
-      <dt>Delivery address</dt>
-      <dd data-testid="destinationAddress">{formatAddress(destinationAddress)}</dd>
+  const pickupAddressElementFlags = getFlags('pickupAddress');
+  const pickupAddressElement = (
+    <div className={pickupAddressElementFlags.classes}>
+      <dt>Pickup address</dt>
+      <dd data-testid="pickupAddress">{formatAddress(pickupAddress)}</dd>
     </div>
   );
 
-  const secondaryDeliveryAddressElementFlags = getFlags('secondaryDeliveryAddress');
-  const secondaryDeliveryAddressElement = (
-    <div className={secondaryDeliveryAddressElementFlags.classes}>
-      <dt>Second delivery address</dt>
-      <dd data-testid="secondaryDeliveryAddress">
-        {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
+  const secondaryPickupAddressElementFlags = getFlags('secondaryPickupAddress');
+  const secondaryPickupAddressElement = (
+    <div className={secondaryPickupAddressElementFlags.classes}>
+      <dt>Second pickup address</dt>
+      <dd data-testid="secondaryPickupAddress">
+        {secondaryPickupAddress ? formatAddress(secondaryPickupAddress) : '—'}
       </dd>
     </div>
   );
@@ -151,9 +166,10 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
+  const agentsElementFlags = getFlags('agents');
   const agentsElement = agents
     ? agents.map((agent) => (
-        <div className={styles.row} key={`${agent.agentType}-${agent.email}`}>
+        <div className={agentsElementFlags.classes} key={`${agent.agentType}-${agent.email}`}>
           <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
           <dd data-testid="agent">{formatAgent(agent)}</dd>
         </div>
@@ -168,8 +184,9 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
+  const customerRemarksElementFlags = getFlags('customerRemarks');
   const customerRemarksElement = (
-    <div className={styles.row}>
+    <div className={customerRemarksElementFlags.classes}>
       <dt>Customer remarks</dt>
       <dd data-testid="customerRemarks">{customerRemarks || '—'}</dd>
     </div>
@@ -183,39 +200,43 @@ const NTSRShipmentInfoList = ({
         styles.compact,
         className,
       )}
-      data-testid="nts-release-shipment-info-list"
+      data-testid="nts-shipment-info-list"
     >
-      {(isExpanded || ntsRecordedWeightElementFlags.alwaysShow) && ntsRecordedWeightElement}
-      {(isExpanded || storageFacilityInfoElementFlags.alwaysShow) && storageFacilityInfoElement}
-      {(isExpanded || serviceOrderNumberElementFlags.alwaysShow) && serviceOrderNumberElement}
-      {storageFacilityAddressElement}
-      {requestedDeliveryDateElement}
-      {destinationAddressElement}
-      {isExpanded && secondaryDeliveryAddressElement}
-      {isExpanded && agentsElement}
-      {isExpanded && customerRemarksElement}
-      {(isExpanded || counselorRemarksElementFlags.alwaysShow) && counselorRemarksElement}
-      {(isExpanded || tacElementFlags.alwaysShow) && tacElement}
-      {(isExpanded || sacElementFlags.alwaysShow) && sacElement}
+      {showElement(usesExternalVendorElementFlags) && usesExternalVendorElement}
+      {requestedPickupDateElement}
+      {pickupAddressElement}
+      {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
+      {showElement(agentsElementFlags) && agentsElement}
+      {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
+      {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}
+      {showElement(storageFacilityAddressElementFlags) && storageFacilityAddressElement}
+      {showElement(customerRemarksElementFlags) && customerRemarksElement}
+      {showElement(counselorRemarksElementFlags) && counselorRemarksElement}
+      {showElement(tacElementFlags) && tacElement}
+      {showElement(sacElementFlags) && sacElement}
     </dl>
   );
 };
 
-NTSRShipmentInfoList.propTypes = {
+NTSShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
   isExpanded: PropTypes.bool,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  // Never show is added as an option since NTSShipmentInfoList is used by both the TOO
+  // and services counselor and show different things.
+  neverShow: PropTypes.arrayOf(PropTypes.string),
 };
 
-NTSRShipmentInfoList.defaultProps = {
+NTSShipmentInfoList.defaultProps = {
   className: '',
   isExpanded: false,
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  neverShow: [],
 };
 
-export default NTSRShipmentInfoList;
+export default NTSShipmentInfoList;
