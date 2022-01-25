@@ -50,7 +50,14 @@ func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppCon
 		}
 	}
 
-	return r0, nil
+	var r1 error
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MTOShipment) error); ok {
+		r1 = rf(appCtx, shipment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // CalculateShipmentsSITStatuses provides a mock function with given fields: appCtx, shipments
