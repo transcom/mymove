@@ -122,8 +122,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
 	}
 
-	// TODO this function requests extensions as well which is unnecessary because we're creating the shipment, so there
-	//      cannot be any extensions yet. Am I gonna use this anywhere else? or should I just change it to just use entitlement?
 	sitAllowance, err := h.shipmentStatus.CalculateShipmentSITAllowance(appCtx, *mtoShipment)
 	if err != nil {
 		return handleError(err)
