@@ -9,7 +9,6 @@ import {
   diversionInfo,
   cancelledInfo,
   ntsReleaseInfo,
-  usesExternalVendor,
   ordersLOA,
 } from './ShipmentDisplayTestData';
 import ShipmentDisplay from './ShipmentDisplay';
@@ -107,9 +106,8 @@ describe('Shipment Container', () => {
       render(
         <ShipmentDisplay
           shipmentId="1"
-          displayInfo={ntsInfo}
+          displayInfo={{ ...ntsInfo, usesExternalVendor: true }}
           onChange={jest.fn()}
-          usesExternalVendor={usesExternalVendor}
           isSubmitted={false}
         />,
       );
@@ -138,10 +136,9 @@ describe('Shipment Container', () => {
       render(
         <ShipmentDisplay
           shipmentId="1"
-          displayInfo={ntsReleaseInfo}
+          displayInfo={{ ...ntsReleaseInfo, usesExternalVendor: true }}
           ordersLOA={ordersLOA}
           onChange={jest.fn()}
-          usesExternalVendor={usesExternalVendor}
           isSubmitted
         />,
       );
@@ -153,7 +150,7 @@ describe('Shipment Container', () => {
     render(
       <ShipmentDisplay
         shipmentId="1"
-        displayInfo={{ ...info, usesExternalVendor: true }}
+        displayInfo={{ ...ntsReleaseInfo, usesExternalVendor: true }}
         onChange={jest.fn()}
         isSubmitted={false}
       />,

@@ -10,7 +10,6 @@ import {
   postalOnlyInfo,
   diversionInfo,
   cancelledInfo,
-  usesExternalVendor,
 } from './ShipmentDisplayTestData';
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
@@ -107,10 +106,9 @@ export const NTSShipmentMissingInfo = () => (
 export const NTSShipmentExternalVendor = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={ntsInfo}
+      displayInfo={{ ...ntsInfo, usesExternalVendor: true }}
       shipmentType={SHIPMENT_OPTIONS.NTS}
       ordersLOA={ordersLOA}
-      usesExternalVendor={usesExternalVendor}
       isSubmitted
       editURL="/"
     />
@@ -134,12 +132,11 @@ export const NTSReleaseShipment = () => (
 export const NTSReleaseShipmentExternalVendor = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={ntsReleaseInfo}
+      displayInfo={{ ...ntsReleaseInfo, usesExternalVendor: true }}
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       shipmentId={ntsReleaseInfo.shipmentId}
       ordersLOA={ordersLOA}
       showWhenCollapsed={showWhenCollapsed}
-      usesExternalVendor={usesExternalVendor}
       isSubmitted
       editURL="/"
     />

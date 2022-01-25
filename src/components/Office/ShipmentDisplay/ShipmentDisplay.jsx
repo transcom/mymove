@@ -49,7 +49,7 @@ const ShipmentDisplay = ({
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={containerClasses} shipmentType={shipmentType}>
         <div className={styles.heading}>
-          {allowApproval && isSubmitted && !usesExternalVendor && (
+          {allowApproval && isSubmitted && !displayInfo.usesExternalVendor && (
             <Checkbox
               id={`shipment-display-checkbox-${shipmentId}`}
               data-testid="shipment-display-checkbox"
