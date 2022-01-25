@@ -118,9 +118,9 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		"DestinationAddress",
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
-		"MTOAgents").
-		Where("uses_external_vendor = FALSE").
-		Find(&dbShipment, params.MtoShipmentID)
+		"MTOAgents",
+		"StorageFacility",
+		"NTSRecordedWeight").Find(&dbShipment, params.MtoShipmentID)
 	if err != nil {
 		return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
