@@ -186,6 +186,12 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationAddressType');
     });
 
+    it('does not renders delivery address type for PCS order type', async () => {
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      userEvent.click(screen.getByLabelText('Yes'));
+      expect(screen.queryByLabelText('Destination type')).toBeNull();
+    });
+
     it('renders a delivery address type for separation orders type', async () => {
       render(<ShipmentForm {...defaultPropsSeparation} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
       userEvent.click(screen.getByLabelText('Yes'));
