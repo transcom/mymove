@@ -86,7 +86,7 @@ const NTSRShipmentInfoList = ({
     <div className={ntsRecordedWeightElementFlags.classes}>
       <dt>Shipment weight</dt>
       <dd data-testid="ntsRecordedWeight">
-        {ntsRecordedWeight ? formatWeight(ntsRecordedWeight) : getMissingOrDash('primeActualWeight')}
+        {ntsRecordedWeight ? formatWeight(ntsRecordedWeight) : getMissingOrDash('ntsRecordedWeight')}
       </dd>
     </div>
   );
