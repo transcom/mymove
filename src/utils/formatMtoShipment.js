@@ -54,6 +54,11 @@ export function formatStorageFacilityForAPI(storageFacility) {
   return storageFacilityCopy;
 }
 
+export function removeEtag(obj) {
+  const { eTag, ...rest } = obj;
+  return rest;
+}
+
 export function formatAddressForAPI(address) {
   const formattedAddress = address;
 
@@ -302,4 +307,5 @@ export default {
   formatMtoShipmentForDisplay,
   formatAddressForAPI,
   formatStorageFacilityForAPI,
+  removeEtag,
 };

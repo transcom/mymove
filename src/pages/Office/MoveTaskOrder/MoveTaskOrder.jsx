@@ -13,7 +13,7 @@ import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillab
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
-import { formatStorageFacilityForAPI, formatAddressForAPI } from 'utils/formatMtoShipment';
+import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
@@ -391,7 +391,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const handleEditFacilityInfo = (fields, shipment) => {
     const formattedStorageFacility = formatStorageFacilityForAPI(fields.storageFacility);
-    const formattedStorageFacilityAddress = formatAddressForAPI(fields.storageFacility.address);
+    const formattedStorageFacilityAddress = removeEtag(formatAddressForAPI(fields.storageFacility.address));
     const body = {
       storageFacility: { ...formattedStorageFacility, address: formattedStorageFacilityAddress },
       serviceOrderNumber: fields.serviceOrderNumber,
