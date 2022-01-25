@@ -6,6 +6,8 @@ import (
 	html "html/template"
 	text "text/template"
 
+	"github.com/dustin/go-humanize"
+
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -84,7 +86,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		DestinationDutyStation:     orders.NewDutyStation.Name,
 		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
 		Locator:                    move.Locator,
-		WeightAllowance:            totalEntitlement,
+		WeightAllowance:            humanize.Comma(int64(totalEntitlement)),
 	})
 
 	if err != nil {
@@ -124,7 +126,7 @@ type moveSubmittedEmailData struct {
 	DestinationDutyStation     string
 	OriginDutyStationPhoneLine *string
 	Locator                    string
-	WeightAllowance            int
+	WeightAllowance            string
 }
 
 // RenderHTML renders the html for the email

@@ -570,6 +570,7 @@ paths:
         * Delivery Address
         * Releasing / Receiving agents
         Optional fields include:
+        * Delivery Address Type
         * Customer Remarks
         * Releasing / Receiving agents
         * An array of optional accessorial service item codes
@@ -668,6 +669,7 @@ paths:
         * Customer requested pick-up date
         * Pick-up Address
         * Delivery Address
+        * Delivery Address Type
         * Customer Remarks
         * Counselor Remarks
         * Releasing / Receiving agents
@@ -2549,11 +2551,11 @@ definitions:
       date_issued:
         type: string
         format: date
-        example: 2020-01-01
+        example: '2020-01-01'
       report_by_date:
         type: string
         format: date
-        example: 2020-01-01
+        example: '2020-01-01'
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
         x-nullable: true
@@ -2597,13 +2599,13 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: 2018-04-26
+        example: '2018-04-26'
         title: Orders date
       reportByDate:
         type: string
         description: Report By Date
         format: date
-        example: 2018-04-26
+        example: '2018-04-26'
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
@@ -2652,13 +2654,13 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: 2018-04-26
+        example: '2018-04-26'
         title: Orders date
       reportByDate:
         type: string
         description: Report By Date
         format: date
-        example: 2018-04-26
+        example: '2018-04-26'
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
@@ -3232,6 +3234,16 @@ definitions:
       destinationAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: Other than authorized
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
+        x-nullable: true
       secondaryPickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -3346,6 +3358,16 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
         x-nullable: true
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: Other than authorized
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
+        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
@@ -3396,6 +3418,13 @@ definitions:
           this date.
         format: date
         type: string
+        x-nullable: true
+      requestedDeliveryDate:
+        description: |
+          The customer's preferred delivery date.
+        format: date
+        type: string
+        x-nullable: true
       customerRemarks:
         description: >
           The customer can use the customer remarks field to inform the services
@@ -3438,6 +3467,16 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: Other than authorized
+        x-nullable: true
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       tacType:
@@ -3469,7 +3508,6 @@ definitions:
         $ref: '#/definitions/StorageFacility'
     required:
       - moveTaskOrderID
-      - requestedPickupDate
       - pickupAddress
       - destinationAddress
   MTOShipmentStatus:
@@ -3747,7 +3785,7 @@ definitions:
       firstAvailableDeliveryDate:
         format: date
         type: string
-        example: 2020-12-31
+        example: '2020-12-31'
         description: First available date that Prime can deliver SIT service item.
   MTOServiceItemCustomerContacts:
     type: array

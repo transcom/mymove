@@ -134,13 +134,12 @@ func Order(order *models.Order) *primemessages.Order {
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
-	entitlements := Entitlement(order.Entitlement)
 
 	payload := primemessages.Order{
 		CustomerID:             strfmt.UUID(order.ServiceMemberID.String()),
 		Customer:               Customer(&order.ServiceMember),
 		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            entitlements,
+		Entitlement:            Entitlement(order.Entitlement),
 		ID:                     strfmt.UUID(order.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		OrderNumber:            order.OrdersNumber,
@@ -159,8 +158,8 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		return nil
 	}
 	var totalWeight int64
-	if entitlement.WeightAllotment() != nil {
-		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
+	if weightAllowance := entitlement.WeightAllowance(); weightAllowance != nil {
+		totalWeight = int64(*weightAllowance)
 	}
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {
