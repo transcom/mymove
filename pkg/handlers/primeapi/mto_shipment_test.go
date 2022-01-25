@@ -1023,51 +1023,99 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	})
 
 	suite.T().Run("PATCH Success 200 RequiredDeliveryDate updated on scheduledPickupDate update", func(t *testing.T) {
-		tenDaysFromNow := now.AddDate(0, 0, 11)
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
+
+		hhgShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:       "APPROVED",
+				ShipmentType: models.MTOShipmentTypeHHG,
+				Status:       models.MTOShipmentStatusApproved,
 				ApprovedDate: &now,
 			},
 		})
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		ntsShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:      models.MTOShipmentTypeHHGIntoNTSDom,
+				Status:            models.MTOShipmentStatusApproved,
+				StorageFacility:   &storageFacility,
+				StorageFacilityID: &storageFacility.ID,
+				PickupAddress:     &address,
+				PickupAddressID:   &address.ID,
+			},
+		})
+
+		NTSRecordedWeight := unit.Pound(1400)
+		ntsrShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+				NTSRecordedWeight:    &NTSRecordedWeight,
+				Status:               models.MTOShipmentStatusApproved,
+				StorageFacility:      &storageFacility,
+				StorageFacilityID:    &storageFacility.ID,
+				DestinationAddress:   &address,
+				DestinationAddressID: &address.ID,
+			},
+		})
+
+		tenDaysFromNow := now.AddDate(0, 0, 11)
 		schedDate := strfmt.Date(tenDaysFromNow)
-		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: int64(primeEstimatedWeight),
-			ScheduledPickupDate:  &schedDate,
+
+		testCases := []struct {
+			shipment models.MTOShipment
+			payload  primemessages.UpdateMTOShipment
+		}{
+			{hhgShipment, primemessages.UpdateMTOShipment{
+				PrimeEstimatedWeight: int64(primeEstimatedWeight),
+				ScheduledPickupDate:  &schedDate,
+			}},
+			{ntsShipment, primemessages.UpdateMTOShipment{
+				PrimeEstimatedWeight: int64(primeEstimatedWeight),
+				ScheduledPickupDate:  &schedDate,
+			}},
+			{ntsrShipment, primemessages.UpdateMTOShipment{
+				ScheduledPickupDate: &schedDate,
+			}},
 		}
+		for _, testCase := range testCases {
+			oldShipment := testCase.shipment
+			eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+			req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
-		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
-			Body:          &payload,
-			IfMatch:       eTag,
+			params := mtoshipmentops.UpdateMTOShipmentParams{
+				HTTPRequest:   req,
+				MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+				Body:          &testCase.payload,
+				IfMatch:       eTag,
+			}
+
+			response := handler.Handle(params)
+
+			okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+			suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+			responsePayload := okResponse.Payload
+			suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
+			suite.NotNil(responsePayload.RequiredDeliveryDate)
+			suite.NotNil(responsePayload.ScheduledPickupDate)
+
+			// Let's double check our maths.
+			expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
+			actualRDD := time.Time(*responsePayload.RequiredDeliveryDate)
+			suite.Equal(expectedRDD.Year(), actualRDD.Year())
+			suite.Equal(expectedRDD.Month(), actualRDD.Month())
+			suite.Equal(expectedRDD.Day(), actualRDD.Day())
+
+			// Confirm PATCH working as expected; non-updated value still exists
+			if testCase.shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom { //ntsr doesn't have a RequestedPickupDate
+				suite.NotNil(okResponse.Payload.RequestedPickupDate)
+				suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+			}
 		}
-
-		response := handler.Handle(params)
-
-		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
-
-		responsePayload := okResponse.Payload
-		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
-		suite.NotNil(responsePayload.RequiredDeliveryDate)
-		suite.NotNil(responsePayload.ScheduledPickupDate)
-
-		// Let's double check our maths.
-		expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
-		actualRDD := time.Time(*responsePayload.RequiredDeliveryDate)
-		suite.Equal(expectedRDD.Year(), actualRDD.Year())
-		suite.Equal(expectedRDD.Month(), actualRDD.Month())
-		suite.Equal(expectedRDD.Day(), actualRDD.Day())
-
-		// Confirm PATCH working as expected; non-updated value still exists
-		suite.NotNil(okResponse.Payload.RequestedPickupDate)
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
-
 	})
 
 	suite.T().Run("PATCH Success 200 RequiredDeliveryDate updated on destinationAddress creation", func(t *testing.T) {
