@@ -714,8 +714,25 @@ func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.
 func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
-		shipment.PrimeEstimatedWeight != nil {
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+		(shipment.PrimeEstimatedWeight != nil || shipment.NTSRecordedWeight != nil) {
+
+		var pickupLocation *models.Address
+		var deliveryLocation *models.Address
+		weight := shipment.PrimeEstimatedWeight
+
+		switch shipment.ShipmentType {
+		case models.MTOShipmentTypeHHGIntoNTSDom:
+			pickupLocation = shipment.PickupAddress
+			deliveryLocation = &shipment.StorageFacility.Address
+		case models.MTOShipmentTypeHHGOutOfNTSDom:
+			pickupLocation = &shipment.StorageFacility.Address
+			deliveryLocation = shipment.DestinationAddress
+			weight = shipment.NTSRecordedWeight
+		default:
+			pickupLocation = shipment.PickupAddress
+			deliveryLocation = shipment.DestinationAddress
+		}
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight.Int())
 		if calcErr != nil {
 			return calcErr
 		}
