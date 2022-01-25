@@ -199,8 +199,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		suite.NotNil(expectedMTO.Orders.NewDutyStation.Address.State)
 
 		// Should get one shipment back since we filter out external moves.
+		suite.Equal(expectedMTO.ID.String(), actualMTO.ID.String())
 		if suite.Len(actualMTO.MTOShipments, 1) {
-			suite.Equal(expectedMTO.ID.String(), actualMTO.ID.String())
 			suite.Equal(primeShipment.ID.String(), actualMTO.MTOShipments[0].ID.String())
 		}
 	})

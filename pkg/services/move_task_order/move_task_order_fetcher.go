@@ -53,7 +53,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 	// Filtering external vendor shipments (if requested) in code since we can't do it easily in Pop
 	// without a raw query (which could be painful since we'd have to populate all the associations).
 	if searchParams != nil && searchParams.ExcludeExternalShipments {
-		for _, move := range moveTaskOrders {
+		for i, move := range moveTaskOrders {
 			var filteredShipments models.MTOShipments
 			if move.MTOShipments != nil {
 				filteredShipments = models.MTOShipments{}
@@ -63,7 +63,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 					filteredShipments = append(filteredShipments, shipment)
 				}
 			}
-			move.MTOShipments = filteredShipments
+			moveTaskOrders[i].MTOShipments = filteredShipments
 		}
 	}
 

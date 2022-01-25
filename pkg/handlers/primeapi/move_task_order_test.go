@@ -181,8 +181,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 		movePayload := moveResponse.Payload
+		suite.Equal(move.ID.String(), movePayload.ID.String())
 		if suite.Len(movePayload.MtoShipments, 1) {
-			suite.Equal(move.ID.String(), movePayload.ID.String())
 			suite.Equal(primeShipment.ID.String(), movePayload.MtoShipments[0].ID.String())
 		}
 	})
@@ -335,7 +335,6 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		suite.Equal(okPayload.PpmEstimatedWeight, int64(3000))
 
 		if suite.Len(okPayload.MtoShipments, 1) {
-			suite.Equal(mto.ID.String(), okPayload.ID.String())
 			suite.Equal(primeShipment.ID.String(), okPayload.MtoShipments[0].ID.String())
 		}
 	})

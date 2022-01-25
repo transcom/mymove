@@ -113,7 +113,23 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 			Show:               &show,
 		},
 	})
-	testdatagen.MakeDefaultMove(suite.DB())
+
+	mto := testdatagen.MakeDefaultMove(suite.DB())
+
+	// Make a couple of shipments for the default move; one prime, one external
+	primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+		MTOShipment: models.MTOShipment{
+			UsesExternalVendor: false,
+		},
+	})
+	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+			UsesExternalVendor: true,
+		},
+	})
 
 	mtoFetcher := NewMoveTaskOrderFetcher()
 
@@ -144,7 +160,31 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 			suite.NotEqual(move.ID, hiddenMTO.ID)
 		}
 
-		suite.Equal(1, len(moveTaskOrders)) // minus the one hidden MTO
+		if suite.Equal(1, len(moveTaskOrders)) { // minus the one hidden MTO
+			// We should get back all shipments on that move since we did not exclude external vendor shipments.
+			suite.Equal(mto.ID.String(), moveTaskOrders[0].ID.String())
+			suite.Len(moveTaskOrders[0].MTOShipments, 2)
+		}
+	})
+
+	suite.RunWithRollback("returns shipments that respect the external searchParams flag", func() {
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:            false,
+			ExcludeExternalShipments: true,
+		}
+
+		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		// We should only get back the one move that's not hidden.
+		if suite.Len(moveTaskOrders, 1) {
+			if suite.Equal(mto.ID.String(), moveTaskOrders[0].ID.String()) {
+				// That move should get one shipment back since we requested no external shipments.
+				if suite.Len(moveTaskOrders[0].MTOShipments, 1) {
+					suite.Equal(primeShipment.ID.String(), moveTaskOrders[0].MTOShipments[0].ID.String())
+				}
+			}
+		}
 	})
 
 	suite.RunWithRollback("all move task orders that are available to prime and using since", func() {
