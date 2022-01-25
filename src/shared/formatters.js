@@ -149,13 +149,13 @@ export function parseSwaggerDate(dateString) {
 }
 
 // Format a weight with lbs following, e.g. 4000 becomes 4,000 lbs
-export function formatWeight(weight) {
-  if (weight) {
-    return `${weight.toLocaleString()} lbs`;
-  } else {
-    return '0 lbs';
-  }
-}
+// export function formatWeight(weight) {
+//   if (weight) {
+//     return `${weight.toLocaleString()} lbs`;
+//   } else {
+//     return '0 lbs';
+//   }
+// }
 
 // Format date for display of dates summaries
 const formatDateForDateRange = (date, formatType) => {
