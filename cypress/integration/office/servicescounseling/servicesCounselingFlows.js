@@ -1,4 +1,5 @@
 import { ServicesCounselorOfficeUserType } from '../../../support/constants';
+import moment from 'moment';
 
 describe('Services counselor user', () => {
   before(() => {
@@ -113,6 +114,8 @@ describe('Services counselor user', () => {
   });
 
   it('is able to add a shipment', () => {
+    const deliveryDate = moment().add(1, 'days').format('DD MMM YYYY');
+
     cy.wait(['@getSortedMoves']);
     // It doesn't matter which move we click on in the queue.
     cy.get('td').first().click();
@@ -121,7 +124,7 @@ describe('Services counselor user', () => {
 
     // add a shipment
     cy.get('[data-testid="dropdown"]').first().select('HHG');
-    cy.get('#requestedPickupDate').clear().type('16 Mar 2022').blur();
+    cy.get('#requestedPickupDate').clear().type(deliveryDate).blur();
     cy.get('[data-testid="useCurrentResidence"]').click({ force: true });
     cy.get('#requestedDeliveryDate').clear().type('16 Mar 2022').blur();
     cy.get('#has-delivery-address').click({ force: true });
@@ -129,13 +132,15 @@ describe('Services counselor user', () => {
     cy.get('input[name="delivery.address.city"]').type('city');
     cy.get('select[name="delivery.address.state"]').select('OH');
     cy.get('input[name="delivery.address.postalCode"]').type('90210');
-    cy.get('select[name="destinationAddressType"]').select('Home of record');
+    cy.get('select[name="destinationAddressType"]').select('Home of record (HOR)');
     cy.get('[data-testid="submitForm"]').click();
     // the shipment should be saved with the type
     cy.wait('@createShipment');
   });
 
   it('is able to edit a shipment', () => {
+    const deliveryDate = moment().add(1, 'days').format('DD MMM YYYY');
+
     cy.wait(['@getSortedMoves']);
     // It doesn't matter which move we click on in the queue.
     cy.get('td').first().click();
@@ -144,7 +149,7 @@ describe('Services counselor user', () => {
 
     // add a shipment
     cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
-    cy.get('#requestedPickupDate').clear().type('16 Mar 2022').blur();
+    cy.get('#requestedPickupDate').clear().type(deliveryDate).blur();
     cy.get('[data-testid="useCurrentResidence"]').click({ force: true });
     cy.get('#requestedDeliveryDate').clear().type('16 Mar 2022').blur();
     cy.get('#has-delivery-address').click({ force: true });
@@ -152,7 +157,7 @@ describe('Services counselor user', () => {
     cy.get('input[name="delivery.address.city"]').clear().type('city');
     cy.get('select[name="delivery.address.state"]').select('OH');
     cy.get('input[name="delivery.address.postalCode"]').clear().type('90210');
-    cy.get('select[name="destinationAddressType"]').select('Home of selection');
+    cy.get('select[name="destinationAddressType"]').select('Home of selection (HOS)');
     cy.get('[data-testid="submitForm"]').click();
     // the shipment should be saved with the type
     cy.wait('@patchShipment');
