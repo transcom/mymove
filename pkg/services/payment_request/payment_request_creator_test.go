@@ -402,6 +402,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		paymentRequestResult, err := creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequest)
 		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "paymentRequestCreator.validShipment: Shipment uses external vendor for MTOShipmentID")
 
 		// Verify some of the data that came back

@@ -78,7 +78,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		serviceParamCache := serviceparamlookups.NewServiceParamsCache()
 
 		// Track which shipments have been verified already
-		shipmentIDs := make(map[string]bool)
+		shipmentIDs := make(map[uuid.UUID]bool)
 
 		// Create a payment service item for each incoming payment service item in the payment request
 		// These incoming payment service items have not been created in the database yet
@@ -222,22 +222,22 @@ func (p *paymentRequestCreator) serviceItemErrorMessage(
 	return mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
 }
 
-func (p *paymentRequestCreator) validShipment(appCtx appcontext.AppContext, shipmentID *uuid.UUID, shipmentIDs map[string]bool) error {
+func (p *paymentRequestCreator) validShipment(appCtx appcontext.AppContext, shipmentID *uuid.UUID, shipmentIDs map[uuid.UUID]bool) error {
 	if shipmentID != nil {
-		shipmentIDStr := shipmentID.String()
-		if _, found := shipmentIDs[shipmentIDStr]; !found {
-			shipmentIDs[shipmentIDStr] = true
+		// shipmentIDStr := shipmentID.String()
+		if _, found := shipmentIDs[*shipmentID]; !found {
+			shipmentIDs[*shipmentID] = true
 			var mtoShipment models.MTOShipment
-			err := appCtx.DB().Find(&mtoShipment, shipmentIDStr)
+			err := appCtx.DB().Find(&mtoShipment, *shipmentID)
 			if err != nil {
 				appCtx.Logger().Error("paymentRequestCreator.validShipment query error", zap.Error(err))
-				return fmt.Errorf("validateShipment: %w for MTOShipmentID %s", err, shipmentIDStr)
+				return apperror.NewQueryError("MTOShipment", err, fmt.Sprintf("paymentRequestCreator.validShipment:MTOShipmentID %s", shipmentID.String()))
 			}
 			if mtoShipment.UsesExternalVendor {
 				appCtx.Logger().Error("paymentRequestCreator.validShipment",
 					zap.Any("mtoShipment.UsesExternalVendor", mtoShipment.UsesExternalVendor),
-					zap.String("MTOShipmentID", shipmentIDStr))
-				return fmt.Errorf("paymentRequestCreator.validShipment: Shipment uses external vendor for MTOShipmentID %s", shipmentIDStr)
+					zap.String("MTOShipmentID", shipmentID.String()))
+				return apperror.NewConflictError(*shipmentID, fmt.Sprintf("paymentRequestCreator.validShipment: Shipment uses external vendor for MTOShipmentID %s", shipmentID.String()))
 			}
 		}
 	}
