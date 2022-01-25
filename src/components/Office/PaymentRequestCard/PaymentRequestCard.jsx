@@ -53,9 +53,15 @@ const PaymentRequestCard = ({
   const [showModal, setShowModal] = useState(false);
   const [modalShipment, setModalShipment] = useState({});
 
-  const handleModalSave = (...args) => {
-    onEditAccountingCodes(args);
+  const handleModalSave = (values) => {
+    const editedShipment = {
+      ...modalShipment,
+      ...values,
+    };
+
+    onEditAccountingCodes(editedShipment);
     setShowModal(false);
+    setModalShipment({});
   };
 
   const handleModalCancel = () => {

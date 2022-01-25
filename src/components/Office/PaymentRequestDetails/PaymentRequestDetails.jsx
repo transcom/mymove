@@ -32,9 +32,19 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const PaymentRequestAccountingCodes = ({ tacs, sacs, tacType, sacType, shipmentType, showEdit, onEditClick }) => {
+const PaymentRequestAccountingCodes = ({
+  tacs,
+  sacs,
+  tacType,
+  sacType,
+  shipmentType,
+  shipmentId,
+  showEdit,
+  onEditClick,
+}) => {
   const handleEditClick = () => {
     onEditClick({
+      shipmentId,
       tacType,
       sacType,
       shipmentType,
@@ -75,6 +85,7 @@ PaymentRequestAccountingCodes.propTypes = {
   tacType: PropTypes.string,
   sacType: PropTypes.string,
   shipmentType: PropTypes.string,
+  shipmentId: PropTypes.string,
   showEdit: PropTypes.bool,
   onEditClick: PropTypes.func,
 };
@@ -85,6 +96,7 @@ PaymentRequestAccountingCodes.defaultProps = {
   tacType: null,
   sacType: null,
   shipmentType: null,
+  shipmentId: null,
   showEdit: false,
   onEditClick: () => {},
 };
@@ -125,6 +137,7 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus, t
                     tacType={shipment.tacType}
                     sacType={shipment.sacType}
                     shipmentType={mtoShipmentType}
+                    shipmentId={shipment.mtoShipmentID}
                     showEdit={headingType !== 'HHG'}
                     onEditClick={onEditClick}
                   />
@@ -178,6 +191,7 @@ PaymentRequestDetails.propTypes = {
     mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
     tacType: PropTypes.oneOf(Object.values(LOA_TYPE)),
     sacType: PropTypes.oneOf(Object.values(LOA_TYPE)),
+    mtoShipmentID: PropTypes.string,
   }),
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
   tacs: AccountingCodesShape,

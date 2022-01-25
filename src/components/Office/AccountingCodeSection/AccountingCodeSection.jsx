@@ -24,7 +24,7 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
     }
   }, [hasSetDefaultValue, shipmentTypePairs, helperProps]);
 
-  const handleClear = () => handleFormValueChange(false);
+  const handleClear = () => handleFormValueChange(undefined);
 
   if (shipmentTypePairs.length === 0) {
     return (

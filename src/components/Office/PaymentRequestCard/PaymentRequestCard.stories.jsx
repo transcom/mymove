@@ -199,14 +199,28 @@ const rejectedPaymentRequest = {
   reviewedAt: '2020-12-01T00:00:00.000Z',
 };
 
+const onEditAccountingCodes = () => {};
+
 export const NeedsReview = () => (
-  <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentsInfo={shipmentsInfo} />
+  <PaymentRequestCard
+    paymentRequest={pendingPaymentRequest}
+    shipmentsInfo={shipmentsInfo}
+    onEditAccountingCodes={onEditAccountingCodes}
+  />
 );
 
 export const Reviewed = () => (
-  <PaymentRequestCard paymentRequest={reviewedPaymentRequest} shipmentsInfo={shipmentsInfo} />
+  <PaymentRequestCard
+    paymentRequest={reviewedPaymentRequest}
+    shipmentsInfo={shipmentsInfo}
+    onEditAccountingCodes={onEditAccountingCodes}
+  />
 );
 
 export const Rejected = () => (
-  <PaymentRequestCard paymentRequest={rejectedPaymentRequest} shipmentsInfo={shipmentsInfo} />
+  <PaymentRequestCard
+    paymentRequest={rejectedPaymentRequest}
+    shipmentsInfo={shipmentsInfo}
+    onEditAccountingCodes={onEditAccountingCodes}
+  />
 );
