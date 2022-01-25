@@ -25,13 +25,4 @@ describe('MovingInfo component', () => {
     expect(screen.getByRole('heading', { name: /7,000 lbs/ })).toBeInTheDocument();
     expect(screen.getAllByRole('heading').length).toBe(6);
   });
-
-  it('renders with no errors when entitlement weight is 0', () => {
-    render(<MovingInfo {...testProps} entitlementWeight={0} />);
-
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'Things to know about selecting shipments' }),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole('heading').length).toBe(5);
-  });
 });
