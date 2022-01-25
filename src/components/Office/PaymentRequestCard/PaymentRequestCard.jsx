@@ -225,18 +225,16 @@ const PaymentRequestCard = ({
             }
 
             return (
-              <>
-                <PaymentRequestDetails
-                  key={serviceItemShipmentID || 'basicServiceItems'}
-                  className={styles.paymentRequestDetails}
-                  serviceItems={serviceItems}
-                  shipment={selectedShipment}
-                  paymentRequestStatus={paymentRequest.status}
-                  tacs={tacs}
-                  sacs={sacs}
-                  onEditClick={onEditClick}
-                />
-              </>
+              <PaymentRequestDetails
+                key={serviceItemShipmentID || 'basicServiceItems'}
+                className={styles.paymentRequestDetails}
+                serviceItems={serviceItems}
+                shipment={selectedShipment}
+                paymentRequestStatus={paymentRequest.status}
+                tacs={tacs}
+                sacs={sacs}
+                onEditClick={onEditClick}
+              />
             );
           })}
         </div>
