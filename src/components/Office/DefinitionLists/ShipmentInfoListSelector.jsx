@@ -4,6 +4,7 @@ import * as PropTypes from 'prop-types';
 import { ShipmentShape } from 'types/shipment';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
+import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const ShipmentInfoListSelector = ({
@@ -13,6 +14,7 @@ const ShipmentInfoListSelector = ({
   warnIfMissing,
   errorIfMissing,
   showWhenCollapsed,
+  neverShow,
   shipmentType,
 }) => {
   switch (shipmentType) {
@@ -27,6 +29,18 @@ const ShipmentInfoListSelector = ({
           warnIfMissing={warnIfMissing}
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
+        />
+      );
+    case SHIPMENT_OPTIONS.NTS:
+      return (
+        <NTSShipmentInfoList
+          className={className}
+          shipment={shipment}
+          isExpanded={isExpanded}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          showWhenCollapsed={showWhenCollapsed}
+          neverShow={neverShow}
         />
       );
     default:
@@ -48,6 +62,7 @@ ShipmentInfoListSelector.propTypes = {
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  neverShow: PropTypes.arrayOf(PropTypes.string),
   shipmentType: PropTypes.oneOf([
     SHIPMENT_OPTIONS.HHG,
     SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
@@ -64,6 +79,7 @@ ShipmentInfoListSelector.defaultProps = {
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  neverShow: [],
 };
 
 export default ShipmentInfoListSelector;
