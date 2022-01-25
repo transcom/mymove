@@ -12,7 +12,7 @@ import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
 import styles from './MovePaymentRequests.module.scss';
 
-import { MOVES } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
 import LeftNav from 'components/LeftNav';
@@ -30,7 +30,7 @@ import {
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
 } from 'hooks/custom';
-import { updateFinancialFlag, updateMTOReviewedBillableWeights } from 'services/ghcApi';
+import { updateFinancialFlag, updateMTOReviewedBillableWeights, updateMTOShipment } from 'services/ghcApi';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
@@ -87,6 +87,13 @@ const MovePaymentRequests = ({
     onError: () => {
       setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
       setAlertType('error');
+    },
+  });
+
+  const [mutateMTOhipment] = useMutation(updateMTOShipment, {
+    onSuccess(_, variables) {
+      queryCache.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
     },
   });
 
@@ -171,7 +178,18 @@ const MovePaymentRequests = ({
     mutateMoves(payload);
   };
 
-  const handleEditAccountingCodes = () => {};
+  const handleEditAccountingCodes = (shipmentID, body) => {
+    const shipment = mtoShipments.find((s) => s.id === shipmentID);
+
+    if (shipment) {
+      mutateMTOhipment({
+        shipmentID,
+        moveTaskOrderID: shipment.moveTaskOrderID,
+        ifMatchETag: shipment.eTag,
+        body,
+      });
+    }
+  };
 
   const anyShipmentOverweight = (shipments) => {
     return shipments.some((shipment) => {

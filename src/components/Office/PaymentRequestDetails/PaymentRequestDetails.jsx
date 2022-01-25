@@ -38,13 +38,13 @@ const PaymentRequestAccountingCodes = ({
   tacType,
   sacType,
   shipmentType,
-  shipmentId,
+  mtoShipmentID,
   showEdit,
   onEditClick,
 }) => {
   const handleEditClick = () => {
     onEditClick({
-      shipmentId,
+      mtoShipmentID,
       tacType,
       sacType,
       shipmentType,
@@ -52,7 +52,7 @@ const PaymentRequestAccountingCodes = ({
   };
 
   return (
-    <div>
+    <span style={{ display: 'block' }}>
       <strong>TAC: </strong>
       {tacType && tacs[tacType] ? (
         <span>
@@ -75,7 +75,7 @@ const PaymentRequestAccountingCodes = ({
           Edit
         </button>
       )}
-    </div>
+    </span>
   );
 };
 
@@ -85,7 +85,7 @@ PaymentRequestAccountingCodes.propTypes = {
   tacType: PropTypes.string,
   sacType: PropTypes.string,
   shipmentType: PropTypes.string,
-  shipmentId: PropTypes.string,
+  mtoShipmentID: PropTypes.string,
   showEdit: PropTypes.bool,
   onEditClick: PropTypes.func,
 };
@@ -96,7 +96,7 @@ PaymentRequestAccountingCodes.defaultProps = {
   tacType: null,
   sacType: null,
   shipmentType: null,
-  shipmentId: null,
+  mtoShipmentID: null,
   showEdit: false,
   onEditClick: () => {},
 };
@@ -137,7 +137,7 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus, t
                     tacType={shipment.tacType}
                     sacType={shipment.sacType}
                     shipmentType={mtoShipmentType}
-                    shipmentId={shipment.mtoShipmentID}
+                    mtoShipmentID={shipment.mtoShipmentID}
                     showEdit={headingType !== 'HHG'}
                     onEditClick={onEditClick}
                   />

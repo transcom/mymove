@@ -201,13 +201,32 @@ const rejectedPaymentRequest = {
 
 const onEditAccountingCodes = () => {};
 
-export const NeedsReview = () => (
-  <PaymentRequestCard
-    paymentRequest={pendingPaymentRequest}
-    shipmentsInfo={shipmentsInfo}
-    onEditAccountingCodes={onEditAccountingCodes}
-  />
-);
+export const NeedsReview = () => {
+  const [modifiedShipments, setModifiedShipments] = React.useState(shipmentsInfo);
+  const handleEditAccountingCodes = (id, values) => {
+    const updatedShipments = modifiedShipments.map((s) => {
+      if (s.mtoShipmentID !== id) {
+        return s;
+      }
+
+      return {
+        ...s,
+        tacType: values.tacType,
+        sacType: values.sacType,
+      };
+    });
+
+    setModifiedShipments(updatedShipments);
+  };
+
+  return (
+    <PaymentRequestCard
+      paymentRequest={pendingPaymentRequest}
+      shipmentsInfo={modifiedShipments}
+      onEditAccountingCodes={handleEditAccountingCodes}
+    />
+  );
+};
 
 export const Reviewed = () => (
   <PaymentRequestCard

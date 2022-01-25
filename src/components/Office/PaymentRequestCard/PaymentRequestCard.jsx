@@ -54,12 +54,11 @@ const PaymentRequestCard = ({
   const [modalShipment, setModalShipment] = useState({});
 
   const handleModalSave = (values) => {
-    const editedShipment = {
-      ...modalShipment,
-      ...values,
-    };
+    onEditAccountingCodes(modalShipment.mtoShipmentID, {
+      tacType: values.tacType,
+      sacType: values.sacType,
+    });
 
-    onEditAccountingCodes(editedShipment);
     setShowModal(false);
     setModalShipment({});
   };
