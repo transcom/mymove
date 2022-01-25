@@ -448,6 +448,11 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
+	if mtoShipment.DestinationAddressType != nil {
+		destinationAddressType := string(*mtoShipment.DestinationAddressType)
+		payload.DestinationAddressType = &destinationAddressType
+	}
+
 	if sitStatusPayload != nil {
 		payload.SitStatus = sitStatusPayload
 	}
@@ -764,7 +769,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			if queueIncludeShipmentStatus(shipment.Status) {
 				if earliestRequestedPickup == nil {
 					earliestRequestedPickup = shipment.RequestedPickupDate
-				} else if shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
+				} else if shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
 					earliestRequestedPickup = shipment.RequestedPickupDate
 				}
 				validMTOShipments = append(validMTOShipments, shipment)

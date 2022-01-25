@@ -41,6 +41,7 @@ Required fields include:
 * Delivery Address
 * Releasing / Receiving agents
 Optional fields include:
+* Delivery Address Type
 * Customer Remarks
 * Releasing / Receiving agents
 * An array of optional accessorial service item codes
