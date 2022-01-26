@@ -1,4 +1,4 @@
-# TBD
+# Add a child table to mto_shipments for PPMs
 
 **User Story:** [MB-11140](https://dp3.atlassian.net/browse/MB-11140)
 
@@ -25,9 +25,9 @@ Currently, there is a `personally_procurred_moves` table that is used for PPMs w
 
 ## Decision Outcome
 
-* Chosen Alternative: _[alternative 1]_
-* _[justification. e.g., only alternative, which meets KO criterion decision driver | which resolves force force | ... | comes out best (see below)]_
-* _[consequences. e.g., negative impact on quality attribute, follow-up decisions required, ...]_ <!-* optional -->
+* Chosen Alternative: [Create a new table](#create-a-new-table)
+* Positive Outcomes: We will have a pattern that is easier to understand and will potentially be helpful in the future when implementing new shipments.
+* Consequences: If this new pattern is not utilized elsewhere we may be adding more complexity by introducing another pattern that is only partially used.
 
 ## Pros and Cons of the Alternatives
 
@@ -36,9 +36,10 @@ Currently, there is a `personally_procurred_moves` table that is used for PPMs w
 Continue using the `personally_procurred_moves` table
 
 * `+` Less work, most of the plumbing is already setup and can be leveraged to account for modifications made
+* `-` Additional work would be needed to support he office workflows and to update the code to current standards
 * `-` The PPM code will remain siloed
-* `-` The PPM models and relationship will be unique so there will be additional overhead to learn this relationship when switching to PPMs from another area of the project
 * `-` The nomenclature is not clear. We currently have moves which contain PPMs which can cause some confusions, as we normally consider the relationship to be moves contain shipments.
+* `-` The PPM models and relationship will be unique so there will be additional overhead to learn this relationship when switching to PPMs from another area of the project
 
 ### Modify `mto_shipments`
 
@@ -55,6 +56,7 @@ Incorporate the columns on the `personally_procurred_moves` table into the `mto_
 Create a new table that is a child of the `mto_shipments` table that holds ppm specific info
 
 * `++` This structure is more flexible and can be implemented retroactively for old shipment types and support new shipment types
+* `+` This is semantically the most clear and intuitive
 * `-` If the existing patterns for shipments are not modified, we will continue to have multiple patterns for different types of shipments
 * `-` The most amount of work and the most unknowns (slightly more than [modifying mto_shipments](#modify-mto_shipments))
 
@@ -62,3 +64,4 @@ Create a new table that is a child of the `mto_shipments` table that holds ppm s
 
 1. [^](#create-a-new-table) [Class table inheritance](https://martinfowler.com/eaaCatalog/classTableInheritance.html)
 2. [Slack thread about this conversation](https://ustcdp3.slack.com/archives/CP6PTUPQF/p1641937842037600)
+3. [Backend Discovery](https://dp3.atlassian.net/wiki/spaces/MT/pages/1605238794/PPM+Bookings+Technical+Discovery#Database)
