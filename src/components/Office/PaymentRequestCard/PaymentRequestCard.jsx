@@ -78,6 +78,7 @@ const PaymentRequestCard = ({
   let approvedAmount = 0;
   let rejectedAmount = 0;
 
+  const { locator } = paymentRequest.moveTaskOrder;
   const { sac, tac, ntsTac, ntsSac } = paymentRequest.moveTaskOrder.orders;
   const { contractNumber } = paymentRequest.moveTaskOrder.contractor;
 
@@ -112,6 +113,10 @@ const PaymentRequestCard = ({
 
   const tacs = { HHG: tac, NTS: ntsTac };
   const sacs = { HHG: sac, NTS: ntsSac };
+
+  const onEditCodesClick = () => {
+    history.push(`/moves/${locator}/orders`);
+  };
 
   return (
     <div className={classnames(styles.PaymentRequestCard, 'container')}>
@@ -211,6 +216,7 @@ const PaymentRequestCard = ({
           onSubmit={handleModalSave}
           sacType={modalShipment.sacType}
           tacType={modalShipment.tacType}
+          onEditCodesClick={onEditCodesClick}
         />
       )}
       {showDetails && (
