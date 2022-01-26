@@ -224,14 +224,19 @@ func (p *paymentRequestCreator) serviceItemErrorMessage(
 
 func (p *paymentRequestCreator) validShipment(appCtx appcontext.AppContext, shipmentID *uuid.UUID, shipmentIDs map[uuid.UUID]bool) error {
 	if shipmentID != nil {
-		// shipmentIDStr := shipmentID.String()
 		if _, found := shipmentIDs[*shipmentID]; !found {
 			shipmentIDs[*shipmentID] = true
 			var mtoShipment models.MTOShipment
 			err := appCtx.DB().Find(&mtoShipment, *shipmentID)
 			if err != nil {
-				appCtx.Logger().Error("paymentRequestCreator.validShipment query error", zap.Error(err))
-				return apperror.NewQueryError("MTOShipment", err, fmt.Sprintf("paymentRequestCreator.validShipment:MTOShipmentID %s", shipmentID.String()))
+				switch err {
+				case sql.ErrNoRows:
+					appCtx.Logger().Error(fmt.Sprintf("paymentRequestCreator.validShipment:MTOShipmentID %s not found", shipmentID.String()), zap.Error(err))
+					return apperror.NewNotFoundError(*shipmentID, "for MTOShipment")
+				default:
+					appCtx.Logger().Error(fmt.Sprintf("paymentRequestCreator.validShipment: query error MTOShipmentID %s", shipmentID.String()), zap.Error(err))
+					return apperror.NewQueryError("MTOShipment", err, fmt.Sprintf("paymentRequestCreator.validShipment:MTOShipmentID %s", shipmentID.String()))
+				}
 			}
 			if mtoShipment.UsesExternalVendor {
 				appCtx.Logger().Error("paymentRequestCreator.validShipment",
