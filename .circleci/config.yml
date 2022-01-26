@@ -26,7 +26,7 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for demo deploys. See the branch settings below.
-  demo-branch: &demo-branch placeholder_branch_name
+  demo-branch: &demo-branch testing
 
   # set loadtest-branch to the branch you want to deploy to loadtest, or
   # `placeholder_branch_name` if you don't want to deploy to loadtest
@@ -40,7 +40,7 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for exp deploys. See the branch settings below.
-  exp-branch: &exp-branch placeholder_branch_name
+  exp-branch: &exp-branch testing
 
   # set acceptance-branch to the branch you want to ENABLE acceptance
   # tests, or `placeholder_branch_name` if you don't want to run them
@@ -49,17 +49,17 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
+  integration-ignore-branch: &integration-ignore-branch testing
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch testing
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch placeholder_branch_name
+  client-ignore-branch: &client-ignore-branch testing
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
