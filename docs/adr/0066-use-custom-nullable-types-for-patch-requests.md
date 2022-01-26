@@ -34,5 +34,5 @@ To solve this engineers will now be able to use a custom, nullable type that ind
 ## Additional Context
 
 * [Slack thread discussing alternatives](https://ustcdp3.slack.com/archives/CP6PTUPQF/p1638833895016700)
-* [Github PR prototyping the custom, nullable string type](https://romanyx90.medium.com/handling-json-null-or-missing-values-with-go-swagger-4d7f37a2a7ca)
-* [Article describing the approach to creating the custom types](https://github.com/transcom/mymove/pull/7881)
+* [Article describing the approach to creating the custom types](https://romanyx90.medium.com/handling-json-null-or-missing-values-with-go-swagger-4d7f37a2a7ca)
+* [Github PR prototyping the custom, nullable string type](https://github.com/transcom/mymove/pull/7881)
