@@ -10,14 +10,16 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { HistoryShape, MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
-import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
+import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { patchPaymentRequest, patchPaymentServiceItemStatus } from 'services/ghcApi';
 import { usePaymentRequestQueries } from 'hooks/queries';
 import { PAYMENT_REQUESTS } from 'constants/queryKeys';
+import { OrderShape } from 'types';
 
-export const PaymentRequestReview = ({ history, match }) => {
+export const PaymentRequestReview = ({ history, match, order }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
   const { paymentRequestId, moveCode } = match.params;
+  const { tac, sac, ntsTac, ntsSac } = order;
   const {
     paymentRequest,
     paymentRequests,
@@ -92,6 +94,8 @@ export const PaymentRequestReview = ({ history, match }) => {
         mtoShipmentDestinationAddress: selectedShipment
           ? formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress)
           : undefined,
+        mtoShipmentTacType: item.mtoShipmentType === LOA_TYPE.HHG ? LOA_TYPE.HHG : selectedShipment?.tacType,
+        mtoShipmentSacType: item.mtoShipmentType === LOA_TYPE.HHG ? LOA_TYPE.HHG : selectedShipment?.sacType,
         mtoShipmentModificationType: selectedShipment ? getShipmentModificationType(selectedShipment) : undefined,
         mtoServiceItemCode: item.mtoServiceItemCode,
         mtoServiceItemName: item.mtoServiceItemName,
@@ -155,6 +159,8 @@ export const PaymentRequestReview = ({ history, match }) => {
           patchPaymentServiceItem={handleUpdatePaymentServiceItemStatus}
           onCompleteReview={handleCompleteReview}
           completeReviewError={completeReviewError}
+          TACs={{ HHG: tac, NTS: ntsTac }}
+          SACs={{ HHG: sac, NTS: ntsSac }}
         />
       </div>
     </div>
@@ -164,6 +170,7 @@ export const PaymentRequestReview = ({ history, match }) => {
 PaymentRequestReview.propTypes = {
   history: HistoryShape.isRequired,
   match: MatchShape.isRequired,
+  order: OrderShape.isRequired,
 };
 
 export default withRouter(PaymentRequestReview);
