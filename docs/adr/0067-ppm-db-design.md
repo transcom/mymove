@@ -26,7 +26,7 @@ Currently, there is a `personally_procurred_moves` table that is used for PPMs w
 ## Decision Outcome
 
 * Chosen Alternative: [Create a new table](#create-a-new-table)
-* Positive Outcomes: We will have a pattern that is easier to understand and will potentially be helpful in the future when implementing new shipments.
+* Positive Outcomes: We will have a pattern that is easier to understand and will potentially be helpful in the future when implementing new shipments. The tentative plan is to test this new pattern out with PPMs, and if things go smoothly, revisit this to be the default DB pattern for all new shipment types moving forward.
 * Consequences: If this new pattern is not utilized elsewhere we may be adding more complexity by introducing another pattern that is only partially used.
 
 ## Pros and Cons of the Alternatives
