@@ -193,7 +193,6 @@ const RequestedShipments = ({
                           : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
                       }
                       editURL={editURL}
-                      usesExternalVendor={shipment.usesExternalVendor}
                       /* eslint-disable-next-line react/jsx-props-no-spreading */
                       {...formik.getFieldProps(`shipments`)}
                     />
@@ -265,7 +264,6 @@ const RequestedShipments = ({
                     }
                     isSubmitted={false}
                     editURL={editURL}
-                    usesExternalVendor={shipment.usesExternalVendor}
                   />
                 );
               })}

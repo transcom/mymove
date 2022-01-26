@@ -43,7 +43,7 @@ describe('Shipment Container', () => {
           isSubmitted={false}
         />,
       );
-      expect(screen.getByTestId('shipment-display')).toBeTruthy();
+      expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
     });
 
     it('renders secondary address info when present', () => {
@@ -61,7 +61,7 @@ describe('Shipment Container', () => {
 
     it('renders the container successfully with postal only address', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={postalOnlyInfo} onChange={jest.fn()} isSubmitted={false} />);
-      expect(screen.getByTestId('shipment-display')).toBeTruthy();
+      expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
     });
 
     it('renders with comments', () => {
@@ -98,8 +98,8 @@ describe('Shipment Container', () => {
   describe('NTS shipment', () => {
     it('renders the container successfully', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={ntsInfo} onChange={jest.fn()} isSubmitted editURL="/" />);
-      expect(screen.getByTestId('shipment-display')).toBeTruthy();
-      expect(screen.queryByTestId('checkbox')).toBeTruthy();
+      expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
+      expect(screen.queryByTestId('checkbox')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
     });
     it('renders without the approval checkbox for external vendor shipments', () => {
@@ -111,7 +111,7 @@ describe('Shipment Container', () => {
           isSubmitted={false}
         />,
       );
-      expect(screen.queryByTestId('checkbox')).toBeFalsy();
+      expect(screen.queryByTestId('checkbox')).not.toBeInTheDocument();
       expect(screen.getByText('external vendor')).toBeInTheDocument();
     });
   });
@@ -128,8 +128,8 @@ describe('Shipment Container', () => {
           editURL="/"
         />,
       );
-      expect(screen.getByTestId('shipment-display')).toBeTruthy();
-      expect(screen.queryByTestId('checkbox')).toBeTruthy();
+      expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
+      expect(screen.queryByTestId('checkbox')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
     });
     it('renders without the approval checkbox for external vendor shipments', () => {
@@ -142,7 +142,7 @@ describe('Shipment Container', () => {
           isSubmitted
         />,
       );
-      expect(screen.queryByTestId('checkbox')).toBeFalsy();
+      expect(screen.queryByTestId('checkbox')).not.toBeInTheDocument();
       expect(screen.getByText('external vendor')).toBeInTheDocument();
     });
   });
