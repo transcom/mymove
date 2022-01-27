@@ -109,6 +109,7 @@ export function formatMtoShipmentForDisplay({
   storageFacility,
   usesExternalVendor,
   userRole,
+  destinationAddressType,
 }) {
   const displayValues = {
     shipmentType,
@@ -177,6 +178,10 @@ export function formatMtoShipmentForDisplay({
     displayValues.hasDeliveryAddress = 'yes';
   }
 
+  if (destinationAddressType) {
+    displayValues.destinationAddressType = destinationAddressType;
+  }
+
   if (secondaryDeliveryAddress) {
     displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
     displayValues.hasSecondaryDelivery = 'yes';
@@ -223,6 +228,7 @@ export function formatMtoShipmentForAPI({
   serviceOrderNumber,
   storageFacility,
   usesExternalVendor,
+  destinationAddressType,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -230,6 +236,7 @@ export function formatMtoShipmentForAPI({
     customerRemarks,
     counselorRemarks,
     agents: [],
+    destinationAddressType,
   };
 
   if (pickup?.requestedDate && pickup.requestedDate !== '') {
@@ -249,6 +256,10 @@ export function formatMtoShipmentForAPI({
 
     if (delivery.address) {
       formattedMtoShipment.destinationAddress = formatAddressForAPI(delivery.address);
+    }
+
+    if (destinationAddressType) {
+      formattedMtoShipment.destinationAddressType = destinationAddressType;
     }
 
     if (delivery.agent) {
