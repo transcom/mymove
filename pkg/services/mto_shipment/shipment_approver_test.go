@@ -349,6 +349,27 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		})
 
+		expectedReServiceCodes := []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDUPK,
+			models.ReServiceCodeDNPK,
+		}
+
+		var reServiceCode models.ReService
+		if err := appCtx.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
+			for _, serviceCode := range expectedReServiceCodes {
+				testdatagen.FetchOrMakeReService(appCtx.DB(), testdatagen.Assertions{
+					ReService: models.ReService{
+						Code: serviceCode,
+					},
+				})
+			}
+		}
+
 		// This is testing that the Required Delivery Date is calculated correctly.
 		// In order for the Required Delivery Date to be calculated, the following conditions must be true:
 		// 1. The shipment is moving to the APPROVED status
