@@ -69,6 +69,7 @@ const EditShipmentDetails = ({ match }) => {
                   TACs={TACs}
                   SACs={SACs}
                   userRole={roleTypes.TOO}
+                  orderType={order.order_type}
                 />
               </Grid>
             </Grid>
