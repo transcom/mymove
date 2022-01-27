@@ -114,10 +114,16 @@ describe('Services counselor user', () => {
   });
 
   it('is able to add a shipment', () => {
-    const deliveryDate = moment().add(1, 'days').format('DD MMM YYYY');
+    const deliveryDate = new Date().toLocaleDateString('en-US');
 
+    const moveLocator = 'DATYPE';
+
+    /**
+     * SC Moves queue
+     */
     cy.wait(['@getSortedMoves']);
-    // It doesn't matter which move we click on in the queue.
+    cy.get('input[name="locator"]').as('moveCodeFilterInput');
+    cy.get('@moveCodeFilterInput').type(moveLocator).blur();
     cy.get('td').first().click();
     cy.url().should('include', `details`);
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
@@ -139,10 +145,16 @@ describe('Services counselor user', () => {
   });
 
   it('is able to edit a shipment', () => {
-    const deliveryDate = moment().add(1, 'days').format('DD MMM YYYY');
+    const deliveryDate = new Date().toLocaleDateString('en-US');
 
+    const moveLocator = 'DATYPE';
+
+    /**
+     * SC Moves queue
+     */
     cy.wait(['@getSortedMoves']);
-    // It doesn't matter which move we click on in the queue.
+    cy.get('input[name="locator"]').as('moveCodeFilterInput');
+    cy.get('@moveCodeFilterInput').type(moveLocator).blur();
     cy.get('td').first().click();
     cy.url().should('include', `details`);
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);

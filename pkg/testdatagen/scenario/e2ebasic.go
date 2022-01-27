@@ -3149,6 +3149,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE2ET")
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE3ET")
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE4ET")
+	createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx)
 	createBasicNTSMove(appCtx, userUploader)
 	createBasicMovePPM01(appCtx, userUploader)
 	createBasicMovePPM02(appCtx, userUploader)
