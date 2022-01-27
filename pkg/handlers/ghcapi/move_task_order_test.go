@@ -286,7 +286,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func(t *testing.T) {
 		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
-			MoveTaskOrderID: uuid.FromStringOrNil("").String(),
+			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -386,7 +386,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 	suite.T().Run("Unsuccessful move TIO Remarks update, not found", func(t *testing.T) {
 		params := move_task_order.UpdateMoveTIORemarksParams{
 			HTTPRequest:     request,
-			MoveTaskOrderID: uuid.FromStringOrNil("").String(),
+			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),
 			Body:            &ghcmessages.Move{TioRemarks: &remarks},
 		}
 		response := handler.Handle(params)
