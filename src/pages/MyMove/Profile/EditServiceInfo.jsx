@@ -12,17 +12,15 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
-  selectEntitlementsForLoggedInUser,
   selectMoveIsInDraft,
 } from 'store/entities/selectors';
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
-import { EntitlementShape } from 'types';
+import { formatWeight } from 'utils/formatters';
 
 export const EditServiceInfo = ({
   serviceMember,
   currentOrders,
-  entitlement,
   updateServiceMember,
   setFlashMessage,
   moveIsInDraft,
@@ -66,12 +64,14 @@ export const EditServiceInfo = ({
     return patchServiceMember(payload)
       .then((response) => {
         updateServiceMember(response);
-
         if (entitlementCouldChange) {
+          const weightAllowance = currentOrders?.has_dependents
+            ? response.weight_allotment.total_weight_self_plus_dependents
+            : response.weight_allotment.total_weight_self;
           setFlashMessage(
             'EDIT_SERVICE_INFO_SUCCESS',
             'info',
-            `Your weight entitlement is now ${entitlement.sum.toLocaleString()} lbs.`,
+            `Your weight entitlement is now ${formatWeight(weightAllowance)}.`,
             'Your changes have been saved. Note that the entitlement has also changed.',
           );
         } else {
@@ -116,7 +116,6 @@ EditServiceInfo.propTypes = {
   setFlashMessage: PropTypes.func.isRequired,
   serviceMember: ServiceMemberShape.isRequired,
   currentOrders: OrdersShape.isRequired,
-  entitlement: EntitlementShape.isRequired,
   moveIsInDraft: PropTypes.bool,
 };
 
@@ -132,7 +131,6 @@ const mapDispatchToProps = {
 const mapStateToProps = (state) => ({
   serviceMember: selectServiceMemberFromLoggedInUser(state),
   currentOrders: selectCurrentOrders(state) || {},
-  entitlement: selectEntitlementsForLoggedInUser(state) || {},
   moveIsInDraft: selectMoveIsInDraft(state),
 });
 
