@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 // NumberDaysSITLookup does lookup of the number of SIT days a Move Task Orders MTO Shipment can bill for
@@ -46,11 +47,13 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 		return "", errors.New("new requested SIT dates overlap previously requested dates")
 	}
 
-	if s.MTOShipment.SITDaysAllowance == nil {
-		return "", fmt.Errorf("MTOShipment %v is missing SITDaysAllowance", s.MTOShipment.ID)
+	shipmentSITStatus := mtoshipment.NewShipmentSITStatus()
+	totalSITAllowance, err := shipmentSITStatus.CalculateShipmentSITAllowance(appCtx, s.MTOShipment)
+	if err != nil {
+		return "", err
 	}
 
-	remainingShipmentSITDays, err := calculateRemainingSITDays(priorPaymentServiceItems, *s.MTOShipment.SITDaysAllowance)
+	remainingShipmentSITDays, err := calculateRemainingSITDays(priorPaymentServiceItems, totalSITAllowance)
 	if err != nil {
 		return "", err
 	}
