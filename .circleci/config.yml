@@ -26,14 +26,14 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for demo deploys. See the branch settings below.
-  demo-branch: &demo-branch testing
+  demo-branch: &demo-branch placeholder_branch_name
 
   # set loadtest-branch to the branch you want to deploy to loadtest, or
   # `placeholder_branch_name` if you don't want to deploy to loadtest
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for loadtest deploys. See the branch settings below.
-  loadtest-branch: &loadtest-branch placeholder_branch_name
+  loadtest-branch: &loadtest-branch testing
 
   # set exp-branch to the branch you want to deploy to exp, or
   # `placeholder_branch_name` if you don't want to deploy to exp
