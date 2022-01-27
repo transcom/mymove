@@ -343,9 +343,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.Anything,
 		).Return(500, nil)
 
-		// Creating this since it's needed for NTS shipments and wasn't created above in
-		// "If the mtoShipment is approved successfully it should create approved mtoServiceItems"
-		// Not sure why the other service items are valid in this test though
 		testdatagen.FetchOrMakeReService(appCtx.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDNPK,
