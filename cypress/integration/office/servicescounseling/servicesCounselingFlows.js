@@ -1,5 +1,4 @@
 import { ServicesCounselorOfficeUserType } from '../../../support/constants';
-import moment from 'moment';
 
 describe('Services counselor user', () => {
   before(() => {
