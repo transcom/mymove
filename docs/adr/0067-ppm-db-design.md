@@ -35,8 +35,8 @@ Currently, there is a `personally_procurred_moves` table that is used for PPMs w
 
 Continue using the `personally_procurred_moves` table
 
-* `+` Less work, most of the plumbing is already setup and can be leveraged to account for modifications made
-* `-` Additional work would be needed to support he office workflows and to update the code to current standards
+* `+` Less work, most of the plumbing is already set up and can be leveraged to account for modifications made.
+* `-` Additional work would be needed to support the office workflows and to update the code to current standards.
 * `-` The PPM code will remain siloed
 * `-` The nomenclature is not clear. We currently have moves which contain PPMs which can cause some confusions, as we normally consider the relationship to be moves contain shipments.
 * `-` The PPM models and relationship will be unique so there will be additional overhead to learn this relationship when switching to PPMs from another area of the project
