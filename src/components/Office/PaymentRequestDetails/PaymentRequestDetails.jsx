@@ -13,6 +13,7 @@ import { formatDateFromIso } from 'shared/formatters';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 import { shipmentModificationTypes } from 'constants/shipments';
 import { AccountingCodesShape } from 'types/accountingCodes';
+import { formatAccountingCode } from 'utils/shipmentDisplay';
 
 const shipmentHeadingAndStyle = (mtoShipmentType) => {
   switch (mtoShipmentType) {
@@ -51,25 +52,16 @@ const PaymentRequestAccountingCodes = ({
     });
   };
 
+  const tacValue = tacType && tacs[tacType] ? formatAccountingCode(tacs[tacType], tacType) : '—';
+  const sacValue = sacType && sacs[sacType] ? formatAccountingCode(sacs[sacType], sacType) : '—';
+
   return (
     <span style={{ display: 'block' }}>
       <strong>TAC: </strong>
-      {tacType && tacs[tacType] ? (
-        <span>
-          {tacs[tacType]} ({tacType})
-        </span>
-      ) : (
-        '—'
-      )}
+      <span>{tacValue}</span>
       &nbsp;|&nbsp;
       <strong>SAC: </strong>
-      {sacType && sacs[sacType] ? (
-        <span>
-          {sacs[sacType]} ({sacType})
-        </span>
-      ) : (
-        '—'
-      )}
+      <span>{sacValue}</span>
       {showEdit && (
         <button type="button" className={styles.EditButton} onClick={handleEditClick}>
           Edit
