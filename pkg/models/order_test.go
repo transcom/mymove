@@ -335,3 +335,54 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.NoError(err)
 	suite.Equal(newPostalCode, *ppm.DestinationPostalCode, "Wrong ppm postal code")
 }
+
+func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
+	orderID := uuid.Must(uuid.NewV4())
+	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
+
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: Order{
+			ID: orderID,
+		},
+	})
+
+	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: Move{
+			ID:       moveID,
+			OrdersID: orderID,
+			Orders:   order,
+		},
+	})
+
+	postalCode := "30813"
+	newPostalCode := "12345"
+	address := Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     newPostalCode,
+	}
+	suite.MustSave(&address)
+
+	stationName := "New Duty Station"
+	station := DutyStation{
+		Name:      stationName,
+		AddressID: address.ID,
+		Address:   address,
+	}
+	suite.MustSave(&station)
+
+	suite.Equal(postalCode, order.NewDutyStation.Address.PostalCode, "Wrong orig postal code")
+
+	order.NewDutyStationID = station.ID
+	order.NewDutyStation = station
+
+	verrs, err := SaveOrder(suite.DB(), &order)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+
+	orderUpdated, err := FetchOrder(suite.DB(), orderID)
+	suite.NoError(err)
+	suite.Equal(station.ID, orderUpdated.NewDutyStationID, "Wrong order new_duty_station_id")
+	suite.Equal(newPostalCode, order.NewDutyStation.Address.PostalCode, "Wrong orig postal code")
+}

@@ -29,6 +29,7 @@ const ShipmentDisplay = ({
   warnIfMissing,
   errorIfMissing,
   showWhenCollapsed,
+  neverShow,
 }) => {
   const history = useHistory();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
@@ -71,6 +72,7 @@ const ShipmentDisplay = ({
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
               <Tag>cancellation requested</Tag>
             )}
+            {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
           </div>
 
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
@@ -83,6 +85,7 @@ const ShipmentDisplay = ({
           warnIfMissing={warnIfMissing}
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
+          neverShow={neverShow}
         />
         {editURL && (
           <EditButton
@@ -144,6 +147,7 @@ ShipmentDisplay.propTypes = {
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  neverShow: PropTypes.arrayOf(PropTypes.string),
 };
 
 ShipmentDisplay.defaultProps = {
@@ -160,6 +164,7 @@ ShipmentDisplay.defaultProps = {
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  neverShow: [],
 };
 
 export default ShipmentDisplay;

@@ -150,4 +150,15 @@ describe('Shipment Container', () => {
     render(<ShipmentDisplay shipmentId="1" displayInfo={cancelled} onChange={jest.fn()} isSubmitted={false} />);
     expect(screen.getByText('cancelled')).toBeInTheDocument();
   });
+  it('renders with external vendor tag', () => {
+    render(
+      <ShipmentDisplay
+        shipmentId="1"
+        displayInfo={{ ...info, usesExternalVendor: true }}
+        onChange={jest.fn()}
+        isSubmitted={false}
+      />,
+    );
+    expect(screen.getByText('external vendor')).toBeInTheDocument();
+  });
 });

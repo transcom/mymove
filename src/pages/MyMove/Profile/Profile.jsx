@@ -16,6 +16,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
 import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
   const showMessages = currentOrders.id && !moveIsInDraft;
@@ -56,8 +57,8 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               originDutyStationName={originStation?.name || ''}
               originTransportationOfficeName={originStation?.transportation_office?.name || ''}
               originTransportationOfficePhone={transportationOfficePhone}
-              affiliation={serviceMember?.affiliation || ''}
-              rank={rank || ''}
+              affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
+              rank={ORDERS_RANK_OPTIONS[rank] || ''}
               edipi={serviceMember?.edipi || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
               isEditable={moveIsInDraft}
