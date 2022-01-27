@@ -24,8 +24,9 @@ describe('testing CSRF protection for dev login', function () {
   it('tests dev login with both unmasked and masked token', function () {
     // sm_no_move_type@example.com
     cy.apiSignInAsUser(userId);
-    cy.contains('Move to be scheduled');
-    cy.contains('Next Step: Finish setting up your move');
+    cy.contains('set up your shipments');
+
+    cy.contains("Share where and when you're moving");
   });
 
   it('cannot dev login with masked token only', function () {
