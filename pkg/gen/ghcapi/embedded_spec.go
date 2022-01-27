@@ -3320,7 +3320,7 @@ func init() {
         "sac": {
           "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -4564,6 +4564,15 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
+    },
     "Order": {
       "type": "object",
       "properties": {
@@ -5669,7 +5678,7 @@ func init() {
         "sac": {
           "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -10041,7 +10050,7 @@ func init() {
         "sac": {
           "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -11285,6 +11294,15 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
+    },
     "Order": {
       "type": "object",
       "properties": {
@@ -12397,7 +12415,7 @@ func init() {
         "sac": {
           "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {

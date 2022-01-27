@@ -182,8 +182,8 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 		order.ReportByDate = time.Time(*payload.ReportByDate)
 	}
 
-	if payload.Sac != nil {
-		order.SAC = payload.Sac
+	if payload.Sac.Present {
+		order.SAC = payload.Sac.Value
 	}
 
 	if payload.Tac != nil {
@@ -286,8 +286,8 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
 	}
 
-	if payload.Sac != nil {
-		order.SAC = payload.Sac
+	if payload.Sac.Present {
+		order.SAC = payload.Sac.Value
 	}
 
 	if payload.Tac != nil {

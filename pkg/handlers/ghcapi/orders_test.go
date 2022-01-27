@@ -6,6 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/trace"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -255,6 +256,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
+		sac := nullable.NewString("987654321")
+
 		body := &ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator:   &deptIndicator,
 			IssueDate:             handlers.FmtDatePtr(&issueDate),
@@ -265,7 +268,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
 			OriginDutyStationID:   handlers.FmtUUID(originDutyStation.ID),
 			Tac:                   handlers.FmtString("E19A"),
-			Sac:                   handlers.FmtString("987654321"),
+			Sac:                   sac,
 			NtsTac:                handlers.FmtString("E19A"),
 			NtsSac:                handlers.FmtString("987654321"),
 			OrdersAcknowledgement: &ordersAcknowledgement,
@@ -307,7 +310,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		suite.Equal(body.OrdersNumber, ordersPayload.OrderNumber)
 		suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(body.Sac, ordersPayload.Sac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
 		suite.Equal(body.NtsTac, ordersPayload.NtsTac)
 		suite.Equal(body.NtsSac, ordersPayload.NtsSac)
 		suite.NotNil(ordersPayload.AmendedOrdersAcknowledgedAt)
@@ -329,6 +332,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
+		sac := nullable.NewString("987654321")
+
 		unacknowledgedOrders := false
 		body := &ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator:   &deptIndicator,
@@ -340,7 +345,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
 			OriginDutyStationID:   handlers.FmtUUID(originDutyStation.ID),
 			Tac:                   handlers.FmtString("E19A"),
-			Sac:                   handlers.FmtString("987654321"),
+			Sac:                   sac,
 			NtsTac:                handlers.FmtString("E19A"),
 			NtsSac:                handlers.FmtString("987654321"),
 			OrdersAcknowledgement: &unacknowledgedOrders,
@@ -392,6 +397,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+	sac := nullable.NewString("987654321")
 	subtestData.body = &ghcmessages.UpdateOrderPayload{
 		DepartmentIndicator: &deptIndicator,
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
@@ -402,7 +408,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
 		Tac:                 handlers.FmtString("E19A"),
-		Sac:                 handlers.FmtString("987654321"),
+		Sac:                 sac,
 		NtsTac:              handlers.FmtString("E19A"),
 		NtsSac:              handlers.FmtString("987654321"),
 	}
@@ -455,7 +461,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.Equal(body.OrdersNumber, ordersPayload.OrderNumber)
 		suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(body.Sac, ordersPayload.Sac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
 		suite.Equal(body.NtsTac, ordersPayload.NtsTac)
 		suite.Equal(body.NtsSac, ordersPayload.NtsSac)
 	})
@@ -684,6 +690,7 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 	subtestData.order = subtestData.move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	sac := nullable.NewString("987654321")
 
 	subtestData.body = &ghcmessages.CounselingUpdateOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
@@ -692,7 +699,7 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
 		Tac:                 handlers.FmtString("E19A"),
-		Sac:                 handlers.FmtString("987654321"),
+		Sac:                 sac,
 		NtsTac:              handlers.FmtString("E19A"),
 		NtsSac:              handlers.FmtString("987654321"),
 	}
@@ -740,7 +747,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(body.Sac, ordersPayload.Sac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
 		suite.Equal(body.NtsTac, ordersPayload.NtsTac)
 		suite.Equal(body.NtsSac, ordersPayload.NtsSac)
 	})

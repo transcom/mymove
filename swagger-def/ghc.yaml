@@ -2533,7 +2533,7 @@ definitions:
         type: string
         title: HHG SAC
         example: 'N002214CSW32Y9'
-        x-nullable: true
+        $ref: definitions/NullableString.yaml
       ntsTac:
         type: string
         title: NTS TAC
@@ -2595,7 +2595,7 @@ definitions:
         type: string
         title: HHG SAC
         example: 'N002214CSW32Y9'
-        x-nullable: true
+        $ref: definitions/NullableString.yaml
       ntsTac:
         type: string
         title: NTS TAC
