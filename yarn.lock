@@ -3727,14 +3727,14 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
-"@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer":
+"@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer#ds-mb-11016-update-three-library-security-vulerability":
   version "1.2.1"
-  resolved "https://github.com/trussworks/react-file-viewer#fe70df7fe43d96a4cdc4a5314ed0496d6a84f495"
+  resolved "https://github.com/trussworks/react-file-viewer#3406013da1f46694d0079f5c312ae08bf88d27f1"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
     react-visibility-sensor "^5.0.2"
-    three "0.126.0"
+    three "0.137.0"
 
 "@trussworks/react-uswds@^2.1.0":
   version "2.1.0"
@@ -19651,10 +19651,10 @@ third-party-web@^0.12.4:
   resolved "https://registry.yarnpkg.com/third-party-web/-/third-party-web-0.12.5.tgz#df336053ddcbce68aa2da3787641233739ad5a64"
   integrity sha512-A8YS1bpOzm9os0w7wH/BbN5WZgzyf0zbrrWHckX57v+EkCaM7jZPoRpzgqrakh2e7IWP1KwAnMtlcGTATYZw8A==
 
-three@0.126.0:
-  version "0.126.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.126.0.tgz#924818341cd4441ef247e3cbf236f6160b90a216"
-  integrity sha512-/MecvboUefStCkUfXLImoJxthN+FoLPcEP7pz1r1Dd9i8BPGGuj+S1sOPRvW4Z+ViZjP2oWWm1inNC/MT52ybA==
+three@0.137.0:
+  version "0.137.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.137.0.tgz#0ebd6ba66637a332c31f234bcdd35aeec071a6e3"
+  integrity sha512-rzSDhia6cU35UCy6y+zEEws6vSgytfHqFMSaBvUcySgzwvDO6vETyswtSNi/+aVqJw8WLMwyT1mlQQ1T/dxxOA==
 
 throat@^5.0.0:
   version "5.0.0"
