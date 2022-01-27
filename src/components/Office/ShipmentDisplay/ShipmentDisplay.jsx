@@ -142,6 +142,7 @@ ShipmentDisplay.propTypes = {
     tacType: PropTypes.string,
     sacType: PropTypes.string,
     ntsRecordedWeight: PropTypes.number,
+    displayDestAddrType: PropTypes.bool,
   }).isRequired,
   allowApproval: PropTypes.bool,
   editURL: PropTypes.string,
