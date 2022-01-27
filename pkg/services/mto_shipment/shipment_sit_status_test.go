@@ -14,7 +14,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 	suite.T().Run("returns nil when the shipment has no service items", func(t *testing.T) {
 		submittedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{})
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), submittedShipment)
+		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), submittedShipment)
+		suite.NoError(err)
 		suite.Nil(sitStatus)
 	})
 
@@ -26,7 +27,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 		})
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
 		suite.Nil(sitStatus)
 	})
 
@@ -51,7 +53,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{futureSIT}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
 		suite.Nil(sitStatus)
 	})
 
@@ -81,8 +84,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{dopsit}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
-
+		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
 		suite.NotNil(sitStatus)
 		suite.Len(sitStatus.PastSITs, 1)
 		suite.Equal(dopsit.ID.String(), sitStatus.PastSITs[0].ID.String())
@@ -116,8 +119,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{dopsit}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
-
+		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
 		suite.NotNil(sitStatus)
 
 		suite.Equal(OriginSITLocation, sitStatus.Location)
@@ -169,7 +172,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDOPSIT}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
 
 		suite.NotNil(sitStatus)
 
@@ -224,7 +228,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
 
 		suite.NotNil(sitStatus)
 
@@ -279,7 +284,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
 
 		suite.NotNil(sitStatus)
 
@@ -334,8 +340,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
 
-		sitStatus := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
-
+		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
 		suite.Nil(sitStatus)
 	})
 }
