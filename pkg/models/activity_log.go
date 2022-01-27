@@ -14,6 +14,7 @@ type ActivityLog struct {
 	Entity       string    `db:"entity"`
 	LogEventType string    `db:"log_event_type"`
 	LogData      string    `db:"log_data"`
+	MoveID       string    `db:"move_id"`
 	CreatedAt    time.Time `db:"created_at"`
 	UpdatedAt    time.Time `db:"updated_at"`
 }
@@ -25,6 +26,7 @@ func CreateActivityLog(tx *pop.Connection) error {
 		Source:       "shipment_create",
 		Entity:       "shipment",
 		LogEventType: "Create",
+		MoveID:       "ABCD-1234",
 		LogData:      `{"test": "test"}`,
 	}
 

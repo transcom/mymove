@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -287,12 +288,15 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, m
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the OFFICE USER
 func (f *mtoShipmentUpdater) UpdateMTOShipmentOffice(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	return f.updateMTOShipment(
+	out, err := f.updateMTOShipment(
 		appCtx,
 		mtoShipment,
 		eTag,
 		checkStatus(),
 	)
+	jsonOutput, _ := json.Marshal(out)
+	appCtx.Logger().Warn(string(jsonOutput))
+	return out, err
 }
 
 // UpdateMTOShipmentCustomer updates the mto shipment
@@ -393,11 +397,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			if dbShipment.PickupAddressID != nil {
 				newShipment.PickupAddress.ID = *dbShipment.PickupAddressID
 			}
-
 			err := txnAppCtx.DB().Save(newShipment.PickupAddress)
+			// create a log record
 			if err != nil {
 				return err
 			}
+			// pickupAddressJson, _ := json.Marshal(newShipment.PickupAddress)
+			// saveJson := fmt.Sprintf(`{"id": "%2s", "pickup_address": %1s}`, newShipment.ID, pickupAddressJson)
+			// appCtx.Logger().Warn(saveJson)
 
 			newShipment.PickupAddressID = &newShipment.PickupAddress.ID
 		}
