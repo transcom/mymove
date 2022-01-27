@@ -235,6 +235,18 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 			},
 		)
 
+		// uses external vendor
+		createMoveWithNTSAndNTSR(
+			appCtx,
+			userUploader,
+			moveRouter,
+			sceneOptionsNTS{
+				shipmentMoveCode:   "NTSEVR",
+				moveStatus:         models.MoveStatusSUBMITTED,
+				usesExternalVendor: true,
+			},
+		)
+
 		// Create some unsubmitted Moves for Customer users
 		// uses external vendor
 		createMoveWithNTSAndNTSR(
