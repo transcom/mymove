@@ -211,8 +211,8 @@ class MtoShipmentForm extends Component {
                     <Alert type="info" noIcon>
                       Remember: You can move{' '}
                       {orders.has_dependents
-                        ? formatWeight(serviceMember.weight_allotment.total_weight_self_plus_dependents)
-                        : formatWeight(serviceMember.weight_allotment.total_weight_self)}{' '}
+                        ? formatWeight(serviceMember.weight_allotment?.total_weight_self_plus_dependents)
+                        : formatWeight(serviceMember.weight_allotment?.total_weight_self)}{' '}
                       total. You’ll be billed for any excess weight you move.
                     </Alert>
 

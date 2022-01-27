@@ -1,0 +1,41 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/mixins';
+@import 'shared/styles/colors';
+
+.ReviewAccountingCodes {
+  @include u-margin-bottom(3);
+}
+
+.Shipment {
+  @include u-margin-bottom(1);
+  @include u-padding-y(1.5);
+  @include u-padding-x(1);
+  border: solid 1px $base-lighter;
+  border-left: solid 5px $base-lighter;
+  border-radius: 4px;
+  line-height: 18px;
+}
+
+.Shipment_HHG {
+  border-left-color: $accent-hhg;
+}
+
+.Shipment_PPM {
+  border-left-color: $accent-ppm;
+}
+
+.Shipment_NTS {
+  border-left-color: $accent-nts;
+}
+
+.Shipment_NTS-release {
+  border-left-color: $accent-ntsr;
+}
+
+.ShipmentType {
+  font-weight: bold;
+}
+
+.ShipmentAmount {
+  float: right;
+}

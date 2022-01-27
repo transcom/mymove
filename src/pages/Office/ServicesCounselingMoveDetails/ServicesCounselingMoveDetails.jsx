@@ -263,9 +263,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
                 counselorCanEdit && (
-                  <ButtonDropdown onChange={handleButtonDropdownChange}>
+                  <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
-                    <option value={SHIPMENT_OPTIONS_URL.HHG}>HHG</option>
+                    <option test-dataid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+                      HHG
+                    </option>
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                   </ButtonDropdown>
@@ -289,7 +291,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
                     key={shipment.id}
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
-                    showIcon={false}
+                    allowApproval={false}
                     ordersLOA={ordersLOA}
                     warnIfMissing={warnIfMissing[shipment.shipmentType]}
                     errorIfMissing={errorIfMissing[shipment.shipmentType]}
