@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { generatePath } from 'react-router';
 import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
@@ -11,8 +12,10 @@ import ConnectedEditFacilityInfoModal from 'components/Office/EditFacilityInfoMo
 import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingCode } from 'utils/shipmentDisplay';
 import { ShipmentShape } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
+import { tooRoutes } from 'constants/routes';
 
 const ShipmentDetailsSidebar = ({
+  history,
   className,
   shipment,
   ordersLOA,
@@ -22,6 +25,9 @@ const ShipmentDetailsSidebar = ({
   const { mtoAgents, secondaryAddresses, serviceOrderNumber, storageFacility, sacType, tacType } = shipment;
   const tac = retrieveTAC(shipment.tacType, ordersLOA);
   const sac = retrieveSAC(shipment.sacType, ordersLOA);
+
+  const moveCode = 'HGNTSR';
+  const editOrdersPath = generatePath(tooRoutes.ORDERS_EDIT_PATH, { moveCode });
 
   const [isEditFacilityInfoModalVisible, setIsEditFacilityInfoModalVisible] = useState(false);
   const [isAccountingCodesModalVisible, setIsAccountingCodesModalVisible] = useState(false);
@@ -174,6 +180,9 @@ const ShipmentDetailsSidebar = ({
 
 ShipmentDetailsSidebar.propTypes = {
   className: PropTypes.string,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }),
   shipment: ShipmentShape,
   ordersLOA: OrdersLOAShape,
   handleEditFacilityInfo: PropTypes.func.isRequired,
@@ -182,6 +191,9 @@ ShipmentDetailsSidebar.propTypes = {
 
 ShipmentDetailsSidebar.defaultProps = {
   className: '',
+  history: {
+    push: () => {},
+  },
   shipment: {},
   ordersLOA: {
     tac: '',
