@@ -175,10 +175,26 @@ func (suite *ReweighSuite) TestValidationRules() {
 		})
 	})
 
-	suite.Run("checkPrimeAvailability - Failure", func() {
+	suite.Run("checkPrimeAvailability - Failure because not available to prime", func() {
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				AvailableToPrimeAt: nil,
+			},
+		})
+		checker := movetaskorder.NewMoveTaskOrderChecker()
+		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.Reweigh{}, nil, &shipment)
+		suite.NotNil(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal(fmt.Sprintf("Not found while looking for Prime-available Shipment with id: %s", shipment.ID), err.Error())
+	})
+
+	suite.Run("checkPrimeAvailability - Failure because external vendor shipment", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
 			},
 		})
 		checker := movetaskorder.NewMoveTaskOrderChecker()
