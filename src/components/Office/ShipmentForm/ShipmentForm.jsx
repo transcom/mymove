@@ -257,119 +257,113 @@ const ShipmentForm = ({
                   </>
                 )}
                 {showPickupFields && (
-                  <>
-                    <SectionWrapper className={formStyles.formSection}>
-                      {showDeliveryFields && <h2>Pickup information</h2>}
-                      <Fieldset>
-                        <DatePickerInput
-                          name="pickup.requestedDate"
-                          label="Requested pickup date"
-                          id="requestedPickupDate"
-                          validate={validateDate}
-                        />
-                      </Fieldset>
-
-                      <AddressFields
-                        name="pickup.address"
-                        legend="Pickup location"
-                        render={(fields) => (
-                          <>
-                            <Checkbox
-                              data-testid="useCurrentResidence"
-                              label="Use current address"
-                              name="useCurrentResidence"
-                              onChange={handleUseCurrentResidenceChange}
-                              id="useCurrentResidenceCheckbox"
-                            />
-                            {fields}
-                          </>
-                        )}
+                  <SectionWrapper className={formStyles.formSection}>
+                    {showDeliveryFields && <h2>Pickup information</h2>}
+                    <Fieldset>
+                      <DatePickerInput
+                        name="pickup.requestedDate"
+                        label="Requested pickup date"
+                        id="requestedPickupDate"
+                        validate={validateDate}
                       />
+                    </Fieldset>
 
-                      <ContactInfoFields
-                        name="pickup.agent"
-                        legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
-                        render={(fields) => <>{fields}</>}
-                      />
-                    </SectionWrapper>
-                  </>
+                    <AddressFields
+                      name="pickup.address"
+                      legend="Pickup location"
+                      render={(fields) => (
+                        <>
+                          <Checkbox
+                            data-testid="useCurrentResidence"
+                            label="Use current address"
+                            name="useCurrentResidence"
+                            onChange={handleUseCurrentResidenceChange}
+                            id="useCurrentResidenceCheckbox"
+                          />
+                          {fields}
+                        </>
+                      )}
+                    />
+
+                    <ContactInfoFields
+                      name="pickup.agent"
+                      legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
+                      render={(fields) => fields}
+                    />
+                  </SectionWrapper>
                 )}
 
                 {showDeliveryFields && (
-                  <>
-                    <SectionWrapper className={formStyles.formSection}>
-                      {showPickupFields && <h2>Delivery information</h2>}
-                      <Fieldset>
-                        <DatePickerInput
-                          name="delivery.requestedDate"
-                          label="Requested delivery date"
-                          id="requestedDeliveryDate"
-                          validate={validateDate}
-                        />
-                      </Fieldset>
-
-                      <Fieldset legend="Delivery location">
-                        <FormGroup>
-                          <p>Does the customer know their delivery address yet?</p>
-                          <div className={formStyles.radioGroup}>
-                            <Field
-                              as={Radio}
-                              id="has-delivery-address"
-                              label="Yes"
-                              name="hasDeliveryAddress"
-                              value="yes"
-                              title="Yes, I know my delivery address"
-                              checked={hasDeliveryAddress === 'yes'}
-                            />
-                            <Field
-                              as={Radio}
-                              id="no-delivery-address"
-                              label="No"
-                              name="hasDeliveryAddress"
-                              value="no"
-                              title="No, I do not know my delivery address"
-                              checked={hasDeliveryAddress === 'no'}
-                            />
-                          </div>
-                        </FormGroup>
-                        {hasDeliveryAddress === 'yes' ? (
-                          <AddressFields name="delivery.address" render={(fields) => <>{fields}</>} />
-                        ) : (
-                          <p>
-                            We can use the zip of their new duty location:
-                            <br />
-                            <strong>
-                              {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                              {newDutyStationAddress.postalCode}{' '}
-                            </strong>
-                          </p>
-                        )}
-                      </Fieldset>
-
-                      <ContactInfoFields
-                        name="delivery.agent"
-                        legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
-                        render={(fields) => <>{fields}</>}
+                  <SectionWrapper className={formStyles.formSection}>
+                    {showPickupFields && <h2>Delivery information</h2>}
+                    <Fieldset>
+                      <DatePickerInput
+                        name="delivery.requestedDate"
+                        label="Requested delivery date"
+                        id="requestedDeliveryDate"
+                        validate={validateDate}
                       />
-                    </SectionWrapper>
-                  </>
+                    </Fieldset>
+
+                    <Fieldset legend="Delivery location">
+                      <FormGroup>
+                        <p>Does the customer know their delivery address yet?</p>
+                        <div className={formStyles.radioGroup}>
+                          <Field
+                            as={Radio}
+                            id="has-delivery-address"
+                            label="Yes"
+                            name="hasDeliveryAddress"
+                            value="yes"
+                            title="Yes, I know my delivery address"
+                            checked={hasDeliveryAddress === 'yes'}
+                          />
+                          <Field
+                            as={Radio}
+                            id="no-delivery-address"
+                            label="No"
+                            name="hasDeliveryAddress"
+                            value="no"
+                            title="No, I do not know my delivery address"
+                            checked={hasDeliveryAddress === 'no'}
+                          />
+                        </div>
+                      </FormGroup>
+                      {hasDeliveryAddress === 'yes' ? (
+                        <AddressFields name="delivery.address" render={(fields) => fields} />
+                      ) : (
+                        <p>
+                          We can use the zip of their new duty location:
+                          <br />
+                          <strong>
+                            {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                            {newDutyStationAddress.postalCode}{' '}
+                          </strong>
+                        </p>
+                      )}
+                    </Fieldset>
+
+                    <ContactInfoFields
+                      name="delivery.agent"
+                      legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                      render={(fields) => fields}
+                    />
+                  </SectionWrapper>
                 )}
 
                 {isNTS && (
-                  <>
-                    <SectionWrapper className={formStyles.formSection} data-testid="nts-what-to-expect">
-                      <Fieldset legend="What you can expect">
-                        <p>
-                          The moving company will find a storage facility approved by the government, and will move your
-                          belongings there.
-                        </p>
-                        <p>
-                          You’ll need to schedule an NTS release shipment to get your items back, most likely as part of
-                          a future move.
-                        </p>
-                      </Fieldset>
-                    </SectionWrapper>
-                  </>
+                  <SectionWrapper className={formStyles.formSection} data-testid="nts-what-to-expect">
+                    <Fieldset legend="What you can expect">
+                      <p>
+                        The moving company will find a storage facility approved by the government, and will move your
+                        belongings there.
+                      </p>
+                      <p>
+                        You’ll need to schedule an NTS release shipment to get your items back, most likely as part of a
+                        future move.
+                      </p>
+                    </Fieldset>
+                  </SectionWrapper>
                 )}
 
                 <SectionWrapper className={formStyles.formSection}>

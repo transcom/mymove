@@ -139,10 +139,6 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DUCRT,
 ];
 
-export {
-  SERVICE_ITEM_STATUSES as default,
-  SERVICE_ITEM_PARAM_KEYS,
-  SERVICE_ITEM_CALCULATION_LABELS,
-  SERVICE_ITEM_CODES,
-  allowedServiceItemCalculations,
-};
+export default SERVICE_ITEM_STATUSES;
+
+export { SERVICE_ITEM_PARAM_KEYS, SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, allowedServiceItemCalculations };
