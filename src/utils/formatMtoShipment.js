@@ -38,7 +38,7 @@ function formatAgentForAPI(agent) {
   return agentCopy;
 }
 
-function formatStorageFacilityForAPI(storageFacility) {
+export function formatStorageFacilityForAPI(storageFacility) {
   const storageFacilityCopy = { ...storageFacility };
   Object.keys(storageFacilityCopy).forEach((key) => {
     const sanitizedKey = `${key}`;
@@ -54,12 +54,12 @@ function formatStorageFacilityForAPI(storageFacility) {
   return storageFacilityCopy;
 }
 
-function removeEtag(obj) {
+export function removeEtag(obj) {
   const { eTag, ...rest } = obj;
   return rest;
 }
 
-function formatAddressForAPI(address) {
+export function formatAddressForAPI(address) {
   const formattedAddress = address;
 
   if (formattedAddress.state) {
@@ -313,4 +313,10 @@ export function formatMtoShipmentForAPI({
   return formattedMtoShipment;
 }
 
-export default { formatMtoShipmentForAPI, formatMtoShipmentForDisplay };
+export default {
+  formatMtoShipmentForAPI,
+  formatMtoShipmentForDisplay,
+  formatAddressForAPI,
+  formatStorageFacilityForAPI,
+  removeEtag,
+};

@@ -1,19 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
+import styles from 'components/Office/ShipmentDetails/ShipmentDetailsSidebar.module.scss';
 import SimpleSection from 'containers/SimpleSection/SimpleSection';
+import ConnectedEditFacilityInfoModal from 'components/Office/EditFacilityInfoModal/EditFacilityInfoModal';
 import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingCode } from 'utils/shipmentDisplay';
 import { ShipmentShape } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
 
-const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
+const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditFacilityInfo }) => {
   const { mtoAgents, secondaryAddresses, serviceOrderNumber, storageFacility, sacType, tacType } = shipment;
   const tac = retrieveTAC(shipment.tacType, ordersLOA);
   const sac = retrieveSAC(shipment.sacType, ordersLOA);
 
+  const [isEditFacilityInfoModalVisible, setIsEditFacilityInfoModalVisible] = useState(false);
+
+  const handleShowEditFacilityInfoModal = () => {
+    setIsEditFacilityInfoModalVisible(true);
+  };
+
   return (
     <div className={className}>
+      <ConnectedEditFacilityInfoModal
+        isOpen={isEditFacilityInfoModalVisible}
+        onSubmit={(e) => {
+          handleEditFacilityInfo(e, shipment);
+          setIsEditFacilityInfoModalVisible(false);
+        }}
+        onClose={() => {
+          setIsEditFacilityInfoModalVisible(false);
+        }}
+        storageFacility={shipment.storageFacility}
+        serviceOrderNumber={shipment.serviceOrderNumber}
+        shipmentType={shipment.shipmentType}
+      />
+
       {mtoAgents &&
         mtoAgents.map((agent) => (
           <SimpleSection
@@ -29,12 +52,19 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA }) => {
         <SimpleSection
           key="facility-info-and-address"
           header={
-            <>
+            <div className={styles.ShipmentDetailsSidebar}>
               Facility info and address
-              <Link to="" className="usa-link float-right">
+              <Button
+                size="small"
+                type="button"
+                onClick={handleShowEditFacilityInfoModal}
+                className="float-right usa-link modal-link"
+                data-testid="edit-facility-info-modal-open"
+                unstyled
+              >
                 Edit
-              </Link>
-            </>
+              </Button>
+            </div>
           }
           border
         >
@@ -103,6 +133,7 @@ ShipmentDetailsSidebar.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape,
   ordersLOA: OrdersLOAShape,
+  handleEditFacilityInfo: PropTypes.func.isRequired,
 };
 
 ShipmentDetailsSidebar.defaultProps = {

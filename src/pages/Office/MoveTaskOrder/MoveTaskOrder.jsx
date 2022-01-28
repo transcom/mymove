@@ -13,6 +13,7 @@ import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillab
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
@@ -36,6 +37,7 @@ import {
   updateBillableWeight,
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
+  updateMTOShipment,
   approveSITExtension,
   denySITExtension,
   submitSITExtension,
@@ -158,6 +160,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+    onSuccess: (_, variables) => {
+      queryCache.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
     },
   });
 
@@ -377,6 +386,21 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       operationPath: 'shipment.requestShipmentCancellation',
       ifMatchETag: eTag,
       onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
+    });
+  };
+
+  const handleEditFacilityInfo = (fields, shipment) => {
+    const formattedStorageFacility = formatStorageFacilityForAPI(fields.storageFacility);
+    const formattedStorageFacilityAddress = removeEtag(formatAddressForAPI(fields.storageFacility.address));
+    const body = {
+      storageFacility: { ...formattedStorageFacility, address: formattedStorageFacilityAddress },
+      serviceOrderNumber: fields.serviceOrderNumber,
+    };
+    mutateMTOShipment({
+      moveTaskOrderID: shipment.moveTaskOrderID,
+      shipmentID: shipment.id,
+      ifMatchETag: shipment.eTag,
+      body,
     });
   };
 
@@ -718,6 +742,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   handleRequestReweighModal={handleRequestReweighModal}
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
+                  handleEditFacilityInfo={handleEditFacilityInfo}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
