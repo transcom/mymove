@@ -48,7 +48,7 @@ func ServiceParamLookupInitialize(
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+			return nil, apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItem")
 		default:
 			return nil, apperror.NewQueryError("MTOServiceItem", err, "")
 		}
@@ -83,13 +83,10 @@ func ServiceParamLookupInitialize(
 	// paramCache to nil, especially during unit test, so not using that function for this part.
 	//
 
-	var mtoShipment models.MTOShipment
-	var pickupAddress models.Address
-	var destinationAddress models.Address
+	// Load data that is only used by a few service items
 	var sitDestinationFinalAddress models.Address
 	var serviceItemDimensions models.MTOServiceItemDimensions
 
-	// Load data that is only used by a few service items
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
 		err = appCtx.DB().Load(&mtoServiceItem, "Dimensions")
@@ -109,33 +106,42 @@ func ServiceParamLookupInitialize(
 	}
 
 	// Load shipment fields for service items that need them
+	var mtoShipment models.MTOShipment
+	var pickupAddress models.Address
+	var destinationAddress models.Address
+
 	if mtoServiceItem.ReService.Code != models.ReServiceCodeCS && mtoServiceItem.ReService.Code != models.ReServiceCodeMS {
 		// Make sure there's an MTOShipment since that's nullable
 		if mtoServiceItem.MTOShipmentID == nil {
-			return nil, apperror.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
+			return nil, apperror.NewNotFoundError(uuid.Nil, "looking for MTOShipment")
 		}
-		err = appCtx.DB().Eager("PickupAddress", "DestinationAddress").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		err = appCtx.DB().EagerPreload("PickupAddress", "DestinationAddress", "StorageFacility").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+				return nil, apperror.NewNotFoundError(*mtoServiceItem.MTOShipmentID, "looking for MTOShipment")
 			default:
 				return nil, apperror.NewQueryError("MTOShipment", err, "")
 			}
 		}
 
-		if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
-			if mtoShipment.PickupAddressID == nil {
-				return nil, apperror.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we cannot eager load the storage
+		// facility's address as "StorageFacility.Address" because StorageFacility is a pointer.
+		if mtoShipment.StorageFacility != nil {
+			err = appCtx.DB().Load(mtoShipment.StorageFacility, "Address")
+			if err != nil {
+				return nil, apperror.NewQueryError("Address", err, "")
 			}
-			pickupAddress = *mtoShipment.PickupAddress
 		}
 
-		if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK && mtoServiceItem.ReService.Code != models.ReServiceCodeDNPK {
-			if mtoShipment.DestinationAddressID == nil {
-				return nil, apperror.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
-			}
-			destinationAddress = *mtoShipment.DestinationAddress
+		pickupAddress, err = getPickupAddressForService(mtoServiceItem, mtoShipment)
+		if err != nil {
+			return nil, err
+		}
+
+		destinationAddress, err = getDestinationAddressForService(mtoServiceItem, mtoShipment)
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -534,4 +540,60 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(appCtx appcontext.AppContext
 		return value, nil
 	}
 	return "", fmt.Errorf("  ServiceParamValue <%sLookup> does not exist for key: <%s>", key, key)
+}
+
+func getPickupAddressForService(mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment) (models.Address, error) {
+	// Determine which address field we should be using for pickup based on the shipment type.
+	var ptrPickupAddress *models.Address
+	var addressType string
+	switch mtoShipment.ShipmentType {
+	case models.MTOShipmentTypeHHGOutOfNTSDom:
+		addressType = "storage facility"
+		if mtoShipment.StorageFacility != nil {
+			ptrPickupAddress = &mtoShipment.StorageFacility.Address
+		}
+	default:
+		addressType = "pickup"
+		ptrPickupAddress = mtoShipment.PickupAddress
+	}
+
+	// Determine if that address is valid based on which service we're pricing.
+	switch mtoServiceItem.ReService.Code {
+	case models.ReServiceCodeDUPK:
+		// Pickup address isn't needed
+		return models.Address{}, nil
+	default:
+		if ptrPickupAddress == nil || ptrPickupAddress.ID == uuid.Nil {
+			return models.Address{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+		}
+		return *ptrPickupAddress, nil
+	}
+}
+
+func getDestinationAddressForService(mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment) (models.Address, error) {
+	// Determine which address field we should be using for destination based on the shipment type.
+	var ptrDestinationAddress *models.Address
+	var addressType string
+	switch mtoShipment.ShipmentType {
+	case models.MTOShipmentTypeHHGIntoNTSDom:
+		addressType = "storage facility"
+		if mtoShipment.StorageFacility != nil {
+			ptrDestinationAddress = &mtoShipment.StorageFacility.Address
+		}
+	default:
+		addressType = "destination"
+		ptrDestinationAddress = mtoShipment.DestinationAddress
+	}
+
+	// Determine if that address is valid based on which service we're pricing.
+	switch mtoServiceItem.ReService.Code {
+	case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
+		// Destination address isn't needed
+		return models.Address{}, nil
+	default:
+		if ptrDestinationAddress == nil || ptrDestinationAddress.ID == uuid.Nil {
+			return models.Address{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+		}
+		return *ptrDestinationAddress, nil
+	}
 }
