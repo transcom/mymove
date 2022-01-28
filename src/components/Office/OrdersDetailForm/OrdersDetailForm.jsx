@@ -3,6 +3,7 @@ import { func, string, bool } from 'prop-types';
 
 import styles from './OrdersDetailForm.module.scss';
 
+import { formatLabelReportByDate } from 'utils/formatters';
 import { CheckboxField, DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -24,13 +25,20 @@ const OrdersDetailForm = ({
   showNTSTac,
   showNTSSac,
   showOrdersAcknowledgement,
+  ordersType,
 }) => {
+  const reportDateRowLabel = formatLabelReportByDate(ordersType);
+  // The text is different if the customer is retiring or separating.
+  const newDutyStationLabel = ['RETIREMENT', 'SEPARATION'].includes(ordersType)
+    ? 'HOR, HOS or PLEAD'
+    : 'New duty location';
+
   return (
     <div className={styles.OrdersDetailForm}>
       <DutyStationInput name="originDutyStation" label="Current duty location" displayAddress={false} />
-      <DutyStationInput name="newDutyStation" label="New duty location" displayAddress={false} />
+      <DutyStationInput name="newDutyStation" label={newDutyStationLabel} displayAddress={false} />
       <DatePickerInput name="issueDate" label="Date issued" />
-      <DatePickerInput name="reportByDate" label="Report by date" />
+      <DatePickerInput name="reportByDate" label={reportDateRowLabel} />
       {showDepartmentIndicator && (
         <DropdownInput name="departmentIndicator" label="Department indicator" options={deptIndicatorOptions} />
       )}
@@ -98,6 +106,7 @@ OrdersDetailForm.propTypes = {
   showNTSTac: bool,
   showNTSSac: bool,
   showOrdersAcknowledgement: bool,
+  ordersType: string.isRequired,
 };
 
 OrdersDetailForm.defaultProps = {

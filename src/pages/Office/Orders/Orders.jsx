@@ -168,6 +168,7 @@ const Orders = () => {
                     tacWarning={tacWarning}
                     validateTac={handleTacValidation}
                     showOrdersAcknowledgement={hasAmendedOrders}
+                    ordersType={order.order_type}
                   />
                 </div>
                 <div className={styles.bottom}>

@@ -48,6 +48,7 @@ const defaultProps = {
   ordersTypeDetailOptions,
   showOrdersAcknowledgement: true,
   validateTac: jest.fn,
+  ordersType: 'PERMANENT_CHANGE_OF_STATION',
 };
 
 function renderOrdersDetailForm(props) {
@@ -122,5 +123,41 @@ describe('OrdersDetailForm', () => {
     expect(screen.queryByLabelText('TAC')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('SAC')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('I have read the new orders')).not.toBeInTheDocument();
+  });
+
+  it('has the right labels for a retiree', async () => {
+    renderOrdersDetailForm({
+      showDepartmentIndicator: false,
+      showOrdersNumber: false,
+      showOrdersTypeDetail: false,
+      showHHGTac: false,
+      showHHGSac: false,
+      showNTSTac: false,
+      showNTSSac: false,
+      showOrdersAcknowledgement: false,
+      ordersType: 'RETIREMENT',
+    });
+
+    // correct labels are visible
+    expect(await screen.findByLabelText('Date of retirement')).toBeInTheDocument();
+    expect(await screen.findByLabelText('HOR, HOS or PLEAD')).toBeInTheDocument();
+  });
+
+  it('has the right labels for a separatee', async () => {
+    renderOrdersDetailForm({
+      showDepartmentIndicator: false,
+      showOrdersNumber: false,
+      showOrdersTypeDetail: false,
+      showHHGTac: false,
+      showHHGSac: false,
+      showNTSTac: false,
+      showNTSSac: false,
+      showOrdersAcknowledgement: false,
+      ordersType: 'SEPARATION',
+    });
+
+    // correct labels are visible
+    expect(await screen.findByLabelText('Date of separation')).toBeInTheDocument();
+    expect(await screen.findByLabelText('HOR, HOS or PLEAD')).toBeInTheDocument();
   });
 });

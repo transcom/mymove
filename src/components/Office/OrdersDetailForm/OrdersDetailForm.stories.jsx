@@ -73,6 +73,7 @@ export const EmptyValues = () => (
           deptIndicatorOptions={deptIndicatorOptions}
           ordersTypeOptions={ordersTypeOptions}
           ordersTypeDetailOptions={ordersTypeDetailOptions}
+          ordersType={ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION}
         />
       </form>
     </Formik>
@@ -171,3 +172,33 @@ export const FieldsHidden = (args) => {
     </div>
   );
 };
+
+export const Retiree = () => (
+  <div style={{ width: '400px' }}>
+    <Formik>
+      <form>
+        <OrdersDetailForm
+          deptIndicatorOptions={deptIndicatorOptions}
+          ordersTypeOptions={ordersTypeOptions}
+          ordersTypeDetailOptions={ordersTypeDetailOptions}
+          ordersType="RETIREMENT"
+        />
+      </form>
+    </Formik>
+  </div>
+);
+
+export const Separatee = () => (
+  <div style={{ width: '400px' }}>
+    <Formik>
+      <form>
+        <OrdersDetailForm
+          deptIndicatorOptions={deptIndicatorOptions}
+          ordersTypeOptions={ordersTypeOptions}
+          ordersTypeDetailOptions={ordersTypeDetailOptions}
+          ordersType="SEPARATION"
+        />
+      </form>
+    </Formik>
+  </div>
+);

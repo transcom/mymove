@@ -123,6 +123,7 @@ const ServicesCounselingOrders = () => {
                     showDepartmentIndicator={false}
                     showOrdersNumber={false}
                     showOrdersTypeDetail={false}
+                    ordersType={order.order_type}
                   />
                 </div>
                 <div className={styles.bottom}>
