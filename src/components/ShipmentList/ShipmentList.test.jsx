@@ -10,10 +10,10 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 describe('ShipmentList component', () => {
   const shipments = [
-    { id: 'ID-1', shipmentType: 'PPM' },
+    { id: 'ID-1', shipmentType: SHIPMENT_OPTIONS.PPM },
     { id: 'ID-2', shipmentType: SHIPMENT_OPTIONS.HHG },
-    { id: 'ID-3', shipmentType: 'HHG_INTO_NTS_DOMESTIC' },
-    { id: 'ID-4', shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' },
+    { id: 'ID-3', shipmentType: SHIPMENT_OPTIONS.NTS },
+    { id: 'ID-4', shipmentType: SHIPMENT_OPTIONS.NTSR },
   ];
   const onShipmentClick = jest.fn();
   const defaultProps = {
@@ -28,7 +28,7 @@ describe('ShipmentList component', () => {
     expect(wrapper.find('.shipment-list-item-PPM strong').text()).toBe('PPM');
     expect(wrapper.find('.shipment-list-item-PPM span').text()).toBe('#ID-1');
     expect(wrapper.find('.shipment-list-item-HHG').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-HHG strong').text()).toBe(SHIPMENT_OPTIONS.HHG);
+    expect(wrapper.find('.shipment-list-item-HHG strong').text()).toBe('HHG');
     expect(wrapper.find('.shipment-list-item-HHG span').text()).toBe('#ID-2');
     expect(wrapper.find('.shipment-list-item-NTS').length).toBe(1);
     expect(wrapper.find('.shipment-list-item-NTS strong').text()).toBe('NTS');
