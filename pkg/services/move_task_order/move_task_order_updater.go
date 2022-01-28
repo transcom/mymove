@@ -306,6 +306,19 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCon
 		}
 	}
 
+	// Filtering external vendor shipments (if requested) in code since we can't do it easily in Pop
+	// without a raw query (which could be painful since we'd have to populate all the associations).
+	var filteredShipments models.MTOShipments
+	if moveTaskOrder.MTOShipments != nil {
+		filteredShipments = models.MTOShipments{}
+	}
+	for _, shipment := range moveTaskOrder.MTOShipments {
+		if !shipment.UsesExternalVendor {
+			filteredShipments = append(filteredShipments, shipment)
+		}
+	}
+	moveTaskOrder.MTOShipments = filteredShipments
+
 	return &moveTaskOrder, nil
 }
 

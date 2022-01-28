@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ShipmentDetailsSidebar from './ShipmentDetailsSidebar';
 
@@ -51,6 +52,7 @@ const shipment = {
   serviceOrderNumber: '1234',
   tacType: LOA_TYPE.HHG,
   sacType: LOA_TYPE.NTS,
+  shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
 };
 
 const ordersLOA = {
@@ -75,7 +77,7 @@ describe('Shipment Details Sidebar', () => {
   it('renders all fields when provided', () => {
     render(
       <MockProviders>
-        <ShipmentDetailsSidebar shipment={shipment} ordersLOA={ordersLOA} />
+        <ShipmentDetailsSidebar shipment={shipment} ordersLOA={ordersLOA} handleEditFacilityInfo={() => {}} />
       </MockProviders>,
     );
 
@@ -101,12 +103,27 @@ describe('Shipment Details Sidebar', () => {
   it('renders nothing with no info passed in', () => {
     render(
       <MockProviders>
-        <ShipmentDetailsSidebar />
+        <ShipmentDetailsSidebar handleEditFacilityInfo={() => {}} />
       </MockProviders>,
     );
 
     headers.forEach((header) => {
       expect(screen.queryByText(header)).toBeNull();
     });
+  });
+
+  it('shows edit facility info modal on edit button click', () => {
+    render(
+      <MockProviders>
+        <ShipmentDetailsSidebar shipment={shipment} ordersLOA={ordersLOA} handleEditFacilityInfo={() => {}} />
+      </MockProviders>,
+    );
+
+    const openEditFacilityModalButton = screen.getByTestId('edit-facility-info-modal-open');
+
+    userEvent.click(openEditFacilityModalButton);
+
+    // This text is in the edit facility info modal
+    expect(screen.getByText('Edit facility info and address')).toBeInTheDocument();
   });
 });
