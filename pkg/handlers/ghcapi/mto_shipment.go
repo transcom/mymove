@@ -75,6 +75,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerContext
 	mtoShipmentCreator services.MTOShipmentCreator
+	shipmentStatus     services.ShipmentSITStatus
 }
 
 // Handle creates the mto shipment
@@ -87,10 +88,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
 	}
 
-	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
-
-	if err != nil {
+	handleError := func(err error) middleware.Responder {
 		appCtx.Logger().Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case apperror.NotFoundError:
@@ -111,6 +109,25 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
 		}
 	}
+
+	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
+
+	if err != nil {
+		return handleError(err)
+	}
+
+	if mtoShipment == nil {
+		appCtx.Logger().Error("Unexpected nil shipment from CreateMTOShipment")
+		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+	}
+
+	sitAllowance, err := h.shipmentStatus.CalculateShipmentSITAllowance(appCtx, *mtoShipment)
+	if err != nil {
+		return handleError(err)
+	}
+
+	mtoShipment.SITDaysAllowance = &sitAllowance
 
 	returnPayload := payloads.MTOShipment(mtoShipment, nil)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
@@ -187,9 +204,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 	mtoShipment.ID = shipmentID
 
-	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(appCtx, mtoShipment, params.IfMatch)
-
-	if err != nil {
+	handleError := func(err error) middleware.Responder {
 		appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 
 		switch e := err.(type) {
@@ -228,6 +243,10 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 			)
 		}
 	}
+	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(appCtx, mtoShipment, params.IfMatch)
+	if err != nil {
+		return handleError(err)
+	}
 
 	_, err = event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateMTOShipmentEndpointKey,
@@ -243,7 +262,10 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		appCtx.Logger().Error("ghcapi.UpdateMTOShipment could not generate the event")
 	}
 
-	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
+	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
+	if err != nil {
+		return handleError(err)
+	}
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
 	returnPayload := payloads.MTOShipment(updatedMtoShipment, sitStatusPayload)
@@ -328,9 +350,8 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	eTag := params.IfMatch
-	shipment, err := h.ApproveShipment(appCtx, shipmentID, eTag)
 
-	if err != nil {
+	handleError := func(err error) middleware.Responder {
 		appCtx.Logger().Error("ghcapi.ApproveShipmentHandler", zap.Error(err))
 
 		switch e := err.(type) {
@@ -348,9 +369,17 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 		}
 	}
 
+	shipment, err := h.ApproveShipment(appCtx, shipmentID, eTag)
+	if err != nil {
+		return handleError(err)
+	}
+
 	h.triggerShipmentApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	if err != nil {
+		return handleError(err)
+	}
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
 	payload := payloads.MTOShipment(shipment, sitStatusPayload)
@@ -393,9 +422,8 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	eTag := params.IfMatch
-	shipment, err := h.RequestShipmentDiversion(appCtx, shipmentID, eTag)
 
-	if err != nil {
+	handleError := func(err error) middleware.Responder {
 		appCtx.Logger().Error("ghcapi.RequestShipmentDiversionHandler", zap.Error(err))
 
 		switch e := err.(type) {
@@ -413,9 +441,17 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 		}
 	}
 
+	shipment, err := h.RequestShipmentDiversion(appCtx, shipmentID, eTag)
+	if err != nil {
+		return handleError(err)
+	}
+
 	h.triggerRequestShipmentDiversionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	if err != nil {
+		return handleError(err)
+	}
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
 	payload := payloads.MTOShipment(shipment, sitStatusPayload)
@@ -458,9 +494,8 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	eTag := params.IfMatch
-	shipment, err := h.ApproveShipmentDiversion(appCtx, shipmentID, eTag)
 
-	if err != nil {
+	handleError := func(err error) middleware.Responder {
 		appCtx.Logger().Error("ghcapi.ApproveShipmentDiversionHandler", zap.Error(err))
 
 		switch e := err.(type) {
@@ -478,9 +513,17 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 		}
 	}
 
+	shipment, err := h.ApproveShipmentDiversion(appCtx, shipmentID, eTag)
+	if err != nil {
+		return handleError(err)
+	}
+
 	h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	if err != nil {
+		return handleError(err)
+	}
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
 	payload := payloads.MTOShipment(shipment, sitStatusPayload)
@@ -585,9 +628,8 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	eTag := params.IfMatch
-	shipment, err := h.RequestShipmentCancellation(appCtx, shipmentID, eTag)
 
-	if err != nil {
+	handleError := func(err error) middleware.Responder {
 		appCtx.Logger().Error("ghcapi.RequestShipmentCancellationHandler", zap.Error(err))
 
 		switch e := err.(type) {
@@ -605,9 +647,17 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 		}
 	}
 
+	shipment, err := h.RequestShipmentCancellation(appCtx, shipmentID, eTag)
+	if err != nil {
+		return handleError(err)
+	}
+
 	h.triggerRequestShipmentCancellationEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	if err != nil {
+		return handleError(err)
+	}
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
 	payload := payloads.MTOShipment(shipment, sitStatusPayload)
@@ -668,8 +718,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 		}
 	}
 
-	shipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
-	if err != nil {
+	handleError := func(err error) middleware.Responder {
 		appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 
 		switch err.(type) {
@@ -684,6 +733,11 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 		}
 	}
 
+	shipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
+	if err != nil {
+		return handleError(err)
+	}
+
 	moveID := shipment.MoveTaskOrderID
 	h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
@@ -695,7 +749,10 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
 
-	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
+	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
+	if err != nil {
+		return handleError(err)
+	}
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
 	payload := payloads.Reweigh(reweigh, sitStatusPayload)
@@ -760,7 +817,10 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 		return handleError(err)
 	}
 
-	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+	if err != nil {
+		return handleError(err)
+	}
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
@@ -826,7 +886,10 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 		return handleError(err)
 	}
 
-	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+	if err != nil {
+		return handleError(err)
+	}
 
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
@@ -903,7 +966,10 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 		return handleError(apperror.NewForbiddenError("is not a TOO"))
 	}
 
-	shipmentSITStatus := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+	if err != nil {
+		return handleError(err)
+	}
 
 	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 	returnPayload := payloads.MTOShipment(shipment, sitStatusPayload)

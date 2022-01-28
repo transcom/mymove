@@ -497,6 +497,41 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
+	suite.T().Run("PATCH failure 404 not found because attempting to update an external vendor shipment", func(t *testing.T) {
+		// Under test: updateMTOShipmentHandler.Handle
+		// Mocked:     Planner
+		// Set up:     We provide an update to a shipment that is handled by an external vendor
+		// Expected:   Handler returns Not Found error
+
+		// Create a shipment handled by an external vendor
+		externalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+		suite.NotNil(externalShipment.MoveTaskOrder.AvailableToPrimeAt)
+
+		// Create params
+		notAvReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", externalShipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   notAvReq,
+			MtoShipmentID: *handlers.FmtUUID(externalShipment.ID),
+			Body: &primemessages.UpdateMTOShipment{
+				Diversion: true,
+			},
+			IfMatch: etag.GenerateEtag(externalShipment.UpdatedAt),
+		}
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// Verify not found response
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
+	})
+
 	suite.T().Run("PATCH success 200 update of primeEstimatedWeight and primeActualWeight", func(t *testing.T) {
 		// Under test: updateMTOShipmentHandler.Handle
 		// Mocked:     Planner

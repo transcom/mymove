@@ -54,6 +54,11 @@ function formatStorageFacilityForAPI(storageFacility) {
   return storageFacilityCopy;
 }
 
+function removeEtag(obj) {
+  const { eTag, ...rest } = obj;
+  return rest;
+}
+
 function formatAddressForAPI(address) {
   const formattedAddress = address;
 
@@ -104,6 +109,7 @@ export function formatMtoShipmentForDisplay({
   storageFacility,
   usesExternalVendor,
   userRole,
+  destinationAddressType,
 }) {
   const displayValues = {
     shipmentType,
@@ -172,6 +178,10 @@ export function formatMtoShipmentForDisplay({
     displayValues.hasDeliveryAddress = 'yes';
   }
 
+  if (destinationAddressType) {
+    displayValues.destinationAddressType = destinationAddressType;
+  }
+
   if (secondaryDeliveryAddress) {
     displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
     displayValues.hasSecondaryDelivery = 'yes';
@@ -218,6 +228,7 @@ export function formatMtoShipmentForAPI({
   serviceOrderNumber,
   storageFacility,
   usesExternalVendor,
+  destinationAddressType,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -225,6 +236,7 @@ export function formatMtoShipmentForAPI({
     customerRemarks,
     counselorRemarks,
     agents: [],
+    destinationAddressType,
   };
 
   if (pickup?.requestedDate && pickup.requestedDate !== '') {
@@ -244,6 +256,10 @@ export function formatMtoShipmentForAPI({
 
     if (delivery.address) {
       formattedMtoShipment.destinationAddress = formatAddressForAPI(delivery.address);
+    }
+
+    if (destinationAddressType) {
+      formattedMtoShipment.destinationAddressType = destinationAddressType;
     }
 
     if (delivery.agent) {
@@ -286,7 +302,7 @@ export function formatMtoShipmentForAPI({
     const sanitizedStorageFacility = formatStorageFacilityForAPI(storageFacility);
     formattedMtoShipment.storageFacility = {
       ...sanitizedStorageFacility,
-      address: formatAddressForAPI(storageFacility.address),
+      address: removeEtag(formatAddressForAPI(sanitizedStorageFacility.address)),
     };
   }
 
