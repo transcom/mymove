@@ -54,6 +54,11 @@ function formatStorageFacilityForAPI(storageFacility) {
   return storageFacilityCopy;
 }
 
+function removeEtag(obj) {
+  const { eTag, ...rest } = obj;
+  return rest;
+}
+
 function formatAddressForAPI(address) {
   const formattedAddress = address;
 
@@ -297,7 +302,7 @@ export function formatMtoShipmentForAPI({
     const sanitizedStorageFacility = formatStorageFacilityForAPI(storageFacility);
     formattedMtoShipment.storageFacility = {
       ...sanitizedStorageFacility,
-      address: formatAddressForAPI(storageFacility.address),
+      address: removeEtag(formatAddressForAPI(sanitizedStorageFacility.address)),
     };
   }
 
