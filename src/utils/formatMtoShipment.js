@@ -54,12 +54,12 @@ export function formatStorageFacilityForAPI(storageFacility) {
   return storageFacilityCopy;
 }
 
-function removeEtag(obj) {
+export function removeEtag(obj) {
   const { eTag, ...rest } = obj;
   return rest;
 }
 
-function formatAddressForAPI(address) {
+export function formatAddressForAPI(address) {
   const formattedAddress = address;
 
   if (formattedAddress.state) {
