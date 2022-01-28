@@ -3,17 +3,22 @@ import { Link } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import styles from 'components/Office/ShipmentDetails/ShipmentDetailsSidebar.module.scss';
 import ConnectedAccountingCodesModal from '../AccountingCodesModal/AccountingCodesModal';
 
+import styles from 'components/Office/ShipmentDetails/ShipmentDetailsSidebar.module.scss';
 import SimpleSection from 'containers/SimpleSection/SimpleSection';
 import ConnectedEditFacilityInfoModal from 'components/Office/EditFacilityInfoModal/EditFacilityInfoModal';
 import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingCode } from 'utils/shipmentDisplay';
 import { ShipmentShape } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
 
-const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditFacilityInfo }) => {
-const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditAccountingCodes }) => {
+const ShipmentDetailsSidebar = ({
+  className,
+  shipment,
+  ordersLOA,
+  handleEditFacilityInfo,
+  handleEditAccountingCodes,
+}) => {
   const { mtoAgents, secondaryAddresses, serviceOrderNumber, storageFacility, sacType, tacType } = shipment;
   const tac = retrieveTAC(shipment.tacType, ordersLOA);
   const sac = retrieveSAC(shipment.sacType, ordersLOA);
@@ -45,29 +50,28 @@ const ShipmentDetailsSidebar = ({ className, shipment, ordersLOA, handleEditAcco
         shipmentType={shipment.shipmentType}
       />
 
-    <div className={className}>
-        <ConnectedAccountingCodesModal
-          isOpen={isAccountingCodesModalVisible}
-          onSubmit={(accountingTypes) => {
-            handleEditAccountingCodes(accountingTypes, shipment);
-            setIsAccountingCodesModalVisible(false);
-          }}
-          onClose={() => {
-            setIsAccountingCodesModalVisible(false);
-          }}
-          onEditCodesClick={() => {}}
-          shipmentType={shipment.shipmentType}
-          TACs={{
-            HHG: ordersLOA.tac,
-            NTS: ordersLOA.ntsTac,
-          }}
-          SACs={{
-            HHG: ordersLOA.sac,
-            NTS: ordersLOA.ntsSac,
-          }}
-          tacType={shipment.tacType}
-          sacType={shipment.sacType}
-        />
+      <ConnectedAccountingCodesModal
+        isOpen={isAccountingCodesModalVisible}
+        onSubmit={(accountingTypes) => {
+          handleEditAccountingCodes(accountingTypes, shipment);
+          setIsAccountingCodesModalVisible(false);
+        }}
+        onClose={() => {
+          setIsAccountingCodesModalVisible(false);
+        }}
+        onEditCodesClick={() => history.push(editOrdersPath)}
+        shipmentType={shipment.shipmentType}
+        TACs={{
+          HHG: ordersLOA.tac,
+          NTS: ordersLOA.ntsTac,
+        }}
+        SACs={{
+          HHG: ordersLOA.sac,
+          NTS: ordersLOA.ntsSac,
+        }}
+        tacType={shipment.tacType}
+        sacType={shipment.sacType}
+      />
 
       {mtoAgents &&
         mtoAgents.map((agent) => (
