@@ -12,6 +12,7 @@ import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
 import { MOVES } from 'constants/queryKeys';
 import { ORDERS_TYPE } from 'constants/orders';
+import { shipmentDestinationType } from 'constants/shipments';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
@@ -72,21 +73,44 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
           })
         : '';
 
-      let displayDestAddrType = false;
+      let displayDestinationType = false;
+      let destinationType = null;
 
       // show dest addr type, if retiree or separatee
-      if (order.ordersType === ORDERS_TYPE.RETIREMENT || ORDERS_TYPE.SEPARATION) {
-        displayDestAddrType = true;
+      if (ORDERS_TYPE[order.order_type] === ('RETIREMENT' || 'SEPARATION')) {
+        displayDestinationType = true;
+        /* 
+
+        translate from stored value to human readable string
+
+        shipment.destinationType:
+        type: string
+        title: Destination  Type
+        example: Other than authorized
+        enum:
+          - HOME_OF_RECORD: HOR
+          - HOME_OF_SELECTION: HOS
+          - PLACE_ENTERED_ACTIVE_DUTY: PLEAD
+          - OTHER_THAN_AUTHORIZED: OTHER
+
+        */
+        destinationType = shipmentDestinationType[shipment.destinationType];
       }
 
+      console.log(shipment);
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
-        destinationAddress: shipment.destinationAddress || {
-          postalCode: order.destinationDutyStation.address.postalCode,
+        destination: {
+          address: shipment.destinationAddress || {
+            postalCode: order.destinationDutyStation.address.postalCode,
+          },
+          type: destinationType,
+          displayDestinationType,
         },
-        displayDestAddrType,
         ...shipment,
       };
+
+      // console.log('display info: ', displayInfo, shipment);
 
       if (!disableSubmit && errorIfMissing[shipment.shipmentType]) {
         for (let i = 0; i < errorIfMissing[shipment.shipmentType].length; i += 1) {

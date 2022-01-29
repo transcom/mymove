@@ -42,3 +42,10 @@ export const shipmentDestinationAddressTypes = {
 };
 
 export const LONGHAUL_MIN_DISTANCE = 50;
+
+export const shipmentDestinationType = {
+  HOME_OF_RECORD: 'HOR',
+  HOME_OF_SELECTION: 'HOS',
+  PLACE_ENTERED_ACTIVE_DUTY: 'PLEAD',
+  OTHER_THAN_AUTHORIZED: 'OTHER',
+};

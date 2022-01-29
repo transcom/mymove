@@ -12,7 +12,7 @@ const ShipmentInfoList = ({ className, shipment }) => {
     requestedPickupDate,
     pickupAddress,
     secondaryPickupAddress,
-    destinationAddress,
+    destination,
     secondaryDeliveryAddress,
     agents,
     counselorRemarks,
@@ -38,10 +38,18 @@ const ShipmentInfoList = ({ className, shipment }) => {
           <dd>{formatAddress(secondaryPickupAddress)}</dd>
         </div>
       )}
-      <div className={styles.row}>
-        <dt>Destination address</dt>
-        <dd data-testid="destinationAddress">{formatAddress(destinationAddress)}</dd>
-      </div>
+      {destination.address && (
+        <div className={styles.row}>
+          <dt>Destination address</dt>
+          <dd data-testid="destinationAddress">{formatAddress(destination.address)}</dd>
+        </div>
+      )}
+      {destination.displayDestinationType && (
+        <div className={styles.row}>
+          <dt>Destination type</dt>
+          <dd data-testid="destinationType">{destination.type}</dd>
+        </div>
+      )}
       {secondaryDeliveryAddress && (
         <div className={styles.row}>
           <dt>Second destination address</dt>
