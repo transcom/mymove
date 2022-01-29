@@ -206,9 +206,9 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	}})
 
 	if m.DestinationType != nil {
-		destType := string(*m.DestinationType)
+		destinationType := string(*m.DestinationType)
 
-		vs = append(vs, &OptionalStringInclusion{Field: &destType, Name: "DestinationType", List: []string{
+		vs = append(vs, &OptionalStringInclusion{Field: &destinationType, Name: "DestinationType", List: []string{
 			string(DestinationTypeHomeOfRecord),
 			string(DestinationTypeHomeOfSelection),
 			string(DestinationTypePlaceEnteredActiveDuty),

@@ -470,7 +470,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
-		suite.Equal(string(destinationType), string(*newShipment.DestinationType))
+		suite.Equal(destinationType, *newShipment.DestinationType)
 	})
 
 	suite.Run("Successfully update MTO Agents", func() {
