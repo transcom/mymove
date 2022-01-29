@@ -3361,17 +3361,8 @@ func init() {
             }
           ]
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -3580,6 +3571,18 @@ func init() {
         "NAVY_AND_MARINES": "17 Navy and Marine Corps"
       },
       "x-nullable": true
+    },
+    "DestinationType": {
+      "type": "string",
+      "title": "Destination Type",
+      "enum": [
+        "HOME_OF_RECORD",
+        "HOME_OF_SELECTION",
+        "PLACE_ENTERED_ACTIVE_DUTY",
+        "OTHER_THAN_AUTHORIZED"
+      ],
+      "x-nullable": true,
+      "example": "OTHER"
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -4191,17 +4194,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "type": "boolean",
@@ -5738,17 +5732,8 @@ func init() {
           ],
           "x-nullable": true
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -10085,17 +10070,8 @@ func init() {
             }
           ]
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -10304,6 +10280,18 @@ func init() {
         "NAVY_AND_MARINES": "17 Navy and Marine Corps"
       },
       "x-nullable": true
+    },
+    "DestinationType": {
+      "type": "string",
+      "title": "Destination Type",
+      "enum": [
+        "HOME_OF_RECORD",
+        "HOME_OF_SELECTION",
+        "PLACE_ENTERED_ACTIVE_DUTY",
+        "OTHER_THAN_AUTHORIZED"
+      ],
+      "x-nullable": true,
+      "example": "OTHER"
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -10915,17 +10903,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "type": "boolean",
@@ -12469,17 +12448,8 @@ func init() {
           ],
           "x-nullable": true
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",

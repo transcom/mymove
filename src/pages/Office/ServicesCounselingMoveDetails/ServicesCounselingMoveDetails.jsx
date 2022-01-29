@@ -79,7 +79,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
       // show dest addr type, if retiree or separatee
       if (ORDERS_TYPE[order.order_type] === ('RETIREMENT' || 'SEPARATION')) {
         displayDestinationType = true;
-        /* 
+        /*
 
         translate from stored value to human readable string
 
@@ -97,7 +97,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
         destinationType = shipmentDestinationType[shipment.destinationType];
       }
 
-      console.log(shipment);
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destination: {
