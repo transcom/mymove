@@ -996,11 +996,24 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 		// Mux for GHC API that enforces auth
 		ghcAPIMux := ghcMux.PathPrefix("/").Subrouter()
+
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		api := ghcapi.NewGhcAPIHandler(handlerContext)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
+
+		/**
+		TESTING
+		Let's focus on the GHC API for now
+		*/
+		testMiddleware := authentication.SaveUserIDToDatabaseMiddleware(logger, appCtx)
+
+		ghcAPIMux.Use(testMiddleware)
+
+		/**
+		END TESTING
+		*/
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)

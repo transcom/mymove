@@ -54,6 +54,75 @@ func IsLoggedInMiddleware(globalLogger *zap.Logger) http.HandlerFunc {
 	}
 }
 
+func SaveUserIDToDatabaseMiddleware(logger *zap.Logger, appCxt appcontext.AppContext) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			// hoping that we can just intercept everything
+			// when we create/update/delete, let's add user session info
+
+			// TODO: was hoping that a connection would close after request is done...something to look into
+
+			// get session from request
+			session := auth.SessionFromRequestContext(r)
+			dbConnection := appCxt.DB()
+
+			if strings.Contains(r.Method, "POST") || strings.Contains(r.Method, "PATCH") ||
+				strings.Contains(r.Method, "DELETE") {
+
+				// let's focus on the office user for now
+				if session != nil && session.UserID != uuid.Nil {
+					logger.Debug("Getting office user to log into temp table", zap.String("user_id", session.UserID.String()))
+
+					// let's double check that the table temp table isn't there
+					dbError := dbConnection.RawQuery(`SELECT * FROM current_app_user`).Exec()
+					if dbError != nil {
+						// create table if it doesn't exist for this DB connection
+						// TODO: This doesn't seem to be working? Need to dig into why.
+						dbError := dbConnection.RawQuery(`CREATE TEMPORARY TABLE current_app_user(username text)`).Exec()
+						if dbError != nil {
+							logger.Error("Failed to create temp table to store user information", zap.Error(dbError))
+						}
+
+						dbError = dbConnection.RawQuery(`INSERT INTO current_app_user(username) VALUES ('?')`, session.UserID.String()).Exec()
+						if dbError != nil {
+							logger.Error("Failed to store user information", zap.Error(dbError))
+						}
+
+						// checking that we actually inserted into the table
+						tempUsers := []string{}
+						dbError = dbConnection.RawQuery(`SELECT * FROM current_app_user`).All(&tempUsers)
+						if dbError != nil {
+							logger.Error("Failed to query temp user information", zap.Error(dbError))
+						} else {
+							logger.Debug("TEMP TABLE USER QUERIED: ", zap.Any("user_id", tempUsers))
+						}
+					} else {
+						logger.Info("current_app_user temp table already exists")
+						logger.Info("adding user info to table...")
+
+						dbError := dbConnection.RawQuery(`INSERT INTO current_app_user(username) VALUES ('?')`, session.UserID.String()).Exec()
+						if dbError != nil {
+							logger.Error("Failed to store user information", zap.Error(dbError))
+						}
+
+						// checking that we actually inserted into the table
+						tempUsers := []string{}
+						dbError = dbConnection.RawQuery(`SELECT * FROM current_app_user`).All(&tempUsers)
+						if dbError != nil {
+							logger.Error("Failed to query temp user information", zap.Error(dbError))
+						} else {
+							logger.Debug("TEMP TABLE USER QUERIED: ", zap.Any("user_id", tempUsers))
+						}
+					}
+				}
+			}
+
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
+}
+
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
 func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
