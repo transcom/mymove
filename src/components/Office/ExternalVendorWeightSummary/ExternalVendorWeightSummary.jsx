@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, arrayOf, shape, number } from 'prop-types';
+import { arrayOf, shape, number } from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import styles from './ExternalVendorWeightSummary.module.scss';
@@ -30,9 +30,7 @@ export default function ExternalVendorWeightSummary({ shipments }) {
 ExternalVendorWeightSummary.propTypes = {
   shipments: arrayOf(
     shape({
-      id: string.isRequired,
-      shipmentType: string.isRequired,
-      reweigh: shape({ id: string.isRequired, weight: number }),
+      ntsRecordedWeight: number.isRequired,
     }),
   ).isRequired,
 };
