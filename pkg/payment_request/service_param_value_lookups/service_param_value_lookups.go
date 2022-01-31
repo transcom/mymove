@@ -134,12 +134,12 @@ func ServiceParamLookupInitialize(
 			}
 		}
 
-		pickupAddress, err = getPickupAddressForService(mtoServiceItem, mtoShipment)
+		pickupAddress, err = getPickupAddressForService(mtoServiceItem.ReService.Code, mtoShipment)
 		if err != nil {
 			return nil, err
 		}
 
-		destinationAddress, err = getDestinationAddressForService(mtoServiceItem, mtoShipment)
+		destinationAddress, err = getDestinationAddressForService(mtoServiceItem.ReService.Code, mtoShipment)
 		if err != nil {
 			return nil, err
 		}
@@ -542,7 +542,7 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(appCtx appcontext.AppContext
 	return "", fmt.Errorf("  ServiceParamValue <%sLookup> does not exist for key: <%s>", key, key)
 }
 
-func getPickupAddressForService(mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment) (models.Address, error) {
+func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (models.Address, error) {
 	// Determine which address field we should be using for pickup based on the shipment type.
 	var ptrPickupAddress *models.Address
 	var addressType string
@@ -558,7 +558,7 @@ func getPickupAddressForService(mtoServiceItem models.MTOServiceItem, mtoShipmen
 	}
 
 	// Determine if that address is valid based on which service we're pricing.
-	switch mtoServiceItem.ReService.Code {
+	switch serviceCode {
 	case models.ReServiceCodeDUPK:
 		// Pickup address isn't needed
 		return models.Address{}, nil
@@ -570,7 +570,7 @@ func getPickupAddressForService(mtoServiceItem models.MTOServiceItem, mtoShipmen
 	}
 }
 
-func getDestinationAddressForService(mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment) (models.Address, error) {
+func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (models.Address, error) {
 	// Determine which address field we should be using for destination based on the shipment type.
 	var ptrDestinationAddress *models.Address
 	var addressType string
@@ -586,7 +586,7 @@ func getDestinationAddressForService(mtoServiceItem models.MTOServiceItem, mtoSh
 	}
 
 	// Determine if that address is valid based on which service we're pricing.
-	switch mtoServiceItem.ReService.Code {
+	switch serviceCode {
 	case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
 		// Destination address isn't needed
 		return models.Address{}, nil
