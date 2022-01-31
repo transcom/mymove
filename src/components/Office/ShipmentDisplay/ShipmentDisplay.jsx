@@ -58,6 +58,7 @@ const ShipmentDisplay = ({
               label=""
               value={shipmentId}
               aria-labelledby={`shipment-display-label-${shipmentId}`}
+              disabled={errorIfMissing.length > 0}
             />
           )}
 
