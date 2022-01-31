@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -22,9 +23,9 @@ func NewShipmentSITStatus() services.ShipmentSITStatus {
 	return &shipmentSITStatus{}
 }
 
-func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) *services.SITStatus {
+func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
 	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	var shipmentSITStatus services.SITStatus
@@ -55,7 +56,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	// There were no departure SIT service items for this shipment
 	if currentSIT == nil && len(shipmentSITStatus.PastSITs) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	shipmentSITStatus.ShipmentID = shipment.ID
@@ -71,12 +72,14 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		shipmentSITStatus.SITDepartureDate = currentSIT.SITDepartureDate
 	}
 
-	// previously created shipments will not have a value here
-	if shipment.SITDaysAllowance != nil {
-		shipmentSITStatus.TotalDaysRemaining = *shipment.SITDaysAllowance - shipmentSITStatus.TotalSITDaysUsed
+	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
+	if err != nil {
+		return nil, err
 	}
 
-	return &shipmentSITStatus
+	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
+
+	return &shipmentSITStatus, nil
 }
 
 func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {
@@ -93,11 +96,41 @@ func (f shipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppCo
 	shipmentsSITStatuses := map[string]services.SITStatus{}
 
 	for _, shipment := range shipments {
-		shipmentSITStatus := f.CalculateShipmentSITStatus(appCtx, shipment)
+		shipmentSITStatus, _ := f.CalculateShipmentSITStatus(appCtx, shipment)
 		if shipmentSITStatus != nil {
 			shipmentsSITStatuses[shipment.ID.String()] = *shipmentSITStatus
 		}
 	}
 
 	return shipmentsSITStatuses
+}
+
+// CalculateShipmentSITAllowance finds the number of days allowed in SIT for a shipment based on its entitlement and any approved SIT extensions
+func (f shipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error) {
+	entitlement, err := fetchEntitlement(appCtx, shipment)
+	if err != nil {
+		return 0, apperror.NewNotFoundError(shipment.ID, "shipment is missing entitlement")
+	}
+
+	totalSITAllowance := 0
+	if entitlement.StorageInTransit != nil {
+		totalSITAllowance = *entitlement.StorageInTransit
+	}
+	for _, ext := range shipment.SITExtensions {
+		if ext.ApprovedDays != nil {
+			totalSITAllowance += *ext.ApprovedDays
+		}
+	}
+	return totalSITAllowance, nil
+}
+
+func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (*models.Entitlement, error) {
+	var move models.Move
+	err := appCtx.DB().Q().EagerPreload("Orders.Entitlement").Find(&move, mtoShipment.MoveTaskOrderID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return move.Orders.Entitlement, nil
 }

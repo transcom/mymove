@@ -47,7 +47,7 @@ export default {
   component: OrdersDetailForm,
   decorators: [
     (Story) => (
-      <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+      <div className="officeApp" style={{ padding: `20px`, background: `#f0f0f0` }}>
         <Story />
       </div>
     ),
@@ -155,8 +155,8 @@ export const FieldsHidden = (args) => {
           ordersTypeDetail: Yup.string().required('Required'),
           tac: Yup.string().required('Required'),
           sac: Yup.string().required('Required'),
-          nts_tac: Yup.string().required('Required'),
-          nts_sac: Yup.string().required('Required'),
+          ntsTac: Yup.string().required('Required'),
+          ntsSac: Yup.string().required('Required'),
         })}
       >
         <form>

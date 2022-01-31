@@ -7,6 +7,7 @@ package ghcmessages
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -42,6 +43,11 @@ type UpdateShipment struct {
 	DestinationAddress struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
+
+	// Destination Address Type
+	// Example: Other than authorized
+	// Enum: [HOME_OF_RECORD HOME_OF_SELECTION PLACE_ENTERED_ACTIVE_DUTY OTHER_THAN_AUTHORIZED]
+	DestinationAddressType *string `json:"destinationAddressType,omitempty"`
 
 	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
 	// Example: 2000
@@ -92,6 +98,10 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationAddressType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validatePickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
@@ -134,6 +144,8 @@ func (m *UpdateShipment) validateAgents(formats strfmt.Registry) error {
 	if err := m.Agents.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -144,6 +156,54 @@ func (m *UpdateShipment) validateAgents(formats strfmt.Registry) error {
 func (m *UpdateShipment) validateDestinationAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+var updateShipmentTypeDestinationAddressTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["HOME_OF_RECORD","HOME_OF_SELECTION","PLACE_ENTERED_ACTIVE_DUTY","OTHER_THAN_AUTHORIZED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		updateShipmentTypeDestinationAddressTypePropEnum = append(updateShipmentTypeDestinationAddressTypePropEnum, v)
+	}
+}
+
+const (
+
+	// UpdateShipmentDestinationAddressTypeHOMEOFRECORD captures enum value "HOME_OF_RECORD"
+	UpdateShipmentDestinationAddressTypeHOMEOFRECORD string = "HOME_OF_RECORD"
+
+	// UpdateShipmentDestinationAddressTypeHOMEOFSELECTION captures enum value "HOME_OF_SELECTION"
+	UpdateShipmentDestinationAddressTypeHOMEOFSELECTION string = "HOME_OF_SELECTION"
+
+	// UpdateShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY captures enum value "PLACE_ENTERED_ACTIVE_DUTY"
+	UpdateShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY string = "PLACE_ENTERED_ACTIVE_DUTY"
+
+	// UpdateShipmentDestinationAddressTypeOTHERTHANAUTHORIZED captures enum value "OTHER_THAN_AUTHORIZED"
+	UpdateShipmentDestinationAddressTypeOTHERTHANAUTHORIZED string = "OTHER_THAN_AUTHORIZED"
+)
+
+// prop value enum
+func (m *UpdateShipment) validateDestinationAddressTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, updateShipmentTypeDestinationAddressTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *UpdateShipment) validateDestinationAddressType(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationAddressType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateDestinationAddressTypeEnum("destinationAddressType", "body", *m.DestinationAddressType); err != nil {
+		return err
 	}
 
 	return nil
@@ -190,6 +250,8 @@ func (m *UpdateShipment) validateSacType(formats strfmt.Registry) error {
 		if err := m.SacType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sacType")
 			}
 			return err
 		}
@@ -206,6 +268,8 @@ func (m *UpdateShipment) validateShipmentType(formats strfmt.Registry) error {
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -222,6 +286,8 @@ func (m *UpdateShipment) validateStorageFacility(formats strfmt.Registry) error 
 		if err := m.StorageFacility.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storageFacility")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storageFacility")
 			}
 			return err
 		}
@@ -239,6 +305,8 @@ func (m *UpdateShipment) validateTacType(formats strfmt.Registry) error {
 		if err := m.TacType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("tacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tacType")
 			}
 			return err
 		}
@@ -290,6 +358,8 @@ func (m *UpdateShipment) contextValidateAgents(ctx context.Context, formats strf
 	if err := m.Agents.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -313,6 +383,8 @@ func (m *UpdateShipment) contextValidateSacType(ctx context.Context, formats str
 		if err := m.SacType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sacType")
 			}
 			return err
 		}
@@ -326,6 +398,8 @@ func (m *UpdateShipment) contextValidateShipmentType(ctx context.Context, format
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -339,6 +413,8 @@ func (m *UpdateShipment) contextValidateStorageFacility(ctx context.Context, for
 		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storageFacility")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storageFacility")
 			}
 			return err
 		}
@@ -353,6 +429,8 @@ func (m *UpdateShipment) contextValidateTacType(ctx context.Context, formats str
 		if err := m.TacType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("tacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tacType")
 			}
 			return err
 		}

@@ -2172,6 +2172,7 @@ func init() {
         "E_7",
         "E_8",
         "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
         "O_1_ACADEMY_GRADUATE",
         "O_2",
         "O_3",
@@ -2440,7 +2441,6 @@ func init() {
         "traceID": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updatedAt": {
@@ -4964,6 +4964,7 @@ func init() {
         "E_7",
         "E_8",
         "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
         "O_1_ACADEMY_GRADUATE",
         "O_2",
         "O_3",
@@ -5232,7 +5233,6 @@ func init() {
         "traceID": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updatedAt": {

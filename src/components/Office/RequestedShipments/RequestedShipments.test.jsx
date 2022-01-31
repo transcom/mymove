@@ -389,10 +389,10 @@ describe('RequestedShipments', () => {
     const wrapper = mount(requestedShipmentsComponent);
     // The first shipment has a destination address so will not use the duty station postal code
     const destination = shipments[0].destinationAddress;
-    expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(0).text()).toEqual(
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toEqual(
       `${destination.streetAddress1},\xa0${destination.city}, ${destination.state} ${destination.postalCode}`,
     );
-    expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(1).text()).toEqual(
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(1).text()).toEqual(
       ordersInfo.newDutyStation.address.postalCode,
     );
   });

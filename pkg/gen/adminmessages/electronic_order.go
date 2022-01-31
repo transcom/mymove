@@ -114,6 +114,8 @@ func (m *ElectronicOrder) validateIssuer(formats strfmt.Registry) error {
 		if err := m.Issuer.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("issuer")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("issuer")
 			}
 			return err
 		}
@@ -164,6 +166,8 @@ func (m *ElectronicOrder) contextValidateIssuer(ctx context.Context, formats str
 		if err := m.Issuer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("issuer")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("issuer")
 			}
 			return err
 		}

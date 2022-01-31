@@ -41,10 +41,10 @@ definitions:
           $ref: '#/definitions/Role'
     required:
       - id
-  DutyStationsPayload:
+  DutyLocationsPayload:
     type: array
     items:
-      $ref: '#/definitions/DutyStationPayload'
+      $ref: '#/definitions/DutyLocationPayload'
   CreatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -1596,6 +1596,7 @@ definitions:
       - E_7
       - E_8
       - E_9
+      - E_9_SPECIAL_SENIOR_ENLISTED
       - O_1_ACADEMY_GRADUATE
       - O_2
       - O_3
@@ -1625,7 +1626,8 @@ definitions:
       E_7: E-7
       E_8: E-8
       E_9: E-9
-      O_1_ACADEMY_GRADUATE: O-1/Service Academy Graduate
+      E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
+      O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
       O_2: O-2
       O_3: O-3
       O_4: O-4
@@ -2025,12 +2027,12 @@ definitions:
       created_at:
         type: string
         format: date-time
-      origin_duty_station_name:
+      origin_duty_location_name:
         type: string
         example: Dover AFB
         title: Origin
         x-nullable: true
-      destination_duty_station_name:
+      destination_duty_location_name:
         type: string
         example: Dover AFB
         title: Destination
@@ -2481,6 +2483,7 @@ definitions:
       - detail
     type: object
   Address:
+    description: A postal address
     type: object
     properties:
       id:
@@ -2507,6 +2510,7 @@ definitions:
         title: City
       eTag:
         type: string
+        readOnly: true
       state:
         title: State
         type: string
@@ -2724,6 +2728,40 @@ definitions:
       - affiliation
       - created_at
       - updated_at
+  DutyLocationPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      affiliation:
+        $ref: '#/definitions/Affiliation'
+      transportation_office:
+        $ref: '#/definitions/TransportationOffice'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address_id
+      - address
+      - affiliation
+      - created_at
+      - updated_at
 paths:
   /estimates/ppm:
     get:
@@ -2745,7 +2783,7 @@ paths:
           pattern: ^(\d{5}([\-]\d{4})?)$
           required: true
         - in: query
-          name: origin_duty_station_zip
+          name: origin_duty_location_zip
           type: string
           format: zip
           pattern: ^(\d{5}([\-]\d{4})?)$
@@ -3941,7 +3979,7 @@ paths:
           pattern: ^(\d{5}([\-]\d{4})?)$
           required: true
         - in: query
-          name: origin_duty_station_zip
+          name: origin_duty_location_zip
           type: string
           format: zip
           pattern: ^(\d{5}([\-]\d{4})?)$
@@ -4363,24 +4401,24 @@ paths:
           description: backup contact not found
         '500':
           description: internal server error
-  /duty_stations:
+  /duty_locations:
     get:
-      summary: Returns the duty stations matching the search query
-      description: Returns the duty stations matching the search query
-      operationId: searchDutyStations
+      summary: Returns the duty locations matching the search query
+      description: Returns the duty locations matching the search query
+      operationId: searchDutyLocations
       tags:
-        - duty_stations
+        - duty_locations
       parameters:
         - in: query
           name: search
           type: string
           required: true
-          description: Search string for duty stations
+          description: Search string for duty locations
       responses:
         '200':
-          description: the instance of the duty station
+          description: the instance of the duty location
           schema:
-            $ref: '#/definitions/DutyStationsPayload'
+            $ref: '#/definitions/DutyLocationsPayload'
         '400':
           description: invalid request
         '401':
@@ -4388,26 +4426,26 @@ paths:
         '403':
           description: user is not authorized
         '404':
-          description: matching duty station not found
+          description: matching duty location not found
         '500':
           description: internal server error
-  /duty_stations/{dutyStationId}/transportation_office:
+  /duty_locations/{dutyLocationId}/transportation_office:
     get:
-      summary: Returns the transportation office for a given duty station
-      description: Returns the given duty station's transportation office
-      operationId: showDutyStationTransportationOffice
+      summary: Returns the transportation office for a given duty location
+      description: Returns the given duty location's transportation office
+      operationId: showDutyLocationTransportationOffice
       tags:
         - transportation_offices
       parameters:
         - in: path
-          name: dutyStationId
+          name: dutyLocationId
           type: string
           format: uuid
           required: true
-          description: UUID of the duty station
+          description: UUID of the duty location
       responses:
         '200':
-          description: the instance of the transportation office for a duty station
+          description: the instance of the transportation office for a duty location
           schema:
             $ref: '#/definitions/TransportationOffice'
         '400':

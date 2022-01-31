@@ -9,7 +9,9 @@ import DataTable from '../../DataTable/index';
 import styles from './ShipmentWeightDetails.module.scss';
 
 import returnLowestValue from 'utils/returnLowestValue';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ShipmentOptionsOneOf } from 'types/shipment';
 
 const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, handleRequestReweighModal }) => {
   const lowestWeight = returnLowestValue(actualWeight, shipmentInfo.reweighWeight);
@@ -29,13 +31,19 @@ const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, ha
   );
   return (
     <div className={classnames('maxw-tablet', styles.ShipmentWeightDetails)}>
-      <DataTableWrapper className={classnames('maxw-mobile', 'table--data-point-group')}>
-        <DataTable
-          columnHeaders={['Estimated weight']}
-          dataRow={estimatedWeight ? [formatWeight(estimatedWeight)] : ['']}
-        />
-      </DataTableWrapper>
-      <DataTableWrapper className={classnames('maxw-mobile', 'table--data-point-group')}>
+      {shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.NTSR && (
+        <DataTableWrapper className={classnames('maxw-mobile', 'table--data-point-group')}>
+          <DataTable
+            columnHeaders={['Estimated weight']}
+            dataRow={estimatedWeight ? [formatWeight(estimatedWeight)] : ['']}
+          />
+        </DataTableWrapper>
+      )}
+      <DataTableWrapper
+        className={classnames('table--data-point-group', {
+          'maxw-mobile': shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.NTSR,
+        })}
+      >
         <DataTable columnHeaders={[reweighHeader]} dataRow={lowestWeight ? [formatWeight(lowestWeight)] : ['']} />
       </DataTableWrapper>
     </div>
@@ -50,6 +58,7 @@ ShipmentWeightDetails.propTypes = {
     ifMatchEtag: PropTypes.string,
     reweighID: PropTypes.string,
     reweighWeight: PropTypes.number,
+    shipmentType: ShipmentOptionsOneOf.isRequired,
   }).isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
 };

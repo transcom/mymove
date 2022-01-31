@@ -11,7 +11,7 @@ export default {
   decorators: [
     (Story) => {
       return (
-        <div style={{ padding: '20px' }}>
+        <div className="officeApp" style={{ padding: '20px' }}>
           <Story />
         </div>
       );
@@ -220,18 +220,24 @@ const ntsrRequestedServiceItems = [
 const hhgShipment = {
   address: hhgAddress,
   departureDate: '2020-12-01T00:00:00.000Z',
+  tacType: 'HHG',
+  sacType: 'HHG',
 };
 
 const hhgShipmentCanceled = {
   address: hhgAddress,
   departureDate: '2020-12-01T00:00:00.000Z',
   modificationType: shipmentModificationTypes.CANCELED,
+  tacType: 'HHG',
+  sacType: 'HHG',
 };
 
 const hhgShipmentDiversion = {
   address: hhgAddress,
   departureDate: '2020-12-01T00:00:00.000Z',
   modificationType: shipmentModificationTypes.DIVERSION,
+  tacType: 'HHG',
+  sacType: 'HHG',
 };
 
 const basicShipment = {
@@ -242,16 +248,21 @@ const basicShipment = {
 const ntsShipment = {
   address: ntsAddress,
   departureDate: '020-12-01T00:00:00.000Z',
+  tacType: 'NTS',
+  sacType: 'NTS',
 };
 
+const tacs = { HHG: '1234', NTS: '5678' };
+const sacs = { HHG: 'AB12', NTS: 'CD34' };
+
 export const withUnreviewedBasicServiceItems = () => (
-  <PaymentRequestDetails serviceItems={unreviewedPaymentRequestItems} />
+  <PaymentRequestDetails serviceItems={unreviewedPaymentRequestItems} tacs={tacs} sacs={sacs} />
 );
 export const withReviewedBasicServiceItems = () => (
-  <PaymentRequestDetails serviceItems={reviewedPaymentRequestItems} shipment={basicShipment} />
+  <PaymentRequestDetails serviceItems={reviewedPaymentRequestItems} shipment={basicShipment} tacs={tacs} sacs={sacs} />
 );
 export const withSingleBasicServiceItem = () => (
-  <PaymentRequestDetails serviceItems={singleBasicServiceItem} shipment={basicShipment} />
+  <PaymentRequestDetails serviceItems={singleBasicServiceItem} shipment={basicShipment} tacs={tacs} sacs={sacs} />
 );
 
 export const withHHGShipmentServiceItems = () => (
@@ -259,6 +270,8 @@ export const withHHGShipmentServiceItems = () => (
     shipmentDepartureDate="2021-04-20"
     serviceItems={hhgRequestedServiceItems}
     shipment={hhgShipment}
+    tacs={tacs}
+    sacs={sacs}
   />
 );
 
@@ -267,6 +280,8 @@ export const withHHGShipmentServiceItemsWithACanceledShipment = () => (
     shipmentDepartureDate="2021-04-20"
     serviceItems={hhgRequestedServiceItems}
     shipment={hhgShipmentCanceled}
+    tacs={tacs}
+    sacs={sacs}
   />
 );
 
@@ -275,9 +290,11 @@ export const withHHGShipmentServiceItemsWithADivertedShipment = () => (
     shipmentDepartureDate="2021-04-20"
     serviceItems={hhgRequestedServiceItems}
     shipment={hhgShipmentDiversion}
+    tacs={tacs}
+    sacs={sacs}
   />
 );
 
 export const withNTSRShipmentServiceItems = () => (
-  <PaymentRequestDetails serviceItems={ntsrRequestedServiceItems} shipment={ntsShipment} />
+  <PaymentRequestDetails serviceItems={ntsrRequestedServiceItems} shipment={ntsShipment} tacs={tacs} sacs={sacs} />
 );

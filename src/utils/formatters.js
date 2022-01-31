@@ -89,3 +89,17 @@ export function fromPrimeAPIAddressFormat(address) {
     postalCode: address.postalCode,
   };
 }
+
+// Format a weight with lbs following, e.g. 4000 becomes 4,000 lbs
+export function formatWeight(weight) {
+  if (weight) {
+    return `${weight.toLocaleString()} lbs`;
+  }
+  return '0 lbs';
+}
+
+export const formatDelimitedNumber = (number) => {
+  // Fail-safe in case an actual number value is passed in
+  const numberString = number.toString();
+  return Number(numberString.replace(/,/g, ''));
+};

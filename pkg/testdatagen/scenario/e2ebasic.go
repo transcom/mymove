@@ -1849,6 +1849,14 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	})
 
+	addressAssertion := testdatagen.Assertions{
+		Address: models.Address{
+			// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+			PostalCode: "85004",
+		}}
+
+	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), addressAssertion)
+
 	mtoShipmentHHG := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
@@ -1856,6 +1864,7 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
+			PickupAddress:        &shipmentPickupAddress,
 		},
 		Move: mto,
 	})
@@ -3140,6 +3149,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE2ET")
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE3ET")
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE4ET")
+	createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx)
 	createBasicNTSMove(appCtx, userUploader)
 	createBasicMovePPM01(appCtx, userUploader)
 	createBasicMovePPM02(appCtx, userUploader)

@@ -148,7 +148,8 @@ export const Standard = () => {
     <DutyStationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
-      searchDutyStations={mockSearchDutyStations}
+      name="test_component"
+      searchDutyLocations={mockSearchDutyStations}
       showAddress={mockShowAddress}
     />
   );
@@ -166,7 +167,7 @@ export const WithValue = () => {
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       displayAddress={false}
-      searchDutyStations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyStations}
       showAddress={mockShowAddress}
     />
   );
@@ -183,7 +184,7 @@ export const WithValueAndAddress = () => {
     <DutyStationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
-      searchDutyStations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyStations}
       showAddress={mockShowAddress}
     />
   );
@@ -201,7 +202,7 @@ export const WithErrorMessage = () => {
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       errorMsg="Something went wrong"
-      searchDutyStations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyStations}
       showAddress={mockShowAddress}
     />
   );
@@ -222,7 +223,7 @@ export const WithLocalError = () => {
     <DutyStationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
-      searchDutyStations={brokenSearchDutyStations}
+      searchDutyLocations={brokenSearchDutyStations}
       showAddress={mockShowAddress}
     />
   );

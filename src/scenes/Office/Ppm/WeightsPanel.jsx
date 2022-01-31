@@ -7,10 +7,10 @@ import {
   findPendingWeightTickets,
 } from 'shared/Entities/modules/moveDocuments';
 import Alert from 'shared/Alert';
-import { formatWeight } from 'shared/formatters';
 
 import { PanelField } from 'shared/EditablePanel';
 import { editablePanelify } from 'shared/EditablePanel';
+import { formatWeight } from 'utils/formatters';
 
 function sumWeights(moveDocs) {
   return moveDocs.reduce(function (sum, { empty_weight, full_weight }) {

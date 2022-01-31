@@ -1,8 +1,8 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
-import { formatWeight, formatCents, toDollarString } from 'shared/formatters';
+import { formatCents, toDollarString } from 'shared/formatters';
 import { formatDate } from 'shared/dates';
-import { formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
+import { formatWeight, formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
 
 const calculation = (value, label, ...details) => {
   return {
@@ -378,6 +378,13 @@ const packPrice = (params) => {
   );
 };
 
+const ntsPackingFactor = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.NTSPackingFactor, params) || '';
+  const label = SERVICE_ITEM_CALCULATION_LABELS.NTSPackingFactor;
+
+  return calculation(value, label);
+};
+
 const unpackPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.UnpackPrice;
@@ -617,6 +624,16 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       result = [
         billableWeight(params),
         packPrice(params),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic NTS packing
+    case SERVICE_ITEM_CODES.DNPK:
+      result = [
+        billableWeight(params),
+        packPrice(params),
+        ntsPackingFactor(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];

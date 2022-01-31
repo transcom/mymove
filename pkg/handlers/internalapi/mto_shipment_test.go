@@ -133,7 +133,7 @@ func (suite *HandlerSuite) makeCreateSubtestData() (subtestData *mtoCreateSubtes
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	moveRouter := moverouter.NewMoveRouter()
 
-	suite.Run("Successful POST - Integration Test", func() {
+	suite.Run("Successful POST - Integration Test - HHG", func() {
 		subtestData := suite.makeCreateSubtestData()
 		params := subtestData.params
 		fetcher := fetch.NewFetcher(subtestData.builder)
@@ -150,12 +150,54 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		suite.NotEmpty(createdShipment.ID.String())
 
+		suite.Equal(internalmessages.MTOShipmentTypeHHG, createdShipment.ShipmentType)
 		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
 		suite.Equal(params.Body.RequestedPickupDate.String(), createdShipment.RequestedPickupDate.String())
+		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
+
+		suite.Equal(params.Body.Agents[0].FirstName, createdShipment.Agents[0].FirstName)
+		suite.Equal(params.Body.Agents[0].LastName, createdShipment.Agents[0].LastName)
+		suite.Equal(params.Body.Agents[0].Email, createdShipment.Agents[0].Email)
+		suite.Equal(params.Body.Agents[0].Phone, createdShipment.Agents[0].Phone)
+		suite.Equal(params.Body.Agents[0].AgentType, createdShipment.Agents[0].AgentType)
+		suite.Equal(createdShipment.ID.String(), string(createdShipment.Agents[0].MtoShipmentID))
+		suite.NotEmpty(createdShipment.Agents[0].ID)
+	})
+
+	suite.Run("Successful POST - Integration Test - NTS-Release", func() {
+		subtestData := suite.makeCreateSubtestData()
+		params := subtestData.params
+
+		// Set fields appropriately for NTS-Release
+		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTSDOMESTIC
+		params.Body.ShipmentType = &ntsrShipmentType
+		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
+
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			creator,
+		}
+		response := handler.Handle(subtestData.params)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		createdShipment := response.(*mtoshipmentops.CreateMTOShipmentOK).Payload
+
+		suite.NotEmpty(createdShipment.ID.String())
+
+		suite.Equal(ntsrShipmentType, createdShipment.ShipmentType)
+		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
+		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
+		suite.Nil(createdShipment.RequestedPickupDate)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
 		suite.Equal(params.Body.Agents[0].FirstName, createdShipment.Agents[0].FirstName)

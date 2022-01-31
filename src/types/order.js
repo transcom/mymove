@@ -9,14 +9,14 @@ import { ShipmentOptionsOneOf } from 'types/shipment';
 
 export const DestinationDutyStationShape = PropTypes.shape({
   name: PropTypes.string,
-  address: PropTypes.AddressShape,
+  address: AddressShape,
 });
 
 export const OriginDutyStationShape = PropTypes.shape({
   id: PropTypes.string,
   name: PropTypes.string,
   address_id: PropTypes.string,
-  address: PropTypes.AddressShape,
+  address: AddressShape,
 });
 
 export const EntitlementShape = PropTypes.shape({
@@ -172,3 +172,10 @@ export const ExistingUploadsShape = PropTypes.arrayOf(
     filename: PropTypes.string.isRequired,
   }),
 );
+
+export const OrdersLOAShape = PropTypes.shape({
+  tac: PropTypes.string,
+  sac: PropTypes.string,
+  ntsTac: PropTypes.string,
+  ntsSac: PropTypes.string,
+});

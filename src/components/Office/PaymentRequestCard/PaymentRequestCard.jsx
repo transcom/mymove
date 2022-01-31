@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { arrayOf, shape, bool, node, string } from 'prop-types';
+import { arrayOf, oneOf, shape, bool, node, string, func } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
@@ -10,9 +10,10 @@ import styles from './PaymentRequestCard.module.scss';
 
 import { HistoryShape } from 'types/router';
 import { PaymentRequestShape } from 'types';
-import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
+import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
+import AccountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
 import { groupByShipment } from 'utils/serviceItems';
 
 const paymentRequestStatusLabel = (status) => {
@@ -32,7 +33,13 @@ const paymentRequestStatusLabel = (status) => {
   }
 };
 
-const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillableWeightIssues }) => {
+const PaymentRequestCard = ({
+  paymentRequest,
+  shipmentsInfo,
+  history,
+  hasBillableWeightIssues,
+  onEditAccountingCodes,
+}) => {
   const sortedShipments = groupByShipment(paymentRequest.serviceItems);
 
   // show details by default if in pending/needs review
@@ -42,12 +49,37 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillabl
   // state to toggle between showing details or not
   const [showDetails, setShowDetails] = useState(defaultShowDetails);
 
+  // show/hide AccountingCodesModal
+  const [showModal, setShowModal] = useState(false);
+  const [modalShipment, setModalShipment] = useState({});
+
+  const handleModalSave = (values) => {
+    onEditAccountingCodes(modalShipment.mtoShipmentID, {
+      tacType: values.tacType,
+      sacType: values.sacType,
+    });
+
+    setShowModal(false);
+    setModalShipment({});
+  };
+
+  const handleModalCancel = () => {
+    setShowModal(false);
+    setModalShipment({});
+  };
+
+  const onEditClick = (shipment = {}) => {
+    setShowModal(true);
+    setModalShipment(shipment);
+  };
+
   let handleClick = () => {};
   let requestedAmount = 0;
   let approvedAmount = 0;
   let rejectedAmount = 0;
 
-  const { sac, tac } = paymentRequest.moveTaskOrder.orders;
+  const { locator } = paymentRequest.moveTaskOrder;
+  const { sac, tac, ntsTac, ntsSac } = paymentRequest.moveTaskOrder.orders;
   const { contractNumber } = paymentRequest.moveTaskOrder.contractor;
 
   if (paymentRequest.serviceItems) {
@@ -78,6 +110,14 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillabl
         View documents
       </a>
     ) : null;
+
+  const tacs = { HHG: tac, NTS: ntsTac };
+  const sacs = { HHG: sac, NTS: ntsSac };
+
+  const onEditCodesClick = () => {
+    history.push(`/moves/${locator}/orders`);
+  };
+
   return (
     <div className={classnames(styles.PaymentRequestCard, 'container')}>
       <div className={styles.summary}>
@@ -129,7 +169,12 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillabl
           )}
           {paymentRequest.status === 'PENDING' && (
             <div className={styles.reviewButton}>
-              <Button onClick={handleClick} disabled={hasBillableWeightIssues} test-dataid="reviewBtn">
+              <Button
+                style={{ maxWidth: '225px' }}
+                onClick={handleClick}
+                disabled={hasBillableWeightIssues}
+                test-dataid="reviewBtn"
+              >
                 <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
                 Review service items
               </Button>
@@ -145,10 +190,6 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillabl
           <dl>
             <dt>Contract number:</dt>
             <dd>{contractNumber}</dd>
-            <dt>TAC/MDC:</dt>
-            <dd>{tac}</dd>
-            <dt>SAC/SDN:</dt>
-            <dd>{sac}</dd>
           </dl>
           {paymentRequest.status === 'PENDING' ? <a href="orders">View orders</a> : ViewDocuments}
           <div className={styles.toggleDrawer}>
@@ -166,6 +207,18 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillabl
           </div>
         </div>
       </div>
+      {showModal && (
+        <AccountingCodesModal
+          shipmentType={modalShipment.shipmentType}
+          TACs={tacs}
+          SACs={sacs}
+          onClose={handleModalCancel}
+          onSubmit={handleModalSave}
+          sacType={modalShipment.sacType}
+          tacType={modalShipment.tacType}
+          onEditCodesClick={onEditCodesClick}
+        />
+      )}
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
           {sortedShipments.map((serviceItems) => {
@@ -184,6 +237,9 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history, hasBillabl
                 serviceItems={serviceItems}
                 shipment={selectedShipment}
                 paymentRequestStatus={paymentRequest.status}
+                tacs={tacs}
+                sacs={sacs}
+                onEditClick={onEditClick}
               />
             );
           })}
@@ -203,12 +259,16 @@ PaymentRequestCard.propTypes = {
       shipmentAddress: node,
       departureDate: string,
       shipmentModificationType: string,
+      tacType: oneOf(Object.values(LOA_TYPE)),
+      sacType: oneOf(Object.values(LOA_TYPE)),
     }),
   ),
+  onEditAccountingCodes: func,
 };
 
 PaymentRequestCard.defaultProps = {
   shipmentsInfo: [],
+  onEditAccountingCodes: () => {},
 };
 
 export default withRouter(PaymentRequestCard);

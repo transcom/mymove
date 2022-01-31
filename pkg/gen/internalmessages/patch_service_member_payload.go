@@ -145,6 +145,8 @@ func (m *PatchServiceMemberPayload) validateAffiliation(formats strfmt.Registry)
 		if err := m.Affiliation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -162,6 +164,8 @@ func (m *PatchServiceMemberPayload) validateBackupMailingAddress(formats strfmt.
 		if err := m.BackupMailingAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("backup_mailing_address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("backup_mailing_address")
 			}
 			return err
 		}
@@ -223,6 +227,8 @@ func (m *PatchServiceMemberPayload) validateRank(formats strfmt.Registry) error 
 		if err := m.Rank.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
 			}
 			return err
 		}
@@ -240,6 +246,8 @@ func (m *PatchServiceMemberPayload) validateResidentialAddress(formats strfmt.Re
 		if err := m.ResidentialAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("residential_address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("residential_address")
 			}
 			return err
 		}
@@ -316,6 +324,8 @@ func (m *PatchServiceMemberPayload) contextValidateAffiliation(ctx context.Conte
 		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -330,6 +340,8 @@ func (m *PatchServiceMemberPayload) contextValidateBackupMailingAddress(ctx cont
 		if err := m.BackupMailingAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("backup_mailing_address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("backup_mailing_address")
 			}
 			return err
 		}
@@ -344,6 +356,8 @@ func (m *PatchServiceMemberPayload) contextValidateRank(ctx context.Context, for
 		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
 			}
 			return err
 		}
@@ -358,6 +372,8 @@ func (m *PatchServiceMemberPayload) contextValidateResidentialAddress(ctx contex
 		if err := m.ResidentialAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("residential_address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("residential_address")
 			}
 			return err
 		}

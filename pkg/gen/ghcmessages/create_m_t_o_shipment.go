@@ -7,6 +7,7 @@ package ghcmessages
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -28,7 +29,6 @@ type CreateMTOShipment struct {
 	//   * bulky or fragile items,
 	//   * weapons,
 	//   * access info for their address.
-	//
 	// Counselors enters this information when creating or editing an MTO Shipment. Optional field.
 	//
 	// Example: handle with care
@@ -39,7 +39,6 @@ type CreateMTOShipment struct {
 	//   * bulky or fragile items,
 	//   * weapons,
 	//   * access info for their address.
-	//
 	// Customer enters this information during onboarding. Optional field.
 	//
 	// Example: handle with care
@@ -50,6 +49,11 @@ type CreateMTOShipment struct {
 	DestinationAddress struct {
 		Address
 	} `json:"destinationAddress"`
+
+	// Destination Address Type
+	// Example: Other than authorized
+	// Enum: [HOME_OF_RECORD HOME_OF_SELECTION PLACE_ENTERED_ACTIVE_DUTY OTHER_THAN_AUTHORIZED]
+	DestinationAddressType *string `json:"destinationAddressType,omitempty"`
 
 	// The ID of the move this new shipment is for.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -70,11 +74,15 @@ type CreateMTOShipment struct {
 		Address
 	} `json:"pickupAddress"`
 
+	// The customer's preferred delivery date.
+	//
+	// Format: date
+	RequestedDeliveryDate *strfmt.Date `json:"requestedDeliveryDate,omitempty"`
+
 	// The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
 	//
-	// Required: true
 	// Format: date
-	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// sac type
 	SacType *LOAType `json:"sacType,omitempty"`
@@ -108,6 +116,10 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationAddressType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -117,6 +129,10 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRequestedDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -154,6 +170,8 @@ func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 	if err := m.Agents.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -162,6 +180,54 @@ func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 }
 
 func (m *CreateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
+
+	return nil
+}
+
+var createMTOShipmentTypeDestinationAddressTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["HOME_OF_RECORD","HOME_OF_SELECTION","PLACE_ENTERED_ACTIVE_DUTY","OTHER_THAN_AUTHORIZED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		createMTOShipmentTypeDestinationAddressTypePropEnum = append(createMTOShipmentTypeDestinationAddressTypePropEnum, v)
+	}
+}
+
+const (
+
+	// CreateMTOShipmentDestinationAddressTypeHOMEOFRECORD captures enum value "HOME_OF_RECORD"
+	CreateMTOShipmentDestinationAddressTypeHOMEOFRECORD string = "HOME_OF_RECORD"
+
+	// CreateMTOShipmentDestinationAddressTypeHOMEOFSELECTION captures enum value "HOME_OF_SELECTION"
+	CreateMTOShipmentDestinationAddressTypeHOMEOFSELECTION string = "HOME_OF_SELECTION"
+
+	// CreateMTOShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY captures enum value "PLACE_ENTERED_ACTIVE_DUTY"
+	CreateMTOShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY string = "PLACE_ENTERED_ACTIVE_DUTY"
+
+	// CreateMTOShipmentDestinationAddressTypeOTHERTHANAUTHORIZED captures enum value "OTHER_THAN_AUTHORIZED"
+	CreateMTOShipmentDestinationAddressTypeOTHERTHANAUTHORIZED string = "OTHER_THAN_AUTHORIZED"
+)
+
+// prop value enum
+func (m *CreateMTOShipment) validateDestinationAddressTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createMTOShipmentTypeDestinationAddressTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *CreateMTOShipment) validateDestinationAddressType(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationAddressType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateDestinationAddressTypeEnum("destinationAddressType", "body", *m.DestinationAddressType); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -193,6 +259,8 @@ func (m *CreateMTOShipment) validateMtoServiceItems(formats strfmt.Registry) err
 			if err := m.MtoServiceItems[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -208,10 +276,21 @@ func (m *CreateMTOShipment) validatePickupAddress(formats strfmt.Registry) error
 	return nil
 }
 
-func (m *CreateMTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
+func (m *CreateMTOShipment) validateRequestedDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.RequestedDeliveryDate) { // not required
+		return nil
+	}
 
-	if err := validate.Required("requestedPickupDate", "body", m.RequestedPickupDate); err != nil {
+	if err := validate.FormatOf("requestedDeliveryDate", "body", "date", m.RequestedDeliveryDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.RequestedPickupDate) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
@@ -230,6 +309,8 @@ func (m *CreateMTOShipment) validateSacType(formats strfmt.Registry) error {
 		if err := m.SacType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sacType")
 			}
 			return err
 		}
@@ -246,6 +327,8 @@ func (m *CreateMTOShipment) validateShipmentType(formats strfmt.Registry) error 
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -262,6 +345,8 @@ func (m *CreateMTOShipment) validateStorageFacility(formats strfmt.Registry) err
 		if err := m.StorageFacility.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storageFacility")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storageFacility")
 			}
 			return err
 		}
@@ -279,6 +364,8 @@ func (m *CreateMTOShipment) validateTacType(formats strfmt.Registry) error {
 		if err := m.TacType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("tacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tacType")
 			}
 			return err
 		}
@@ -334,6 +421,8 @@ func (m *CreateMTOShipment) contextValidateAgents(ctx context.Context, formats s
 	if err := m.Agents.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -354,6 +443,8 @@ func (m *CreateMTOShipment) contextValidateMtoServiceItems(ctx context.Context, 
 			if err := m.MtoServiceItems[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -375,6 +466,8 @@ func (m *CreateMTOShipment) contextValidateSacType(ctx context.Context, formats 
 		if err := m.SacType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sacType")
 			}
 			return err
 		}
@@ -388,6 +481,8 @@ func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, for
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -401,6 +496,8 @@ func (m *CreateMTOShipment) contextValidateStorageFacility(ctx context.Context, 
 		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storageFacility")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storageFacility")
 			}
 			return err
 		}
@@ -415,6 +512,8 @@ func (m *CreateMTOShipment) contextValidateTacType(ctx context.Context, formats 
 		if err := m.TacType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("tacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tacType")
 			}
 			return err
 		}

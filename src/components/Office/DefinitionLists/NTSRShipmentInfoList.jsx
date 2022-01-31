@@ -2,12 +2,13 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import styles from './ShipmentDefinitionLists.module.scss';
+import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
+import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
-import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
-import { formatWeight } from 'shared/formatters';
+import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
+import { formatWeight } from 'utils/formatters';
 
 const NTSRShipmentInfoList = ({
   className,
@@ -23,7 +24,7 @@ const NTSRShipmentInfoList = ({
     agents,
     counselorRemarks,
     customerRemarks,
-    primeActualWeight,
+    ntsRecordedWeight,
     requestedDeliveryDate,
     storageFacility,
     serviceOrderNumber,
@@ -39,7 +40,7 @@ const NTSRShipmentInfoList = ({
 
     if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
       alwaysShow = true;
-      classes = classNames(styles.row, styles.missingInfoError);
+      classes = classNames(styles.row, shipmentDefinitionListsStyles.missingInfoError);
       return {
         alwaysShow,
         classes,
@@ -47,7 +48,7 @@ const NTSRShipmentInfoList = ({
     }
     if (warnIfMissing.includes(fieldname) && !shipment[fieldname]) {
       alwaysShow = true;
-      classes = classNames(styles.row, styles.warning);
+      classes = classNames(styles.row, shipmentDefinitionListsStyles.warning);
       return {
         alwaysShow,
         classes,
@@ -76,11 +77,17 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const primeActualWeightElementFlags = getFlags('primeActualWeight');
-  const primeActualWeightElement = (
-    <div className={primeActualWeightElementFlags.classes}>
+  const getMissingOrDash = (fieldName) => {
+    return errorIfMissing.includes(fieldName) ? 'Missing' : '—';
+  };
+
+  const ntsRecordedWeightElementFlags = getFlags('ntsRecordedWeight');
+  const ntsRecordedWeightElement = (
+    <div className={ntsRecordedWeightElementFlags.classes}>
       <dt>Shipment weight</dt>
-      <dd data-testid="primeActualWeight">{primeActualWeight ? formatWeight(primeActualWeight) : '—'}</dd>
+      <dd data-testid="ntsRecordedWeight">
+        {ntsRecordedWeight ? formatWeight(ntsRecordedWeight) : getMissingOrDash('ntsRecordedWeight')}
+      </dd>
     </div>
   );
 
@@ -98,7 +105,7 @@ const NTSRShipmentInfoList = ({
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
-      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || '—'}</dd>
+      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || getMissingOrDash('serviceOrderNumber')}</dd>
     </div>
   );
 
@@ -132,7 +139,7 @@ const NTSRShipmentInfoList = ({
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
-      <dd data-testid="tacType">{tacType && tac ? String(tac).concat(' (', tacType, ')') : '—'}</dd>
+      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : getMissingOrDash('tacType')}</dd>
     </div>
   );
 
@@ -140,7 +147,7 @@ const NTSRShipmentInfoList = ({
   const sacElement = (
     <div className={sacElementFlags.classes}>
       <dt>SAC</dt>
-      <dd data-testid="sacType">{sacType && sac ? String(sac).concat(' (', sacType, ')') : '—'}</dd>
+      <dd data-testid="sacType">{sacType && sac ? formatAccountingCode(sac, sacType) : '—'}</dd>
     </div>
   );
 
@@ -168,8 +175,17 @@ const NTSRShipmentInfoList = ({
     </div>
   );
   return (
-    <dl className={classNames(className, styles.ShipmentDefinitionLists)} data-testid="shipment-info-list">
-      {(isExpanded || primeActualWeightElementFlags.alwaysShow) && primeActualWeightElement}
+    <dl
+      className={classNames(
+        shipmentDefinitionListsStyles.ShipmentDefinitionLists,
+        styles.descriptionList,
+        styles.tableDisplay,
+        styles.compact,
+        className,
+      )}
+      data-testid="nts-release-shipment-info-list"
+    >
+      {(isExpanded || ntsRecordedWeightElementFlags.alwaysShow) && ntsRecordedWeightElement}
       {(isExpanded || storageFacilityInfoElementFlags.alwaysShow) && storageFacilityInfoElement}
       {(isExpanded || serviceOrderNumberElementFlags.alwaysShow) && serviceOrderNumberElement}
       {storageFacilityAddressElement}

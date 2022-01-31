@@ -12,3 +12,10 @@
 .weightDisplay {
   flex: 1 1 0px;
 }
+
+.financialReviewContainer {
+  @include u-margin-top(1);
+  :global(.usa-button) {
+    padding-right: 0;
+  }
+}

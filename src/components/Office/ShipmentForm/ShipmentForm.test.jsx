@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import ShipmentForm from './ShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { roleTypes } from 'constants/userRoles';
 
 const mockPush = jest.fn();
 
@@ -35,6 +36,7 @@ const defaultProps = {
   },
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
+  userRole: roleTypes.SERVICES_COUNSELOR,
 };
 
 const mockMtoShipment = {
@@ -72,6 +74,21 @@ const mockMtoShipment = {
       phone: '863-555-9664',
     },
   ],
+};
+
+const mockShipmentWithDestinationType = {
+  ...mockMtoShipment,
+  destinationAddressType: 'HOME_OF_SELECTION',
+};
+
+const defaultPropsRetirement = {
+  ...defaultProps,
+  orderType: 'RETIREMENT',
+};
+
+const defaultPropsSeparation = {
+  ...defaultProps,
+  orderType: 'SEPARATION',
 };
 
 describe('ShipmentForm component', () => {
@@ -122,12 +139,6 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText('Customer remarks')).toBeTruthy();
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
-
-      expect(
-        screen.queryByText(
-          'The moving company will find a storage facility approved by the government, and will move your belongings there.',
-        ),
-      ).not.toBeInTheDocument();
     });
 
     it('uses the current residence address for pickup address when checked', async () => {
@@ -167,6 +178,24 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postalCode');
       expect(screen.getAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postalCode');
+    });
+
+    it('renders a delivery address type for retirement orders type', async () => {
+      render(<ShipmentForm {...defaultPropsRetirement} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      userEvent.click(screen.getByLabelText('Yes'));
+      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationAddressType');
+    });
+
+    it('does not render delivery address type for PCS order type', async () => {
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      userEvent.click(screen.getByLabelText('Yes'));
+      expect(screen.queryByLabelText('Destination type')).toBeNull();
+    });
+
+    it('renders a delivery address type for separation orders type', async () => {
+      render(<ShipmentForm {...defaultPropsSeparation} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      userEvent.click(screen.getByLabelText('Yes'));
+      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationAddressType');
     });
 
     it('does not render an Accounting Codes section', async () => {
@@ -225,6 +254,46 @@ describe('ShipmentForm component', () => {
     });
   });
 
+  describe('editing an already existing HHG shipment for retiree/separatee', () => {
+    it('renders the HHG shipment form with pre-filled values', async () => {
+      render(
+        <ShipmentForm
+          {...defaultPropsRetirement}
+          isCreatePage={false}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockShipmentWithDestinationType}
+        />,
+      );
+
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
+      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
+      expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
+      expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
+      expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
+      expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
+      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
+      expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
+      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
+      expect(screen.getAllByLabelText('First name')[1]).toHaveValue('Riley');
+      expect(screen.getAllByLabelText('Last name')[1]).toHaveValue('Baker');
+      expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('863-555-9664');
+      expect(screen.getAllByLabelText('Email')[1]).toHaveValue('rbaker@email.com');
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
+      expect(screen.getByText('mock customer remarks')).toBeTruthy();
+      expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
+      expect(screen.getByLabelText('Destination type')).toHaveValue('HOME_OF_SELECTION');
+    });
+  });
+
   describe('creating a new NTS shipment', () => {
     it('renders the NTS shipment form', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
@@ -253,16 +322,8 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText('Customer remarks')).toBeTruthy();
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
-    });
 
-    it('renders special NTS What to expect section', async () => {
-      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
-
-      expect(
-        await screen.findByText(
-          'The moving company will find a storage facility approved by the government, and will move your belongings there.',
-        ),
-      ).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
     });
 
     it('renders an Accounting Codes section', async () => {
@@ -336,11 +397,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText('Customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
-      expect(
-        screen.queryByText(
-          'The moving company will find a storage facility approved by the government, and will move your belongings there.',
-        ),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
     });
 
     it('renders an Accounting Codes section', async () => {
@@ -356,6 +413,26 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText(/Shipment weight \(lbs\)/)).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility info' })).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility address' })).toBeInTheDocument();
+    });
+  });
+
+  describe('as a TOO', () => {
+    it('renders the NTS shipment form', async () => {
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />);
+
+      expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
+
+      expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Storage facility info' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Storage facility address' })).toBeInTheDocument();
+    });
+
+    it('renders the NTS release shipment form', async () => {
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />);
+
+      expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
+
+      expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
     });
   });
 

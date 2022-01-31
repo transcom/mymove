@@ -15,7 +15,7 @@ jest.mock('components/DutyStationSearchBox/api', () => ({
       streetAddress1: '123 Main St',
     }),
   ),
-  SearchDutyStations: jest.fn().mockImplementation(() =>
+  SearchDutyLocations: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
         address: {

@@ -29,8 +29,8 @@ jest.mock('formik', () => {
 
 jest.mock('components/DutyStationSearchBox/api', () => {
   return {
-    SearchDutyStations: jest.fn().mockResolvedValue([]),
-    ShowAddress: jest.fn().mockResolvedValue(43),
+    SearchDutyLocations: () => jest.fn().mockResolvedValue([]),
+    ShowAddress: () => jest.fn().mockResolvedValue(43),
   };
 });
 

@@ -41,7 +41,7 @@ import {
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatCustomerDate } from 'utils/formatters';
+import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
@@ -163,7 +163,12 @@ export class Home extends Component {
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
             <dt>Weight allowance</dt>
-            <dd>{serviceMember.weight_allotment.total_weight_self} lbs.</dd>
+            <dd>
+              {orders.has_dependents
+                ? formatWeight(serviceMember.weight_allotment.total_weight_self_plus_dependents)
+                : formatWeight(serviceMember.weight_allotment.total_weight_self)}
+              .
+            </dd>
           </div>
           {move.locator && (
             <div className={styles.subheaderSubsection}>

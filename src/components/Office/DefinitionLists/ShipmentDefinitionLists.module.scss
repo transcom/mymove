@@ -4,50 +4,33 @@
 @import 'shared/styles/_variables';
 
 .ShipmentDefinitionLists {
+  .missingInfoError {
+    dt {
+      @include u-border-left(0.5); //4px
+      @include u-border-left('error');
+    }
+    // These first-child styles added here since the descriptionList compact
+    // display removes the border.
+    dt:first-child {
+      @include u-border-left(0.5); //4px
+      @include u-padding-left(0.5); // Adjust padding so that content still ines up
+    }
 
-  dt {
-    @include u-text('bold');
-    @include u-text('base-darker');
-    width: 25%;
-  }
-
-  dd {
-    @include u-margin(0);
-    width: 75%;
-  }
-
-  dt,
-  dd {
-    @include u-border-top('1px');
-    @include u-border-top('base-lighter');
-    @include u-padding-y(1.5);
-    display: table-cell;
-    @include u-padding-x(1);
-  }
-
-  .row {
-    @include u-font('body', 'xs');
-    @include u-line-height('body', 2);
-    display: flex;
-  }
-
-  .row:first-of-type{
-    dt,
     dd {
-      @include u-border-top(0);
-      @include u-padding-y(1.5)
+      color: $error;
+      font-weight: bold;
     }
   }
 
-
-  .missingInfoError {
-    color: $error;
-    @include u-border-left(0.5); //4px
-    @include u-border-left('error');
-    @include u-font-weight(bold);
-  }
-
   .warning {
-    border-left: 4px solid $mm-gold;
+    dt {
+      border-left: 4px solid $mm-gold;
+    }
+    // These first-child styles added here since the descriptionList compact
+    // display removes the border.
+    dt:first-child {
+      @include u-border-left(0.5); //4px
+      @include u-padding-left(0.5); // Adjust padding so that content still ines up
+    }
   }
 }

@@ -124,7 +124,7 @@ const mtoShipments = [
 
 const ntsrShipmentMissingRequiredInfo = {
   shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-  primeActualWeight: 2000,
+  ntsRecordedWeight: 2000,
   id: 'ce01a5b8-9b44-8799-8a8d-edb60f2a4aee',
   serviceOrderNumber: '12341234',
   requestedDeliveryDate: '26 Mar 2020',
@@ -434,8 +434,8 @@ describe('MoveDetails page', () => {
       expect(await screen.findByRole('heading', { name: 'Customer info', level: 2 })).toBeInTheDocument();
     });
 
-    it('renders customer edit alert', () => {
-      renderMockedComponent({ customerEditAlert: { alertType: 'success', message: 'great success!' } });
+    it('renders info saved alert', () => {
+      renderMockedComponent({ infoSavedAlert: { alertType: 'success', message: 'great success!' } });
       expect(screen.getByText('great success!')).toBeInTheDocument();
     });
 

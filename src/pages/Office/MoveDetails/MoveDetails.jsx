@@ -36,7 +36,7 @@ const sectionLabels = {
 };
 
 const errorIfMissing = {
-  HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'tacType'],
+  HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
   HHG_INTO_NTS_DOMESTIC: ['tacType'],
 };
 
@@ -219,6 +219,8 @@ const MoveDetails = ({
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     tacMDC: order.tac,
     sacSDN: order.sac,
+    NTStac: order.ntsTac,
+    NTSsac: order.ntsSac,
   };
   const allowancesInfo = {
     branch: customer.agency,

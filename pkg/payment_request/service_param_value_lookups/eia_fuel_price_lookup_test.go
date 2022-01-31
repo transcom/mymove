@@ -1,7 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -11,37 +10,44 @@ import (
 
 func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 	key := models.ServiceItemParamNameEIAFuelPrice
+	var mtoServiceItem models.MTOServiceItem
+	var paymentRequest models.PaymentRequest
 	actualPickupDate := time.Date(2020, time.July, 15, 0, 0, 0, 0, time.UTC)
 
-	var firstGHCDieselFuelPrice models.GHCDieselFuelPrice
-	firstGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 06, 0, 0, 0, 0, time.UTC)
-	firstGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243699)
-	_ = suite.DB().Save(&firstGHCDieselFuelPrice)
+	setupTestData := func() {
+		var firstGHCDieselFuelPrice models.GHCDieselFuelPrice
+		var secondGHCDieselFuelPrice models.GHCDieselFuelPrice
+		var thirdGHCDieselFuelPrice models.GHCDieselFuelPrice
 
-	var secondGHCDieselFuelPrice models.GHCDieselFuelPrice
-	secondGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 13, 0, 0, 0, 0, time.UTC)
-	secondGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243799)
-	_ = suite.DB().Save(&secondGHCDieselFuelPrice)
+		firstGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 06, 0, 0, 0, 0, time.UTC)
+		firstGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243699)
+		suite.NoError(suite.DB().Save(&firstGHCDieselFuelPrice))
 
-	var thirdGHCDieselFuelPrice models.GHCDieselFuelPrice
-	thirdGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 20, 0, 0, 0, 0, time.UTC)
-	thirdGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243299)
-	_ = suite.DB().Save(&thirdGHCDieselFuelPrice)
+		secondGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 13, 0, 0, 0, 0, time.UTC)
+		secondGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243799)
+		suite.NoError(suite.DB().Save(&secondGHCDieselFuelPrice))
 
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ActualPickupDate: &actualPickupDate,
-		},
-	})
+		thirdGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 20, 0, 0, 0, 0, time.UTC)
+		thirdGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243299)
+		suite.NoError(suite.DB().Save(&thirdGHCDieselFuelPrice))
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ActualPickupDate: &actualPickupDate,
 			},
 		})
 
-	suite.T().Run("lookup GHC diesel fuel price successfully", func(t *testing.T) {
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				PaymentRequest: models.PaymentRequest{
+					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+				},
+			})
+	}
+
+	suite.Run("lookup GHC diesel fuel price successfully", func() {
+		setupTestData()
+
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -49,7 +55,8 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		suite.Equal("243799", valueStr)
 	})
 
-	suite.T().Run("lookup GHC diesel fuel price successfully and set param cache", func(t *testing.T) {
+	suite.Run("lookup GHC diesel fuel price successfully and set param cache", func() {
+		setupTestData()
 
 		// ServiceItemParamNameEIAFuelPrice
 
@@ -99,7 +106,9 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		suite.Equal("243799", *paramCacheValue)
 	})
 
-	suite.T().Run("No MTO shipment pickup date found", func(t *testing.T) {
+	suite.Run("No MTO shipment pickup date found", func() {
+		setupTestData()
+
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
