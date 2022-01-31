@@ -74,6 +74,18 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         options={rankOptions}
         showDropdownPlaceholderText={false}
       />
+      <MaskedTextField
+        data-testid="sitInput"
+        defaultValue="0"
+        name="storageInTransit"
+        label="Storage in transit (days)"
+        id="sitInput"
+        mask={Number}
+        scale={0} // digits after point, 0 for integers
+        signed={false} // disallow negative
+        thousandsSeparator=","
+        lazy={false} // immediate masking evaluation
+      />
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
           data-testid="ocieInput"

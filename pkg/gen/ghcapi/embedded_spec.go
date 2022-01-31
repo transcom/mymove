@@ -3260,7 +3260,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
         }
@@ -9980,7 +9980,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0

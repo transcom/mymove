@@ -21,6 +21,7 @@ describe('Services counselor user', () => {
     cy.intercept('**/ghc/v1/moves/**/financial-review-flag').as('financialReviewFlagCompleted');
     cy.intercept('POST', '**/ghc/v1/mto-shipments').as('createShipment');
     cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('patchShipment');
+    cy.intercept('PATCH', '**/ghc/v1/counseling/orders/**/allowances').as('patchAllowances');
 
     const userId = 'a6c8663f-998f-4626-a978-ad60da2476ec';
     cy.apiSignInAsUser(userId, ServicesCounselorOfficeUserType);
@@ -173,5 +174,49 @@ describe('Services counselor user', () => {
     // the shipment should be saved with the type
     cy.wait('@patchShipment');
     cy.get('.usa-alert__text').contains('Your changes were saved.');
+  });
+
+  it('is able to edit allowances', () => {
+    const moveLocator = 'DATYPE';
+
+    /**
+     * SC Moves queue
+     */
+    cy.wait(['@getSortedMoves']);
+    cy.get('input[name="locator"]').as('moveCodeFilterInput');
+    cy.get('@moveCodeFilterInput').type(moveLocator).blur();
+    cy.get('td').first().click();
+    cy.url().should('include', `details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.contains('Edit allowances').click();
+
+    cy.get('form').within(($form) => {
+      // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
+      cy.get('input[name="proGearWeight"]').clear().type('1999');
+      cy.get('input[name="proGearWeightSpouse"]').clear().type('499');
+      cy.get('input[name="requiredMedicalEquipmentWeight"]').clear().type('999');
+      cy.get('input[name="storageInTransit"]').clear().type('199');
+      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').click({ force: true });
+
+      // Edit grade and authorized weight
+      cy.get('select[name=agency]').contains('Army');
+      cy.get('select[name=agency]').select('Navy');
+      cy.get('select[name="grade"]').contains('E-1');
+      cy.get('select[name="grade"]').select('W-2');
+
+      // Edit allowances page | Save
+      cy.get('button').contains('Save').click();
+    });
+    cy.wait(['@patchAllowances']);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    cy.get('[data-testid="progear"]').contains('1,999');
+    cy.get('[data-testid="spouseProgear"]').contains('499');
+    cy.get('[data-testid="rme"]').contains('999');
+    cy.get('[data-testid="storageInTransit"]').contains('199');
+    cy.get('[data-testid="ocie"]').contains('Unauthorized');
+
+    cy.get('[data-testid="branchRank"]').contains('Navy');
+    cy.get('[data-testid="branchRank"]').contains('W-2');
   });
 });
