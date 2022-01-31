@@ -79,6 +79,21 @@ CREATE TABLE archived_personally_procured_moves (
     storage_end_date date
 );
 
+CREATE INDEX ON archived_personally_procured_moves (move_id);
+CREATE INDEX ON archived_personally_procured_moves (advance_id);
+CREATE INDEX ON archived_personally_procured_moves (advance_worksheet_id);
+CREATE INDEX ON archived_personally_procured_moves (move_document_id);
+CREATE INDEX ON archived_personally_procured_moves (move_document_move_id);
+CREATE INDEX ON archived_personally_procured_moves (document_id);
+CREATE INDEX ON archived_personally_procured_moves (move_document_ppm_id);
+CREATE INDEX ON archived_personally_procured_moves (signed_certificate_id);
+CREATE INDEX ON archived_personally_procured_moves (submitting_user_id);
+CREATE INDEX ON archived_personally_procured_moves (signed_certificate_move_id);
+CREATE INDEX ON archived_personally_procured_moves (personally_procured_move_id);
+CREATE INDEX ON archived_personally_procured_moves (weight_ticket_set_document_id);
+CREATE INDEX ON archived_personally_procured_moves (weight_ticket_set_document_move_document_id);
+CREATE INDEX ON archived_personally_procured_moves (moving_expenses_document_id);
+
 INSERT INTO archived_personally_procured_moves (signed_certificates)
 SELECT * from signed_certificates;
 
