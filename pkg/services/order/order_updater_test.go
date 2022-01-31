@@ -138,7 +138,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
 		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
 		suite.Equal(payload.Tac, updatedOrder.TAC)
-		suite.Equal(payload.Sac.Value, updatedOrder.SAC)
+		suite.Equal(*payload.Sac.Value, *updatedOrder.SAC)
 		suite.EqualValues(&updatedOriginDutyStation.ID, fetchedSM.DutyStationID)
 		suite.EqualValues(updatedOriginDutyStation.ID, fetchedSM.DutyStation.ID)
 		suite.EqualValues(updatedOriginDutyStation.Name, fetchedSM.DutyStation.Name)
@@ -220,7 +220,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
 		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
 		suite.Equal(payload.Tac, updatedOrder.TAC)
-		suite.Equal(payload.Sac.Value, updatedOrder.SAC)
+		suite.Equal(*payload.Sac.Value, *updatedOrder.SAC)
 	})
 
 	suite.T().Run("Allow Order update to have a missing NTS SAC", func(t *testing.T) {
@@ -264,7 +264,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
 		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
 		suite.Equal(payload.Tac, updatedOrder.TAC)
-		suite.Equal(payload.NtsSac.Value, updatedOrder.NtsSAC)
+		suite.Equal(*payload.NtsSac.Value, *updatedOrder.NtsSAC)
 	})
 
 	suite.T().Run("Allow Order update to have a missing NTS TAC", func(t *testing.T) {
@@ -308,7 +308,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
 		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
 		suite.Equal(payload.Tac, updatedOrder.TAC)
-		suite.Equal(payload.NtsTac.Value, updatedOrder.NtsTAC)
+		suite.Equal(*payload.NtsTac.Value, *updatedOrder.NtsTAC)
 	})
 
 	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {

@@ -741,7 +741,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(body.Sac.Value, ordersPayload.Sac)
+		suite.Equal(*body.Sac.Value, *ordersPayload.Sac)
 		suite.Equal(*body.NtsTac.Value, *ordersPayload.NtsTac)
 		suite.Equal(*body.NtsSac.Value, *ordersPayload.NtsSac)
 	})
