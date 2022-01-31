@@ -169,6 +169,7 @@ const Orders = () => {
                     validateTac={handleTacValidation}
                     showOrdersAcknowledgement={hasAmendedOrders}
                     ordersType={order.order_type}
+                    setFieldValue={formik.setFieldValue}
                   />
                 </div>
                 <div className={styles.bottom}>

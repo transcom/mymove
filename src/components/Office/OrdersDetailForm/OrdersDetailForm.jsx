@@ -26,6 +26,7 @@ const OrdersDetailForm = ({
   showNTSSac,
   showOrdersAcknowledgement,
   ordersType,
+  setFieldValue,
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
@@ -48,7 +49,10 @@ const OrdersDetailForm = ({
         name="ordersType"
         label="Orders type"
         options={ordersTypeOptions}
-        onChange={(e) => setFormOrdersType(e.target.value)}
+        onChange={(e) => {
+          setFormOrdersType(e.target.value);
+          setFieldValue('ordersType', e.target.value);
+        }}
       />
       {showOrdersTypeDetail && (
         <DropdownInput name="ordersTypeDetail" label="Orders type detail" options={ordersTypeDetailOptions} />
@@ -113,6 +117,7 @@ OrdersDetailForm.propTypes = {
   showNTSSac: bool,
   showOrdersAcknowledgement: bool,
   ordersType: string.isRequired,
+  setFieldValue: func.isRequired,
 };
 
 OrdersDetailForm.defaultProps = {
