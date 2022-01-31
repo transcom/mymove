@@ -8,5 +8,9 @@ export default {
 };
 
 export const standard = () => {
-  return <ServiceOrderNumberModal isOpen serviceOrderNumber="AB123456" />;
+  return (
+    <div className="officeApp">
+      <ServiceOrderNumberModal isOpen serviceOrderNumber="AB123456" />;
+    </div>
+  );
 };
