@@ -396,7 +396,7 @@ describe('TOO user', () => {
     cy.get('[data-testid="sitExtensions"]');
 
     // Total SIT
-    cy.contains('270 authorized');
+    cy.contains('379 authorized');
     // cy.contains('60 used');
     // cy.contains('210 remaining');
     // cy.contains('Ends 26 Apr 2022');
