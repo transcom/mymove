@@ -105,6 +105,7 @@ describe('Shipment Container', () => {
       expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
       expect(screen.queryByTestId('checkbox')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
+      expect(screen.getByTestId('shipment-display-checkbox')).not.toBeDisabled();
     });
     it('renders without the approval checkbox for external vendor shipments', () => {
       render(
