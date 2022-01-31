@@ -24,7 +24,10 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyStatio
 		validStatuses := []models.MoveStatus{models.MoveStatusAPPROVED}
 		// shipment cancelled was approved before
 		approvedDate := time.Now()
-		cancelledShipment := models.MTOShipment{Status: models.MTOShipmentStatusCanceled, ApprovedDate: &approvedDate}
+		cancelledShipment := models.MTOShipment{
+			Status:       models.MTOShipmentStatusCanceled,
+			ApprovedDate: &approvedDate,
+		}
 		affiliationAirForce := models.AffiliationAIRFORCE
 		ordersNumber := "Order1234"
 		ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED

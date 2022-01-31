@@ -137,10 +137,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		StorageFacility:       storageFacilityPtr,
 	}
 
-	if len(assertions.MTOShipment.DestinationType) > 0 {
-		MTOShipment.DestinationType = assertions.MTOShipment.DestinationType
-	}
-
 	if shipmentHasDeliveryDetails {
 		MTOShipment.DestinationAddress = &destinationAddress
 		MTOShipment.DestinationAddressID = &destinationAddress.ID
@@ -149,6 +145,11 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 			MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
 			MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
 		}
+	}
+
+	// don't pass in blank destination type values - default to PLEAD unless otherwise specified
+	if assertions.MTOShipment.DestinationType == "" {
+		assertions.MTOShipment.DestinationType = models.DestinationTypePlaceEnteredActiveDuty
 	}
 
 	if shipmentHasPickupDetails {
@@ -206,6 +207,11 @@ func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MT
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 		MTOShipment.ApprovedDate = &approvedDate
+	}
+
+	// don't pass in blank destination type values
+	if assertions.MTOShipment.DestinationType == "" {
+		assertions.MTOShipment.DestinationType = models.DestinationTypePlaceEnteredActiveDuty
 	}
 
 	// Overwrite values with those from assertions
