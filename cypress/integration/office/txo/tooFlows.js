@@ -298,10 +298,11 @@ describe('TOO user', () => {
     cy.url().should('include', `/moves/${moveLocator}/allowances`);
 
     cy.get('form').within(($form) => {
-      // Edit pro-gear, pro-gear spouse, RME, and OCIE fields
+      // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
       cy.get('input[name="proGearWeight"]').clear().type('1999');
       cy.get('input[name="proGearWeightSpouse"]').clear().type('499');
       cy.get('input[name="requiredMedicalEquipmentWeight"]').clear().type('999');
+      cy.get('input[name="storageInTransit"]').clear().type('199');
       cy.get('input[name="organizationalClothingAndIndividualEquipment"]').click({ force: true });
 
       // Edit grade and authorized weight
@@ -328,6 +329,7 @@ describe('TOO user', () => {
     cy.get('[data-testid="progear"]').contains('1,999');
     cy.get('[data-testid="spouseProgear"]').contains('499');
     cy.get('[data-testid="rme"]').contains('999');
+    cy.get('[data-testid="storageInTransit"]').contains('199');
     cy.get('[data-testid="ocie"]').contains('Unauthorized');
 
     cy.get('[data-testid="authorizedWeight"]').contains('11,111');
