@@ -21,9 +21,6 @@ export class LogoutOnInactivity extends React.Component {
   constructor(props) {
     super(props);
 
-    // keep this around in case we want to refactor to use getRemainingTime and getLastActiveTime instead of countdown
-    // eslint-disable-next-line react/no-unused-class-component-methods
-    this.idleTimer = null;
     this.onActive = this.onActive.bind(this);
     this.onIdle = this.onIdle.bind(this);
 
@@ -73,11 +70,6 @@ export class LogoutOnInactivity extends React.Component {
     return (
       isLoggedIn && (
         <IdleTimer
-          ref={(ref) => {
-            // keep this around in case we want to refactor to use getRemainingTime and getLastActiveTime instead of countdown
-            // eslint-disable-next-line react/no-unused-class-component-methods
-            this.idleTimer = ref;
-          }}
           element={document}
           onActive={this.onActive}
           onIdle={this.onIdle}
