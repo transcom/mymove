@@ -78,9 +78,6 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: o.NewDutyStationID, Name: "NewDutyStationID"},
 		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
 		&StringIsNilOrNotBlank{Field: o.TAC, Name: "TransportationAccountingCode"},
-		&StringIsNilOrNotBlank{Field: o.SAC, Name: "SAC"},
-		&StringIsNilOrNotBlank{Field: o.NtsTAC, Name: "NtsTAC"},
-		&StringIsNilOrNotBlank{Field: o.NtsSAC, Name: "NtsSAC"},
 		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "DepartmentIndicator"},
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
@@ -243,12 +240,11 @@ func (o *Order) IsComplete() bool {
 	if o.DepartmentIndicator == nil {
 		return false
 	}
+	// HHG TAC
 	if o.TAC == nil {
 		return false
 	}
-	if o.SAC == nil {
-		return false
-	}
+
 	return true
 }
 
@@ -258,10 +254,8 @@ func (o *Order) IsCompleteForGBL() bool {
 	if o.DepartmentIndicator == nil {
 		return false
 	}
+	// HHG TAC
 	if o.TAC == nil {
-		return false
-	}
-	if o.SAC == nil {
 		return false
 	}
 	return true

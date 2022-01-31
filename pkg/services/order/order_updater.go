@@ -191,13 +191,15 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 		order.TAC = &normalizedTac
 	}
 
-	if payload.NtsSac != nil {
-		order.NtsSAC = payload.NtsSac
+	if payload.NtsSac.Present {
+		order.NtsSAC = payload.NtsSac.Value
 	}
 
-	if payload.NtsTac != nil {
-		normalizedNtsTac := strings.ToUpper(*payload.NtsTac)
-		order.NtsTAC = &normalizedNtsTac
+	if payload.NtsTac.Present {
+		if payload.NtsTac.Value != nil {
+			normalizedNtsTac := strings.ToUpper(*payload.NtsTac.Value)
+			order.NtsTAC = &normalizedNtsTac
+		}
 	}
 
 	if payload.OrdersType != nil {
@@ -295,13 +297,15 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.TAC = &normalizedTac
 	}
 
-	if payload.NtsSac != nil {
-		order.NtsSAC = payload.NtsSac
+	if payload.NtsSac.Present {
+		order.NtsSAC = payload.NtsSac.Value
 	}
 
-	if payload.NtsTac != nil {
-		normalizedNtsTac := strings.ToUpper(*payload.NtsTac)
-		order.NtsTAC = &normalizedNtsTac
+	if payload.NtsTac.Present {
+		if payload.NtsTac.Value != nil {
+			normalizedNtsTac := strings.ToUpper(*payload.NtsTac.Value)
+			order.NtsTAC = &normalizedNtsTac
+		}
 	}
 
 	return order

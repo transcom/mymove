@@ -2635,12 +2635,12 @@ definitions:
         minLength: 4
         maxLength: 4
         example: F8J1
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       ntsSac:
         type: string
         title: NTS SAC
         example: N002214CSW32Y9
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
     required:
       - issueDate
       - reportByDate
@@ -2697,12 +2697,12 @@ definitions:
         minLength: 4
         maxLength: 4
         example: F8J1
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       ntsSac:
         type: string
         title: NTS SAC
         example: N002214CSW32Y9
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
         x-nullable: true

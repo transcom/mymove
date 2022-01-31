@@ -3291,7 +3291,7 @@ func init() {
         "ntsSac": {
           "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
@@ -3299,7 +3299,7 @@ func init() {
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersType": {
@@ -5635,7 +5635,7 @@ func init() {
         "ntsSac": {
           "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
@@ -5643,7 +5643,7 @@ func init() {
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersAcknowledgement": {
@@ -10021,7 +10021,7 @@ func init() {
         "ntsSac": {
           "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
@@ -10029,7 +10029,7 @@ func init() {
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersType": {
@@ -12372,7 +12372,7 @@ func init() {
         "ntsSac": {
           "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
@@ -12380,7 +12380,7 @@ func init() {
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersAcknowledgement": {

@@ -105,8 +105,6 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		sac := nullable.NewString("987654321")
-
 		payload := ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator: &deptIndicator,
 			IssueDate:           &dateIssued,
@@ -117,7 +115,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			OrdersTypeDetail:    &ordersTypeDetail,
 			ReportByDate:        &reportByDate,
 			Tac:                 handlers.FmtString("E19A"),
-			Sac:                 sac,
+			Sac:                 nullable.NewString("987654321"),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -151,6 +149,40 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
+		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator: &deptIndicator,
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			OrdersNumber:        handlers.FmtString("ORDER100"),
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
+			OrdersTypeDetail:    &ordersTypeDetail,
+			ReportByDate:        &reportByDate,
+			Tac:                 handlers.FmtString(""), // this will trigger a validation error on Order model
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+
+		// check that we get back a validation error
+		suite.EqualError(err, fmt.Sprintf("Invalid input for ID: %s. TransportationAccountingCode cannot be blank.", order.ID))
+		suite.Nil(updatedOrder)
+		suite.IsType(apperror.InvalidInputError{}, err)
+	})
+
+	suite.T().Run("Allow Order update to have a missing HHG SAC", func(t *testing.T) {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
+
 		emptyStrSAC := nullable.NewString("")
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
@@ -171,13 +203,145 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			OrdersTypeDetail:    &ordersTypeDetail,
 			ReportByDate:        &reportByDate,
 			Tac:                 handlers.FmtString("E19A"),
-			Sac:                 emptyStrSAC, // this will trigger a validation error on Order model
+			Sac:                 emptyStrSAC,
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
 
 		// check that we get back a validation error
-		suite.EqualError(err, fmt.Sprintf("Invalid input for ID: %s. SAC can not be blank.", order.ID))
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
+		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
+		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
+		suite.EqualValues(payload.OrdersTypeDetail, updatedOrder.OrdersTypeDetail)
+		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
+		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
+		suite.Equal(payload.Tac, updatedOrder.TAC)
+		suite.Equal(payload.Sac.Value, updatedOrder.SAC)
+	})
+
+	suite.T().Run("Allow Order update to have a missing NTS SAC", func(t *testing.T) {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
+
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
+		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator: &deptIndicator,
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			OrdersNumber:        handlers.FmtString("ORDER100"),
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
+			OrdersTypeDetail:    &ordersTypeDetail,
+			ReportByDate:        &reportByDate,
+			Tac:                 handlers.FmtString("E19A"),
+			NtsSac:              nullable.NewString(""),
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+
+		// check that we get back a validation error
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
+		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
+		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
+		suite.EqualValues(payload.OrdersTypeDetail, updatedOrder.OrdersTypeDetail)
+		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
+		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
+		suite.Equal(payload.Tac, updatedOrder.TAC)
+		suite.Equal(payload.NtsSac.Value, updatedOrder.NtsSAC)
+	})
+
+	suite.T().Run("Allow Order update to have a missing NTS TAC", func(t *testing.T) {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
+
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
+		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator: &deptIndicator,
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			OrdersNumber:        handlers.FmtString("ORDER100"),
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
+			OrdersTypeDetail:    &ordersTypeDetail,
+			ReportByDate:        &reportByDate,
+			Tac:                 handlers.FmtString("E19A"),
+			NtsTac:              nullable.NewString(""),
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+
+		// check that we get back a validation error
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
+		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
+		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
+		suite.EqualValues(payload.OrdersTypeDetail, updatedOrder.OrdersTypeDetail)
+		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
+		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
+		suite.Equal(payload.Tac, updatedOrder.TAC)
+		suite.Equal(payload.NtsTac.Value, updatedOrder.NtsTAC)
+	})
+
+	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
+
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
+		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator: &deptIndicator,
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			OrdersNumber:        handlers.FmtString("ORDER100"),
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
+			OrdersTypeDetail:    &ordersTypeDetail,
+			ReportByDate:        &reportByDate,
+			Tac:                 handlers.FmtString(""), // this will trigger a validation error on Order model
+			Sac:                 nullable.NewString(""),
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+
+		// check that we get back a validation error
+		suite.EqualError(err, fmt.Sprintf("Invalid input for ID: %s. TransportationAccountingCode cannot be blank.", order.ID))
 		suite.Nil(updatedOrder)
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})

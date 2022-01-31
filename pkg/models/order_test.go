@@ -30,9 +30,6 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"status":                         {"Status can not be blank."},
 		"uploaded_orders_id":             {"UploadedOrdersID can not be blank."},
 		"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters.", "TransportationAccountingCode can not be blank."},
-		"sac":                            {"SAC can not be blank."},
-		"nts_tac":                        {"NtsTAC can not be blank."},
-		"nts_sac":                        {"NtsSAC can not be blank."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)
