@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { func, string, bool } from 'prop-types';
 
 import styles from './OrdersDetailForm.module.scss';
@@ -27,9 +27,10 @@ const OrdersDetailForm = ({
   showOrdersAcknowledgement,
   ordersType,
 }) => {
-  const reportDateRowLabel = formatLabelReportByDate(ordersType);
+  const [formOrdersType, setFormOrdersType] = useState(ordersType);
+  const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
   // The text is different if the customer is retiring or separating.
-  const newDutyStationLabel = ['RETIREMENT', 'SEPARATION'].includes(ordersType)
+  const newDutyStationLabel = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType)
     ? 'HOR, HOS or PLEAD'
     : 'New duty location';
 
@@ -43,7 +44,12 @@ const OrdersDetailForm = ({
         <DropdownInput name="departmentIndicator" label="Department indicator" options={deptIndicatorOptions} />
       )}
       {showOrdersNumber && <TextField name="ordersNumber" label="Orders number" id="ordersNumberInput" />}
-      <DropdownInput name="ordersType" label="Orders type" options={ordersTypeOptions} />
+      <DropdownInput
+        name="ordersType"
+        label="Orders type"
+        options={ordersTypeOptions}
+        onChange={(e) => setFormOrdersType(e.target.value)}
+      />
       {showOrdersTypeDetail && (
         <DropdownInput name="ordersTypeDetail" label="Orders type detail" options={ordersTypeDetailOptions} />
       )}
