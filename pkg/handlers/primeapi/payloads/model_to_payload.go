@@ -444,6 +444,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.NtsRecordedWeight = handlers.FmtInt64(mtoShipment.NTSRecordedWeight.Int64())
 	}
 
+	if mtoShipment.DestinationType != "" {
+		payload.DestinationType = primemessages.DestinationType(mtoShipment.DestinationType)
+	}
+
 	return payload
 }
 

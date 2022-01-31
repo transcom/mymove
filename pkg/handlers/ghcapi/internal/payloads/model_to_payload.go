@@ -462,7 +462,7 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
-	if len(mtoShipment.DestinationType) > 0 {
+	if mtoShipment.DestinationType != "" {
 		destinationType := ghcmessages.DestinationType(mtoShipment.DestinationType)
 		payload.DestinationType = &destinationType
 	}
@@ -524,7 +524,7 @@ func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 }
 
 func DestinationType(destinationType models.DestinationType) *ghcmessages.DestinationType {
-	if len(destinationType) < 1 {
+	if (len(destinationType) < 1) || (destinationType == "") {
 		return nil
 	}
 
