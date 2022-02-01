@@ -45,7 +45,7 @@ const CustomerRemarksAgentsDetails = ({ customerRemarks, releasingAgent, receivi
   return (
     <>
       <div className="container">
-        <DataTable columnHeaders={['Customer remarks']} dataRow={[{ customerRemarks }]} />
+        <DataTable columnHeaders={['Customer remarks']} dataRow={[customerRemarks]} />
       </div>
       <div className="container">
         <DataTable columnHeaders={['Releasing agent']} dataRow={[releasingAgentBody]} />
