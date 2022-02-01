@@ -697,3 +697,5 @@
 20220112013152_update_duty_locations.up.sql
 20220113172826_create_new_duty_locations.up.sql
 20220126235958_remove_cac_access_carterjones_monfresh_ronolibert_and_shkeating.up.sql
+20220201170324_audit_trigger.up.sql
+20220201202113_add_audit_trigger_tables.up.sql
