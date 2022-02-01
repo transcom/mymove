@@ -38,7 +38,6 @@ require (
 	github.com/gobuffalo/validate/v3 v3.3.1
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/uuid v4.2.0+incompatible
-	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.1
@@ -52,7 +51,7 @@ require (
 	github.com/leodido/go-urn v1.2.1
 	github.com/lib/pq v1.10.4
 	github.com/luna-duclos/instrumentedsql v1.1.3
-	github.com/markbates/goth v1.68.0
+	github.com/markbates/goth v1.69.0
 	github.com/mattn/go-shellwords v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/namsral/flag v1.7.4-pre
@@ -85,6 +84,7 @@ require (
 )
 
 require (
+	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/rickar/cal/v2 v2.1.1
 	github.com/trussworks/otelhttp v0.0.0-20211201183707-a6d8db57ed9b
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.3.0
