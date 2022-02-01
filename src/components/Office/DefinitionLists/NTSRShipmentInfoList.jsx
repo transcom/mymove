@@ -8,7 +8,7 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 
 const NTSRShipmentInfoList = ({
   className,

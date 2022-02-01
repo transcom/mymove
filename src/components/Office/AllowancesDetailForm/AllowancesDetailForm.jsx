@@ -7,7 +7,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { DropdownInput, CheckboxField } from 'components/form/fields';
 import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/order';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
 
 const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions, editableAuthorizedWeight }) => {

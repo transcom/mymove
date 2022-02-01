@@ -4,22 +4,6 @@ import moment from 'moment';
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
 
 describe('formatters', () => {
-  describe('formatWeight', () => {
-    describe('when formatting a integer weight', () => {
-      const weight = 4000;
-      const formattedWeight = formatters.formatWeight(weight);
-      it('should be be formatted as expected', () => {
-        expect(formattedWeight).toEqual('4,000 lbs');
-      });
-    });
-    describe('when formatting a integer weight', () => {
-      const weight = '';
-      const formattedWeight = formatters.formatWeight(weight);
-      it('should be be formatted as expected', () => {
-        expect(formattedWeight).toEqual('0 lbs');
-      });
-    });
-  });
   describe('truncateNumber', () => {
     it('should truncate number based on passed variable returning a number string', () => {
       expect(formatters.truncateNumber(50)).toEqual('50');

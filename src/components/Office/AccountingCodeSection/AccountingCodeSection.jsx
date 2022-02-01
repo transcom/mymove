@@ -13,6 +13,10 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
 
   const shipmentTypePairs = Object.entries(shipmentTypes).filter(([, value]) => !!value);
 
+  const handleFormValueChange = (value) => {
+    helperProps.setValue(value);
+  };
+
   useEffect(() => {
     if (hasSetDefaultValue === false && shipmentTypePairs.length === 1) {
       helperProps.setValue(shipmentTypePairs[0][0]);
@@ -20,7 +24,7 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
     }
   }, [hasSetDefaultValue, shipmentTypePairs, helperProps]);
 
-  const handleClear = () => helperProps.setValue(undefined);
+  const handleClear = () => handleFormValueChange(undefined);
 
   if (shipmentTypePairs.length === 0) {
     return (
@@ -33,7 +37,7 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
 
   const fields = shipmentTypePairs.map(([key, value]) => {
     const isChecked = inputProps.value === key;
-    const handleChange = () => helperProps.setValue(key);
+    const handleChange = () => handleFormValueChange(key);
 
     return (
       <Radio

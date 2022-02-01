@@ -12,7 +12,7 @@ import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
 import styles from './MovePaymentRequests.module.scss';
 
-import { MOVES } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
 import LeftNav from 'components/LeftNav';
@@ -20,6 +20,7 @@ import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequ
 import BillableWeightCard from 'components/Office/BillableWeight/BillableWeightCard/BillableWeightCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SHIPMENT_OPTIONS, LOA_TYPE } from 'shared/constants';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
@@ -29,7 +30,7 @@ import {
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
 } from 'hooks/custom';
-import { updateFinancialFlag, updateMTOReviewedBillableWeights } from 'services/ghcApi';
+import { updateFinancialFlag, updateMTOReviewedBillableWeights, updateMTOShipment } from 'services/ghcApi';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
@@ -86,6 +87,13 @@ const MovePaymentRequests = ({
     onError: () => {
       setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
       setAlertType('error');
+    },
+  });
+
+  const [mutateMTOhipment] = useMutation(updateMTOShipment, {
+    onSuccess(_, variables) {
+      queryCache.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
     },
   });
 
@@ -146,12 +154,17 @@ const MovePaymentRequests = ({
 
   if (paymentRequests.length) {
     mtoShipments.forEach((shipment) => {
+      const tacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.tacType;
+      const sacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.sacType;
+
       shipmentsInfo.push({
         mtoShipmentID: shipment.id,
         address: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
         departureDate: shipment.actualPickupDate,
         modificationType: getShipmentModificationType(shipment),
         mtoServiceItems: shipment.mtoServiceItems,
+        tacType,
+        sacType,
       });
     });
   }
@@ -163,6 +176,19 @@ const MovePaymentRequests = ({
       ifMatchETag: move?.eTag,
     };
     mutateMoves(payload);
+  };
+
+  const handleEditAccountingCodes = (shipmentID, body) => {
+    const shipment = mtoShipments.find((s) => s.id === shipmentID);
+
+    if (shipment) {
+      mutateMTOhipment({
+        shipmentID,
+        moveTaskOrderID: shipment.moveTaskOrderID,
+        ifMatchETag: shipment.eTag,
+        body,
+      });
+    }
   };
 
   const anyShipmentOverweight = (shipments) => {
@@ -268,6 +294,7 @@ const MovePaymentRequests = ({
                   hasBillableWeightIssues={!noBillableWeightIssues}
                   shipmentsInfo={shipmentsInfo}
                   key={paymentRequest.id}
+                  onEditAccountingCodes={handleEditAccountingCodes}
                 />
               ))
             ) : (

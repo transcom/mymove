@@ -23,7 +23,8 @@ import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFa
 import StorageFacilityAddress from 'components/Office/StorageFacilityAddress/StorageFacilityAddress';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
-import { dropdownInputOptions, formatWeight } from 'shared/formatters';
+import { dropdownInputOptions } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import { ORDERS_TYPE } from 'constants/orders';
 import { shipmentDestinationAddressTypes } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';

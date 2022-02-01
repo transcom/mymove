@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import styles from './OfficeDefinitionLists.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-import { formatWeight, addCommasToNumberString } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import friendlyBranchRank from 'utils/branchRankFormatters';
 
 const AllowancesList = ({ info, showVisualCues }) => {
@@ -30,7 +30,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Storage in transit (SIT)</dt>
-          <dd data-testid="storageInTransit">{addCommasToNumberString(info.storageInTransit)} days</dd>
+          <dd data-testid="storageInTransit">{info.storageInTransit} days</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Dependents</dt>
