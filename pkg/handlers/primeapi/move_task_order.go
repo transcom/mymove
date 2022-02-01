@@ -58,7 +58,8 @@ type GetMoveTaskOrderHandler struct {
 func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	searchParams := services.MoveTaskOrderFetcherParams{
-		IsAvailableToPrime: true,
+		IsAvailableToPrime:       true,
+		ExcludeExternalShipments: true,
 	}
 
 	// Add either ID or Locator to search params

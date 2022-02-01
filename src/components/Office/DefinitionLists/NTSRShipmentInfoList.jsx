@@ -8,7 +8,7 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 
 const NTSRShipmentInfoList = ({
   className,
@@ -77,11 +77,17 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
+  const getMissingOrDash = (fieldName) => {
+    return errorIfMissing.includes(fieldName) ? 'Missing' : '—';
+  };
+
   const ntsRecordedWeightElementFlags = getFlags('ntsRecordedWeight');
   const ntsRecordedWeightElement = (
     <div className={ntsRecordedWeightElementFlags.classes}>
       <dt>Shipment weight</dt>
-      <dd data-testid="ntsRecordedWeight">{ntsRecordedWeight ? formatWeight(ntsRecordedWeight) : '—'}</dd>
+      <dd data-testid="ntsRecordedWeight">
+        {ntsRecordedWeight ? formatWeight(ntsRecordedWeight) : getMissingOrDash('ntsRecordedWeight')}
+      </dd>
     </div>
   );
 
@@ -99,7 +105,7 @@ const NTSRShipmentInfoList = ({
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
-      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || '—'}</dd>
+      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || getMissingOrDash('serviceOrderNumber')}</dd>
     </div>
   );
 
@@ -133,7 +139,7 @@ const NTSRShipmentInfoList = ({
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
-      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : '—'}</dd>
+      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : getMissingOrDash('tacType')}</dd>
     </div>
   );
 

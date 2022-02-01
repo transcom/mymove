@@ -100,16 +100,20 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 		transactionError := errors.New("Rollback The transaction")
 
 		ppm, err := FetchPersonallyProcuredMoveByOrderID(db, order.ID)
-		if err != nil {
+		if err != nil && err != ErrFetchNotFound {
 			responseError = err
 			return transactionError
 		}
 
-		ppm.DestinationPostalCode = &order.NewDutyStation.Address.PostalCode
-		if verrs, err := dbConnection.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = err
-			return transactionError
+		if ppm.ID != uuid.Nil {
+			// If we're going to do this, we should check to see if the PMM postal code matches the postal code of the
+			// previous destination duty station.  Otherwise, we may be overwriting a home address postal code.
+			ppm.DestinationPostalCode = &order.NewDutyStation.Address.PostalCode
+			if verrs, err := dbConnection.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = err
+				return transactionError
+			}
 		}
 
 		if verrs, err := db.ValidateAndSave(order); verrs.HasAny() || err != nil {

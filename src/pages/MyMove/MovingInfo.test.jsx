@@ -32,6 +32,7 @@ describe('MovingInfo component', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Things to know about selecting shipments' }),
     ).toBeInTheDocument();
-    expect(screen.getAllByRole('heading').length).toBe(5);
+    expect(screen.getByRole('heading', { name: /0 lbs/ })).toBeInTheDocument();
+    expect(screen.getAllByRole('heading').length).toBe(6);
   });
 });

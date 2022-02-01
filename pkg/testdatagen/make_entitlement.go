@@ -11,7 +11,7 @@ import (
 func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitlement {
 	truePtr := true
 	dependents := 1
-	storageInTransit := 2
+	storageInTransit := 90
 	rmeWeight := 1000
 	ocie := true
 	grade := assertions.Order.Grade
