@@ -308,9 +308,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		suite.Equal(body.OrdersNumber, ordersPayload.OrderNumber)
 		suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(*body.Sac.Value, *ordersPayload.Sac)
-		suite.Equal(*body.NtsTac.Value, *ordersPayload.NtsTac)
-		suite.Equal(*body.NtsSac.Value, *ordersPayload.NtsSac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
+		suite.Equal(body.NtsTac.Value, ordersPayload.NtsTac)
+		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
 		suite.NotNil(ordersPayload.AmendedOrdersAcknowledgedAt)
 
 		reloadErr := suite.DB().Reload(&move)
@@ -456,9 +456,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.Equal(body.OrdersNumber, ordersPayload.OrderNumber)
 		suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(*body.Sac.Value, *ordersPayload.Sac)
-		suite.Equal(*body.NtsTac.Value, *ordersPayload.NtsTac)
-		suite.Equal(*body.NtsSac.Value, *ordersPayload.NtsSac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
+		suite.Equal(body.NtsTac.Value, ordersPayload.NtsTac)
+		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
 	})
 
 	suite.Run("Returns a 403 when the user does not have TXO role", func() {
@@ -741,9 +741,9 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(*body.Sac.Value, *ordersPayload.Sac)
-		suite.Equal(*body.NtsTac.Value, *ordersPayload.NtsTac)
-		suite.Equal(*body.NtsSac.Value, *ordersPayload.NtsSac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
+		suite.Equal(body.NtsTac.Value, ordersPayload.NtsTac)
+		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
 	})
 
 	suite.Run("Returns a 403 when the user does not have Counselor role", func() {

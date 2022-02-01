@@ -183,7 +183,12 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 	}
 
 	if payload.Sac.Present {
-		order.SAC = payload.Sac.Value
+		if payload.Sac.Value != nil && *payload.Sac.Value == "" {
+			order.SAC = nil
+		} else {
+			order.SAC = payload.Sac.Value
+		}
+
 	}
 
 	if payload.Tac != nil {
@@ -192,13 +197,19 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 	}
 
 	if payload.NtsSac.Present {
-		order.NtsSAC = payload.NtsSac.Value
+		if payload.NtsSac.Value != nil && *payload.NtsSac.Value == "" {
+			order.NtsSAC = nil
+		} else {
+			order.NtsSAC = payload.NtsSac.Value
+		}
 	}
 
 	if payload.NtsTac.Present {
-		if payload.NtsTac.Value != nil {
+		if payload.NtsTac.Value != nil && *payload.NtsTac.Value != "" {
 			normalizedNtsTac := strings.ToUpper(*payload.NtsTac.Value)
 			order.NtsTAC = &normalizedNtsTac
+		} else {
+			order.NtsTAC = nil
 		}
 	}
 
@@ -289,7 +300,11 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	}
 
 	if payload.Sac.Present {
-		order.SAC = payload.Sac.Value
+		if payload.Sac.Value != nil && *payload.Sac.Value == "" {
+			order.SAC = nil
+		} else {
+			order.SAC = payload.Sac.Value
+		}
 	}
 
 	if payload.Tac != nil {
@@ -298,13 +313,19 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	}
 
 	if payload.NtsSac.Present {
-		order.NtsSAC = payload.NtsSac.Value
+		if payload.NtsSac.Value != nil && *payload.NtsSac.Value == "" {
+			order.NtsSAC = nil
+		} else {
+			order.NtsSAC = payload.NtsSac.Value
+		}
 	}
 
 	if payload.NtsTac.Present {
-		if payload.NtsTac.Value != nil {
+		if payload.NtsTac.Value != nil && *payload.NtsTac.Value != "" {
 			normalizedNtsTac := strings.ToUpper(*payload.NtsTac.Value)
 			order.NtsTAC = &normalizedNtsTac
+		} else {
+			order.NtsTAC = nil
 		}
 	}
 

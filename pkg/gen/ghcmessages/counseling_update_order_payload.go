@@ -40,8 +40,6 @@ type CounselingUpdateOrderPayload struct {
 
 	// NTS TAC
 	// Example: F8J1
-	// Max Length: 4
-	// Min Length: 4
 	NtsTac nullable.String `json:"ntsTac,omitempty"`
 
 	// orders type

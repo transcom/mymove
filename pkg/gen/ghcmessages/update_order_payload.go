@@ -43,8 +43,6 @@ type UpdateOrderPayload struct {
 
 	// NTS TAC
 	// Example: F8J1
-	// Max Length: 4
-	// Min Length: 4
 	NtsTac nullable.String `json:"ntsTac,omitempty"`
 
 	// Confirmation that the new amended orders were reviewed after previously approving the original orders

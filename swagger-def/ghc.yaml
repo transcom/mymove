@@ -2530,19 +2530,16 @@ definitions:
         example: 'F8J1'
         x-nullable: true
       sac:
-        type: string
         title: HHG SAC
         example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
       ntsTac:
-        type: string
         title: NTS TAC
         minLength: 4
         maxLength: 4
         example: 'F8J1'
         $ref: definitions/NullableString.yaml
       ntsSac:
-        type: string
         title: NTS SAC
         example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
@@ -2592,19 +2589,16 @@ definitions:
         example: 'F8J1'
         x-nullable: true
       sac:
-        type: string
         title: HHG SAC
         example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
       ntsTac:
-        type: string
         title: NTS TAC
         minLength: 4
         maxLength: 4
         example: 'F8J1'
         $ref: definitions/NullableString.yaml
       ntsSac:
-        type: string
         title: NTS SAC
         example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml

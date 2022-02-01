@@ -3289,13 +3289,11 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
           "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
@@ -3318,7 +3316,6 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
           "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
@@ -5633,13 +5630,11 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
           "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
@@ -5676,7 +5671,6 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
           "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
@@ -10019,13 +10013,11 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
           "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
@@ -10048,7 +10040,6 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
           "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
@@ -12370,13 +12361,11 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
           "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
@@ -12413,7 +12402,6 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
           "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
