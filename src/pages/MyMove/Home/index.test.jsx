@@ -23,7 +23,10 @@ const defaultProps = {
         phone_lines: ['555-555-5555'],
       },
     },
-    weight_allotment: {},
+    weight_allotment: {
+      total_weight_self: 8000,
+      total_weight_self_plus_dependents: 11000,
+    },
   },
   showLoggedInUser: jest.fn(),
   createServiceMember: jest.fn(),
@@ -119,6 +122,28 @@ describe('Home component', () => {
     it('Orders Step is editable', () => {
       const ordersStep = wrapper.find('Step[step="2"]');
       expect(ordersStep.prop('editBtnLabel')).toEqual('Edit');
+    });
+  });
+
+  describe('if the user has orders with no dependents', () => {
+    const wrapper = mountHomeWithProviders({
+      orders: { testOrder: 'test', has_dependents: false, new_duty_station: { name: 'Test Duty Station' } },
+      uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
+    });
+
+    it('renders the correct weight allowance', () => {
+      expect(wrapper.text().includes('8,000 lbs.')).toBe(true);
+    });
+  });
+
+  describe('if the user has orders with dependents', () => {
+    const wrapper = mountHomeWithProviders({
+      orders: { testOrder: 'test', has_dependents: true, new_duty_station: { name: 'Test Duty Station' } },
+      uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
+    });
+
+    it('renders the correct weight allowance', () => {
+      expect(wrapper.text().includes('11,000 lbs.')).toBe(true);
     });
   });
 

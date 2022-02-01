@@ -44,9 +44,15 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
 
   const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
 
+  // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
   // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
-  const showWhenCollapsed = { HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'] }; // add any additional fields that we also want to always show
+  const showWhenCollapsed = {
+    HHG_INTO_NTS_DOMESTIC: ['counselorRemarks'],
+    HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'],
+  }; // add any additional fields that we also want to always show
+  const neverShow = { HHG_INTO_NTS_DOMESTIC: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility'] };
   const warnIfMissing = {
+    HHG_INTO_NTS_DOMESTIC: ['counselorRemarks', 'tacType', 'sacType'],
     HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
   };
   const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
@@ -257,9 +263,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
                 counselorCanEdit && (
-                  <ButtonDropdown onChange={handleButtonDropdownChange}>
+                  <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
-                    <option value={SHIPMENT_OPTIONS_URL.HHG}>HHG</option>
+                    <option test-dataid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+                      HHG
+                    </option>
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                   </ButtonDropdown>
@@ -283,11 +291,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
                     key={shipment.id}
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
-                    showIcon={false}
+                    allowApproval={false}
                     ordersLOA={ordersLOA}
                     warnIfMissing={warnIfMissing[shipment.shipmentType]}
                     errorIfMissing={errorIfMissing[shipment.shipmentType]}
                     showWhenCollapsed={showWhenCollapsed[shipment.shipmentType]}
+                    neverShow={neverShow[shipment.shipmentType]}
                   />
                 ))}
               </div>
