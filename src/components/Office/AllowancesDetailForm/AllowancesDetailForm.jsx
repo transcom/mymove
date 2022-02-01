@@ -60,6 +60,15 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
       />
+      <div className={styles.wrappedCheckbox}>
+        <CheckboxField
+          data-testid="ocieInput"
+          id="ocieInput"
+          name="organizationalClothingAndIndividualEquipment"
+          label="OCIE authorized (Army only)"
+        />
+      </div>
+      <hr />
       <DropdownInput
         data-testid="branchInput"
         name="agency"
@@ -86,14 +95,6 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
       />
-      <div className={styles.wrappedCheckbox}>
-        <CheckboxField
-          data-testid="ocieInput"
-          id="ocieInput"
-          name="organizationalClothingAndIndividualEquipment"
-          label="OCIE authorized (Army only)"
-        />
-      </div>
 
       {editableAuthorizedWeight && (
         <MaskedTextField
