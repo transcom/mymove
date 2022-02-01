@@ -74,6 +74,7 @@ export const EmptyValues = () => (
           ordersTypeOptions={ordersTypeOptions}
           ordersTypeDetailOptions={ordersTypeDetailOptions}
           ordersType={ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION}
+          setFieldValue={Formik.setFieldValue}
         />
       </form>
     </Formik>
@@ -120,6 +121,7 @@ export const InitialValues = () => {
             ordersTypeOptions={ordersTypeOptions}
             ordersTypeDetailOptions={ordersTypeDetailOptions}
             showOrdersAcknowledgement
+            setFieldValue={Formik.setFieldValue}
           />
         </form>
       </Formik>
@@ -165,6 +167,7 @@ export const FieldsHidden = (args) => {
             deptIndicatorOptions={deptIndicatorOptions}
             ordersTypeOptions={ordersTypeOptions}
             ordersTypeDetailOptions={ordersTypeDetailOptions}
+            setFieldValue={Formik.setFieldValue}
             {...args}
           />
         </form>
@@ -182,6 +185,7 @@ export const Retiree = () => (
           ordersTypeOptions={ordersTypeOptions}
           ordersTypeDetailOptions={ordersTypeDetailOptions}
           ordersType="RETIREMENT"
+          setFieldValue={Formik.setFieldValue}
         />
       </form>
     </Formik>
@@ -197,6 +201,7 @@ export const Separatee = () => (
           ordersTypeOptions={ordersTypeOptions}
           ordersTypeDetailOptions={ordersTypeDetailOptions}
           ordersType="SEPARATION"
+          setFieldValue={Formik.setFieldValue}
         />
       </form>
     </Formik>

@@ -49,6 +49,7 @@ const defaultProps = {
   showOrdersAcknowledgement: true,
   validateTac: jest.fn,
   ordersType: 'PERMANENT_CHANGE_OF_STATION',
+  setFieldValue: jest.fn,
 };
 
 function renderOrdersDetailForm(props) {

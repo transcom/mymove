@@ -124,6 +124,7 @@ const ServicesCounselingOrders = () => {
                     showOrdersNumber={false}
                     showOrdersTypeDetail={false}
                     ordersType={order.order_type}
+                    setFieldValue={formik.setFieldValue}
                   />
                 </div>
                 <div className={styles.bottom}>
