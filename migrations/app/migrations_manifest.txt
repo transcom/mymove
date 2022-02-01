@@ -700,3 +700,4 @@
 20220127161111_archive_ppm_data.up.sql
 20220127234422_create_ppm_shipments_table.up.sql
 20220203001924_add_ppm_to_mto_shipments_shipment_type_enum_values.up.sql
+20220201155623_archive_ppm_data.up.sql
