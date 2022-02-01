@@ -70,6 +70,8 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0063](0063-use-openapi-to-compile-api-specs.md) - Using `openapi` CLI to compile API specs
 - [ADR-0064](0064-use-stateless-services-with-context.md) - Use stateless services with context
 - [ADR-0065](0065-use-office-app-for-prime-ui.md) - *Use Office application for Prime UI*
+- [ADR-0066](0066-use-custom-nullable-types-for-patch-requests.md) - Use custom nullable types for patch requests
+- [ADR-0067](0067-ppm-db-design.md) - Add a child table to mto_shipments for PPMs
 
 <!-- adrlogstop -->
 
