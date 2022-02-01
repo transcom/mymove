@@ -115,15 +115,19 @@ export const InitialValues = () => {
           ntsSac: Yup.string().required('Required'),
         })}
       >
-        <form>
-          <OrdersDetailForm
-            deptIndicatorOptions={deptIndicatorOptions}
-            ordersTypeOptions={ordersTypeOptions}
-            ordersTypeDetailOptions={ordersTypeDetailOptions}
-            showOrdersAcknowledgement
-            setFieldValue={Formik.setFieldValue}
-          />
-        </form>
+        {(formik) => {
+          return (
+            <form>
+              <OrdersDetailForm
+                deptIndicatorOptions={deptIndicatorOptions}
+                ordersTypeOptions={ordersTypeOptions}
+                ordersTypeDetailOptions={ordersTypeDetailOptions}
+                showOrdersAcknowledgement
+                setFieldValue={formik.setFieldValue}
+              />
+            </form>
+          );
+        }}
       </Formik>
     </div>
   );
@@ -162,15 +166,19 @@ export const FieldsHidden = (args) => {
           ntsSac: Yup.string().required('Required'),
         })}
       >
-        <form>
-          <OrdersDetailForm
-            deptIndicatorOptions={deptIndicatorOptions}
-            ordersTypeOptions={ordersTypeOptions}
-            ordersTypeDetailOptions={ordersTypeDetailOptions}
-            setFieldValue={Formik.setFieldValue}
-            {...args}
-          />
-        </form>
+        {(formik) => {
+          return (
+            <form>
+              <OrdersDetailForm
+                deptIndicatorOptions={deptIndicatorOptions}
+                ordersTypeOptions={ordersTypeOptions}
+                ordersTypeDetailOptions={ordersTypeDetailOptions}
+                setFieldValue={formik.setFieldValue}
+                {...args}
+              />
+            </form>
+          );
+        }}
       </Formik>
     </div>
   );
@@ -178,32 +186,72 @@ export const FieldsHidden = (args) => {
 
 export const Retiree = () => (
   <div style={{ width: '400px' }}>
-    <Formik>
-      <form>
-        <OrdersDetailForm
-          deptIndicatorOptions={deptIndicatorOptions}
-          ordersTypeOptions={ordersTypeOptions}
-          ordersTypeDetailOptions={ordersTypeDetailOptions}
-          ordersType="RETIREMENT"
-          setFieldValue={Formik.setFieldValue}
-        />
-      </form>
+    <Formik
+      initialValues={{
+        originDutyStation,
+        newDutyStation,
+        issueDate: '2020-03-08',
+        reportByDate: '2020-04-01',
+        departmentIndicator: 'NAVY_AND_MARINES',
+        ordersNumber: '999999999',
+        ordersType: 'RETIREMENT',
+        ordersTypeDetail: 'HHG_PERMITTED',
+        tac: 'Tac',
+        sac: 'Sac',
+        ntsTac: 'Tac',
+        ntsSac: 'Sac',
+        ordersAcknowledgement: true,
+      }}
+    >
+      {(formik) => {
+        return (
+          <form>
+            <OrdersDetailForm
+              deptIndicatorOptions={deptIndicatorOptions}
+              ordersTypeOptions={ordersTypeOptions}
+              ordersTypeDetailOptions={ordersTypeDetailOptions}
+              ordersType="RETIREMENT"
+              setFieldValue={formik.setFieldValue}
+            />
+          </form>
+        );
+      }}
     </Formik>
   </div>
 );
 
 export const Separatee = () => (
   <div style={{ width: '400px' }}>
-    <Formik>
-      <form>
-        <OrdersDetailForm
-          deptIndicatorOptions={deptIndicatorOptions}
-          ordersTypeOptions={ordersTypeOptions}
-          ordersTypeDetailOptions={ordersTypeDetailOptions}
-          ordersType="SEPARATION"
-          setFieldValue={Formik.setFieldValue}
-        />
-      </form>
+    <Formik
+      initialValues={{
+        originDutyStation,
+        newDutyStation,
+        issueDate: '2020-03-08',
+        reportByDate: '2020-04-01',
+        departmentIndicator: 'NAVY_AND_MARINES',
+        ordersNumber: '999999999',
+        ordersType: 'SEPARATION',
+        ordersTypeDetail: 'HHG_PERMITTED',
+        tac: 'Tac',
+        sac: 'Sac',
+        ntsTac: 'Tac',
+        ntsSac: 'Sac',
+        ordersAcknowledgement: true,
+      }}
+    >
+      {(formik) => {
+        return (
+          <form>
+            <OrdersDetailForm
+              deptIndicatorOptions={deptIndicatorOptions}
+              ordersTypeOptions={ordersTypeOptions}
+              ordersTypeDetailOptions={ordersTypeDetailOptions}
+              ordersType="SEPARATION"
+              setFieldValue={formik.setFieldValue}
+            />
+          </form>
+        );
+      }}
     </Formik>
   </div>
 );
