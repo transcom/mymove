@@ -56,7 +56,7 @@ CREATE TABLE archived_personally_procured_move_data (
     vehicle_nickname text,
     weight_ticket_set_move_document_id uuid REFERENCES move_documents,
     empty_weight INT,
-    empty_weight_ticket_mising bool,
+    empty_weight_ticket_missing bool,
     full_weight INT,
     full_weight_ticket_missing bool,
     weight_ticket_date timestamp,
@@ -95,16 +95,26 @@ CREATE INDEX ON archived_personally_procured_move_data (weight_ticket_set_move_d
 CREATE INDEX ON archived_personally_procured_move_data (moving_expense_document_id);
 CREATE INDEX ON archived_personally_procured_move_data (moving_expense_document_move_document_id);
 
-INSERT INTO archived_personally_procured_move_data (id, move_id, weight_estimate, created_at, updated_at, pickup_postal_code, additional_pickup_postal_code,
-destination_postal_code, days_in_storage, has_additional_postal_code, advance_id, has_requested_advance, advance_worksheet_id,
-estimated_storage_reimbursement, mileage, planned_sit_max, sit_max, status, incentive_estimate_max, incentive_estimate_min,
-net_weight, original_move_date, actual_move_date, total_sit_cost, submit_date, reviewed_date, approve_date,
-has_pro_gear, has_pro_gear_over_thousand, signed_certificate_id, submitting_user_id, signed_certificate_move_id,
-certification_text, signature, date, signed_certificate_created_at, signed_certificate_updated_at, certification_type,
-personally_procured_move_id, move_document_id, move_document_move_id, document_id, move_document_type, move_document_status, notes,
-move_document_updated_at, move_document_created_at, title, move_document_ppm_id, move_document_deleted_at,
-weight_ticket_set_document_id, weight_ticket_set_type, vehicle_nickname, weight_ticket_set_move_document_id, empty_weight,
-empty_weight_ticket_mising, full_weight, full_weight_ticket_missing, weight_ticket_date,
+INSERT INTO archived_personally_procured_move_data (id, move_id, weight_estimate, created_at, updated_at,
+pickup_postal_code, additional_pickup_postal_code,
+destination_postal_code, days_in_storage, has_additional_postal_code,
+advance_id, has_requested_advance, advance_worksheet_id,
+estimated_storage_reimbursement, mileage, planned_sit_max, sit_max, status,
+incentive_estimate_max, incentive_estimate_min,
+net_weight, original_move_date, actual_move_date,
+total_sit_cost, has_sit, submit_date, reviewed_date, approve_date,
+has_pro_gear, has_pro_gear_over_thousand,
+signed_certificate_id, submitting_user_id, signed_certificate_move_id,
+certification_text, signature, date, signed_certificate_created_at,
+signed_certificate_updated_at, certification_type,
+personally_procured_move_id,
+move_document_id, move_document_move_id, document_id,
+move_document_type, move_document_status, notes,
+move_document_updated_at, move_document_created_at,
+title, move_document_ppm_id, move_document_deleted_at,
+weight_ticket_set_document_id, weight_ticket_set_type, vehicle_nickname,
+weight_ticket_set_move_document_id, empty_weight,
+empty_weight_ticket_missing, full_weight, full_weight_ticket_missing, weight_ticket_date,
 weight_ticket_set_document_created_at, weight_ticket_set_document_updated_at, trailer_ownership_missing,
 weight_ticket_set_document_deleted_at, vehicle_make, vehicle_model,
 moving_expense_document_id, moving_expense_document_move_document_id, moving_expense_type,
@@ -112,27 +122,59 @@ moving_expense_document_created_at, moving_expense_document_updated_at, requeste
 payment_method, receipt_missing, storage_start_date, storage_end_date, moving_expense_document_deleted_at)
 
 
-SELECT personally_procured_moves.id, personally_procured_moves.move_id, personally_procured_moves.weight_estimate, personally_procured_moves.created_at, personally_procured_moves.updated_at, personally_procured_moves.pickup_postal_code, personally_procured_moves.additional_pickup_postal_code,
-personally_procured_moves.destination_postal_code, personally_procured_moves.days_in_storage, personally_procured_moves.has_additional_postal_code, personally_procured_moves.advance_id, personally_procured_moves.has_requested_advance, personally_procured_moves.advance_worksheet_id,
-personally_procured_moves.estimated_storage_reimbursement, personally_procured_moves.mileage, personally_procured_moves.planned_sit_max, personally_procured_moves.sit_max, personally_procured_moves.status, personally_procured_moves.incentive_estimate_max, personally_procured_moves.incentive_estimate_min,
-personally_procured_moves.net_weight, personally_procured_moves.original_move_date, personally_procured_moves.actual_move_date, personally_procured_moves.total_sit_cost, personally_procured_moves.submit_date, personally_procured_moves.reviewed_date, personally_procured_moves.approve_date,
-personally_procured_moves.has_pro_gear, personally_procured_moves.has_pro_gear_over_thousand,
-signed_certifications.id AS signed_certificate_id, signed_certifications.submitting_user_id, signed_certifications.move_id AS signed_certificate_move_id,
-signed_certifications.certification_text, signed_certifications.signature, signed_certifications.date, signed_certifications.created_at AS signed_certificate_created_at, signed_certifications.updated_at AS signed_certificate_updated_at, signed_certifications.certification_type,
-signed_certifications.personally_procured_move_id
-move_documents.id AS move_document_id, move_documents.move_id AS move_document_move_id, move_documents.document_id, move_documents.move_document_type, move_documents.move_document_status, move_documents.notes,
-move_documents.updated_at AS move_document_updated_at, move_documents.created_at AS move_document_created_at, move_documents.title, move_documents.move_document_ppm_id, move_documents.deleted_at AS move_document_deleted_at
-weight_ticket_set_documents.id AS weight_ticket_set_document_id, weight_ticket_set_documents.weight_ticket_set_type, weight_ticket_set_documents.vehicle_nickname, weight_ticket_set_documents.move_document_id AS weight_ticket_set_move_document_id, weight_ticket_set_documents.empty_weight,
-weight_ticket_set_documents.empty_weight_ticket_mising, weight_ticket_set_documents.full_weight, weight_ticket_set_documents.full_weight_ticket_missing, weight_ticket_set_documents.weight_ticket_date,
-weight_ticket_set_documents.created_at AS weight_ticket_set_document_created_at, weight_ticket_set_documents.updated_at AS weight_ticket_set_document_updated_at, weight_ticket_set_documents.trailer_ownership_missing,
-weight_ticket_set_documents.deleted_at AS weight_ticket_set_document_deleted_at, weight_ticket_set_documents.vehicle_make, weight_ticket_set_documents.vehicle_model
-moving_expense_documents.id AS moving_expense_document_id, moving_expense_documents.move_docuement_id AS moving_expense_document_move_document_id, moving_expense_documents.moving_expense_type,
-moving_expense_documents.created_at AS moving_expense_document_created_at, moving_expense_documents.updated_at AS moving_expense_document_updated_at, moving_expense_documents.requested_amount_cents,
-moving_expense_documents.payment_method, moving_expense_documents.receipt_missing, moving_expense_documents.storage_start_date, moving_expense_documents.storage_end_date,
-moving_expense_documents.deleted_at AS moving_expense_document_deleted_at
+SELECT ppm.id, ppm.move_id, ppm.weight_estimate,
+ppm.created_at, ppm.updated_at,
+ppm.pickup_postal_code,
+ppm.additional_pickup_postal_code,
+ppm.destination_postal_code, ppm.days_in_storage,
+ppm.has_additional_postal_code, ppm.advance_id,
+ppm.has_requested_advance, ppm.advance_worksheet_id,
+ppm.estimated_storage_reimbursement, ppm.mileage,
+ppm.planned_sit_max, ppm.sit_max,
+ppm.status,
+ppm.incentive_estimate_max,
+ppm.incentive_estimate_min,
+ppm.net_weight, ppm.original_move_date,
+ppm.actual_move_date, ppm.total_sit_cost,
+ppm.has_sit, ppm.submit_date,
+ppm.reviewed_date, ppm.approve_date,
+ppm.has_pro_gear, ppm.has_pro_gear_over_thousand,
+
+sc.id AS signed_certificate_id, sc.submitting_user_id,
+sc.move_id AS signed_certificate_move_id,
+sc.certification_text, sc.signature, sc.date,
+sc.created_at AS signed_certificate_created_at,
+sc.updated_at AS signed_certificate_updated_at, sc.certification_type,
+sc.personally_procured_move_id,
+
+md.id AS move_document_id, md.move_id AS move_document_move_id,
+md.document_id, md.move_document_type, md.status AS move_document_status, md.notes,
+md.updated_at AS move_document_updated_at, md.created_at AS move_document_created_at,
+md.title, md.personally_procured_move_id AS move_document_ppm_id,
+md.deleted_at AS move_document_deleted_at,
+
+wtsd.id AS weight_ticket_set_document_id, wtsd.weight_ticket_set_type,
+wtsd.vehicle_nickname, wtsd.move_document_id AS weight_ticket_set_move_document_id,
+wtsd.empty_weight,
+wtsd.empty_weight_ticket_missing, wtsd.full_weight,
+wtsd.full_weight_ticket_missing, wtsd.weight_ticket_date,
+wtsd.created_at AS weight_ticket_set_document_created_at,
+wtsd.updated_at AS weight_ticket_set_document_updated_at, wtsd.trailer_ownership_missing,
+wtsd.deleted_at AS weight_ticket_set_document_deleted_at,
+wtsd.vehicle_make, wtsd.vehicle_model,
+
+med.id AS moving_expense_document_id,
+med.move_document_id AS moving_expense_document_move_document_id,
+med.moving_expense_type,
+med.created_at AS moving_expense_document_created_at,
+med.updated_at AS moving_expense_document_updated_at,
+med.requested_amount_cents,
+med.payment_method, med.receipt_missing,
+med.storage_start_date, med.storage_end_date,
+med.deleted_at AS moving_expense_document_deleted_at
 
 FROM personally_procured_moves ppm
-INNER JOIN signed_certifications sc ON sc.personally_procured_move_id = ppm.id
-INNER JOIN move_documents md ON md.personally_procured_move_id = ppm.id
-INNER JOIN moving_expense_documents med ON med.move_document_id = md.id
-INNER JOIN weight_ticket_set_documents wtsd ON wtsd.move_document_id = md.id;
+FULL OUTER JOIN signed_certifications sc ON sc.personally_procured_move_id = ppm.id
+FULL OUTER JOIN move_documents md ON md.personally_procured_move_id = ppm.id
+FULL OUTER JOIN weight_ticket_set_documents wtsd ON wtsd.move_document_id = md.id
+FULL OUTER JOIN moving_expense_documents med ON med.move_document_id = md.id;
