@@ -221,7 +221,7 @@ func createPPMWithAdvance(appCtx appcontext.AppContext, userUploader *uploader.U
 		},
 		UserUploader: userUploader,
 	})
-	testdatagen.MakeMoveDocument(db, testdatagen.Assertions{
+	moveDoc := testdatagen.MakeMoveDocument(db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID:                   ppm0.Move.ID,
 			Move:                     ppm0.Move,
@@ -231,6 +231,26 @@ func createPPMWithAdvance(appCtx appcontext.AppContext, userUploader *uploader.U
 			ID:              uuid.FromStringOrNil("c26421b0-e4c3-446b-88f3-493bb25c1756"),
 			ServiceMemberID: ppm0.Move.Orders.ServiceMember.ID,
 			ServiceMember:   ppm0.Move.Orders.ServiceMember,
+		},
+	})
+	testdatagen.MakeMovingExpenseDocument(db, testdatagen.Assertions{
+		MovingExpenseDocument: models.MovingExpenseDocument{
+			MoveDocument: models.MoveDocument{
+				ID: moveDoc.ID,
+			},
+		},
+	})
+	testdatagen.MakeWeightTicketSetDocument(db, testdatagen.Assertions{
+		WeightTicketSetDocument: models.WeightTicketSetDocument{
+			MoveDocument: moveDoc,
+		},
+	})
+	testdatagen.MakeSignedCertification(db, testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: ppm0.MoveID,
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			ID: ppm0.ID,
 		},
 	})
 	err := moveRouter.Submit(appCtx, &ppm0.Move)
