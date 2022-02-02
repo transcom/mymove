@@ -182,8 +182,13 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 		order.ReportByDate = time.Time(*payload.ReportByDate)
 	}
 
-	if payload.Sac != nil {
-		order.SAC = payload.Sac
+	if payload.Sac.Present {
+		if payload.Sac.Value != nil && *payload.Sac.Value == "" {
+			order.SAC = nil
+		} else {
+			order.SAC = payload.Sac.Value
+		}
+
 	}
 
 	if payload.Tac != nil {
@@ -191,13 +196,21 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 		order.TAC = &normalizedTac
 	}
 
-	if payload.NtsSac != nil {
-		order.NtsSAC = payload.NtsSac
+	if payload.NtsSac.Present {
+		if payload.NtsSac.Value != nil && *payload.NtsSac.Value == "" {
+			order.NtsSAC = nil
+		} else {
+			order.NtsSAC = payload.NtsSac.Value
+		}
 	}
 
-	if payload.NtsTac != nil {
-		normalizedNtsTac := strings.ToUpper(*payload.NtsTac)
-		order.NtsTAC = &normalizedNtsTac
+	if payload.NtsTac.Present {
+		if payload.NtsTac.Value != nil && *payload.NtsTac.Value != "" {
+			normalizedNtsTac := strings.ToUpper(*payload.NtsTac.Value)
+			order.NtsTAC = &normalizedNtsTac
+		} else {
+			order.NtsTAC = nil
+		}
 	}
 
 	if payload.OrdersType != nil {
@@ -286,8 +299,12 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
 	}
 
-	if payload.Sac != nil {
-		order.SAC = payload.Sac
+	if payload.Sac.Present {
+		if payload.Sac.Value != nil && *payload.Sac.Value == "" {
+			order.SAC = nil
+		} else {
+			order.SAC = payload.Sac.Value
+		}
 	}
 
 	if payload.Tac != nil {
@@ -295,13 +312,21 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.TAC = &normalizedTac
 	}
 
-	if payload.NtsSac != nil {
-		order.NtsSAC = payload.NtsSac
+	if payload.NtsSac.Present {
+		if payload.NtsSac.Value != nil && *payload.NtsSac.Value == "" {
+			order.NtsSAC = nil
+		} else {
+			order.NtsSAC = payload.NtsSac.Value
+		}
 	}
 
-	if payload.NtsTac != nil {
-		normalizedNtsTac := strings.ToUpper(*payload.NtsTac)
-		order.NtsTAC = &normalizedNtsTac
+	if payload.NtsTac.Present {
+		if payload.NtsTac.Value != nil && *payload.NtsTac.Value != "" {
+			normalizedNtsTac := strings.ToUpper(*payload.NtsTac.Value)
+			order.NtsTAC = &normalizedNtsTac
+		} else {
+			order.NtsTAC = nil
+		}
 	}
 
 	return order

@@ -2625,22 +2625,19 @@ definitions:
         example: F8J1
         x-nullable: true
       sac:
-        type: string
         title: HHG SAC
         example: N002214CSW32Y9
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       ntsTac:
-        type: string
         title: NTS TAC
         minLength: 4
         maxLength: 4
         example: F8J1
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       ntsSac:
-        type: string
         title: NTS SAC
         example: N002214CSW32Y9
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
     required:
       - issueDate
       - reportByDate
@@ -2687,22 +2684,19 @@ definitions:
         example: F8J1
         x-nullable: true
       sac:
-        type: string
         title: HHG SAC
         example: N002214CSW32Y9
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       ntsTac:
-        type: string
         title: NTS TAC
         minLength: 4
         maxLength: 4
         example: F8J1
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       ntsSac:
-        type: string
         title: NTS SAC
         example: N002214CSW32Y9
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
         x-nullable: true
@@ -4208,6 +4202,12 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+  NullableString:
+    type: string
+    x-go-type:
+      import:
+        package: github.com/transcom/mymove/pkg/swagger/nullable
+      type: String
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
