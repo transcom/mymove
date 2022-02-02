@@ -64,8 +64,13 @@ BEGIN
         RAISE EXCEPTION 'if_modified_func() may only run as an AFTER trigger';
     END IF;
 
-	_user_id := current_setting('audit.current_user_id', true);
 	_event_name := current_setting('audit.current_event_name', true);
+
+	BEGIN
+		_user_id := current_setting('audit.current_user_id', true)::uuid;
+		EXCEPTION WHEN OTHERS THEN
+		_user_id := NULL;
+	END;
 
     audit_row = ROW(
         nextval('audit_history_id_seq'),              -- id
