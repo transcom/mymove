@@ -119,8 +119,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
 		"MTOAgents",
-		"StorageFacility",
-		"NTSRecordedWeight").Find(&dbShipment, params.MtoShipmentID)
+		"StorageFacility").Find(&dbShipment, params.MtoShipmentID)
 	if err != nil {
 		return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
@@ -217,9 +216,19 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(appCtx appcontext
 
 	switch dbShipment.ShipmentType {
 	case models.MTOShipmentTypeHHGIntoNTSDom:
+		if dbShipment.StorageFacility == nil {
+			// latestDestinationAddress is only used for calculating RDD.
+			// We don't want to block an update because we're missing info to calculate RDD
+			break
+		}
 		latestPickupAddress = dbShipment.PickupAddress
 		latestDestinationAddress = &dbShipment.StorageFacility.Address
 	case models.MTOShipmentTypeHHGOutOfNTSDom:
+		if dbShipment.StorageFacility == nil {
+			// latestPickupAddress is only used for calculating RDD.
+			// We don't want to block an update because we're missing info to calculate RDD
+			break
+		}
 		latestPickupAddress = &dbShipment.StorageFacility.Address
 		latestDestinationAddress = dbShipment.DestinationAddress
 	default:
@@ -247,7 +256,8 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(appCtx appcontext
 	}
 
 	// If we have all the data, calculate RDD
-	if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || dbShipment.NTSRecordedWeight != nil) && latestPickupAddress != nil && latestDestinationAddress != nil {
+	if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || (dbShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
+		dbShipment.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil {
 		weight := latestEstimatedWeight
 		if dbShipment.NTSRecordedWeight != nil {
 			weight = dbShipment.NTSRecordedWeight
