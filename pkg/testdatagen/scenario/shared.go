@@ -244,7 +244,8 @@ func createPPMWithAdvance(appCtx appcontext.AppContext, userUploader *uploader.U
 	})
 	testdatagen.MakeMovingExpenseDocument(db, testdatagen.Assertions{
 		MovingExpenseDocument: models.MovingExpenseDocument{
-			MoveDocument: moveDoc,
+			MoveDocument:   moveDoc,
+			MoveDocumentID: moveDoc.ID,
 		},
 	})
 	testdatagen.MakeWeightTicketSetDocument(db, testdatagen.Assertions{
