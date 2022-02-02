@@ -1,3 +1,4 @@
+-- POP RAW MIGRATION --
 -- audit history table
 -- inspired by
 -- https://github.com/2ndQuadrant/audit-trigger/blob/master/audit.sql
