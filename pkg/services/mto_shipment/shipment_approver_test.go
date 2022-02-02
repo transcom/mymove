@@ -382,8 +382,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		// is present, therefore we need to use MakeMTOShipmentMinimal and add the Pickup and Destination addresses
 		estimatedWeight := unit.Pound(1400)
 
-		destinationAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
-		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		destinationAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
+		pickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
 
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -428,30 +428,29 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		})
 
-		testCases := []struct {
-			shipment models.MTOShipment
-		}{
-			{hhgShipment},
-			{ntsShipment},
-			{ntsrShipment},
+		testCases := []models.MTOShipment{
+			hhgShipment,
+			ntsShipment,
+			ntsrShipment,
 		}
 
 		for _, testCase := range testCases {
 			createdShipment := models.MTOShipment{}
-			err := suite.DB().Find(&createdShipment, testCase.shipment.ID)
+			err := suite.DB().Find(&createdShipment, testCase.ID)
 			suite.FatalNoError(err)
 			err = suite.DB().Load(&createdShipment)
 			suite.FatalNoError(err)
 
-			shipmentEtag := etag.GenerateEtag(testCase.shipment.UpdatedAt)
-			_, err = approver.ApproveShipment(appCtx, testCase.shipment.ID, shipmentEtag)
+			shipmentEtag := etag.GenerateEtag(testCase.UpdatedAt)
+			_, err = approver.ApproveShipment(appCtx, testCase.ID, shipmentEtag)
 			suite.NoError(err)
 
 			fetchedShipment := models.MTOShipment{}
-			err = suite.DB().Find(&fetchedShipment, testCase.shipment.ID)
+			err = suite.DB().Find(&fetchedShipment, testCase.ID)
 			suite.NoError(err)
 			// We also should have a required delivery date
 			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
+			// TODO: check that TransitDistance is called with the correct parameters
 		}
 	})
 }
