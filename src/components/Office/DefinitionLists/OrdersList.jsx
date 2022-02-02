@@ -8,6 +8,7 @@ import { OrdersInfoShape } from 'types/order';
 import { formatDate } from 'shared/dates';
 import { departmentIndicatorReadable, ordersTypeReadable, ordersTypeDetailReadable } from 'shared/formatters';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import { formatLabelReportByDate } from 'utils/formatters';
 
 const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
   const { ordersType } = ordersInfo;
@@ -15,22 +16,7 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
   const isSeparatee = ordersType === 'SEPARATION';
   const missingText = showMissingWarnings ? 'Missing' : '—';
 
-  /**
-   * Depending on the order type, this row dt label can be either:
-   * Report by date (PERMANENT_CHANGE_OF_STATION)
-   * Date of retirement (RETIREMENT)
-   * Date of separation (SEPARATION)
-   */
-  const reportDateRowLabel = ((type) => {
-    switch (type) {
-      case 'RETIREMENT':
-        return 'Date of retirement';
-      case 'SEPARATION':
-        return 'Date of separation';
-      default:
-        return 'Report by date';
-    }
-  })(ordersType);
+  const reportDateRowLabel = formatLabelReportByDate(ordersType);
 
   return (
     <div className={styles.OfficeDefinitionLists}>

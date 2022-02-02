@@ -5,8 +5,8 @@ import { render, screen } from '@testing-library/react';
 
 import ShipmentList from '.';
 
-import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { formatWeight } from 'utils/formatters';
 
 describe('ShipmentList component', () => {
   const shipments = [

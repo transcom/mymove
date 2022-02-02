@@ -45,12 +45,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 
 		now := time.Now()
 		hide := false
+		availableToPrimeMove := testdatagen.MakeAvailableMove(appCtx.DB())
 		primeShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+			Move: availableToPrimeMove,
+		})
+		nonPrimeShipment := testdatagen.MakeDefaultMTOShipmentMinimal(appCtx.DB())
+		externalShipment := testdatagen.MakeMTOShipmentMinimal(appCtx.DB(), testdatagen.Assertions{
+			Move: availableToPrimeMove,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
 			},
 		})
-		nonPrimeShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		hiddenPrimeShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				AvailableToPrimeAt: &now,
@@ -75,6 +81,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 					suite.Require().Error(err)
 					suite.IsType(apperror.NotFoundError{}, err)
 					suite.Contains(err.Error(), nonPrimeShipment.ID.String())
+				},
+			},
+			"external vendor": {
+				externalShipment.ID,
+				func(err error) {
+					suite.Require().Error(err)
+					suite.IsType(apperror.NotFoundError{}, err)
+					suite.Contains(err.Error(), externalShipment.ID.String())
 				},
 			},
 			"disabled move": {

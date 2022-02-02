@@ -40,6 +40,10 @@ const validationSchema = Yup.object({
     .min(0, 'RME weight must be greater than or equal to 0')
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
+  storageInTransit: Yup.number()
+    .min(0, 'Storage in transit (days) must be greater than or equal to 0')
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .notRequired(),
 });
 
 const ServicesCounselingMoveAllowances = () => {
@@ -83,6 +87,7 @@ const ServicesCounselingMoveAllowances = () => {
       proGearWeightSpouse,
       requiredMedicalEquipmentWeight,
       organizationalClothingAndIndividualEquipment,
+      storageInTransit,
     } = values;
     const body = {
       issueDate: order.date_issued,
@@ -97,6 +102,7 @@ const ServicesCounselingMoveAllowances = () => {
       proGearWeight: Number(proGearWeight),
       proGearWeightSpouse: Number(proGearWeightSpouse),
       requiredMedicalEquipmentWeight: Number(requiredMedicalEquipmentWeight),
+      storageInTransit: Number(storageInTransit),
       organizationalClothingAndIndividualEquipment,
     };
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
@@ -109,6 +115,7 @@ const ServicesCounselingMoveAllowances = () => {
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
+    storageInTransit,
   } = entitlement;
 
   const initialValues = {
@@ -118,6 +125,7 @@ const ServicesCounselingMoveAllowances = () => {
     proGearWeight: `${proGearWeight}`,
     proGearWeightSpouse: `${proGearWeightSpouse}`,
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
+    storageInTransit: `${storageInTransit}`,
     organizationalClothingAndIndividualEquipment,
   };
 

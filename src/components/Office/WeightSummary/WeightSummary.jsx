@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './WeightSummary.module.scss';
 
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 
 const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, totalBillableWeight, shipments }) => {

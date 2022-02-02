@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './Office.module.scss';
-import '../../../node_modules/uswds/dist/css/uswds.css';
+import 'uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
@@ -175,7 +175,7 @@ export class OfficeApp extends Component {
             <FOUOHeader />
             {selectedRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {!hideHeaderPPM && <>{userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}</>}
+            {!hideHeaderPPM && userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
               {hasRecentError && history.location.pathname === '/' && (

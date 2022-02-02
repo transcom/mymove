@@ -8,7 +8,7 @@ import styles from './EditBillableWeight.module.scss';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 
 function BillableWeightHintText({
   billableWeight,

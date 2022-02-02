@@ -125,8 +125,18 @@ const order = {
   ntsSac: '345',
 };
 
-export const Default = () => (
-  <div className="officeApp">
-    <ShipmentDetails shipment={shipment} order={order} />
-  </div>
-);
+export const Default = () => {
+  const [modifiedShipment, setModifiedShipment] = React.useState(shipment);
+  const handleEditSon = (values) => {
+    setModifiedShipment({
+      ...shipment,
+      serviceOrderNumber: values.serviceOrderNumber,
+    });
+  };
+
+  return (
+    <div className="officeApp">
+      <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
+    </div>
+  );
+};

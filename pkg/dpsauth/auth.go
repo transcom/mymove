@@ -3,7 +3,7 @@ package dpsauth
 import (
 	"net/http"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -17,7 +17,7 @@ const SetCookiePath = "/dps_auth/set_cookie"
 
 // Claims contains information passed to the endpoint that sets the DPS auth cookie
 type Claims struct {
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 	CookieName     string
 	DPSRedirectURL string
 }
@@ -48,7 +48,7 @@ func (h SetCookieHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := LoginGovIDToCookie(claims.StandardClaims.Subject, h.cookieSecret, h.cookieExpires)
+	cookie, err := LoginGovIDToCookie(claims.RegisteredClaims.Subject, h.cookieSecret, h.cookieExpires)
 	if err != nil {
 		logger.Error("Converting user ID to cookie value", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
