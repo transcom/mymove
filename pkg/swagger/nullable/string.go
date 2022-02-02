@@ -82,7 +82,15 @@ func (s *String) Validate(formats strfmt.Registry) error {
 		// you could use the validate functions with hardcoded values. I don't think we can store
 		// the validation constants in a shared lib (to make it generic) because we don't know which fieldname
 		// is being used here
-		if err := validate.MaxLength("value", "body", *s.Value, 4); err != nil {
+
+		// Tested this call out with maxLength: 2 and got he following errors:
+		// Error:      	Received unexpected error:
+		//	            validation failure list:
+		//	            ntsSac.value in body should be at most 2 chars long
+		//	            ntsTac.value in body should be at most 2 chars long
+		//	            sac.value in body should be at most 2 chars long
+
+		if err := validate.MaxLength("value", "body", *s.Value, 10); err != nil {
 			return err
 		}
 	}
