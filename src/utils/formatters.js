@@ -103,3 +103,19 @@ export const formatDelimitedNumber = (number) => {
   const numberString = number.toString();
   return Number(numberString.replace(/,/g, ''));
 };
+/**
+ * Depending on the order type, this will return:
+ * Report by date (PERMANENT_CHANGE_OF_STATION)
+ * Date of retirement (RETIREMENT)
+ * Date of separation (SEPARATION)
+ */
+export const formatLabelReportByDate = (orderType) => {
+  switch (orderType) {
+    case 'RETIREMENT':
+      return 'Date of retirement';
+    case 'SEPARATION':
+      return 'Date of separation';
+    default:
+      return 'Report by date';
+  }
+};

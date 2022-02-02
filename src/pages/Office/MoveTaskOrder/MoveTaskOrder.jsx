@@ -404,6 +404,15 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     });
   };
 
+  const handleEditServiceOrderNumber = (fields, shipment) => {
+    mutateMTOShipment({
+      moveTaskOrderID: shipment.moveTaskOrderID,
+      shipmentID: shipment.id,
+      ifMatchETag: shipment.eTag,
+      body: { serviceOrderNumber: fields.serviceOrderNumber },
+    });
+  };
+
   const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, mtoShipmentID, status, rejectionReason) => {
     const mtoServiceItemForRequest = shipmentServiceItems[`${mtoShipmentID}`]?.find((s) => s.id === mtoServiceItemID);
 
@@ -743,6 +752,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
                   handleEditFacilityInfo={handleEditFacilityInfo}
+                  handleEditServiceOrderNumber={handleEditServiceOrderNumber}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
