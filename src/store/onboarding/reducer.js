@@ -5,7 +5,7 @@ export const initialState = {
   ppmEstimateError: null,
 };
 
-const onboardingReducer = (state = initialState, action) => {
+const onboardingReducer = (state = initialState, action = {}) => {
   switch (action?.type) {
     case SET_CONUS_STATUS: {
       const { moveType } = action;

@@ -545,7 +545,7 @@ const totalAmountRequested = (totalAmount) => {
   return calculation(value, label, formatDetail(detail));
 };
 
-const makeCalculations = (itemCode, totalAmount, params, mtoParams) => {
+export default function makeCalculations(itemCode, totalAmount, params, mtoParams) {
   let result = [];
 
   switch (itemCode) {
@@ -734,6 +734,6 @@ const makeCalculations = (itemCode, totalAmount, params, mtoParams) => {
       break;
   }
   return result;
-};
+}
 
-export { makeCalculations as default, makeCalculations };
+export { makeCalculations };
