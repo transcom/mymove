@@ -372,8 +372,8 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
 	}
 
-	if payload.SitAllowance != nil {
-		newSITAllowance := int(*payload.SitAllowance)
+	if payload.StorageInTransit != nil {
+		newSITAllowance := int(*payload.StorageInTransit)
 		order.Entitlement.StorageInTransit = &newSITAllowance
 	}
 
@@ -415,8 +415,8 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
 	}
 
-	if payload.SitAllowance != nil {
-		newSITAllowance := int(*payload.SitAllowance)
+	if payload.StorageInTransit != nil {
+		newSITAllowance := int(*payload.StorageInTransit)
 		order.Entitlement.StorageInTransit = &newSITAllowance
 	}
 

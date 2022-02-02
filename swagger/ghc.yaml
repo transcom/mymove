@@ -2756,7 +2756,7 @@ definitions:
         description: only for Army
         type: boolean
         x-nullable: true
-      sitAllowance:
+      storageInTransit:
         description: >-
           the number of storage in transit days that the customer is entitled to
           for a given shipment on their move
@@ -2828,7 +2828,7 @@ definitions:
         description: only for Army
         type: boolean
         x-nullable: true
-      sitAllowance:
+      storageInTransit:
         description: >-
           the number of storage in transit days that the customer is entitled to
           for a given shipment on their move
