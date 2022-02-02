@@ -125,6 +125,14 @@ const order = {
   ntsSac: '345',
 };
 
+const props = {
+  match: {
+    params: {
+      moveCode: 'A1B2C3',
+    },
+  },
+};
+
 export const Default = () => {
   const [modifiedShipment, setModifiedShipment] = React.useState(shipment);
   const handleEditSon = (values) => {
@@ -136,7 +144,12 @@ export const Default = () => {
 
   return (
     <div className="officeApp">
-      <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
+      <ShipmentDetails
+        {...props}
+        shipment={modifiedShipment}
+        order={order}
+        handleEditServiceOrderNumber={handleEditSon}
+      />
     </div>
   );
 };
