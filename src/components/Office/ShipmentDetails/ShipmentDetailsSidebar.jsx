@@ -161,19 +161,19 @@ const ShipmentDetailsSidebar = ({
         <SimpleSection
           key="accounting-codes"
           header={
-            <>
+            <div className={styles.ShipmentDetailsSidebar}>
               Accounting codes
               <Button
                 size="small"
                 type="button"
                 onClick={handleShowAccountingCodesModal}
-                className="float-right usa-link padding-right-0"
+                className="float-right usa-link modal-link"
                 data-testid="edit-accounting-code-modal-open"
                 unstyled
               >
                 Edit
               </Button>
-            </>
+            </div>
           }
           border
         >
