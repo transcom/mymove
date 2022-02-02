@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 )
 
 // UpdateOrderPayload update order payload
@@ -38,13 +39,11 @@ type UpdateOrderPayload struct {
 
 	// NTS SAC
 	// Example: N002214CSW32Y9
-	NtsSac *string `json:"ntsSac,omitempty"`
+	NtsSac nullable.String `json:"ntsSac,omitempty"`
 
 	// NTS TAC
 	// Example: F8J1
-	// Max Length: 4
-	// Min Length: 4
-	NtsTac *string `json:"ntsTac,omitempty"`
+	NtsTac nullable.String `json:"ntsTac,omitempty"`
 
 	// Confirmation that the new amended orders were reviewed after previously approving the original orders
 	OrdersAcknowledgement *bool `json:"ordersAcknowledgement,omitempty"`
@@ -76,7 +75,7 @@ type UpdateOrderPayload struct {
 
 	// HHG SAC
 	// Example: N002214CSW32Y9
-	Sac *string `json:"sac,omitempty"`
+	Sac nullable.String `json:"sac,omitempty"`
 
 	// HHG TAC
 	// Example: F8J1
@@ -101,6 +100,10 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateNtsSac(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateNtsTac(formats); err != nil {
 		res = append(res, err)
 	}
@@ -118,6 +121,10 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -176,16 +183,34 @@ func (m *UpdateOrderPayload) validateNewDutyStationID(formats strfmt.Registry) e
 	return nil
 }
 
+func (m *UpdateOrderPayload) validateNtsSac(formats strfmt.Registry) error {
+	if swag.IsZero(m.NtsSac) { // not required
+		return nil
+	}
+
+	if err := m.NtsSac.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ntsSac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ntsSac")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdateOrderPayload) validateNtsTac(formats strfmt.Registry) error {
 	if swag.IsZero(m.NtsTac) { // not required
 		return nil
 	}
 
-	if err := validate.MinLength("ntsTac", "body", *m.NtsTac, 4); err != nil {
-		return err
-	}
-
-	if err := validate.MaxLength("ntsTac", "body", *m.NtsTac, 4); err != nil {
+	if err := m.NtsTac.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ntsTac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ntsTac")
+		}
 		return err
 	}
 
@@ -261,6 +286,23 @@ func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error
 	return nil
 }
 
+func (m *UpdateOrderPayload) validateSac(formats strfmt.Registry) error {
+	if swag.IsZero(m.Sac) { // not required
+		return nil
+	}
+
+	if err := m.Sac.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sac")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdateOrderPayload) validateTac(formats strfmt.Registry) error {
 	if swag.IsZero(m.Tac) { // not required
 		return nil
@@ -285,11 +327,23 @@ func (m *UpdateOrderPayload) ContextValidate(ctx context.Context, formats strfmt
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateNtsSac(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNtsTac(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateOrdersType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateOrdersTypeDetail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSac(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -310,6 +364,34 @@ func (m *UpdateOrderPayload) contextValidateDepartmentIndicator(ctx context.Cont
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) contextValidateNtsSac(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.NtsSac.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ntsSac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ntsSac")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) contextValidateNtsTac(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.NtsTac.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ntsTac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ntsTac")
+		}
+		return err
 	}
 
 	return nil
@@ -342,6 +424,20 @@ func (m *UpdateOrderPayload) contextValidateOrdersTypeDetail(ctx context.Context
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) contextValidateSac(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Sac.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sac")
+		}
+		return err
 	}
 
 	return nil

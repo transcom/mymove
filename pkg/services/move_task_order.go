@@ -61,9 +61,10 @@ type MoveTaskOrderChecker interface {
 // MoveTaskOrderFetcherParams is a public struct that's used to pass filter arguments to
 // ListAllMoveTaskOrders, and FetchMoveTaskOrder queries
 type MoveTaskOrderFetcherParams struct {
-	IsAvailableToPrime bool       // indicates if all MTOs returned must be Prime-available
-	IncludeHidden      bool       // indicates if hidden/disabled MTOs should be included in the output
-	Since              *time.Time // if filled, only MTOs that have been updated after this timestamp will be returned
-	MoveTaskOrderID    uuid.UUID  // ID of the move task order
-	Locator            string     // the locator is a unique string that identifies the move
+	IsAvailableToPrime       bool       // indicates if all MTOs returned must be Prime-available
+	IncludeHidden            bool       // indicates if hidden/disabled MTOs should be included in the output
+	Since                    *time.Time // if filled, only MTOs that have been updated after this timestamp will be returned
+	MoveTaskOrderID          uuid.UUID  // ID of the move task order
+	Locator                  string     // the locator is a unique string that identifies the move
+	ExcludeExternalShipments bool       // indicates if external vendor shipments should be returned
 }

@@ -3,7 +3,8 @@ import { render, screen } from '@testing-library/react';
 
 import ShipmentCard from './ShipmentCard';
 
-import { formatWeight, formatAddressShort, formatDateFromIso } from 'shared/formatters';
+import { formatAddressShort, formatDateFromIso } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 
 const tomorrow = new Date();
 tomorrow.setDate(tomorrow.getDate() + 1);

@@ -206,9 +206,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		aw := int64(*entitlement.AuthorizedWeight())
 		authorizedWeight = &aw
 	}
-	var sit int64
+	var sit *int64
 	if entitlement.StorageInTransit != nil {
-		sit = int64(*entitlement.StorageInTransit)
+		sitValue := int64(*entitlement.StorageInTransit)
+		sit = &sitValue
 	}
 	var totalDependents int64
 	if entitlement.TotalDependents != nil {
@@ -223,7 +224,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
-		StorageInTransit:               &sit,
+		StorageInTransit:               sit,
 		TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
@@ -426,6 +427,18 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
+	}
+
+	if sitStatusPayload != nil {
+		// If we have a sitStatusPayload, overwrite SitDaysAllowance from the shipment model.
+		totalSITAllowance := 0
+		if sitStatusPayload.TotalDaysRemaining != nil {
+			totalSITAllowance += int(*sitStatusPayload.TotalDaysRemaining)
+		}
+		if sitStatusPayload.TotalSITDaysUsed != nil {
+			totalSITAllowance += int(*sitStatusPayload.TotalSITDaysUsed)
+		}
+		payload.SitDaysAllowance = handlers.FmtIntPtrToInt64(&totalSITAllowance)
 	}
 
 	if mtoShipment.SITExtensions != nil && len(mtoShipment.SITExtensions) > 0 {

@@ -1,0 +1,5 @@
+type: string
+x-go-type:
+  import:
+    package: github.com/transcom/mymove/pkg/swagger/nullable
+  type: String

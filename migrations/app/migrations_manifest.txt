@@ -696,4 +696,5 @@
 20220107193037_add_destination_address_type_to_shipments.up.sql
 20220112013152_update_duty_locations.up.sql
 20220113172826_create_new_duty_locations.up.sql
+20220126235958_remove_cac_access_carterjones_monfresh_ronolibert_and_shkeating.up.sql
 20220127234422_create_ppm_shipment_table.up.sql
