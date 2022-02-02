@@ -440,7 +440,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			UserID:             user.ID,
 			RequiresAccessCode: h.Context.GetFeatureFlag(cli.FeatureFlagAccessCode),
 		}
-		smVerrs, smErr := models.SaveServiceMember(appCtx.DB(), &newServiceMember)
+		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)

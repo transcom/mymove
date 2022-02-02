@@ -9,6 +9,7 @@ import (
 	"github.com/trussworks/otelhttp"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 
+	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/logging"
 )
 
@@ -32,8 +33,14 @@ func OpenAPITracing(api OpenAPIWithContext) func(next http.Handler) http.Handler
 					labeler.Add(semconv.HTTPTargetKey.String(matchedRoute.PathPattern))
 					sdktrace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRouteKey.String(matchedRoute.PathPattern))
 				}
+
+				// save the swagger operationId
+				eventNameCtx := r.WithContext(audit.WithEventName(r.Context(),
+					matchedRoute.Operation.ID))
+				next.ServeHTTP(w, eventNameCtx)
+			} else {
+				next.ServeHTTP(w, r)
 			}
-			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(mw)
 	}
