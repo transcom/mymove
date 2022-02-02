@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"database/sql"
 
+	"github.com/pkg/errors"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -85,7 +87,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 
 func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress", "StorageFacility", "PrimeEstimatedWeight", "NTSRecordedWeight").Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress", "StorageFacility").Find(&shipment, shipmentID)
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
 	// cannot eager load the address as "StorageFacility.Address" because
@@ -109,7 +111,8 @@ func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID
 func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
-		(shipment.PrimeEstimatedWeight != nil || shipment.NTSRecordedWeight != nil) {
+		(shipment.PrimeEstimatedWeight != nil || (shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
+			shipment.NTSRecordedWeight != nil)) {
 
 		var pickupLocation *models.Address
 		var deliveryLocation *models.Address
@@ -117,10 +120,16 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 
 		switch shipment.ShipmentType {
 		case models.MTOShipmentTypeHHGIntoNTSDom:
+			if shipment.StorageFacility == nil {
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTSDom)
+			}
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = &shipment.StorageFacility.Address
 			weight = shipment.PrimeEstimatedWeight.Int()
 		case models.MTOShipmentTypeHHGOutOfNTSDom:
+			if shipment.StorageFacility == nil {
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTSDom)
+			}
 			pickupLocation = &shipment.StorageFacility.Address
 			deliveryLocation = shipment.DestinationAddress
 			weight = shipment.NTSRecordedWeight.Int()
