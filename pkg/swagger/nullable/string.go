@@ -79,9 +79,9 @@ func (s *String) Validate(formats strfmt.Registry) error {
 
 		// This seems like it would give us what we want, but you'd have to create new
 		// NullableString types like NullableStringTAC and NullableStringSAC and then
-		// you could use the validate functions hardcoded. I don't think we store
-		// the validation constants in a shared lib because we don't know which fieldname
-		// is being updated
+		// you could use the validate functions with hardcoded values. I don't think we can store
+		// the validation constants in a shared lib (to make it generic) because we don't know which fieldname
+		// is being used here
 		if err := validate.MaxLength("value", "body", *s.Value, 4); err != nil {
 			return err
 		}
