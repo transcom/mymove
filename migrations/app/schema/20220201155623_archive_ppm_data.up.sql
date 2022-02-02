@@ -1,10 +1,10 @@
-CREATE TABLE archived_personally_procured_move_data (
+CREATE TABLE archived_personally_procured_moves (
     id uuid PRIMARY KEY,
     move_id uuid REFERENCES moves,
 	FOREIGN KEY (move_id) REFERENCES moves (id) ON DELETE CASCADE,
-    weight_estimate INT NULL,
-	created_at timestamp without time zone NOT NULL,
-	updated_at timestamp without time zone NOT NULL,
+    weight_estimate INT,
+	created_at timestamp without time zone,
+	updated_at timestamp without time zone,
     pickup_postal_code varchar(255),
     additional_pickup_postal_code varchar(255),
     destination_postal_code varchar(255),
@@ -79,23 +79,25 @@ CREATE TABLE archived_personally_procured_move_data (
     storage_end_date timestamp
 );
 
-CREATE INDEX ON archived_personally_procured_move_data (move_id);
-CREATE INDEX ON archived_personally_procured_move_data (advance_id);
-CREATE INDEX ON archived_personally_procured_move_data (advance_worksheet_id);
-CREATE INDEX ON archived_personally_procured_move_data (move_document_id);
-CREATE INDEX ON archived_personally_procured_move_data (move_document_move_id);
-CREATE INDEX ON archived_personally_procured_move_data (document_id);
-CREATE INDEX ON archived_personally_procured_move_data (move_document_ppm_id);
-CREATE INDEX ON archived_personally_procured_move_data (signed_certificate_id);
-CREATE INDEX ON archived_personally_procured_move_data (submitting_user_id);
-CREATE INDEX ON archived_personally_procured_move_data (signed_certificate_move_id);
-CREATE INDEX ON archived_personally_procured_move_data (personally_procured_move_id);
-CREATE INDEX ON archived_personally_procured_move_data (weight_ticket_set_document_id);
-CREATE INDEX ON archived_personally_procured_move_data (weight_ticket_set_move_document_id);
-CREATE INDEX ON archived_personally_procured_move_data (moving_expense_document_id);
-CREATE INDEX ON archived_personally_procured_move_data (moving_expense_document_move_document_id);
+CREATE INDEX ON archived_personally_procured_moves (move_id);
+CREATE INDEX ON archived_personally_procured_moves (advance_id);
+CREATE INDEX ON archived_personally_procured_moves (advance_worksheet_id);
+CREATE INDEX ON archived_personally_procured_moves (move_document_id);
+CREATE INDEX ON archived_personally_procured_moves (move_document_move_id);
+CREATE INDEX ON archived_personally_procured_moves (document_id);
+CREATE INDEX ON archived_personally_procured_moves (move_document_ppm_id);
+CREATE INDEX ON archived_personally_procured_moves (signed_certificate_id);
+CREATE INDEX ON archived_personally_procured_moves (submitting_user_id);
+CREATE INDEX ON archived_personally_procured_moves (signed_certificate_move_id);
+CREATE INDEX ON archived_personally_procured_moves (personally_procured_move_id);
+CREATE INDEX ON archived_personally_procured_moves (weight_ticket_set_document_id);
+CREATE INDEX ON archived_personally_procured_moves (weight_ticket_set_move_document_id);
+CREATE INDEX ON archived_personally_procured_moves (moving_expense_document_id);
+CREATE INDEX ON archived_personally_procured_moves (moving_expense_document_move_document_id);
 
-INSERT INTO archived_personally_procured_move_data (id, move_id, weight_estimate, created_at, updated_at,
+INSERT INTO archived_personally_procured_moves (
+id, move_id, weight_estimate,
+created_at, updated_at,
 pickup_postal_code, additional_pickup_postal_code,
 destination_postal_code, days_in_storage, has_additional_postal_code,
 advance_id, has_requested_advance, advance_worksheet_id,
@@ -120,8 +122,6 @@ weight_ticket_set_document_deleted_at, vehicle_make, vehicle_model,
 moving_expense_document_id, moving_expense_document_move_document_id, moving_expense_type,
 moving_expense_document_created_at, moving_expense_document_updated_at, requested_amount_cents,
 payment_method, receipt_missing, storage_start_date, storage_end_date, moving_expense_document_deleted_at)
-
-
 SELECT ppm.id, ppm.move_id, ppm.weight_estimate,
 ppm.created_at, ppm.updated_at,
 ppm.pickup_postal_code,
@@ -139,20 +139,17 @@ ppm.actual_move_date, ppm.total_sit_cost,
 ppm.has_sit, ppm.submit_date,
 ppm.reviewed_date, ppm.approve_date,
 ppm.has_pro_gear, ppm.has_pro_gear_over_thousand,
-
 sc.id AS signed_certificate_id, sc.submitting_user_id,
 sc.move_id AS signed_certificate_move_id,
 sc.certification_text, sc.signature, sc.date,
 sc.created_at AS signed_certificate_created_at,
 sc.updated_at AS signed_certificate_updated_at, sc.certification_type,
 sc.personally_procured_move_id,
-
 md.id AS move_document_id, md.move_id AS move_document_move_id,
 md.document_id, md.move_document_type, md.status AS move_document_status, md.notes,
 md.updated_at AS move_document_updated_at, md.created_at AS move_document_created_at,
 md.title, md.personally_procured_move_id AS move_document_ppm_id,
 md.deleted_at AS move_document_deleted_at,
-
 wtsd.id AS weight_ticket_set_document_id, wtsd.weight_ticket_set_type,
 wtsd.vehicle_nickname, wtsd.move_document_id AS weight_ticket_set_move_document_id,
 wtsd.empty_weight,
@@ -162,7 +159,6 @@ wtsd.created_at AS weight_ticket_set_document_created_at,
 wtsd.updated_at AS weight_ticket_set_document_updated_at, wtsd.trailer_ownership_missing,
 wtsd.deleted_at AS weight_ticket_set_document_deleted_at,
 wtsd.vehicle_make, wtsd.vehicle_model,
-
 med.id AS moving_expense_document_id,
 med.move_document_id AS moving_expense_document_move_document_id,
 med.moving_expense_type,
@@ -172,9 +168,8 @@ med.requested_amount_cents,
 med.payment_method, med.receipt_missing,
 med.storage_start_date, med.storage_end_date,
 med.deleted_at AS moving_expense_document_deleted_at
-
 FROM personally_procured_moves ppm
-FULL OUTER JOIN signed_certifications sc ON sc.personally_procured_move_id = ppm.id
-FULL OUTER JOIN move_documents md ON md.personally_procured_move_id = ppm.id
-FULL OUTER JOIN weight_ticket_set_documents wtsd ON wtsd.move_document_id = md.id
-FULL OUTER JOIN moving_expense_documents med ON med.move_document_id = md.id;
+INNER JOIN signed_certifications sc ON sc.personally_procured_move_id = ppm.id
+INNER JOIN move_documents md ON md.personally_procured_move_id = ppm.id
+INNER JOIN weight_ticket_set_documents wtsd ON wtsd.move_document_id = md.id
+INNER JOIN moving_expense_documents med ON med.move_document_id = md.id;
