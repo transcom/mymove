@@ -8,6 +8,17 @@ import { MockProviders } from 'testUtils';
 import { LOA_TYPE } from 'shared/constants';
 import { formatAccountingCode } from 'utils/shipmentDisplay';
 
+const mockPush = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: mockPush,
+  }),
+  useParams: () => ({
+    moveCode: 'TestCode',
+  }),
+}));
+
 const shipment = {
   mtoAgents: [
     {
@@ -77,7 +88,12 @@ describe('Shipment Details Sidebar', () => {
   it('renders all fields when provided', () => {
     render(
       <MockProviders>
-        <ShipmentDetailsSidebar shipment={shipment} ordersLOA={ordersLOA} handleEditFacilityInfo={() => {}} />
+        <ShipmentDetailsSidebar
+          shipment={shipment}
+          ordersLOA={ordersLOA}
+          handleEditFacilityInfo={() => {}}
+          handleEditAccountingCodes={() => {}}
+        />
       </MockProviders>,
     );
 
@@ -103,7 +119,7 @@ describe('Shipment Details Sidebar', () => {
   it('renders nothing with no info passed in', () => {
     render(
       <MockProviders>
-        <ShipmentDetailsSidebar handleEditFacilityInfo={() => {}} />
+        <ShipmentDetailsSidebar handleEditFacilityInfo={() => {}} handleEditAccountingCodes={() => {}} />
       </MockProviders>,
     );
 
@@ -115,7 +131,12 @@ describe('Shipment Details Sidebar', () => {
   it('shows edit facility info modal on edit button click', () => {
     render(
       <MockProviders>
-        <ShipmentDetailsSidebar shipment={shipment} ordersLOA={ordersLOA} handleEditFacilityInfo={() => {}} />
+        <ShipmentDetailsSidebar
+          shipment={shipment}
+          ordersLOA={ordersLOA}
+          handleEditFacilityInfo={() => {}}
+          handleEditAccountingCodes={() => {}}
+        />
       </MockProviders>,
     );
 
@@ -130,7 +151,12 @@ describe('Shipment Details Sidebar', () => {
   it('shows edit service order number modal on edit button click', () => {
     render(
       <MockProviders>
-        <ShipmentDetailsSidebar shipment={shipment} ordersLOA={ordersLOA} handleEditFacilityInfo={() => {}} />
+        <ShipmentDetailsSidebar
+          shipment={shipment}
+          ordersLOA={ordersLOA}
+          handleEditFacilityInfo={() => {}}
+          handleEditAccountingCodes={() => {}}
+        />
       </MockProviders>,
     );
 
