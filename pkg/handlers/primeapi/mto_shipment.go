@@ -259,7 +259,7 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(appCtx appcontext
 	if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || (dbShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
 		dbShipment.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil {
 		weight := latestEstimatedWeight
-		if dbShipment.NTSRecordedWeight != nil {
+		if dbShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && dbShipment.NTSRecordedWeight != nil {
 			weight = dbShipment.NTSRecordedWeight
 		}
 		requiredDeliveryDate, err := mtoshipment.CalculateRequiredDeliveryDate(appCtx, h.Planner(), *latestPickupAddress,
