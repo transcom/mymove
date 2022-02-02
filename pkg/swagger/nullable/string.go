@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/validate"
 )
 
 // recognize the JSON null
@@ -58,6 +59,34 @@ func (s *String) UnmarshalJSON(data []byte) error {
 // String always validates ok
 // this is called from the go swagger generated code
 func (s *String) Validate(formats strfmt.Registry) error {
+	if s.Present && s.Value != nil {
+		/*  this only works for types listed in go/pkg/mod/github.com/go-openapi/strfmt@v0.21.1/format.go
+		    and 'string' isn't one of those.
+		    Note sure if using the `Add` function would work here, you'd be passing in a the type
+		    `string` and a validator to use.
+
+		    The below call got the following errors:
+		                	            	validation failure list:
+		                	            	ntsSacstring is an invalid type name
+		                	            	ntsTacstring is an invalid type name
+		                	            	sacstring is an invalid type name
+		                	Test:       	TestHandlerSuite/TestUpdateOrderHandlerWithAmendedUploads
+
+		if err := validate.FormatOf("value", "body", "string", *s.Value, formats); err != nil {
+			return err
+		}
+		 */
+
+		// This seems like it would give us what we want, but you'd have to create new
+		// NullableString types like NullableStringTAC and NullableStringSAC and then
+		// you could use the validate functions hardcoded. I don't think we store
+		// the validation constants in a shared lib because we don't know which fieldname
+		// is being updated
+		if err := validate.MaxLength("value", "body", *s.Value, 4); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

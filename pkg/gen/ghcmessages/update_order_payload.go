@@ -37,8 +37,7 @@ type UpdateOrderPayload struct {
 	// Format: uuid
 	NewDutyStationID *strfmt.UUID `json:"newDutyStationId"`
 
-	// NTS SAC
-	// Example: N002214CSW32Y9
+	// nts sac
 	NtsSac nullable.String `json:"ntsSac,omitempty"`
 
 	// NTS TAC
@@ -73,8 +72,7 @@ type UpdateOrderPayload struct {
 	// Format: date
 	ReportByDate *strfmt.Date `json:"reportByDate"`
 
-	// HHG SAC
-	// Example: N002214CSW32Y9
+	// sac
 	Sac nullable.String `json:"sac,omitempty"`
 
 	// HHG TAC

@@ -3289,16 +3289,36 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "title": "NTS SAC",
-          "$ref": "#/definitions/NullableString",
-          "example": "N002214CSW32Y9"
+          "allOf": [
+            {
+              "$ref": "#/definitions/NullableString"
+            },
+            {
+              "title": "NTS SAC"
+            },
+            {
+              "example": "N002214CSW32Y9"
+            }
+          ]
         },
         "ntsTac": {
-          "title": "NTS TAC",
-          "maxLength": 4,
-          "minLength": 4,
-          "$ref": "#/definitions/NullableString",
-          "example": "F8J1"
+          "allOf": [
+            {
+              "$ref": "#/definitions/NullableString"
+            },
+            {
+              "title": "NTS TAC"
+            },
+            {
+              "minLength": 10
+            },
+            {
+              "maxLength": 10
+            },
+            {
+              "example": "F8J1"
+            }
+          ]
         },
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
@@ -3316,9 +3336,17 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "title": "HHG SAC",
-          "$ref": "#/definitions/NullableString",
-          "example": "N002214CSW32Y9"
+          "allOf": [
+            {
+              "$ref": "#/definitions/NullableString"
+            },
+            {
+              "title": "HHG SAC"
+            },
+            {
+              "example": "N002214CSW32Y9"
+            }
+          ]
         },
         "tac": {
           "type": "string",
@@ -5630,14 +5658,22 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "title": "NTS SAC",
-          "$ref": "#/definitions/NullableString",
-          "example": "N002214CSW32Y9"
+          "allOf": [
+            {
+              "$ref": "#/definitions/NullableString"
+            },
+            {
+              "title": "NTS SAC"
+            },
+            {
+              "example": "N002214CSW32Y9"
+            }
+          ]
         },
         "ntsTac": {
           "title": "NTS TAC",
-          "maxLength": 4,
-          "minLength": 4,
+          "maxLength": 10,
+          "minLength": 10,
           "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
@@ -5671,9 +5707,17 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "title": "HHG SAC",
-          "$ref": "#/definitions/NullableString",
-          "example": "N002214CSW32Y9"
+          "allOf": [
+            {
+              "$ref": "#/definitions/NullableString"
+            },
+            {
+              "title": "HHG SAC"
+            },
+            {
+              "example": "N002214CSW32Y9"
+            }
+          ]
         },
         "tac": {
           "type": "string",
@@ -10013,16 +10057,36 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "title": "NTS SAC",
-          "$ref": "#/definitions/NullableString",
-          "example": "N002214CSW32Y9"
+          "allOf": [
+            {
+              "$ref": "#/definitions/NullableString"
+            },
+            {
+              "title": "NTS SAC"
+            },
+            {
+              "example": "N002214CSW32Y9"
+            }
+          ]
         },
         "ntsTac": {
-          "title": "NTS TAC",
-          "maxLength": 4,
-          "minLength": 4,
-          "$ref": "#/definitions/NullableString",
-          "example": "F8J1"
+          "allOf": [
+            {
+              "$ref": "#/definitions/NullableString"
+            },
+            {
+              "title": "NTS TAC"
+            },
+            {
+              "minLength": 10
+            },
+            {
+              "maxLength": 10
+            },
+            {
+              "example": "F8J1"
+            }
+          ]
         },
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
@@ -10040,9 +10104,17 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "title": "HHG SAC",
-          "$ref": "#/definitions/NullableString",
-          "example": "N002214CSW32Y9"
+          "allOf": [
+            {
+              "$ref": "#/definitions/NullableString"
+            },
+            {
+              "title": "HHG SAC"
+            },
+            {
+              "example": "N002214CSW32Y9"
+            }
+          ]
         },
         "tac": {
           "type": "string",
@@ -12361,14 +12433,22 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "title": "NTS SAC",
-          "$ref": "#/definitions/NullableString",
-          "example": "N002214CSW32Y9"
+          "allOf": [
+            {
+              "$ref": "#/definitions/NullableString"
+            },
+            {
+              "title": "NTS SAC"
+            },
+            {
+              "example": "N002214CSW32Y9"
+            }
+          ]
         },
         "ntsTac": {
           "title": "NTS TAC",
-          "maxLength": 4,
-          "minLength": 4,
+          "maxLength": 10,
+          "minLength": 10,
           "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
@@ -12402,9 +12482,17 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "title": "HHG SAC",
-          "$ref": "#/definitions/NullableString",
-          "example": "N002214CSW32Y9"
+          "allOf": [
+            {
+              "$ref": "#/definitions/NullableString"
+            },
+            {
+              "title": "HHG SAC"
+            },
+            {
+              "example": "N002214CSW32Y9"
+            }
+          ]
         },
         "tac": {
           "type": "string",

@@ -2625,19 +2625,22 @@ definitions:
         example: F8J1
         x-nullable: true
       sac:
-        title: HHG SAC
-        example: N002214CSW32Y9
-        $ref: '#/definitions/NullableString'
+        allOf:
+          - $ref: '#/definitions/NullableString'
+          - title: HHG SAC
+          - example: N002214CSW32Y9
       ntsTac:
-        title: NTS TAC
-        minLength: 4
-        maxLength: 4
-        example: F8J1
-        $ref: '#/definitions/NullableString'
+        allOf:
+          - $ref: '#/definitions/NullableString'
+          - title: NTS TAC
+          - minLength: 10
+          - maxLength: 10
+          - example: F8J1
       ntsSac:
-        title: NTS SAC
-        example: N002214CSW32Y9
-        $ref: '#/definitions/NullableString'
+        allOf:
+          - $ref: '#/definitions/NullableString'
+          - title: NTS SAC
+          - example: N002214CSW32Y9
     required:
       - issueDate
       - reportByDate
@@ -2684,19 +2687,21 @@ definitions:
         example: F8J1
         x-nullable: true
       sac:
-        title: HHG SAC
-        example: N002214CSW32Y9
-        $ref: '#/definitions/NullableString'
+        allOf:
+          - $ref: '#/definitions/NullableString'
+          - title: HHG SAC
+          - example: N002214CSW32Y9
       ntsTac:
+        $ref: '#/definitions/NullableString'
         title: NTS TAC
-        minLength: 4
-        maxLength: 4
+        minLength: 10
+        maxLength: 10
         example: F8J1
-        $ref: '#/definitions/NullableString'
       ntsSac:
-        title: NTS SAC
-        example: N002214CSW32Y9
-        $ref: '#/definitions/NullableString'
+        allOf:
+          - $ref: '#/definitions/NullableString'
+          - title: NTS SAC
+          - example: N002214CSW32Y9
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
         x-nullable: true
