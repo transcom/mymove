@@ -36,9 +36,9 @@ type PPMShipment struct {
 	Status                         PPMShipmentStatus `json:"status" db:"status"`
 	ExpectedDepartureDate          *time.Time        `json:"expected_departure_date" db:"expected_departure_date"` // Originally OriginalMoveDate
 	ActualMoveDate                 *time.Time        `json:"actual_move_date" db:"actual_move_date"`
-	SubmitDate                     *time.Time        `json:"submit_date" db:"submit_date"`
-	ReviewDate                     *time.Time        `json:"review_date" db:"review_date"`
-	ApproveDate                    *time.Time        `json:"approve_date" db:"approve_date"`
+	SubmittedAt                    *time.Time        `json:"submitted_at" db:"submitted_at"`
+	ReviewedAt                     *time.Time        `json:"reviewed_at" db:"reviewed_at"`
+	ApprovedAt                     *time.Time        `json:"approved_at" db:"approved_at"`
 	PickupPostalCode               *string           `json:"pickup_postal_code" db:"pickup_postal_code"`
 	SecondaryPickupPostalCode      *string           `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"` // Originally AdditionalPickupPostalCode
 	DestinationPostalCode          *string           `json:"destination_postal_code" db:"destination_postal_code"`
