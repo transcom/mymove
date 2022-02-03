@@ -1,0 +1,101 @@
+type: object
+required:
+  - id
+  - moveTaskOrderID
+  - reServiceID
+  - reServiceCode
+  - reServiceName
+  - mtoShipmentID
+  - reason
+  - pickupPostalCode
+  - description
+properties:
+  moveTaskOrderID:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  mtoShipmentID:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  reServiceID:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  reServiceCode:
+    type: string
+  reServiceName:
+    type: string
+  createdAt:
+    format: date-time
+    type: string
+  customerContacts:
+    $ref: 'MTOServiceItemCustomerContacts.yaml'
+  deletedAt:
+    format: date
+    type: string
+  description:
+    type: string
+  dimensions:
+    $ref: 'MTOServiceItemDimensions.yaml'
+  reason:
+    type: string
+  rejectionReason:
+    type: string
+    x-nullable: true
+  pickupPostalCode:
+    type: string
+  SITPostalCode:
+    type: string
+    readOnly: true
+    x-nullable: true
+  sitEntryDate:
+    type: string
+    format: date-time
+    x-nullable: true
+  sitDepartureDate:
+    type: string
+    format: date-time
+    x-nullable: true
+  feeType:
+    enum:
+      - COUNSELING
+      - CRATING
+      - TRUCKING
+      - SHUTTLE
+    type: string
+  id:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  quantity:
+    type: integer
+  rate:
+    type: integer
+  status:
+    $ref: 'MTOServiceItemStatus.yaml'
+  submittedAt:
+    format: date
+    type: string
+  total:
+    format: cents
+    type: integer
+  estimatedWeight:
+    type: integer
+    description: estimated weight of the shuttle service item provided by the prime
+    example: 2500
+    x-formatting: weight
+    x-nullable: true
+  updatedAt:
+    format: date-time
+    type: string
+  approvedAt:
+    format: date-time
+    type: string
+    x-nullable: true
+  rejectedAt:
+    format: date-time
+    type: string
+    x-nullable: true
+  eTag:
+    type: string

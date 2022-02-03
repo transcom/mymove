@@ -3095,30 +3095,6 @@ definitions:
         type: string
         format: date
         x-nullable: true
-  SITStatus:
-    properties:
-      location:
-        enum:
-          - ORIGIN
-          - DESTINATION
-      totalSITDaysUsed:
-        type: integer
-        minimum: 0
-      totalDaysRemaining:
-        type: integer
-        minimum: 0
-      daysInSIT:
-        type: integer
-        minimum: 0
-      sitEntryDate:
-        type: string
-        format: date-time
-      sitDepartureDate:
-        type: string
-        format: date-time
-        x-nullable: true
-      pastSITServiceItems:
-        $ref: '#/definitions/MTOServiceItems'
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -3409,10 +3385,7 @@ definitions:
       agents:
         $ref: '#/definitions/MTOAgents'
       mtoServiceItems:
-        description: A list of service items connected to this shipment.
-        type: array
-        items:
-          $ref: '#/definitions/MTOServiceItem'
+        $ref: '#/definitions/MTOServiceItems'
       pickupAddress:
         description: The address where the movers should pick up this shipment.
         allOf:
@@ -3537,185 +3510,6 @@ definitions:
         type: string
         example: Insufficent details provided
         x-nullable: true
-  MTOServiceItemStatus:
-    description: Describes all statuses for a MTOServiceItem
-    type: string
-    enum:
-      - SUBMITTED
-      - APPROVED
-      - REJECTED
-  MTOServiceItem:
-    properties:
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceCode:
-        type: string
-      reServiceName:
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      customerContacts:
-        $ref: '#/definitions/MTOServiceItemCustomerContacts'
-      deletedAt:
-        format: date
-        type: string
-      description:
-        type: string
-      dimensions:
-        $ref: '#/definitions/MTOServiceItemDimensions'
-      reason:
-        type: string
-      rejectionReason:
-        type: string
-        x-nullable: true
-      pickupPostalCode:
-        type: string
-      SITPostalCode:
-        type: string
-        readOnly: true
-        x-nullable: true
-      sitEntryDate:
-        type: string
-        format: date-time
-        x-nullable: true
-      sitDepartureDate:
-        type: string
-        format: date-time
-        x-nullable: true
-      feeType:
-        enum:
-          - COUNSELING
-          - CRATING
-          - TRUCKING
-          - SHUTTLE
-        type: string
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      quantity:
-        type: integer
-      rate:
-        type: integer
-      status:
-        $ref: '#/definitions/MTOServiceItemStatus'
-      submittedAt:
-        format: date
-        type: string
-      total:
-        format: cents
-        type: integer
-      estimatedWeight:
-        type: integer
-        description: estimated weight of the shuttle service item provided by the prime
-        example: 2500
-        x-formatting: weight
-        x-nullable: true
-      updatedAt:
-        format: date-time
-        type: string
-      approvedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-      rejectedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-      eTag:
-        type: string
-    required:
-      - id
-      - moveTaskOrderID
-      - reServiceID
-      - reServiceCode
-      - reServiceName
-      - mtoShipmentID
-      - reason
-      - pickupPostalCode
-      - description
-    type: object
-  MTOServiceItems:
-    type: array
-    items:
-      $ref: '#/definitions/MTOServiceItem'
-  DimensionType:
-    description: Describes a dimension type for a MTOServiceItemDimension.
-    type: string
-    enum:
-      - ITEM
-      - CRATE
-  MTOServiceItemDimension:
-    description: Describes a dimension object for the MTOServiceItem.
-    type: object
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      type:
-        $ref: '#/definitions/DimensionType'
-      length:
-        description: Length in thousandth inches. 1000 thou = 1 inch.
-        example: 1000
-        type: integer
-        format: int32
-      width:
-        description: Width in thousandth inches. 1000 thou = 1 inch.
-        example: 1000
-        type: integer
-        format: int32
-      height:
-        description: Height in thousandth inches. 1000 thou = 1 inch.
-        example: 1000
-        type: integer
-        format: int32
-  MTOServiceItemDimensions:
-    type: array
-    items:
-      $ref: '#/definitions/MTOServiceItemDimension'
-  CustomerContactType:
-    description: >-
-      Describes a customer contact type for a MTOServiceItem of type domestic
-      destination SIT.
-    type: string
-    enum:
-      - FIRST
-      - SECOND
-  MTOServiceItemCustomerContact:
-    description: Customer contact information for a destination SIT service item
-    type: object
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      type:
-        $ref: '#/definitions/CustomerContactType'
-      timeMilitary:
-        type: string
-        example: 0400Z
-        description: Time of delivery corresponding to `firstAvailableDeliveryDate`.
-      firstAvailableDeliveryDate:
-        format: date
-        type: string
-        example: '2020-12-31'
-        description: First available date that Prime can deliver SIT service item.
-  MTOServiceItemCustomerContacts:
-    type: array
-    items:
-      $ref: '#/definitions/MTOServiceItemCustomerContact'
   MTOApprovalServiceItemCodes:
     description: MTO level service items to create when updating MTO status.
     properties:
@@ -4102,6 +3896,186 @@ definitions:
       import:
         package: github.com/transcom/mymove/pkg/swagger/nullable
       type: String
+  CustomerContactType:
+    description: >-
+      Describes a customer contact type for a MTOServiceItem of type domestic
+      destination SIT.
+    type: string
+    enum:
+      - FIRST
+      - SECOND
+  MTOServiceItemCustomerContact:
+    description: Customer contact information for a destination SIT service item
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/CustomerContactType'
+      timeMilitary:
+        type: string
+        example: 0400Z
+        description: Time of delivery corresponding to `firstAvailableDeliveryDate`.
+      firstAvailableDeliveryDate:
+        format: date
+        type: string
+        example: '2020-12-31'
+        description: First available date that Prime can deliver SIT service item.
+  MTOServiceItemCustomerContacts:
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItemCustomerContact'
+  DimensionType:
+    description: Describes a dimension type for a MTOServiceItemDimension.
+    type: string
+    enum:
+      - ITEM
+      - CRATE
+  MTOServiceItemDimension:
+    description: Describes a dimension object for the MTOServiceItem.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/DimensionType'
+      length:
+        description: Length in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      width:
+        description: Width in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      height:
+        description: Height in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+  MTOServiceItemDimensions:
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItemDimension'
+  MTOServiceItemStatus:
+    description: Describes all statuses for a MTOServiceItem
+    type: string
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
+  MTOServiceItem:
+    type: object
+    required:
+      - id
+      - moveTaskOrderID
+      - reServiceID
+      - reServiceCode
+      - reServiceName
+      - mtoShipmentID
+      - reason
+      - pickupPostalCode
+      - description
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceCode:
+        type: string
+      reServiceName:
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+      customerContacts:
+        $ref: '#/definitions/MTOServiceItemCustomerContacts'
+      deletedAt:
+        format: date
+        type: string
+      description:
+        type: string
+      dimensions:
+        $ref: '#/definitions/MTOServiceItemDimensions'
+      reason:
+        type: string
+      rejectionReason:
+        type: string
+        x-nullable: true
+      pickupPostalCode:
+        type: string
+      SITPostalCode:
+        type: string
+        readOnly: true
+        x-nullable: true
+      sitEntryDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitDepartureDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      feeType:
+        enum:
+          - COUNSELING
+          - CRATING
+          - TRUCKING
+          - SHUTTLE
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      quantity:
+        type: integer
+      rate:
+        type: integer
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
+      submittedAt:
+        format: date
+        type: string
+      total:
+        format: cents
+        type: integer
+      estimatedWeight:
+        type: integer
+        description: estimated weight of the shuttle service item provided by the prime
+        example: 2500
+        x-formatting: weight
+        x-nullable: true
+      updatedAt:
+        format: date-time
+        type: string
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      rejectedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      eTag:
+        type: string
+  MTOServiceItems:
+    description: A list of service items connected to this shipment.
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItem'
   MTOAgent:
     type: object
     properties:
@@ -4316,6 +4290,30 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/SITExtension'
+  SITStatus:
+    properties:
+      location:
+        enum:
+          - ORIGIN
+          - DESTINATION
+      totalSITDaysUsed:
+        type: integer
+        minimum: 0
+      totalDaysRemaining:
+        type: integer
+        minimum: 0
+      daysInSIT:
+        type: integer
+        minimum: 0
+      sitEntryDate:
+        type: string
+        format: date-time
+      sitDepartureDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      pastSITServiceItems:
+        $ref: '#/definitions/MTOServiceItems'
   ServiceItemParamName:
     type: string
     enum:
