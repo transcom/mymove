@@ -166,13 +166,6 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
-	if mtoShipment.DestinationType != nil {
-		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)
-		if valDestinationType != "" {
-			model.DestinationType = valDestinationType
-		}
-	}
-
 	return model
 }
 
@@ -231,13 +224,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		model.SecondaryDeliveryAddress = addressModel
 		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
-	}
-
-	if mtoShipment.DestinationType != nil {
-		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)
-		if valDestinationType != "" {
-			model.DestinationType = valDestinationType
-		}
 	}
 
 	return model
