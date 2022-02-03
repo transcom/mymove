@@ -576,7 +576,7 @@ paths:
         '200':
           description: Successfully created a MTO shipment.
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '404':
@@ -694,7 +694,7 @@ paths:
         '200':
           description: Successfully updated the specified MTO shipment.
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -731,7 +731,7 @@ paths:
         '200':
           description: Successfully approved the shipment
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -771,7 +771,7 @@ paths:
         '200':
           description: Successfully requested the shipment diversion
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -811,7 +811,7 @@ paths:
         '200':
           description: Successfully approved the shipment diversion
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -856,7 +856,7 @@ paths:
         '200':
           description: Successfully rejected the shipment
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -896,7 +896,7 @@ paths:
         '200':
           description: Successfully requested the shipment cancellation
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -983,7 +983,7 @@ paths:
         '200':
           description: Successfully created a SIT Extension.
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -1028,7 +1028,7 @@ paths:
         '200':
           description: Successfully approved a SIT extension
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -1080,7 +1080,7 @@ paths:
         '200':
           description: Successfully denied a SIT extension
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -1121,7 +1121,7 @@ paths:
         '200':
           description: Successfully retrieved all agents for a move task order
           schema:
-            $ref: '#/definitions/MTOAgents'
+            $ref: 'definitions/MTOAgents.yaml'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -2792,10 +2792,6 @@ definitions:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
-  MTOAgents:
-    items:
-      $ref: 'definitions/MTOAgent.yaml'
-    type: array
   PaymentRequest:
     properties:
       proofOfServiceDocs:
@@ -2994,155 +2990,6 @@ definitions:
         type: string
         format: date
         x-nullable: true
-  MTOShipment:
-    properties:
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-      deletedAt:
-        x-nullable: true
-        format: date-time
-        type: string
-      primeEstimatedWeight:
-        x-nullable: true
-        example: 2000
-        type: integer
-      primeActualWeight:
-        x-nullable: true
-        example: 2000
-        type: integer
-      calculatedBillableWeight:
-        x-nullable: true
-        example: 2000
-        type: integer
-        readOnly: true
-      ntsRecordedWeight:
-        description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
-        example: 2000
-        type: integer
-        x-nullable: true
-        x-formatting: weight
-      scheduledPickupDate:
-        format: date
-        type: string
-        x-nullable: true
-      requestedPickupDate:
-        format: date
-        type: string
-      actualPickupDate:
-        x-nullable: true
-        format: date
-        type: string
-      requestedDeliveryDate:
-        format: date
-        type: string
-      approvedDate:
-        format: date-time
-        type: string
-        x-nullable: true
-      diversion:
-        type: boolean
-        example: true
-      pickupAddress:
-        x-nullable: true
-        $ref: 'definitions/Address.yaml'
-      destinationAddress:
-        x-nullable: true
-        $ref: 'definitions/Address.yaml'
-      destinationAddressType:
-        type: string
-        title: Destination Address Type
-        example: Other than authorized
-        enum:
-          - HOME_OF_RECORD
-          - HOME_OF_SELECTION
-          - PLACE_ENTERED_ACTIVE_DUTY
-          - OTHER_THAN_AUTHORIZED
-        x-nullable: true
-      secondaryPickupAddress:
-        x-nullable: true
-        $ref: 'definitions/Address.yaml'
-      secondaryDeliveryAddress:
-        x-nullable: true
-        $ref: 'definitions/Address.yaml'
-      customerRemarks:
-        type: string
-        example: handle with care
-        x-nullable: true
-      counselorRemarks:
-        description: |
-          The counselor can use the counselor remarks field to inform the movers about any
-          special circumstances for this shipment. Typical examples:
-            * bulky or fragile items,
-            * weapons,
-            * access info for their address.
-          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
-        type: string
-        example: handle with care
-        x-nullable: true
-      shipmentType:
-        $ref: 'definitions/MTOShipmentType.yaml'
-      status:
-        $ref: 'definitions/MTOShipmentStatus.yaml'
-      rejectionReason:
-        type: string
-        example: MTO Shipment not good enough
-        x-nullable: true
-      reweigh:
-        x-nullable: true
-        x-omitempty: true
-        $ref: 'definitions/Reweigh.yaml'
-      mtoAgents:
-        $ref: '#/definitions/MTOAgents'
-      mtoServiceItems:
-        $ref: 'definitions/MTOServiceItems.yaml'
-      sitDaysAllowance:
-        type: integer
-        x-nullable: true
-      sitExtensions:
-        $ref: 'definitions/SITExtensions.yaml'
-      sitStatus:
-        $ref: 'definitions/SITStatus.yaml'
-      eTag:
-        type: string
-      billableWeightCap:
-        type: integer
-        description: TIO override billable weight to be used for calculations
-        example: 2500
-        x-formatting: weight
-        x-nullable: true
-      billableWeightJustification:
-        type: string
-        example: more weight than expected
-        x-nullable: true
-      tacType:
-        allOf:
-          - $ref: 'definitions/LOAType.yaml'
-          - x-nullable: true
-      sacType:
-        allOf:
-          - $ref: 'definitions/LOAType.yaml'
-          - x-nullable: true
-      usesExternalVendor:
-        type: boolean
-        example: false
-      serviceOrderNumber:
-        type: string
-        x-nullable: true
-      storageFacility:
-        x-nullable: true
-        $ref: 'definitions/StorageFacility.yaml'
   UpdateShipment:
     type: object
     properties:
@@ -3192,7 +3039,7 @@ definitions:
           - OTHER_THAN_AUTHORIZED
         x-nullable: true
       agents:
-        $ref: '#/definitions/MTOAgents'
+        $ref: 'definitions/MTOAgents.yaml'
         x-nullable: true
       tacType:
         x-nullable: true
@@ -3221,7 +3068,7 @@ definitions:
         $ref: 'definitions/StorageFacility.yaml'
   MTOShipments:
     items:
-      $ref: '#/definitions/MTOShipment'
+      $ref: 'definitions/MTOShipment.yaml'
     type: array
   CreateMTOShipment:
     type: object
@@ -3267,7 +3114,7 @@ definitions:
         example: handle with care
         x-nullable: true
       agents:
-        $ref: '#/definitions/MTOAgents'
+        $ref: 'definitions/MTOAgents.yaml'
       mtoServiceItems:
         $ref: 'definitions/MTOServiceItems.yaml'
       pickupAddress:
