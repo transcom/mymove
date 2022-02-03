@@ -3118,7 +3118,7 @@ definitions:
       shipmentType:
         $ref: 'definitions/MTOShipmentType.yaml'
       status:
-        $ref: '#/definitions/MTOShipmentStatus'
+        $ref: 'definitions/MTOShipmentStatus.yaml'
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
@@ -3345,17 +3345,6 @@ definitions:
       - moveTaskOrderID
       - pickupAddress
       - destinationAddress
-  MTOShipmentStatus:
-    type: string
-    title: Shipment Status
-    example: SUBMITTED
-    enum:
-      - SUBMITTED
-      - REJECTED
-      - APPROVED
-      - CANCELLATION_REQUESTED
-      - CANCELED
-      - DIVERSION_REQUESTED
   RejectShipment:
     properties:
       rejectionReason:
