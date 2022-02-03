@@ -186,6 +186,14 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
+	paramKey = models.ServiceItemParamNameDateBilled
+	err = s.setLookup(appCtx, serviceItemCode, paramKey, DateBilledLookup{
+		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	paramKey = models.ServiceItemParamNameDistanceZip5
 	err = s.setLookup(appCtx, serviceItemCode, paramKey, DistanceZip5Lookup{
 		PickupAddress:      pickupAddress,

@@ -28,6 +28,8 @@ const (
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
 	// ServiceItemParamNameCubicFeetCrating is the param key name CubicFeetCrating
 	ServiceItemParamNameCubicFeetCrating ServiceItemParamName = "CubicFeetCrating"
+	// ServiceItemParamNameDateBilled is the param key name DateBilled
+	ServiceItemParamNameDateBilled ServiceItemParamName = "DateBilled"
 	// ServiceItemParamNameDimensionHeight is the param key name DimensionHeight
 	ServiceItemParamNameDimensionHeight ServiceItemParamName = "DimensionHeight"
 	// ServiceItemParamNameDimensionLength is the param key name DimensionLength
@@ -197,6 +199,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameContractYearName,
 	ServiceItemParamNameCubicFeetBilled,
 	ServiceItemParamNameCubicFeetCrating,
+	ServiceItemParamNameDateBilled,
 	ServiceItemParamNameDimensionHeight,
 	ServiceItemParamNameDimensionLength,
 	ServiceItemParamNameDimensionWidth,
@@ -264,6 +267,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameContractYearName),
 	string(ServiceItemParamNameCubicFeetBilled),
 	string(ServiceItemParamNameCubicFeetCrating),
+	string(ServiceItemParamNameDateBilled),
 	string(ServiceItemParamNameDimensionHeight),
 	string(ServiceItemParamNameDimensionLength),
 	string(ServiceItemParamNameDimensionWidth),
