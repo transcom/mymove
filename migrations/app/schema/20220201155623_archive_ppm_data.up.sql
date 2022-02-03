@@ -16,7 +16,7 @@ CREATE TABLE archived_move_documents(
 
 ALTER TABLE archived_move_documents
     ADD CONSTRAINT archived_move_documents_personally_procured_move_id_fkey
-	FOREIGN KEY (personally_procured_move_id) REFERENCES personally_procured_moves,
+	FOREIGN KEY (personally_procured_move_id) REFERENCES archived_personally_procured_moves,
 	ADD CONSTRAINT archived_move_documents_move_id FOREIGN KEY (move_id) REFERENCES moves,
 	ADD CONSTRAINT archived_move_documents_document_id FOREIGN KEY (document_id) REFERENCES documents;
 
@@ -29,7 +29,7 @@ CREATE TABLE archived_signed_certifications(
 
 ALTER TABLE archived_signed_certifications
     ADD CONSTRAINT archived_signed_certifications_personally_procured_move_id_fkey
-	FOREIGN KEY (personally_procured_move_id) REFERENCES personally_procured_moves (id),
+	FOREIGN KEY (personally_procured_move_id) REFERENCES archived_personally_procured_moves (id),
 	ADD CONSTRAINT archived_signed_certifications_move_id FOREIGN KEY (move_id) REFERENCES moves,
 	ADD CONSTRAINT archived_signed_certifications_submitting_user_id FOREIGN KEY (submitting_user_id) REFERENCES users;
 
@@ -42,7 +42,7 @@ CREATE TABLE archived_weight_ticket_set_documents(
 
 ALTER TABLE archived_weight_ticket_set_documents
 	ADD CONSTRAINT archived_weight_ticket_set_documents_move_document_id_fkey
-    FOREIGN KEY (move_document_id) REFERENCES move_documents;
+    FOREIGN KEY (move_document_id) REFERENCES archived_move_documents;
 
 INSERT INTO archived_weight_ticket_set_documents SELECT * FROM weight_ticket_set_documents;
 
@@ -53,6 +53,6 @@ CREATE TABLE archived_moving_expense_documents(
 
 ALTER TABLE archived_moving_expense_documents
 	ADD CONSTRAINT archived_moving_expense_documents_move_document_id_fkey
-    FOREIGN KEY (move_document_id) REFERENCES move_documents;
+    FOREIGN KEY (move_document_id) REFERENCES archived_move_documents;
 
 INSERT INTO archived_moving_expense_documents SELECT * FROM moving_expense_documents;
