@@ -15,6 +15,8 @@ const ShipmentDetails = ({
   handleRequestReweighModal,
   handleReviewSITExtension,
   handleSubmitSITExtension,
+  handleEditFacilityInfo,
+  handleEditServiceOrderNumber,
 }) => {
   const { originDutyStation, destinationDutyStation, entitlement } = order;
   const ordersLOA = {
@@ -39,7 +41,13 @@ const ShipmentDetails = ({
         handleReviewSITExtension={handleReviewSITExtension}
         handleSubmitSITExtension={handleSubmitSITExtension}
       />
-      <ShipmentDetailsSidebar className={styles.ShipmentDetailsSidebar} shipment={shipment} ordersLOA={ordersLOA} />
+      <ShipmentDetailsSidebar
+        className={styles.ShipmentDetailsSidebar}
+        shipment={shipment}
+        ordersLOA={ordersLOA}
+        handleEditFacilityInfo={handleEditFacilityInfo}
+        handleEditServiceOrderNumber={handleEditServiceOrderNumber}
+      />
     </div>
   );
 };
@@ -51,6 +59,8 @@ ShipmentDetails.propTypes = {
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
   handleSubmitSITExtension: PropTypes.func.isRequired,
+  handleEditFacilityInfo: PropTypes.func.isRequired,
+  handleEditServiceOrderNumber: PropTypes.func.isRequired,
 };
 
 export default ShipmentDetails;

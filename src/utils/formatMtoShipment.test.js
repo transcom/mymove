@@ -247,6 +247,7 @@ describe('formatMtoShipmentForAPI', () => {
       city: 'San Antonio',
       state: 'TX',
       ZIP: '78234',
+      eTag: '678',
     },
     eTag: '456',
   };
@@ -293,6 +294,7 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.customerRemarks).toBe('some mock remarks');
 
     expect(actual.storageFacility.eTag).toBeUndefined();
+    expect(actual.storageFacility.address.eTag).toBeUndefined();
   });
 
   it('can format an NTS shipment', () => {

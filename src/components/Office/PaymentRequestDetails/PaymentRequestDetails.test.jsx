@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import PaymentRequestDetails from './PaymentRequestDetails';
 
@@ -160,6 +161,8 @@ const ntsrServiceItems = [
 const hhgShipment = {
   address: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
   departureDate: '2020-12-01T00:00:00.000Z',
+  tacType: 'HHG',
+  sacType: 'HHG',
 };
 
 const hhgShipmentCanceled = {
@@ -182,6 +185,8 @@ const basicShipment = {
 const ntsShipment = {
   address: 'Boston, MA 02101 to Princeton, NJ 08540',
   departureDate: '020-12-01T00:00:00.000Z',
+  tacType: 'NTS',
+  sacType: 'HHG',
 };
 
 const testMoveLocator = 'AF7K1P';
@@ -302,6 +307,24 @@ describe('PaymentRequestDetails', () => {
       expect(serviceItemStatuses.at(4).text().includes('Rejected')).toBeTruthy();
       expect(serviceItemStatuses.at(5).text().includes('Rejected')).toBeTruthy();
     });
+
+    it('renders the TAC/SAC codes', () => {
+      render(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+          <PaymentRequestDetails
+            serviceItems={hhgServiceItems}
+            shipment={hhgShipment}
+            paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+            tacs={{ HHG: '1234' }}
+            sacs={{ HHG: 'AB12' }}
+          />
+        </MockProviders>,
+      );
+
+      expect(screen.getByText(/1234 \(HHG\)/)).toBeInTheDocument();
+      expect(screen.getByText(/AB12 \(HHG\)/)).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+    });
   });
 
   describe('When given a ntsr shipment service items', () => {
@@ -352,6 +375,24 @@ describe('PaymentRequestDetails', () => {
       expect(serviceItemStatuses.at(2).text().includes('Accepted')).toBeTruthy();
       expect(serviceItemStatuses.at(3).text().includes('Accepted')).toBeTruthy();
       expect(serviceItemStatuses.at(4).text().includes('Rejected')).toBeTruthy();
+    });
+
+    it('renders the TAC/SAC codes', () => {
+      render(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+          <PaymentRequestDetails
+            serviceItems={ntsrServiceItems}
+            shipment={ntsShipment}
+            paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+            tacs={{ HHG: '1234', NTS: '5678' }}
+            sacs={{ HHG: 'AB12', NTS: 'CD34' }}
+          />
+        </MockProviders>,
+      );
+
+      expect(screen.getByText(/5678 \(NTS\)/)).toBeInTheDocument();
+      expect(screen.getByText(/AB12 \(HHG\)/)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     });
   });
 

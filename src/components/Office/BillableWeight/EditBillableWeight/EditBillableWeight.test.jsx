@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import EditBillableWeight from './EditBillableWeight';
 
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 
 jest.mock('formik', () => ({
   ...jest.requireActual('formik'),

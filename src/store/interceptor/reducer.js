@@ -8,7 +8,7 @@ export const initialState = {
   traceId: '',
 };
 
-const interceptorReducer = (state = initialState, action) => {
+const interceptorReducer = (state = initialState, action = {}) => {
   switch (action?.type) {
     case INTERCEPT_RESPONSE: {
       const timestamp = Date.now();

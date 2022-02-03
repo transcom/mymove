@@ -60,11 +60,11 @@ describe('Office authorization', () => {
     cy.url().should('eq', officeBaseURL + '/');
   });
 
-  it('redirects PPM office user to old office queue', () => {
-    cy.signInAsNewPPMOfficeUser();
-    cy.contains('New moves');
-    cy.url().should('eq', officeBaseURL + '/');
-  });
+  // it('redirects PPM office user to old office queue', () => {
+  //   cy.signInAsNewPPMOfficeUser();
+  //   cy.contains('New moves');
+  //   cy.url().should('eq', officeBaseURL + '/');
+  // });
 
   describe('multiple role selection', () => {
     beforeEach(() => {

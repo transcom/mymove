@@ -177,16 +177,12 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 	for _, code := range serviceCodesWithoutShipment {
 		suite.Run(fmt.Sprintf("MTOShipment not looked up for %s", code), func() {
-			mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			mtoServiceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: code,
 					Name: string(code),
 				},
 			})
-
-			mtoServiceItem.MTOShipmentID = nil
-			mtoServiceItem.MTOShipment = models.MTOShipment{}
-			suite.MustSave(&mtoServiceItem)
 
 			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
@@ -322,6 +318,77 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		suite.FatalNoError(err)
 	})
 
+	suite.Run("Correct addresses are used for NTS and NTS-release shipments", func() {
+		// Make a move and service for reuse.
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		reService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDLH,
+			},
+		})
+
+		// NTS should have a pickup address and storage facility address.
+		pickupPostalCode := "29212"
+		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: pickupPostalCode,
+			},
+		})
+		storageFacilityPostalCode := "30907"
+		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: storageFacilityPostalCode,
+			},
+		})
+		ntsServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move:      move,
+			ReService: reService,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypeHHGIntoNTSDom,
+				PickupAddress:   &pickupAddress,
+				StorageFacility: &storageFacility,
+			},
+		})
+
+		// Check to see if the distance lookup got the expected NTS addresses.
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, ntsServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		suite.FatalNoError(err)
+		if dz3l, ok := paramLookup.lookups[models.ServiceItemParamNameDistanceZip3].(DistanceZip3Lookup); ok {
+			suite.Equal(pickupPostalCode, dz3l.PickupAddress.PostalCode)
+			suite.Equal(storageFacilityPostalCode, dz3l.DestinationAddress.PostalCode)
+		} else {
+			suite.Fail("lookup not DistanceZip3Lookup type")
+		}
+
+		// NTS-Release should have a storage facility address and destination address.
+		destinationPostalCode := "29440"
+		destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: destinationPostalCode,
+			},
+		})
+		ntsrServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move:      move,
+			ReService: reService,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				DestinationAddress: &destinationAddress,
+				StorageFacility:    &storageFacility,
+			},
+		})
+
+		// Check to see if the distance lookup got the expected NTS-Release addresses.
+		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, ntsrServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		suite.FatalNoError(err)
+		if dz3l, ok := paramLookup.lookups[models.ServiceItemParamNameDistanceZip3].(DistanceZip3Lookup); ok {
+			suite.Equal(storageFacilityPostalCode, dz3l.PickupAddress.PostalCode)
+			suite.Equal(destinationPostalCode, dz3l.DestinationAddress.PostalCode)
+		} else {
+			suite.Fail("lookup not DistanceZip3Lookup type")
+		}
+	})
+
 	suite.Run("SITDestinationAddress is looked up for destination sit", func() {
 		sitFinalDestAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
 		testData := []models.MTOServiceItem{
@@ -405,7 +472,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), fmt.Sprintf("ID: %s not found looking for MTOServiceItemID", badMTOServiceItemID))
+		suite.Contains(err.Error(), fmt.Sprintf("ID: %s not found looking for MTOServiceItem", badMTOServiceItemID))
 		var expected *ServiceItemParamKeyData
 		suite.Equal(expected, paramLookup)
 	})

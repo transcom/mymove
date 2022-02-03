@@ -7,7 +7,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { DropdownInput, CheckboxField } from 'components/form/fields';
 import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/order';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
 
 const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions, editableAuthorizedWeight }) => {
@@ -73,6 +73,18 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         label="Rank"
         options={rankOptions}
         showDropdownPlaceholderText={false}
+      />
+      <MaskedTextField
+        data-testid="sitInput"
+        defaultValue="0"
+        name="storageInTransit"
+        label="Storage in transit (days)"
+        id="sitInput"
+        mask={Number}
+        scale={0} // digits after point, 0 for integers
+        signed={false} // disallow negative
+        thousandsSeparator=","
+        lazy={false} // immediate masking evaluation
       />
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
