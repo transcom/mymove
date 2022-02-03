@@ -177,11 +177,11 @@ describe('BillableWeightCard', () => {
     expect(reviewWeights).not.toHaveClass('usa-button--secondary');
   });
 
-  it('renders external vendor weight summary with one external vendor shipment', () => {
+  it('renders external vendor weight summary with one NTSR external vendor shipment', () => {
     const shipments = [
       {
         id: '0001',
-        shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
         calculatedBillableWeight: 1000,
         estimatedWeight: 5600,
         ntsRecordedWeight: 1234,
@@ -214,11 +214,11 @@ describe('BillableWeightCard', () => {
     expect(screen.getByText('1,234 lbs')).toBeInTheDocument();
   });
 
-  it('renders external vendor weight summary with multiple external vendor shipments', () => {
+  it('renders external vendor weight summary with multiple external vendor NTSR shipments', () => {
     const shipments = [
       {
         id: '0001',
-        shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
         calculatedBillableWeight: 1000,
         estimatedWeight: 5600,
         ntsRecordedWeight: 4000,
@@ -226,7 +226,7 @@ describe('BillableWeightCard', () => {
       },
       {
         id: '0002',
-        shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
         calculatedBillableWeight: 3200,
         estimatedWeight: 5000,
         ntsRecordedWeight: 500,
