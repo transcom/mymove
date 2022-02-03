@@ -1187,18 +1187,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		setupTestData()
 		appCtx := suite.AppContextForTest()
 
-		//ghcDomesticTransitTime := models.GHCDomesticTransitTime{
-		//	MaxDaysTransitTime: 12,
-		//	WeightLbsLower:     0,
-		//	WeightLbsUpper:     10000,
-		//	DistanceMilesLower: 0,
-		//	DistanceMilesUpper: 10000,
-		//}
-		//verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
-		//suite.Assert().False(verrs.HasAny())
-		//suite.NoError(err)
-
-		// Let's also create a transit time object with a zero upper bound for weight (this can happen in the table).
 		ghcDomesticTransitTime0LbsUpper := models.GHCDomesticTransitTime{
 			MaxDaysTransitTime: 12,
 			WeightLbsLower:     10001,
