@@ -9,6 +9,12 @@ ALTER TABLE archived_personally_procured_moves
 
 INSERT INTO archived_personally_procured_moves SELECT * FROM personally_procured_moves;
 
+ALTER TABLE move_documents
+DROP CONSTRAINT move_documents_document_id_fkey;
+
+ALTER TABLE move_documents
+ADD CONSTRAINT move_document_document_id FOREIGN KEY (document_id) REFERENCES documents;
+
 CREATE TABLE archived_move_documents(
     LIKE move_documents
     INCLUDING DEFAULTS INCLUDING CONSTRAINTS INCLUDING INDEXES
