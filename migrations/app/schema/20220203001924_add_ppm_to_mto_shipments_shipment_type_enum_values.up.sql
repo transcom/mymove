@@ -9,7 +9,7 @@ CREATE TYPE mto_shipment_type_2 AS ENUM (
 	'HHG_OUTOF_NTS_DOMESTIC',
 	'MOTORHOME',
 	'BOAT_HAUL_AWAY',
-	'BOAT_TOW_AWAY'
+	'BOAT_TOW_AWAY',
     'PPM'
 	);
 --Remove the old default value because it won't cast to our new type automatically
