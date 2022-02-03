@@ -377,6 +377,7 @@ const ShipmentForm = ({
                             }}
                           />
                           {isRetirementOrSeparation && (
+                            // TODO: add placeholder with populated destination type, save destination type on submit
                             <DropdownInput
                               label="Destination type"
                               name="destinationAddressType"
@@ -473,7 +474,7 @@ ShipmentForm.propTypes = {
   TACs: AccountingCodesShape,
   SACs: AccountingCodesShape,
   userRole: oneOf(officeRoles).isRequired,
-  orderType: oneOf(ORDERS_TYPE).isRequired,
+  orderType: string.isRequired,
 };
 
 ShipmentForm.defaultProps = {
