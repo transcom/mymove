@@ -167,4 +167,24 @@ describe('Shipment Details Sidebar', () => {
     // This text is in the edit facility info modal
     expect(screen.getByRole('heading', { name: 'Edit service order number' })).toBeInTheDocument();
   });
+
+  it('shows accounting codes modal on edit button click', () => {
+    render(
+      <MockProviders>
+        <ShipmentDetailsSidebar
+          shipment={shipment}
+          ordersLOA={ordersLOA}
+          handleEditFacilityInfo={() => {}}
+          handleEditAccountingCodes={() => {}}
+        />
+      </MockProviders>,
+    );
+
+    const openAccountingCodesModalButton = screen.getByTestId('edit-accounting-codes-modal-open');
+
+    userEvent.click(openAccountingCodesModalButton);
+
+    // This text is in the accounting codes modal
+    expect(screen.getByRole('heading', { name: 'Edit accounting codes' })).toBeInTheDocument();
+  });
 });
