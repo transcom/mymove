@@ -3969,43 +3969,6 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
-  Reweigh:
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      requestedAt:
-        format: date-time
-        type: string
-      requestedBy:
-        $ref: '#/definitions/ReweighRequester'
-      verificationProvidedAt:
-        x-nullable: true
-        format: date-time
-        type: string
-      verificationReason:
-        example: >-
-          The reweigh was not performed due to some justification provided by
-          the Prime
-        type: string
-        x-nullable: true
-      weight:
-        example: 2000
-        type: integer
-        x-formatting: weight
-        x-nullable: true
-      shipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-  ReweighRequester:
-    type: string
-    enum:
-      - CUSTOMER
-      - PRIME
-      - SYSTEM
-      - TOO
   GBLOC:
     type: string
     enum:
@@ -4243,6 +4206,50 @@ definitions:
       eTag:
         type: string
         readOnly: true
+  ReweighRequester:
+    type: string
+    enum:
+      - CUSTOMER
+      - PRIME
+      - SYSTEM
+      - TOO
+  Reweigh:
+    description: >-
+      A reweigh  is when a shipment is weighed for a second time due to the
+      request of a customer, the contractor, system or TOO.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestedAt:
+        format: date-time
+        type: string
+      requestedBy:
+        $ref: '#/definitions/ReweighRequester'
+      shipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      verificationProvidedAt:
+        x-nullable: true
+        x-omitempty: false
+        format: date-time
+        type: string
+      verificationReason:
+        example: >-
+          The reweigh was not performed due to some justification provided by
+          the counselor
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      weight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+        x-omitempty: false
   SITExtension:
     type: object
     description: >-
