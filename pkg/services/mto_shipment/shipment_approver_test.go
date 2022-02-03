@@ -343,12 +343,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.Anything,
 		).Return(500, nil)
 
-		testdatagen.FetchOrMakeReService(appCtx.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDNPK,
-			},
-		})
-
 		expectedReServiceCodes := []models.ReServiceCode{
 			models.ReServiceCodeDLH,
 			models.ReServiceCodeFSC,
@@ -359,15 +353,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			models.ReServiceCodeDNPK,
 		}
 
-		var reServiceCode models.ReService
-		if err := appCtx.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
-			for _, serviceCode := range expectedReServiceCodes {
-				testdatagen.FetchOrMakeReService(appCtx.DB(), testdatagen.Assertions{
-					ReService: models.ReService{
-						Code: serviceCode,
-					},
-				})
-			}
+		for _, serviceCode := range expectedReServiceCodes {
+			testdatagen.FetchOrMakeReService(appCtx.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: serviceCode,
+				},
+			})
 		}
 
 		// This is testing that the Required Delivery Date is calculated correctly.
