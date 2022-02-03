@@ -6,12 +6,14 @@ import ShipmentModificationTag from '../../ShipmentModificationTag/ShipmentModif
 
 import styles from './PaymentRequestDetails.module.scss';
 
-import { PAYMENT_REQUEST_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
+import { LOA_TYPE, PAYMENT_REQUEST_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
 import { MTOServiceItemShape } from 'types/order';
 import { formatDateFromIso } from 'shared/formatters';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 import { shipmentModificationTypes } from 'constants/shipments';
+import { AccountingCodesShape } from 'types/accountingCodes';
+import { formatAccountingCode } from 'utils/shipmentDisplay';
 
 const shipmentHeadingAndStyle = (mtoShipmentType) => {
   switch (mtoShipmentType) {
@@ -31,7 +33,67 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus }) => {
+const PaymentRequestAccountingCodes = ({
+  tacs,
+  sacs,
+  tacType,
+  sacType,
+  shipmentType,
+  mtoShipmentID,
+  showEdit,
+  onEditClick,
+}) => {
+  const handleEditClick = () => {
+    onEditClick({
+      mtoShipmentID,
+      tacType,
+      sacType,
+      shipmentType,
+    });
+  };
+
+  const tacValue = tacType && tacs[tacType] ? formatAccountingCode(tacs[tacType], tacType) : '—';
+  const sacValue = sacType && sacs[sacType] ? formatAccountingCode(sacs[sacType], sacType) : '—';
+
+  return (
+    <span style={{ display: 'block' }}>
+      <strong>TAC: </strong>
+      <span>{tacValue}</span>
+      &nbsp;|&nbsp;
+      <strong>SAC: </strong>
+      <span>{sacValue}</span>
+      {showEdit && (
+        <button type="button" className={styles.EditButton} onClick={handleEditClick}>
+          Edit
+        </button>
+      )}
+    </span>
+  );
+};
+
+PaymentRequestAccountingCodes.propTypes = {
+  tacs: AccountingCodesShape,
+  sacs: AccountingCodesShape,
+  tacType: PropTypes.string,
+  sacType: PropTypes.string,
+  shipmentType: PropTypes.string,
+  mtoShipmentID: PropTypes.string,
+  showEdit: PropTypes.bool,
+  onEditClick: PropTypes.func,
+};
+
+PaymentRequestAccountingCodes.defaultProps = {
+  tacs: {},
+  sacs: {},
+  tacType: null,
+  sacType: null,
+  shipmentType: null,
+  mtoShipmentID: null,
+  showEdit: false,
+  onEditClick: () => {},
+};
+
+const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus, tacs, sacs, onEditClick }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
   const { modificationType, departureDate, address, mtoServiceItems } = shipment;
@@ -51,20 +113,30 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus })
               {modificationType && <ShipmentModificationTag shipmentModificationType={modificationType} />}
             </h3>
           </div>
-          {(departureDate || address) && (
-            <div>
-              <p>
-                <small>
-                  {departureDate && (
-                    <strong data-testid="departure-date">
-                      Departed {formatDateFromIso(departureDate, 'DD MMM YYYY')}
-                    </strong>
-                  )}{' '}
-                  {address && <span data-testid="pickup-to-destination">{address}</span>}
-                </small>
-              </p>
-            </div>
-          )}
+          <div>
+            <p>
+              <small>
+                {departureDate && (
+                  <strong data-testid="departure-date">
+                    Departed {formatDateFromIso(departureDate, 'DD MMM YYYY')}
+                  </strong>
+                )}{' '}
+                {address && <span data-testid="pickup-to-destination">{address}</span>}
+                {mtoShipmentType && (
+                  <PaymentRequestAccountingCodes
+                    tacs={tacs}
+                    sacs={sacs}
+                    tacType={shipment.tacType}
+                    sacType={shipment.sacType}
+                    shipmentType={mtoShipmentType}
+                    mtoShipmentID={shipment.mtoShipmentID}
+                    showEdit={headingType !== 'HHG'}
+                    onEditClick={onEditClick}
+                  />
+                )}
+              </small>
+            </p>
+          </div>
         </div>
         <table className="table--stacked">
           <colgroup>
@@ -109,8 +181,14 @@ PaymentRequestDetails.propTypes = {
     ]),
     departureDate: PropTypes.string,
     mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
+    tacType: PropTypes.oneOf(Object.values(LOA_TYPE)),
+    sacType: PropTypes.oneOf(Object.values(LOA_TYPE)),
+    mtoShipmentID: PropTypes.string,
   }),
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
+  tacs: AccountingCodesShape,
+  sacs: AccountingCodesShape,
+  onEditClick: PropTypes.func,
 };
 
 PaymentRequestDetails.defaultProps = {
@@ -120,6 +198,9 @@ PaymentRequestDetails.defaultProps = {
     modificationType: '',
     mtoServiceItems: [],
   },
+  tacs: {},
+  sacs: {},
+  onEditClick: () => {},
 };
 
 export default PaymentRequestDetails;

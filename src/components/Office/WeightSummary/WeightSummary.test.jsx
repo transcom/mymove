@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 
 const noOverweightShipments = [

@@ -75,6 +75,11 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
 
+	move.Orders.OrdersNumber = nil
+	move.Orders.OrdersTypeDetail = nil
+	move.Orders.DepartmentIndicator = nil
+	suite.MustSave(&move.Orders)
+
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
