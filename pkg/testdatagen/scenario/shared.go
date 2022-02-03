@@ -556,17 +556,25 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	})
 
-	ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
-		ServiceMember: move.Orders.ServiceMember,
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &nextValidMoveDate,
-			Move:             move,
-			MoveID:           move.ID,
+	//testdatagen.MakeMinimalDefaultPPMShipment(db)
+	testdatagen.MakeMinimalPPMShipment(db, testdatagen.Assertions{
+		Move: move,
+		PPMShipment: models.PPMShipment{
+			ID: uuid.FromStringOrNil("d733fe2f-b08d-434a-ad8d-551f4d597b03"),
 		},
-		UserUploader: userUploader,
 	})
 
-	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
+	//ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
+	//	ServiceMember: move.Orders.ServiceMember,
+	//	PersonallyProcuredMove: models.PersonallyProcuredMove{
+	//		OriginalMoveDate: &nextValidMoveDate,
+	//		Move:             move,
+	//		MoveID:           move.ID,
+	//	},
+	//	UserUploader: userUploader,
+	//})
+	//
+	//move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
 	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
