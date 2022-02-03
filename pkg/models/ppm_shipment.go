@@ -12,18 +12,16 @@ import (
 type PPMShipmentStatus string
 
 const (
-	// PPMShipmentStatusDRAFT captures enum value "DRAFT"
-	PPMShipmentStatusDRAFT PPMShipmentStatus = "DRAFT"
-	// PPMShipmentStatusSUBMITTED captures enum value "SUBMITTED"
-	PPMShipmentStatusSUBMITTED PPMShipmentStatus = "SUBMITTED"
-	// PPMShipmentStatusAPPROVED captures enum value "APPROVED"
-	PPMShipmentStatusAPPROVED PPMShipmentStatus = "APPROVED"
-	// PPMShipmentStatusPAYMENTREQUESTED captures enum value "PAYMENT_REQUESTED"
-	PPMShipmentStatusPAYMENTREQUESTED PPMShipmentStatus = "PAYMENT_REQUESTED"
-	// PPMShipmentStatusCOMPLETED captures enum value "COMPLETED"
-	PPMShipmentStatusCOMPLETED PPMShipmentStatus = "COMPLETED"
-	// PPMShipmentStatusCANCELED captures enum value "CANCELED"
-	PPMShipmentStatusCANCELED PPMShipmentStatus = "CANCELED"
+	// PPMShipmentStatusSubmitted captures enum value "SUBMITTED"
+	PPMShipmentStatusSubmitted PPMShipmentStatus = "SUBMITTED"
+	// PPMShipmentStatusWaitingOnCustomer captures enum value "WAITING_ON_CUSTOMER"
+	PPMShipmentStatusWaitingOnCustomer PPMShipmentStatus = "WAITING_ON_CUSTOMER"
+	// PPMShipmentStatusNeedsAdvanceApproval captures enum value "NEEDS_ADVANCE_APPROVAL"
+	PPMShipmentStatusNeedsAdvanceApproval PPMShipmentStatus = "NEEDS_ADVANCE_APPROVAL"
+	// PPMShipmentStatusNeedsPaymentApproval captures enum value "NEEDS_PAYMENT_APPROVAL"
+	PPMShipmentStatusNeedsPaymentApproval PPMShipmentStatus = "NEEDS_PAYMENT_APPROVAL"
+	// PPMShipmentStatusPaymentApproved captures enum value "PAYMENT_APPROVED"
+	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
 )
 
 // PPMShipment is the portion of a move that a service member performs themselves
