@@ -102,7 +102,9 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 		createHHGNeedsServicesCounselingUSMC2(appCtx, userUploader)
 		createHHGServicesCounselingCompleted(appCtx)
 		createHHGNoShipments(appCtx)
-		createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx)
+		//Retirees and Separatees
+		createHHGNeedsServicesCounselingOrdersType(appCtx, internalmessages.OrdersTypeRETIREMENT)
+		createHHGNeedsServicesCounselingOrdersType(appCtx, internalmessages.OrdersTypeSEPARATION)
 
 		for i := 0; i < 12; i++ {
 			validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}

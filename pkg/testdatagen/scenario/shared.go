@@ -4896,19 +4896,20 @@ func createHHGNeedsServicesCounseling(appCtx appcontext.AppContext) {
 	})
 }
 
-func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcontext.AppContext) {
+func createHHGNeedsServicesCounselingOrdersType(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
 		DutyStation: models.DutyStation{
 			ProvidesServicesCounseling: true,
 		},
-		Order: models.Order{OrdersType: internalmessages.OrdersTypeRETIREMENT},
+		Order: models.Order{
+			OrdersType: ordersType,
+		},
 	})
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Locator:     "DATYPE",
 			Status:      models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt: &submittedAt,
 		},
