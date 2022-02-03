@@ -1,19 +1,21 @@
 import React from 'react';
+import { MemoryRouter, Route } from 'react-router';
 
 import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 import ShipmentDetails from './ShipmentDetails';
 
 import { LOA_TYPE } from 'shared/constants';
-import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components/Shipment Details',
   decorators: [
     (Story) => (
-      <MockProviders>
-        <Story />
-      </MockProviders>
+      <MemoryRouter initialEntries={['/moves/HGNTSR/mto']}>
+        <Route path="/moves/:moveCode/mto">
+          <Story />
+        </Route>
+      </MemoryRouter>
     ),
   ],
 };
@@ -125,14 +127,6 @@ const order = {
   ntsSac: '345',
 };
 
-const props = {
-  match: {
-    params: {
-      moveCode: 'A1B2C3',
-    },
-  },
-};
-
 export const Default = () => {
   const [modifiedShipment, setModifiedShipment] = React.useState(shipment);
   const handleEditSon = (values) => {
@@ -144,12 +138,7 @@ export const Default = () => {
 
   return (
     <div className="officeApp">
-      <ShipmentDetails
-        {...props}
-        shipment={modifiedShipment}
-        order={order}
-        handleEditServiceOrderNumber={handleEditSon}
-      />
+      <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
     </div>
   );
 };
