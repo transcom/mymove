@@ -8,7 +8,8 @@ import styles from './ShipmentCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatWeight, formatAddressShort, formatDateFromIso } from 'shared/formatters';
+import { formatAddressShort, formatDateFromIso } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { MandatorySimpleAddressShape } from 'types/address';
 

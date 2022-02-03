@@ -23,7 +23,7 @@ const ShipmentDisplay = ({
   onChange,
   shipmentId,
   isSubmitted,
-  showIcon,
+  allowApproval,
   editURL,
   ordersLOA,
   warnIfMissing,
@@ -32,7 +32,7 @@ const ShipmentDisplay = ({
   neverShow,
 }) => {
   const history = useHistory();
-  const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
+  const containerClasses = classnames(styles.container, { [styles.noIcon]: !allowApproval });
   const [isExpanded, setIsExpanded] = useState(false);
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
@@ -49,7 +49,7 @@ const ShipmentDisplay = ({
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={containerClasses} shipmentType={shipmentType}>
         <div className={styles.heading}>
-          {showIcon && isSubmitted && (
+          {allowApproval && isSubmitted && !displayInfo.usesExternalVendor && (
             <Checkbox
               id={`shipment-display-checkbox-${shipmentId}`}
               data-testid="shipment-display-checkbox"
@@ -61,7 +61,9 @@ const ShipmentDisplay = ({
             />
           )}
 
-          {showIcon && !isSubmitted && <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />}
+          {allowApproval && !isSubmitted && (
+            <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />
+          )}
           <div className={styles.headingTagWrapper}>
             <h3>
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
@@ -141,7 +143,7 @@ ShipmentDisplay.propTypes = {
     sacType: PropTypes.string,
     ntsRecordedWeight: PropTypes.number,
   }).isRequired,
-  showIcon: PropTypes.bool,
+  allowApproval: PropTypes.bool,
   editURL: PropTypes.string,
   ordersLOA: OrdersLOAShape,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
@@ -153,7 +155,7 @@ ShipmentDisplay.propTypes = {
 ShipmentDisplay.defaultProps = {
   onChange: () => {},
   shipmentType: SHIPMENT_OPTIONS.HHG,
-  showIcon: true,
+  allowApproval: true,
   editURL: '',
   ordersLOA: {
     tac: '',

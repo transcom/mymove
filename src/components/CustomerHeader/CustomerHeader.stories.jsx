@@ -27,9 +27,37 @@ const props = {
   moveCode: 'FKLCTR',
 };
 
+const propsRetirement = {
+  ...props,
+  order: {
+    ...props.order,
+    order_type: 'RETIREMENT',
+  },
+};
+
+const propsSeparation = {
+  ...props,
+  order: {
+    ...props.order,
+    order_type: 'SEPARATION',
+  },
+};
+
 // eslint-disable-next-line react/jsx-props-no-spreading
 export const Customer = () => (
   <div style={{ minWidth: '1000px' }}>
     <CustomerHeader {...props} />
+  </div>
+);
+
+export const CustomerRetirement = () => (
+  <div style={{ minWidth: '1000px' }}>
+    <CustomerHeader {...propsRetirement} />
+  </div>
+);
+
+export const CustomerSeparation = () => (
+  <div style={{ minWidth: '1000px' }}>
+    <CustomerHeader {...propsSeparation} />
   </div>
 );

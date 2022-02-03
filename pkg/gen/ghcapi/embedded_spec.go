@@ -3260,7 +3260,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
         }
@@ -3289,17 +3289,15 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersType": {
@@ -3318,9 +3316,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -4564,6 +4561,15 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
+    },
     "Order": {
       "type": "object",
       "properties": {
@@ -5513,7 +5519,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
         }
@@ -5624,17 +5630,15 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersAcknowledgement": {
@@ -5667,9 +5671,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -9980,7 +9983,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
@@ -10010,17 +10013,15 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersType": {
@@ -10039,9 +10040,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -11285,6 +11285,15 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
+    },
     "Order": {
       "type": "object",
       "properties": {
@@ -12240,7 +12249,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
@@ -12352,17 +12361,15 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersAcknowledgement": {
@@ -12395,9 +12402,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {

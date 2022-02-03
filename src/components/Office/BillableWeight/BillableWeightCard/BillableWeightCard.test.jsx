@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import BillableWeightCard from './BillableWeightCard';
 
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 
 describe('BillableWeightCard', () => {
   const defaultProps = {

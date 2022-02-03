@@ -1,8 +1,8 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
-import { formatWeight, formatCents, toDollarString } from 'shared/formatters';
+import { formatCents, toDollarString } from 'shared/formatters';
 import { formatDate } from 'shared/dates';
-import { formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
+import { formatWeight, formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
 
 const calculation = (value, label, ...details) => {
   return {
@@ -545,7 +545,7 @@ const totalAmountRequested = (totalAmount) => {
   return calculation(value, label, formatDetail(detail));
 };
 
-const makeCalculations = (itemCode, totalAmount, params, mtoParams) => {
+export default function makeCalculations(itemCode, totalAmount, params, mtoParams) {
   let result = [];
 
   switch (itemCode) {
@@ -734,6 +734,6 @@ const makeCalculations = (itemCode, totalAmount, params, mtoParams) => {
       break;
   }
   return result;
-};
+}
 
-export { makeCalculations as default, makeCalculations };
+export { makeCalculations };

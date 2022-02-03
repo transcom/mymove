@@ -4924,6 +4924,7 @@ func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcon
 		DutyStation: models.DutyStation{
 			ProvidesServicesCounseling: true,
 		},
+		Order: models.Order{OrdersType: internalmessages.OrdersTypeRETIREMENT},
 	})
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{

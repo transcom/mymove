@@ -19,6 +19,9 @@ describe('Services counselor user', () => {
       'patchServiceCounselingCompleted',
     );
     cy.intercept('**/ghc/v1/moves/**/financial-review-flag').as('financialReviewFlagCompleted');
+    cy.intercept('POST', '**/ghc/v1/mto-shipments').as('createShipment');
+    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('patchShipment');
+    cy.intercept('PATCH', '**/ghc/v1/counseling/orders/**/allowances').as('patchAllowances');
 
     const userId = 'a6c8663f-998f-4626-a978-ad60da2476ec';
     cy.apiSignInAsUser(userId, ServicesCounselorOfficeUserType);
@@ -108,5 +111,68 @@ describe('Services counselor user', () => {
 
     // Verify sucess alert and tag
     cy.contains('Move unflagged for financial review.');
+  });
+
+  it('is able to add a shipment', () => {
+    const deliveryDate = new Date().toLocaleDateString('en-US');
+
+    const moveLocator = 'DATYPE';
+
+    /**
+     * SC Moves queue
+     */
+    cy.wait(['@getSortedMoves']);
+    cy.get('input[name="locator"]').as('moveCodeFilterInput');
+    cy.get('@moveCodeFilterInput').type(moveLocator).blur();
+    cy.get('td').first().click();
+    cy.url().should('include', `details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // add a shipment
+    cy.get('[data-testid="dropdown"]').first().select('HHG');
+    cy.get('#requestedPickupDate').clear().type(deliveryDate).blur();
+    cy.get('[data-testid="useCurrentResidence"]').click({ force: true });
+    cy.get('#requestedDeliveryDate').clear().type('16 Mar 2022').blur();
+    cy.get('#has-delivery-address').click({ force: true });
+    cy.get('input[name="delivery.address.streetAddress1"]').type('7 q st');
+    cy.get('input[name="delivery.address.city"]').type('city');
+    cy.get('select[name="delivery.address.state"]').select('OH');
+    cy.get('input[name="delivery.address.postalCode"]').type('90210');
+    cy.get('select[name="destinationAddressType"]').select('Home of record (HOR)');
+    cy.get('[data-testid="submitForm"]').click();
+    // the shipment should be saved with the type
+    cy.wait('@createShipment');
+  });
+
+  it('is able to edit a shipment', () => {
+    const deliveryDate = new Date().toLocaleDateString('en-US');
+
+    const moveLocator = 'DATYPE';
+
+    /**
+     * SC Moves queue
+     */
+    cy.wait(['@getSortedMoves']);
+    cy.get('input[name="locator"]').as('moveCodeFilterInput');
+    cy.get('@moveCodeFilterInput').type(moveLocator).blur();
+    cy.get('td').first().click();
+    cy.url().should('include', `details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // add a shipment
+    cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
+    cy.get('#requestedPickupDate').clear().type(deliveryDate).blur();
+    cy.get('[data-testid="useCurrentResidence"]').click({ force: true });
+    cy.get('#requestedDeliveryDate').clear().type('16 Mar 2022').blur();
+    cy.get('#has-delivery-address').click({ force: true });
+    cy.get('input[name="delivery.address.streetAddress1"]').clear().type('7 q st');
+    cy.get('input[name="delivery.address.city"]').clear().type('city');
+    cy.get('select[name="delivery.address.state"]').select('OH');
+    cy.get('input[name="delivery.address.postalCode"]').clear().type('90210');
+    cy.get('select[name="destinationAddressType"]').select('Home of selection (HOS)');
+    cy.get('[data-testid="submitForm"]').click();
+    // the shipment should be saved with the type
+    cy.wait('@patchShipment');
+    cy.get('.usa-alert__text').contains('Your changes were saved.');
   });
 });
