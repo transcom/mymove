@@ -1208,7 +1208,8 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 		},
 		UserUploader: userUploader,
 	})
-	moveDoc := testdatagen.MakeMoveDocument(appCtx.DB(), testdatagen.Assertions{
+
+	testdatagen.MakeMoveDocument(appCtx.DB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID:                   ppm6.Move.ID,
 			Move:                     ppm6.Move,
@@ -1220,26 +1221,7 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 			ServiceMember:   ppm6.Move.Orders.ServiceMember,
 		},
 	})
-	testdatagen.MakeMovingExpenseDocument(appCtx.DB(), testdatagen.Assertions{
-		MovingExpenseDocument: models.MovingExpenseDocument{
-			MoveDocument: models.MoveDocument{
-				ID: moveDoc.ID,
-			},
-		},
-	})
-	testdatagen.MakeWeightTicketSetDocument(appCtx.DB(), testdatagen.Assertions{
-		WeightTicketSetDocument: models.WeightTicketSetDocument{
-			MoveDocument: moveDoc,
-		},
-	})
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: ppm6.MoveID,
-		},
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			ID: ppm6.ID,
-		},
-	})
+
 	moveRouter.Submit(appCtx, &ppm6.Move)
 	moveRouter.Approve(appCtx, &ppm6.Move)
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
