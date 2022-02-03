@@ -27,28 +27,28 @@ const (
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID         `json:"id" db:"id"`
-	ShipmentID                     uuid.UUID         `json:"shipment_id" db:"shipment_id"` // Should this be MTOShipment?
+	ShipmentID                     uuid.UUID         `json:"shipment_id" db:"shipment_id"`
 	Shipment                       MTOShipment       `belongs_to:"shipment" fk_id:"shipment_id"`
 	CreatedAt                      time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt                      time.Time         `json:"updated_at" db:"updated_at"`
 	Status                         PPMShipmentStatus `json:"status" db:"status"`
-	ExpectedDepartureDate          *time.Time        `json:"expected_departure_date" db:"expected_departure_date"` // Originally OriginalMoveDate
+	ExpectedDepartureDate          *time.Time        `json:"expected_departure_date" db:"expected_departure_date"`
 	ActualMoveDate                 *time.Time        `json:"actual_move_date" db:"actual_move_date"`
 	SubmittedAt                    *time.Time        `json:"submitted_at" db:"submitted_at"`
 	ReviewedAt                     *time.Time        `json:"reviewed_at" db:"reviewed_at"`
 	ApprovedAt                     *time.Time        `json:"approved_at" db:"approved_at"`
 	PickupPostalCode               *string           `json:"pickup_postal_code" db:"pickup_postal_code"`
-	SecondaryPickupPostalCode      *string           `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"` // Originally AdditionalPickupPostalCode
+	SecondaryPickupPostalCode      *string           `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
 	DestinationPostalCode          *string           `json:"destination_postal_code" db:"destination_postal_code"`
 	SecondaryDestinationPostalCode *string           `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
-	SitExpected                    *bool             `json:"sit_expected" db:"sit_expected"`         // Originally HasSit
-	EstimatedWeight                *unit.Pound       `json:"estimated_weight" db:"estimated_weight"` // Originally WeightEstimate
+	SitExpected                    *bool             `json:"sit_expected" db:"sit_expected"`
+	EstimatedWeight                *unit.Pound       `json:"estimated_weight" db:"estimated_weight"`
 	NetWeight                      *unit.Pound       `json:"net_weight" db:"net_weight"`
-	HasProGear                     *bool             `json:"has_pro_gear" db:"has_pro_gear"` // Can we get rid of this and just base it on if the pro gear weights are 0?
+	HasProGear                     *bool             `json:"has_pro_gear" db:"has_pro_gear"`
 	ProGearWeight                  *int32            `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *int32            `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
-	EstimatedIncentive             *int32            `json:"estimated_incentive" db:"estimated_incentive"` // Originally IncentiveEstimate
-	AdvanceRequested               *bool             `json:"advance_requested" db:"advance_requested"`     // Originally HasRequestedAdvance
+	EstimatedIncentive             *int32            `json:"estimated_incentive" db:"estimated_incentive"`
+	AdvanceRequested               *bool             `json:"advance_requested" db:"advance_requested"`
 	AdvanceID                      *uuid.UUID        `json:"advance_id" db:"advance_id"`
 	Advance                        *Reimbursement    `belongs_to:"reimbursements" fk_id:"advance_id"`
 	AdvanceWorksheetID             *uuid.UUID        `json:"advance_worksheet_id" db:"advance_worksheet_id"`
