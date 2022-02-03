@@ -40,7 +40,7 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for exp deploys. See the branch settings below.
-  exp-branch: &exp-branch pm-mb-11261-archive-ppm-data
+  exp-branch: &exp-branch placeholder_branch_name
 
   # set acceptance-branch to the branch you want to ENABLE acceptance
   # tests, or `placeholder_branch_name` if you don't want to run them
@@ -49,22 +49,22 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch pm-mb-11261-archive-ppm-data
+  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch pm-mb-11261-archive-ppm-data
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch pm-mb-11261-archive-ppm-data
+  client-ignore-branch: &client-ignore-branch placeholder_branch_name
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch pm-mb-11261-archive-ppm-data
+  server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
   av_medium:
@@ -296,6 +296,7 @@ commands:
             scripts/circleci-announce-broken-branch
           when: on_fail
 
+
   deploy_migrations_steps:
     parameters:
       ecr_env:
@@ -468,6 +469,7 @@ commands:
           no_output_timeout: 20m
       - announce_failure
 
+
   deploy_app_storybook:
     parameters:
       s3_bucket:
@@ -553,7 +555,8 @@ commands:
       application:
         type: string
     steps:
-      - run: echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+      - run:
+          echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
           source $BASH_ENV
       - run:
           name: make server_test_build for <<parameters.application>>
@@ -1158,6 +1161,7 @@ jobs:
             - swagger
             - pkg/testdatagen/testdata
       - announce_failure
+
 
   # Compile the client side of the app once and persist the relevant
   # build artifacts to the workspace.
@@ -1890,8 +1894,8 @@ workflows:
           requires:
             - pre_deps_golang
           filters:
-            branches:
-              ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
+              branches:
+                ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
       - anti_virus:
           filters:
