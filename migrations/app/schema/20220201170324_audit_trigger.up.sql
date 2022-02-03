@@ -5,23 +5,21 @@
 -- and
 -- http://8kb.co.uk/blog/2015/01/19/copying-pavel-stehules-simple-history-table-but-with-the-jsonb-type/
 
--- we use a bigserial for the id because postgres 12 does not
--- support gen_random_uuid (that function is new in postgres 13)
 CREATE TABLE audit_history (
-    id bigserial primary key,
+    id uuid primary key,
     schema_name text not null,
     table_name text not null,
     relid oid not null,
-	object_id uuid,
+    object_id uuid,
     session_userid uuid,
-	event_name text,
+    event_name text,
     action_tstamp_tx TIMESTAMP WITH TIME ZONE NOT NULL,
     action_tstamp_stm TIMESTAMP WITH TIME ZONE NOT NULL,
     action_tstamp_clk TIMESTAMP WITH TIME ZONE NOT NULL,
     transaction_id bigint,
     client_query text,
     action TEXT NOT NULL CHECK (action IN ('I','D','U','T')),
-	old_data jsonb,
+    old_data jsonb,
     changed_data jsonb,
     statement_only boolean not null
 );
@@ -58,22 +56,22 @@ DECLARE
     excluded_cols text[] = ARRAY[]::text[];
     -- do NOT require these setting to exist
     _user_id text;
-	_event_name text;
+    _event_name text;
 BEGIN
     IF TG_WHEN <> 'AFTER' THEN
         RAISE EXCEPTION 'if_modified_func() may only run as an AFTER trigger';
     END IF;
 
-	_event_name := current_setting('audit.current_event_name', true);
+    _event_name := current_setting('audit.current_event_name', true);
 
-	BEGIN
-		_user_id := current_setting('audit.current_user_id', true)::uuid;
-		EXCEPTION WHEN OTHERS THEN
-		_user_id := NULL;
-	END;
+    BEGIN
+        _user_id := current_setting('audit.current_user_id', true)::uuid;
+        EXCEPTION WHEN OTHERS THEN
+        _user_id := NULL;
+    END;
 
     audit_row = ROW(
-        nextval('audit_history_id_seq'),              -- id
+        uuid_generate_v4(),                           -- id
         TG_TABLE_SCHEMA::text,                        -- schema_name
         TG_TABLE_NAME::text,                          -- table_name
         TG_RELID,                                     -- relation OID for much quicker searches
@@ -100,18 +98,19 @@ BEGIN
     END IF;
 
     IF (TG_OP = 'UPDATE' AND TG_LEVEL = 'ROW') THEN
-	    j_old := row_to_json(OLD)::jsonb;
-		j_new := row_to_json(NEW)::jsonb;
+        j_old := row_to_json(OLD)::jsonb;
+        j_new := row_to_json(NEW)::jsonb;
 
-		IF j_old ? 'id' THEN
-		   audit_row.object_id = j_old->>'id';
-		END IF;
+        IF j_old ? 'id' THEN
+           audit_row.object_id = j_old->>'id';
+        END IF;
 
         audit_row.old_data = j_old - excluded_cols;
+        -- inspired by https://stackoverflow.com/a/55852047
         j_diff := (SELECT json_object_agg(COALESCE(oldkv.key, newkv.key), newkv.value)
                    FROM jsonb_each_text(j_old) oldkv
                    FULL OUTER JOIN jsonb_each_text(j_new) newkv ON newkv.key = oldkv.key
-				   WHERE newkv.value IS DISTINCT FROM oldkv.value);
+                   WHERE newkv.value IS DISTINCT FROM oldkv.value);
         audit_row.changed_data = j_diff - excluded_cols;
 
         IF audit_row.changed_data = jsonb('{}') THEN
@@ -119,17 +118,17 @@ BEGIN
             RETURN NULL;
         END IF;
     ELSIF (TG_OP = 'DELETE' AND TG_LEVEL = 'ROW') THEN
-	    j_old := row_to_json(OLD)::jsonb;
-		IF j_old ? 'id' THEN
-		   audit_row.object_id = j_old->>'id';
-		END IF;
+        j_old := row_to_json(OLD)::jsonb;
+        IF j_old ? 'id' THEN
+           audit_row.object_id = j_old->>'id';
+        END IF;
 
         audit_row.old_data = j_old - excluded_cols;
     ELSIF (TG_OP = 'INSERT' AND TG_LEVEL = 'ROW') THEN
-	    j_new := row_to_json(NEW)::jsonb;
-		IF j_new ? 'id' THEN
-		   audit_row.object_id = j_new->>'id';
-		END IF;
+        j_new := row_to_json(NEW)::jsonb;
+        IF j_new ? 'id' THEN
+           audit_row.object_id = j_new->>'id';
+        END IF;
         audit_row.changed_data = j_new - excluded_cols;
     ELSIF (TG_LEVEL = 'STATEMENT' AND TG_OP IN ('INSERT','UPDATE','DELETE','TRUNCATE')) THEN
         audit_row.statement_only = 't';
