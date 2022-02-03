@@ -1183,44 +1183,38 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.NotNil(fetchedShipment.RequiredDeliveryDate)
 	})
 
-	suite.T().Run("Test that correct addresses are being used to calculate required delivery date", func(t *testing.T) {
-		subtestData := suite.createApproveShimpentSubtestData()
-		appCtx := subtestData.appCtx
-		move := subtestData.move
-		approver := subtestData.shipmentApprover
-		planner := subtestData.planner
-		planner.On("TransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(500, nil)
+	suite.Run("Test that correct addresses are being used to calculate required delivery date", func() {
+		setupTestData()
+		appCtx := suite.AppContextForTest()
+
+		//ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+		//	MaxDaysTransitTime: 12,
+		//	WeightLbsLower:     0,
+		//	WeightLbsUpper:     10000,
+		//	DistanceMilesLower: 0,
+		//	DistanceMilesUpper: 10000,
+		//}
+		//verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		//suite.Assert().False(verrs.HasAny())
+		//suite.NoError(err)
+
+		// Let's also create a transit time object with a zero upper bound for weight (this can happen in the table).
+		ghcDomesticTransitTime0LbsUpper := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     10001,
+			WeightLbsUpper:     0,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime0LbsUpper)
+		suite.Assert().False(verrs.HasAny())
+		suite.NoError(err)
 
 		testdatagen.FetchOrMakeReService(appCtx.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDNPK,
 			},
 		})
-
-		expectedReServiceCodes := []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
-			models.ReServiceCodeDNPK,
-		}
-
-		var reServiceCode models.ReService
-		if err := appCtx.DB().Where("code = $1", expectedReServiceCodes[0]).First(&reServiceCode); err != nil {
-			for _, serviceCode := range expectedReServiceCodes {
-				testdatagen.FetchOrMakeReService(appCtx.DB(), testdatagen.Assertions{
-					ReService: models.ReService{
-						Code: serviceCode,
-					},
-				})
-			}
-		}
 
 		// This is testing that the Required Delivery Date is calculated correctly.
 		// In order for the Required Delivery Date to be calculated, the following conditions must be true:
@@ -1232,14 +1226,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		// 3. The shipment must not already have a Required Delivery Date
 		// Note that MakeMTOShipment will automatically add a Required Delivery Date if the ScheduledPickupDate
 		// is present, therefore we need to use MakeMTOShipmentMinimal and add the Pickup and Destination addresses
-		estimatedWeight := unit.Pound(1400)
+		estimatedWeight := unit.Pound(11000)
 
 		destinationAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
 		pickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
 
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
+			Move: mto,
 			MTOShipment: models.MTOShipment{
 				ShipmentType:         models.MTOShipmentTypeHHG,
 				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
@@ -1253,7 +1247,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		})
 
 		ntsShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
+			Move: mto,
 			MTOShipment: models.MTOShipment{
 				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
 				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
@@ -1267,7 +1261,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		})
 
 		ntsrShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
+			Move: mto,
 			MTOShipment: models.MTOShipment{
 				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
@@ -1287,14 +1281,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		}
 
 		for _, testCase := range testCases {
-			createdShipment := models.MTOShipment{}
-			err := suite.DB().Find(&createdShipment, testCase.ID)
-			suite.FatalNoError(err)
-			err = suite.DB().Load(&createdShipment)
-			suite.FatalNoError(err)
-
 			shipmentEtag := etag.GenerateEtag(testCase.UpdatedAt)
-			_, err = approver.ApproveShipment(appCtx, testCase.ID, shipmentEtag)
+			_, err = updater.UpdateMTOShipmentStatus(appCtx, testCase.ID, status, nil, shipmentEtag)
 			suite.NoError(err)
 
 			fetchedShipment := models.MTOShipment{}
