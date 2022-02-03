@@ -5127,6 +5127,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -5148,17 +5150,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -11851,6 +11856,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -11872,17 +11879,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
