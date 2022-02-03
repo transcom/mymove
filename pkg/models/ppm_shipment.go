@@ -44,15 +44,15 @@ type PPMShipment struct {
 	SitExpected                    *bool             `json:"sit_expected" db:"sit_expected"`         // Originally HasSit
 	EstimatedWeight                *unit.Pound       `json:"estimated_weight" db:"estimated_weight"` // Originally WeightEstimate
 	NetWeight                      *unit.Pound       `json:"net_weight" db:"net_weight"`
-	HasProGear                     bool              `json:"has_pro_gear" db:"has_pro_gear"` // Can we get rid of this and just base it on if the pro gear weights are 0?
+	HasProGear                     *bool             `json:"has_pro_gear" db:"has_pro_gear"` // Can we get rid of this and just base it on if the pro gear weights are 0?
 	ProGearWeight                  *int32            `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *int32            `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
 	EstimatedIncentive             *int32            `json:"estimated_incentive" db:"estimated_incentive"` // Originally IncentiveEstimate
-	AdvanceRequested               bool              `json:"advance_requested" db:"advance_requested"`     // Originally HasRequestedAdvance
+	AdvanceRequested               *bool             `json:"advance_requested" db:"advance_requested"`     // Originally HasRequestedAdvance
 	AdvanceID                      *uuid.UUID        `json:"advance_id" db:"advance_id"`
 	Advance                        *Reimbursement    `belongs_to:"reimbursements" fk_id:"advance_id"`
 	AdvanceWorksheetID             *uuid.UUID        `json:"advance_worksheet_id" db:"advance_worksheet_id"`
-	AdvanceWorksheet               Document          `belongs_to:"documents" fk_id:"advance_worksheet_id"`
+	AdvanceWorksheet               *Document         `belongs_to:"documents" fk_id:"advance_worksheet_id"`
 }
 
 // PPMShipments is a list of PPMs
