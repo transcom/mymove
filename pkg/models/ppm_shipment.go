@@ -28,7 +28,7 @@ const (
 type PPMShipment struct {
 	ID                             uuid.UUID         `json:"id" db:"id"`
 	ShipmentID                     uuid.UUID         `json:"shipment_id" db:"shipment_id"`
-	Shipment                       MTOShipment       `belongs_to:"shipment" fk_id:"shipment_id"`
+	Shipment                       MTOShipment       `belongs_to:"mto_shipments" fk_id:"shipment_id"`
 	CreatedAt                      time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt                      time.Time         `json:"updated_at" db:"updated_at"`
 	Status                         PPMShipmentStatus `json:"status" db:"status"`
