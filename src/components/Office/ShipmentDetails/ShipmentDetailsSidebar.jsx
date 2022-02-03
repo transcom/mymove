@@ -168,7 +168,7 @@ const ShipmentDetailsSidebar = ({
                 type="button"
                 onClick={handleShowAccountingCodesModal}
                 className="float-right usa-link modal-link"
-                data-testid="edit-accounting-code-modal-open"
+                data-testid="edit-accounting-codes-modal-open"
                 unstyled
               >
                 Edit

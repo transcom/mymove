@@ -16,46 +16,44 @@ const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentTyp
   const handleFormSubmit = (values) => onSubmit(values);
 
   return (
-    <div data-testid="AccountingCodes">
-      <Modal>
-        <ModalClose handleClick={onClose} />
+    <Modal data-testid="AccountingCodes">
+      <ModalClose handleClick={onClose} />
 
-        <ModalTitle>
-          <ShipmentTag shipmentType={shipmentType} />
-          <h2 className={styles.Title}>Edit accounting codes</h2>
-        </ModalTitle>
+      <ModalTitle>
+        <ShipmentTag shipmentType={shipmentType} />
+        <h2 className={styles.Title}>Edit accounting codes</h2>
+      </ModalTitle>
 
-        <Formik initialValues={{ tacType, sacType }} onSubmit={handleFormSubmit}>
-          <Form>
-            <AccountingCodeSection
-              label="TAC"
-              emptyMessage="No TAC code entered."
-              fieldName="tacType"
-              shipmentTypes={TACs}
-            />
+      <Formik initialValues={{ tacType, sacType }} onSubmit={handleFormSubmit}>
+        <Form>
+          <AccountingCodeSection
+            label="TAC"
+            emptyMessage="No TAC code entered."
+            fieldName="tacType"
+            shipmentTypes={TACs}
+          />
 
-            <AccountingCodeSection
-              label="SAC (optional)"
-              emptyMessage="No SAC code entered."
-              fieldName="sacType"
-              shipmentTypes={SACs}
-            />
+          <AccountingCodeSection
+            label="SAC (optional)"
+            emptyMessage="No SAC code entered."
+            fieldName="sacType"
+            shipmentTypes={SACs}
+          />
 
-            <div>
-              <button type="button" onClick={onEditCodesClick} className={styles.EditCodes}>
-                Add or edit codes
-              </button>
-            </div>
-            <ModalActions>
-              <Button type="submit">Save</Button>
-              <Button type="button" secondary onClick={onClose}>
-                Cancel
-              </Button>
-            </ModalActions>
-          </Form>
-        </Formik>
-      </Modal>
-    </div>
+          <div>
+            <button type="button" onClick={onEditCodesClick} className={styles.EditCodes}>
+              Add or edit codes
+            </button>
+          </div>
+          <ModalActions>
+            <Button type="submit">Save</Button>
+            <Button type="button" secondary onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalActions>
+        </Form>
+      </Formik>
+    </Modal>
   );
 };
 
