@@ -822,6 +822,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
 	payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
 
+	// unfortunately, what we return and what our swagger definition
+	// says are pretty far apart
+	// we don't return the associated addresses for the duty stations
+	// and the status returned is from the query string not the
+	// defined PaymentRequestStatus enum as indicated in the swagger
+	// definition
+	//
+	// suite.NoError(payload.Validate(strfmt.Default))
+
 	suite.Len(payload.QueuePaymentRequests, 1)
 
 	paymentRequest := *payload.QueuePaymentRequests[0]
