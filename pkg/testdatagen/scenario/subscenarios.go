@@ -100,29 +100,37 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 		createTXOServicesUSMCCounselor(appCtx)
 
 		//Order Types -- PCoS, Retr, Sep
-		var pcos = internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-		var retirement = internalmessages.OrdersTypeRETIREMENT
-		var separation = internalmessages.OrdersTypeSEPARATION
+		pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		retirement := internalmessages.OrdersTypeRETIREMENT
+		separation := internalmessages.OrdersTypeSEPARATION
 
 		//Shipment Types -- HHG, NTS, NTSR
-		var hhg = models.MTOShipmentTypeHHG
-		var nts = models.MTOShipmentTypeHHGIntoNTSDom
-		var ntsR = models.MTOShipmentTypeHHGOutOfNTSDom
+		hhg := models.MTOShipmentTypeHHG
+		nts := models.MTOShipmentTypeHHGIntoNTSDom
+		ntsR := models.MTOShipmentTypeHHGOutOfNTSDom
 
-		//PCOS
-		createNeedsServicesCounseling(appCtx, pcos, hhg)
-		createNeedsServicesCounseling(appCtx, pcos, nts)
-		createNeedsServicesCounseling(appCtx, pcos, ntsR)
+		//Destination Types -- PLEAD, HOR, HOS, OTHER
+		plead := models.DestinationTypePlaceEnteredActiveDuty
+		hor := models.DestinationTypeHomeOfRecord
+		hos := models.DestinationTypeHomeOfSelection
+		other := models.DestinationTypeOtherThanAuthorized
+
+		//PCOS - one with nil dest type, 2 others with PLEAD status
+		createNeedsServicesCounseling(appCtx, pcos, hhg, nil)
+		createNeedsServicesCounseling(appCtx, pcos, nts, &plead)
+		createNeedsServicesCounseling(appCtx, pcos, nts, &plead)
 
 		//Retr
-		createNeedsServicesCounseling(appCtx, retirement, hhg)
-		createNeedsServicesCounseling(appCtx, retirement, nts)
-		createNeedsServicesCounseling(appCtx, retirement, ntsR)
+		createNeedsServicesCounseling(appCtx, retirement, hhg, &hor)
+		createNeedsServicesCounseling(appCtx, retirement, nts, &hos)
+		createNeedsServicesCounseling(appCtx, retirement, ntsR, &other)
+		createNeedsServicesCounseling(appCtx, retirement, hhg, &plead)
 
 		//Separation
-		createNeedsServicesCounseling(appCtx, separation, hhg)
-		createNeedsServicesCounseling(appCtx, separation, nts)
-		createNeedsServicesCounseling(appCtx, separation, ntsR)
+		createNeedsServicesCounseling(appCtx, separation, hhg, &hor)
+		createNeedsServicesCounseling(appCtx, separation, nts, &hos)
+		createNeedsServicesCounseling(appCtx, separation, ntsR, &other)
+		createNeedsServicesCounseling(appCtx, separation, ntsR, &plead)
 
 		//MC
 		createHHGNeedsServicesCounselingUSMC(appCtx, userUploader)

@@ -4856,7 +4856,7 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 /*
 	Create Needs Service Counseling - pass in orders and shipment type
 */
-func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType) {
+func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType) {
 
 	db := appCtx.DB()
 	submittedAt := time.Now()
@@ -4883,6 +4883,7 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -4890,6 +4891,7 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			Status:                models.MTOShipmentStatusSubmitted,
 			RequestedPickupDate:   &requestedPickupDate,
 			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationType:       destinationType,
 		},
 	})
 

@@ -137,6 +137,10 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		StorageFacility:       storageFacilityPtr,
 	}
 
+	if assertions.MTOShipment.DestinationType != nil {
+		MTOShipment.DestinationType = assertions.MTOShipment.DestinationType
+	}
+
 	if shipmentHasDeliveryDetails {
 		MTOShipment.DestinationAddress = &destinationAddress
 		MTOShipment.DestinationAddressID = &destinationAddress.ID

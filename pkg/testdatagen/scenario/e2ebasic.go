@@ -3149,8 +3149,13 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE2ET")
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE3ET")
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE4ET")
-	createNeedsServicesCounseling(appCtx, internalmessages.OrdersTypeRETIREMENT, models.MTOShipmentTypeHHG)
-	createNeedsServicesCounseling(appCtx, internalmessages.OrdersTypeSEPARATION, models.MTOShipmentTypeHHG)
+
+	//setting orders, shipment time and destination type for service counseling data
+	hos := models.DestinationTypeHomeOfSelection
+	hor := models.DestinationTypeHomeOfRecord
+	createNeedsServicesCounseling(appCtx, internalmessages.OrdersTypeRETIREMENT, models.MTOShipmentTypeHHG, &hos)
+	createNeedsServicesCounseling(appCtx, internalmessages.OrdersTypeSEPARATION, models.MTOShipmentTypeHHG, &hor)
+
 	createBasicNTSMove(appCtx, userUploader)
 	createBasicMovePPM01(appCtx, userUploader)
 	createBasicMovePPM02(appCtx, userUploader)
