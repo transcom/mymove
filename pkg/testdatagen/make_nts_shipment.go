@@ -60,11 +60,6 @@ func MakeNTSShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		MTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
-	// don't pass in blank destination type values
-	if assertions.MTOShipment.DestinationType == "" {
-		assertions.MTOShipment.DestinationType = models.DestinationTypePlaceEnteredActiveDuty
-	}
-
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 
@@ -116,11 +111,6 @@ func MakeNTSRShipment(db *pop.Connection, assertions Assertions) models.MTOShipm
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 		MTOShipment.ApprovedDate = &approvedDate
-	}
-
-	// don't pass in blank destination type values
-	if assertions.MTOShipment.DestinationType == "" {
-		assertions.MTOShipment.DestinationType = models.DestinationTypePlaceEnteredActiveDuty
 	}
 
 	// Overwrite values with those from assertions
