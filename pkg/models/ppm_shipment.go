@@ -57,3 +57,8 @@ type PPMShipment struct {
 
 // PPMShipments is a list of PPMs
 type PPMShipments []PPMShipment
+
+// TableName overrides the table name used by Pop. By default it tries using the name `ppmshipments`.
+func (p PPMShipment) TableName() string {
+	return "ppm_shipments"
+}
