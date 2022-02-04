@@ -28,8 +28,6 @@ const (
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
 	// ServiceItemParamNameCubicFeetCrating is the param key name CubicFeetCrating
 	ServiceItemParamNameCubicFeetCrating ServiceItemParamName = "CubicFeetCrating"
-	// ServiceItemParamNameDateBilled is the param key name DateBilled
-	ServiceItemParamNameDateBilled ServiceItemParamName = "DateBilled"
 	// ServiceItemParamNameDimensionHeight is the param key name DimensionHeight
 	ServiceItemParamNameDimensionHeight ServiceItemParamName = "DimensionHeight"
 	// ServiceItemParamNameDimensionLength is the param key name DimensionLength
@@ -126,6 +124,8 @@ const (
 	ServiceItemParamNameSITScheduleDest ServiceItemParamName = "SITScheduleDest"
 	// ServiceItemParamNameSITScheduleOrigin is the param key name SITScheduleOrigin
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
+	// ServiceItemParamNameTargetDateBilled is the param key name TargetDateBilled
+	ServiceItemParamNameTargetDateBilled ServiceItemParamName = "TargetDateBilled"
 	// ServiceItemParamNameWeightAdjusted is the param key name WeightAdjusted
 	ServiceItemParamNameWeightAdjusted ServiceItemParamName = "WeightAdjusted"
 	// ServiceItemParamNameWeightBilled is the param key name WeightBilled
@@ -199,7 +199,6 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameContractYearName,
 	ServiceItemParamNameCubicFeetBilled,
 	ServiceItemParamNameCubicFeetCrating,
-	ServiceItemParamNameDateBilled,
 	ServiceItemParamNameDimensionHeight,
 	ServiceItemParamNameDimensionLength,
 	ServiceItemParamNameDimensionWidth,
@@ -248,6 +247,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameSITPaymentRequestStart,
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
+	ServiceItemParamNameTargetDateBilled,
 	ServiceItemParamNameWeightAdjusted,
 	ServiceItemParamNameWeightBilled,
 	ServiceItemParamNameWeightEstimated,
@@ -267,7 +267,6 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameContractYearName),
 	string(ServiceItemParamNameCubicFeetBilled),
 	string(ServiceItemParamNameCubicFeetCrating),
-	string(ServiceItemParamNameDateBilled),
 	string(ServiceItemParamNameDimensionHeight),
 	string(ServiceItemParamNameDimensionLength),
 	string(ServiceItemParamNameDimensionWidth),
@@ -316,6 +315,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameSITPaymentRequestStart),
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
+	string(ServiceItemParamNameTargetDateBilled),
 	string(ServiceItemParamNameWeightAdjusted),
 	string(ServiceItemParamNameWeightBilled),
 	string(ServiceItemParamNameWeightEstimated),

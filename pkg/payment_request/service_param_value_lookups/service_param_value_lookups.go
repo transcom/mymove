@@ -186,8 +186,8 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
-	paramKey = models.ServiceItemParamNameDateBilled
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, DateBilledLookup{
+	paramKey = models.ServiceItemParamNameTargetDateBilled
+	err = s.setLookup(appCtx, serviceItemCode, paramKey, TargetDateBilledLookup{
 		MTOShipment: mtoShipment,
 	})
 	if err != nil {

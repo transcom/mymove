@@ -11,8 +11,8 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ServiceParamValueLookupsSuite) TestDateBilledLookup() {
-	key := models.ServiceItemParamNameDateBilled
+func (suite *ServiceParamValueLookupsSuite) TestTargetDateBilledLookup() {
+	key := models.ServiceItemParamNameTargetDateBilled
 
 	requestedPickupDate := time.Date(testdatagen.TestYear, time.May, 10, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := time.Date(testdatagen.TestYear, time.May, 14, 0, 0, 0, 0, time.UTC)
