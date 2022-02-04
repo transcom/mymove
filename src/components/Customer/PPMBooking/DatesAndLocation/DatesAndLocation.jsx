@@ -1,11 +1,16 @@
+// eslint-disable no-unused-vars
 import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
-import { Formik } from 'formik';
+import { Formik, Field } from 'formik';
+import { Button, Form, Radio, FormGroup } from '@trussworks/react-uswds';
 
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
-import { DutyStationShape } from 'types';
+// import { DutyStationShape } from 'types';
 import { ZIP_CODE_REGEX } from 'utils/validation';
+import TextField from 'components/form/fields/TextField/TextField';
+import { CheckboxField } from 'components/form/fields';
+import Hint from 'components/Hint/index';
 
 // TODO: conditional validation for optional ZIPs
 const validationSchema = Yup.object().shape({
@@ -23,8 +28,14 @@ const validationSchema = Yup.object().shape({
     .required('Required'),
 });
 
-// eslint-disable-next-line no-unused-vars
-const DatesAndLocation = ({ mtoShipment, destinationDutyStation, serviceMember, onBack, onSubmit }) => {
+const DatesAndLocation = ({
+  mtoShipment,
+  // destinationDutyStation,
+  serviceMember,
+  onBack,
+  onSubmit,
+  postalCodeValidator,
+}) => {
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useResidentialAddressZIP: '',
@@ -40,17 +51,82 @@ const DatesAndLocation = ({ mtoShipment, destinationDutyStation, serviceMember, 
 
   // TODO: async validation call to validate postal codes are valid for rate engine
 
-  return <Formik initialValues={initialValues} validationSchema={validationSchema} />;
+  return (
+    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+      {({ isValid, isSubmitting, values }) => {
+        return (
+          <Form>
+            <TextField
+              label="ZIP"
+              id="pickupPostalCode"
+              name="pickupPostalCode"
+              maxLength={10}
+              validate={(value) => postalCodeValidator(value, 'origin')}
+            />
+            <CheckboxField
+              id="useCurrentZip"
+              name="useCurrentZip"
+              label={`Use my current ZIP (${serviceMember?.residentialAddress?.postalCode})`}
+            />
+            <FormGroup>
+              <p>Will you add items to your PPM from a place in a different ZIP code?</p>
+              <Field
+                as={Radio}
+                data-testid="yes-secondary-pickup-postal-code"
+                id="yes-secondary-pickup-postal-code"
+                label="Yes"
+                name="hasSecondaryPickupPostalCode"
+                value="yes"
+                checked={values.hasSecondaryPickupPostalCode === 'yes'}
+              />
+              <Field
+                as={Radio}
+                data-testid="no-secondary-pickup-postal-code"
+                id="no-secondary-pickup-postal-code"
+                label="No"
+                name="hasSecondaryPickupPostalCode"
+                value="no"
+                checked={values.hasSecondaryPickupPostalCode === 'no'}
+              />
+            </FormGroup>
+            <TextField
+              label="Second ZIP"
+              id="secondaryPickupPostalCode"
+              name="secondaryPickupPostalCode"
+              maxLength={10}
+              validate={(value) => postalCodeValidator(value, 'origin')}
+            />
+            <Hint>
+              <p>A second origin ZIP could mean that your final incentive is lower than your estimate.</p>
+
+              <p>
+                Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to your move
+                counselor for more detailed information.
+              </p>
+            </Hint>
+            <Button type="button" unstyled onClick={onBack} data-testid="datesAndLocationBackBtn">
+              Back
+            </Button>
+            <Button type="submit" unstyled data-testid="datesAndLocationSubmitBtn" disabled={!isValid || isSubmitting}>
+              Save & Continue
+            </Button>
+          </Form>
+        );
+      }}
+    </Formik>
+  );
 };
 
 DatesAndLocation.propTypes = {
   mtoShipment: MtoShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
-  destinationDutyStation: DutyStationShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
+  postalCodeValidator: func.isRequired,
 };
 
 DatesAndLocation.defaultProps = {
   mtoShipment: undefined,
 };
+
+export default DatesAndLocation;
