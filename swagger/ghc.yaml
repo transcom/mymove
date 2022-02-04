@@ -2438,7 +2438,7 @@ definitions:
     enum:
       - DRAFT
       - NEEDS SERVICE COUNSELING
-      - SEVICE COUNSELING COMPLETED
+      - SERVICE COUNSELING COMPLETED
       - SUBMITTED
       - APPROVALS REQUESTED
       - APPROVED
@@ -3452,7 +3452,7 @@ definitions:
       customer:
         $ref: '#/definitions/Customer'
       status:
-        $ref: '#/definitions/QueueMoveStatus'
+        $ref: '#/definitions/MoveStatus'
       locator:
         type: string
       submittedAt:
@@ -3484,12 +3484,6 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
-  QueueMoveStatus:
-    type: string
-    enum:
-      - New move
-      - Move approved
-      - Approvals requested
   QueuePaymentRequest:
     type: object
     properties:

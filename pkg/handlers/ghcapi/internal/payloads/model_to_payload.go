@@ -304,6 +304,9 @@ func StorageFacility(storageFacility *models.StorageFacility) *ghcmessages.Stora
 
 // BackupContact payload
 func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
+	if len(contacts) == 0 {
+		return nil
+	}
 	var name, email, phone string
 
 	if len(contacts) != 0 {
@@ -809,7 +812,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
-			Status:                  ghcmessages.QueueMoveStatus(move.Status),
+			Status:                  ghcmessages.MoveStatus(move.Status),
 			ID:                      *handlers.FmtUUID(move.ID),
 			Locator:                 move.Locator,
 			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),

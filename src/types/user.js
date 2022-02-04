@@ -11,7 +11,7 @@ export const TransportationOfficeShape = PropTypes.shape({
   address: AddressShape,
   gbloc: PropTypes.string,
   name: PropTypes.string,
-  phone_lines: PropTypes.string,
+  phone_lines: PropTypes.arrayOf(PropTypes.string),
 });
 
 export const OfficeUserInfoShape = PropTypes.shape({

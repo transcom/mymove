@@ -272,9 +272,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	suite.IsNotErrResponse(response)
 
 	payload := response.(*queues.GetMovesQueueOK).Payload
+	suite.NoError(payload.Validate(strfmt.Default))
 	result := payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("SUBMITTED"), result.Status)
+	suite.Equal(ghcmessages.MoveStatus("SUBMITTED"), result.Status)
 
 	// let's test for the Move approved status
 	hhgMove.Status = models.MoveStatusAPPROVED
@@ -288,7 +289,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	result = payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("APPROVED"), result.Status)
+	suite.Equal(ghcmessages.MoveStatus("APPROVED"), result.Status)
 
 	// Now let's test Approvals requested
 	hhgMove.Status = models.MoveStatusAPPROVALSREQUESTED
@@ -302,7 +303,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	result = payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("APPROVALS REQUESTED"), result.Status)
+	suite.Equal(ghcmessages.MoveStatus("APPROVALS REQUESTED"), result.Status)
 
 }
 
@@ -400,10 +401,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 		suite.EqualValues(3, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 3)
 		// test that the moves are sorted by status descending
-		suite.Equal(ghcmessages.QueueMoveStatus("SUBMITTED"), payload.QueueMoves[0].Status)
+		suite.Equal(ghcmessages.MoveStatus("SUBMITTED"), payload.QueueMoves[0].Status)
 	})
 
 	suite.Run("loads results with all STATUSes and 1 page selected", func() {
