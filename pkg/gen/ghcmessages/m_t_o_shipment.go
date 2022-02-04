@@ -66,7 +66,7 @@ type MTOShipment struct {
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// destination type
-	DestinationType *DestinationType `json:"destinationType,omitempty"`
+	DestinationType DestinationType `json:"destinationType,omitempty"`
 
 	// diversion
 	// Example: true
@@ -349,15 +349,13 @@ func (m *MTOShipment) validateDestinationType(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if m.DestinationType != nil {
-		if err := m.DestinationType.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationType")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationType")
-			}
-			return err
+	if err := m.DestinationType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("destinationType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("destinationType")
 		}
+		return err
 	}
 
 	return nil
@@ -773,15 +771,13 @@ func (m *MTOShipment) contextValidateDestinationAddress(ctx context.Context, for
 
 func (m *MTOShipment) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.DestinationType != nil {
-		if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationType")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationType")
-			}
-			return err
+	if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("destinationType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("destinationType")
 		}
+		return err
 	}
 
 	return nil

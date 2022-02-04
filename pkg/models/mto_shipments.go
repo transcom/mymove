@@ -113,7 +113,7 @@ type MTOShipment struct {
 	PickupAddressID                  *uuid.UUID        `db:"pickup_address_id"`
 	DestinationAddress               *Address          `belongs_to:"addresses" fk_id:"destination_address_id"`
 	DestinationAddressID             *uuid.UUID        `db:"destination_address_id"`
-	DestinationType                  DestinationType   `db:"destination_address_type"`
+	DestinationType                  *DestinationType  `db:"destination_address_type"`
 	MTOAgents                        MTOAgents         `has_many:"mto_agents" fk_id:"mto_shipment_id"`
 	MTOServiceItems                  MTOServiceItems   `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
 	SecondaryPickupAddress           *Address          `belongs_to:"addresses" fk_id:"secondary_pickup_address_id"`
@@ -205,10 +205,10 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(LOATypeNTS),
 	}})
 
-	if (len(m.DestinationType) > 1) && (m.DestinationType != "") {
-		destinationType := string(m.DestinationType)
+	if m.DestinationType != nil {
+		destType := string(*m.DestinationType)
 
-		vs = append(vs, &OptionalStringInclusion{Field: &destinationType, Name: "DestinationType", List: []string{
+		vs = append(vs, &OptionalStringInclusion{Field: &destType, Name: "DestinationType", List: []string{
 			string(DestinationTypeHomeOfRecord),
 			string(DestinationTypeHomeOfSelection),
 			string(DestinationTypePlaceEnteredActiveDuty),

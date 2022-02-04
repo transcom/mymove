@@ -218,11 +218,9 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.DestinationAddress = addressModel
 	}
 
-	if mtoShipment.DestinationType != nil {
-		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)
-		if valDestinationType != "" {
-			model.DestinationType = valDestinationType
-		}
+	if len(mtoShipment.DestinationType) > 0 {
+		valDestinationType := models.DestinationType(mtoShipment.DestinationType)
+		model.DestinationType = &valDestinationType
 	}
 
 	if mtoShipment.Agents != nil {
@@ -298,11 +296,9 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
 	model.DestinationAddress = AddressModel(&mtoShipment.DestinationAddress.Address)
 
-	if mtoShipment.DestinationType != nil {
-		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)
-		if valDestinationType != "" {
-			model.DestinationType = valDestinationType
-		}
+	if len(mtoShipment.DestinationType) > 0 {
+		valDestinationType := models.DestinationType(mtoShipment.DestinationType)
+		model.DestinationType = &valDestinationType
 	}
 
 	if mtoShipment.Agents != nil {

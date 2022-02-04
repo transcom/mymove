@@ -3577,7 +3577,6 @@ func init() {
         "PLACE_ENTERED_ACTIVE_DUTY",
         "OTHER_THAN_AUTHORIZED"
       ],
-      "x-nullable": true,
       "example": "OTHER"
     },
     "DimensionType": {
@@ -10288,7 +10287,6 @@ func init() {
         "PLACE_ENTERED_ACTIVE_DUTY",
         "OTHER_THAN_AUTHORIZED"
       ],
-      "x-nullable": true,
       "example": "OTHER"
     },
     "DimensionType": {

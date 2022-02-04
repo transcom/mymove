@@ -82,7 +82,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
 			DestinationAddressID: &destinationAddress.ID,
-			DestinationType:      destinationType,
+			DestinationType:      &destinationType,
 		},
 	})
 
@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		// This one has a destination shipment type
 		payloadShipment3 := okResponse.Payload[2]
-		suite.Equal(string(models.DestinationTypeHomeOfRecord), *payloadShipment3.DestinationType)
+		suite.Equal(string(models.DestinationTypeHomeOfRecord), string(payloadShipment3.DestinationType))
 
 	})
 

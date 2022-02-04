@@ -139,7 +139,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move:        subtestData.move,
-			MTOShipment: models.MTOShipment{DestinationType: destinationType},
+			MTOShipment: models.MTOShipment{DestinationType: &destinationType},
 			Stub:        true,
 		})
 
@@ -153,7 +153,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
 		suite.NotEmpty(createdShipment.PickupAddressID)
 		suite.NotEmpty(createdShipment.DestinationAddressID)
-		suite.Equal(string(models.DestinationTypeHomeOfRecord), string(createdShipment.DestinationType))
+		suite.Equal(string(models.DestinationTypeHomeOfRecord), string(*createdShipment.DestinationType))
 	})
 
 	suite.Run("If the shipment is created successfully with submitted status it should be returned", func() {

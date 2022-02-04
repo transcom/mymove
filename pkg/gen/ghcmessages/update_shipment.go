@@ -44,7 +44,7 @@ type UpdateShipment struct {
 	} `json:"destinationAddress,omitempty"`
 
 	// destination type
-	DestinationType *DestinationType `json:"destinationType,omitempty"`
+	DestinationType DestinationType `json:"destinationType,omitempty"`
 
 	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
 	// Example: 2000
@@ -163,15 +163,13 @@ func (m *UpdateShipment) validateDestinationType(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if m.DestinationType != nil {
-		if err := m.DestinationType.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationType")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationType")
-			}
-			return err
+	if err := m.DestinationType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("destinationType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("destinationType")
 		}
+		return err
 	}
 
 	return nil
@@ -346,15 +344,13 @@ func (m *UpdateShipment) contextValidateDestinationAddress(ctx context.Context, 
 
 func (m *UpdateShipment) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.DestinationType != nil {
-		if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationType")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationType")
-			}
-			return err
+	if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("destinationType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("destinationType")
 		}
+		return err
 	}
 
 	return nil

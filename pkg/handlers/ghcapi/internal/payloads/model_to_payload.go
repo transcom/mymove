@@ -408,7 +408,6 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
 		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
-		DestinationType:             DestinationType(mtoShipment.DestinationType),
 		PrimeEstimatedWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
 		PrimeActualWeight:           handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
 		NtsRecordedWeight:           handlers.FmtPoundPtr(mtoShipment.NTSRecordedWeight),
@@ -462,9 +461,8 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
-	if mtoShipment.DestinationType != "" {
-		destinationType := ghcmessages.DestinationType(mtoShipment.DestinationType)
-		payload.DestinationType = &destinationType
+	if mtoShipment.DestinationType != nil {
+		payload.DestinationType = ghcmessages.DestinationType(*mtoShipment.DestinationType)
 	}
 
 	if sitStatusPayload != nil {
@@ -521,15 +519,6 @@ func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 		ETag:          etag.GenerateEtag(mtoAgent.UpdatedAt),
 	}
 	return payload
-}
-
-func DestinationType(destinationType models.DestinationType) *ghcmessages.DestinationType {
-	if (len(destinationType) < 1) || (destinationType == "") {
-		return nil
-	}
-
-	payload := ghcmessages.DestinationType(destinationType)
-	return &payload
 }
 
 // MTOAgents payload

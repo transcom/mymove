@@ -456,7 +456,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			ID:                       oldShipment.ID,
 			DestinationAddress:       &newDestinationAddress,
 			DestinationAddressID:     &newDestinationAddress.ID,
-			DestinationType:          destinationType,
+			DestinationType:          &destinationType,
 			PickupAddress:            &newPickupAddress,
 			PickupAddressID:          &newPickupAddress.ID,
 			SecondaryPickupAddress:   &secondaryPickupAddress,
