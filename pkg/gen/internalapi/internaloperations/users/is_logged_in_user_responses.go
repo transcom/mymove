@@ -23,7 +23,7 @@ type IsLoggedInUserOK struct {
 	/*
 	  In: Body
 	*/
-	Payload bool `json:"body,omitempty"`
+	Payload *IsLoggedInUserOKBody `json:"body,omitempty"`
 }
 
 // NewIsLoggedInUserOK creates IsLoggedInUserOK with default headers values
@@ -33,13 +33,13 @@ func NewIsLoggedInUserOK() *IsLoggedInUserOK {
 }
 
 // WithPayload adds the payload to the is logged in user o k response
-func (o *IsLoggedInUserOK) WithPayload(payload bool) *IsLoggedInUserOK {
+func (o *IsLoggedInUserOK) WithPayload(payload *IsLoggedInUserOKBody) *IsLoggedInUserOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the is logged in user o k response
-func (o *IsLoggedInUserOK) SetPayload(payload bool) {
+func (o *IsLoggedInUserOK) SetPayload(payload *IsLoggedInUserOKBody) {
 	o.Payload = payload
 }
 
@@ -47,9 +47,11 @@ func (o *IsLoggedInUserOK) SetPayload(payload bool) {
 func (o *IsLoggedInUserOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
