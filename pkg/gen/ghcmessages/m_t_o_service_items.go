@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// MTOServiceItems m t o service items
+// MTOServiceItems A list of service items connected to this shipment.
 //
 // swagger:model MTOServiceItems
 type MTOServiceItems []*MTOServiceItem
