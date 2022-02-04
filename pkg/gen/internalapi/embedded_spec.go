@@ -4081,15 +4081,11 @@ func init() {
         "id",
         "name",
         "address_id",
-        "address",
         "affiliation",
         "created_at",
         "updated_at"
       ],
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
         "address_id": {
           "type": "string",
           "format": "uuid",
@@ -4111,8 +4107,11 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
+        "transportation_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updated_at": {
           "type": "string",
@@ -10744,15 +10743,11 @@ func init() {
         "id",
         "name",
         "address_id",
-        "address",
         "affiliation",
         "created_at",
         "updated_at"
       ],
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
         "address_id": {
           "type": "string",
           "format": "uuid",
@@ -10774,8 +10769,11 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
+        "transportation_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updated_at": {
           "type": "string",

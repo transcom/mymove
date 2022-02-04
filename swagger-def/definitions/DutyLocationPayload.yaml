@@ -11,12 +11,13 @@ properties:
     type: string
     format: uuid
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
-  address:
-    $ref: 'Address.yaml'
   affiliation:
     $ref: 'Affiliation.yaml'
-  transportation_office:
-    $ref: 'TransportationOffice.yaml'
+  transportation_office_id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    x-nullable: true
   created_at:
     type: string
     format: date-time
@@ -27,7 +28,6 @@ required:
   - id
   - name
   - address_id
-  - address
   - affiliation
   - created_at
   - updated_at
