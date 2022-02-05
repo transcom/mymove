@@ -107,6 +107,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveGetMoveHandler: move.GetMoveHandlerFunc(func(params move.GetMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
 		}),
+		MoveGetMoveHistoryHandler: move.GetMoveHistoryHandlerFunc(func(params move.GetMoveHistoryParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.GetMoveHistory has not yet been implemented")
+		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		}),
@@ -267,6 +270,8 @@ type MymoveAPI struct {
 	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
 	// MoveGetMoveHandler sets the operation handler for the get move operation
 	MoveGetMoveHandler move.GetMoveHandler
+	// MoveGetMoveHistoryHandler sets the operation handler for the get move history operation
+	MoveGetMoveHistoryHandler move.GetMoveHistoryHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// QueuesGetMovesQueueHandler sets the operation handler for the get moves queue operation
@@ -454,6 +459,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveGetMoveHandler == nil {
 		unregistered = append(unregistered, "move.GetMoveHandler")
+	}
+	if o.MoveGetMoveHistoryHandler == nil {
+		unregistered = append(unregistered, "move.GetMoveHistoryHandler")
 	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
@@ -701,6 +709,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move/{locator}"] = move.NewGetMove(o.context, o.MoveGetMoveHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move/{locator}/history"] = move.NewGetMoveHistory(o.context, o.MoveGetMoveHistoryHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
