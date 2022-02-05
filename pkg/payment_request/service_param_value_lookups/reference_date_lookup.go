@@ -9,14 +9,14 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
-// TargetDateBilledLookup determines the target date to use for billing (e.g., determining
+// ReferenceDateLookup determines the reference date to use for billing (e.g., determining
 // peak vs. non peak, escalations, etc.)
-type TargetDateBilledLookup struct {
+type ReferenceDateLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r TargetDateBilledLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
-	var targetDateBilled *time.Time
+func (r ReferenceDateLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+	var referenceDate *time.Time
 
 	// Most shipment types should use RequestedPickupDate, but there are exceptions.
 	switch r.MTOShipment.ShipmentType {
@@ -25,14 +25,14 @@ func (r TargetDateBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Se
 		if actualPickupDate == nil || actualPickupDate.IsZero() {
 			return "", fmt.Errorf("could not find a valid actual pickup date for MTOShipmentID [%s]", r.MTOShipment.ID)
 		}
-		targetDateBilled = actualPickupDate
+		referenceDate = actualPickupDate
 	default:
 		requestedPickupDate := r.MTOShipment.RequestedPickupDate
 		if requestedPickupDate == nil || requestedPickupDate.IsZero() {
 			return "", fmt.Errorf("could not find a valid requested pickup date for MTOShipmentID [%s]", r.MTOShipment.ID)
 		}
-		targetDateBilled = r.MTOShipment.RequestedPickupDate
+		referenceDate = r.MTOShipment.RequestedPickupDate
 	}
 
-	return targetDateBilled.Format(ghcrateengine.DateParamFormat), nil
+	return referenceDate.Format(ghcrateengine.DateParamFormat), nil
 }

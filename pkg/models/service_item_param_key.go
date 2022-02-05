@@ -106,6 +106,8 @@ const (
 	ServiceItemParamNameRateAreaNonStdDest ServiceItemParamName = "RateAreaNonStdDest"
 	// ServiceItemParamNameRateAreaNonStdOrigin is the param key name RateAreaNonStdOrigin
 	ServiceItemParamNameRateAreaNonStdOrigin ServiceItemParamName = "RateAreaNonStdOrigin"
+	// ServiceItemParamNameReferenceDate is the param key name ReferenceDate
+	ServiceItemParamNameReferenceDate ServiceItemParamName = "ReferenceDate"
 	// ServiceItemParamNameRequestedPickupDate is the param key name RequestedPickupDate
 	ServiceItemParamNameRequestedPickupDate ServiceItemParamName = "RequestedPickupDate"
 	// ServiceItemParamNameServiceAreaDest is the param key name ServiceAreaDest
@@ -124,8 +126,6 @@ const (
 	ServiceItemParamNameSITScheduleDest ServiceItemParamName = "SITScheduleDest"
 	// ServiceItemParamNameSITScheduleOrigin is the param key name SITScheduleOrigin
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
-	// ServiceItemParamNameTargetDateBilled is the param key name TargetDateBilled
-	ServiceItemParamNameTargetDateBilled ServiceItemParamName = "TargetDateBilled"
 	// ServiceItemParamNameWeightAdjusted is the param key name WeightAdjusted
 	ServiceItemParamNameWeightAdjusted ServiceItemParamName = "WeightAdjusted"
 	// ServiceItemParamNameWeightBilled is the param key name WeightBilled
@@ -238,6 +238,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNamePSIShippingLinehaulIntlOOPrice,
 	ServiceItemParamNameRateAreaNonStdDest,
 	ServiceItemParamNameRateAreaNonStdOrigin,
+	ServiceItemParamNameReferenceDate,
 	ServiceItemParamNameRequestedPickupDate,
 	ServiceItemParamNameServiceAreaDest,
 	ServiceItemParamNameServiceAreaOrigin,
@@ -247,7 +248,6 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameSITPaymentRequestStart,
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
-	ServiceItemParamNameTargetDateBilled,
 	ServiceItemParamNameWeightAdjusted,
 	ServiceItemParamNameWeightBilled,
 	ServiceItemParamNameWeightEstimated,
@@ -306,6 +306,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNamePSIShippingLinehaulIntlOOPrice),
 	string(ServiceItemParamNameRateAreaNonStdDest),
 	string(ServiceItemParamNameRateAreaNonStdOrigin),
+	string(ServiceItemParamNameReferenceDate),
 	string(ServiceItemParamNameRequestedPickupDate),
 	string(ServiceItemParamNameServiceAreaDest),
 	string(ServiceItemParamNameServiceAreaOrigin),
@@ -315,7 +316,6 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameSITPaymentRequestStart),
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
-	string(ServiceItemParamNameTargetDateBilled),
 	string(ServiceItemParamNameWeightAdjusted),
 	string(ServiceItemParamNameWeightBilled),
 	string(ServiceItemParamNameWeightEstimated),

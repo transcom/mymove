@@ -1,32 +1,32 @@
--- Historically, we've used the requested pickup date as the target date for determining
+-- Historically, we've used the requested pickup date as the reference date for determining
 -- peak vs. non-peak and escalations when pricing a shipment's service items.  However,
 -- NTS-Release shipments do not have a requested pickup date, so we are going to use the
 -- actual pickup date in its place.  That means that we may use one or the other when
 -- pricing a service for a shipment; to support that we're introducing a generic parameter
--- for the target date used in billing.  The migration below adjusts the metadata and
+-- for the reference date used in billing.  The migration below adjusts the metadata and
 -- existing pricing param records to account for that.
 
--- Add a new param key for the generic TargetDateBilled parameter.
+-- Add a new param key for the generic ReferenceDate parameter.
 INSERT INTO service_item_param_keys(id, key, description, type, origin, created_at, updated_at)
-VALUES ('5335e243-ab5b-4906-b84f-bd8c35ba64b3', 'TargetDateBilled',
-		'Target date for determining peak vs. non-peak, escalation, etc.', 'DATE', 'SYSTEM', now(), now());
+VALUES ('5335e243-ab5b-4906-b84f-bd8c35ba64b3', 'ReferenceDate',
+		'Reference date for determining peak vs. non-peak, escalation, etc.', 'DATE', 'SYSTEM', now(), now());
 
 -- Adjust the service params and data as follows:
---   * add an optional ActualPickupDate and required TargetDateBilled to the services that
+--   * add an optional ActualPickupDate and required ReferenceDate to the services that
 --     currently use RequestedPickupDate
 --   * set RequestedPickupDate to be an optional parameter
---   * copy any existing RequestedPickupDate parameter values to the new TargetDateBilled
+--   * copy any existing RequestedPickupDate parameter values to the new ReferenceDate
 -- NOTE: Could do this more succinctly but we want to be explicit with what UUIDs get used
 -- for metadata like found in service_params.
 DO $$
 DECLARE
 	actualPickupDateUUID uuid;
     requestedPickupDateUUID uuid;
-	targetDateBilledUUID uuid;
+	referenceDateUUID uuid;
 BEGIN
 	SELECT id INTO actualPickupDateUUID FROM service_item_param_keys WHERE key = 'ActualPickupDate';
 	SELECT id INTO requestedPickupDateUUID FROM service_item_param_keys WHERE key = 'RequestedPickupDate';
-	SELECT id INTO targetDateBilledUUID FROM service_item_param_keys WHERE key = 'TargetDateBilled';
+	SELECT id INTO referenceDateUUID FROM service_item_param_keys WHERE key = 'ReferenceDate';
 
 	INSERT INTO service_params(id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
 	VALUES
@@ -74,50 +74,50 @@ BEGIN
 		('95cb89d5-15aa-427a-8aec-24fc5ac7ab8c', (SELECT id FROM re_services WHERE code = 'IUCRT'), actualPickupDateUUID, now(), now(), true),
 		('ff81b2ea-5462-4ee9-918c-fcdd4e49305c', (SELECT id FROM re_services WHERE code = 'NSTH'), actualPickupDateUUID, now(), now(), true),
 		('99d57496-8a10-4b7e-81b2-eb9ec6ff026a', (SELECT id FROM re_services WHERE code = 'NSTUB'), actualPickupDateUUID, now(), now(), true),
-		('16bef588-d531-4ef9-b416-91a86873dd9b', (SELECT id FROM re_services WHERE code = 'DBHF'), targetDateBilledUUID, now(), now(), false),
-		('7bc9fc4e-e40f-4f32-b7ca-da6e5b531c47', (SELECT id FROM re_services WHERE code = 'DBTF'), targetDateBilledUUID, now(), now(), false),
-		('f36922eb-b890-4621-ac83-8cf751d28369', (SELECT id FROM re_services WHERE code = 'DCRT'), targetDateBilledUUID, now(), now(), false),
-		('bfb87e6c-b46b-4e0e-9a16-555bdf819203', (SELECT id FROM re_services WHERE code = 'DCRTSA'), targetDateBilledUUID, now(), now(), false),
-		('159b84dc-7851-4c0a-ad7a-9a10534c9e9b', (SELECT id FROM re_services WHERE code = 'DDASIT'), targetDateBilledUUID, now(), now(), false),
-		('150b0054-80b3-4eb9-9352-01b715f97a99', (SELECT id FROM re_services WHERE code = 'DDDSIT'), targetDateBilledUUID, now(), now(), false),
-		('f6dbdd56-db19-4556-89c3-388b05495fae', (SELECT id FROM re_services WHERE code = 'DDFSIT'), targetDateBilledUUID, now(), now(), false),
-		('e553d347-b8ff-48bb-b1c2-1bd35572e007', (SELECT id FROM re_services WHERE code = 'DDP'), targetDateBilledUUID, now(), now(), false),
-		('ceb80a91-2477-4d48-b14f-082d5ecd335a', (SELECT id FROM re_services WHERE code = 'DDSHUT'), targetDateBilledUUID, now(), now(), false),
-		('ecf5c7b5-9672-441d-936f-58a26e0261c2', (SELECT id FROM re_services WHERE code = 'DLH'), targetDateBilledUUID, now(), now(), false),
-		('9467f12e-9931-4dac-a9ec-6315dea616fa', (SELECT id FROM re_services WHERE code = 'DMHF'), targetDateBilledUUID, now(), now(), false),
-		('a6d8e4d4-a7f1-4a26-84d4-b5cb0175579f', (SELECT id FROM re_services WHERE code = 'DNPK'), targetDateBilledUUID, now(), now(), false),
-		('3fac6c0a-c8b3-43a6-b87b-b2d02f6906b6', (SELECT id FROM re_services WHERE code = 'DOASIT'), targetDateBilledUUID, now(), now(), false),
-		('7e586c25-bfc6-45f9-9902-e3c7fc601fad', (SELECT id FROM re_services WHERE code = 'DOFSIT'), targetDateBilledUUID, now(), now(), false),
-		('c58a9061-63ba-438a-bb8e-545680d25508', (SELECT id FROM re_services WHERE code = 'DOP'), targetDateBilledUUID, now(), now(), false),
-		('26b445da-0fa6-4897-bae7-e28d9643d1a2', (SELECT id FROM re_services WHERE code = 'DOPSIT'), targetDateBilledUUID, now(), now(), false),
-		('ea32d543-de4b-4cd7-ba09-df2736f2c907', (SELECT id FROM re_services WHERE code = 'DOSHUT'), targetDateBilledUUID, now(), now(), false),
-		('d60d68e3-4d17-4921-97d3-e8688e0e08ab', (SELECT id FROM re_services WHERE code = 'DPK'), targetDateBilledUUID, now(), now(), false),
-		('92877e3c-f91f-4160-83ed-e0103e2eddb9', (SELECT id FROM re_services WHERE code = 'DSH'), targetDateBilledUUID, now(), now(), false),
-		('29fb5628-7223-4363-ab04-f122ac4f7269', (SELECT id FROM re_services WHERE code = 'DUCRT'), targetDateBilledUUID, now(), now(), false),
-		('bf4cd708-ff3e-4f0e-83d0-8d6973abfd65', (SELECT id FROM re_services WHERE code = 'DUPK'), targetDateBilledUUID, now(), now(), false),
-		('4808f444-ff7b-47dd-82f5-42aae21dc1cc', (SELECT id FROM re_services WHERE code = 'ICOLH'), targetDateBilledUUID, now(), now(), false),
-		('80329018-7069-4986-ac12-8472b4a6f7ab', (SELECT id FROM re_services WHERE code = 'ICOUB'), targetDateBilledUUID, now(), now(), false),
-		('7053edfc-718d-4f8c-b75d-6b129461e2ca', (SELECT id FROM re_services WHERE code = 'ICRT'), targetDateBilledUUID, now(), now(), false),
-		('dec53bf4-c125-4889-9524-e3360300a366', (SELECT id FROM re_services WHERE code = 'ICRTSA'), targetDateBilledUUID, now(), now(), false),
-		('5d3ad2e9-aacf-4f09-974c-bbca130b5fcf', (SELECT id FROM re_services WHERE code = 'IDASIT'), targetDateBilledUUID, now(), now(), false),
-		('fd5d51f4-7260-4737-97ed-c148d331d8b2', (SELECT id FROM re_services WHERE code = 'IDDSIT'), targetDateBilledUUID, now(), now(), false),
-		('cec13623-0164-4fb0-956d-c8d050099a52', (SELECT id FROM re_services WHERE code = 'IDFSIT'), targetDateBilledUUID, now(), now(), false),
-		('31cc88e9-697b-490a-9817-18c3af17a4f5', (SELECT id FROM re_services WHERE code = 'IDSHUT'), targetDateBilledUUID, now(), now(), false),
-		('fe1e641e-58f0-488e-b4a2-a800f6c391a1', (SELECT id FROM re_services WHERE code = 'IHPK'), targetDateBilledUUID, now(), now(), false),
-		('f9c8e067-b9b7-445c-bb77-d4e4774f85a3', (SELECT id FROM re_services WHERE code = 'IHUPK'), targetDateBilledUUID, now(), now(), false),
-		('5e459d0a-4386-4609-8ffb-d2acf17b1bed', (SELECT id FROM re_services WHERE code = 'IOASIT'), targetDateBilledUUID, now(), now(), false),
-		('eb979d87-d4d0-4297-bc55-b3244ad3f20f', (SELECT id FROM re_services WHERE code = 'IOCLH'), targetDateBilledUUID, now(), now(), false),
-		('c19a7945-624e-440f-845f-b12320e1489e', (SELECT id FROM re_services WHERE code = 'IOCUB'), targetDateBilledUUID, now(), now(), false),
-		('db73d95a-98f1-4768-9cfe-dc0e9e52078b', (SELECT id FROM re_services WHERE code = 'IOFSIT'), targetDateBilledUUID, now(), now(), false),
-		('d4335b53-4c8d-4be9-ba94-22c0871d79e5', (SELECT id FROM re_services WHERE code = 'IOOLH'), targetDateBilledUUID, now(), now(), false),
-		('98db9320-48ae-471a-ae5c-f6d6882072b8', (SELECT id FROM re_services WHERE code = 'IOOUB'), targetDateBilledUUID, now(), now(), false),
-		('59893605-5f7e-4c78-8f2f-98d8c31ad513', (SELECT id FROM re_services WHERE code = 'IOPSIT'), targetDateBilledUUID, now(), now(), false),
-		('7f6a6b7d-fbed-44f9-bfdc-a66eec852f11', (SELECT id FROM re_services WHERE code = 'IOSHUT'), targetDateBilledUUID, now(), now(), false),
-		('83720613-c616-422e-b68c-66ea1e07e24f', (SELECT id FROM re_services WHERE code = 'IUBPK'), targetDateBilledUUID, now(), now(), false),
-		('b8d72116-6c77-4a96-ad70-f350de3448cd', (SELECT id FROM re_services WHERE code = 'IUBUPK'), targetDateBilledUUID, now(), now(), false),
-		('f09c5e5b-6edd-4a7d-92e1-f8de81c1e753', (SELECT id FROM re_services WHERE code = 'IUCRT'), targetDateBilledUUID, now(), now(), false),
-		('c1be4a58-1413-4848-a70d-318e9cbde3e4', (SELECT id FROM re_services WHERE code = 'NSTH'), targetDateBilledUUID, now(), now(), false),
-		('9f592683-94b9-4383-8df6-071c8561dc5b', (SELECT id FROM re_services WHERE code = 'NSTUB'), targetDateBilledUUID, now(), now(), false);
+		('16bef588-d531-4ef9-b416-91a86873dd9b', (SELECT id FROM re_services WHERE code = 'DBHF'), referenceDateUUID, now(), now(), false),
+		('7bc9fc4e-e40f-4f32-b7ca-da6e5b531c47', (SELECT id FROM re_services WHERE code = 'DBTF'), referenceDateUUID, now(), now(), false),
+		('f36922eb-b890-4621-ac83-8cf751d28369', (SELECT id FROM re_services WHERE code = 'DCRT'), referenceDateUUID, now(), now(), false),
+		('bfb87e6c-b46b-4e0e-9a16-555bdf819203', (SELECT id FROM re_services WHERE code = 'DCRTSA'), referenceDateUUID, now(), now(), false),
+		('159b84dc-7851-4c0a-ad7a-9a10534c9e9b', (SELECT id FROM re_services WHERE code = 'DDASIT'), referenceDateUUID, now(), now(), false),
+		('150b0054-80b3-4eb9-9352-01b715f97a99', (SELECT id FROM re_services WHERE code = 'DDDSIT'), referenceDateUUID, now(), now(), false),
+		('f6dbdd56-db19-4556-89c3-388b05495fae', (SELECT id FROM re_services WHERE code = 'DDFSIT'), referenceDateUUID, now(), now(), false),
+		('e553d347-b8ff-48bb-b1c2-1bd35572e007', (SELECT id FROM re_services WHERE code = 'DDP'), referenceDateUUID, now(), now(), false),
+		('ceb80a91-2477-4d48-b14f-082d5ecd335a', (SELECT id FROM re_services WHERE code = 'DDSHUT'), referenceDateUUID, now(), now(), false),
+		('ecf5c7b5-9672-441d-936f-58a26e0261c2', (SELECT id FROM re_services WHERE code = 'DLH'), referenceDateUUID, now(), now(), false),
+		('9467f12e-9931-4dac-a9ec-6315dea616fa', (SELECT id FROM re_services WHERE code = 'DMHF'), referenceDateUUID, now(), now(), false),
+		('a6d8e4d4-a7f1-4a26-84d4-b5cb0175579f', (SELECT id FROM re_services WHERE code = 'DNPK'), referenceDateUUID, now(), now(), false),
+		('3fac6c0a-c8b3-43a6-b87b-b2d02f6906b6', (SELECT id FROM re_services WHERE code = 'DOASIT'), referenceDateUUID, now(), now(), false),
+		('7e586c25-bfc6-45f9-9902-e3c7fc601fad', (SELECT id FROM re_services WHERE code = 'DOFSIT'), referenceDateUUID, now(), now(), false),
+		('c58a9061-63ba-438a-bb8e-545680d25508', (SELECT id FROM re_services WHERE code = 'DOP'), referenceDateUUID, now(), now(), false),
+		('26b445da-0fa6-4897-bae7-e28d9643d1a2', (SELECT id FROM re_services WHERE code = 'DOPSIT'), referenceDateUUID, now(), now(), false),
+		('ea32d543-de4b-4cd7-ba09-df2736f2c907', (SELECT id FROM re_services WHERE code = 'DOSHUT'), referenceDateUUID, now(), now(), false),
+		('d60d68e3-4d17-4921-97d3-e8688e0e08ab', (SELECT id FROM re_services WHERE code = 'DPK'), referenceDateUUID, now(), now(), false),
+		('92877e3c-f91f-4160-83ed-e0103e2eddb9', (SELECT id FROM re_services WHERE code = 'DSH'), referenceDateUUID, now(), now(), false),
+		('29fb5628-7223-4363-ab04-f122ac4f7269', (SELECT id FROM re_services WHERE code = 'DUCRT'), referenceDateUUID, now(), now(), false),
+		('bf4cd708-ff3e-4f0e-83d0-8d6973abfd65', (SELECT id FROM re_services WHERE code = 'DUPK'), referenceDateUUID, now(), now(), false),
+		('4808f444-ff7b-47dd-82f5-42aae21dc1cc', (SELECT id FROM re_services WHERE code = 'ICOLH'), referenceDateUUID, now(), now(), false),
+		('80329018-7069-4986-ac12-8472b4a6f7ab', (SELECT id FROM re_services WHERE code = 'ICOUB'), referenceDateUUID, now(), now(), false),
+		('7053edfc-718d-4f8c-b75d-6b129461e2ca', (SELECT id FROM re_services WHERE code = 'ICRT'), referenceDateUUID, now(), now(), false),
+		('dec53bf4-c125-4889-9524-e3360300a366', (SELECT id FROM re_services WHERE code = 'ICRTSA'), referenceDateUUID, now(), now(), false),
+		('5d3ad2e9-aacf-4f09-974c-bbca130b5fcf', (SELECT id FROM re_services WHERE code = 'IDASIT'), referenceDateUUID, now(), now(), false),
+		('fd5d51f4-7260-4737-97ed-c148d331d8b2', (SELECT id FROM re_services WHERE code = 'IDDSIT'), referenceDateUUID, now(), now(), false),
+		('cec13623-0164-4fb0-956d-c8d050099a52', (SELECT id FROM re_services WHERE code = 'IDFSIT'), referenceDateUUID, now(), now(), false),
+		('31cc88e9-697b-490a-9817-18c3af17a4f5', (SELECT id FROM re_services WHERE code = 'IDSHUT'), referenceDateUUID, now(), now(), false),
+		('fe1e641e-58f0-488e-b4a2-a800f6c391a1', (SELECT id FROM re_services WHERE code = 'IHPK'), referenceDateUUID, now(), now(), false),
+		('f9c8e067-b9b7-445c-bb77-d4e4774f85a3', (SELECT id FROM re_services WHERE code = 'IHUPK'), referenceDateUUID, now(), now(), false),
+		('5e459d0a-4386-4609-8ffb-d2acf17b1bed', (SELECT id FROM re_services WHERE code = 'IOASIT'), referenceDateUUID, now(), now(), false),
+		('eb979d87-d4d0-4297-bc55-b3244ad3f20f', (SELECT id FROM re_services WHERE code = 'IOCLH'), referenceDateUUID, now(), now(), false),
+		('c19a7945-624e-440f-845f-b12320e1489e', (SELECT id FROM re_services WHERE code = 'IOCUB'), referenceDateUUID, now(), now(), false),
+		('db73d95a-98f1-4768-9cfe-dc0e9e52078b', (SELECT id FROM re_services WHERE code = 'IOFSIT'), referenceDateUUID, now(), now(), false),
+		('d4335b53-4c8d-4be9-ba94-22c0871d79e5', (SELECT id FROM re_services WHERE code = 'IOOLH'), referenceDateUUID, now(), now(), false),
+		('98db9320-48ae-471a-ae5c-f6d6882072b8', (SELECT id FROM re_services WHERE code = 'IOOUB'), referenceDateUUID, now(), now(), false),
+		('59893605-5f7e-4c78-8f2f-98d8c31ad513', (SELECT id FROM re_services WHERE code = 'IOPSIT'), referenceDateUUID, now(), now(), false),
+		('7f6a6b7d-fbed-44f9-bfdc-a66eec852f11', (SELECT id FROM re_services WHERE code = 'IOSHUT'), referenceDateUUID, now(), now(), false),
+		('83720613-c616-422e-b68c-66ea1e07e24f', (SELECT id FROM re_services WHERE code = 'IUBPK'), referenceDateUUID, now(), now(), false),
+		('b8d72116-6c77-4a96-ad70-f350de3448cd', (SELECT id FROM re_services WHERE code = 'IUBUPK'), referenceDateUUID, now(), now(), false),
+		('f09c5e5b-6edd-4a7d-92e1-f8de81c1e753', (SELECT id FROM re_services WHERE code = 'IUCRT'), referenceDateUUID, now(), now(), false),
+		('c1be4a58-1413-4848-a70d-318e9cbde3e4', (SELECT id FROM re_services WHERE code = 'NSTH'), referenceDateUUID, now(), now(), false),
+		('9f592683-94b9-4383-8df6-071c8561dc5b', (SELECT id FROM re_services WHERE code = 'NSTUB'), referenceDateUUID, now(), now(), false);
 
 	-- Set RequestedPickupDate to now be optional for all services.
 	UPDATE service_params
@@ -125,9 +125,9 @@ BEGIN
 	WHERE service_item_param_key_id = requestedPickupDateUUID;
 
 	-- For any service items already priced that have a RequestedPickupDate param, copy that value into
-	-- a new record with a TargetDateBilled param.
+	-- a new record with a ReferenceDate param.
 	INSERT INTO payment_service_item_params(id, payment_service_item_id, service_item_param_key_id, value, created_at, updated_at)
-	SELECT uuid_generate_v4(), payment_service_item_id, targetDateBilledUUID, value, now(), now()
+	SELECT uuid_generate_v4(), payment_service_item_id, referenceDateUUID, value, now(), now()
     FROM payment_service_item_params
     WHERE service_item_param_key_id = requestedPickupDateUUID;
 END $$;

@@ -293,7 +293,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 			Value:   currentTimeStr,
 		},
 		{
-			Key:     models.ServiceItemParamNameTargetDateBilled,
+			Key:     models.ServiceItemParamNameReferenceDate,
 			KeyType: models.ServiceItemParamTypeDate,
 			Value:   currentTimeStr,
 		},
@@ -476,7 +476,7 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 				Value:   currentTimeStr,
 			},
 			{
-				Key:     models.ServiceItemParamNameTargetDateBilled,
+				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
 				Value:   currentTimeStr,
 			},

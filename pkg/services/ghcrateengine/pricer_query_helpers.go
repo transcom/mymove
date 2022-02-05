@@ -81,10 +81,10 @@ func fetchAccessorialPrice(appCtx appcontext.AppContext, contractCode string, se
 	return domAccessorialPrice, nil
 }
 
-func fetchContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, targetDate time.Time) (models.ReContractYear, error) {
+func fetchContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, referenceDate time.Time) (models.ReContractYear, error) {
 	var contractYear models.ReContractYear
 	err := appCtx.DB().Where("contract_id = $1", contractID).
-		Where("$2 between start_date and end_date", targetDate).
+		Where("$2 between start_date and end_date", referenceDate).
 		First(&contractYear)
 	if err != nil {
 		return models.ReContractYear{}, err
