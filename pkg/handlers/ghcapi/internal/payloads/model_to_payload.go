@@ -462,7 +462,8 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 	}
 
 	if mtoShipment.DestinationType != nil {
-		payload.DestinationType = ghcmessages.DestinationType(*mtoShipment.DestinationType)
+		destType := ghcmessages.DestinationType(*mtoShipment.DestinationType)
+		payload.DestinationType = &destType
 	}
 
 	if sitStatusPayload != nil {
