@@ -1970,6 +1970,11 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 			Value:   currentTime.Format("2006-01-02"),
 		},
 		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
 			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   strconv.Itoa(2),
@@ -2053,6 +2058,11 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 		{
 			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
 			KeyType: models.ServiceItemParamTypeDate,
 			Value:   currentTimeDCRT.Format("2006-01-03"),
 		},

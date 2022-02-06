@@ -4713,7 +4713,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 			Value:   testdatagen.DefaultContractCode,
 		},
 		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			Key:     models.ServiceItemParamNameReferenceDate,
 			KeyType: models.ServiceItemParamTypeDate,
 			Value:   currentTime.Format(testDateFormat),
 		},

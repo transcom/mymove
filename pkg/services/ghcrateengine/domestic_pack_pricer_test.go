@@ -48,23 +48,23 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticPackPricer() {
 
 		// Setting each param's type to something incorrect should trigger an error.
 
-		// ServicesScheduleOrigin
+		// WeightBilled
 		paymentServiceItem.PaymentServiceItemParams[3].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
 		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
-		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameServicesScheduleOrigin))
+		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameWeightBilled))
 
-		// WeightBilled
+		// ServicesScheduleOrigin
 		paymentServiceItem.PaymentServiceItemParams[2].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
 		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
-		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameWeightBilled))
+		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameServicesScheduleOrigin))
 
-		// RequestedPickupDate
+		// ReferenceDate
 		paymentServiceItem.PaymentServiceItemParams[1].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
 		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
-		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to a time", models.ServiceItemParamNameRequestedPickupDate))
+		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to a time", models.ServiceItemParamNameReferenceDate))
 
 		// ContractCode
 		paymentServiceItem.PaymentServiceItemParams[0].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
@@ -85,19 +85,19 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticPackServiceItem() models.Pa
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
 				Value:   dpkTestRequestedPickupDate.Format(DateParamFormat),
-			},
-			{
-				Key:     models.ServiceItemParamNameWeightBilled,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(dpkTestWeight.Int()),
 			},
 			{
 				Key:     models.ServiceItemParamNameServicesScheduleOrigin,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(dpkTestServicesScheduleOrigin),
+			},
+			{
+				Key:     models.ServiceItemParamNameWeightBilled,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(dpkTestWeight.Int()),
 			},
 		},
 	)
