@@ -1,0 +1,35 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+.DatesAndLocationForm {
+  h2 {
+    @include u-margin-bottom(2.5);
+  }
+
+  legend {
+    :global(.usa-label){
+      @include u-margin-top(3);
+    }
+  }
+
+  :global(.usa-label), :global(.usa-checkbox__label) {
+    @include u-margin-top(2);
+  }
+
+  :global(.usa-legend) {
+    @include u-margin-top(0);
+  }
+
+  .hint {
+    @include u-margin-top(2);
+  }
+
+  .buttonContainer {
+    @include u-display(flex);
+
+    button {
+      @include u-margin-top(2);
+    }
+  }
+}

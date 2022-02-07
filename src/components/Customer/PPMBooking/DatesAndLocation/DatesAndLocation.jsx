@@ -4,13 +4,19 @@ import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import { Button, Form, Radio, FormGroup } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 
+import styles from './DatesAndLocation.module.scss';
+
+import formStyles from 'styles/form.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { ZIP_CODE_REGEX } from 'utils/validation';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { DutyStationShape } from 'types';
+import SectionWrapper from 'components/Customer/SectionWrapper';
+import Fieldset from 'shared/Fieldset';
 
 const validationSchema = Yup.object().shape({
   pickupPostalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid code').required('Required'),
@@ -60,165 +66,183 @@ const DatesAndLocation = ({
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
-          <Form>
-            <TextField
-              label="ZIP"
-              id="pickupPostalCode"
-              name="pickupPostalCode"
-              maxLength={10}
-              validate={(value) => postalCodeValidator(value, 'origin')}
-            />
-            {/* TODO: call setFieldValue when this checkbox is selected to populate pickupPostalCode */}
-            <CheckboxField
-              id="useCurrentZip"
-              name="useCurrentZip"
-              label={`Use my current ZIP (${serviceMember?.residentialAddress?.postalCode})`}
-            />
-            <FormGroup>
-              <p>Will you add items to your PPM from a place in a different ZIP code?</p>
-              <Field
-                as={Radio}
-                data-testid="yes-secondary-pickup-postal-code"
-                id="yes-secondary-pickup-postal-code"
-                label="Yes"
-                name="hasSecondaryPickupPostalCode"
-                value="true"
-                checked={values.hasSecondaryPickupPostalCode === 'true'}
+          <Form className={classnames(styles.DatesAndLocationForm, formStyles.form)}>
+            <SectionWrapper className={formStyles.formSection}>
+              <h2>Origin</h2>
+              <TextField
+                label="ZIP"
+                id="pickupPostalCode"
+                name="pickupPostalCode"
+                maxLength={10}
+                validate={(value) => postalCodeValidator(value, 'origin')}
               />
-              <Field
-                as={Radio}
-                data-testid="no-secondary-pickup-postal-code"
-                id="no-secondary-pickup-postal-code"
-                label="No"
-                name="hasSecondaryPickupPostalCode"
-                value="false"
-                checked={values.hasSecondaryPickupPostalCode === 'false'}
+              {/* TODO: call setFieldValue when this checkbox is selected to populate pickupPostalCode */}
+              <CheckboxField
+                id="useCurrentZip"
+                name="useCurrentZip"
+                label={`Use my current ZIP (${serviceMember?.residentialAddress?.postalCode})`}
               />
-            </FormGroup>
-            {values.hasSecondaryPickupPostalCode === 'true' && (
-              <>
-                <TextField
-                  label="Second ZIP"
-                  id="secondaryPickupPostalCode"
-                  name="secondaryPickupPostalCode"
-                  maxLength={10}
-                  validate={(value) => postalCodeValidator(value, 'origin')}
-                />
-                <Hint>
-                  <p>A second origin ZIP could mean that your final incentive is lower than your estimate.</p>
+              <FormGroup>
+                <Fieldset>
+                  <legend className="usa-label">
+                    Will you add items to your PPM from a place in a different ZIP code?
+                  </legend>
+                  <Field
+                    as={Radio}
+                    data-testid="yes-secondary-pickup-postal-code"
+                    id="yes-secondary-pickup-postal-code"
+                    label="Yes"
+                    name="hasSecondaryPickupPostalCode"
+                    value="true"
+                    checked={values.hasSecondaryPickupPostalCode === 'true'}
+                  />
+                  <Field
+                    as={Radio}
+                    data-testid="no-secondary-pickup-postal-code"
+                    id="no-secondary-pickup-postal-code"
+                    label="No"
+                    name="hasSecondaryPickupPostalCode"
+                    value="false"
+                    checked={values.hasSecondaryPickupPostalCode === 'false'}
+                  />
+                </Fieldset>
+              </FormGroup>
+              {values.hasSecondaryPickupPostalCode === 'true' && (
+                <>
+                  <TextField
+                    label="Second ZIP"
+                    id="secondaryPickupPostalCode"
+                    name="secondaryPickupPostalCode"
+                    maxLength={10}
+                    validate={(value) => postalCodeValidator(value, 'origin')}
+                  />
+                  <Hint className={styles.hint}>
+                    <p>A second origin ZIP could mean that your final incentive is lower than your estimate.</p>
 
-                  <p>
-                    Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to your
-                    move counselor for more detailed information.
-                  </p>
-                </Hint>
-              </>
-            )}
-            <TextField
-              label="ZIP"
-              id="destinationPostalCode"
-              name="destinationPostalCode"
-              maxLength={10}
-              validate={(value) => postalCodeValidator(value, 'destination')}
-            />
-            <CheckboxField
-              id="useDestinationDutyLocationZIP"
-              name="useDestinationDutyLocationZIP"
-              label={`Use the ZIP for my new duty location (${destinationDutyStation?.address?.postalCode})`}
-            />
-            <Hint>
-              Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you don&apos;t
-              have a new address yet.
-            </Hint>
-            <FormGroup>
-              <p>Will you deliver part of your PPM to another place in a different ZIP code?</p>
-              <Field
-                as={Radio}
-                id="hasSecondaryDestinationPostalCodeYes"
-                label="Yes"
-                name="hasSecondaryDestinationPostalCode"
-                value="true"
-                checked={values.hasSecondaryDestinationPostalCode === 'true'}
+                    <p>
+                      Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to your
+                      move counselor for more detailed information.
+                    </p>
+                  </Hint>
+                </>
+              )}
+            </SectionWrapper>
+            <SectionWrapper className={formStyles.formSection}>
+              <h2>Destination</h2>
+              <TextField
+                label="ZIP"
+                id="destinationPostalCode"
+                name="destinationPostalCode"
+                maxLength={10}
+                validate={(value) => postalCodeValidator(value, 'destination')}
               />
-              <Field
-                as={Radio}
-                id="hasSecondaryDestinationPostalCodeNo"
-                label="No"
-                name="hasSecondaryDestinationPostalCode"
-                value="false"
-                checked={values.hasSecondaryDestinationPostalCode === 'false'}
+              <CheckboxField
+                id="useDestinationDutyLocationZIP"
+                name="useDestinationDutyLocationZIP"
+                label={`Use the ZIP for my new duty location (${destinationDutyStation?.address?.postalCode})`}
               />
-            </FormGroup>
-            {values.hasSecondaryDestinationPostalCode === 'true' && (
-              <>
-                <TextField
-                  label="Second ZIP"
-                  id="secondaryDestinationPostalCode"
-                  name="secondaryDestinationPostalCode"
-                  maxLength={10}
-                  validate={(value) => postalCodeValidator(value, 'destination')}
-                />
-                <Hint>
-                  <p>A second destination ZIP could mean that your final incentive is lower than your estimate.</p>
-                  <p>
-                    Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to your
-                    move counselor for more detailed information.
-                  </p>
-                </Hint>
-              </>
-            )}
-            <FormGroup>
-              <p>Do you plan to store items from your PPM?</p>
-              <Field
-                as={Radio}
-                id="sitExpectedYes"
-                label="Yes"
-                name="sitExpected"
-                value="true"
-                checked={values.sitExpected === 'true'}
-              />
-              <Field
-                as={Radio}
-                id="sitExpectedNo"
-                label="No"
-                name="sitExpected"
-                value="false"
-                checked={values.sitExpected === 'false'}
-              />
-            </FormGroup>
-            {values.sitExpected === 'false' ? (
-              <Hint>You can be reimbursed for up to 90 days of temporary storage (SIT).</Hint>
-            ) : (
-              <Hint>
-                <p>You can be reimbursed for up to 90 days of temporary storage (SIT).</p>
-                <p>
-                  Your reimbursement amount is limited to the Government&apos;s Constructed Cost — what the government
-                  would have paid to store your belongings.
-                </p>
-                <p>
-                  You will need to pay for the storage yourself, then submit receipts and request reimbursement after
-                  your PPM is complete.
-                </p>
-                <p>Your move counselor can give you more information about additional requirements.</p>
+              <Hint className={styles.hint}>
+                Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you
+                don&apos;t have a new address yet.
               </Hint>
-            )}
-            <DatePickerInput name="expectedDepartureDate" label="When do you plan to start moving your PPM?" />
-            <Hint>
-              Enter the first day you expect to move things. It&apos;s OK if the actual date is different. We will ask
-              for your actual departure date when you document and complete your PPM.
-            </Hint>
-            <Button type="button" unstyled onClick={onBack} data-testid="datesAndLocationBackBtn">
-              Back
-            </Button>
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              unstyled
-              data-testid="datesAndLocationSubmitBtn"
-              disabled={!isValid || isSubmitting}
-            >
-              Save & Continue
-            </Button>
+              <FormGroup>
+                <Fieldset>
+                  <legend className="usa-label">
+                    Will you deliver part of your PPM to another place in a different ZIP code?
+                  </legend>
+                  <Field
+                    as={Radio}
+                    id="hasSecondaryDestinationPostalCodeYes"
+                    label="Yes"
+                    name="hasSecondaryDestinationPostalCode"
+                    value="true"
+                    checked={values.hasSecondaryDestinationPostalCode === 'true'}
+                  />
+                  <Field
+                    as={Radio}
+                    id="hasSecondaryDestinationPostalCodeNo"
+                    label="No"
+                    name="hasSecondaryDestinationPostalCode"
+                    value="false"
+                    checked={values.hasSecondaryDestinationPostalCode === 'false'}
+                  />
+                </Fieldset>
+              </FormGroup>
+              {values.hasSecondaryDestinationPostalCode === 'true' && (
+                <>
+                  <TextField
+                    label="Second ZIP"
+                    id="secondaryDestinationPostalCode"
+                    name="secondaryDestinationPostalCode"
+                    maxLength={10}
+                    validate={(value) => postalCodeValidator(value, 'destination')}
+                  />
+                  <Hint className={styles.hint}>
+                    <p>A second destination ZIP could mean that your final incentive is lower than your estimate.</p>
+                    <p>
+                      Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to your
+                      move counselor for more detailed information.
+                    </p>
+                  </Hint>
+                </>
+              )}
+            </SectionWrapper>
+            <SectionWrapper className={formStyles.formSection}>
+              <h2>Storage</h2>
+              <FormGroup>
+                <Fieldset>
+                  <legend className="usa-label">Do you plan to store items from your PPM?</legend>
+                  <Field
+                    as={Radio}
+                    id="sitExpectedYes"
+                    label="Yes"
+                    name="sitExpected"
+                    value="true"
+                    checked={values.sitExpected === 'true'}
+                  />
+                  <Field
+                    as={Radio}
+                    id="sitExpectedNo"
+                    label="No"
+                    name="sitExpected"
+                    value="false"
+                    checked={values.sitExpected === 'false'}
+                  />
+                </Fieldset>
+              </FormGroup>
+              {values.sitExpected === 'false' ? (
+                <Hint className={styles.hint}>You can be reimbursed for up to 90 days of temporary storage (SIT).</Hint>
+              ) : (
+                <Hint>
+                  <p>You can be reimbursed for up to 90 days of temporary storage (SIT).</p>
+                  <p>
+                    Your reimbursement amount is limited to the Government&apos;s Constructed Cost — what the government
+                    would have paid to store your belongings.
+                  </p>
+                  <p>
+                    You will need to pay for the storage yourself, then submit receipts and request reimbursement after
+                    your PPM is complete.
+                  </p>
+                  <p>Your move counselor can give you more information about additional requirements.</p>
+                </Hint>
+              )}
+            </SectionWrapper>
+            <SectionWrapper className={formStyles.formSection}>
+              <h2>Departure date</h2>
+              <DatePickerInput name="expectedDepartureDate" label="When do you plan to start moving your PPM?" />
+              <Hint className={styles.hint}>
+                Enter the first day you expect to move things. It&apos;s OK if the actual date is different. We will ask
+                for your actual departure date when you document and complete your PPM.
+              </Hint>
+            </SectionWrapper>
+            <div className={styles.buttonContainer}>
+              <Button type="button" onClick={onBack} secondary outline>
+                Back
+              </Button>
+              <Button type="button" onClick={handleSubmit} disabled={!isValid || isSubmitting}>
+                Save & Continue
+              </Button>
+            </div>
           </Form>
         );
       }}
