@@ -722,14 +722,23 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 
 		switch shipment.ShipmentType {
 		case models.MTOShipmentTypeHHGIntoNTSDom:
-			if shipment.StorageFacility == nil {
+			if shipment.StorageFacility == nil || shipment.StorageFacility.AddressID == uuid.Nil {
 				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTSDom)
 			}
+			err := appCtx.DB().Load(shipment.StorageFacility, "Address")
+			if err != nil {
+				return apperror.NewNotFoundError(shipment.StorageFacility.AddressID, "looking for MTOShipment.StorageFacility.Address")
+			}
+
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = &shipment.StorageFacility.Address
 		case models.MTOShipmentTypeHHGOutOfNTSDom:
-			if shipment.StorageFacility == nil {
+			if shipment.StorageFacility == nil || shipment.StorageFacility.AddressID == uuid.Nil {
 				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTSDom)
+			}
+			err := appCtx.DB().Load(shipment.StorageFacility, "Address")
+			if err != nil {
+				return apperror.NewNotFoundError(shipment.StorageFacility.AddressID, "looking for MTOShipment.StorageFacility.Address")
 			}
 			pickupLocation = &shipment.StorageFacility.Address
 			deliveryLocation = shipment.DestinationAddress
