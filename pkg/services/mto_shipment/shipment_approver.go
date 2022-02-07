@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"database/sql"
 
+	"github.com/pkg/errors"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -85,7 +87,14 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 
 func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress").Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress", "StorageFacility").Find(&shipment, shipmentID)
+
+	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+	// cannot eager load the address as "StorageFacility.Address" because
+	// StorageFacility is a pointer.
+	if shipment.StorageFacility != nil {
+		err = appCtx.DB().Load(shipment.StorageFacility, "Address")
+	}
 
 	if err != nil {
 		switch err {
@@ -102,8 +111,34 @@ func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID
 func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
-		shipment.PrimeEstimatedWeight != nil {
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+		(shipment.PrimeEstimatedWeight != nil || (shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
+			shipment.NTSRecordedWeight != nil)) {
+
+		var pickupLocation *models.Address
+		var deliveryLocation *models.Address
+		var weight int
+
+		switch shipment.ShipmentType {
+		case models.MTOShipmentTypeHHGIntoNTSDom:
+			if shipment.StorageFacility == nil {
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTSDom)
+			}
+			pickupLocation = shipment.PickupAddress
+			deliveryLocation = &shipment.StorageFacility.Address
+			weight = shipment.PrimeEstimatedWeight.Int()
+		case models.MTOShipmentTypeHHGOutOfNTSDom:
+			if shipment.StorageFacility == nil {
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTSDom)
+			}
+			pickupLocation = &shipment.StorageFacility.Address
+			deliveryLocation = shipment.DestinationAddress
+			weight = shipment.NTSRecordedWeight.Int()
+		default:
+			pickupLocation = shipment.PickupAddress
+			deliveryLocation = shipment.DestinationAddress
+			weight = shipment.PrimeEstimatedWeight.Int()
+		}
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight)
 		if calcErr != nil {
 			return calcErr
 		}
