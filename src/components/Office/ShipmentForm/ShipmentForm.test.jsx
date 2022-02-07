@@ -78,7 +78,7 @@ const mockMtoShipment = {
 
 const mockShipmentWithDestinationType = {
   ...mockMtoShipment,
-  destinationAddressType: 'HOME_OF_SELECTION',
+  destinationType: 'HOME_OF_SELECTION',
 };
 
 const defaultPropsRetirement = {
@@ -183,7 +183,7 @@ describe('ShipmentForm component', () => {
     it('renders a delivery address type for retirement orders type', async () => {
       render(<ShipmentForm {...defaultPropsRetirement} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
       userEvent.click(screen.getByLabelText('Yes'));
-      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationAddressType');
+      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
     });
 
     it('does not render delivery address type for PCS order type', async () => {
@@ -195,7 +195,7 @@ describe('ShipmentForm component', () => {
     it('renders a delivery address type for separation orders type', async () => {
       render(<ShipmentForm {...defaultPropsSeparation} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
       userEvent.click(screen.getByLabelText('Yes'));
-      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationAddressType');
+      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
     });
 
     it('does not render an Accounting Codes section', async () => {
