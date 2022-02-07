@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 )
 
 // CounselingUpdateOrderPayload counseling update order payload
@@ -35,13 +36,11 @@ type CounselingUpdateOrderPayload struct {
 
 	// NTS SAC
 	// Example: N002214CSW32Y9
-	NtsSac *string `json:"ntsSac,omitempty"`
+	NtsSac nullable.String `json:"ntsSac,omitempty"`
 
 	// NTS TAC
 	// Example: F8J1
-	// Max Length: 4
-	// Min Length: 4
-	NtsTac *string `json:"ntsTac,omitempty"`
+	NtsTac nullable.String `json:"ntsTac,omitempty"`
 
 	// orders type
 	// Required: true
@@ -63,7 +62,7 @@ type CounselingUpdateOrderPayload struct {
 
 	// HHG SAC
 	// Example: N002214CSW32Y9
-	Sac *string `json:"sac,omitempty"`
+	Sac nullable.String `json:"sac,omitempty"`
 
 	// HHG TAC
 	// Example: F8J1
@@ -84,6 +83,10 @@ func (m *CounselingUpdateOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateNtsSac(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateNtsTac(formats); err != nil {
 		res = append(res, err)
 	}
@@ -97,6 +100,10 @@ func (m *CounselingUpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -136,16 +143,34 @@ func (m *CounselingUpdateOrderPayload) validateNewDutyStationID(formats strfmt.R
 	return nil
 }
 
+func (m *CounselingUpdateOrderPayload) validateNtsSac(formats strfmt.Registry) error {
+	if swag.IsZero(m.NtsSac) { // not required
+		return nil
+	}
+
+	if err := m.NtsSac.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ntsSac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ntsSac")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *CounselingUpdateOrderPayload) validateNtsTac(formats strfmt.Registry) error {
 	if swag.IsZero(m.NtsTac) { // not required
 		return nil
 	}
 
-	if err := validate.MinLength("ntsTac", "body", *m.NtsTac, 4); err != nil {
-		return err
-	}
-
-	if err := validate.MaxLength("ntsTac", "body", *m.NtsTac, 4); err != nil {
+	if err := m.NtsTac.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ntsTac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ntsTac")
+		}
 		return err
 	}
 
@@ -202,6 +227,23 @@ func (m *CounselingUpdateOrderPayload) validateReportByDate(formats strfmt.Regis
 	return nil
 }
 
+func (m *CounselingUpdateOrderPayload) validateSac(formats strfmt.Registry) error {
+	if swag.IsZero(m.Sac) { // not required
+		return nil
+	}
+
+	if err := m.Sac.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sac")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *CounselingUpdateOrderPayload) validateTac(formats strfmt.Registry) error {
 	if swag.IsZero(m.Tac) { // not required
 		return nil
@@ -222,13 +264,53 @@ func (m *CounselingUpdateOrderPayload) validateTac(formats strfmt.Registry) erro
 func (m *CounselingUpdateOrderPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateNtsSac(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNtsTac(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateOrdersType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSac(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CounselingUpdateOrderPayload) contextValidateNtsSac(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.NtsSac.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ntsSac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ntsSac")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *CounselingUpdateOrderPayload) contextValidateNtsTac(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.NtsTac.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ntsTac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ntsTac")
+		}
+		return err
+	}
+
 	return nil
 }
 
@@ -243,6 +325,20 @@ func (m *CounselingUpdateOrderPayload) contextValidateOrdersType(ctx context.Con
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *CounselingUpdateOrderPayload) contextValidateSac(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Sac.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sac")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sac")
+		}
+		return err
 	}
 
 	return nil

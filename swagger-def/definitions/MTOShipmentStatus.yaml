@@ -1,0 +1,10 @@
+type: string
+title: Shipment Status
+example: SUBMITTED
+enum:
+  - SUBMITTED
+  - REJECTED
+  - APPROVED
+  - CANCELLATION_REQUESTED
+  - CANCELED
+  - DIVERSION_REQUESTED
