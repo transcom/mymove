@@ -27,3 +27,33 @@ BlankDatesAndLocation.args = {
   },
   postalCodeValidator: () => {},
 };
+
+export const MTOShipmentDatesAndLocation = Template.bind({});
+MTOShipmentDatesAndLocation.args = {
+  onSubmit: action('submit button clicked'),
+  onBack: action('back button clicked'),
+  serviceMember: {
+    id: '123',
+    residentialAddress: {
+      postalCode: '90210',
+    },
+  },
+  destinationDutyStation: {
+    address: {
+      postalCode: '94611',
+    },
+  },
+  postalCodeValidator: () => {},
+  mtoShipment: {
+    id: '123',
+    ppmShipment: {
+      id: '123',
+      pickupPostalCode: '12345',
+      secondaryPickupPostalCode: '34512',
+      destinationPostalCode: '94611',
+      secondaryDestinationPostalCode: '90210',
+      sitExpected: 'true',
+      expectedDepartureDate: '2022-09-23',
+    },
+  },
+};

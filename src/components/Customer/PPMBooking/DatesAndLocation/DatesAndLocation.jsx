@@ -39,6 +39,11 @@ const validationSchema = Yup.object().shape({
     .required('Required'),
 });
 
+const setZip = (setFieldValue, postalCodeField, postalCode, isChecked, isCheckedField) => {
+  setFieldValue(isCheckedField, isChecked === 'true' ? 'false' : 'true');
+  setFieldValue(postalCodeField, isChecked === 'true' ? '' : postalCode);
+};
+
 const DatesAndLocation = ({
   mtoShipment,
   destinationDutyStation,
@@ -50,11 +55,11 @@ const DatesAndLocation = ({
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useResidentialAddressZIP: '',
-    hasSecondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || 'false',
+    hasSecondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
     useDestinationDutyLocationZIP: '',
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
-    hasSecondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || 'false',
+    hasSecondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode ? 'true' : 'false',
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected || 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
@@ -64,7 +69,7 @@ const DatesAndLocation = ({
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, setFieldValue, values }) => {
         return (
           <Form className={classnames(styles.DatesAndLocationForm, formStyles.form)}>
             <SectionWrapper className={formStyles.formSection}>
@@ -76,11 +81,20 @@ const DatesAndLocation = ({
                 maxLength={10}
                 validate={(value) => postalCodeValidator(value, 'origin')}
               />
-              {/* TODO: call setFieldValue when this checkbox is selected to populate pickupPostalCode */}
               <CheckboxField
-                id="useCurrentZip"
-                name="useCurrentZip"
+                id="useResidentialAddressZIP"
+                name="useResidentialAddressZIP"
                 label={`Use my current ZIP (${serviceMember?.residentialAddress?.postalCode})`}
+                onChange={() =>
+                  setZip(
+                    setFieldValue,
+                    'pickupPostalCode',
+                    serviceMember?.residentialAddress?.postalCode,
+                    values.useResidentialAddressZIP,
+                    'useResidentialAddressZIP',
+                  )
+                }
+                checked={values.useResidentialAddressZIP === 'true'}
               />
               <FormGroup>
                 <Fieldset>
@@ -118,7 +132,6 @@ const DatesAndLocation = ({
                   />
                   <Hint className={styles.hint}>
                     <p>A second origin ZIP could mean that your final incentive is lower than your estimate.</p>
-
                     <p>
                       Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to your
                       move counselor for more detailed information.
@@ -140,6 +153,15 @@ const DatesAndLocation = ({
                 id="useDestinationDutyLocationZIP"
                 name="useDestinationDutyLocationZIP"
                 label={`Use the ZIP for my new duty location (${destinationDutyStation?.address?.postalCode})`}
+                onChange={() =>
+                  setZip(
+                    setFieldValue,
+                    'destinationPostalCode',
+                    destinationDutyStation?.address?.postalCode,
+                    values.useDestinationDutyLocationZIP,
+                    'useDestinationDutyLocationZIP',
+                  )
+                }
               />
               <Hint className={styles.hint}>
                 Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you
