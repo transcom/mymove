@@ -49,11 +49,11 @@ const DatesAndLocation = ({
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useResidentialAddressZIP: '',
-    hasSecondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || 'false',
+    hasSecondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
     useDestinationDutyLocationZIP: '',
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
-    hasSecondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || 'false',
+    hasSecondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode ? 'true' : 'false',
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected || 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
