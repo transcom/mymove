@@ -1,4 +1,3 @@
-// eslint-disable no-unused-vars
 import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
