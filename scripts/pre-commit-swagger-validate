@@ -14,10 +14,14 @@ elif swagger version 2>/dev/null | grep -F -q 'version: 0.28.0'; then
 fi
 
 if [[ -n "${LOCAL_SWAGGER+x}" ]]; then
-  ${LOCAL_SWAGGER} validate "${filename}"
+  for filename in "$@"; do
+    ${LOCAL_SWAGGER} validate "${filename}"
+  done
 else
   # Locally we need to download the docker image to get the binary
   image=milmove/circleci-docker:milmove-app-3739e422811794dd0ebe5ab1f0244764520a18c4
   docker pull -q "${image}"
-  docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger validate "${filename}"
+  for filename in "$@"; do
+    docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger validate "${filename}"
+  done
 fi
