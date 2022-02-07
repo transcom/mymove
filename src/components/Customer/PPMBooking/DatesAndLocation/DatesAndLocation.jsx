@@ -162,6 +162,7 @@ const DatesAndLocation = ({
                     'useDestinationDutyLocationZIP',
                   )
                 }
+                checked={values.useDestinationDutyLocationZIP === 'true'}
               />
               <Hint className={styles.hint}>
                 Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you
