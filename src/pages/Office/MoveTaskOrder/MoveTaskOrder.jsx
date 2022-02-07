@@ -210,7 +210,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateOrders] = useMutation(updateBillableWeight, {
+  const [mutateOrderBillableWeight] = useMutation(updateBillableWeight, {
     onSuccess: (data, variables) => {
       queryCache.invalidateQueries([MOVES, move.locator]);
       const updatedOrder = data.orders[variables.orderID];
@@ -380,6 +380,16 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     });
   };
 
+  const handleEditAccountingCodes = (fields, shipment) => {
+    const body = { tacType: null, sacType: null, ...fields };
+    mutateMTOShipment({
+      moveTaskOrderID: shipment.moveTaskOrderID,
+      shipmentID: shipment.id,
+      ifMatchETag: shipment.eTag,
+      body,
+    });
+  };
+
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
       shipmentID: mtoShipmentID,
@@ -426,7 +436,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   };
 
   const handleUpdateBillableWeight = (maxBillableWeight) => {
-    mutateOrders({ orderID: order.id, ifMatchETag: order.eTag, body: { authorizedWeight: maxBillableWeight } });
+    mutateOrderBillableWeight({
+      orderID: order.id,
+      ifMatchETag: order.eTag,
+      body: { authorizedWeight: maxBillableWeight },
+    });
   };
 
   const handleAcknowledgeExcessWeightRisk = () => {
@@ -753,6 +767,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   handleSubmitSITExtension={handleSubmitSITExtension}
                   handleEditFacilityInfo={handleEditFacilityInfo}
                   handleEditServiceOrderNumber={handleEditServiceOrderNumber}
+                  handleEditAccountingCodes={handleEditAccountingCodes}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
