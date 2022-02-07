@@ -155,7 +155,6 @@ export const NTSReleaseShipmentMissingInfo = () => (
       errorIfMissing={errorIfMissingStorageFacility}
       showWhenCollapsed={showWhenCollapsed}
       editURL="/"
-      allowApproval={false}
     />
   </div>
 );
