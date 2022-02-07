@@ -320,6 +320,9 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createMoveWith2MinimalShipments(appCtx, userUploader)
 		createApprovedMoveWithMinimalShipment(appCtx, userUploader)
 
+		// A move for a retiree
+		createHHGNoGovCounselingForRetirementWithDestinationAddressAndType(appCtx)
+
 		// Prime API
 		createWebhookSubscriptionForPaymentRequestUpdate(appCtx)
 		// This move below is a PPM move in DRAFT status. It should probably
