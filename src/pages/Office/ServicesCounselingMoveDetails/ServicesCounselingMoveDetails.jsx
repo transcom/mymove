@@ -73,14 +73,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
           })
         : '';
 
-      let displayDestinationType = false;
-      let destinationType = null;
-
-      // show dest addr type, if retiree or separatee
-      if (ORDERS_TYPE[order.order_type] === ('RETIREMENT' || 'SEPARATION')) {
-        displayDestinationType = true;
-        /*
-
+      /*
+        show dest addr type, if retiree or separatee
         translate from stored value to human readable string
 
         shipment.destinationType:
@@ -93,7 +87,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
           - PLACE_ENTERED_ACTIVE_DUTY: PLEAD
           - OTHER_THAN_AUTHORIZED: OTHER
 
-        */
+      */
+      let destinationType = null;
+      const isRetirementOrSeparation =
+        order.order_type === ORDERS_TYPE.RETIREMENT || order.order_type === ORDERS_TYPE.SEPARATION;
+
+      if (isRetirementOrSeparation) {
         destinationType = shipmentDestinationType[shipment.destinationType];
       }
 
@@ -104,12 +103,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
             postalCode: order.destinationDutyStation.address.postalCode,
           },
           type: destinationType,
-          displayDestinationType,
+          displayDestinationType: isRetirementOrSeparation,
         },
         ...shipment,
       };
-
-      // console.log('display info: ', displayInfo, shipment);
 
       if (!disableSubmit && errorIfMissing[shipment.shipmentType]) {
         for (let i = 0; i < errorIfMissing[shipment.shipmentType].length; i += 1) {

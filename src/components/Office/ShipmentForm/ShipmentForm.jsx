@@ -377,7 +377,6 @@ const ShipmentForm = ({
                             }}
                           />
                           {isRetirementOrSeparation && (
-                            // TODO: add placeholder with populated destination type, save destination type on submit
                             <DropdownInput
                               label="Destination type"
                               name="destinationType"
