@@ -40,7 +40,9 @@ func MakeServiceParam(db *pop.Connection, assertions Assertions) models.ServiceP
 	switch assertions.ServiceParam.ServiceItemParamKey.Key {
 	case models.ServiceItemParamNameWeightEstimated,
 		models.ServiceItemParamNameWeightReweigh,
-		models.ServiceItemParamNameWeightAdjusted:
+		models.ServiceItemParamNameWeightAdjusted,
+		models.ServiceItemParamNameRequestedPickupDate,
+		models.ServiceItemParamNameActualPickupDate:
 		serviceParam.IsOptional = true
 		assertions.ServiceParam.IsOptional = true
 	}
@@ -48,7 +50,9 @@ func MakeServiceParam(db *pop.Connection, assertions Assertions) models.ServiceP
 	switch serviceParam.ServiceItemParamKey.Key {
 	case models.ServiceItemParamNameWeightEstimated,
 		models.ServiceItemParamNameWeightReweigh,
-		models.ServiceItemParamNameWeightAdjusted:
+		models.ServiceItemParamNameWeightAdjusted,
+		models.ServiceItemParamNameRequestedPickupDate,
+		models.ServiceItemParamNameActualPickupDate:
 		serviceParam.IsOptional = true
 		assertions.ServiceParam.IsOptional = true
 	}
@@ -56,7 +60,9 @@ func MakeServiceParam(db *pop.Connection, assertions Assertions) models.ServiceP
 	switch assertions.ServiceItemParamKey.Key {
 	case models.ServiceItemParamNameWeightEstimated,
 		models.ServiceItemParamNameWeightReweigh,
-		models.ServiceItemParamNameWeightAdjusted:
+		models.ServiceItemParamNameWeightAdjusted,
+		models.ServiceItemParamNameRequestedPickupDate,
+		models.ServiceItemParamNameActualPickupDate:
 		serviceParam.IsOptional = true
 		assertions.ServiceParam.IsOptional = true
 	}

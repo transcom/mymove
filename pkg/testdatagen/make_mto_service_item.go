@@ -367,6 +367,7 @@ func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.Re
 			_ = MakeServiceParam(db, Assertions{
 				ServiceParam: models.ServiceParam{
 					ServiceID:             reService.ID,
+					Service:               reService,
 					ServiceItemParamKeyID: serviceItemParamKey.ID,
 					ServiceItemParamKey:   serviceItemParamKey,
 				},
