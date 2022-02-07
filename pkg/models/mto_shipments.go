@@ -44,6 +44,8 @@ const (
 	MTOShipmentTypeBoatHaulAway MTOShipmentType = "BOAT_HAUL_AWAY"
 	// MTOShipmentTypeBoatTowAway is a Shipment Type for Boat Tow Away
 	MTOShipmentTypeBoatTowAway MTOShipmentType = "BOAT_TOW_AWAY"
+	// MTOShipmentTypePPM is a Shipment Type for Personally Procured Move shipments
+	MTOShipmentTypePPM MTOShipmentType = "PPM"
 )
 
 // These are meant to be the default number of SIT days that a customer is allowed to have. They should be used when

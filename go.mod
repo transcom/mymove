@@ -20,12 +20,12 @@ require (
 	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.49.0 // indirect
-	github.com/go-openapi/errors v0.20.1
-	github.com/go-openapi/loads v0.21.0
-	github.com/go-openapi/runtime v0.21.0
+	github.com/go-openapi/errors v0.20.2
+	github.com/go-openapi/loads v0.21.1
+	github.com/go-openapi/runtime v0.23.0
 	github.com/go-openapi/spec v0.20.4
-	github.com/go-openapi/strfmt v0.21.1
-	github.com/go-openapi/swag v0.19.15
+	github.com/go-openapi/strfmt v0.21.2
+	github.com/go-openapi/swag v0.21.1
 	github.com/go-openapi/validate v0.20.3
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
@@ -38,7 +38,6 @@ require (
 	github.com/gobuffalo/validate/v3 v3.3.1
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/uuid v4.2.0+incompatible
-	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.1
@@ -52,15 +51,14 @@ require (
 	github.com/leodido/go-urn v1.2.1
 	github.com/lib/pq v1.10.4
 	github.com/luna-duclos/instrumentedsql v1.1.3
-	github.com/markbates/goth v1.68.0
+	github.com/markbates/goth v1.69.0
 	github.com/mattn/go-shellwords v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.4
-	github.com/pterm/pterm v0.12.34
-	github.com/rickar/cal v1.0.5
+	github.com/pterm/pterm v0.12.36
 	github.com/spf13/afero v1.8.0
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
@@ -86,6 +84,8 @@ require (
 )
 
 require (
+	github.com/golang-jwt/jwt/v4 v4.2.0
+	github.com/rickar/cal/v2 v2.1.1
 	github.com/trussworks/otelhttp v0.0.0-20211201183707-a6d8db57ed9b
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.3.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.28.0
@@ -125,7 +125,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-logr/logr v1.2.1 // indirect
 	github.com/go-logr/stdr v1.2.0 // indirect
-	github.com/go-openapi/analysis v0.20.1 // indirect
+	github.com/go-openapi/analysis v0.21.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
