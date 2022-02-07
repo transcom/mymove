@@ -126,4 +126,19 @@ describe('Shipment Details Sidebar', () => {
     // This text is in the edit facility info modal
     expect(screen.getByText('Edit facility info and address')).toBeInTheDocument();
   });
+
+  it('shows edit service order number modal on edit button click', () => {
+    render(
+      <MockProviders>
+        <ShipmentDetailsSidebar shipment={shipment} ordersLOA={ordersLOA} handleEditFacilityInfo={() => {}} />
+      </MockProviders>,
+    );
+
+    const openSonModalButton = screen.getByTestId('service-order-number-modal-open');
+
+    userEvent.click(openSonModalButton);
+
+    // This text is in the edit facility info modal
+    expect(screen.getByRole('heading', { name: 'Edit service order number' })).toBeInTheDocument();
+  });
 });

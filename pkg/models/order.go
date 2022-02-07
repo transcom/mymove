@@ -247,12 +247,11 @@ func (o *Order) IsComplete() bool {
 	if o.DepartmentIndicator == nil {
 		return false
 	}
+	// HHG TAC
 	if o.TAC == nil {
 		return false
 	}
-	if o.SAC == nil {
-		return false
-	}
+
 	return true
 }
 
@@ -262,10 +261,8 @@ func (o *Order) IsCompleteForGBL() bool {
 	if o.DepartmentIndicator == nil {
 		return false
 	}
+	// HHG TAC
 	if o.TAC == nil {
-		return false
-	}
-	if o.SAC == nil {
 		return false
 	}
 	return true

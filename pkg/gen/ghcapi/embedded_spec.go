@@ -3260,7 +3260,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
         }
@@ -3289,17 +3289,15 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersType": {
@@ -3318,9 +3316,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -3383,11 +3380,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -4135,6 +4128,7 @@ func init() {
       ]
     },
     "MTOServiceItems": {
+      "description": "A list of service items connected to this shipment.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
@@ -4562,6 +4556,15 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
       }
     },
     "Order": {
@@ -5121,6 +5124,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -5142,17 +5147,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -5513,7 +5521,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
         }
@@ -5624,17 +5632,15 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersAcknowledgement": {
@@ -5667,9 +5673,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -9980,7 +9985,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
@@ -10010,17 +10015,15 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersType": {
@@ -10039,9 +10042,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -10104,11 +10106,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -10856,6 +10854,7 @@ func init() {
       ]
     },
     "MTOServiceItems": {
+      "description": "A list of service items connected to this shipment.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
@@ -11283,6 +11282,15 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
       }
     },
     "Order": {
@@ -11842,6 +11850,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -11863,17 +11873,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -12240,7 +12253,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
@@ -12352,17 +12365,15 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersAcknowledgement": {
@@ -12395,9 +12406,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {

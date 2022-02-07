@@ -51,6 +51,50 @@ export const AsServiceCounselor = () => (
   </div>
 );
 
+export const AsServiceCounselorProcessingRetirement = () => (
+  <div className="officeApp">
+    <OrdersList
+      showMissingWarnings={false}
+      ordersInfo={{
+        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
+        reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
+        departmentIndicator: '',
+        ordersNumber: '',
+        ordersType: 'RETIREMENT',
+        ordersTypeDetail: '',
+        tacMDC: '',
+        sacSDN: '',
+        NTSsac: '',
+        NTStac: '',
+      }}
+    />
+  </div>
+);
+
+export const AsServiceCounselorProcessingSeparation = () => (
+  <div className="officeApp">
+    <OrdersList
+      showMissingWarnings={false}
+      ordersInfo={{
+        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
+        reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
+        departmentIndicator: '',
+        ordersNumber: '',
+        ordersType: 'SEPARATION',
+        ordersTypeDetail: '',
+        tacMDC: '',
+        sacSDN: '',
+        NTSsac: '',
+        NTStac: '',
+      }}
+    />
+  </div>
+);
+
 export const AsTOO = () => (
   <div className="officeApp">
     <OrdersList
@@ -63,6 +107,50 @@ export const AsTOO = () => (
         departmentIndicator: '',
         ordersNumber: '',
         ordersType: '',
+        ordersTypeDetail: '',
+        tacMDC: '',
+        sacSDN: '',
+        NTSsac: '',
+        NTStac: '',
+      }}
+    />
+  </div>
+);
+
+export const AsTOOProcessingRetirement = () => (
+  <div className="officeApp">
+    <OrdersList
+      showMissingWarnings
+      ordersInfo={{
+        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
+        reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
+        departmentIndicator: '',
+        ordersNumber: '',
+        ordersType: 'RETIREMENT',
+        ordersTypeDetail: '',
+        tacMDC: '',
+        sacSDN: '',
+        NTSsac: '',
+        NTStac: '',
+      }}
+    />
+  </div>
+);
+
+export const AsTOOProcessingSeparation = () => (
+  <div className="officeApp">
+    <OrdersList
+      showMissingWarnings
+      ordersInfo={{
+        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
+        reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
+        departmentIndicator: '',
+        ordersNumber: '',
+        ordersType: 'SEPARATION',
         ordersTypeDetail: '',
         tacMDC: '',
         sacSDN: '',

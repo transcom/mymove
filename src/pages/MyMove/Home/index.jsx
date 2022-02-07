@@ -105,16 +105,6 @@ export class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
-  get hasHHGShipment() {
-    const { mtoShipments } = this.props;
-    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.HHG);
-  }
-
-  get hasNTSShipment() {
-    const { mtoShipments } = this.props;
-    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.NTS);
-  }
-
   get hasPPMShipment() {
     const { currentPpm } = this.props;
     return !!Object.keys(currentPpm).length;

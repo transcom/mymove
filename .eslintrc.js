@@ -26,6 +26,13 @@ module.exports = {
       },
     ],
     'react/button-has-type': 'error',
+    'react/function-component-definition': [
+      'error',
+      {
+        namedComponents: ['function-declaration', 'function-expression', 'arrow-function'],
+        unnamedComponents: ['function-expression', 'arrow-function'],
+      },
+    ],
     'react/jsx-no-target-blank': 'error',
     'react/jsx-curly-brace-presence': 'error',
     'react/require-default-props': 'warn',
