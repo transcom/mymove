@@ -33,6 +33,11 @@ const validationSchema = Yup.object().shape({
     .required('Required'),
 });
 
+const setZip = (setFieldValue, postalCodeField, postalCode, isChecked, isCheckedField) => {
+  setFieldValue(isCheckedField, isChecked === 'true' ? 'false' : 'true');
+  setFieldValue(postalCodeField, isChecked === 'true' ? '' : postalCode);
+};
+
 const DatesAndLocation = ({
   mtoShipment,
   destinationDutyStation,
@@ -58,7 +63,7 @@ const DatesAndLocation = ({
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, setFieldValue, values }) => {
         return (
           <Form>
             <TextField
@@ -68,11 +73,20 @@ const DatesAndLocation = ({
               maxLength={10}
               validate={(value) => postalCodeValidator(value, 'origin')}
             />
-            {/* TODO: call setFieldValue when this checkbox is selected to populate pickupPostalCode */}
             <CheckboxField
-              id="useCurrentZip"
-              name="useCurrentZip"
+              id="useResidentialAddressZIP"
+              name="useResidentialAddressZIP"
               label={`Use my current ZIP (${serviceMember?.residentialAddress?.postalCode})`}
+              onChange={() =>
+                setZip(
+                  setFieldValue,
+                  'pickupPostalCode',
+                  serviceMember?.residentialAddress?.postalCode,
+                  values.useResidentialAddressZIP,
+                  'useResidentialAddressZIP',
+                )
+              }
+              checked={values.useResidentialAddressZIP === 'true'}
             />
             <FormGroup>
               <p>Will you add items to your PPM from a place in a different ZIP code?</p>
@@ -125,6 +139,16 @@ const DatesAndLocation = ({
               id="useDestinationDutyLocationZIP"
               name="useDestinationDutyLocationZIP"
               label={`Use the ZIP for my new duty location (${destinationDutyStation?.address?.postalCode})`}
+              onChange={() =>
+                setZip(
+                  setFieldValue,
+                  'destinationPostalCode',
+                  destinationDutyStation?.address?.postalCode,
+                  values.useDestinationDutyLocationZIP,
+                  'useDestinationDutyLocationZIP',
+                )
+              }
+              checked={values.useDestinationDutyLocationZIP === 'true'}
             />
             <Hint>
               Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you don&apos;t
