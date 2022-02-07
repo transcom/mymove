@@ -6,11 +6,18 @@
   .form {
     max-width: none;
 
-    // last section wrapper
-    .sectionWrapper:nth-last-child(2) {
-      border-bottom: none;
-      @include u-padding-bottom(0);
-      @include u-margin-bottom(3);
+    :global(.usa-input) {
+      @include u-display('inline-block');
+      width: unset;
+    }
+
+    // last section wrapper on mobile shouldn't render divider
+    @include at-media-max('tablet') {
+      .sectionWrapper:nth-last-child(2) {
+        border-bottom: none;
+        @include u-padding-bottom(0);
+        @include u-margin-bottom(3);
+      }
     }
   }
 
@@ -58,7 +65,7 @@
       @include u-margin-bottom(0);
     }
 
-    @include at-media('mobile') {
+    @include at-media-max($mobile) {
       .backButton {
         order: 2;
       }
