@@ -4896,6 +4896,43 @@ func createHHGNeedsServicesCounseling(appCtx appcontext.AppContext) {
 	})
 }
 
+func createHHGNoGovCounselingForRetirementWithDestinationAddressAndType(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
+	submittedAt := time.Now()
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: false,
+		},
+		Order: models.Order{OrdersType: internalmessages.OrdersTypeRETIREMENT},
+	})
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "PCCIV1",
+			Status:      models.MoveStatusSUBMITTED,
+			SubmittedAt: &submittedAt,
+		},
+		Order: orders,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:           models.MTOShipmentTypeHHG,
+			Status:                 models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:    &requestedPickupDate,
+			RequestedDeliveryDate:  &requestedDeliveryDate,
+			DestinationAddressID:   &destinationAddress.ID,
+			DestinationAddressType: &destinationAddressType,
+		},
+	})
+}
+
 func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
