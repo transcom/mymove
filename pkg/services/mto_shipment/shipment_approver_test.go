@@ -337,11 +337,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		move := subtestData.move
 		approver := subtestData.shipmentApprover
 		planner := subtestData.planner
-		planner.On("TransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(500, nil)
 
 		expectedReServiceCodes := []models.ReServiceCode{
 			models.ReServiceCodeDLH,
@@ -419,29 +414,41 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		})
 
-		testCases := []models.MTOShipment{
-			hhgShipment,
-			ntsShipment,
-			ntsrShipment,
+		var TransitDistancePickupArg *models.Address
+		var TransitDistanceDestinationArg *models.Address
+
+		planner.On("TransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.Address"),
+			mock.AnythingOfType("*models.Address"),
+		).Return(500, nil).Run(func(args mock.Arguments) {
+			TransitDistancePickupArg = args.Get(1).(*models.Address)
+			TransitDistanceDestinationArg = args.Get(2).(*models.Address)
+		})
+
+		testCases := []struct {
+			shipment            models.MTOShipment
+			pickupLocation      *models.Address
+			destinationLocation *models.Address
+		}{
+			{hhgShipment, hhgShipment.PickupAddress, hhgShipment.DestinationAddress},
+			{ntsShipment, ntsShipment.PickupAddress, &ntsShipment.StorageFacility.Address},
+			{ntsrShipment, &ntsrShipment.StorageFacility.Address, ntsrShipment.DestinationAddress},
 		}
 
 		for _, testCase := range testCases {
-			createdShipment := models.MTOShipment{}
-			err := suite.DB().Find(&createdShipment, testCase.ID)
-			suite.FatalNoError(err)
-			err = suite.DB().Load(&createdShipment)
-			suite.FatalNoError(err)
-
-			shipmentEtag := etag.GenerateEtag(testCase.UpdatedAt)
-			_, err = approver.ApproveShipment(appCtx, testCase.ID, shipmentEtag)
+			shipmentEtag := etag.GenerateEtag(testCase.shipment.UpdatedAt)
+			_, err := approver.ApproveShipment(appCtx, testCase.shipment.ID, shipmentEtag)
 			suite.NoError(err)
 
 			fetchedShipment := models.MTOShipment{}
-			err = suite.DB().Find(&fetchedShipment, testCase.ID)
+			err = suite.DB().Find(&fetchedShipment, testCase.shipment.ID)
 			suite.NoError(err)
 			// We also should have a required delivery date
 			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
-			// TODO: check that TransitDistance is called with the correct parameters
+			// Check that TransitDistance was called with the correct addresses
+			suite.Equal(testCase.pickupLocation.PostalCode, TransitDistancePickupArg.PostalCode)
+			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg.PostalCode)
 		}
 	})
 }

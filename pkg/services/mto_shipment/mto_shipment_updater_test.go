@@ -1058,12 +1058,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+	var TransitDistancePickupArg *models.Address
+	var TransitDistanceDestinationArg *models.Address
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(500, nil)
+		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("*models.Address"),
+	).Return(500, nil).Run(func(args mock.Arguments) {
+		TransitDistancePickupArg = args.Get(1).(*models.Address)
+		TransitDistanceDestinationArg = args.Get(2).(*models.Address)
+	})
+
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 
 	suite.Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func() {
@@ -1262,23 +1268,29 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			},
 		})
 
-		testCases := []models.MTOShipment{
-			hhgShipment,
-			ntsShipment,
-			ntsrShipment,
+		testCases := []struct {
+			shipment            models.MTOShipment
+			pickupLocation      *models.Address
+			destinationLocation *models.Address
+		}{
+			{hhgShipment, hhgShipment.PickupAddress, hhgShipment.DestinationAddress},
+			{ntsShipment, ntsShipment.PickupAddress, &ntsShipment.StorageFacility.Address},
+			{ntsrShipment, &ntsrShipment.StorageFacility.Address, ntsrShipment.DestinationAddress},
 		}
 
 		for _, testCase := range testCases {
-			shipmentEtag := etag.GenerateEtag(testCase.UpdatedAt)
-			_, err = updater.UpdateMTOShipmentStatus(appCtx, testCase.ID, status, nil, shipmentEtag)
+			shipmentEtag := etag.GenerateEtag(testCase.shipment.UpdatedAt)
+			_, err = updater.UpdateMTOShipmentStatus(appCtx, testCase.shipment.ID, status, nil, shipmentEtag)
 			suite.NoError(err)
 
 			fetchedShipment := models.MTOShipment{}
-			err = suite.DB().Find(&fetchedShipment, testCase.ID)
+			err = suite.DB().Find(&fetchedShipment, testCase.shipment.ID)
 			suite.NoError(err)
 			// We also should have a required delivery date
 			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
-			// TODO: check that TransitDistance is called with the correct parameters
+			// Check that TransitDistance was called with the correct addresses
+			suite.Equal(testCase.pickupLocation.PostalCode, TransitDistancePickupArg.PostalCode)
+			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg.PostalCode)
 		}
 	})
 
