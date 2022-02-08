@@ -41,7 +41,7 @@ type MoveAuditHistory struct {
 	ClientQuery *string `json:"clientQuery,omitempty"`
 
 	// API endpoint name that was called to make the change
-	EventName string `json:"eventName,omitempty"`
+	EventName *string `json:"eventName,omitempty"`
 
 	// id from audity_history table
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054

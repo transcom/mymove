@@ -133,7 +133,7 @@ paths:
       description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
-  /move/{locator}/historyJSON:
+  /move/{locator}/history:
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -2516,6 +2516,7 @@ definitions:
       eventName:
         description: API endpoint name that was called to make the change
         type: string
+        x-nullable: true
       actionTstampTx:
         description: Transaction start timestamp for tx in which audited event occurred
         type: string

@@ -1042,7 +1042,7 @@ func init() {
         }
       ]
     },
-    "/move/{locator}/historyJSON": {
+    "/move/{locator}/history": {
       "get": {
         "description": "Returns the history for a given move for a unique alphanumeric locator string",
         "produces": [
@@ -4554,7 +4554,8 @@ func init() {
         },
         "eventName": {
           "description": "API endpoint name that was called to make the change",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "description": "id from audity_history table",
@@ -7494,7 +7495,7 @@ func init() {
         }
       ]
     },
-    "/move/{locator}/historyJSON": {
+    "/move/{locator}/history": {
       "get": {
         "description": "Returns the history for a given move for a unique alphanumeric locator string",
         "produces": [
@@ -11464,7 +11465,8 @@ func init() {
         },
         "eventName": {
           "description": "API endpoint name that was called to make the change",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "description": "id from audity_history table",

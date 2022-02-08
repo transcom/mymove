@@ -86,10 +86,10 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		ActionTstampClk: strfmt.DateTime(auditHistory.ActionTstampClk),
 		ActionTstampStm: strfmt.DateTime(auditHistory.ActionTstampStm),
 		ActionTstampTx:  strfmt.DateTime(auditHistory.ActionTstampTx),
-		ChangedValues:   moveHistoryValues(auditHistory.ChangedData),
-		OldValues:       moveHistoryValues(auditHistory.OldData),
+		ChangedValues:   moveHistoryValues(auditHistory.ChangedData, "changed_data"),
+		OldValues:       moveHistoryValues(auditHistory.OldData, "old_values"),
 		ClientQuery:     auditHistory.ClientQuery,
-		EventName:       *auditHistory.EventName,
+		EventName:       auditHistory.EventName,
 		ID:              strfmt.UUID(auditHistory.ID.String()),
 		ObjectID:        handlers.FmtUUIDPtr(auditHistory.ObjectID),
 		RelID:           auditHistory.RelID,
@@ -102,12 +102,12 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 	return payload
 }
 
-func moveHistoryValues(data *models.JSONMap) ghcmessages.MoveAuditHistoryItems {
+func moveHistoryValues(data *models.JSONMap, fieldName string) ghcmessages.MoveAuditHistoryItems {
 	if data == nil {
 		return ghcmessages.MoveAuditHistoryItems{}
 	}
 
-	payload := make(ghcmessages.MoveAuditHistoryItems, len(*data))
+	payload := ghcmessages.MoveAuditHistoryItems{}
 
 	for k, v := range *data {
 		columnValue, ok := v.(string)

@@ -712,7 +712,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move/{locator}/historyJSON"] = move.NewGetMoveHistory(o.context, o.MoveGetMoveHistoryHandler)
+	o.handlers["GET"]["/move/{locator}/history"] = move.NewGetMoveHistory(o.context, o.MoveGetMoveHistoryHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
