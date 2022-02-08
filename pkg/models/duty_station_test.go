@@ -44,9 +44,9 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	}
 	suite.MustSave(&station5)
 
-	s5 := models.DutyStationName{
-		Name:          "Naval Air Station Fallon",
-		DutyStationID: station5.ID,
+	s5 := models.DutyLocationName{
+		Name:           "Naval Air Station Fallon",
+		DutyLocationID: station5.ID,
 	}
 	suite.MustSave(&s5)
 
@@ -55,9 +55,9 @@ func (suite *ModelSuite) TestFindDutyStations() {
 		AddressID: address.ID,
 	}
 	suite.MustSave(&station6)
-	s6 := models.DutyStationName{
-		Name:          "Naval Air Station Fort Worth Joint Reserve Base",
-		DutyStationID: station6.ID,
+	s6 := models.DutyLocationName{
+		Name:           "Naval Air Station Fort Worth Joint Reserve Base",
+		DutyLocationID: station6.ID,
 	}
 	suite.MustSave(&s6)
 
