@@ -2,8 +2,6 @@ package models
 
 import (
 	"time"
-
-	"github.com/gofrs/uuid"
 )
 
 // EagerAssociations are a collection of named associations
@@ -43,10 +41,4 @@ func TimePointer(t time.Time) *time.Time {
 // It is useful for initializing bool pointer fields in model construction
 func BoolPointer(b bool) *bool {
 	return &b
-}
-
-// UUIDPointer allows you to take the address of a UUID literal.
-// It is useful for initializing UUID pointer fields in model construction
-func UUIDPointer(u uuid.UUID) *uuid.UUID {
-	return &u
 }

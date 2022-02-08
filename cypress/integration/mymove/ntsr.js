@@ -1,7 +1,7 @@
 describe('Customer NTSr Setup flow', function () {
-  // sm_no_shipments_2@example.com
-  const profileCompleteUser = 'a62d434d-c4f2-4d68-a38e-8e0d10f06f6a';
-  // nts2@ntsr.unsubmitted
+  // profile@co.mple.te
+  const profileCompleteUser = '99360a51-8cfa-4e25-ae57-24e66077305f';
+  // nts@ntsr.unsubmitted
   const ntsUser = '80da86f3-9dac-4298-8b03-b753b443668e';
 
   before(() => {

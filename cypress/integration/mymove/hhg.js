@@ -12,7 +12,7 @@ describe('A customer following HHG Setup flow', function () {
 
   it('can create an HHG shipment, review and edit details, and submit their move', function () {
     // profile@comple.te
-    const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884077';
     cy.apiSignInAsUser(userId);
     customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
