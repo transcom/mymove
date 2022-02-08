@@ -1,23 +1,12 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
+import { within, userEvent } from '@storybook/testing-library';
 
 import DatesAndLocation from './DatesAndLocation';
 
 export default {
   title: 'Customer Components / PPM Booking / Dates and Location',
   component: DatesAndLocation,
-  decorators: [
-    (Story) => (
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Story />
-          </Grid>
-        </Grid>
-      </GridContainer>
-    ),
-  ],
 };
 
 const Template = (args) => <DatesAndLocation {...args} />;
@@ -68,4 +57,29 @@ MTOShipmentDatesAndLocation.args = {
       expectedDepartureDate: '2022-09-23',
     },
   },
+};
+
+export const ErrorDatesAndLocation = Template.bind({});
+ErrorDatesAndLocation.args = {
+  onSubmit: action('submit button clicked'),
+  onBack: action('back button clicked'),
+  serviceMember: {
+    id: '123',
+    residentialAddress: {
+      postalCode: '99021',
+    },
+  },
+  destinationDutyStation: {
+    address: {
+      postalCode: '94611',
+    },
+  },
+  postalCodeValidator: () => {},
+};
+ErrorDatesAndLocation.play = async ({ canvasElement }) => {
+  // Starts querying the component from its root element
+  const canvas = within(canvasElement);
+
+  // See https://storybook.js.org/docs/react/essentials/actions#automatically-matching-args to learn how to setup logging in the Actions panel
+  await userEvent.click(canvas.getByText('Save & Continue'));
 };
