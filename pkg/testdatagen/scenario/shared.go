@@ -143,271 +143,271 @@ func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCo
 	return move
 }
 
-//func createPPMOfficeUser(appCtx appcontext.AppContext) {
-//	db := appCtx.DB()
-//	email := "ppm_role@office.mil"
-//	officeUser := models.OfficeUser{}
-//	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
-//	if err != nil {
-//		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
-//	}
-//	// no need to create
-//	if officeUserExists {
-//		return
-//	}
-//
-//	/*
-//	 * Basic user with office access
-//	 */
-//	ppmOfficeRole := roles.Role{}
-//	err = db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
-//	if err != nil {
-//		log.Panic(fmt.Errorf("Failed to find RoleTypePPMOfficeUsers in the DB: %w", err))
-//	}
-//
-//	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
-//	loginGovUUID := uuid.Must(uuid.NewV4())
-//	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-//		User: models.User{
-//			ID:            userID,
-//			LoginGovUUID:  &loginGovUUID,
-//			LoginGovEmail: email,
-//			Active:        true,
-//			Roles:         []roles.Role{ppmOfficeRole},
-//		},
-//		OfficeUser: models.OfficeUser{
-//			ID:     uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
-//			Email:  email,
-//			Active: true,
-//		},
-//	})
-//}
-//
-//func createPPMWithAdvance(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-//	db := appCtx.DB()
-//	/*
-//	 * Service member with uploaded orders and a new ppm
-//	 */
-//	email := "ppm@incomple.te"
-//	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
-//	loginGovUUID := uuid.Must(uuid.NewV4())
-//	testdatagen.MakeUser(db, testdatagen.Assertions{
-//		User: models.User{
-//			ID:            uuid.Must(uuid.FromString(uuidStr)),
-//			LoginGovUUID:  &loginGovUUID,
-//			LoginGovEmail: email,
-//			Active:        true,
-//		},
-//	})
-//	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-//	ppm0 := testdatagen.MakePPM(db, testdatagen.Assertions{
-//		ServiceMember: models.ServiceMember{
-//			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5c9"),
-//			UserID:        uuid.FromStringOrNil(uuidStr),
-//			FirstName:     models.StringPointer("PPM"),
-//			LastName:      models.StringPointer("Submitted"),
-//			Edipi:         models.StringPointer("1234567890"),
-//			PersonalEmail: models.StringPointer(email),
-//		},
-//		Move: models.Move{
-//			ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc8"),
-//			Locator: "VGHEIS",
-//		},
-//		PersonallyProcuredMove: models.PersonallyProcuredMove{
-//			OriginalMoveDate:    &nextValidMoveDate,
-//			Advance:             &advance,
-//			AdvanceID:           &advance.ID,
-//			HasRequestedAdvance: true,
-//		},
-//		UserUploader: userUploader,
-//	})
-//	testdatagen.MakeMoveDocument(db, testdatagen.Assertions{
-//		MoveDocument: models.MoveDocument{
-//			MoveID:                   ppm0.Move.ID,
-//			Move:                     ppm0.Move,
-//			PersonallyProcuredMoveID: &ppm0.ID,
-//		},
-//		Document: models.Document{
-//			ID:              uuid.FromStringOrNil("c26421b0-e4c3-446b-88f3-493bb25c1756"),
-//			ServiceMemberID: ppm0.Move.Orders.ServiceMember.ID,
-//			ServiceMember:   ppm0.Move.Orders.ServiceMember,
-//		},
-//	})
-//	err := moveRouter.Submit(appCtx, &ppm0.Move)
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//
-//	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
-//	if err != nil || verrs.HasAny() {
-//		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-//	}
-//}
-//
-//func createPPMWithNoAdvance(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-//	db := appCtx.DB()
-//	/*
-//	 * Service member with uploaded orders, a new ppm and no advance
-//	 */
-//	email := "ppm@advance.no"
-//	uuidStr := "f0ddc118-3f7e-476b-b8be-0f964a5feee2"
-//	loginGovUUID := uuid.Must(uuid.NewV4())
-//	testdatagen.MakeUser(db, testdatagen.Assertions{
-//		User: models.User{
-//			ID:            uuid.Must(uuid.FromString(uuidStr)),
-//			LoginGovUUID:  &loginGovUUID,
-//			LoginGovEmail: email,
-//			Active:        true,
-//		},
-//	})
-//	ppmNoAdvance := testdatagen.MakePPM(db, testdatagen.Assertions{
-//		ServiceMember: models.ServiceMember{
-//			ID:            uuid.FromStringOrNil("1a1aafde-df3b-4459-9dbd-27e9f6c1d2f6"),
-//			UserID:        uuid.FromStringOrNil(uuidStr),
-//			FirstName:     models.StringPointer("PPM"),
-//			LastName:      models.StringPointer("No Advance"),
-//			Edipi:         models.StringPointer("1234567890"),
-//			PersonalEmail: models.StringPointer(email),
-//		},
-//		Move: models.Move{
-//			ID:      uuid.FromStringOrNil("4f3f4bee-3719-4c17-8cf4-7e445a38d90e"),
-//			Locator: "NOADVC",
-//		},
-//		PersonallyProcuredMove: models.PersonallyProcuredMove{
-//			OriginalMoveDate: &nextValidMoveDate,
-//		},
-//		UserUploader: userUploader,
-//	})
-//	err := moveRouter.Submit(appCtx, &ppmNoAdvance.Move)
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//
-//	verrs, err := models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
-//	if err != nil || verrs.HasAny() {
-//		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-//	}
-//}
-//
-//func createPPMWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-//	db := appCtx.DB()
-//	/*
-//	 * Service member with a ppm move with payment requested
-//	 */
-//	email := "ppm@paymentrequest.ed"
-//	uuidStr := "1842091b-b9a0-4d4a-ba22-1e2f38f26317"
-//	loginGovUUID := uuid.Must(uuid.NewV4())
-//	testdatagen.MakeUser(db, testdatagen.Assertions{
-//		User: models.User{
-//			ID:            uuid.Must(uuid.FromString(uuidStr)),
-//			LoginGovUUID:  &loginGovUUID,
-//			LoginGovEmail: email,
-//			Active:        true,
-//		},
-//	})
-//	futureTime := nextValidMoveDatePlusTen
-//	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
-//	ppm2 := testdatagen.MakePPM(db, testdatagen.Assertions{
-//		ServiceMember: models.ServiceMember{
-//			ID:            uuid.FromStringOrNil("9ce5a930-2446-48ec-a9c0-17bc65e8522d"),
-//			UserID:        uuid.FromStringOrNil(uuidStr),
-//			FirstName:     models.StringPointer("PPMPayment"),
-//			LastName:      models.StringPointer("Requested"),
-//			Edipi:         models.StringPointer("7617033988"),
-//			PersonalEmail: models.StringPointer(email),
-//		},
-//		// These values should be populated for an approved move
-//		Order: models.Order{
-//			OrdersNumber:        models.StringPointer("12345"),
-//			OrdersTypeDetail:    &typeDetail,
-//			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-//			TAC:                 models.StringPointer("E19A"),
-//		},
-//		Move: models.Move{
-//			ID:      uuid.FromStringOrNil("0a2580ef-180a-44b2-a40b-291fa9cc13cc"),
-//			Locator: "FDXTIU",
-//		},
-//		PersonallyProcuredMove: models.PersonallyProcuredMove{
-//			OriginalMoveDate: &futureTime,
-//		},
-//		UserUploader: userUploader,
-//	})
-//	err := moveRouter.Submit(appCtx, &ppm2.Move)
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//
-//	err = moveRouter.Approve(appCtx, &ppm2.Move)
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//
-//	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
-//	err = ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//	err = ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//	verrs, err := models.SaveMoveDependencies(db, &ppm2.Move)
-//	if err != nil || verrs.HasAny() {
-//		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-//	}
-//}
-//
-//func createCanceledPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-//	db := appCtx.DB()
-//	/*
-//	 * A PPM move that has been canceled.
-//	 */
-//	email := "ppm-canceled@example.com"
-//	uuidStr := "20102768-4d45-449c-a585-81bc386204b1"
-//	loginGovUUID := uuid.Must(uuid.NewV4())
-//	testdatagen.MakeUser(db, testdatagen.Assertions{
-//		User: models.User{
-//			ID:            uuid.Must(uuid.FromString(uuidStr)),
-//			LoginGovUUID:  &loginGovUUID,
-//			LoginGovEmail: email,
-//			Active:        true,
-//		},
-//	})
-//	ppmCanceled := testdatagen.MakePPM(db, testdatagen.Assertions{
-//		ServiceMember: models.ServiceMember{
-//			ID:            uuid.FromStringOrNil("2da0d5e6-4efb-4ea1-9443-bf9ef64ace65"),
-//			UserID:        uuid.FromStringOrNil(uuidStr),
-//			FirstName:     models.StringPointer("PPM"),
-//			LastName:      models.StringPointer("Canceled"),
-//			Edipi:         models.StringPointer("1234567890"),
-//			PersonalEmail: models.StringPointer(email),
-//		},
-//		Move: models.Move{
-//			ID:      uuid.FromStringOrNil("6b88c856-5f41-427e-a480-a7fb6c87533b"),
-//			Locator: "PPMCAN",
-//		},
-//		PersonallyProcuredMove: models.PersonallyProcuredMove{
-//			OriginalMoveDate: &nextValidMoveDate,
-//		},
-//		UserUploader: userUploader,
-//	})
-//	err := moveRouter.Submit(appCtx, &ppmCanceled.Move)
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//	verrs, err := models.SaveMoveDependencies(db, &ppmCanceled.Move)
-//	if err != nil || verrs.HasAny() {
-//		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-//	}
-//	err = moveRouter.Cancel(appCtx, "reasons", &ppmCanceled.Move)
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
-//	if err != nil || verrs.HasAny() {
-//		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-//	}
-//}
+func createPPMOfficeUser(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
+	email := "ppm_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
+	/*
+	 * Basic user with office access
+	 */
+	ppmOfficeRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypePPMOfficeUsers in the DB: %w", err))
+	}
+
+	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            userID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{ppmOfficeRole},
+		},
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
+			Email:  email,
+			Active: true,
+		},
+	})
+}
+
+func createPPMWithAdvance(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	/*
+	 * Service member with uploaded orders and a new ppm
+	 */
+	email := "ppm@incomple.te"
+	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	ppm0 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5c9"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("1234567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc8"),
+			Locator: "VGHEIS",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate:    &nextValidMoveDate,
+			Advance:             &advance,
+			AdvanceID:           &advance.ID,
+			HasRequestedAdvance: true,
+		},
+		UserUploader: userUploader,
+	})
+	testdatagen.MakeMoveDocument(db, testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm0.Move.ID,
+			Move:                     ppm0.Move,
+			PersonallyProcuredMoveID: &ppm0.ID,
+		},
+		Document: models.Document{
+			ID:              uuid.FromStringOrNil("c26421b0-e4c3-446b-88f3-493bb25c1756"),
+			ServiceMemberID: ppm0.Move.Orders.ServiceMember.ID,
+			ServiceMember:   ppm0.Move.Orders.ServiceMember,
+		},
+	})
+	err := moveRouter.Submit(appCtx, &ppm0.Move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
+func createPPMWithNoAdvance(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	/*
+	 * Service member with uploaded orders, a new ppm and no advance
+	 */
+	email := "ppm@advance.no"
+	uuidStr := "f0ddc118-3f7e-476b-b8be-0f964a5feee2"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+	ppmNoAdvance := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1a1aafde-df3b-4459-9dbd-27e9f6c1d2f6"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("No Advance"),
+			Edipi:         models.StringPointer("1234567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("4f3f4bee-3719-4c17-8cf4-7e445a38d90e"),
+			Locator: "NOADVC",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &nextValidMoveDate,
+		},
+		UserUploader: userUploader,
+	})
+	err := moveRouter.Submit(appCtx, &ppmNoAdvance.Move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	verrs, err := models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
+func createPPMWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	/*
+	 * Service member with a ppm move with payment requested
+	 */
+	email := "ppm@paymentrequest.ed"
+	uuidStr := "1842091b-b9a0-4d4a-ba22-1e2f38f26317"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+	futureTime := nextValidMoveDatePlusTen
+	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
+	ppm2 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("9ce5a930-2446-48ec-a9c0-17bc65e8522d"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPMPayment"),
+			LastName:      models.StringPointer("Requested"),
+			Edipi:         models.StringPointer("7617033988"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("E19A"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("0a2580ef-180a-44b2-a40b-291fa9cc13cc"),
+			Locator: "FDXTIU",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &futureTime,
+		},
+		UserUploader: userUploader,
+	})
+	err := moveRouter.Submit(appCtx, &ppm2.Move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = moveRouter.Approve(appCtx, &ppm2.Move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
+	err = ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	if err != nil {
+		log.Panic(err)
+	}
+	err = ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &ppm2.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
+func createCanceledPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	/*
+	 * A PPM move that has been canceled.
+	 */
+	email := "ppm-canceled@example.com"
+	uuidStr := "20102768-4d45-449c-a585-81bc386204b1"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+	ppmCanceled := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("2da0d5e6-4efb-4ea1-9443-bf9ef64ace65"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Canceled"),
+			Edipi:         models.StringPointer("1234567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("6b88c856-5f41-427e-a480-a7fb6c87533b"),
+			Locator: "PPMCAN",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &nextValidMoveDate,
+		},
+		UserUploader: userUploader,
+	})
+	err := moveRouter.Submit(appCtx, &ppmCanceled.Move)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Cancel(appCtx, "reasons", &ppmCanceled.Move)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
 
 func createServiceMemberWithOrdersButNoMoveType(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
@@ -1016,140 +1016,140 @@ func createNTSRMove(appCtx appcontext.AppContext) {
 	})
 }
 
-//func createPPMReadyToRequestPayment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-//	db := appCtx.DB()
-//	/*
-//	 * Service member with a ppm ready to request payment
-//	 */
-//	email := "ppm@requestingpayment.newflow"
-//	uuidStr := "745e0eba-4028-4c78-a262-818b00802748"
-//	loginGovUUID := uuid.Must(uuid.NewV4())
-//	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
-//	pastTime := nextValidMoveDateMinusTen
-//
-//	testdatagen.MakeUser(db, testdatagen.Assertions{
-//		User: models.User{
-//			ID:            uuid.Must(uuid.FromString(uuidStr)),
-//			LoginGovUUID:  &loginGovUUID,
-//			LoginGovEmail: email,
-//			Active:        true,
-//		},
-//	})
-//	ppm6 := testdatagen.MakePPM(db, testdatagen.Assertions{
-//		ServiceMember: models.ServiceMember{
-//			ID:            uuid.FromStringOrNil("1404fdcf-7a54-4b83-862d-7d1c7ba36ad7"),
-//			UserID:        uuid.FromStringOrNil(uuidStr),
-//			FirstName:     models.StringPointer("PPM"),
-//			LastName:      models.StringPointer("RequestingPayNewFlow"),
-//			Edipi:         models.StringPointer("6737033007"),
-//			PersonalEmail: models.StringPointer(email),
-//		},
-//		// These values should be populated for an approved move
-//		Order: models.Order{
-//			OrdersNumber:        models.StringPointer("62149"),
-//			OrdersTypeDetail:    &typeDetail,
-//			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-//			TAC:                 models.StringPointer("E19A"),
-//		},
-//		Move: models.Move{
-//			ID:      uuid.FromStringOrNil("f9f10492-587e-43b3-af2a-9f67d2ac8757"),
-//			Locator: "RQPAY2",
-//		},
-//		PersonallyProcuredMove: models.PersonallyProcuredMove{
-//			OriginalMoveDate: &pastTime,
-//		},
-//		UserUploader: userUploader,
-//	})
-//	err := moveRouter.Submit(appCtx, &ppm6.Move)
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//	err = moveRouter.Approve(appCtx, &ppm6.Move)
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//
-//	err = ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//	verrs, err := models.SaveMoveDependencies(db, &ppm6.Move)
-//	if err != nil || verrs.HasAny() {
-//		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-//	}
-//}
-//
-//func getPpmUuids(moveNumber int) [3]string {
-//	var uuids [3]string
-//
-//	switch moveNumber {
-//	case 1:
-//		uuids = [3]string{
-//			"2194daed-3589-408f-b988-e9889c9f120e",
-//			"1319a13d-019b-4afa-b8fe-f51c15572681",
-//			"7c4c7aa0-9e28-4065-93d2-74ea75e6323c",
-//		}
-//	case 2:
-//		uuids = [3]string{
-//			"4635b5a7-0f57-4557-8ba4-bbbb760c300a",
-//			"7d756c59-1a46-4f59-9c51-6e708886eaf1",
-//			"4397b137-f4ee-49b7-baae-3aa0b237d08e",
-//		}
-//	case 3:
-//		uuids = [3]string{
-//			"324dec0a-850c-41c8-976b-068e27121b84",
-//			"a9b51cc4-e73e-4734-9714-a2066f207c3b",
-//			"a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b",
-//		}
-//	case 4:
-//		uuids = [3]string{
-//			"f154929c-5f07-41f5-b90c-d90b83d5773d",
-//			"9027d05d-4c4e-4e5d-9954-6a6ba4017b4d",
-//			"460011f4-126d-40e5-b4f4-62cc9c2f0b7a",
-//		}
-//	}
-//
-//	return uuids
-//}
-//
-//func createPPMUsers(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-//	db := appCtx.DB()
-//	for moveNumber := 1; moveNumber < 4; moveNumber++ {
-//		uuids := getPpmUuids(moveNumber)
-//		email := fmt.Sprintf("ppm.test.user%d@example.com", moveNumber)
-//		uuidStr := uuids[0]
-//		loginGovID := uuid.Must(uuid.NewV4())
-//
-//		testdatagen.MakeUser(db, testdatagen.Assertions{
-//			User: models.User{
-//				ID:            uuid.Must(uuid.FromString(uuidStr)),
-//				LoginGovUUID:  &loginGovID,
-//				LoginGovEmail: email,
-//				Active:        true,
-//			},
-//		})
-//
-//		testdatagen.MakeMove(db, testdatagen.Assertions{
-//			ServiceMember: models.ServiceMember{
-//				ID:            uuid.FromStringOrNil(uuids[1]),
-//				UserID:        uuid.FromStringOrNil(uuidStr),
-//				FirstName:     models.StringPointer("Move"),
-//				LastName:      models.StringPointer("Draft"),
-//				Edipi:         models.StringPointer("7273579005"),
-//				PersonalEmail: models.StringPointer(email),
-//			},
-//			Order: models.Order{
-//				HasDependents:    false,
-//				SpouseHasProGear: false,
-//			},
-//			Move: models.Move{
-//				ID:      uuid.FromStringOrNil(uuids[2]),
-//				Locator: fmt.Sprintf("NTS00%d", moveNumber),
-//			},
-//			UserUploader: userUploader,
-//		})
-//	}
-//}
+func createPPMReadyToRequestPayment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	/*
+	 * Service member with a ppm ready to request payment
+	 */
+	email := "ppm@requestingpayment.newflow"
+	uuidStr := "745e0eba-4028-4c78-a262-818b00802748"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
+	pastTime := nextValidMoveDateMinusTen
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+	ppm6 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1404fdcf-7a54-4b83-862d-7d1c7ba36ad7"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("RequestingPayNewFlow"),
+			Edipi:         models.StringPointer("6737033007"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("62149"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("E19A"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("f9f10492-587e-43b3-af2a-9f67d2ac8757"),
+			Locator: "RQPAY2",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &pastTime,
+		},
+		UserUploader: userUploader,
+	})
+	err := moveRouter.Submit(appCtx, &ppm6.Move)
+	if err != nil {
+		log.Panic(err)
+	}
+	err = moveRouter.Approve(appCtx, &ppm6.Move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &ppm6.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
+func getPpmUuids(moveNumber int) [3]string {
+	var uuids [3]string
+
+	switch moveNumber {
+	case 1:
+		uuids = [3]string{
+			"2194daed-3589-408f-b988-e9889c9f120e",
+			"1319a13d-019b-4afa-b8fe-f51c15572681",
+			"7c4c7aa0-9e28-4065-93d2-74ea75e6323c",
+		}
+	case 2:
+		uuids = [3]string{
+			"4635b5a7-0f57-4557-8ba4-bbbb760c300a",
+			"7d756c59-1a46-4f59-9c51-6e708886eaf1",
+			"4397b137-f4ee-49b7-baae-3aa0b237d08e",
+		}
+	case 3:
+		uuids = [3]string{
+			"324dec0a-850c-41c8-976b-068e27121b84",
+			"a9b51cc4-e73e-4734-9714-a2066f207c3b",
+			"a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b",
+		}
+	case 4:
+		uuids = [3]string{
+			"f154929c-5f07-41f5-b90c-d90b83d5773d",
+			"9027d05d-4c4e-4e5d-9954-6a6ba4017b4d",
+			"460011f4-126d-40e5-b4f4-62cc9c2f0b7a",
+		}
+	}
+
+	return uuids
+}
+
+func createPPMUsers(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
+	for moveNumber := 1; moveNumber < 4; moveNumber++ {
+		uuids := getPpmUuids(moveNumber)
+		email := fmt.Sprintf("ppm.test.user%d@example.com", moveNumber)
+		uuidStr := uuids[0]
+		loginGovID := uuid.Must(uuid.NewV4())
+
+		testdatagen.MakeUser(db, testdatagen.Assertions{
+			User: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovID,
+				LoginGovEmail: email,
+				Active:        true,
+			},
+		})
+
+		testdatagen.MakeMove(db, testdatagen.Assertions{
+			ServiceMember: models.ServiceMember{
+				ID:            uuid.FromStringOrNil(uuids[1]),
+				UserID:        uuid.FromStringOrNil(uuidStr),
+				FirstName:     models.StringPointer("Move"),
+				LastName:      models.StringPointer("Draft"),
+				Edipi:         models.StringPointer("7273579005"),
+				PersonalEmail: models.StringPointer(email),
+			},
+			Order: models.Order{
+				HasDependents:    false,
+				SpouseHasProGear: false,
+			},
+			Move: models.Move{
+				ID:      uuid.FromStringOrNil(uuids[2]),
+				Locator: fmt.Sprintf("NTS00%d", moveNumber),
+			},
+			UserUploader: userUploader,
+		})
+	}
+}
 
 func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation) {
 	createHHGMoveWithPaymentRequest(appCtx, userUploader, affiliation, testdatagen.Assertions{})

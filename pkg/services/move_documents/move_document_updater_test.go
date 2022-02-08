@@ -13,16 +13,18 @@ import (
 )
 
 func setup(suite *MoveDocumentServiceSuite) (*models.MoveDocument, uuid.UUID, appcontext.AppContext) {
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	sm := move.Orders.ServiceMember
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
 	session := &auth.Session{}
 	moveDocument := testdatagen.MakeMoveDocument(suite.DB(),
 		testdatagen.Assertions{
 			MoveDocument: models.MoveDocument{
-				MoveID:           move.ID,
-				Move:             move,
-				MoveDocumentType: models.MoveDocumentTypeWEIGHTTICKETSET,
-				Status:           models.MoveDocumentStatusOK,
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
+				Status:                   models.MoveDocumentStatusOK,
 			},
 			Document: models.Document{
 				ServiceMemberID: sm.ID,

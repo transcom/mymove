@@ -12,6 +12,8 @@ package models_test
 import (
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gofrs/uuid"
@@ -22,243 +24,243 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-//func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
-//	moveID, _ := uuid.NewV4()
-//	serviceMemberID, _ := uuid.NewV4()
-//	//advanceID, _ := uuid.NewV4()
-//	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-//	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-//	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
-//	rank := models.ServiceMemberRankE9
-//	moveType := models.SelectedMoveTypeHHGPPM
-//
-//	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-//		Move: models.Move{
-//			ID:               moveID,
-//			SelectedMoveType: &moveType,
-//		},
-//		Order: models.Order{
-//			OrdersType:       ordersType,
-//			NewDutyStationID: fortGordon.ID,
-//		},
-//		ServiceMember: models.ServiceMember{
-//			ID:            serviceMemberID,
-//			DutyStationID: &yuma.ID,
-//			Rank:          &rank,
-//		},
-//	})
-//
-//	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-//	netWeight := unit.Pound(10000)
-//	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-//		PersonallyProcuredMove: models.PersonallyProcuredMove{
-//			MoveID:              move.ID,
-//			NetWeight:           &netWeight,
-//			HasRequestedAdvance: true,
-//			AdvanceID:           &advance.ID,
-//			Advance:             &advance,
-//		},
-//	})
-//	// Only concerned w/ approved advances for ssw
-//	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
-//	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
-//	// Save advance in reimbursements table by saving ppm
-//	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
-//	movedocuments := testdatagen.Assertions{
-//		MoveDocument: models.MoveDocument{
-//			MoveID:                   ppm.Move.ID,
-//			Move:                     ppm.Move,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			Status:                   models.MoveDocumentStatusOK,
-//			MoveDocumentType:         "EXPENSE",
-//		},
-//		Document: models.Document{
-//			ServiceMemberID: serviceMemberID,
-//			ServiceMember:   move.Orders.ServiceMember,
-//		},
-//	}
-//	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-//	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-//
-//	session := auth.Session{
-//		UserID:          move.Orders.ServiceMember.UserID,
-//		ServiceMemberID: serviceMemberID,
-//		ApplicationName: auth.MilApp,
-//	}
-//	moveRouter := moverouter.NewMoveRouter()
-//	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move)
-//	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
-//	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-//	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-//	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-//	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
-//	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
-//	certificationType := models.SignedCertificationTypePPMPAYMENT
-//	signedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-//		SignedCertification: models.SignedCertification{
-//			MoveID:                   moveID,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			CertificationType:        &certificationType,
-//			CertificationText:        "LEGAL",
-//			Signature:                "ACCEPT",
-//			Date:                     testdatagen.NextValidMoveDate,
-//		},
-//	})
-//	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
-//
-//	suite.NoError(err)
-//	suite.Equal(move.Orders.ID, ssd.Order.ID)
-//	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
-//	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
-//	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
-//	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
-//	suite.Equal(yuma.Address.ID, ssd.CurrentDutyStation.Address.ID)
-//	suite.Equal(fortGordon.ID, ssd.NewDutyStation.ID)
-//	suite.Equal(fortGordon.Address.ID, ssd.NewDutyStation.Address.ID)
-//	rankWtgAllotment := models.GetWeightAllotment(rank)
-//	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
-//	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
-//	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
-//	suite.Require().NotNil(ssd.ServiceMember.Rank)
-//	weightAllotment := models.GetWeightAllotment(*ssd.ServiceMember.Rank)
-//	// E_9 rank, no dependents, no spouse pro-gear
-//	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
-//	suite.Require().Nil(err)
-//	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-//	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
-//	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
-//	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
-//	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
-//	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
-//	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
-//	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
-//	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
-//}
+func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
+	moveID, _ := uuid.NewV4()
+	serviceMemberID, _ := uuid.NewV4()
+	//advanceID, _ := uuid.NewV4()
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	rank := models.ServiceMemberRankE9
+	moveType := models.SelectedMoveTypeHHGPPM
 
-//func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
-//	moveID, _ := uuid.NewV4()
-//	serviceMemberID, _ := uuid.NewV4()
-//	//advanceID, _ := uuid.NewV4()
-//	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-//	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-//	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
-//	rank := models.ServiceMemberRankE9
-//	moveType := models.SelectedMoveTypePPM
-//
-//	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-//		Move: models.Move{
-//			ID:               moveID,
-//			SelectedMoveType: &moveType,
-//		},
-//		Order: models.Order{
-//			OrdersType:       ordersType,
-//			NewDutyStationID: fortGordon.ID,
-//		},
-//		ServiceMember: models.ServiceMember{
-//			ID:            serviceMemberID,
-//			DutyStationID: &yuma.ID,
-//			Rank:          &rank,
-//		},
-//	})
-//
-//	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-//	netWeight := unit.Pound(10000)
-//	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-//		PersonallyProcuredMove: models.PersonallyProcuredMove{
-//			MoveID:              move.ID,
-//			NetWeight:           &netWeight,
-//			HasRequestedAdvance: true,
-//			AdvanceID:           &advance.ID,
-//			Advance:             &advance,
-//		},
-//	})
-//	// Only concerned w/ approved advances for ssw
-//	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
-//	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
-//	// Save advance in reimbursements table by saving ppm
-//	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
-//	movedocuments := testdatagen.Assertions{
-//		MoveDocument: models.MoveDocument{
-//			MoveID:                   ppm.Move.ID,
-//			Move:                     ppm.Move,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			Status:                   models.MoveDocumentStatusOK,
-//			MoveDocumentType:         "EXPENSE",
-//		},
-//		Document: models.Document{
-//			ServiceMemberID: serviceMemberID,
-//			ServiceMember:   move.Orders.ServiceMember,
-//		},
-//	}
-//	movedocuments2 := testdatagen.Assertions{
-//		MoveDocument: models.MoveDocument{
-//			MoveID:                   ppm.Move.ID,
-//			Move:                     ppm.Move,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			Status:                   models.MoveDocumentStatusEXCLUDEFROMCALCULATION,
-//			MoveDocumentType:         "EXPENSE",
-//		},
-//		Document: models.Document{
-//			ServiceMemberID: serviceMemberID,
-//			ServiceMember:   move.Orders.ServiceMember,
-//		},
-//	}
-//	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-//	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-//	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments2)
-//	session := auth.Session{
-//		UserID:          move.Orders.ServiceMember.UserID,
-//		ServiceMemberID: serviceMemberID,
-//		ApplicationName: auth.MilApp,
-//	}
-//	moveRouter := moverouter.NewMoveRouter()
-//	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move)
-//	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
-//	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-//	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-//	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-//	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
-//	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
-//	certificationType := models.SignedCertificationTypePPMPAYMENT
-//	signedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-//		SignedCertification: models.SignedCertification{
-//			MoveID:                   moveID,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			CertificationType:        &certificationType,
-//			CertificationText:        "LEGAL",
-//			Signature:                "ACCEPT",
-//			Date:                     testdatagen.NextValidMoveDate,
-//		},
-//	})
-//	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
-//
-//	suite.NoError(err)
-//	suite.Equal(move.Orders.ID, ssd.Order.ID)
-//	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
-//	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
-//	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
-//	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
-//	suite.Equal(yuma.Address.ID, ssd.CurrentDutyStation.Address.ID)
-//	suite.Equal(fortGordon.ID, ssd.NewDutyStation.ID)
-//	suite.Equal(fortGordon.Address.ID, ssd.NewDutyStation.Address.ID)
-//	rankWtgAllotment := models.GetWeightAllotment(rank)
-//	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
-//	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
-//	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
-//	suite.Require().NotNil(ssd.ServiceMember.Rank)
-//	weightAllotment := models.GetWeightAllotment(*ssd.ServiceMember.Rank)
-//	// E_9 rank, no dependents, no spouse pro-gear
-//	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
-//	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-//	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
-//	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
-//	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
-//	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
-//	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
-//	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
-//	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
-//	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
-//}
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			ID:               moveID,
+			SelectedMoveType: &moveType,
+		},
+		Order: models.Order{
+			OrdersType:       ordersType,
+			NewDutyStationID: fortGordon.ID,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            serviceMemberID,
+			DutyStationID: &yuma.ID,
+			Rank:          &rank,
+		},
+	})
+
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	netWeight := unit.Pound(10000)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:              move.ID,
+			NetWeight:           &netWeight,
+			HasRequestedAdvance: true,
+			AdvanceID:           &advance.ID,
+			Advance:             &advance,
+		},
+	})
+	// Only concerned w/ approved advances for ssw
+	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
+	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
+	// Save advance in reimbursements table by saving ppm
+	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+	movedocuments := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   models.MoveDocumentStatusOK,
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: serviceMemberID,
+			ServiceMember:   move.Orders.ServiceMember,
+		},
+	}
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+
+	session := auth.Session{
+		UserID:          move.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+	moveRouter := moverouter.NewMoveRouter()
+	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move)
+	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
+	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
+	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
+	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
+	certificationType := models.SignedCertificationTypePPMPAYMENT
+	signedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:                   moveID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &certificationType,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+
+	suite.NoError(err)
+	suite.Equal(move.Orders.ID, ssd.Order.ID)
+	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
+	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
+	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
+	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
+	suite.Equal(yuma.Address.ID, ssd.CurrentDutyStation.Address.ID)
+	suite.Equal(fortGordon.ID, ssd.NewDutyStation.ID)
+	suite.Equal(fortGordon.Address.ID, ssd.NewDutyStation.Address.ID)
+	rankWtgAllotment := models.GetWeightAllotment(rank)
+	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
+	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
+	suite.Require().NotNil(ssd.ServiceMember.Rank)
+	weightAllotment := models.GetWeightAllotment(*ssd.ServiceMember.Rank)
+	// E_9 rank, no dependents, no spouse pro-gear
+	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
+	suite.Require().Nil(err)
+	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
+	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
+	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
+	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
+	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
+	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
+	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
+	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
+	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
+}
+
+func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
+	moveID, _ := uuid.NewV4()
+	serviceMemberID, _ := uuid.NewV4()
+	//advanceID, _ := uuid.NewV4()
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	rank := models.ServiceMemberRankE9
+	moveType := models.SelectedMoveTypePPM
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			ID:               moveID,
+			SelectedMoveType: &moveType,
+		},
+		Order: models.Order{
+			OrdersType:       ordersType,
+			NewDutyStationID: fortGordon.ID,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            serviceMemberID,
+			DutyStationID: &yuma.ID,
+			Rank:          &rank,
+		},
+	})
+
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	netWeight := unit.Pound(10000)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:              move.ID,
+			NetWeight:           &netWeight,
+			HasRequestedAdvance: true,
+			AdvanceID:           &advance.ID,
+			Advance:             &advance,
+		},
+	})
+	// Only concerned w/ approved advances for ssw
+	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
+	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
+	// Save advance in reimbursements table by saving ppm
+	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+	movedocuments := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   models.MoveDocumentStatusOK,
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: serviceMemberID,
+			ServiceMember:   move.Orders.ServiceMember,
+		},
+	}
+	movedocuments2 := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   models.MoveDocumentStatusEXCLUDEFROMCALCULATION,
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: serviceMemberID,
+			ServiceMember:   move.Orders.ServiceMember,
+		},
+	}
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments2)
+	session := auth.Session{
+		UserID:          move.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+	moveRouter := moverouter.NewMoveRouter()
+	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move)
+	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
+	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
+	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
+	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
+	certificationType := models.SignedCertificationTypePPMPAYMENT
+	signedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:                   moveID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &certificationType,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+
+	suite.NoError(err)
+	suite.Equal(move.Orders.ID, ssd.Order.ID)
+	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
+	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
+	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
+	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
+	suite.Equal(yuma.Address.ID, ssd.CurrentDutyStation.Address.ID)
+	suite.Equal(fortGordon.ID, ssd.NewDutyStation.ID)
+	suite.Equal(fortGordon.Address.ID, ssd.NewDutyStation.Address.ID)
+	rankWtgAllotment := models.GetWeightAllotment(rank)
+	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
+	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
+	suite.Require().NotNil(ssd.ServiceMember.Rank)
+	weightAllotment := models.GetWeightAllotment(*ssd.ServiceMember.Rank)
+	// E_9 rank, no dependents, no spouse pro-gear
+	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
+	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
+	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
+	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
+	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
+	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
+	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
+	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
+	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
+	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
+}
 
 func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
 	moveID, _ := uuid.NewV4()
@@ -800,57 +802,57 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitl
 	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
 }
 
-//func (suite *ModelSuite) TestFormatOtherExpenses() {
-//	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-//	sm := ppm.Move.Orders.ServiceMember
-//
-//	assertions1 := testdatagen.Assertions{
-//		MovingExpenseDocument: models.MovingExpenseDocument{
-//			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-//			RequestedAmountCents: unit.Cents(2589),
-//		},
-//		MoveDocument: models.MoveDocument{
-//			MoveID:                   ppm.Move.ID,
-//			Move:                     ppm.Move,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			Status:                   "OK",
-//			MoveDocumentType:         "EXPENSE",
-//			Title:                    "The Bard",
-//		},
-//		Document: models.Document{
-//			ServiceMemberID: sm.ID,
-//			ServiceMember:   sm,
-//		},
-//	}
-//
-//	assertions2 := testdatagen.Assertions{
-//		MovingExpenseDocument: models.MovingExpenseDocument{
-//			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-//			RequestedAmountCents: unit.Cents(1439),
-//		},
-//		MoveDocument: models.MoveDocument{
-//			MoveID:                   ppm.Move.ID,
-//			Move:                     ppm.Move,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			Status:                   "OK",
-//			MoveDocumentType:         "EXPENSE",
-//			Title:                    "The Beedle",
-//		},
-//		Document: models.Document{
-//			ServiceMemberID: sm.ID,
-//			ServiceMember:   sm,
-//		},
-//	}
-//
-//	otherExpenseDocs := models.MovingExpenseDocuments{}
-//	otherExpenseDocs = append(otherExpenseDocs, testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions1))
-//	otherExpenseDocs = append(otherExpenseDocs, testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions2))
-//
-//	formattedOtherExpenses := models.FormatOtherExpenses(otherExpenseDocs)
-//
-//	suite.Equal("The Bard\n\nThe Beedle", formattedOtherExpenses.Descriptions)
-//	suite.Equal("$25.89\n\n$14.39", formattedOtherExpenses.AmountsPaid)
-//}
+func (suite *ModelSuite) TestFormatOtherExpenses() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	sm := ppm.Move.Orders.ServiceMember
+
+	assertions1 := testdatagen.Assertions{
+		MovingExpenseDocument: models.MovingExpenseDocument{
+			MovingExpenseType:    models.MovingExpenseTypeOTHER,
+			RequestedAmountCents: unit.Cents(2589),
+		},
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+			Title:                    "The Bard",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+
+	assertions2 := testdatagen.Assertions{
+		MovingExpenseDocument: models.MovingExpenseDocument{
+			MovingExpenseType:    models.MovingExpenseTypeOTHER,
+			RequestedAmountCents: unit.Cents(1439),
+		},
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+			Title:                    "The Beedle",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+
+	otherExpenseDocs := models.MovingExpenseDocuments{}
+	otherExpenseDocs = append(otherExpenseDocs, testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions1))
+	otherExpenseDocs = append(otherExpenseDocs, testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions2))
+
+	formattedOtherExpenses := models.FormatOtherExpenses(otherExpenseDocs)
+
+	suite.Equal("The Bard\n\nThe Beedle", formattedOtherExpenses.Descriptions)
+	suite.Equal("$25.89\n\n$14.39", formattedOtherExpenses.AmountsPaid)
+}
 
 func (suite *ModelSuite) TestFormatSignature() {
 	sm := models.ServiceMember{

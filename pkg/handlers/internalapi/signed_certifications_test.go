@@ -139,107 +139,107 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	}
 }
 
-//func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
-//	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-//	move := ppm.Move
-//	sm := ppm.Move.Orders.ServiceMember
-//
-//	ppmPayment := models.SignedCertificationTypePPMPAYMENT
-//	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-//		SignedCertification: models.SignedCertification{
-//			MoveID:                   ppm.Move.ID,
-//			SubmittingUserID:         sm.User.ID,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			CertificationType:        &ppmPayment,
-//			CertificationText:        "LEGAL",
-//			Signature:                "ACCEPT",
-//			Date:                     testdatagen.NextValidMoveDate,
-//		},
-//	})
-//
-//	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-//	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-//	badMoveID := strfmt.UUID("3511d4d6-019d-4031-9c27-8a553e055543")
-//	params := certop.IndexSignedCertificationParams{
-//		MoveID: badMoveID,
-//	}
-//
-//	params.HTTPRequest = req
-//
-//	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
-//	response := handler.Handle(params)
-//
-//	suite.CheckResponseNotFound(response)
-//}
-//
-//func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
-//	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-//	move := ppm.Move
-//	sm := ppm.Move.Orders.ServiceMember
-//	ppmPayment := models.SignedCertificationTypePPMPAYMENT
-//	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-//		SignedCertification: models.SignedCertification{
-//			MoveID:                   ppm.Move.ID,
-//			SubmittingUserID:         sm.User.ID,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			CertificationType:        &ppmPayment,
-//			CertificationText:        "LEGAL",
-//			Signature:                "ACCEPT",
-//			Date:                     testdatagen.NextValidMoveDate,
-//		},
-//	})
-//	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
-//	unauthorizedUser := models.User{
-//		LoginGovUUID:  &userUUID2,
-//		LoginGovEmail: "email2@example.com",
-//	}
-//	params := certop.IndexSignedCertificationParams{
-//		MoveID: *handlers.FmtUUID(move.ID),
-//	}
-//	suite.MustSave(&unauthorizedUser)
-//
-//	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-//	req = suite.AuthenticateUserRequest(req, unauthorizedUser)
-//
-//	params.HTTPRequest = req
-//
-//	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
-//	response := handler.Handle(params)
-//
-//	suite.CheckResponseForbidden(response)
-//}
-//
-//func (suite *HandlerSuite) TestIndexSignedCertificationHandler() {
-//	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-//	move := ppm.Move
-//	sm := ppm.Move.Orders.ServiceMember
-//	ppmPayment := models.SignedCertificationTypePPMPAYMENT
-//	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-//		SignedCertification: models.SignedCertification{
-//			MoveID:                   ppm.Move.ID,
-//			SubmittingUserID:         sm.User.ID,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			CertificationType:        &ppmPayment,
-//			CertificationText:        "LEGAL",
-//			Signature:                "ACCEPT",
-//			Date:                     testdatagen.NextValidMoveDate,
-//		},
-//	})
-//	params := certop.IndexSignedCertificationParams{
-//		MoveID: *handlers.FmtUUID(move.ID),
-//	}
-//
-//	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-//	req = suite.AuthenticateRequest(req, sm)
-//
-//	params.HTTPRequest = req
-//
-//	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
-//	response := handler.Handle(params)
-//
-//	okResponse, ok := response.(*certop.IndexSignedCertificationOK)
-//	suite.True(ok)
-//	suite.Equal(1, len(okResponse.Payload))
-//	responsePayload := okResponse.Payload[0]
-//	suite.Equal(move.ID.String(), responsePayload.MoveID.String())
-//}
+func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
+
+	ppmPayment := models.SignedCertificationTypePPMPAYMENT
+	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &ppmPayment,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+
+	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	badMoveID := strfmt.UUID("3511d4d6-019d-4031-9c27-8a553e055543")
+	params := certop.IndexSignedCertificationParams{
+		MoveID: badMoveID,
+	}
+
+	params.HTTPRequest = req
+
+	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	response := handler.Handle(params)
+
+	suite.CheckResponseNotFound(response)
+}
+
+func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
+	ppmPayment := models.SignedCertificationTypePPMPAYMENT
+	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &ppmPayment,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
+	unauthorizedUser := models.User{
+		LoginGovUUID:  &userUUID2,
+		LoginGovEmail: "email2@example.com",
+	}
+	params := certop.IndexSignedCertificationParams{
+		MoveID: *handlers.FmtUUID(move.ID),
+	}
+	suite.MustSave(&unauthorizedUser)
+
+	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req = suite.AuthenticateUserRequest(req, unauthorizedUser)
+
+	params.HTTPRequest = req
+
+	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	response := handler.Handle(params)
+
+	suite.CheckResponseForbidden(response)
+}
+
+func (suite *HandlerSuite) TestIndexSignedCertificationHandler() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
+	ppmPayment := models.SignedCertificationTypePPMPAYMENT
+	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &ppmPayment,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+	params := certop.IndexSignedCertificationParams{
+		MoveID: *handlers.FmtUUID(move.ID),
+	}
+
+	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req = suite.AuthenticateRequest(req, sm)
+
+	params.HTTPRequest = req
+
+	handler := IndexSignedCertificationsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	response := handler.Handle(params)
+
+	okResponse, ok := response.(*certop.IndexSignedCertificationOK)
+	suite.True(ok)
+	suite.Equal(1, len(okResponse.Payload))
+	responsePayload := okResponse.Payload[0]
+	suite.Equal(move.ID.String(), responsePayload.MoveID.String())
+}

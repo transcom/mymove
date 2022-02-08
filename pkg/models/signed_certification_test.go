@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
@@ -19,80 +20,81 @@ func (suite *ModelSuite) Test_SignedCertificationValidations() {
 	suite.verifyValidationErrors(signedCert, expErrors)
 }
 
-//func (suite *ModelSuite) TestFetchSignedCertificationsPPMPayment() {
-//	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-//	move := ppm.Move
-//	sm := ppm.Move.Orders.ServiceMember
-//
-//	session := &auth.Session{
-//		UserID:          sm.UserID,
-//		ServiceMemberID: sm.ID,
-//		ApplicationName: auth.MilApp,
-//	}
-//
-//	certificationType := SignedCertificationTypePPMPAYMENT
-//	signedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-//		SignedCertification: SignedCertification{
-//			MoveID:                   ppm.Move.ID,
-//			SubmittingUserID:         sm.User.ID,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			CertificationType:        &certificationType,
-//			CertificationText:        "LEGAL",
-//			Signature:                "ACCEPT",
-//			Date:                     testdatagen.NextValidMoveDate,
-//		},
-//	})
-//
-//	sc, err := FetchSignedCertificationsPPMPayment(suite.DB(), session, move.ID)
-//	suite.NoError(err)
-//	suite.Equal(signedCertification.ID, sc.ID)
-//}
-//
-//func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
-//	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-//	sm := ppm.Move.Orders.ServiceMember
-//	otherPpm := testdatagen.MakeDefaultPPM(suite.DB())
-//	otherSm := otherPpm.Move.Orders.ServiceMember
-//
-//	session := &auth.Session{
-//		UserID:          sm.UserID,
-//		ServiceMemberID: sm.ID,
-//		ApplicationName: auth.MilApp,
-//	}
-//
-//	certificationType := SignedCertificationTypePPMPAYMENT
-//	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-//		SignedCertification: SignedCertification{
-//			MoveID:                   ppm.Move.ID,
-//			SubmittingUserID:         sm.User.ID,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			CertificationType:        &certificationType,
-//			CertificationText:        "LEGAL",
-//			Signature:                "ACCEPT",
-//			Date:                     testdatagen.NextValidMoveDate,
-//		},
-//	})
-//
-//	signedCertificationType := SignedCertificationTypePPMPAYMENT
-//	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-//		SignedCertification: SignedCertification{
-//			MoveID:                   otherPpm.Move.ID,
-//			SubmittingUserID:         otherSm.UserID,
-//			PersonallyProcuredMoveID: &otherPpm.ID,
-//			CertificationType:        &signedCertificationType,
-//			CertificationText:        "LEGAL",
-//			Signature:                "ACCEPT",
-//			Date:                     testdatagen.NextValidMoveDate,
-//		},
-//	})
-//
-//	_, err := FetchSignedCertificationsPPMPayment(suite.DB(), session, otherPpm.MoveID)
-//	suite.Equal(errors.Cause(err), ErrFetchForbidden)
-//}
+func (suite *ModelSuite) TestFetchSignedCertificationsPPMPayment() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
+
+	session := &auth.Session{
+		UserID:          sm.UserID,
+		ServiceMemberID: sm.ID,
+		ApplicationName: auth.MilApp,
+	}
+
+	certificationType := SignedCertificationTypePPMPAYMENT
+	signedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: SignedCertification{
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &certificationType,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+
+	sc, err := FetchSignedCertificationsPPMPayment(suite.DB(), session, move.ID)
+	suite.NoError(err)
+	suite.Equal(signedCertification.ID, sc.ID)
+}
+
+func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	sm := ppm.Move.Orders.ServiceMember
+	otherPpm := testdatagen.MakeDefaultPPM(suite.DB())
+	otherSm := otherPpm.Move.Orders.ServiceMember
+
+	session := &auth.Session{
+		UserID:          sm.UserID,
+		ServiceMemberID: sm.ID,
+		ApplicationName: auth.MilApp,
+	}
+
+	certificationType := SignedCertificationTypePPMPAYMENT
+	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: SignedCertification{
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &certificationType,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+
+	signedCertificationType := SignedCertificationTypePPMPAYMENT
+	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: SignedCertification{
+			MoveID:                   otherPpm.Move.ID,
+			SubmittingUserID:         otherSm.UserID,
+			PersonallyProcuredMoveID: &otherPpm.ID,
+			CertificationType:        &signedCertificationType,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+
+	_, err := FetchSignedCertificationsPPMPayment(suite.DB(), session, otherPpm.MoveID)
+	suite.Equal(errors.Cause(err), ErrFetchForbidden)
+}
 
 func (suite *ModelSuite) TestFetchSignedCertifications() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	sm := move.Orders.ServiceMember
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
 
 	session := &auth.Session{
 		UserID:          sm.UserID,
@@ -103,34 +105,37 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 	ppmPayment := SignedCertificationTypePPMPAYMENT
 	ppmPaymentsignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
 		SignedCertification: SignedCertification{
-			MoveID:            move.ID,
-			SubmittingUserID:  sm.User.ID,
-			CertificationType: &ppmPayment,
-			CertificationText: "LEGAL",
-			Signature:         "ACCEPT",
-			Date:              testdatagen.NextValidMoveDate,
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &ppmPayment,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
 		},
 	})
 	ppmCert := SignedCertificationTypeSHIPMENT
 	ppmSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
 		SignedCertification: SignedCertification{
-			MoveID:            move.ID,
-			SubmittingUserID:  sm.User.ID,
-			CertificationType: &ppmCert,
-			CertificationText: "LEGAL",
-			Signature:         "ACCEPT",
-			Date:              testdatagen.NextValidMoveDate,
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &ppmCert,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
 		},
 	})
 	hhgCert := SignedCertificationTypeSHIPMENT
 	hhgSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
 		SignedCertification: SignedCertification{
-			MoveID:            move.ID,
-			SubmittingUserID:  sm.User.ID,
-			CertificationType: &hhgCert,
-			CertificationText: "LEGAL",
-			Signature:         "ACCEPT",
-			Date:              testdatagen.NextValidMoveDate,
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &hhgCert,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
 		},
 	})
 

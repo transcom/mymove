@@ -10,9 +10,12 @@
 package internalapi
 
 import (
+	"bytes"
 	"fmt"
 	"net/http/httptest"
 	"time"
+
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/mock"
@@ -187,57 +190,57 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 }
 
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
-	//suite.Run("Submits ppm success", func() {
-	//	// Given: a set of orders, a move, user and servicemember
-	//	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	//	move := ppm.Move
-	//
-	//	// And: the context contains the auth values
-	//	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
-	//	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-	//	certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
-	//	signingDate := strfmt.DateTime(time.Now())
-	//	ppmID := strfmt.UUID(ppm.ID.String())
-	//	certificate := internalmessages.CreateSignedCertificationPayload{
-	//		CertificationText:        swag.String("This is your legal message"),
-	//		CertificationType:        &certType,
-	//		PersonallyProcuredMoveID: &ppmID,
-	//		Date:                     &signingDate,
-	//		Signature:                swag.String("Jane Doe"),
-	//	}
-	//	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
-	//
-	//	params := moveop.SubmitMoveForApprovalParams{
-	//		HTTPRequest:                  req,
-	//		MoveID:                       strfmt.UUID(move.ID.String()),
-	//		SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
-	//	}
-	//	// When: a move is submitted
-	//	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	//	context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-	//	handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
-	//	response := handler.Handle(params)
-	//
-	//	// Then: expect a 200 status code
-	//	suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
-	//	okResponse := response.(*moveop.SubmitMoveForApprovalOK)
-	//	updatedMove, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
-	//	suite.NoError(err)
-	//
-	//	// And: Returned query to have a submitted status
-	//	suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
-	//	// And: Expect move's PPM's advance to have "Requested" status
-	//	suite.Assertions.Equal(
-	//		internalmessages.ReimbursementStatusREQUESTED,
-	//		*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
-	//	suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
-	//
-	//	// Test that the move was submitted within a few seconds of the current time.
-	//	// This is better than asserting that it's not Nil, and avoids trying to mock
-	//	// time.Now() or having to pass in a date to MoveRouter.Submit just to be able to test it.
-	//	actualSubmittedAt := updatedMove.SubmittedAt
-	//	suite.WithinDuration(time.Now(), *actualSubmittedAt, 2*time.Second)
-	//})
+	suite.Run("Submits ppm success", func() {
+		// Given: a set of orders, a move, user and servicemember
+		ppm := testdatagen.MakeDefaultPPM(suite.DB())
+		move := ppm.Move
+
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
+		signingDate := strfmt.DateTime(time.Now())
+		ppmID := strfmt.UUID(ppm.ID.String())
+		certificate := internalmessages.CreateSignedCertificationPayload{
+			CertificationText:        swag.String("This is your legal message"),
+			CertificationType:        &certType,
+			PersonallyProcuredMoveID: &ppmID,
+			Date:                     &signingDate,
+			Signature:                swag.String("Jane Doe"),
+		}
+		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
+
+		params := moveop.SubmitMoveForApprovalParams{
+			HTTPRequest:                  req,
+			MoveID:                       strfmt.UUID(move.ID.String()),
+			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
+		}
+		// When: a move is submitted
+		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
+		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
+		response := handler.Handle(params)
+
+		// Then: expect a 200 status code
+		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
+		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+		updatedMove, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
+		suite.NoError(err)
+
+		// And: Returned query to have a submitted status
+		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+		// And: Expect move's PPM's advance to have "Requested" status
+		suite.Assertions.Equal(
+			internalmessages.ReimbursementStatusREQUESTED,
+			*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
+		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
+
+		// Test that the move was submitted within a few seconds of the current time.
+		// This is better than asserting that it's not Nil, and avoids trying to mock
+		// time.Now() or having to pass in a date to MoveRouter.Submit just to be able to test it.
+		actualSubmittedAt := updatedMove.SubmittedAt
+		suite.WithinDuration(time.Now(), *actualSubmittedAt, 2*time.Second)
+	})
 	suite.Run("Submits hhg shipment success", func() {
 		// Given: a set of orders, a move, user and servicemember
 		hhg := testdatagen.MakeDefaultMTOShipment(suite.DB())
@@ -497,121 +500,121 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 
 }
 
-//func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
-//	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
-//		Tariff400ngItemRate: models.Tariff400ngItemRate{
-//			Code:     "210A",
-//			Schedule: models.IntPointer(1),
-//		},
-//	})
-//	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
-//		Tariff400ngItemRate: models.Tariff400ngItemRate{
-//			Code:     "225A",
-//			Schedule: models.IntPointer(1),
-//		},
-//	})
-//	testdatagen.MakeDefaultTariff400ngItem(suite.DB())
-//	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
-//		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
-//			ServiceArea: "296",
-//		},
-//	})
-//	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
-//		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
-//			ServiceArea: "208",
-//		},
-//	})
-//	lhr := models.Tariff400ngLinehaulRate{
-//		DistanceMilesLower: 1,
-//		DistanceMilesUpper: 10000,
-//		WeightLbsLower:     1,
-//		WeightLbsUpper:     10000,
-//		RateCents:          20000,
-//		Type:               "ConusLinehaul",
-//		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-//		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-//	}
-//	suite.MustSave(&lhr)
-//	fpr := models.Tariff400ngFullPackRate{
-//		Schedule:           1,
-//		WeightLbsLower:     1,
-//		WeightLbsUpper:     10000,
-//		RateCents:          100,
-//		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-//		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-//	}
-//	suite.MustSave(&fpr)
-//	fupr := models.Tariff400ngFullUnpackRate{
-//		Schedule:           1,
-//		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-//		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-//	}
-//	suite.MustSave(&fupr)
-//	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
-//		TrafficDistributionList: models.TrafficDistributionList{
-//			SourceRateArea:    "US53",
-//			DestinationRegion: "12",
-//		},
-//	})
-//	testdatagen.MakeTSPPerformance(suite.DB(),
-//		testdatagen.Assertions{
-//			TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
-//				TrafficDistributionListID: tdl.ID,
-//			},
-//		})
-//
-//	move := testdatagen.MakeDefaultMove(suite.DB())
-//	netWeight := unit.Pound(1000)
-//	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-//		PersonallyProcuredMove: models.PersonallyProcuredMove{
-//			MoveID:                move.ID,
-//			ActualMoveDate:        &testdatagen.DateInsidePerformancePeriod,
-//			NetWeight:             &netWeight,
-//			PickupPostalCode:      models.StringPointer("50303"),
-//			DestinationPostalCode: models.StringPointer("30814"),
-//		},
-//	})
-//	certificationType := models.SignedCertificationTypePPMPAYMENT
-//	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-//		SignedCertification: models.SignedCertification{
-//			SubmittingUserID:         move.Orders.ServiceMember.UserID,
-//			MoveID:                   move.ID,
-//			PersonallyProcuredMoveID: &ppm.ID,
-//			CertificationType:        &certificationType,
-//		},
-//	})
-//
-//	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
-//	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-//
-//	preparationDate := strfmt.Date(time.Date(2019, time.January, 1, 1, 1, 1, 1, time.UTC))
-//	params := moveop.ShowShipmentSummaryWorksheetParams{
-//		HTTPRequest:     req,
-//		MoveID:          strfmt.UUID(move.ID.String()),
-//		PreparationDate: preparationDate,
-//	}
-//
-//	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-//	planner := &mocks.Planner{}
-//	planner.On("Zip5TransitDistanceLineHaul",
-//		mock.AnythingOfType("*appcontext.appContext"),
-//		mock.Anything,
-//		mock.Anything,
-//	).Return(1044, nil)
-//	context.SetPlanner(planner)
-//
-//	handler := ShowShipmentSummaryWorksheetHandler{context}
-//	response := handler.Handle(params)
-//
-//	suite.Assertions.IsType(&moveop.ShowShipmentSummaryWorksheetOK{}, response)
-//	okResponse := response.(*moveop.ShowShipmentSummaryWorksheetOK)
-//
-//	// check that the payload wasn't empty
-//	buf := new(bytes.Buffer)
-//	bytesRead, err := buf.ReadFrom(okResponse.Payload)
-//	suite.NoError(err)
-//	suite.NotZero(bytesRead)
-//}
+func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
+	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItemRate: models.Tariff400ngItemRate{
+			Code:     "210A",
+			Schedule: models.IntPointer(1),
+		},
+	})
+	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItemRate: models.Tariff400ngItemRate{
+			Code:     "225A",
+			Schedule: models.IntPointer(1),
+		},
+	})
+	testdatagen.MakeDefaultTariff400ngItem(suite.DB())
+	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
+		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
+			ServiceArea: "296",
+		},
+	})
+	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
+		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
+			ServiceArea: "208",
+		},
+	})
+	lhr := models.Tariff400ngLinehaulRate{
+		DistanceMilesLower: 1,
+		DistanceMilesUpper: 10000,
+		WeightLbsLower:     1,
+		WeightLbsUpper:     10000,
+		RateCents:          20000,
+		Type:               "ConusLinehaul",
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.MustSave(&lhr)
+	fpr := models.Tariff400ngFullPackRate{
+		Schedule:           1,
+		WeightLbsLower:     1,
+		WeightLbsUpper:     10000,
+		RateCents:          100,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.MustSave(&fpr)
+	fupr := models.Tariff400ngFullUnpackRate{
+		Schedule:           1,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.MustSave(&fupr)
+	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
+		TrafficDistributionList: models.TrafficDistributionList{
+			SourceRateArea:    "US53",
+			DestinationRegion: "12",
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(),
+		testdatagen.Assertions{
+			TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+				TrafficDistributionListID: tdl.ID,
+			},
+		})
+
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	netWeight := unit.Pound(1000)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:                move.ID,
+			ActualMoveDate:        &testdatagen.DateInsidePerformancePeriod,
+			NetWeight:             &netWeight,
+			PickupPostalCode:      models.StringPointer("50303"),
+			DestinationPostalCode: models.StringPointer("30814"),
+		},
+	})
+	certificationType := models.SignedCertificationTypePPMPAYMENT
+	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			SubmittingUserID:         move.Orders.ServiceMember.UserID,
+			MoveID:                   move.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &certificationType,
+		},
+	})
+
+	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+	preparationDate := strfmt.Date(time.Date(2019, time.January, 1, 1, 1, 1, 1, time.UTC))
+	params := moveop.ShowShipmentSummaryWorksheetParams{
+		HTTPRequest:     req,
+		MoveID:          strfmt.UUID(move.ID.String()),
+		PreparationDate: preparationDate,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(1044, nil)
+	context.SetPlanner(planner)
+
+	handler := ShowShipmentSummaryWorksheetHandler{context}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&moveop.ShowShipmentSummaryWorksheetOK{}, response)
+	okResponse := response.(*moveop.ShowShipmentSummaryWorksheetOK)
+
+	// check that the payload wasn't empty
+	buf := new(bytes.Buffer)
+	bytesRead, err := buf.ReadFrom(okResponse.Payload)
+	suite.NoError(err)
+	suite.NotZero(bytesRead)
+}
 
 func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 	suite.Run("Submits move with amended orders for review", func() {

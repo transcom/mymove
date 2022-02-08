@@ -70,14 +70,20 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociatio
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssociations() {
 	// model with deleted_at with "has one" associations
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusPAYMENTREQUESTED,
+		},
+	})
+	move := ppm.Move
 	moveDoc := testdatagen.MakeMoveDocument(suite.DB(),
 		testdatagen.Assertions{
 			MoveDocument: models.MoveDocument{
-				MoveID:           move.ID,
-				Move:             move,
-				MoveDocumentType: models.MoveDocumentTypeWEIGHTTICKETSET,
-				Status:           models.MoveDocumentStatusOK,
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
+				Status:                   models.MoveDocumentStatusOK,
 			},
 		})
 	suite.MustSave(&moveDoc)

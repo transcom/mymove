@@ -2,190 +2,193 @@ package notifications
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-//func (suite *NotificationSuite) createPaymentReminderMoves(assertions []testdatagen.Assertions) []models.PersonallyProcuredMove {
-//	ppms := make([]models.PersonallyProcuredMove, 0)
-//	estimateMin := unit.Cents(1000)
-//	estimateMax := unit.Cents(2000)
-//
-//	for _, assertion := range assertions {
-//		assertion.PersonallyProcuredMove.IncentiveEstimateMin = &estimateMin
-//		assertion.PersonallyProcuredMove.IncentiveEstimateMax = &estimateMax
-//
-//		ppm := testdatagen.MakePPM(suite.DB(), assertion)
-//		ppms = append(ppms, ppm)
-//	}
-//	return ppms
-//}
-//
-//func offsetDate(dayOffset int) time.Time {
-//	currentDatetime := time.Now()
-//	return currentDatetime.AddDate(0, 0, dayOffset)
-//}
-//
-//// cutoff date for sending payment reminders (don't send if older than this...)
-//func cutoffDate() time.Time {
-//	cutoffDate, _ := time.Parse("2006-01-02", "2019-05-31")
-//
-//	return cutoffDate
-//}
-//
-//func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
-//	date10DaysAgo := offsetDate(-10)
-//	date9DaysAgo := offsetDate(-9)
-//
-//	address := testdatagen.MakeDefaultAddress(suite.DB())
-//
-//	office := models.TransportationOffice{
-//		Name:      "JPPSO McTest",
-//		AddressID: address.ID,
-//		Address:   address,
-//		Gbloc:     "ABCD",
-//		Latitude:  1.23445,
-//		Longitude: -23.34455,
-//	}
-//	suite.MustSave(&office)
-//
-//	station := models.DutyStation{
-//		Name:                   "Fort Bragg",
-//		AddressID:              address.ID,
-//		TransportationOfficeID: &office.ID,
-//		TransportationOffice:   office,
-//	}
-//	suite.MustSave(&station)
-//
-//	moves := []testdatagen.Assertions{
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc123"},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc456"},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc789"},
-//			DestinationDutyStation: station,
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Status: models.MoveStatusDRAFT, Locator: "def123"},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Show: swag.Bool(false), Locator: "def456"},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusDRAFT},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "111111"},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusSUBMITTED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "222222"},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusPAYMENTREQUESTED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "333333"},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusCOMPLETED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "444444"},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusCANCELED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "555555"},
-//		},
-//	}
-//
-//	ppms := suite.createPaymentReminderMoves(moves)
-//
-//	PaymentReminder, err := NewPaymentReminder()
-//	suite.NoError(err)
-//	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
-//	suite.NoError(err)
-//
-//	suite.NotNil(emailInfo)
-//	suite.Len(emailInfo, 2, "Wrong number of rows returned")
-//	suite.Equal(ppms[0].Move.Orders.NewDutyStation.Name, emailInfo[0].NewDutyStationName)
-//	suite.NotNil(emailInfo[0].Email)
-//	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
-//	suite.Equal(ppms[0].WeightEstimate, emailInfo[0].WeightEstimate)
-//	suite.Equal(ppms[0].IncentiveEstimateMin, emailInfo[0].IncentiveEstimateMin)
-//	suite.Equal(ppms[0].IncentiveEstimateMax, emailInfo[0].IncentiveEstimateMax)
-//	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.Name, *emailInfo[0].TOName)
-//	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, *emailInfo[0].TOPhone)
-//	suite.Equal(ppms[0].Move.Locator, emailInfo[0].Locator)
-//}
-//
-//func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
-//	date10DaysAgo := offsetDate(-10)
-//	date9DaysAgo := offsetDate(-9)
-//	dateTooOld := cutoffDate()
-//
-//	moves := []testdatagen.Assertions{
-//		{
-//
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Status: models.MoveStatusDRAFT},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Show: swag.Bool(false)},
-//		},
-//	}
-//
-//	suite.createPaymentReminderMoves(moves)
-//
-//	PaymentReminder, err := NewPaymentReminder()
-//	suite.NoError(err)
-//	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
-//
-//	suite.NoError(err)
-//	suite.Len(emailInfo, 0)
-//}
-//
-//func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
-//	date10DaysAgo := offsetDate(-10)
-//	dateTooOld := cutoffDate()
-//
-//	moves := []testdatagen.Assertions{
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
-//		},
-//		{
-//			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld, Status: models.PPMStatusAPPROVED},
-//			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
-//		},
-//	}
-//	suite.createPaymentReminderMoves(moves)
-//
-//	PaymentReminder, err := NewPaymentReminder()
-//	suite.NoError(err)
-//	emailInfoBeforeSending, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
-//	suite.NoError(err)
-//	suite.Len(emailInfoBeforeSending, 1)
-//
-//	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), emailInfoBeforeSending[0])("SESID")
-//	suite.NoError(err)
-//	emailInfoAfterSending, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
-//	suite.NoError(err)
-//	suite.Len(emailInfoAfterSending, 0)
-//}
+func (suite *NotificationSuite) createPaymentReminderMoves(assertions []testdatagen.Assertions) []models.PersonallyProcuredMove {
+	ppms := make([]models.PersonallyProcuredMove, 0)
+	estimateMin := unit.Cents(1000)
+	estimateMax := unit.Cents(2000)
+
+	for _, assertion := range assertions {
+		assertion.PersonallyProcuredMove.IncentiveEstimateMin = &estimateMin
+		assertion.PersonallyProcuredMove.IncentiveEstimateMax = &estimateMax
+
+		ppm := testdatagen.MakePPM(suite.DB(), assertion)
+		ppms = append(ppms, ppm)
+	}
+	return ppms
+}
+
+func offsetDate(dayOffset int) time.Time {
+	currentDatetime := time.Now()
+	return currentDatetime.AddDate(0, 0, dayOffset)
+}
+
+// cutoff date for sending payment reminders (don't send if older than this...)
+func cutoffDate() time.Time {
+	cutoffDate, _ := time.Parse("2006-01-02", "2019-05-31")
+
+	return cutoffDate
+}
+
+func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
+	date10DaysAgo := offsetDate(-10)
+	date9DaysAgo := offsetDate(-9)
+
+	address := testdatagen.MakeDefaultAddress(suite.DB())
+
+	office := models.TransportationOffice{
+		Name:      "JPPSO McTest",
+		AddressID: address.ID,
+		Address:   address,
+		Gbloc:     "ABCD",
+		Latitude:  1.23445,
+		Longitude: -23.34455,
+	}
+	suite.MustSave(&office)
+
+	station := models.DutyStation{
+		Name:                   "Fort Bragg",
+		AddressID:              address.ID,
+		TransportationOfficeID: &office.ID,
+		TransportationOffice:   office,
+	}
+	suite.MustSave(&station)
+
+	moves := []testdatagen.Assertions{
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc123"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc456"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc789"},
+			DestinationDutyStation: station,
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusDRAFT, Locator: "def123"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Show: swag.Bool(false), Locator: "def456"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusDRAFT},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "111111"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusSUBMITTED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "222222"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusPAYMENTREQUESTED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "333333"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusCOMPLETED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "444444"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusCANCELED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "555555"},
+		},
+	}
+
+	ppms := suite.createPaymentReminderMoves(moves)
+
+	PaymentReminder, err := NewPaymentReminder()
+	suite.NoError(err)
+	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
+	suite.NoError(err)
+
+	suite.NotNil(emailInfo)
+	suite.Len(emailInfo, 2, "Wrong number of rows returned")
+	suite.Equal(ppms[0].Move.Orders.NewDutyStation.Name, emailInfo[0].NewDutyStationName)
+	suite.NotNil(emailInfo[0].Email)
+	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
+	suite.Equal(ppms[0].WeightEstimate, emailInfo[0].WeightEstimate)
+	suite.Equal(ppms[0].IncentiveEstimateMin, emailInfo[0].IncentiveEstimateMin)
+	suite.Equal(ppms[0].IncentiveEstimateMax, emailInfo[0].IncentiveEstimateMax)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.Name, *emailInfo[0].TOName)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, *emailInfo[0].TOPhone)
+	suite.Equal(ppms[0].Move.Locator, emailInfo[0].Locator)
+}
+
+func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
+	date10DaysAgo := offsetDate(-10)
+	date9DaysAgo := offsetDate(-9)
+	dateTooOld := cutoffDate()
+
+	moves := []testdatagen.Assertions{
+		{
+
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusDRAFT},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Show: swag.Bool(false)},
+		},
+	}
+
+	suite.createPaymentReminderMoves(moves)
+
+	PaymentReminder, err := NewPaymentReminder()
+	suite.NoError(err)
+	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
+
+	suite.NoError(err)
+	suite.Len(emailInfo, 0)
+}
+
+func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
+	date10DaysAgo := offsetDate(-10)
+	dateTooOld := cutoffDate()
+
+	moves := []testdatagen.Assertions{
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld, Status: models.PPMStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+	}
+	suite.createPaymentReminderMoves(moves)
+
+	PaymentReminder, err := NewPaymentReminder()
+	suite.NoError(err)
+	emailInfoBeforeSending, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
+	suite.NoError(err)
+	suite.Len(emailInfoBeforeSending, 1)
+
+	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), emailInfoBeforeSending[0])("SESID")
+	suite.NoError(err)
+	emailInfoAfterSending, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
+	suite.NoError(err)
+	suite.Len(emailInfoAfterSending, 0)
+}
 
 func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
 	sm := testdatagen.MakeDefaultServiceMember(suite.DB())
