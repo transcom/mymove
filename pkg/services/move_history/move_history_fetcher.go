@@ -21,12 +21,10 @@ func NewMoveHistoryFetcher() services.MoveHistoryFetcher {
 
 //FetchMoveHistory retrieves a Move's history if it is visible for a given locator
 func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locator string) (*models.MoveHistory, error) {
-	moveHistory := models.MoveHistory{}
-	audits := &models.AuditHistories{}
 	query := `WITH moves AS
   (SELECT moves.*
     FROM moves
-   WHERE id = '$1'),
+   WHERE locator = $1),
 changed_addresses AS
   (SELECT DISTINCT unnest(array[changed_data->>'pickup_address_id',
 								changed_data->>'destination_address_id']) AS ID
@@ -57,6 +55,8 @@ SELECT audit_history.*
        audit_history.table_name = 'addresses'
    AND (audit_history.object_id = changed_addresses.id::uuid);
 `
+	audits := &models.AuditHistories{}
+	// audit := &models.AuditHistory{}
 	err := appCtx.DB().RawQuery(query, locator).All(audits)
 	if err != nil {
 		switch err {
@@ -68,7 +68,30 @@ SELECT audit_history.*
 		}
 	}
 
-	// TODO build up MoveHistory and return to caller
+	/*
+			moveSQL := `SELECT id, locator, reference_id
+		    FROM moves
+			WHERE locator = $1
+		`
+	*/
+	var move models.Move
+	err = appCtx.DB().Q().Where("locator = $1", locator).First(&move)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			// Not found error expects an id but we're querying by locator
+			return &models.MoveHistory{}, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
+		default:
+			return &models.MoveHistory{}, apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	moveHistory := models.MoveHistory{
+		ID:             move.ID,
+		Locator:        move.Locator,
+		ReferenceID:    move.ReferenceID,
+		AuditHistories: *audits,
+	}
 
 	return &moveHistory, nil
 }

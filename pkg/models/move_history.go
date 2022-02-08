@@ -6,9 +6,10 @@ import (
 
 // MoveHistory captures a move's audit history.
 // This struct doesn't have a database table it is used for the ghc.yaml/GHC API.
+// NO DATABASE TABLE
 type MoveHistory struct {
 	ID             uuid.UUID
 	Locator        string
 	ReferenceID    *string
-	HistoryRecords MoveAuditHistories
+	AuditHistories AuditHistories
 }

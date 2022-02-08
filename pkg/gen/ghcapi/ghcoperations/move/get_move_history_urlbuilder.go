@@ -40,7 +40,7 @@ func (o *GetMoveHistoryURL) SetBasePath(bp string) {
 func (o *GetMoveHistoryURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move/{locator}/history"
+	var _path = "/move/{locator}/historyJSON"
 
 	locator := o.Locator
 	if locator != "" {

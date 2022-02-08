@@ -67,6 +67,72 @@ func Move(move *models.Move) *ghcmessages.Move {
 	return payload
 }
 
+// MoveHistory payload
+func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
+	payload := &ghcmessages.MoveHistory{
+		HistoryRecords: moveHistoryRecords(moveHistory.AuditHistories),
+		ID:             strfmt.UUID(moveHistory.ID.String()),
+		Locator:        moveHistory.Locator,
+		ReferenceID:    moveHistory.ReferenceID,
+	}
+
+	return payload
+}
+
+// MoveAuditHistory payload
+func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
+	payload := &ghcmessages.MoveAuditHistory{
+		Action:          auditHistory.Action,
+		ActionTstampClk: strfmt.DateTime(auditHistory.ActionTstampClk),
+		ActionTstampStm: strfmt.DateTime(auditHistory.ActionTstampStm),
+		ActionTstampTx:  strfmt.DateTime(auditHistory.ActionTstampTx),
+		ChangedValues:   moveHistoryValues(auditHistory.ChangedData),
+		OldValues:       moveHistoryValues(auditHistory.OldData),
+		ClientQuery:     auditHistory.ClientQuery,
+		EventName:       *auditHistory.EventName,
+		ID:              strfmt.UUID(auditHistory.ID.String()),
+		ObjectID:        handlers.FmtUUIDPtr(auditHistory.ObjectID),
+		RelID:           auditHistory.RelID,
+		SessionUserID:   handlers.FmtUUIDPtr(auditHistory.SessionUserID),
+		StatementOnly:   auditHistory.StatementOnly,
+		TableName:       auditHistory.TableName,
+		TransactionID:   auditHistory.TransactionID,
+	}
+
+	return payload
+}
+
+func moveHistoryValues(data *models.JSONMap) ghcmessages.MoveAuditHistoryItems {
+	if data == nil {
+		return ghcmessages.MoveAuditHistoryItems{}
+	}
+
+	payload := make(ghcmessages.MoveAuditHistoryItems, len(*data))
+
+	for k, v := range *data {
+		columnValue, ok := v.(string)
+		if ok {
+			item := ghcmessages.MoveAuditHistoryItem{
+				ColumnName:  k,
+				ColumnValue: columnValue,
+			}
+			payload = append(payload, &item)
+		}
+		// TODO should we handle an else????
+	}
+
+	return payload
+}
+
+func moveHistoryRecords(auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
+	payload := make(ghcmessages.MoveAuditHistories, len(auditHistories))
+
+	for i, a := range auditHistories {
+		payload[i] = MoveAuditHistory(a)
+	}
+	return payload
+}
+
 // MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.Move) *ghcmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {

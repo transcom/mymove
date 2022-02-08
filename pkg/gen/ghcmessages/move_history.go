@@ -7,7 +7,6 @@ package ghcmessages
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -21,7 +20,7 @@ import (
 type MoveHistory struct {
 
 	// A list of MoveAuditHistory's connected to the move.
-	HistoryRecords []*MoveAuditHistory `json:"historyRecords"`
+	HistoryRecords MoveAuditHistories `json:"historyRecords,omitempty"`
 
 	// move ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -60,22 +59,13 @@ func (m *MoveHistory) validateHistoryRecords(formats strfmt.Registry) error {
 		return nil
 	}
 
-	for i := 0; i < len(m.HistoryRecords); i++ {
-		if swag.IsZero(m.HistoryRecords[i]) { // not required
-			continue
+	if err := m.HistoryRecords.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("historyRecords")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("historyRecords")
 		}
-
-		if m.HistoryRecords[i] != nil {
-			if err := m.HistoryRecords[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("historyRecords" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("historyRecords" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
+		return err
 	}
 
 	return nil
@@ -109,19 +99,13 @@ func (m *MoveHistory) ContextValidate(ctx context.Context, formats strfmt.Regist
 
 func (m *MoveHistory) contextValidateHistoryRecords(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(m.HistoryRecords); i++ {
-
-		if m.HistoryRecords[i] != nil {
-			if err := m.HistoryRecords[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("historyRecords" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("historyRecords" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
+	if err := m.HistoryRecords.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("historyRecords")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("historyRecords")
 		}
-
+		return err
 	}
 
 	return nil

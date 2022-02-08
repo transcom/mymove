@@ -1042,7 +1042,7 @@ func init() {
         }
       ]
     },
-    "/move/{locator}/history": {
+    "/move/{locator}/historyJSON": {
       "get": {
         "description": "Returns the history for a given move for a unique alphanumeric locator string",
         "produces": [
@@ -4515,6 +4515,12 @@ func init() {
         }
       }
     },
+    "MoveAuditHistories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistory"
+      }
+    },
     "MoveAuditHistory": {
       "properties": {
         "action": {
@@ -4538,14 +4544,13 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed) MoveAuditHistoryItem's for a record after the change.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MoveAuditHistoryItem"
-          }
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "eventName": {
           "description": "API endpoint name that was called to make the change",
@@ -4561,14 +4566,13 @@ func init() {
           "description": "id column for the tableName where the data was changed",
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "oldValues": {
           "description": "A list of (old) MoveAuditHistoryItem's for a record before the change.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MoveAuditHistoryItem"
-          }
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
         },
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
@@ -4577,6 +4581,7 @@ func init() {
         "sessionUserId": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "statementOnly": {
@@ -4585,12 +4590,13 @@ func init() {
           "example": false
         },
         "tableName": {
-          "description": "database table that was changed",
+          "description": "name of database table that was changed",
           "type": "string"
         },
         "transactionId": {
           "description": "Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.",
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -4604,14 +4610,17 @@ func init() {
         }
       }
     },
+    "MoveAuditHistoryItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistoryItem"
+      }
+    },
     "MoveHistory": {
       "properties": {
         "historyRecords": {
           "description": "A list of MoveAuditHistory's connected to the move.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MoveAuditHistory"
-          }
+          "$ref": "#/definitions/MoveAuditHistories"
         },
         "id": {
           "description": "move ID",
@@ -7485,7 +7494,7 @@ func init() {
         }
       ]
     },
-    "/move/{locator}/history": {
+    "/move/{locator}/historyJSON": {
       "get": {
         "description": "Returns the history for a given move for a unique alphanumeric locator string",
         "produces": [
@@ -11416,6 +11425,12 @@ func init() {
         }
       }
     },
+    "MoveAuditHistories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistory"
+      }
+    },
     "MoveAuditHistory": {
       "properties": {
         "action": {
@@ -11439,14 +11454,13 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed) MoveAuditHistoryItem's for a record after the change.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MoveAuditHistoryItem"
-          }
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "eventName": {
           "description": "API endpoint name that was called to make the change",
@@ -11462,14 +11476,13 @@ func init() {
           "description": "id column for the tableName where the data was changed",
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "oldValues": {
           "description": "A list of (old) MoveAuditHistoryItem's for a record before the change.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MoveAuditHistoryItem"
-          }
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
         },
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
@@ -11478,6 +11491,7 @@ func init() {
         "sessionUserId": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "statementOnly": {
@@ -11486,12 +11500,13 @@ func init() {
           "example": false
         },
         "tableName": {
-          "description": "database table that was changed",
+          "description": "name of database table that was changed",
           "type": "string"
         },
         "transactionId": {
           "description": "Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.",
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -11505,14 +11520,17 @@ func init() {
         }
       }
     },
+    "MoveAuditHistoryItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistoryItem"
+      }
+    },
     "MoveHistory": {
       "properties": {
         "historyRecords": {
           "description": "A list of MoveAuditHistory's connected to the move.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MoveAuditHistory"
-          }
+          "$ref": "#/definitions/MoveAuditHistories"
         },
         "id": {
           "description": "move ID",

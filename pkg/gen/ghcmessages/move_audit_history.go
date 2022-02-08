@@ -7,7 +7,6 @@ package ghcmessages
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -36,10 +35,10 @@ type MoveAuditHistory struct {
 	ActionTstampTx strfmt.DateTime `json:"actionTstampTx,omitempty"`
 
 	// A list of (changed) MoveAuditHistoryItem's for a record after the change.
-	ChangedValues []*MoveAuditHistoryItem `json:"changedValues"`
+	ChangedValues MoveAuditHistoryItems `json:"changedValues,omitempty"`
 
 	// Record the text of the client query that triggered the audit event
-	ClientQuery string `json:"clientQuery,omitempty"`
+	ClientQuery *string `json:"clientQuery,omitempty"`
 
 	// API endpoint name that was called to make the change
 	EventName string `json:"eventName,omitempty"`
@@ -52,10 +51,10 @@ type MoveAuditHistory struct {
 	// id column for the tableName where the data was changed
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
-	ObjectID strfmt.UUID `json:"objectId,omitempty"`
+	ObjectID *strfmt.UUID `json:"objectId,omitempty"`
 
 	// A list of (old) MoveAuditHistoryItem's for a record before the change.
-	OldValues []*MoveAuditHistoryItem `json:"oldValues"`
+	OldValues MoveAuditHistoryItems `json:"oldValues,omitempty"`
 
 	// relation OID. Table OID (object identifier). Changes with drop/create.
 	RelID int64 `json:"relId,omitempty"`
@@ -63,17 +62,17 @@ type MoveAuditHistory struct {
 	// session user Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
-	SessionUserID strfmt.UUID `json:"sessionUserId,omitempty"`
+	SessionUserID *strfmt.UUID `json:"sessionUserId,omitempty"`
 
 	// true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'
 	// Example: false
 	StatementOnly bool `json:"statementOnly,omitempty"`
 
-	// database table that was changed
+	// name of database table that was changed
 	TableName string `json:"tableName,omitempty"`
 
 	// Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.
-	TransactionID int64 `json:"transactionId,omitempty"`
+	TransactionID *int64 `json:"transactionId,omitempty"`
 }
 
 // Validate validates this move audit history
@@ -159,22 +158,13 @@ func (m *MoveAuditHistory) validateChangedValues(formats strfmt.Registry) error 
 		return nil
 	}
 
-	for i := 0; i < len(m.ChangedValues); i++ {
-		if swag.IsZero(m.ChangedValues[i]) { // not required
-			continue
+	if err := m.ChangedValues.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("changedValues")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("changedValues")
 		}
-
-		if m.ChangedValues[i] != nil {
-			if err := m.ChangedValues[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("changedValues" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("changedValues" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
+		return err
 	}
 
 	return nil
@@ -209,22 +199,13 @@ func (m *MoveAuditHistory) validateOldValues(formats strfmt.Registry) error {
 		return nil
 	}
 
-	for i := 0; i < len(m.OldValues); i++ {
-		if swag.IsZero(m.OldValues[i]) { // not required
-			continue
+	if err := m.OldValues.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("oldValues")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("oldValues")
 		}
-
-		if m.OldValues[i] != nil {
-			if err := m.OldValues[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("oldValues" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("oldValues" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
+		return err
 	}
 
 	return nil
@@ -262,19 +243,13 @@ func (m *MoveAuditHistory) ContextValidate(ctx context.Context, formats strfmt.R
 
 func (m *MoveAuditHistory) contextValidateChangedValues(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(m.ChangedValues); i++ {
-
-		if m.ChangedValues[i] != nil {
-			if err := m.ChangedValues[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("changedValues" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("changedValues" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
+	if err := m.ChangedValues.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("changedValues")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("changedValues")
 		}
-
+		return err
 	}
 
 	return nil
@@ -282,19 +257,13 @@ func (m *MoveAuditHistory) contextValidateChangedValues(ctx context.Context, for
 
 func (m *MoveAuditHistory) contextValidateOldValues(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(m.OldValues); i++ {
-
-		if m.OldValues[i] != nil {
-			if err := m.OldValues[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("oldValues" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("oldValues" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
+	if err := m.OldValues.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("oldValues")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("oldValues")
 		}
-
+		return err
 	}
 
 	return nil
