@@ -409,36 +409,77 @@ func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCo
 //	}
 //}
 
-func createServiceMemberWithOrdersButNoMoveType(appCtx appcontext.AppContext) {
-	db := appCtx.DB()
+func createServiceMemberWithOrdersButNoMoveType(appCtx appcontext.AppContext, assertions testdatagen.Assertions) {
 	/*
-	 * A service member with orders and a move, but no move type selected
+	 * A service member with orders and a move, but no move type selected. If you are using this function, you should
+	 * pass in unique UUIDs for the User, ServiceMember, and Move models. You should also pass unique values for
+	 * User.LoginGovEmail, ServiceMember.Edipi, and Move.Locator. E.g.
+	 *
+	 *	createServiceMemberWithOrdersButNoMoveType(appCtx, testdatagen.Assertions{
+	 *		User: models.User{
+	 *			ID:            uuid.Must(uuid.FromString("24fd9e91-78dd-48ca-90bb-01e776338010")),
+	 *			LoginGovEmail: "sm_no_shipments_1@example.com",
+	 *		},
+	 *		ServiceMember: models.ServiceMember{
+	 *			ID:    uuid.Must(uuid.FromString("ebbe5a63-34a1-4941-ad74-c7330e862ff6")),
+	 *			Edipi: models.StringPointer("7384951862"),
+	 *		},
+	 *		Move: models.Move{
+	 *			ID:      uuid.Must(uuid.FromString("ebbe5a63-34a1-4941-ad74-c7330e862ff6")),
+	 *			Locator: "NMNS01",
+	 *		},
+	 *	})
 	 */
-	email := "sm_no_move_type@example.com"
-	uuidStr := "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
+	mergedAssertions := testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
+			LoginGovUUID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
+			Active:       true,
 		},
-	})
-
-	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("7554e347-2215-484f-9240-c61bae050220"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
+			UserID:        assertions.User.ID,
 			FirstName:     models.StringPointer("LandingTest1"),
 			LastName:      models.StringPointer("UserPerson2"),
-			Edipi:         models.StringPointer("6833908164"),
-			PersonalEmail: models.StringPointer(email),
+			PersonalEmail: &assertions.User.LoginGovEmail,
+		},
+	}
+
+	testdatagen.MergeModels(&mergedAssertions, assertions)
+
+	testdatagen.MakeUser(appCtx.DB(), mergedAssertions)
+
+	testdatagen.MakeMoveWithoutMoveType(appCtx.DB(), mergedAssertions)
+}
+
+func createServiceMemberWithOrdersAndNoShipments1(appCtx appcontext.AppContext) {
+	createServiceMemberWithOrdersButNoMoveType(appCtx, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("9ceb8321-6a82-4f6d-8bb3-a1d85922a202")),
+			LoginGovEmail: "sm_no_shipments_1@example.com",
+		},
+		ServiceMember: models.ServiceMember{
+			ID:    uuid.Must(uuid.FromString("ebbe5a63-34a1-4941-ad74-c7330e862ff6")),
+			Edipi: models.StringPointer("7384951862"),
 		},
 		Move: models.Move{
-			ID:      uuid.FromStringOrNil("b2ecbbe5-36ad-49fc-86c8-66e55e0697a7"),
-			Locator: "ZPGVED",
+			ID:      uuid.Must(uuid.FromString("ebbe5a63-34a1-4941-ad74-c7330e862ff6")),
+			Locator: "NMNS01",
+		},
+	})
+}
+
+func createServiceMemberWithOrdersAndNoShipments2(appCtx appcontext.AppContext) {
+	createServiceMemberWithOrdersButNoMoveType(appCtx, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("a62d434d-c4f2-4d68-a38e-8e0d10f06f6a")),
+			LoginGovEmail: "sm_no_shipments_2@example.com",
+		},
+		ServiceMember: models.ServiceMember{
+			ID:    uuid.Must(uuid.FromString("6e43506e-59cd-4d1e-bc29-a4f28ebf51a3")),
+			Edipi: models.StringPointer("8185738105"),
+		},
+		Move: models.Move{
+			ID:      uuid.Must(uuid.FromString("64d1b9b4-e407-4820-8c4f-910a814b5895")),
+			Locator: "NMNS02",
 		},
 	})
 }

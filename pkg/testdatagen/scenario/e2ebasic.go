@@ -815,36 +815,6 @@ func userWithPrimeSimulatorRole(appCtx appcontext.AppContext) {
 //	}
 //}
 
-func serviceMemberWithOrdersAndAMoveNoMoveType(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	email := "sm_no_move_type@example.com"
-	uuidStr := "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
-	loginGovID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	testdatagen.MakeMoveWithoutMoveType(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("7554e347-2215-484f-9240-c61bae050220"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("LandingTest1"),
-			LastName:      models.StringPointer("UserPerson2"),
-			Edipi:         models.StringPointer("6833908164"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("b2ecbbe5-36ad-49fc-86c8-66e55e0697a7"),
-			Locator: "ZPGVED",
-		},
-	})
-
-}
-
 func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "combo@ppm.hhg"
 	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c94"
@@ -3122,7 +3092,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	//serviceMemberWithPPMMoveWithPaymentRequested02(appCtx, userUploader, moveRouter)
 	//serviceMemberWithPPMMoveWithPaymentRequested03(appCtx, userUploader, moveRouter)
 	//aCanceledPPMMove(appCtx, userUploader, moveRouter)
-	serviceMemberWithOrdersAndAMoveNoMoveType(appCtx, userUploader)
+	createServiceMemberWithOrdersAndNoShipments1(appCtx)
+	createServiceMemberWithOrdersAndNoShipments2(appCtx)
 	serviceMemberWithOrdersAndAMovePPMandHHG(appCtx, userUploader, moveRouter)
 	serviceMemberWithUnsubmittedHHG(appCtx, userUploader)
 	serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx, userUploader)

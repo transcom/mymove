@@ -84,7 +84,7 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 		createUnsubmittedHHGMove(appCtx)
 		createUnsubmittedHHGMoveMultiplePickup(appCtx)
 		createUnsubmittedHHGMoveMultipleDestinations(appCtx)
-		createServiceMemberWithOrdersButNoMoveType(appCtx)
+		createServiceMemberWithOrdersAndNoShipments1(appCtx)
 		createServiceMemberWithNoUploadedOrders(appCtx)
 		createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx, userUploader)
 	}
