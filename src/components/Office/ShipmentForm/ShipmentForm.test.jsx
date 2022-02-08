@@ -383,12 +383,12 @@ describe('ShipmentForm component', () => {
 
       expect(screen.queryByText('Pickup location')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Yes')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('No')).not.toBeInTheDocument();
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
