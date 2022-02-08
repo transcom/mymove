@@ -5,10 +5,12 @@ import userEvent from '@testing-library/user-event';
 import {
   hhgInfo,
   ntsInfo,
+  ntsMissingInfo,
   postalOnlyInfo,
   diversionInfo,
   cancelledInfo,
   ntsReleaseInfo,
+  ntsReleaseMissingInfo,
   ordersLOA,
 } from './ShipmentDisplayTestData';
 import ShipmentDisplay from './ShipmentDisplay';
@@ -30,6 +32,8 @@ const secondaryPickupAddressInfo = {
   },
   ...hhgInfo,
 };
+
+const errorIfMissingStorageFacility = ['storageFacility'];
 
 describe('Shipment Container', () => {
   describe('HHG Shipment', () => {
@@ -101,6 +105,7 @@ describe('Shipment Container', () => {
       expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
       expect(screen.queryByTestId('checkbox')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
+      expect(screen.getByTestId('shipment-display-checkbox')).not.toBeDisabled();
     });
     it('renders without the approval checkbox for external vendor shipments', () => {
       render(
@@ -113,6 +118,18 @@ describe('Shipment Container', () => {
       );
       expect(screen.queryByTestId('checkbox')).not.toBeInTheDocument();
       expect(screen.getByText('external vendor')).toBeInTheDocument();
+    });
+    it('checkbox is disabled when information is missing', () => {
+      render(
+        <ShipmentDisplay
+          shipmentId="1"
+          displayInfo={{ ...ntsMissingInfo }}
+          onChange={jest.fn()}
+          isSubmitted
+          errorIfMissing={errorIfMissingStorageFacility}
+        />,
+      );
+      expect(screen.getByTestId('shipment-display-checkbox')).toBeDisabled();
     });
   });
 
@@ -128,8 +145,9 @@ describe('Shipment Container', () => {
           editURL="/"
         />,
       );
+
       expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
-      expect(screen.queryByTestId('checkbox')).toBeInTheDocument();
+      expect(screen.getByTestId('shipment-display-checkbox')).not.toBeDisabled();
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
     });
     it('renders without the approval checkbox for external vendor shipments', () => {
@@ -145,16 +163,30 @@ describe('Shipment Container', () => {
       expect(screen.queryByTestId('checkbox')).not.toBeInTheDocument();
       expect(screen.getByText('external vendor')).toBeInTheDocument();
     });
-  });
-  it('renders with external vendor tag', () => {
-    render(
-      <ShipmentDisplay
-        shipmentId="1"
-        displayInfo={{ ...ntsReleaseInfo, usesExternalVendor: true }}
-        onChange={jest.fn()}
-        isSubmitted={false}
-      />,
-    );
-    expect(screen.getByText('external vendor')).toBeInTheDocument();
+
+    it('renders with external vendor tag', () => {
+      render(
+        <ShipmentDisplay
+          shipmentId="1"
+          displayInfo={{ ...ntsReleaseInfo, usesExternalVendor: true }}
+          onChange={jest.fn()}
+          isSubmitted={false}
+        />,
+      );
+      expect(screen.getByText('external vendor')).toBeInTheDocument();
+    });
+    it('checkbox is disabled when information is missing', () => {
+      render(
+        <ShipmentDisplay
+          shipmentId="1"
+          displayInfo={{ ...ntsReleaseMissingInfo }}
+          ordersLOA={ordersLOA}
+          onChange={jest.fn()}
+          isSubmitted
+          errorIfMissing={errorIfMissingStorageFacility}
+        />,
+      );
+      expect(screen.getByTestId('shipment-display-checkbox')).toBeDisabled();
+    });
   });
 });

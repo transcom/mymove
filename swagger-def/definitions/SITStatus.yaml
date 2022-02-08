@@ -1,0 +1,23 @@
+properties:
+  location:
+    enum:
+      - 'ORIGIN'
+      - 'DESTINATION'
+  totalSITDaysUsed:
+    type: integer
+    minimum: 0
+  totalDaysRemaining:
+    type: integer
+    minimum: 0
+  daysInSIT:
+    type: integer
+    minimum: 0
+  sitEntryDate:
+    type: string
+    format: date-time
+  sitDepartureDate:
+    type: string
+    format: date-time
+    x-nullable: true
+  pastSITServiceItems:
+    $ref: 'MTOServiceItems.yaml'

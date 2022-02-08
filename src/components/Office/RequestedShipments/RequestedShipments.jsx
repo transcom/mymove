@@ -55,6 +55,13 @@ const RequestedShipments = ({
     return mtoShipments.filter(({ id }) => formikShipmentIds.includes(id));
   };
 
+  const ordersLOA = {
+    tac: ordersInfo.tacMDC,
+    sac: ordersInfo.sacSDN,
+    ntsTac: ordersInfo.ntsTac,
+    ntsSac: ordersInfo.ntsSac,
+  };
+
   const shipmentDisplayInfo = (shipment, dutyStationPostal) => {
     return {
       ...shipment,
@@ -186,6 +193,7 @@ const RequestedShipments = ({
                       shipmentType={shipment.shipmentType}
                       isSubmitted
                       displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                      ordersLOA={ordersLOA}
                       errorIfMissing={errorIfMissing[shipment.shipmentType]}
                       showWhenCollapsed={
                         shipment.usesExternalVendor

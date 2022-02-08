@@ -221,11 +221,12 @@ func createPPMWithAdvance(appCtx appcontext.AppContext, userUploader *uploader.U
 		},
 		UserUploader: userUploader,
 	})
-	testdatagen.MakeMoveDocument(db, testdatagen.Assertions{
+	moveDoc := testdatagen.MakeMoveDocument(db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID:                   ppm0.Move.ID,
 			Move:                     ppm0.Move,
 			PersonallyProcuredMoveID: &ppm0.ID,
+			PersonallyProcuredMove:   ppm0,
 		},
 		Document: models.Document{
 			ID:              uuid.FromStringOrNil("c26421b0-e4c3-446b-88f3-493bb25c1756"),
@@ -233,6 +234,26 @@ func createPPMWithAdvance(appCtx appcontext.AppContext, userUploader *uploader.U
 			ServiceMember:   ppm0.Move.Orders.ServiceMember,
 		},
 	})
+	testdatagen.MakeSignedCertificationForPPM(db, testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: ppm0.MoveID,
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			ID: ppm0.ID,
+		},
+	})
+	testdatagen.MakeMovingExpenseDocument(db, testdatagen.Assertions{
+		MovingExpenseDocument: models.MovingExpenseDocument{
+			MoveDocument:   moveDoc,
+			MoveDocumentID: moveDoc.ID,
+		},
+	})
+	testdatagen.MakeWeightTicketSetDocument(db, testdatagen.Assertions{
+		WeightTicketSetDocument: models.WeightTicketSetDocument{
+			MoveDocument: moveDoc,
+		},
+	})
+
 	err := moveRouter.Submit(appCtx, &ppm0.Move)
 	if err != nil {
 		log.Panic(err)
