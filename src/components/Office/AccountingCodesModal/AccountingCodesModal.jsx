@@ -6,8 +6,7 @@ import { Button } from '@trussworks/react-uswds';
 import styles from './AccountingCodesModal.module.scss';
 
 import AccountingCodeSection from 'components/Office/AccountingCodeSection/AccountingCodeSection';
-import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
-import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
+import Modal, { ModalActions, ModalClose, ModalTitle, connectModal } from 'components/Modal/Modal';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { Form } from 'components/form';
 import { shipmentTypes } from 'constants/shipments';
@@ -17,49 +16,44 @@ const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentTyp
   const handleFormSubmit = (values) => onSubmit(values);
 
   return (
-    <div data-testid="AccountingCodesModal" className={styles.Container}>
-      <Overlay />
-      <ModalContainer>
-        <Modal>
-          <ModalClose handleClick={onClose} />
+    <Modal data-testid="AccountingCodes">
+      <ModalClose handleClick={onClose} />
 
-          <ModalTitle>
-            <ShipmentTag shipmentType={shipmentType} />
-            <h2 className={styles.Title}>Edit accounting codes</h2>
-          </ModalTitle>
+      <ModalTitle>
+        <ShipmentTag shipmentType={shipmentType} />
+        <h2 className={styles.Title}>Edit accounting codes</h2>
+      </ModalTitle>
 
-          <Formik initialValues={{ tacType, sacType }} onSubmit={handleFormSubmit}>
-            <Form>
-              <AccountingCodeSection
-                label="TAC"
-                emptyMessage="No TAC code entered."
-                fieldName="tacType"
-                shipmentTypes={TACs}
-              />
+      <Formik initialValues={{ tacType, sacType }} onSubmit={handleFormSubmit}>
+        <Form>
+          <AccountingCodeSection
+            label="TAC"
+            emptyMessage="No TAC code entered."
+            fieldName="tacType"
+            shipmentTypes={TACs}
+          />
 
-              <AccountingCodeSection
-                label="SAC (optional)"
-                emptyMessage="No SAC code entered."
-                fieldName="sacType"
-                shipmentTypes={SACs}
-              />
+          <AccountingCodeSection
+            label="SAC (optional)"
+            emptyMessage="No SAC code entered."
+            fieldName="sacType"
+            shipmentTypes={SACs}
+          />
 
-              <div>
-                <button type="button" onClick={onEditCodesClick} className={styles.EditCodes}>
-                  Add or edit codes
-                </button>
-              </div>
-              <ModalActions>
-                <Button type="submit">Save</Button>
-                <Button type="button" secondary onClick={onClose}>
-                  Cancel
-                </Button>
-              </ModalActions>
-            </Form>
-          </Formik>
-        </Modal>
-      </ModalContainer>
-    </div>
+          <div>
+            <button type="button" onClick={onEditCodesClick} className={styles.EditCodes}>
+              Add or edit codes
+            </button>
+          </div>
+          <ModalActions>
+            <Button type="submit">Save</Button>
+            <Button type="button" secondary onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalActions>
+        </Form>
+      </Formik>
+    </Modal>
   );
 };
 
@@ -84,4 +78,4 @@ AccountingCodesModal.defaultProps = {
   sacType: '',
 };
 
-export default AccountingCodesModal;
+export default connectModal(AccountingCodesModal);

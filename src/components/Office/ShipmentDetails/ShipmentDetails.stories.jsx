@@ -1,19 +1,21 @@
 import React from 'react';
+import { MemoryRouter, Route } from 'react-router';
 
 import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 import ShipmentDetails from './ShipmentDetails';
 
 import { LOA_TYPE } from 'shared/constants';
-import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components/Shipment Details',
   decorators: [
     (Story) => (
-      <MockProviders>
-        <Story />
-      </MockProviders>
+      <MemoryRouter initialEntries={['/moves/HGNTSR/mto']}>
+        <Route path="/moves/:moveCode/mto">
+          <Story />
+        </Route>
+      </MemoryRouter>
     ),
   ],
 };
