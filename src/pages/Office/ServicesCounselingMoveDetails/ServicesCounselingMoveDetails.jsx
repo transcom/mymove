@@ -92,13 +92,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
 
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
-        destination: {
-          address: shipment.destinationAddress || {
-            postalCode: order.destinationDutyStation.address.postalCode,
-          },
-          type: destType,
-          displayDestinationType: isRetirementOrSeparation,
+        destinationAddress: shipment.destinationAddress || {
+          postalCode: order.destinationDutyStation.address.postalCode,
         },
+        destinationType: destType,
+        displayDestinationType: isRetirementOrSeparation,
         ...shipment,
       };
 

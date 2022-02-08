@@ -37,6 +37,7 @@ const defaultProps = {
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
   userRole: roleTypes.SERVICES_COUNSELOR,
+  orderType: 'PLACE_ENTERED_ACTIVE_DUTY',
 };
 
 const mockMtoShipment = {

@@ -40,6 +40,7 @@ const defaultProps = {
   },
   isCreatePage: true,
   submitHandler: action('submit MTO Shipment for create or update'),
+  orderType: 'PLACE_ENTERED_ACTIVE_DUTY',
 };
 
 const mockMtoShipment = {

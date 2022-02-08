@@ -20,7 +20,8 @@ const NTSRShipmentInfoList = ({
 }) => {
   const {
     destinationAddress,
-    destination,
+    destinationType,
+    displayDestinationType,
     secondaryDeliveryAddress,
     agents,
     counselorRemarks,
@@ -130,7 +131,7 @@ const NTSRShipmentInfoList = ({
   const destinationTypeElement = (
     <div className={destinationTypeFlags.classes}>
       <dt>Destination type</dt>
-      <dd data-testid="destinationType">{destination.type || '—'}</dd>
+      <dd data-testid="destinationType">{destinationType || '—'}</dd>
     </div>
   );
 
@@ -200,7 +201,7 @@ const NTSRShipmentInfoList = ({
       {storageFacilityAddressElement}
       {requestedDeliveryDateElement}
       {destinationAddressElement}
-      {destination.displayDestinationType && destinationTypeElement}
+      {displayDestinationType && destinationTypeElement}
       {isExpanded && secondaryDeliveryAddressElement}
       {isExpanded && agentsElement}
       {isExpanded && customerRemarksElement}
