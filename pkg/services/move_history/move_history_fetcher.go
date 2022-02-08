@@ -56,7 +56,6 @@ SELECT audit_history.*
    AND (audit_history.object_id = changed_addresses.id::uuid);
 `
 	audits := &models.AuditHistories{}
-	// audit := &models.AuditHistory{}
 	err := appCtx.DB().RawQuery(query, locator).All(audits)
 	if err != nil {
 		switch err {
@@ -68,12 +67,6 @@ SELECT audit_history.*
 		}
 	}
 
-	/*
-			moveSQL := `SELECT id, locator, reference_id
-		    FROM moves
-			WHERE locator = $1
-		`
-	*/
 	var move models.Move
 	err = appCtx.DB().Q().Where("locator = $1", locator).First(&move)
 	if err != nil {
