@@ -113,7 +113,7 @@ BEGIN
                    WHERE newkv.value IS DISTINCT FROM oldkv.value);
         audit_row.changed_data = j_diff - excluded_cols;
 
-        IF audit_row.changed_data = jsonb('{}') THEN
+        IF audit_row.changed_data = jsonb('{}') OR audit_row.changed_data IS NULL THEN
             -- All changed fields are ignored. Skip this update.
             RETURN NULL;
         END IF;
