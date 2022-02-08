@@ -90,6 +90,16 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
+func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
+	return func() {
+		createTXO(appCtx)
+		createTXOUSMC(appCtx)
+
+		// Onboarding
+		createMoveWithPPM(appCtx, userUploader, moveRouter)
+	}
+}
+
 func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader *uploader.UserUploader,
 	allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
 	return func() {

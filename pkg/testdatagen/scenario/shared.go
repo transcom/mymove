@@ -606,6 +606,67 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	}
 }
 
+func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	/*
+	 * A service member with orders and a submitted move with a ppm
+	 */
+	email := "user@ppm"
+	uuidStr := "28837508-1942-4188-a7ef-a7b544309ea6"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smIDPPM := "c29418e5-5d69-498d-9709-b493d5bbc814"
+	smWithPPM := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smIDPPM),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Submitted"),
+			LastName:      models.StringPointer("Ppm"),
+			Edipi:         models.StringPointer("7598050675"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smIDPPM),
+			ServiceMember:   smWithPPM,
+		},
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("5174fd6c-3cab-4304-b4b3-89bd0f59b00b"),
+			Locator:          "PPM",
+			SelectedMoveType: &ppmMoveType,
+		},
+	})
+
+	testdatagen.MakePPMShipment(db, testdatagen.Assertions{
+		Move:         move,
+		UserUploader: userUploader,
+		PPMShipment: models.PPMShipment{
+			ID: uuid.FromStringOrNil("0914dfa2-6988-4a12-82b1-2586fb4aa8c7"),
+		},
+	})
+
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
 func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	move := testdatagen.MakeHHGMoveWithShipment(db, testdatagen.Assertions{
