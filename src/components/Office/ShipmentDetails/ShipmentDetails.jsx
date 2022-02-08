@@ -17,6 +17,7 @@ const ShipmentDetails = ({
   handleSubmitSITExtension,
   handleEditFacilityInfo,
   handleEditServiceOrderNumber,
+  handleEditAccountingCodes,
 }) => {
   const { originDutyStation, destinationDutyStation, entitlement } = order;
   const ordersLOA = {
@@ -47,6 +48,7 @@ const ShipmentDetails = ({
         ordersLOA={ordersLOA}
         handleEditFacilityInfo={handleEditFacilityInfo}
         handleEditServiceOrderNumber={handleEditServiceOrderNumber}
+        handleEditAccountingCodes={handleEditAccountingCodes}
       />
     </div>
   );
@@ -61,6 +63,7 @@ ShipmentDetails.propTypes = {
   handleSubmitSITExtension: PropTypes.func.isRequired,
   handleEditFacilityInfo: PropTypes.func.isRequired,
   handleEditServiceOrderNumber: PropTypes.func.isRequired,
+  handleEditAccountingCodes: PropTypes.func.isRequired,
 };
 
 export default ShipmentDetails;

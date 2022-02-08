@@ -37,6 +37,8 @@ const ShipmentDisplay = ({
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
 
+  const disableApproval = errorIfMissing.some((requiredInfo) => !displayInfo[requiredInfo]);
+
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
   };
@@ -58,6 +60,7 @@ const ShipmentDisplay = ({
               label=""
               value={shipmentId}
               aria-labelledby={`shipment-display-label-${shipmentId}`}
+              disabled={disableApproval}
             />
           )}
 

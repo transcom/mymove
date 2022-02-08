@@ -3380,11 +3380,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -4132,6 +4128,7 @@ func init() {
       ]
     },
     "MTOServiceItems": {
+      "description": "A list of service items connected to this shipment.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
@@ -5127,6 +5124,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -5148,17 +5147,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -10104,11 +10106,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -10856,6 +10854,7 @@ func init() {
       ]
     },
     "MTOServiceItems": {
+      "description": "A list of service items connected to this shipment.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
@@ -11851,6 +11850,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -11872,17 +11873,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }

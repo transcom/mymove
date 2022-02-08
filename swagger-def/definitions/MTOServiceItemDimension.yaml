@@ -1,0 +1,24 @@
+description: Describes a dimension object for the MTOServiceItem.
+type: object
+properties:
+  id:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  type:
+    $ref: 'DimensionType.yaml'
+  length:
+    description: Length in thousandth inches. 1000 thou = 1 inch.
+    example: 1000
+    type: integer
+    format: int32
+  width:
+    description: Width in thousandth inches. 1000 thou = 1 inch.
+    example: 1000
+    type: integer
+    format: int32
+  height:
+    description: Height in thousandth inches. 1000 thou = 1 inch.
+    example: 1000
+    type: integer
+    format: int32
