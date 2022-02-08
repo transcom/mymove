@@ -27,6 +27,17 @@ jest.mock('hooks/queries', () => ({
   useMoveTaskOrderQueries: jest.fn(),
 }));
 
+const mockPush = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: mockPush,
+  }),
+  useParams: () => ({
+    moveCode: 'TestCode',
+  }),
+}));
+
 const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();

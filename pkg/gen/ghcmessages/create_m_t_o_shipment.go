@@ -8,7 +8,6 @@ package ghcmessages
 import (
 	"context"
 	"encoding/json"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -61,8 +60,8 @@ type CreateMTOShipment struct {
 	// Format: uuid
 	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
-	// A list of service items connected to this shipment.
-	MtoServiceItems []*MTOServiceItem `json:"mtoServiceItems"`
+	// mto service items
+	MtoServiceItems MTOServiceItems `json:"mtoServiceItems,omitempty"`
 
 	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
 	// Example: 2000
@@ -250,22 +249,13 @@ func (m *CreateMTOShipment) validateMtoServiceItems(formats strfmt.Registry) err
 		return nil
 	}
 
-	for i := 0; i < len(m.MtoServiceItems); i++ {
-		if swag.IsZero(m.MtoServiceItems[i]) { // not required
-			continue
+	if err := m.MtoServiceItems.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mtoServiceItems")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("mtoServiceItems")
 		}
-
-		if m.MtoServiceItems[i] != nil {
-			if err := m.MtoServiceItems[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
+		return err
 	}
 
 	return nil
@@ -437,19 +427,13 @@ func (m *CreateMTOShipment) contextValidateDestinationAddress(ctx context.Contex
 
 func (m *CreateMTOShipment) contextValidateMtoServiceItems(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(m.MtoServiceItems); i++ {
-
-		if m.MtoServiceItems[i] != nil {
-			if err := m.MtoServiceItems[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
+	if err := m.MtoServiceItems.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mtoServiceItems")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("mtoServiceItems")
 		}
-
+		return err
 	}
 
 	return nil

@@ -8,7 +8,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 describe('components/Office/AccountingCodesModal', () => {
   it('renders content with minimal props', () => {
-    render(<AccountingCodesModal shipmentType={SHIPMENT_OPTIONS.NTSR} />);
+    render(<AccountingCodesModal isOpen shipmentType={SHIPMENT_OPTIONS.NTSR} />);
 
     expect(screen.getByText('NTS-release')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Edit accounting codes' })).toBeInTheDocument();
@@ -25,6 +25,7 @@ describe('components/Office/AccountingCodesModal', () => {
 
     render(
       <AccountingCodesModal
+        isOpen
         shipmentType={SHIPMENT_OPTIONS.NTS}
         TACs={{ HHG: '1234', NTS: '2345' }}
         SACs={{ HHG: 'ABCD', NTS: 'BCDE' }}
@@ -51,6 +52,7 @@ describe('components/Office/AccountingCodesModal', () => {
 
     render(
       <AccountingCodesModal
+        isOpen
         shipmentType={SHIPMENT_OPTIONS.NTS}
         TACs={{ HHG: '1234', NTS: '2345' }}
         SACs={{ HHG: 'ABCD', NTS: 'BCDE' }}
