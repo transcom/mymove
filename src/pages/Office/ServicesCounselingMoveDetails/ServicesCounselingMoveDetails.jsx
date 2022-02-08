@@ -57,10 +57,25 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
     HHG_INTO_NTS_DOMESTIC: ['counselorRemarks', 'tacType', 'sacType'],
     HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
   };
-  const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
+
+  const errorIfMissing = {
+    HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'],
+  };
 
   let shipmentsInfo = [];
   let disableSubmit = false;
+
+  // for now we are only showing dest type on retiree and separatee orders
+  const isRetirementOrSeparation =
+    order.order_type === ORDERS_TYPE.RETIREMENT || order.order_type === ORDERS_TYPE.SEPARATION;
+
+  if (isRetirementOrSeparation) {
+    // destination type must be set for for HHG, NTSR shipments only
+    errorIfMissing.HHG = ['destinationType'];
+    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push('destinationType');
+    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
+    errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
+  }
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
@@ -73,28 +88,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
           })
         : '';
 
-      /*
-        show dest addr type, if retiree or separatee
-        translate from stored value to human readable string
-
-        shipment.destinationType:
-        type: string
-        title: Destination  Type
-        example: Other than authorized
-        enum:
-          - HOME_OF_RECORD: HOR
-          - HOME_OF_SELECTION: HOS
-          - PLACE_ENTERED_ACTIVE_DUTY: PLEAD
-          - OTHER_THAN_AUTHORIZED: OTHER
-
-      */
-      let destinationType = null;
-      const isRetirementOrSeparation =
-        order.order_type === ORDERS_TYPE.RETIREMENT || order.order_type === ORDERS_TYPE.SEPARATION;
-
-      if (isRetirementOrSeparation) {
-        destinationType = shipmentDestinationType[shipment.destinationType];
-      }
+      const destType = isRetirementOrSeparation ? shipmentDestinationType[shipment.destinationType] : null;
 
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
@@ -102,7 +96,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
           address: shipment.destinationAddress || {
             postalCode: order.destinationDutyStation.address.postalCode,
           },
-          type: destinationType,
+          type: destType,
           displayDestinationType: isRetirementOrSeparation,
         },
         ...shipment,

@@ -2,12 +2,14 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
+
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
 
-const ShipmentInfoList = ({ className, shipment }) => {
+const ShipmentInfoList = ({ className, shipment, errorIfMissing }) => {
   const {
     requestedPickupDate,
     pickupAddress,
@@ -19,9 +21,41 @@ const ShipmentInfoList = ({ className, shipment }) => {
     customerRemarks,
   } = shipment;
 
+  function getFlags(fieldname) {
+    let alwaysShow = false;
+    let classes = styles.row;
+
+    if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
+      alwaysShow = true;
+      classes = classNames(styles.row, shipmentDefinitionListsStyles.missingInfoError);
+      return {
+        alwaysShow,
+        classes,
+      };
+    }
+    return {
+      alwaysShow,
+      classes,
+    };
+  }
+
+  const destinationTypeFlags = getFlags('destinationType');
+  const destinationTypeElement = (
+    <div className={destinationTypeFlags.classes}>
+      <dt>Destination type</dt>
+      <dd data-testid="destinationType">{destination.type || '—'}</dd>
+    </div>
+  );
+
   return (
     <dl
-      className={classNames(styles.descriptionList, styles.tableDisplay, styles.compact, className)}
+      className={classNames(
+        shipmentDefinitionListsStyles.ShipmentDefinitionLists,
+        styles.descriptionList,
+        styles.tableDisplay,
+        styles.compact,
+        className,
+      )}
       data-testid="shipment-info-list"
     >
       <div className={styles.row}>
@@ -44,12 +78,7 @@ const ShipmentInfoList = ({ className, shipment }) => {
           <dd data-testid="destinationAddress">{formatAddress(destination.address)}</dd>
         </div>
       )}
-      {destination.displayDestinationType && (
-        <div className={styles.row}>
-          <dt>Destination type</dt>
-          <dd data-testid="destinationType">{destination.type}</dd>
-        </div>
-      )}
+      {destination.displayDestinationType && destinationTypeElement}
       {secondaryDeliveryAddress && (
         <div className={styles.row}>
           <dt>Second destination address</dt>
@@ -78,10 +107,12 @@ const ShipmentInfoList = ({ className, shipment }) => {
 ShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
+  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
 };
 
 ShipmentInfoList.defaultProps = {
   className: '',
+  errorIfMissing: [],
 };
 
 export default ShipmentInfoList;

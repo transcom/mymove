@@ -20,6 +20,7 @@ const NTSRShipmentInfoList = ({
 }) => {
   const {
     destinationAddress,
+    destination,
     secondaryDeliveryAddress,
     agents,
     counselorRemarks,
@@ -125,6 +126,14 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
+  const destinationTypeFlags = getFlags('destinationType');
+  const destinationTypeElement = (
+    <div className={destinationTypeFlags.classes}>
+      <dt>Destination type</dt>
+      <dd data-testid="destinationType">{destination.type || '—'}</dd>
+    </div>
+  );
+
   const secondaryDeliveryAddressElementFlags = getFlags('secondaryDeliveryAddress');
   const secondaryDeliveryAddressElement = (
     <div className={secondaryDeliveryAddressElementFlags.classes}>
@@ -191,6 +200,7 @@ const NTSRShipmentInfoList = ({
       {storageFacilityAddressElement}
       {requestedDeliveryDateElement}
       {destinationAddressElement}
+      {destination.displayDestinationType && destinationTypeElement}
       {isExpanded && secondaryDeliveryAddressElement}
       {isExpanded && agentsElement}
       {isExpanded && customerRemarksElement}
