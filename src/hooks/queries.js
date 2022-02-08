@@ -24,6 +24,7 @@ import {
   MTO_SHIPMENTS,
   MTO_SERVICE_ITEMS,
   MOVES,
+  MOVE_HISTORY,
   ORDERS,
   MOVE_PAYMENT_REQUESTS,
   ORDERS_DOCUMENTS,
@@ -429,7 +430,7 @@ export const usePrimeSimulatorGetMove = (moveCode) => {
 };
 
 export const useGHCGetMoveHistory = (moveCode) => {
-  const { data: moveHistory, ...getGCHMoveHistoryQuery } = useQuery([MOVES, moveCode], getMoveHistory);
+  const { data: moveHistory, ...getGCHMoveHistoryQuery } = useQuery([MOVE_HISTORY, moveCode], getMoveHistory);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([getGCHMoveHistoryQuery]);
 
