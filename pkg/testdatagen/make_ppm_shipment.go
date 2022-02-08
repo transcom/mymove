@@ -28,8 +28,24 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 	}
 
 	expectedDepartureDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-	pickupPostalCode := "03801"
-	destinationPostalCode := "04005"
+
+	orders := shipment.MoveTaskOrder.Orders
+
+	var pickupPostalCode string
+	if orders.ServiceMember.ResidentialAddress != nil {
+		pickupPostalCode = orders.ServiceMember.ResidentialAddress.PostalCode
+	} else {
+		residentialAddress := models.FetchAddressByID(db, orders.ServiceMember.ResidentialAddressID)
+
+		if residentialAddress == nil {
+			log.Panicf("Could not find residential address to use as pickp zip.")
+		}
+
+		pickupPostalCode = residentialAddress.PostalCode
+	}
+
+	destinationPostalCode := orders.NewDutyStation.Address.PostalCode
+
 	sitExpected := false
 	hasProGear := true
 	proGearWeight := unit.Pound(1150)
