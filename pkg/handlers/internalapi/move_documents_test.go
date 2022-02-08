@@ -23,7 +23,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
 	userUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
@@ -40,10 +41,11 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 
 	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
-		UploadIds:        uploadIds,
-		MoveDocumentType: &moveDocumentType,
-		Title:            handlers.FmtString("awesome_document.pdf"),
-		Notes:            handlers.FmtString("Some notes here"),
+		UploadIds:                uploadIds,
+		PersonallyProcuredMoveID: handlers.FmtUUID(ppm.ID),
+		MoveDocumentType:         &moveDocumentType,
+		Title:                    handlers.FmtString("awesome_document.pdf"),
+		Notes:                    handlers.FmtString("Some notes here"),
 	}
 
 	newMoveDocParams := movedocop.CreateGenericMoveDocumentParams{
@@ -93,13 +95,15 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 }
 
 func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
 	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
-			MoveID: move.ID,
-			Move:   move,
+			MoveID:                   move.ID,
+			Move:                     move,
+			PersonallyProcuredMoveID: &ppm.ID,
 		},
 	})
 
@@ -124,6 +128,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 
 	for _, moveDoc := range indexPayload {
 		suite.Require().Equal(*moveDoc.ID, strfmt.UUID(moveDocument.ID.String()), "expected move ids to match")
+		suite.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
 	}
 
 	// Next try the wrong user
@@ -141,15 +146,17 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 }
 
 func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFields() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
 	moveDoc := testdatagen.MakeMoveDocument(suite.DB(),
 		testdatagen.Assertions{
 			MoveDocument: models.MoveDocument{
-				MoveID:           move.ID,
-				Move:             move,
-				MoveDocumentType: models.MoveDocumentTypeWEIGHTTICKETSET,
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
 			},
 		})
 
@@ -192,6 +199,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 	suite.NotNil(indexPayload)
 	for _, moveDoc := range indexPayload {
 		suite.Require().Equal(*moveDoc.ID, strfmt.UUID(weightTicketSetDocument.MoveDocument.ID.String()), "expected move ids to match")
+		suite.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
 		suite.Require().Equal(*moveDoc.EmptyWeight, int64(*weightTicketSetDocument.EmptyWeight), "expected empty weight to match")
 		suite.Require().Equal(*moveDoc.EmptyWeightTicketMissing, weightTicketSetDocument.EmptyWeightTicketMissing, "expected empty weight ticket missing to match")
 		suite.Require().Equal(*moveDoc.FullWeight, int64(*weightTicketSetDocument.FullWeight), "expected empty weight to match")
@@ -204,16 +212,18 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 }
 
 func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
 	sm := move.Orders.ServiceMember
 	vehicleNickname := "My Car"
 
 	moveDoc := testdatagen.MakeMoveDocument(suite.DB(),
 		testdatagen.Assertions{
 			MoveDocument: models.MoveDocument{
-				MoveID:           move.ID,
-				Move:             move,
-				MoveDocumentType: models.MoveDocumentTypeWEIGHTTICKETSET,
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
 			},
 		})
 	weightTicketSetDocument := models.WeightTicketSetDocument{
@@ -252,6 +262,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 	suite.NotNil(indexPayload)
 	for _, moveDoc := range indexPayload {
 		suite.Require().Equal(*moveDoc.ID, strfmt.UUID(weightTicketSetDocument.MoveDocument.ID.String()), "expected move ids to match")
+		suite.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
 		suite.Require().Nil(moveDoc.EmptyWeight)
 		suite.Require().Equal(*moveDoc.EmptyWeightTicketMissing, weightTicketSetDocument.EmptyWeightTicketMissing, "expected empty weight ticket missing to match")
 		suite.Require().Nil(moveDoc.FullWeight)
@@ -264,14 +275,20 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 }
 
 func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusPAYMENTREQUESTED,
+		},
+	})
+	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
 	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
-			MoveID:           move.ID,
-			Move:             move,
-			MoveDocumentType: models.MoveDocumentTypeSHIPMENTSUMMARY,
+			MoveID:                   move.ID,
+			Move:                     move,
+			MoveDocumentType:         models.MoveDocumentTypeSHIPMENTSUMMARY,
+			PersonallyProcuredMoveID: &ppm.ID,
 		},
 		Document: models.Document{
 			ServiceMemberID: sm.ID,
@@ -338,14 +355,20 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 }
 
 func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusPAYMENTREQUESTED,
+		},
+	})
+	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
 	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
-			MoveID:           move.ID,
-			Move:             move,
-			MoveDocumentType: models.MoveDocumentTypeSHIPMENTSUMMARY,
+			MoveID:                   move.ID,
+			Move:                     move,
+			MoveDocumentType:         models.MoveDocumentTypeSHIPMENTSUMMARY,
+			PersonallyProcuredMoveID: &ppm.ID,
 		},
 		Document: models.Document{
 			ServiceMemberID: sm.ID,
@@ -372,9 +395,10 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 
 	moveDocument2 := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
-			MoveID:           move.ID,
-			Move:             move,
-			MoveDocumentType: models.MoveDocumentTypeWEIGHTTICKETSET,
+			MoveID:                   move.ID,
+			Move:                     move,
+			MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
+			PersonallyProcuredMoveID: &ppm.ID,
 		},
 		Document: models.Document{
 			ServiceMemberID: sm.ID,
