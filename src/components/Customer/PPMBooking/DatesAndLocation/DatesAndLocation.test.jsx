@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import DatesAndLocation from './DatesAndLocation';
@@ -159,6 +159,168 @@ describe('DatesAndLocation component', () => {
       );
       expect(screen.getAllByLabelText('Yes')[1].value).toBe('true');
       expect(screen.getAllByLabelText('Yes')[2].value).toBe('true');
+    });
+  });
+
+  describe('validates form fields and displays error messages', () => {
+    it('marks required inputs when left empty', async () => {
+      render(<DatesAndLocation {...defaultProps} />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+
+        const requiredAlerts = screen.getAllByRole('alert');
+
+        // Origin ZIP
+        expect(requiredAlerts[0]).toHaveTextContent('Required');
+        expect(requiredAlerts[0].nextElementSibling).toHaveAttribute('name', 'pickupPostalCode');
+
+        // Destination ZIP
+        expect(requiredAlerts[1]).toHaveTextContent('Required');
+        expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'destinationPostalCode');
+
+        // Departure date
+        expect(requiredAlerts[2]).toHaveTextContent('Required');
+        expect(
+          within(requiredAlerts[2].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('marks secondary ZIP fields as required when conditionally displayed', async () => {
+      const hasSecondaryZIPs = {
+        ...defaultProps,
+        mtoShipment: {
+          ppmShipment: {
+            pickupPostalCode: '90210',
+            destinationPostalCode: '10001',
+            expectedDepartureDate: '2022-07-04',
+          },
+        },
+      };
+      render(<DatesAndLocation {...hasSecondaryZIPs} />);
+
+      const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
+
+      await userEvent.click(inputHasSecondaryZIP[0]);
+      await userEvent.click(inputHasSecondaryZIP[1]);
+
+      const secondaryZIPs = screen.getAllByLabelText('Second ZIP');
+
+      await userEvent.click(secondaryZIPs[0]);
+      await userEvent.tab();
+
+      await userEvent.click(secondaryZIPs[1]);
+      await userEvent.tab();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+
+        const requiredAlerts = screen.getAllByRole('alert');
+
+        // Secondary origin ZIP
+        expect(requiredAlerts[0]).toHaveTextContent('Required');
+        expect(requiredAlerts[0].nextElementSibling).toHaveAttribute('name', 'secondaryPickupPostalCode');
+
+        // Secondary destination ZIP
+        expect(requiredAlerts[1]).toHaveTextContent('Required');
+        expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'secondaryDestinationPostalCode');
+      });
+    });
+
+    it('displays type errors when input fails validation schema', async () => {
+      const invalidTypes = {
+        ...defaultProps,
+        mtoShipment: {
+          ppmShipment: {
+            pickupPostalCode: '1000',
+            secondaryPickupPostalCode: '2000',
+            destinationPostalCode: '3000',
+            secondaryDestinationPostalCode: '4000',
+          },
+        },
+      };
+      render(<DatesAndLocation {...invalidTypes} />);
+
+      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '1 January 2022');
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+
+        const requiredAlerts = screen.getAllByRole('alert');
+
+        // origin ZIP
+        expect(requiredAlerts[0]).toHaveTextContent('Must be valid code');
+        expect(requiredAlerts[0].nextElementSibling).toHaveAttribute('name', 'pickupPostalCode');
+
+        // Secondary origin ZIP
+        expect(requiredAlerts[1]).toHaveTextContent('Must be valid code');
+        expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'secondaryPickupPostalCode');
+
+        // Secondary destination ZIP
+        expect(requiredAlerts[2]).toHaveTextContent('Must be valid code');
+        expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('name', 'destinationPostalCode');
+
+        // Secondary destination ZIP
+        expect(requiredAlerts[3]).toHaveTextContent('Must be valid code');
+        expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('name', 'secondaryDestinationPostalCode');
+
+        // Departure date
+        expect(requiredAlerts[4]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
+        expect(
+          within(requiredAlerts[4].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('calls postalCodeValidator when the ZIP value changes', async () => {
+      render(<DatesAndLocation {...defaultProps} />);
+
+      const primaryZIPs = screen.getAllByLabelText('ZIP');
+      await userEvent.type(primaryZIPs[0], '12345');
+      await userEvent.type(primaryZIPs[1], '67890');
+
+      const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
+
+      await userEvent.click(inputHasSecondaryZIP[0]);
+      await userEvent.click(inputHasSecondaryZIP[1]);
+
+      const secondaryZIPs = screen.getAllByLabelText('Second ZIP');
+      await userEvent.type(secondaryZIPs[0], '11111');
+      await userEvent.type(secondaryZIPs[1], '22222');
+
+      await waitFor(() => {
+        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('12345', 'origin');
+        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('67890', 'destination');
+        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('11111', 'origin');
+        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('22222', 'destination');
+      });
+    });
+
+    it('displays error when postal code lookup fails', async () => {
+      const postalCodeValidatorFailure = {
+        ...defaultProps,
+        postalCodeValidator: jest
+          .fn()
+          .mockReturnValue('Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.'),
+      };
+      render(<DatesAndLocation {...postalCodeValidatorFailure} />);
+
+      const primaryZIPs = screen.getAllByLabelText('ZIP');
+      await userEvent.type(primaryZIPs[0], '99999');
+
+      await waitFor(() => {
+        expect(postalCodeValidatorFailure.postalCodeValidator).toHaveBeenCalledWith('99999', 'origin');
+        /*
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
+        );
+        */
+      });
     });
   });
 });

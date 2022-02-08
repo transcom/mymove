@@ -86,7 +86,8 @@ ErrorDatesAndLocation.args = {
       postalCode: '94611',
     },
   },
-  postalCodeValidator: () => {},
+  postalCodeValidator: () =>
+    'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
 };
 ErrorDatesAndLocation.play = async ({ canvasElement }) => {
   // Starts querying the component from its root element
