@@ -1,13 +1,15 @@
-package ppm_shipment
+package ppmshipment
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"time"
 )
 
 // checkShipmentID checks that the user can't change the shipment ID

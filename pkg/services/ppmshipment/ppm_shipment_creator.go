@@ -1,15 +1,16 @@
-package ppm_shipment
+package ppmshipment
 
 import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
-	"github.com/transcom/mymove/pkg/services/mto_shipment"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
