@@ -25,6 +25,11 @@
     @include u-margin-bottom(2.5);
   }
 
+  // fixes collapsing margins cross-browser for Storage section
+  h2 + fieldset legend {
+    @include u-padding-top(1.5);
+  }
+
   .sectionWrapper {
     border-bottom: 1px solid $base-lighter;
 
@@ -38,9 +43,12 @@
     border-bottom: none;
   }
 
-  legend {
-    :global(.usa-label){
-      @include u-margin-top(3);
+  fieldset {
+    @include u-margin-top(2);
+    @include u-padding-top(0);
+
+    legend:global(.usa-label) {
+      @include u-margin-top(0);
     }
   }
 

@@ -212,27 +212,25 @@ const DatesAndLocation = ({
               </SectionWrapper>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection)}>
                 <h2>Storage</h2>
-                <FormGroup>
-                  <Fieldset>
-                    <legend className="usa-label">Do you plan to store items from your PPM?</legend>
-                    <Field
-                      as={Radio}
-                      id="sitExpectedYes"
-                      label="Yes"
-                      name="sitExpected"
-                      value="true"
-                      checked={values.sitExpected === 'true'}
-                    />
-                    <Field
-                      as={Radio}
-                      id="sitExpectedNo"
-                      label="No"
-                      name="sitExpected"
-                      value="false"
-                      checked={values.sitExpected === 'false'}
-                    />
-                  </Fieldset>
-                </FormGroup>
+                <Fieldset>
+                  <legend className="usa-label">Do you plan to store items from your PPM?</legend>
+                  <Field
+                    as={Radio}
+                    id="sitExpectedYes"
+                    label="Yes"
+                    name="sitExpected"
+                    value="true"
+                    checked={values.sitExpected === 'true'}
+                  />
+                  <Field
+                    as={Radio}
+                    id="sitExpectedNo"
+                    label="No"
+                    name="sitExpected"
+                    value="false"
+                    checked={values.sitExpected === 'false'}
+                  />
+                </Fieldset>
                 {values.sitExpected === 'false' ? (
                   <Hint className={styles.hint}>
                     You can be reimbursed for up to 90 days of temporary storage (SIT).
