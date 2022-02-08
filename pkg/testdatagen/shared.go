@@ -27,7 +27,6 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 // Assertions defines assertions about what the data contains
@@ -119,9 +118,9 @@ func stringPointer(s string) *string {
 	return &s
 }
 
-func poundPointer(p unit.Pound) *unit.Pound {
-	return &p
-}
+//func poundPointer(p unit.Pound) *unit.Pound {
+//	return &p
+//}
 
 func mustCreate(db *pop.Connection, model interface{}, stub bool) {
 	if stub {

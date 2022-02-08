@@ -8,75 +8,75 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *NotificationSuite) createPPMMoves(assertions []testdatagen.Assertions) []models.PersonallyProcuredMove {
-	ppms := make([]models.PersonallyProcuredMove, 0)
-	for _, assertion := range assertions {
-		ppm := testdatagen.MakePPM(suite.DB(), assertion)
-		ppms = append(ppms, ppm)
-	}
-	return ppms
-}
-
-func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
-	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
-	onDate := startDate.AddDate(0, 0, -6)
-	offDate := startDate.AddDate(0, 0, -7)
-	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &onDate}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
-	}
-	ppms := suite.createPPMMoves(moves)
-
-	moveReviewed, err := NewMoveReviewed(onDate)
-	suite.NoError(err)
-	emailInfo, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), onDate)
-
-	suite.NoError(err)
-	suite.NotNil(emailInfo)
-	suite.Len(emailInfo, 1)
-	suite.Equal(ppms[0].Move.Orders.NewDutyStation.Name, emailInfo[0].NewDutyStationName)
-	suite.NotNil(emailInfo[0].Email)
-	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
-	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.Name, emailInfo[0].DutyStationName)
-}
-
-func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
-	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
-	offDate := startDate.AddDate(0, 0, -7)
-	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
-	}
-	suite.createPPMMoves(moves)
-
-	moveReviewed, err := NewMoveReviewed(startDate)
-	suite.NoError(err)
-	emailInfo, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), startDate)
-
-	suite.NoError(err)
-	suite.Len(emailInfo, 0)
-}
-
-func (suite *NotificationSuite) TestMoveReviewedFetchAlreadySentEmail() {
-	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
-	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &startDate}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &startDate}},
-	}
-	suite.createPPMMoves(moves)
-	moveReviewed, err := NewMoveReviewed(startDate)
-	suite.NoError(err)
-	emailInfoBeforeSending, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), startDate)
-	suite.NoError(err)
-	suite.Len(emailInfoBeforeSending, 2)
-
-	// simulate successfully sending an email and then check that this email does not get sent again.
-	err = moveReviewed.OnSuccess(suite.AppContextForTest(), emailInfoBeforeSending[0])("SES_MOVE_ID")
-	suite.NoError(err)
-	emailInfoAfterSending, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), startDate)
-	suite.NoError(err)
-	suite.Len(emailInfoAfterSending, 1)
-}
+//func (suite *NotificationSuite) createPPMMoves(assertions []testdatagen.Assertions) []models.PersonallyProcuredMove {
+//	ppms := make([]models.PersonallyProcuredMove, 0)
+//	for _, assertion := range assertions {
+//		ppm := testdatagen.MakePPM(suite.DB(), assertion)
+//		ppms = append(ppms, ppm)
+//	}
+//	return ppms
+//}
+//
+//func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
+//	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+//	onDate := startDate.AddDate(0, 0, -6)
+//	offDate := startDate.AddDate(0, 0, -7)
+//	moves := []testdatagen.Assertions{
+//		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &onDate}},
+//		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
+//	}
+//	ppms := suite.createPPMMoves(moves)
+//
+//	moveReviewed, err := NewMoveReviewed(onDate)
+//	suite.NoError(err)
+//	emailInfo, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), onDate)
+//
+//	suite.NoError(err)
+//	suite.NotNil(emailInfo)
+//	suite.Len(emailInfo, 1)
+//	suite.Equal(ppms[0].Move.Orders.NewDutyStation.Name, emailInfo[0].NewDutyStationName)
+//	suite.NotNil(emailInfo[0].Email)
+//	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
+//	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.Name, emailInfo[0].DutyStationName)
+//}
+//
+//func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
+//	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+//	offDate := startDate.AddDate(0, 0, -7)
+//	moves := []testdatagen.Assertions{
+//		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
+//		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
+//	}
+//	suite.createPPMMoves(moves)
+//
+//	moveReviewed, err := NewMoveReviewed(startDate)
+//	suite.NoError(err)
+//	emailInfo, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), startDate)
+//
+//	suite.NoError(err)
+//	suite.Len(emailInfo, 0)
+//}
+//
+//func (suite *NotificationSuite) TestMoveReviewedFetchAlreadySentEmail() {
+//	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+//	moves := []testdatagen.Assertions{
+//		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &startDate}},
+//		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &startDate}},
+//	}
+//	suite.createPPMMoves(moves)
+//	moveReviewed, err := NewMoveReviewed(startDate)
+//	suite.NoError(err)
+//	emailInfoBeforeSending, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), startDate)
+//	suite.NoError(err)
+//	suite.Len(emailInfoBeforeSending, 2)
+//
+//	// simulate successfully sending an email and then check that this email does not get sent again.
+//	err = moveReviewed.OnSuccess(suite.AppContextForTest(), emailInfoBeforeSending[0])("SES_MOVE_ID")
+//	suite.NoError(err)
+//	emailInfoAfterSending, err := moveReviewed.GetEmailInfo(suite.AppContextForTest(), startDate)
+//	suite.NoError(err)
+//	suite.Len(emailInfoAfterSending, 1)
+//}
 
 func (suite *NotificationSuite) TestMoveReviewedOnSuccess() {
 	db := suite.DB()

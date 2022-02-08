@@ -208,29 +208,29 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 	})
 
-	suite.Run("PPM status changes to Submitted", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
-
-		// Create PPM on this move
-		advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				Move:      move,
-				MoveID:    move.ID,
-				Status:    models.PPMStatusDRAFT,
-				Advance:   &advance,
-				AdvanceID: &advance.ID,
-			},
-			Stub: true,
-		})
-		move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
-
-		err := moveRouter.Submit(suite.AppContextForTest(), &move)
-
-		suite.NoError(err)
-		suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
-		suite.Equal(models.PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
-	})
+	//suite.Run("PPM status changes to Submitted", func() {
+	//	move := testdatagen.MakeDefaultMove(suite.DB())
+	//
+	//	// Create PPM on this move
+	//	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	//	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+	//		PersonallyProcuredMove: models.PersonallyProcuredMove{
+	//			Move:      move,
+	//			MoveID:    move.ID,
+	//			Status:    models.PPMStatusDRAFT,
+	//			Advance:   &advance,
+	//			AdvanceID: &advance.ID,
+	//		},
+	//		Stub: true,
+	//	})
+	//	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
+	//
+	//	err := moveRouter.Submit(suite.AppContextForTest(), &move)
+	//
+	//	suite.NoError(err)
+	//	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	//	suite.Equal(models.PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
+	//})
 }
 
 func (suite *MoveServiceSuite) TestMoveCancellation() {
@@ -256,30 +256,30 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 		suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")
 	})
 
-	suite.Run("cancels PPM and Order when move is canceled", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-
-		// Create PPM on this move
-		advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				Move:      move,
-				MoveID:    move.ID,
-				Status:    models.PPMStatusDRAFT,
-				Advance:   &advance,
-				AdvanceID: &advance.ID,
-			},
-			Stub: true,
-		})
-		move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
-
-		err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
-
-		suite.NoError(err)
-		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Equal(models.PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
-		suite.Equal(models.OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
-	})
+	//suite.Run("cancels PPM and Order when move is canceled", func() {
+	//	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+	//
+	//	// Create PPM on this move
+	//	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	//	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+	//		PersonallyProcuredMove: models.PersonallyProcuredMove{
+	//			Move:      move,
+	//			MoveID:    move.ID,
+	//			Status:    models.PPMStatusDRAFT,
+	//			Advance:   &advance,
+	//			AdvanceID: &advance.ID,
+	//		},
+	//		Stub: true,
+	//	})
+	//	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
+	//
+	//	err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
+	//
+	//	suite.NoError(err)
+	//	suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
+	//	suite.Equal(models.PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
+	//	suite.Equal(models.OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
+	//})
 
 	suite.Run("from valid statuses", func() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})

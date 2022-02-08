@@ -46,19 +46,19 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 
 	// sets the sub-scenarios
 	e.SubScenarios = map[string]func(){
-		"additional_ppm_users":         subScenarioAdditionalPPMUsers(appCtx, userUploader),
 		"diverted_shipments":           subScenarioDivertedShipments(appCtx, userUploader, allDutyStations, originDutyStationsInGBLOC),
 		"hhg_onboarding":               subScenarioHHGOnboarding(appCtx, userUploader),
 		"hhg_services_counseling":      subScenarioHHGServicesCounseling(appCtx, userUploader, allDutyStations, originDutyStationsInGBLOC),
 		"payment_request_calculations": subScenarioPaymentRequestCalculations(appCtx, userUploader, primeUploader, moveRouter),
 		"ppm_and_hhg":                  subScenarioPPMAndHHG(appCtx, userUploader, moveRouter),
-		"ppm_office_queue":             subScenarioPPMOfficeQueue(appCtx, userUploader, moveRouter),
 		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(appCtx, allDutyStations, originDutyStationsInGBLOC),
 		"txo_queues":                   subScenarioTXOQueues(appCtx, userUploader, logger),
 		"misc":                         subScenarioMisc(appCtx, userUploader, primeUploader, moveRouter),
 		"reweighs":                     subScenarioReweighs(appCtx, userUploader, primeUploader, moveRouter),
 		"nts_and_ntsr":                 subScenarioNTSandNTSR(appCtx, userUploader, primeUploader, moveRouter),
 		"sit_extensions":               subScenarioSITExtensions(appCtx, userUploader, primeUploader),
+		//"additional_ppm_users":         subScenarioAdditionalPPMUsers(appCtx, userUploader),
+		//"ppm_office_queue":             subScenarioPPMOfficeQueue(appCtx, userUploader, moveRouter),
 	}
 }
 
