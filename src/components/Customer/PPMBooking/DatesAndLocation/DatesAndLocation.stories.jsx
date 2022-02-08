@@ -1,5 +1,6 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { within, userEvent } from '@storybook/testing-library';
 
 import DatesAndLocation from './DatesAndLocation';
@@ -7,6 +8,17 @@ import DatesAndLocation from './DatesAndLocation';
 export default {
   title: 'Customer Components / PPM Booking / Dates and Location',
   component: DatesAndLocation,
+  decorators: [
+    (Story) => (
+      <GridContainer>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Story />
+          </Grid>
+        </Grid>
+      </GridContainer>
+    ),
+  ],
 };
 
 const Template = (args) => <DatesAndLocation {...args} />;
