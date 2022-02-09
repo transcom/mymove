@@ -45,13 +45,13 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		if ppmShipment.Shipment.Status == "" {
 			ppmShipment.Shipment.Status = models.MTOShipmentStatusDraft
 		} else if ppmShipment.Shipment.Status != models.MTOShipmentStatusDraft {
-			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT status")
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT status associated with MTO shipment")
 		}
 
 		if ppmShipment.Status == "" {
 			ppmShipment.Status = models.PPMShipmentStatusDraft
 		} else if ppmShipment.Status != models.PPMShipmentStatusDraft {
-			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT status")
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT status associated with PPM shipment")
 		}
 
 		// NOTE: The ppm may require a service item for pricing.Passing an HHG service item may be sufficient for the pricer.
