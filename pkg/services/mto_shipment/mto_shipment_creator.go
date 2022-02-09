@@ -48,9 +48,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	var err error
 
 	err = checkShipmentIDFields(shipment, serviceItems)
-	fmt.Print("⚾️⚾️⚾️⚾️⚾️")
-	fmt.Printf("%v", err)
-	fmt.Print("⚾️⚾️⚾️⚾️⚾️")
+
 	if err != nil {
 		return nil, err
 	}
@@ -189,9 +187,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 		// create a shipment
 		verrs, err = f.builder.CreateOne(txnAppCtx, shipment)
-		fmt.Println("🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧")
-		fmt.Printf("%v", err)
-		fmt.Println("🚧🚧🚧🚧🚧🚧🚧🚧🚧")
 
 		if verrs != nil || err != nil {
 			return fmt.Errorf("failed to create shipment %s %e", verrs.Error(), err)
@@ -261,13 +256,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 		return nil
 	})
-	fmt.Println("🏖🏖🏖🏖")
-	fmt.Printf("%v", err)
-	fmt.Println("🏖🏖🏖🏖")
 
-	fmt.Println("⚙️⚙️⚙️⚙️⚙️")
-	fmt.Printf("%v", verrs)
-	fmt.Println("⚙️⚙️⚙️⚙️⚙️")
 	if verrs != nil && verrs.HasAny() {
 		return nil, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Unable to create shipment")
 	} else if err != nil {
