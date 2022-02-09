@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
 import { MockProviders } from 'testUtils';
@@ -44,6 +45,16 @@ jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
 }));
 
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  getTacValid: ({ tac }) => {
+    return {
+      tac,
+      isValid: tac === '1111' || tac === '2222',
+    };
+  },
+}));
+
 const useOrdersDocumentQueriesReturnValue = {
   orders: {
     1: {
@@ -77,7 +88,7 @@ const useOrdersDocumentQueriesReturnValue = {
       report_by_date: '2018-08-01',
       tac: 'F8E1',
       sac: 'E2P3',
-      ntsTac: 'C2E3',
+      ntsTac: '1111',
       ntsSac: 'R6X1',
     },
   },
@@ -166,8 +177,47 @@ describe('Orders page', () => {
       expect(screen.getByLabelText('Orders type')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
       expect(screen.getByTestId('hhgTacInput')).toHaveValue('F8E1');
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
-      expect(screen.getByTestId('ntsTacInput')).toHaveValue('C2E3');
+      expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
+    });
+  });
+
+  describe('TAC validation', () => {
+    it('validates on load', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <ServicesCounselingOrders />
+        </MockProviders>,
+      );
+
+      expect(await screen.findByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
+    });
+
+    it('validates on user input', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <ServicesCounselingOrders />
+        </MockProviders>,
+      );
+
+      const hhgTacInput = screen.getByTestId('hhgTacInput');
+      userEvent.clear(hhgTacInput);
+      userEvent.type(hhgTacInput, '2222');
+
+      await waitFor(() => {
+        expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument();
+      });
+
+      userEvent.clear(hhgTacInput);
+      userEvent.type(hhgTacInput, '3333');
+
+      await waitFor(() => {
+        expect(screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
+      });
     });
   });
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -17,6 +17,8 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import { TAC_VALIDATION_ACTIONS, reducer, initialState } from 'reducers/tacValidation';
+import { LOA_TYPE } from 'shared/constants';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
@@ -36,13 +38,14 @@ const validationSchema = Yup.object({
   ordersType: Yup.string().required('Required'),
   ordersTypeDetail: Yup.string().required('Required'),
   tac: Yup.string().min(4, 'Enter a 4-character TAC').required('Required'),
-  sac: Yup.string().required('Required'),
+  sac: Yup.string(),
 });
 
 const Orders = () => {
   const history = useHistory();
   const { moveCode } = useParams();
-  const [isValidTac, setIsValidTac] = useState({ isValid: true, tac: '' });
+  const [tacValidationState, tacValidationDispatch] = useReducer(reducer, null, initialState);
+
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
@@ -67,14 +70,29 @@ const Orders = () => {
     },
   });
 
-  const handleTacValidation = React.useCallback(
-    (value) => {
-      if (value && value.length === 4 && value !== isValidTac.tac) {
-        getTacValid({ tac: value }).then((response) => setIsValidTac({ isValid: response.isValid, tac: value }));
-      }
-    },
-    [isValidTac.tac],
-  );
+  const handleHHGTacValidation = async (value) => {
+    if (value && value.length === 4 && value !== tacValidationState[LOA_TYPE.HHG].tac) {
+      const response = await getTacValid({ tac: value });
+      tacValidationDispatch({
+        type: TAC_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
+        loaType: LOA_TYPE.HHG,
+        isValid: response.isValid,
+        tac: value,
+      });
+    }
+  };
+
+  const handleNTSTacValidation = async (value) => {
+    if (value && value.length === 4 && value !== tacValidationState[LOA_TYPE.NTS].tac) {
+      const response = await getTacValid({ tac: value });
+      tacValidationDispatch({
+        type: TAC_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
+        loaType: LOA_TYPE.NTS,
+        isValid: response.isValid,
+        tac: value,
+      });
+    }
+  };
 
   const order = Object.values(orders)?.[0];
   const { entitlement, uploadedAmendedOrderID, amendedOrdersAcknowledgedAt } = order;
@@ -87,11 +105,37 @@ const Orders = () => {
   } = entitlement;
 
   useEffect(() => {
-    // if the initial value === value, and it's 4 digits, run validator and show warning if invalid
-    if (order?.tac && order.tac.length === 4) {
-      getTacValid({ tac: order.tac }).then((response) => setIsValidTac({ isValid: response.isValid, tac: order.tac }));
+    if (isLoading || isError) {
+      return;
     }
-  }, [order?.tac]);
+
+    const checkHHGTac = async () => {
+      const response = await getTacValid({ tac: order.tac });
+      tacValidationDispatch({
+        type: TAC_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
+        loaType: LOA_TYPE.HHG,
+        isValid: response.isValid,
+        tac: order.tac,
+      });
+    };
+
+    const checkNTSTac = async () => {
+      const response = await getTacValid({ tac: order.ntsTac });
+      tacValidationDispatch({
+        type: TAC_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
+        loaType: LOA_TYPE.NTS,
+        isValid: response.isValid,
+        tac: order.ntsTac,
+      });
+    };
+
+    if (order?.tac && order.tac.length === 4) {
+      checkHHGTac();
+    }
+    if (order?.ntsTac && order.ntsTac.length === 4) {
+      checkNTSTac();
+    }
+  }, [order?.tac, order?.ntsTac, isLoading, isError]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -139,7 +183,9 @@ const Orders = () => {
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => {
           // onBlur, if the value has 4 digits, run validator and show warning if invalid
-          const tacWarning = isValidTac.isValid ? '' : tacWarningMsg;
+          const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
+          const ntsTacWarning = tacValidationState[LOA_TYPE.NTS].isValid ? '' : tacWarningMsg;
+
           return (
             <form onSubmit={formik.handleSubmit}>
               <div className={styles.content}>
@@ -165,8 +211,10 @@ const Orders = () => {
                     deptIndicatorOptions={deptIndicatorDropdownOptions}
                     ordersTypeOptions={ordersTypeDropdownOptions}
                     ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
-                    tacWarning={tacWarning}
-                    validateTac={handleTacValidation}
+                    hhgTacWarning={hhgTacWarning}
+                    ntsTacWarning={ntsTacWarning}
+                    validateHHGTac={handleHHGTacValidation}
+                    validateNTSTac={handleNTSTacValidation}
                     showOrdersAcknowledgement={hasAmendedOrders}
                     ordersType={order.order_type}
                     setFieldValue={formik.setFieldValue}
