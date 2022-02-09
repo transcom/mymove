@@ -1,11 +1,13 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 
+import styles from 'styles/descriptionList.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
 import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { setShipmentFlags, setFlagRowStyles } from 'shared/Flags';
 
 const ShipmentInfoListSelector = ({
   className,
@@ -17,38 +19,19 @@ const ShipmentInfoListSelector = ({
   neverShow,
   shipmentType,
 }) => {
+  setFlagRowStyles(styles);
+
+  // Never show is an option since NTSShipmentInfoList is used by both the TOO
+  // and services counselor and show different things.
+  setShipmentFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment);
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
-      return (
-        <ShipmentInfoList
-          className={className}
-          shipment={shipment}
-          shipmentType={shipmentType}
-          errorIfMissing={errorIfMissing}
-        />
-      );
+      return <ShipmentInfoList className={className} shipment={shipment} shipmentType={shipmentType} />;
     case SHIPMENT_OPTIONS.NTSR:
-      return (
-        <NTSRShipmentInfoList
-          className={className}
-          shipment={shipment}
-          isExpanded={isExpanded}
-          warnIfMissing={warnIfMissing}
-          errorIfMissing={errorIfMissing}
-          showWhenCollapsed={showWhenCollapsed}
-        />
-      );
+      return <NTSRShipmentInfoList className={className} shipment={shipment} isExpanded={isExpanded} getFlags />;
     case SHIPMENT_OPTIONS.NTS:
       return (
-        <NTSShipmentInfoList
-          className={className}
-          shipment={shipment}
-          isExpanded={isExpanded}
-          warnIfMissing={warnIfMissing}
-          errorIfMissing={errorIfMissing}
-          showWhenCollapsed={showWhenCollapsed}
-          neverShow={neverShow}
-        />
+        <NTSShipmentInfoList className={className} shipment={shipment} isExpanded={isExpanded} neverShow={neverShow} />
       );
     default:
       return (
@@ -57,7 +40,6 @@ const ShipmentInfoListSelector = ({
           shipment={shipment}
           shipmentType={shipmentType}
           isExpanded={isExpanded}
-          errorIfMissing={errorIfMissing}
         />
       );
   }

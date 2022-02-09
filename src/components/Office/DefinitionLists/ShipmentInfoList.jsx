@@ -2,14 +2,13 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
-
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
+import { getShipmentFlags, getMissingOrDash } from 'shared/Flags';
 
-const ShipmentInfoList = ({ className, shipment, errorIfMissing }) => {
+const ShipmentInfoList = ({ className, shipment }) => {
   const {
     requestedPickupDate,
     pickupAddress,
@@ -23,41 +22,17 @@ const ShipmentInfoList = ({ className, shipment, errorIfMissing }) => {
     customerRemarks,
   } = shipment;
 
-  function getFlags(fieldname) {
-    let alwaysShow = false;
-    let classes = styles.row;
-
-    if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
-      alwaysShow = true;
-      classes = classNames(styles.row, shipmentDefinitionListsStyles.missingInfoError);
-      return {
-        alwaysShow,
-        classes,
-      };
-    }
-    return {
-      alwaysShow,
-      classes,
-    };
-  }
-
-  const destinationTypeFlags = getFlags('destinationType');
+  const destinationTypeFlags = getShipmentFlags('destinationType');
   const destinationTypeElement = (
     <div className={destinationTypeFlags.classes}>
       <dt>Destination type</dt>
-      <dd data-testid="destinationType">{destinationType || '—'}</dd>
+      <dd data-testid="destinationType">{destinationType || getMissingOrDash('destinationType')}</dd>
     </div>
   );
 
   return (
     <dl
-      className={classNames(
-        shipmentDefinitionListsStyles.ShipmentDefinitionLists,
-        styles.descriptionList,
-        styles.tableDisplay,
-        styles.compact,
-        className,
-      )}
+      className={classNames(styles.descriptionList, styles.tableDisplay, styles.compact, className)}
       data-testid="shipment-info-list"
     >
       <div className={styles.row}>
@@ -107,12 +82,10 @@ const ShipmentInfoList = ({ className, shipment, errorIfMissing }) => {
 ShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
-  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
 };
 
 ShipmentInfoList.defaultProps = {
   className: '',
-  errorIfMissing: [],
 };
 
 export default ShipmentInfoList;

@@ -2,22 +2,14 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
-
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
 import { formatWeight } from 'utils/formatters';
+import { getShipmentFlags, getMissingOrDash } from 'shared/Flags';
 
-const NTSRShipmentInfoList = ({
-  className,
-  shipment,
-  isExpanded,
-  warnIfMissing,
-  errorIfMissing,
-  showWhenCollapsed,
-}) => {
+const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
   const {
     destinationAddress,
     destinationType,
@@ -36,35 +28,7 @@ const NTSRShipmentInfoList = ({
     sac,
   } = shipment;
 
-  function getFlags(fieldname) {
-    let alwaysShow = false;
-    let classes = styles.row;
-
-    if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
-      alwaysShow = true;
-      classes = classNames(styles.row, shipmentDefinitionListsStyles.missingInfoError);
-      return {
-        alwaysShow,
-        classes,
-      };
-    }
-    if (warnIfMissing.includes(fieldname) && !shipment[fieldname]) {
-      alwaysShow = true;
-      classes = classNames(styles.row, shipmentDefinitionListsStyles.warning);
-      return {
-        alwaysShow,
-        classes,
-      };
-    }
-    if (showWhenCollapsed.includes(fieldname)) {
-      alwaysShow = true;
-    }
-    return {
-      alwaysShow,
-      classes,
-    };
-  }
-  const storageFacilityAddressElementFlags = getFlags('storageFacility');
+  const storageFacilityAddressElementFlags = getShipmentFlags('storageFacility');
   const storageFacilityAddressElement = (
     <div className={storageFacilityAddressElementFlags.classes}>
       <dt>Storage facility address</dt>
@@ -79,11 +43,7 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const getMissingOrDash = (fieldName) => {
-    return errorIfMissing.includes(fieldName) ? 'Missing' : '—';
-  };
-
-  const ntsRecordedWeightElementFlags = getFlags('ntsRecordedWeight');
+  const ntsRecordedWeightElementFlags = getShipmentFlags('ntsRecordedWeight');
   const ntsRecordedWeightElement = (
     <div className={ntsRecordedWeightElementFlags.classes}>
       <dt>Shipment weight</dt>
@@ -93,7 +53,7 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const storageFacilityInfoElementFlags = getFlags('storageFacility');
+  const storageFacilityInfoElementFlags = getShipmentFlags('storageFacility');
   const storageFacilityInfoElement = (
     <div className={storageFacilityInfoElementFlags.classes}>
       <dt>Storage facility info</dt>
@@ -103,7 +63,7 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const serviceOrderNumberElementFlags = getFlags('serviceOrderNumber');
+  const serviceOrderNumberElementFlags = getShipmentFlags('serviceOrderNumber');
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
@@ -111,7 +71,7 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const requestedDeliveryDateElementFlags = getFlags('requestedDeliveryDate');
+  const requestedDeliveryDateElementFlags = getShipmentFlags('requestedDeliveryDate');
   const requestedDeliveryDateElement = (
     <div className={requestedDeliveryDateElementFlags.classes}>
       <dt>Preferred delivery date</dt>
@@ -119,7 +79,7 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const destinationAddressElementFlags = getFlags('destinationAddress');
+  const destinationAddressElementFlags = getShipmentFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
       <dt>Delivery address</dt>
@@ -127,15 +87,15 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const destinationTypeFlags = getFlags('destinationType');
+  const destinationTypeFlags = getShipmentFlags('destinationType');
   const destinationTypeElement = (
     <div className={destinationTypeFlags.classes}>
       <dt>Destination type</dt>
-      <dd data-testid="destinationType">{destinationType || '—'}</dd>
+      <dd data-testid="destinationType">{destinationType || getMissingOrDash('destinationType')}</dd>
     </div>
   );
 
-  const secondaryDeliveryAddressElementFlags = getFlags('secondaryDeliveryAddress');
+  const secondaryDeliveryAddressElementFlags = getShipmentFlags('secondaryDeliveryAddress');
   const secondaryDeliveryAddressElement = (
     <div className={secondaryDeliveryAddressElementFlags.classes}>
       <dt>Second delivery address</dt>
@@ -145,7 +105,7 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const tacElementFlags = getFlags('tacType');
+  const tacElementFlags = getShipmentFlags('tacType');
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
@@ -153,7 +113,7 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const sacElementFlags = getFlags('sacType');
+  const sacElementFlags = getShipmentFlags('sacType');
   const sacElement = (
     <div className={sacElementFlags.classes}>
       <dt>SAC</dt>
@@ -170,7 +130,7 @@ const NTSRShipmentInfoList = ({
       ))
     : null;
 
-  const counselorRemarksElementFlags = getFlags('counselorRemarks');
+  const counselorRemarksElementFlags = getShipmentFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
       <dt>Counselor remarks</dt>
@@ -186,13 +146,7 @@ const NTSRShipmentInfoList = ({
   );
   return (
     <dl
-      className={classNames(
-        shipmentDefinitionListsStyles.ShipmentDefinitionLists,
-        styles.descriptionList,
-        styles.tableDisplay,
-        styles.compact,
-        className,
-      )}
+      className={classNames(styles.descriptionList, styles.tableDisplay, styles.compact, className)}
       data-testid="nts-release-shipment-info-list"
     >
       {(isExpanded || ntsRecordedWeightElementFlags.alwaysShow) && ntsRecordedWeightElement}
@@ -216,17 +170,11 @@ NTSRShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
   isExpanded: PropTypes.bool,
-  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
-  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
-  showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
 };
 
 NTSRShipmentInfoList.defaultProps = {
   className: '',
   isExpanded: false,
-  warnIfMissing: [],
-  errorIfMissing: [],
-  showWhenCollapsed: [],
 };
 
 export default NTSRShipmentInfoList;
