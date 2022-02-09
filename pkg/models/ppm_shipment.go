@@ -12,6 +12,8 @@ import (
 type PPMShipmentStatus string
 
 const (
+	// PPMShipmentStatusDraft captures enum value "DRAFT"
+	PPMShipmentStatusDraft PPMShipmentStatus = "DRAFT"
 	// PPMShipmentStatusSubmitted captures enum value "SUBMITTED"
 	PPMShipmentStatusSubmitted PPMShipmentStatus = "SUBMITTED"
 	// PPMShipmentStatusWaitingOnCustomer captures enum value "WAITING_ON_CUSTOMER"
@@ -57,3 +59,8 @@ type PPMShipment struct {
 
 // PPMShipments is a list of PPMs
 type PPMShipments []PPMShipment
+
+// TableName overrides the table name used by Pop. By default it tries using the name `ppmshipments`.
+func (p PPMShipment) TableName() string {
+	return "ppm_shipments"
+}

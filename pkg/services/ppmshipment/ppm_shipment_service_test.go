@@ -12,7 +12,7 @@ type PPMShipmentSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func TestReweighServiceSuite(t *testing.T) {
+func TestPPMShipmentServiceSuite(t *testing.T) {
 	ts := &PPMShipmentSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}

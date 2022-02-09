@@ -48,12 +48,15 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	var err error
 
 	err = checkShipmentIDFields(shipment, serviceItems)
+	fmt.Print("⚾️⚾️⚾️⚾️⚾️")
+	fmt.Printf("%v", err)
+	fmt.Print("⚾️⚾️⚾️⚾️⚾️")
 	if err != nil {
 		return nil, err
 	}
 
 	// Check shipment fields that should be there or not based on shipment type.
-	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom || shipment.ShipmentType == models.MTOShipmentTypePPM {
 		if shipment.RequestedPickupDate != nil {
 			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
 				fmt.Sprintf("RequestedPickupDate should not be set when creating a %s shipment", shipment.ShipmentType))
@@ -132,7 +135,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
-		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && shipment.ShipmentType != models.MTOShipmentTypePPM {
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
@@ -186,6 +189,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 		// create a shipment
 		verrs, err = f.builder.CreateOne(txnAppCtx, shipment)
+		fmt.Println("🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧")
+		fmt.Printf("%v", err)
+		fmt.Println("🚧🚧🚧🚧🚧🚧🚧🚧🚧")
 
 		if verrs != nil || err != nil {
 			return fmt.Errorf("failed to create shipment %s %e", verrs.Error(), err)
@@ -255,7 +261,13 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 		return nil
 	})
+	fmt.Println("🏖🏖🏖🏖")
+	fmt.Printf("%v", err)
+	fmt.Println("🏖🏖🏖🏖")
 
+	fmt.Println("⚙️⚙️⚙️⚙️⚙️")
+	fmt.Printf("%v", verrs)
+	fmt.Println("⚙️⚙️⚙️⚙️⚙️")
 	if verrs != nil && verrs.HasAny() {
 		return nil, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Unable to create shipment")
 	} else if err != nil {

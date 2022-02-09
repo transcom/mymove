@@ -1,7 +1,8 @@
 package ppmshipment
 
 import (
-	"github.com/gobuffalo/validate/v3"
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -14,11 +15,12 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-type createMTOShipmentQueryBuilder interface {
-	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
-	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
-	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
-}
+//
+//type createMTOShipmentQueryBuilder interface {
+//	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
+//	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
+//	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
+//}
 
 // ppmShipmentCreator sets up the service object
 type ppmShipmentCreator struct {
@@ -52,11 +54,32 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 	// Start a transaction that will create a Shipment, then create a PPM
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var err error
+		if ppmShipment.Shipment.ShipmentType == "" {
+			ppmShipment.Shipment.ShipmentType = models.MTOShipmentTypePPM
+		} else if ppmShipment.Shipment.ShipmentType != models.MTOShipmentTypePPM {
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "MTO shipment type must be PPM shipment")
+		}
+
+		if ppmShipment.Shipment.Status == "" {
+			ppmShipment.Shipment.Status = models.MTOShipmentStatusDraft
+		} else if ppmShipment.Shipment.Status != models.MTOShipmentStatusDraft {
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT status")
+		}
+
+		if ppmShipment.Status == "" {
+			ppmShipment.Status = models.PPMShipmentStatusDraft
+		} else if ppmShipment.Status != models.PPMShipmentStatusDraft {
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT status")
+		}
+
 		// Might require us to pass in a service item rather than nil or empty service item
 		// var serviceItem models.ServiceItem
 		// NOTE: If the ppm requires a service item for pricing try passing in an HHG service item, then we can use the HHG service item here
 		createShipment, err := mtoShipmentCreator.CreateMTOShipment(txnAppCtx, &ppmShipment.Shipment, nil)
 		// Check that mtoshipment is created. If not, bail out.
+		fmt.Print("🧩")
+		fmt.Printf("%v", err)
+		fmt.Print("🧩")
 		if err != nil {
 			return apperror.NewQueryError("MTOShipment", err, "")
 		}
@@ -69,6 +92,9 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		}
 		// Validate ppm shipment model object and save it to DB (create)
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
+		fmt.Println("🛥🛥🛥🛥🛥")
+		fmt.Printf("%v", err)
+		fmt.Println("🛥🛥🛥🛥🛥")
 		// Check validation errors
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the PPM shipment.")
