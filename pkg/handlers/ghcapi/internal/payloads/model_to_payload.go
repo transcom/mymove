@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -110,15 +111,13 @@ func moveHistoryValues(data *models.JSONMap, fieldName string) ghcmessages.MoveA
 	payload := ghcmessages.MoveAuditHistoryItems{}
 
 	for k, v := range *data {
-		columnValue, ok := v.(string)
-		if ok {
+		if v != nil {
 			item := ghcmessages.MoveAuditHistoryItem{
 				ColumnName:  k,
-				ColumnValue: columnValue,
+				ColumnValue: fmt.Sprint(v),
 			}
 			payload = append(payload, &item)
 		}
-		// TODO should we handle an else????
 	}
 
 	return payload
