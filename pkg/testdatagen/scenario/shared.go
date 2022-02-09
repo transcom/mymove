@@ -627,8 +627,8 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 	smIDPPM := "c29418e5-5d69-498d-9709-b493d5bbc814"
 	smWithPPM := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smIDPPM),
-			UserID:        uuid.FromStringOrNil(uuidStr),
+			ID:            uuid.Must(uuid.FromString(smIDPPM)),
+			UserID:        uuid.Must(uuid.FromString(uuidStr)),
 			FirstName:     models.StringPointer("Submitted"),
 			LastName:      models.StringPointer("Ppm"),
 			Edipi:         models.StringPointer("7598050675"),
@@ -638,13 +638,13 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smIDPPM),
+			ServiceMemberID: uuid.Must(uuid.FromString(smIDPPM)),
 			ServiceMember:   smWithPPM,
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
-			ID:               uuid.FromStringOrNil("5174fd6c-3cab-4304-b4b3-89bd0f59b00b"),
-			Locator:          "PPM",
+			ID:               uuid.Must(uuid.FromString("5174fd6c-3cab-4304-b4b3-89bd0f59b00b")),
+			Locator:          "PPM001",
 			SelectedMoveType: &ppmMoveType,
 		},
 	})
@@ -653,7 +653,7 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 		Move:         move,
 		UserUploader: userUploader,
 		PPMShipment: models.PPMShipment{
-			ID: uuid.FromStringOrNil("0914dfa2-6988-4a12-82b1-2586fb4aa8c7"),
+			ID: uuid.Must(uuid.FromString("0914dfa2-6988-4a12-82b1-2586fb4aa8c7")),
 		},
 	})
 
