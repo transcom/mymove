@@ -13,6 +13,7 @@ import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { MandatorySimpleAddressShape } from 'types/address';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { shipmentTypeLabels } from 'content/shipments';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default function ShipmentCard({
   billableWeight,
@@ -128,6 +129,7 @@ export default function ShipmentCard({
           editEntity={editEntity}
           maxBillableWeight={maxBillableWeight}
           totalBillableWeight={totalBillableWeight}
+          isNTSRShipment={shipmentType === SHIPMENT_OPTIONS.NTSR}
         />
       </footer>
     </ShipmentContainer>

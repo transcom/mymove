@@ -197,6 +197,7 @@ export default function ReviewBillableWeight() {
                 weightAllowance={weightAllowance}
                 editEntity={editEntity}
                 billableWeightJustification={move.tioRemarks}
+                isNTSRShipment={selectedShipment.shipmentType === SHIPMENT_OPTIONS.NTSR}
               />
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer>
