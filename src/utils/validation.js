@@ -27,7 +27,7 @@ const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
 export const validatePostalCode = async (value, postalCodeType, errMsg = UnsupportedZipCodeErrorMsg) => {
-  if (!value) {
+  if (!value || (value.length !== 5 && value.length !== 10)) {
     return undefined;
   }
 
