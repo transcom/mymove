@@ -9,7 +9,7 @@ set -eu -o pipefail
 UNAME_S=$(uname -s)
 if [ "$UNAME_S" == "Linux" ]; then
   LOCAL_SWAGGER="/usr/local/bin/swagger"
-elif swagger version 2>/dev/null | grep -F -q 'version: 0.28.0'; then
+elif swagger version 2>/dev/null | grep -F -q -E 'version: v?0.28.0'; then
   LOCAL_SWAGGER=$(which swagger)
 fi
 
