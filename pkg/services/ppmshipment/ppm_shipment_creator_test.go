@@ -3,6 +3,11 @@ package ppmshipment
 import (
 	"testing"
 
+	"github.com/transcom/mymove/pkg/services/fetch"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
+
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -31,12 +36,16 @@ func (suite *PPMShipmentSuite) createSubtestData(assertions testdatagen.Assertio
 }
 
 func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
+	builder := query.NewQueryBuilder()
+	fetcher := fetch.NewFetcher(builder)
+	moveRouter := moverouter.NewMoveRouter()
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 	suite.T().Run("CreatePPMShipment - Success", func(t *testing.T) {
 		// Under test:	CreatePPMShipment
 		// Set up:		Established valid shipment and valid new PPM shipment
 		// Expected:	New PPM shipment successfully created
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
-		ppmShipmentCreator := NewPPMShipmentCreator()
+		ppmShipmentCreator := NewPPMShipmentCreator(mtoShipmentCreator)
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentCheck(suite.AppContextForTest(), subtestData.newPPMShipment)
 
 		suite.Nil(err)
@@ -48,7 +57,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		//badCreatedAt := models.PPMShipment{CreatedAt: time.Time{}} // createdAt is empty because there is no PPM shipment
 		//newPPMShipment.CreatedAt = badCreatedAt
 		blankPPMShipment := models.PPMShipment{}
-		ppmShipmentCreator := NewPPMShipmentCreator()
+		ppmShipmentCreator := NewPPMShipmentCreator(mtoShipmentCreator)
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentCheck(suite.AppContextForTest(), &blankPPMShipment)
 
 		suite.Error(err)

@@ -1,35 +1,24 @@
 package ppmshipment
 
 import (
-	"fmt"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/fetch"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	"github.com/transcom/mymove/pkg/services/query"
 )
 
-//
-//type createMTOShipmentQueryBuilder interface {
-//	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
-//	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
-//	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
-//}
-
-// ppmShipmentCreator sets up the service object
+// ppmShipmentCreator sets up the service object, and passes in
 type ppmShipmentCreator struct {
-	checks []ppmShipmentValidator
+	mtoShipmentCreator services.MTOShipmentCreator
+	checks             []ppmShipmentValidator
 }
 
 // NewPPMShipmentCreator creates a new struct with the service dependencies
-func NewPPMShipmentCreator() services.PPMShipmentCreator {
+func NewPPMShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator) services.PPMShipmentCreator {
 	return &ppmShipmentCreator{
+		mtoShipmentCreator: mtoShipmentCreator,
 		checks: []ppmShipmentValidator{
 			checkShipmentID(),
 			checkPPMShipmentID(),
@@ -44,13 +33,6 @@ func (f *ppmShipmentCreator) CreatePPMShipmentCheck(appCtx appcontext.AppContext
 }
 
 func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*models.PPMShipment, error) {
-	// Make sure we do this whole process in a transaction so partial changes do not get made committed
-	// in the event of an error.
-
-	builder := query.NewQueryBuilder()
-	fetcher := fetch.NewFetcher(builder)
-	moveRouter := moverouter.NewMoveRouter()
-	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 	// Start a transaction that will create a Shipment, then create a PPM
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var err error
@@ -72,29 +54,21 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT status")
 		}
 
-		// Might require us to pass in a service item rather than nil or empty service item
-		// var serviceItem models.ServiceItem
-		// NOTE: If the ppm requires a service item for pricing try passing in an HHG service item, then we can use the HHG service item here
-		createShipment, err := mtoShipmentCreator.CreateMTOShipment(txnAppCtx, &ppmShipment.Shipment, nil)
+		// NOTE: The ppm may require a service item for pricing.Passing an HHG service item may be sufficient for the pricer.
+		createShipment, err := f.mtoShipmentCreator.CreateMTOShipment(txnAppCtx, &ppmShipment.Shipment, nil)
 		// Check that mtoshipment is created. If not, bail out.
-		fmt.Print("🧩")
-		fmt.Printf("%v", err)
-		fmt.Print("🧩")
 		if err != nil {
 			return apperror.NewQueryError("MTOShipment", err, "")
 		}
 
 		ppmShipment.ShipmentID = createShipment.ID
-		// Validate ppmShipment, and return an error
+		// Validate the ppmShipment, and return an error
 		err = validatePPMShipment(txnAppCtx, *ppmShipment, nil, &ppmShipment.Shipment)
 		if err != nil {
 			return err
 		}
-		// Validate ppm shipment model object and save it to DB (create)
+		// Validate ppm shipment model object and save it to DB
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
-		fmt.Println("🛥🛥🛥🛥🛥")
-		fmt.Printf("%v", err)
-		fmt.Println("🛥🛥🛥🛥🛥")
 		// Check validation errors
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the PPM shipment.")
