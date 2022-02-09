@@ -19,7 +19,14 @@ const ShipmentInfoListSelector = ({
 }) => {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
-      return <ShipmentInfoList className={className} shipment={shipment} shipmentType={shipmentType} />;
+      return (
+        <ShipmentInfoList
+          className={className}
+          shipment={shipment}
+          shipmentType={shipmentType}
+          errorIfMissing={errorIfMissing}
+        />
+      );
     case SHIPMENT_OPTIONS.NTSR:
       return (
         <NTSRShipmentInfoList
@@ -50,6 +57,7 @@ const ShipmentInfoListSelector = ({
           shipment={shipment}
           shipmentType={shipmentType}
           isExpanded={isExpanded}
+          errorIfMissing={errorIfMissing}
         />
       );
   }
