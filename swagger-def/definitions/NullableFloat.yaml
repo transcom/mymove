@@ -1,5 +1,5 @@
-type: bool
+type: number
 x-go-type:
   import:
     package: github.com/transcom/mymove/pkg/swagger/nullable
-  type: Bool
+  type: Float
