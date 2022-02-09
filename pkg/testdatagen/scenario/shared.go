@@ -4875,16 +4875,12 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 }
 
 /*
-	Create Needs Service Counseling - pass in orders and shipment type
+	Create Needs Service Counseling - pass in orders, shipment type, destination type, locator
 */
-func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType) {
+func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: models.StringPointer(string(ordersType)),
-			LastName:  models.StringPointer(string(shipmentType)),
-		},
 		DutyStation: models.DutyStation{
 			ProvidesServicesCounseling: true,
 		},
@@ -4894,6 +4890,7 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 	})
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
+			Locator:     locator,
 			Status:      models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt: &submittedAt,
 		},

@@ -116,7 +116,7 @@ describe('Services counselor user', () => {
   it('is able to add a shipment', () => {
     const deliveryDate = new Date().toLocaleDateString('en-US');
 
-    const moveLocator = 'DATYPE';
+    const moveLocator = 'S3PAR3';
 
     /**
      * SC Moves queue
@@ -147,7 +147,7 @@ describe('Services counselor user', () => {
   it('is able to edit a shipment', () => {
     const deliveryDate = new Date().toLocaleDateString('en-US');
 
-    const moveLocator = 'DATYPE';
+    const moveLocator = 'RET1RE';
 
     /**
      * SC Moves queue
