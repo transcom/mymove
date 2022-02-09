@@ -22,20 +22,7 @@ const defaultProps = {
 };
 
 const mtoShipmentProps = {
-  onSubmit: jest.fn(),
-  onBack: jest.fn(),
-  serviceMember: {
-    id: '123',
-    residentialAddress: {
-      postalCode: '90210',
-    },
-  },
-  destinationDutyStation: {
-    address: {
-      postalCode: '94611',
-    },
-  },
-  postalCodeValidator: jest.fn(),
+  ...defaultProps,
   mtoShipment: {
     id: '123',
     ppmShipment: {
