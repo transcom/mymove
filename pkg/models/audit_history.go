@@ -14,8 +14,9 @@ type JSONMap map[string]interface{}
 
 // AuditHistory is a record from the audit_history table
 type AuditHistory struct {
-	ID         uuid.UUID `json:"id" db:"id"`
-	SchemaName string    `json:"schema_name" db:"schema_name"`
+	ID uuid.UUID `json:"id" db:"id"`
+	// Database schema audited table for this event is in
+	SchemaName string `json:"schema_name" db:"schema_name"`
 	// name of database table that was changed
 	TableName string `json:"table_name" db:"table_name"`
 	// relation OID. Table OID (object identifier). Changes with drop/create

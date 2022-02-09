@@ -97,6 +97,7 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		SessionUserID:   handlers.FmtUUIDPtr(auditHistory.SessionUserID),
 		StatementOnly:   auditHistory.StatementOnly,
 		TableName:       auditHistory.TableName,
+		SchemaName:      auditHistory.SchemaName,
 		TransactionID:   auditHistory.TransactionID,
 	}
 

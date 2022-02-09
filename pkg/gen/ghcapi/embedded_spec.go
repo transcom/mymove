@@ -4579,6 +4579,10 @@ func init() {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
           "type": "integer"
         },
+        "schemaName": {
+          "description": "Database schema audited table for this event is in",
+          "type": "string"
+        },
         "sessionUserId": {
           "type": "string",
           "format": "uuid",
@@ -11489,6 +11493,10 @@ func init() {
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
           "type": "integer"
+        },
+        "schemaName": {
+          "description": "Database schema audited table for this event is in",
+          "type": "string"
         },
         "sessionUserId": {
           "type": "string",

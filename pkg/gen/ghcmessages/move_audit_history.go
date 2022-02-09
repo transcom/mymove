@@ -59,6 +59,9 @@ type MoveAuditHistory struct {
 	// relation OID. Table OID (object identifier). Changes with drop/create.
 	RelID int64 `json:"relId,omitempty"`
 
+	// Database schema audited table for this event is in
+	SchemaName string `json:"schemaName,omitempty"`
+
 	// session user Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
