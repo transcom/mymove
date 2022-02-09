@@ -4939,17 +4939,17 @@ func createHHGNoGovCounselingForRetirementWithDestinationAddressAndType(appCtx a
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := testdatagen.MakeDefaultAddress(db)
-	destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+	destinationType := models.DestinationTypeHomeOfRecord
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:           models.MTOShipmentTypeHHG,
-			Status:                 models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:    &requestedPickupDate,
-			RequestedDeliveryDate:  &requestedDeliveryDate,
-			DestinationAddressID:   &destinationAddress.ID,
-			DestinationAddressType: &destinationAddressType,
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+			DestinationType:       &destinationType,
 		},
 	})
 }
@@ -4976,17 +4976,17 @@ func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcon
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := testdatagen.MakeDefaultAddress(db)
-	destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+	destinationType := models.DestinationTypeHomeOfRecord
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:           models.MTOShipmentTypeHHG,
-			Status:                 models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:    &requestedPickupDate,
-			RequestedDeliveryDate:  &requestedDeliveryDate,
-			DestinationAddressID:   &destinationAddress.ID,
-			DestinationAddressType: &destinationAddressType,
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+			DestinationType:       &destinationType,
 		},
 	})
 
