@@ -6,10 +6,12 @@ import PPMShipmentCard from './PPMShipmentCard';
 import NTSShipmentCard from './NTSShipmentCard';
 import NTSRShipmentCard from './NTSRShipmentCard';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 const hhgDefaultProps = {
   moveId: 'testMove123',
   shipmentNumber: 1,
-  shipmentType: 'HHG',
+  shipmentType: SHIPMENT_OPTIONS.HHG,
   shipmentId: 'ABC123K',
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
@@ -38,7 +40,7 @@ const hhgDefaultProps = {
 
 const ntsDefaultProps = {
   moveId: 'testMove123',
-  shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+  shipmentType: SHIPMENT_OPTIONS.HHG_INTO_NTS_DOMESTIC,
   shipmentId: 'ABC123K',
   showEditBtn: true,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
@@ -61,7 +63,7 @@ const ntsDefaultProps = {
 const ntsrDefaultProps = {
   moveId: 'testMove123',
   shipmentNumber: 1,
-  shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+  shipmentType: SHIPMENT_OPTIONS.HHG_OUTOF_NTS_DOMESTIC,
   shipmentId: 'ABC123K',
   showEditBtn: true,
   requestedDeliveryDate: new Date('03/01/2020').toISOString(),

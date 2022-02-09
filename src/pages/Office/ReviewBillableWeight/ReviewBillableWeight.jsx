@@ -27,6 +27,7 @@ import {
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default function ReviewBillableWeight() {
   const [selectedShipmentIndex, setSelectedShipmentIndex] = React.useState(0);
@@ -231,11 +232,12 @@ export default function ReviewBillableWeight() {
                 {shipmentIsOverweight(
                   selectedShipment.primeEstimatedWeight,
                   selectedShipment.calculatedBillableWeight,
-                ) && (
-                  <Alert slim type="warning" data-testid="shipmentBillableWeightExceeds110OfEstimated">
-                    Shipment exceeds 110% of estimated weight.
-                  </Alert>
-                )}
+                ) &&
+                  selectedShipment.shipmentType !== SHIPMENT_OPTIONS.NTSR && (
+                    <Alert slim type="warning" data-testid="shipmentBillableWeightExceeds110OfEstimated">
+                      Shipment exceeds 110% of estimated weight.
+                    </Alert>
+                  )}
                 <div className={reviewBillableWeightStyles.weightSummary}>
                   <WeightSummary
                     maxBillableWeight={maxBillableWeight}
@@ -262,6 +264,7 @@ export default function ReviewBillableWeight() {
                   reweighWeight={selectedShipment?.reweigh?.weight}
                   maxBillableWeight={maxBillableWeight}
                   totalBillableWeight={totalBillableWeight}
+                  shipmentType={selectedShipment.shipmentType}
                 />
               </div>
             </DocumentViewerSidebar.Content>

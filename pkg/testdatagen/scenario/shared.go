@@ -2435,6 +2435,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
+			ActualPickupDate:     swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
 			StorageFacility:      &storageFacility,
 			TACType:              &tacType,
