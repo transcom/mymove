@@ -51,13 +51,6 @@ const RequestedShipments = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
 
-  const ordersLOA = {
-    tac: ordersInfo.tacMDC,
-    sac: ordersInfo.sacSDN,
-    ntsTac: ordersInfo.NTStac,
-    ntsSac: ordersInfo.NTSsac,
-  };
-
   const filterShipments = (formikShipmentIds) => {
     return mtoShipments.filter(({ id }) => formikShipmentIds.includes(id));
   };
@@ -202,7 +195,6 @@ const RequestedShipments = ({
                       displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
                       ordersLOA={ordersLOA}
                       errorIfMissing={errorIfMissing[shipment.shipmentType]}
-                      ordersLOA={ordersLOA}
                       showWhenCollapsed={
                         shipment.usesExternalVendor
                           ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
