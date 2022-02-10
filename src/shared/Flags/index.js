@@ -9,22 +9,35 @@ let errorIfMissing,
   shipment,
   styles = null;
 
+/*
+  Set flags for a shipment based on fieldname. Null values will be set to empty arrays by default.
+
+  Flag options:
+    errorIfMissing,
+    warnIfMissing,
+    showWhenCollapsed,
+    neverShow
+
+  Pass in an array with string fieldnames to set any option e.g. ['counselorRemarks']
+*/
 export function setShipmentFlags(error, warn, show, never, ship) {
-  errorIfMissing = error;
-  warnIfMissing = warn;
-  showWhenCollapsed = show;
-  neverShow = never;
+  errorIfMissing = error || [];
+  warnIfMissing = warn || [];
+  showWhenCollapsed = show || [];
+  neverShow = never || [];
   shipment = ship;
 
   return;
 }
 
-export function setFlagRowStyles(flagRowStyles) {
-  styles = flagRowStyles;
-
-  return;
-}
-
+/*
+  Retrieve set flags for a shipment based on shipment fieldname.
+  Flag options:
+    errorIfMissing,
+    warnIfMissing,
+    showWhenCollapsed,
+    neverShow
+*/
 export function getShipmentFlags(fieldname) {
   let alwaysShow = false;
   let classes = styles.row;
