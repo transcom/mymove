@@ -100,7 +100,7 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 		"DutyStation.TransportationOffice",
 		"DutyStation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyStation.TransportationOffice",
-		"Orders.OriginDutyStation",
+		"Orders.OriginDutyLocation",
 		"Orders.UploadedOrders.UserUploads.Upload",
 		"Orders.Moves",
 		"ResidentialAddress").Find(&serviceMember, id)
@@ -260,7 +260,7 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 			SAC:                 sac,
 			DepartmentIndicator: departmentIndicator,
 			Grade:               grade,
-			OriginDutyStation:   originDutyStation,
+			OriginDutyLocation:  originDutyStation,
 			Entitlement:         entitlement,
 		}
 
@@ -330,8 +330,8 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 	var order Order
 	query := db.Where("orders.service_member_id = $1", s.ID).Order("created_at desc")
 	err := query.EagerPreload("ServiceMember.User",
-		"OriginDutyStation.Address",
-		"OriginDutyStation.TransportationOffice",
+		"OriginDutyLocation.Address",
+		"OriginDutyLocation.TransportationOffice",
 		"NewDutyStation.Address",
 		"UploadedOrders",
 		"UploadedAmendedOrders",

@@ -378,15 +378,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(appCtx appcontext.A
 func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
 
 	var err error
-	var originDutyLocation models.DutyLocation // TODO
+	var originDutyLocation models.DutyLocation
 
-	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
-		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyStationID)
+	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
+		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
 		if err != nil {
-			return apperror.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+			return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
 		}
 	} else {
-		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
+		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyLocation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
@@ -489,13 +489,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	// origin station name
 	var originDutyLocation models.DutyLocation
 
-	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
-		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyStationID)
+	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
+		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
 		if err != nil {
-			return apperror.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+			return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
 		}
 	} else {
-		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
+		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyLocation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)

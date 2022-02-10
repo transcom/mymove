@@ -5716,22 +5716,22 @@ func createRandomMove(appCtx appcontext.AppContext, possibleStatuses []models.Mo
 	}
 
 	dutyStationCount := len(allDutyLocations)
-	if assertions.Order.OriginDutyStationID == nil {
+	if assertions.Order.OriginDutyLocationID == nil {
 		// We can pick any origin duty station not only one in the office user's GBLOC
 		if *assertions.ServiceMember.Affiliation == models.AffiliationMARINES {
 			randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 			}
-			assertions.Order.OriginDutyStation = &allDutyLocations[randDutyStaionIndex]
-			assertions.Order.OriginDutyStationID = &assertions.Order.OriginDutyStation.ID
+			assertions.Order.OriginDutyLocation = &allDutyLocations[randDutyStaionIndex]
+			assertions.Order.OriginDutyLocationID = &assertions.Order.OriginDutyLocation.ID
 		} else {
 			randDutyStaionIndex, err := random.GetRandomInt(len(dutyLocationsInGBLOC))
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 			}
-			assertions.Order.OriginDutyStation = &dutyLocationsInGBLOC[randDutyStaionIndex]
-			assertions.Order.OriginDutyStationID = &assertions.Order.OriginDutyStation.ID
+			assertions.Order.OriginDutyLocation = &dutyLocationsInGBLOC[randDutyStaionIndex]
+			assertions.Order.OriginDutyLocationID = &assertions.Order.OriginDutyLocation.ID
 		}
 	}
 

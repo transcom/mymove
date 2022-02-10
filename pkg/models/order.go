@@ -43,8 +43,8 @@ type Order struct {
 	OrdersTypeDetail            *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents               bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear            bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
-	OriginDutyStation           *DutyLocation                      `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
-	OriginDutyStationID         *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
+	OriginDutyLocation          *DutyLocation                      `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
+	OriginDutyLocationID        *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 	NewDutyStationID            uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
 	NewDutyStation              DutyLocation                       `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
 	UploadedOrders              Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
@@ -84,7 +84,7 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "DepartmentIndicator"},
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
-		&OptionalUUIDIsPresent{Field: o.OriginDutyStationID, Name: "OriginDutyStationID"},
+		&OptionalUUIDIsPresent{Field: o.OriginDutyLocationID, Name: "OriginDutyLocationID"},
 		&OptionalRegexMatch{Name: "TransportationAccountingCode", Field: o.TAC, Expr: `\A([A-Za-z0-9]){4}\z`, Message: "TAC must be exactly 4 alphanumeric characters."},
 		&validators.UUIDIsPresent{Field: o.UploadedOrdersID, Name: "UploadedOrdersID"},
 		&OptionalUUIDIsPresent{Field: o.UploadedAmendedOrdersID, Name: "UploadedAmendedOrdersID"},
@@ -158,8 +158,8 @@ func (o *Order) Cancel() error {
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().EagerPreload("ServiceMember.User",
-		"OriginDutyStation.Address",
-		"OriginDutyStation.TransportationOffice",
+		"OriginDutyLocation.Address",
+		"OriginDutyLocation.TransportationOffice",
 		"NewDutyStation.Address",
 		"NewDutyStation.TransportationOffice",
 		"UploadedOrders",
@@ -167,7 +167,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement",
-		"OriginDutyStation").
+		"OriginDutyLocation").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

@@ -147,7 +147,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 		suite.Equal(2, len(moveTaskOrders))
 		suite.NotNil(move.Orders)
-		suite.NotNil(move.Orders.OriginDutyStation)
+		suite.NotNil(move.Orders.OriginDutyLocation)
 		suite.NotNil(move.Orders.NewDutyStation)
 	})
 

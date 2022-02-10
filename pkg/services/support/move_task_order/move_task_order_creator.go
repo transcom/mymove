@@ -131,8 +131,8 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 				return nil, apperror.NewQueryError("DutyStation", err, "")
 			}
 		}
-		order.OriginDutyStation = originDutyStation
-		order.OriginDutyStationID = &originDutyStationID
+		order.OriginDutyLocation = originDutyStation
+		order.OriginDutyLocationID = &originDutyStationID
 	}
 	// Check that the uploaded orders document exists
 	var uploadedOrders *models.Document
@@ -303,7 +303,7 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 
 	if orderPayload.OriginDutyStationID != nil {
 		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
-		model.OriginDutyStationID = &originDutyStationID
+		model.OriginDutyLocationID = &originDutyStationID
 	}
 
 	if orderPayload.Customer != nil {

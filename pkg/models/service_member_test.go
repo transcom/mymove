@@ -173,25 +173,25 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 	ordersNumber := "FD4534JFJ"
 
 	order := Order{
-		ServiceMemberID:     serviceMember.ID,
-		ServiceMember:       serviceMember,
-		IssueDate:           issueDate,
-		ReportByDate:        reportByDate,
-		OrdersType:          ordersType,
-		HasDependents:       hasDependents,
-		SpouseHasProGear:    spouseHasProGear,
-		OriginDutyStationID: &dutyLocation.ID,
-		OriginDutyStation:   &dutyLocation,
-		NewDutyStationID:    dutyLocation2.ID,
-		NewDutyStation:      dutyLocation2,
-		UploadedOrdersID:    uploadedOrder.ID,
-		UploadedOrders:      uploadedOrder,
-		Status:              OrderStatusSUBMITTED,
-		OrdersNumber:        &ordersNumber,
-		TAC:                 &TAC,
-		SAC:                 &SAC,
-		DepartmentIndicator: &deptIndicator,
-		Grade:               swag.String("E-1"),
+		ServiceMemberID:      serviceMember.ID,
+		ServiceMember:        serviceMember,
+		IssueDate:            issueDate,
+		ReportByDate:         reportByDate,
+		OrdersType:           ordersType,
+		HasDependents:        hasDependents,
+		SpouseHasProGear:     spouseHasProGear,
+		OriginDutyLocationID: &dutyLocation.ID,
+		OriginDutyLocation:   &dutyLocation,
+		NewDutyStationID:     dutyLocation2.ID,
+		NewDutyStation:       dutyLocation2,
+		UploadedOrdersID:     uploadedOrder.ID,
+		UploadedOrders:       uploadedOrder,
+		Status:               OrderStatusSUBMITTED,
+		OrdersNumber:         &ordersNumber,
+		TAC:                  &TAC,
+		SAC:                  &SAC,
+		DepartmentIndicator:  &deptIndicator,
+		Grade:                swag.String("E-1"),
 	}
 	suite.MustSave(&order)
 
@@ -206,7 +206,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 
 	if suite.NoError(err) {
 		suite.Equal(order.Grade, actualOrder.Grade)
-		suite.Equal(order.OriginDutyStationID, actualOrder.OriginDutyStationID)
+		suite.Equal(order.OriginDutyLocationID, actualOrder.OriginDutyLocationID)
 		suite.Equal(order.NewDutyStationID, actualOrder.NewDutyStationID)
 		suite.True(order.IssueDate.Equal(actualOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(actualOrder.ReportByDate))

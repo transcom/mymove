@@ -218,9 +218,9 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 			order.Grade = serviceMemberRank
 		}
 
-		if serviceMember.DutyStation.ID != order.OriginDutyStation.ID {
-			order.OriginDutyStation = &serviceMember.DutyStation
-			order.OriginDutyStationID = &serviceMember.DutyStation.ID
+		if serviceMember.DutyStation.ID != order.OriginDutyLocation.ID {
+			order.OriginDutyLocation = &serviceMember.DutyStation
+			order.OriginDutyLocationID = &serviceMember.DutyStation.ID
 		}
 
 		verrs, err = appCtx.DB().ValidateAndSave(&order)

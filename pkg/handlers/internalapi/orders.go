@@ -71,8 +71,8 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	}
 	var originDutyStation models.DutyLocation
 	originDutyStation = models.DutyLocation{}
-	if order.OriginDutyStation != nil {
-		originDutyStation = *order.OriginDutyStation
+	if order.OriginDutyLocation != nil {
+		originDutyStation = *order.OriginDutyLocation
 	}
 
 	ordersType := order.OrdersType

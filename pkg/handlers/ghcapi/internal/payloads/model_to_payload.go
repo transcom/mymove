@@ -120,7 +120,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	destinationDutyStation := DutyLocation(&order.NewDutyStation)
-	originDutyStation := DutyLocation(order.OriginDutyStation)
+	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
@@ -160,7 +160,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		OrderNumber:                 order.OrdersNumber,
 		OrderTypeDetail:             &ordersTypeDetail,
 		ID:                          strfmt.UUID(order.ID.String()),
-		OriginDutyStation:           originDutyStation,
+		OriginDutyStation:           originDutyLocation,
 		ETag:                        etag.GenerateEtag(order.UpdatedAt),
 		Agency:                      branch,
 		CustomerID:                  strfmt.UUID(order.ServiceMemberID.String()),
@@ -800,7 +800,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
-			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyStation),
+			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyStation),
 			OriginGBLOC:             gbloc,
 		}
@@ -857,7 +857,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        ghcmessages.GBLOC(moveTaskOrder.ShipmentGBLOC[0].GBLOC),
-			OriginDutyLocation: DutyLocation(orders.OriginDutyStation),
+			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
 		}
 
 		if orders.DepartmentIndicator != nil {

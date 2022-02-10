@@ -291,7 +291,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		})
 		assertions := testdatagen.Assertions{
 			Order: models.Order{
-				OriginDutyStation: &dutyLocation,
+				OriginDutyLocation: &dutyLocation,
 			},
 		}
 		move := testdatagen.MakeMove(suite.DB(), assertions)

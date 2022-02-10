@@ -415,8 +415,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds buyer and seller organization name", func(t *testing.T) {
 		// buyer name
-		originDutyStation := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation
-		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), originDutyStation.ID)
+		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
+		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), originDutyLocation.ID)
 		suite.FatalNoError(err)
 		buyerOrg := result.Header.BuyerOrganizationName
 		suite.IsType(edisegment.N1{}, buyerOrg)
@@ -481,15 +481,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds orders origin address", func(t *testing.T) {
 		// name
-		expectedDutyStation := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation
+		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
 		n1 := result.Header.OriginName
 		suite.IsType(edisegment.N1{}, n1)
 		suite.Equal("SF", n1.EntityIdentifierCode)
-		suite.Equal(expectedDutyStation.Name, n1.Name)
+		suite.Equal(expectedDutyLocation.Name, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
-		suite.Equal(expectedDutyStation.TransportationOffice.Gbloc, n1.IdentificationCode)
+		suite.Equal(expectedDutyLocation.TransportationOffice.Gbloc, n1.IdentificationCode)
 		// street address
-		address := expectedDutyStation.Address
+		address := expectedDutyLocation.Address
 		n3Address := result.Header.OriginStreetAddress
 		suite.IsType(&edisegment.N3{}, n3Address)
 		n3 := *n3Address
@@ -509,7 +509,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.NoError(err)
 		suite.Equal(*countryCode, n4.CountryCode)
 		// Office Phone
-		originStationPhoneLines := expectedDutyStation.TransportationOffice.PhoneLines
+		originStationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
 		var originPhoneLines []string
 		for _, phoneLine := range originStationPhoneLines {
 			if phoneLine.Type == "voice" {
@@ -847,11 +847,11 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		nilPaymentRequest.MoveTaskOrder.Orders.NewDutyStation.Address.Country = oldCountry
 	})
 
-	suite.T().Run("nil country for OriginDutyStation does not cause panic", func(t *testing.T) {
-		oldCountry := nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyStation.Address.Country
-		nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyStation.Address.Country = nil
+	suite.T().Run("nil country for OriginDutyLocation does not cause panic", func(t *testing.T) {
+		oldCountry := nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Address.Country
+		nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Address.Country = nil
 		suite.NotPanics(panicFunc)
-		nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyStation.Address.Country = oldCountry
+		nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Address.Country = oldCountry
 	})
 
 	suite.T().Run("nil reference ID does not cause panic", func(t *testing.T) {

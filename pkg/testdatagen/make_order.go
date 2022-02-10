@@ -71,9 +71,9 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		entitlement = MakeEntitlement(db, assertions)
 	}
 
-	originDutyStation := assertions.OriginDutyLocation
-	if isZeroUUID(originDutyStation.ID) {
-		originDutyStation = MakeDutyLocation(db, assertions)
+	originDutyLocation := assertions.OriginDutyLocation
+	if isZeroUUID(originDutyLocation.ID) {
+		originDutyLocation = MakeDutyLocation(db, assertions)
 	}
 
 	orderTypeDetail := assertions.Order.OrdersTypeDetail
@@ -103,8 +103,8 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		Grade:                   &grade,
 		Entitlement:             &entitlement,
 		EntitlementID:           &entitlement.ID,
-		OriginDutyStation:       &originDutyStation,
-		OriginDutyStationID:     &originDutyStation.ID,
+		OriginDutyLocation:      &originDutyLocation,
+		OriginDutyLocationID:    &originDutyLocation.ID,
 		OrdersTypeDetail:        orderTypeDetail,
 	}
 
@@ -187,27 +187,27 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 	}
 
 	order := models.Order{
-		ServiceMember:       sm,
-		ServiceMemberID:     sm.ID,
-		NewDutyStation:      station,
-		NewDutyStationID:    station.ID,
-		UploadedOrders:      document,
-		UploadedOrdersID:    document.ID,
-		IssueDate:           time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-		ReportByDate:        time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
-		OrdersType:          internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:        ordersNumber,
-		HasDependents:       hasDependents,
-		SpouseHasProGear:    spouseHasProGear,
-		Status:              models.OrderStatusDRAFT,
-		TAC:                 TAC,
-		DepartmentIndicator: departmentIndicator,
-		Grade:               &grade,
-		Entitlement:         &entitlement,
-		EntitlementID:       &entitlement.ID,
-		OriginDutyStation:   &originDutyStation,
-		OriginDutyStationID: &originDutyStation.ID,
-		OrdersTypeDetail:    orderTypeDetail,
+		ServiceMember:        sm,
+		ServiceMemberID:      sm.ID,
+		NewDutyStation:       station,
+		NewDutyStationID:     station.ID,
+		UploadedOrders:       document,
+		UploadedOrdersID:     document.ID,
+		IssueDate:            time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+		ReportByDate:         time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
+		OrdersType:           internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:         ordersNumber,
+		HasDependents:        hasDependents,
+		SpouseHasProGear:     spouseHasProGear,
+		Status:               models.OrderStatusDRAFT,
+		TAC:                  TAC,
+		DepartmentIndicator:  departmentIndicator,
+		Grade:                &grade,
+		Entitlement:          &entitlement,
+		EntitlementID:        &entitlement.ID,
+		OriginDutyLocation:   &originDutyStation,
+		OriginDutyLocationID: &originDutyStation.ID,
+		OrdersTypeDetail:     orderTypeDetail,
 	}
 
 	// Overwrite values with those from assertions

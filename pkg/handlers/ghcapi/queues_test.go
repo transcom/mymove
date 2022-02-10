@@ -88,8 +88,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(hhgMove.ID.String(), result.ID.String())
 	suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
 	suite.Equal(*order.DepartmentIndicator, string(deptIndicator))
-	suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
-	suite.Equal(order.OriginDutyStation.ID.String(), result.OriginDutyLocation.ID.String())
+	suite.Equal(order.OriginDutyLocation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
+	suite.Equal(order.OriginDutyLocation.ID.String(), result.OriginDutyLocation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
 }
@@ -546,10 +546,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			Status:           models.MoveStatusSUBMITTED,
 		},
 		Order: models.Order{
-			OriginDutyStation:   &dutyLocation1,
-			OriginDutyStationID: &dutyLocation1.ID,
-			NewDutyStation:      dutyLocation1,
-			NewDutyStationID:    dutyLocation1.ID,
+			OriginDutyLocation:   &dutyLocation1,
+			OriginDutyLocationID: &dutyLocation1.ID,
+			NewDutyStation:       dutyLocation1,
+			NewDutyStationID:     dutyLocation1.ID,
 		},
 		ServiceMember: serviceMember1,
 	})
@@ -560,10 +560,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			Status:           models.MoveStatusSUBMITTED,
 		},
 		Order: models.Order{
-			OriginDutyStation:   &dutyLocation2,
-			OriginDutyStationID: &dutyLocation2.ID,
-			NewDutyStation:      dutyLocation2,
-			NewDutyStationID:    dutyLocation2.ID,
+			OriginDutyLocation:   &dutyLocation2,
+			OriginDutyLocationID: &dutyLocation2.ID,
+			NewDutyStation:       dutyLocation2,
+			NewDutyStationID:     dutyLocation2.ID,
 		},
 		ServiceMember: serviceMember2,
 	})
@@ -1119,7 +1119,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			Status:           models.MoveStatusSUBMITTED,
 		},
 		Order: models.Order{
-			OriginDutyStation: &originDutyLocation,
+			OriginDutyLocation: &originDutyLocation,
 		},
 	})
 

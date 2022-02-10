@@ -130,7 +130,7 @@ func Order(order *models.Order) *primemessages.Order {
 		return nil
 	}
 	destinationDutyStation := DutyLocation(&order.NewDutyStation)
-	originDutyStation := DutyLocation(order.OriginDutyStation)
+	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
@@ -141,7 +141,7 @@ func Order(order *models.Order) *primemessages.Order {
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            Entitlement(order.Entitlement),
 		ID:                     strfmt.UUID(order.ID.String()),
-		OriginDutyStation:      originDutyStation,
+		OriginDutyStation:      originDutyLocation,
 		OrderNumber:            order.OrdersNumber,
 		LinesOfAccounting:      order.TAC,
 		Rank:                   order.Grade,

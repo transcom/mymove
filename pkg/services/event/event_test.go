@@ -452,7 +452,7 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 		// Check some params
 		suite.Equal(move.Orders.ServiceMember.ID.String(), orderPayload.Customer.ID.String())
 		suite.Equal(move.Orders.Entitlement.ID.String(), orderPayload.Entitlement.ID.String())
-		suite.Equal(move.Orders.OriginDutyStation.ID.String(), orderPayload.OriginDutyStation.ID.String())
+		suite.Equal(move.Orders.OriginDutyLocation.ID.String(), orderPayload.OriginDutyStation.ID.String())
 	})
 }
 

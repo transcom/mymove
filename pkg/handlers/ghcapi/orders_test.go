@@ -71,8 +71,8 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.EqualValues(orderEntitlement.ProGearWeightSpouse, payloadEntitlement.ProGearWeightSpouse)
 	suite.EqualValues(orderEntitlement.RequiredMedicalEquipmentWeight, payloadEntitlement.RequiredMedicalEquipmentWeight)
 	suite.EqualValues(orderEntitlement.OrganizationalClothingAndIndividualEquipment, payloadEntitlement.OrganizationalClothingAndIndividualEquipment)
-	suite.Equal(order.OriginDutyStation.ID.String(), ordersPayload.OriginDutyStation.ID.String())
-	suite.NotZero(order.OriginDutyStation)
+	suite.Equal(order.OriginDutyLocation.ID.String(), ordersPayload.OriginDutyStation.ID.String())
+	suite.NotZero(order.OriginDutyLocation)
 	suite.NotZero(ordersPayload.DateIssued)
 }
 

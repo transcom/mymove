@@ -29,20 +29,20 @@ func (suite *OrderServiceSuite) TestOrderFetcher() {
 	suite.Equal(expectedOrder.NewDutyStation.Address.StreetAddress1, order.NewDutyStation.Address.StreetAddress1)
 	suite.NotNil(order.Entitlement)
 	suite.Equal(*expectedOrder.EntitlementID, order.Entitlement.ID)
-	suite.Equal(expectedOrder.OriginDutyStation.ID, order.OriginDutyStation.ID)
-	suite.Equal(expectedOrder.OriginDutyStation.AddressID, order.OriginDutyStation.AddressID)
-	suite.Equal(expectedOrder.OriginDutyStation.Address.StreetAddress1, order.OriginDutyStation.Address.StreetAddress1)
-	suite.NotZero(order.OriginDutyStation)
+	suite.Equal(expectedOrder.OriginDutyLocation.ID, order.OriginDutyLocation.ID)
+	suite.Equal(expectedOrder.OriginDutyLocation.AddressID, order.OriginDutyLocation.AddressID)
+	suite.Equal(expectedOrder.OriginDutyLocation.Address.StreetAddress1, order.OriginDutyLocation.Address.StreetAddress1)
+	suite.NotZero(order.OriginDutyLocation)
 	suite.Equal(expectedMove.Locator, order.Moves[0].Locator)
 }
 
 func (suite *OrderServiceSuite) TestOrderFetcherWithEmptyFields() {
-	// When move_orders and orders were consolidated, we moved the OriginDutyStation
+	// When move_orders and orders were consolidated, we moved the OriginDutyLocation
 	// field that used to only exist on the move_orders table into the orders table.
 	// This means that existing orders in production won't have any values in the
-	// OriginDutyStation column. To mimic that and to surface any issues, we didn't
+	// OriginDutyLocation column. To mimic that and to surface any issues, we didn't
 	// update the testdatagen MakeOrder function so that new orders would have
-	// an empty OriginDutyStation. During local testing in the office app, we
+	// an empty OriginDutyLocation. During local testing in the office app, we
 	// noticed an exception due to trying to load empty OriginDutyStations.
 	// This was not caught by any tests, so we're adding one now.
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
@@ -50,8 +50,8 @@ func (suite *OrderServiceSuite) TestOrderFetcherWithEmptyFields() {
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
 	expectedOrder.Grade = nil
-	expectedOrder.OriginDutyStation = nil
-	expectedOrder.OriginDutyStationID = nil
+	expectedOrder.OriginDutyLocation = nil
+	expectedOrder.OriginDutyLocationID = nil
 	suite.MustSave(&expectedOrder)
 
 	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -62,7 +62,7 @@ func (suite *OrderServiceSuite) TestOrderFetcherWithEmptyFields() {
 
 	suite.FatalNoError(err)
 	suite.Nil(order.Entitlement)
-	suite.Nil(order.OriginDutyStation)
+	suite.Nil(order.OriginDutyLocation)
 	suite.Nil(order.Grade)
 }
 
@@ -104,10 +104,10 @@ func (suite *OrderServiceSuite) TestListMoves() {
 		suite.Equal(expectedMove.Orders.NewDutyStationID, move.Orders.NewDutyStation.ID)
 		suite.NotNil(move.Orders.Entitlement)
 		suite.Equal(*expectedMove.Orders.EntitlementID, move.Orders.Entitlement.ID)
-		suite.Equal(expectedMove.Orders.OriginDutyStation.ID, move.Orders.OriginDutyStation.ID)
-		suite.NotNil(move.Orders.OriginDutyStation)
-		suite.Equal(expectedMove.Orders.OriginDutyStation.AddressID, move.Orders.OriginDutyStation.AddressID)
-		suite.Equal(expectedMove.Orders.OriginDutyStation.Address.StreetAddress1, move.Orders.OriginDutyStation.Address.StreetAddress1)
+		suite.Equal(expectedMove.Orders.OriginDutyLocation.ID, move.Orders.OriginDutyLocation.ID)
+		suite.NotNil(move.Orders.OriginDutyLocation)
+		suite.Equal(expectedMove.Orders.OriginDutyLocation.AddressID, move.Orders.OriginDutyLocation.AddressID)
+		suite.Equal(expectedMove.Orders.OriginDutyLocation.Address.StreetAddress1, move.Orders.OriginDutyLocation.Address.StreetAddress1)
 	})
 
 	suite.T().Run("returns moves filtered by GBLOC", func(t *testing.T) {
@@ -279,8 +279,8 @@ func (suite *OrderServiceSuite) TestListMovesWithEmptyFields() {
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
 	expectedOrder.Grade = nil
-	expectedOrder.OriginDutyStation = nil
-	expectedOrder.OriginDutyStationID = nil
+	expectedOrder.OriginDutyLocation = nil
+	expectedOrder.OriginDutyLocationID = nil
 	suite.MustSave(&expectedOrder)
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -555,8 +555,8 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 			Locator: "ZZ1234",
 		},
 		Order: models.Order{
-			OriginDutyStation:   &originDutyLocation2,
-			OriginDutyStationID: &originDutyLocation2.ID,
+			OriginDutyLocation:   &originDutyLocation2,
+			OriginDutyLocationID: &originDutyLocation2.ID,
 		},
 	})
 

@@ -97,7 +97,7 @@ func Order(order *models.Order) *supportmessages.Order {
 		return nil
 	}
 	destinationDutyStation := DutyStation(&order.NewDutyStation)
-	originDutyStation := DutyStation(order.OriginDutyStation)
+	originDutyLocation := DutyStation(order.OriginDutyLocation)
 	uploadedOrders := Document(&order.UploadedOrders)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
@@ -113,7 +113,7 @@ func Order(order *models.Order) *supportmessages.Order {
 		OrderNumber:              order.OrdersNumber,
 		OrdersType:               supportmessages.NewOrdersType(supportmessages.OrdersType(order.OrdersType)),
 		ID:                       strfmt.UUID(order.ID.String()),
-		OriginDutyStation:        originDutyStation,
+		OriginDutyStation:        originDutyLocation,
 		ETag:                     etag.GenerateEtag(order.UpdatedAt),
 		Status:                   supportmessages.NewOrdersStatus(supportmessages.OrdersStatus(order.Status)),
 		UploadedOrders:           uploadedOrders,
@@ -127,8 +127,8 @@ func Order(order *models.Order) *supportmessages.Order {
 		rank := (supportmessages.Rank)(*order.Grade)
 		payload.Rank = &rank
 	}
-	if order.OriginDutyStationID != nil {
-		payload.OriginDutyStationID = handlers.FmtUUID(*order.OriginDutyStationID)
+	if order.OriginDutyLocationID != nil {
+		payload.OriginDutyStationID = handlers.FmtUUID(*order.OriginDutyLocationID)
 	}
 	if order.DepartmentIndicator != nil {
 		payload.DepartmentIndicator = (*supportmessages.DeptIndicator)(order.DepartmentIndicator)

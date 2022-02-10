@@ -130,7 +130,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
 		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
-		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyLocation.ID.String())
 		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
@@ -211,7 +211,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
 		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
-		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyLocation.ID.String())
 		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
@@ -255,7 +255,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
 		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
-		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyLocation.ID.String())
 		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
@@ -299,7 +299,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
 		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
-		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyLocation.ID.String())
 		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
@@ -445,7 +445,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
 		suite.Equal(body.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
-		suite.Equal(body.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(body.OriginDutyStationID.String(), updatedOrder.OriginDutyLocation.ID.String())
 		suite.Equal(time.Time(*body.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*body.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*body.OrdersType, updatedOrder.OrdersType)
@@ -741,7 +741,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
-				OriginDutyStation: &dutyLocation,
+				OriginDutyLocation: &dutyLocation,
 			},
 			Move: mto,
 		})
@@ -832,7 +832,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
-				OriginDutyStation:       &dutyLocation,
+				OriginDutyLocation:      &dutyLocation,
 				UploadedAmendedOrders:   &document,
 				UploadedAmendedOrdersID: &document.ID,
 			},

@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
-	suite.Equal(sm.DutyStationID, createdOrder.OriginDutyStationID)
+	suite.Equal(sm.DutyStationID, createdOrder.OriginDutyLocationID)
 	suite.Equal((*string)(sm.Rank), createdOrder.Grade)
 	suite.Assertions.Equal(*swag.Int64(8000), *okResponse.Payload.AuthorizedWeight)
 	suite.NotNil(&createdOrder.Entitlement)
@@ -87,7 +87,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	})
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			OriginDutyStation: &dutyLocation,
+			OriginDutyLocation: &dutyLocation,
 		},
 	})
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -131,7 +131,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			OriginDutyStation: &dutyLocation,
+			OriginDutyLocation: &dutyLocation,
 		},
 		Move: mto,
 	})

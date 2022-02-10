@@ -50,7 +50,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 
 	paymentRequests := models.PaymentRequests{}
 	query := appCtx.DB().Q().EagerPreload(
-		"MoveTaskOrder.Orders.OriginDutyStation.TransportationOffice",
+		"MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
 		// "MoveTaskOrder.Orders.ServiceMember",
 	).
@@ -110,14 +110,14 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	for i := range paymentRequests {
 		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
 		// where the first 2 levels match.  For example:
-		//   "MoveTaskOrder.Orders.OriginDutyStation.TransportationOffice" and "MoveTaskOrder.Orders.ServiceMember"
+		//   "MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice" and "MoveTaskOrder.Orders.ServiceMember"
 		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
 		// in the EagerPreload above and request the second one explicitly with a separate Load call.
 		//
 		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
 		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-		//   cannot eager load the address as "OriginDutyStation.Address" because
-		//   OriginDutyStation is a pointer.
+		//   cannot eager load the address as "OriginDutyLocation.Address" because
+		//   OriginDutyLocation is a pointer.
 		loadErr := appCtx.DB().Load(&paymentRequests[i].MoveTaskOrder.Orders, "ServiceMember")
 		if loadErr != nil {
 			return nil, 0, err

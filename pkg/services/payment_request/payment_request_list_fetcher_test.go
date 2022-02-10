@@ -142,14 +142,14 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	})
 
 	suite.T().Run("Returns payment request matching the originDutyLocation filter", func(t *testing.T) {
-		stationName := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation.Name
+		locationName := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Name
 
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), OriginDutyLocation: &stationName})
+			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), OriginDutyLocation: &locationName})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
 		paymentRequests := *expectedPaymentRequests
-		suite.Equal(stationName, paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name)
+		suite.Equal(locationName, paymentRequests[0].MoveTaskOrder.Orders.OriginDutyLocation.Name)
 
 	})
 }
@@ -463,8 +463,8 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			Status: models.PaymentRequestStatusPaid,
 		},
 		Order: models.Order{
-			OriginDutyStationID: &originDutyLocation1.ID,
-			OriginDutyStation:   &originDutyLocation1,
+			OriginDutyLocationID: &originDutyLocation1.ID,
+			OriginDutyLocation:   &originDutyLocation1,
 		},
 	})
 
@@ -479,8 +479,8 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			Locator:          "ZZZZ",
 		},
 		Order: models.Order{
-			OriginDutyStationID: &originDutyLocation2.ID,
-			OriginDutyStation:   &originDutyLocation2,
+			OriginDutyLocationID: &originDutyLocation2.ID,
+			OriginDutyLocation:   &originDutyLocation2,
 		},
 	})
 
@@ -519,7 +519,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	expectedCreatedAtOrder = append(expectedCreatedAtOrder, paymentRequest1.CreatedAt, paymentRequest2.CreatedAt)
 	expectedLocatorOrder = append(expectedLocatorOrder, paymentRequest1.MoveTaskOrder.Locator, paymentRequest2.MoveTaskOrder.Locator)
 	expectedBranchOrder = append(expectedBranchOrder, string(*paymentRequest1.MoveTaskOrder.Orders.ServiceMember.Affiliation), string(*paymentRequest2.MoveTaskOrder.Orders.ServiceMember.Affiliation))
-	expectedOriginDutyLocation = append(expectedOriginDutyLocation, string(paymentRequest1.MoveTaskOrder.Orders.OriginDutyStation.Name), string(paymentRequest2.MoveTaskOrder.Orders.OriginDutyStation.Name))
+	expectedOriginDutyLocation = append(expectedOriginDutyLocation, string(paymentRequest1.MoveTaskOrder.Orders.OriginDutyLocation.Name), string(paymentRequest2.MoveTaskOrder.Orders.OriginDutyLocation.Name))
 
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
@@ -704,8 +704,8 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		paymentRequests := *expectedPaymentRequests
 		suite.Equal(2, len(paymentRequests))
-		suite.Equal(expectedOriginDutyLocation[0], string(paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name))
-		suite.Equal(expectedOriginDutyLocation[1], string(paymentRequests[1].MoveTaskOrder.Orders.OriginDutyStation.Name))
+		suite.Equal(expectedOriginDutyLocation[0], string(paymentRequests[0].MoveTaskOrder.Orders.OriginDutyLocation.Name))
+		suite.Equal(expectedOriginDutyLocation[1], string(paymentRequests[1].MoveTaskOrder.Orders.OriginDutyLocation.Name))
 	})
 
 	suite.T().Run("Sort by originDutyLocation DESC", func(t *testing.T) {
@@ -717,7 +717,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		suite.NoError(err)
 		suite.Equal(2, len(paymentRequests))
-		suite.Equal(expectedOriginDutyLocation[0], string(paymentRequests[1].MoveTaskOrder.Orders.OriginDutyStation.Name))
-		suite.Equal(expectedOriginDutyLocation[1], string(paymentRequests[0].MoveTaskOrder.Orders.OriginDutyStation.Name))
+		suite.Equal(expectedOriginDutyLocation[0], string(paymentRequests[1].MoveTaskOrder.Orders.OriginDutyLocation.Name))
+		suite.Equal(expectedOriginDutyLocation[1], string(paymentRequests[0].MoveTaskOrder.Orders.OriginDutyLocation.Name))
 	})
 }

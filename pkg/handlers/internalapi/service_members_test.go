@@ -237,11 +237,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	orderGrade := (string)(models.ServiceMemberRankE5)
 	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMember:       newServiceMember,
-			ServiceMemberID:     newServiceMember.ID,
-			OriginDutyStation:   &orderDutyLocation,
-			OriginDutyStationID: &orderDutyLocation.ID,
-			Grade:               &orderGrade,
+			ServiceMember:        newServiceMember,
+			ServiceMemberID:      newServiceMember.ID,
+			OriginDutyLocation:   &orderDutyLocation,
+			OriginDutyLocationID: &orderDutyLocation.ID,
+			Grade:                &orderGrade,
 		},
 	})
 

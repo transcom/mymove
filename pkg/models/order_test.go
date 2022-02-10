@@ -131,25 +131,25 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	ordersNumber := "FD4534JFJ"
 
 	order := Order{
-		ServiceMemberID:     serviceMember1.ID,
-		ServiceMember:       serviceMember1,
-		IssueDate:           issueDate,
-		ReportByDate:        reportByDate,
-		OrdersType:          ordersType,
-		HasDependents:       hasDependents,
-		SpouseHasProGear:    spouseHasProGear,
-		OriginDutyStationID: &dutyLocation.ID,
-		OriginDutyStation:   &dutyLocation,
-		NewDutyStationID:    dutyLocation2.ID,
-		NewDutyStation:      dutyLocation2,
-		UploadedOrdersID:    uploadedOrder.ID,
-		UploadedOrders:      uploadedOrder,
-		Status:              OrderStatusSUBMITTED,
-		OrdersNumber:        &ordersNumber,
-		TAC:                 &TAC,
-		SAC:                 &SAC,
-		DepartmentIndicator: &deptIndicator,
-		Grade:               swag.String("E-3"),
+		ServiceMemberID:      serviceMember1.ID,
+		ServiceMember:        serviceMember1,
+		IssueDate:            issueDate,
+		ReportByDate:         reportByDate,
+		OrdersType:           ordersType,
+		HasDependents:        hasDependents,
+		SpouseHasProGear:     spouseHasProGear,
+		OriginDutyLocationID: &dutyLocation.ID,
+		OriginDutyLocation:   &dutyLocation,
+		NewDutyStationID:     dutyLocation2.ID,
+		NewDutyStation:       dutyLocation2,
+		UploadedOrdersID:     uploadedOrder.ID,
+		UploadedOrders:       uploadedOrder,
+		Status:               OrderStatusSUBMITTED,
+		OrdersNumber:         &ordersNumber,
+		TAC:                  &TAC,
+		SAC:                  &SAC,
+		DepartmentIndicator:  &deptIndicator,
+		Grade:                swag.String("E-3"),
 	}
 	suite.MustSave(&order)
 
@@ -167,7 +167,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		suite.Equal(order.OrdersType, goodOrder.OrdersType)
 		suite.Equal(order.HasDependents, goodOrder.HasDependents)
 		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
-		suite.Equal(order.OriginDutyStation.ID, goodOrder.OriginDutyStation.ID)
+		suite.Equal(order.OriginDutyLocation.ID, goodOrder.OriginDutyLocation.ID)
 		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
 		suite.Equal(order.Grade, goodOrder.Grade)
 		suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)

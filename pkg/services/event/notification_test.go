@@ -189,14 +189,14 @@ func (suite *EventServiceSuite) TestAssembleOrderPayload() {
 		suite.Equal(order.ID.String(), data.ID.String())
 		suite.NotNil(order.ServiceMember)
 		suite.NotNil(order.Entitlement)
-		suite.NotNil(order.OriginDutyStation)
+		suite.NotNil(order.OriginDutyLocation)
 		suite.NotEqual(order.ServiceMember.ID, uuid.Nil)
 		suite.NotEqual(order.Entitlement.ID, uuid.Nil)
-		suite.NotEqual(order.OriginDutyStation.ID, uuid.Nil)
+		suite.NotEqual(order.OriginDutyLocation.ID, uuid.Nil)
 
-		if order.OriginDutyStation != nil {
-			suite.NotNil(order.OriginDutyStation.Address)
-			suite.NotEqual(order.OriginDutyStation.Address.ID, uuid.Nil)
+		if order.OriginDutyLocation != nil {
+			suite.NotNil(order.OriginDutyLocation.Address)
+			suite.NotEqual(order.OriginDutyLocation.Address.ID, uuid.Nil)
 		}
 	})
 }
