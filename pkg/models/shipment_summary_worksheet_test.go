@@ -29,8 +29,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	serviceMemberID, _ := uuid.NewV4()
 	//advanceID, _ := uuid.NewV4()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypeHHGPPM
 
@@ -142,8 +142,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	serviceMemberID, _ := uuid.NewV4()
 	//advanceID, _ := uuid.NewV4()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypePPM
 
@@ -395,7 +395,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
-	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
 	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
 
 	order := models.Order{

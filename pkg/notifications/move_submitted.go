@@ -58,7 +58,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
-	originDSTransportInfo, err := models.FetchDSContactInfo(appCtx.DB(), serviceMember.DutyStationID)
+	originDSTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyStationID)
 	if err != nil {
 		return emails, err
 	}

@@ -38,10 +38,9 @@ type Assertions struct {
 	BackupContact                            models.BackupContact
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
-	DestinationDutyStation                   models.DutyStation
+	DestinationDutyStation                   models.DutyLocation
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
-	DutyStation                              models.DutyStation
 	DutyLocation                             models.DutyLocation
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision

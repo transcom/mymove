@@ -416,7 +416,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.T().Run("adds buyer and seller organization name", func(t *testing.T) {
 		// buyer name
 		originDutyStation := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation
-		transportationOffice, err := models.FetchDutyStationTransportationOffice(suite.DB(), originDutyStation.ID)
+		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), originDutyStation.ID)
 		suite.FatalNoError(err)
 		buyerOrg := result.Header.BuyerOrganizationName
 		suite.IsType(edisegment.N1{}, buyerOrg)
@@ -435,7 +435,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds orders destination address", func(t *testing.T) {
 		expectedDutyStation := paymentRequest.MoveTaskOrder.Orders.NewDutyStation
-		transportationOffice, err := models.FetchDutyStationTransportationOffice(suite.DB(), expectedDutyStation.ID)
+		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), expectedDutyStation.ID)
 		suite.FatalNoError(err)
 		// name
 		n1 := result.Header.DestinationName

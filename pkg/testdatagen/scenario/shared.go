@@ -4878,7 +4878,7 @@ func createHHGNeedsServicesCounseling(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 	})
@@ -4921,7 +4921,7 @@ func createHHGNoGovCounselingForRetirementWithDestinationAddressAndType(appCtx a
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: false,
 		},
 		Order: models.Order{OrdersType: internalmessages.OrdersTypeRETIREMENT},
@@ -4958,7 +4958,7 @@ func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcon
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 		Order: models.Order{OrdersType: internalmessages.OrdersTypeRETIREMENT},
@@ -5010,7 +5010,7 @@ func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUplo
 	submittedAt := time.Now()
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 		Move: models.Move{
@@ -5058,7 +5058,7 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 	submittedAt := time.Now()
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 		Move: models.Move{
@@ -5097,7 +5097,7 @@ func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
 	servicesCounselingCompletedAt := time.Now()
 	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 		Move: models.Move{
@@ -5121,7 +5121,7 @@ func createHHGNoShipments(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 	})

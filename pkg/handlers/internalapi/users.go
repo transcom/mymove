@@ -78,7 +78,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		serviceMember.DutyStation = dutyStation
 
 		// Fetch duty station transportation office
-		transportationOffice, tspErr := models.FetchDutyStationTransportationOffice(appCtx.DB(), *serviceMember.DutyStationID)
+		transportationOffice, tspErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), *serviceMember.DutyStationID)
 		if tspErr != nil {
 			if errors.Cause(tspErr) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
@@ -101,7 +101,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 		serviceMember.Orders[0] = orders
 
-		newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyStationTransportationOffice(appCtx.DB(), orders.NewDutyStationID)
+		newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), orders.NewDutyStationID)
 		if dutyStationErr != nil {
 			if errors.Cause(dutyStationErr) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404

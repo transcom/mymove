@@ -44,8 +44,8 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	email := "bobsally@gmail.com"
 	fakeAddress := testdatagen.MakeStubbedAddress(suite.DB())
 	fakeBackupAddress := testdatagen.MakeStubbedAddress(suite.DB())
-	station := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: DutyStation{
+	location := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: DutyLocation{
 			ID: uuid.Must(uuid.NewV4()),
 		},
 		Stub: true,
@@ -63,7 +63,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 		PersonalEmail:          &email,
 		ResidentialAddressID:   &fakeAddress.ID,
 		BackupMailingAddressID: &fakeBackupAddress.ID,
-		DutyStationID:          &station.ID,
+		DutyStationID:          &location.ID,
 	}
 
 	suite.Equal(false, serviceMember.IsProfileComplete())
