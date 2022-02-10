@@ -54,8 +54,8 @@ const RequestedShipments = ({
   const ordersLOA = {
     tac: ordersInfo.tacMDC,
     sac: ordersInfo.sacSDN,
-    ntsTac: ordersInfo.NTSTac,
-    ntsSac: ordersInfo.NTSSac,
+    ntsTac: ordersInfo.NTStac,
+    ntsSac: ordersInfo.NTSsac,
   };
 
   const filterShipments = (formikShipmentIds) => {
