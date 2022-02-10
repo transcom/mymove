@@ -37,7 +37,7 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 
 	var originDutyLocationsInGBLOC []models.DutyLocation
 	db.Where("transportation_offices.GBLOC = ?", "KKFA").
-		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		InnerJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
 		All(&originDutyLocationsInGBLOC)
 
 	/*
