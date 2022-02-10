@@ -517,8 +517,8 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 
 	if order.OriginDutyStationID != nil {
 		// TODO refactor to use service objects to fetch duty station
-		var originDutyStation models.DutyStation
-		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *order.OriginDutyStationID)
+		var originDutyStation models.DutyLocation
+		originDutyStation, err = models.FetchDutyLocation(appCtx.DB(), *order.OriginDutyStationID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -551,8 +551,8 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 
 	if order.NewDutyStationID != uuid.Nil {
 		// TODO refactor to use service objects to fetch duty station
-		var newDutyStation models.DutyStation
-		newDutyStation, err = models.FetchDutyStation(appCtx.DB(), order.NewDutyStationID)
+		var newDutyStation models.DutyLocation
+		newDutyStation, err = models.FetchDutyLocation(appCtx.DB(), order.NewDutyStationID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:

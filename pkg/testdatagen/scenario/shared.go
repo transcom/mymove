@@ -4848,8 +4848,8 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 		},
 	})
 
-	newDutyStation := testdatagen.MakeDutyStation(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	newDutyLocation := testdatagen.MakeDutyLocation(db, testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			AddressID: address.ID,
 			Address:   address,
 		},
@@ -4857,8 +4857,8 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 
 	order := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
-			NewDutyStationID: newDutyStation.ID,
-			NewDutyStation:   newDutyStation,
+			NewDutyStationID: newDutyLocation.ID,
+			NewDutyStation:   newDutyLocation,
 			OrdersNumber:     models.StringPointer("ORDER3"),
 			TAC:              models.StringPointer("F8E1"),
 		},
@@ -5694,13 +5694,7 @@ func makeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 }
 
 // createRandomMove creates a random move with fake data that has been approved for usage
-func createRandomMove(
-	appCtx appcontext.AppContext,
-	possibleStatuses []models.MoveStatus,
-	allDutyStations []models.DutyStation,
-	dutyStationsInGBLOC []models.DutyStation,
-	withFullOrder bool,
-	assertions testdatagen.Assertions) models.Move {
+func createRandomMove(appCtx appcontext.AppContext, possibleStatuses []models.MoveStatus, allDutyLocations []models.DutyLocation, dutyLocationsInGBLOC []models.DutyLocation, withFullOrder bool, assertions testdatagen.Assertions) models.Move {
 	db := appCtx.DB()
 	randDays, err := random.GetRandomInt(366)
 	if err != nil {
@@ -5721,7 +5715,7 @@ func createRandomMove(
 			models.AffiliationMARINES}[randomAffiliation]
 	}
 
-	dutyStationCount := len(allDutyStations)
+	dutyStationCount := len(allDutyLocations)
 	if assertions.Order.OriginDutyStationID == nil {
 		// We can pick any origin duty station not only one in the office user's GBLOC
 		if *assertions.ServiceMember.Affiliation == models.AffiliationMARINES {
@@ -5729,14 +5723,14 @@ func createRandomMove(
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 			}
-			assertions.Order.OriginDutyStation = &allDutyStations[randDutyStaionIndex]
+			assertions.Order.OriginDutyStation = &allDutyLocations[randDutyStaionIndex]
 			assertions.Order.OriginDutyStationID = &assertions.Order.OriginDutyStation.ID
 		} else {
-			randDutyStaionIndex, err := random.GetRandomInt(len(dutyStationsInGBLOC))
+			randDutyStaionIndex, err := random.GetRandomInt(len(dutyLocationsInGBLOC))
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 			}
-			assertions.Order.OriginDutyStation = &dutyStationsInGBLOC[randDutyStaionIndex]
+			assertions.Order.OriginDutyStation = &dutyLocationsInGBLOC[randDutyStaionIndex]
 			assertions.Order.OriginDutyStationID = &assertions.Order.OriginDutyStation.ID
 		}
 	}
@@ -5746,7 +5740,7 @@ func createRandomMove(
 		if err != nil {
 			log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 		}
-		assertions.Order.NewDutyStation = allDutyStations[randDutyStaionIndex]
+		assertions.Order.NewDutyStation = allDutyLocations[randDutyStaionIndex]
 		assertions.Order.NewDutyStationID = assertions.Order.NewDutyStation.ID
 	}
 

@@ -154,8 +154,8 @@ type ShipmentSummaryWorksheetPage3Values struct {
 type ShipmentSummaryFormData struct {
 	ServiceMember           ServiceMember
 	Order                   Order
-	CurrentDutyStation      DutyStation
-	NewDutyStation          DutyStation
+	CurrentDutyStation      DutyLocation
+	NewDutyStation          DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
 	PersonallyProcuredMoves PersonallyProcuredMoves
 	PreparationDate         time.Time
@@ -519,7 +519,7 @@ func FormatSignatureDate(signature SignedCertification) string {
 }
 
 //FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
-func FormatLocation(dutyStation DutyStation) string {
+func FormatLocation(dutyStation DutyLocation) string {
 	return fmt.Sprintf("%s, %s %s", dutyStation.Name, dutyStation.Address.State, dutyStation.Address.PostalCode)
 }
 

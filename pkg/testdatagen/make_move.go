@@ -128,8 +128,8 @@ func MakeStubbedMoveWithStatus(db *pop.Connection, status models.MoveStatus) mod
 		},
 		Stub: true,
 	})
-	stubbedDutyStation := MakeDutyStation(db, Assertions{
-		DutyStation: models.DutyStation{
+	stubbedDutyStation := MakeDutyLocation(db, Assertions{
+		DutyLocation: models.DutyLocation{
 			ID: uuid.Must(uuid.NewV4()),
 		},
 		Stub: true,
@@ -142,8 +142,8 @@ func MakeStubbedMoveWithStatus(db *pop.Connection, status models.MoveStatus) mod
 			ServiceMemberID:  stubbedServiceMember.ID,
 			UploadedOrdersID: uuid.Must(uuid.NewV4()),
 		},
-		Entitlement:       stubbedEntitlement,
-		OriginDutyStation: stubbedDutyStation,
+		Entitlement:        stubbedEntitlement,
+		OriginDutyLocation: stubbedDutyStation,
 	})
 
 	move := MakeMove(db, Assertions{

@@ -505,13 +505,13 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
-	dutyStation1 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	dutyLocation1 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name: "This Other Station",
 		},
 	})
 
-	dutyStation2 := testdatagen.MakeDefaultDutyStation(suite.DB())
+	dutyLocation2 := testdatagen.MakeDefaultDutyLocation(suite.DB())
 
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
@@ -546,10 +546,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			Status:           models.MoveStatusSUBMITTED,
 		},
 		Order: models.Order{
-			OriginDutyStation:   &dutyStation1,
-			OriginDutyStationID: &dutyStation1.ID,
-			NewDutyStation:      dutyStation1,
-			NewDutyStationID:    dutyStation1.ID,
+			OriginDutyStation:   &dutyLocation1,
+			OriginDutyStationID: &dutyLocation1.ID,
+			NewDutyStation:      dutyLocation1,
+			NewDutyStationID:    dutyLocation1.ID,
 		},
 		ServiceMember: serviceMember1,
 	})
@@ -560,10 +560,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			Status:           models.MoveStatusSUBMITTED,
 		},
 		Order: models.Order{
-			OriginDutyStation:   &dutyStation2,
-			OriginDutyStationID: &dutyStation2.ID,
-			NewDutyStation:      dutyStation2,
-			NewDutyStationID:    dutyStation2.ID,
+			OriginDutyStation:   &dutyLocation2,
+			OriginDutyStationID: &dutyLocation2.ID,
+			NewDutyStation:      dutyLocation2,
+			NewDutyStationID:    dutyLocation2.ID,
 		},
 		ServiceMember: serviceMember2,
 	})
@@ -659,7 +659,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	suite.Run("returns results matching OriginDutyLocation name search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest:        request,
-			OriginDutyLocation: &dutyStation1.Name,
+			OriginDutyLocation: &dutyLocation1.Name,
 		}
 
 		response := handler.Handle(params)
@@ -678,7 +678,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			LastName:           models.StringPointer("Dar"),
 			DodID:              serviceMember1.Edipi,
 			Locator:            &move1.Locator,
-			OriginDutyLocation: &dutyStation1.Name,
+			OriginDutyLocation: &dutyLocation1.Name,
 		}
 
 		response := handler.Handle(params)
@@ -1076,7 +1076,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	})
 
 	// Create a move with an origin duty station outside of office user GBLOC	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "30813", "AGFM")
-	dutyStationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+	dutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "Fort Gordon",
 			City:           "Augusta",
@@ -1086,11 +1086,11 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
-	originDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	originDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name:      "Fort Sam Houston",
-			AddressID: dutyStationAddress.ID,
-			Address:   dutyStationAddress,
+			AddressID: dutyLocationAddress.ID,
+			Address:   dutyLocationAddress,
 		},
 	})
 
@@ -1099,7 +1099,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 		},
-		OriginDutyStation: originDutyStation,
+		OriginDutyLocation: originDutyLocation,
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1119,7 +1119,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			Status:           models.MoveStatusSUBMITTED,
 		},
 		Order: models.Order{
-			OriginDutyStation: &originDutyStation,
+			OriginDutyStation: &originDutyLocation,
 		},
 	})
 

@@ -731,8 +731,8 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	suite.T().Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func(t *testing.T) {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-			DutyStation: models.DutyStation{
+		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+			DutyLocation: models.DutyLocation{
 				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
 			},
 		})
@@ -741,7 +741,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
-				OriginDutyStation: &dutyStation,
+				OriginDutyStation: &dutyLocation,
 			},
 			Move: mto,
 		})
@@ -821,8 +821,8 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	suite.T().Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func(t *testing.T) {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-			DutyStation: models.DutyStation{
+		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+			DutyLocation: models.DutyLocation{
 				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
 			},
 		})
@@ -832,7 +832,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
-				OriginDutyStation:       &dutyStation,
+				OriginDutyStation:       &dutyLocation,
 				UploadedAmendedOrders:   &document,
 				UploadedAmendedOrdersID: &document.ID,
 			},

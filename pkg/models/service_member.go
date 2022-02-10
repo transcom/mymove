@@ -61,7 +61,7 @@ type ServiceMember struct {
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
-	DutyStation            DutyStation               `belongs_to:"duty_stations" fk_id:"duty_station_id"`
+	DutyStation            DutyLocation              `belongs_to:"duty_stations" fk_id:"duty_station_id"`
 	RequiresAccessCode     bool                      `json:"requires_access_code" db:"requires_access_code"`
 }
 
@@ -216,12 +216,12 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	ordersType internalmessages.OrdersType,
 	hasDependents bool,
 	spouseHasProGear bool,
-	newDutyStation DutyStation,
+	newDutyStation DutyLocation,
 	ordersNumber *string,
 	tac *string,
 	sac *string,
 	departmentIndicator *string,
-	originDutyStation *DutyStation,
+	originDutyStation *DutyLocation,
 	grade *string,
 	entitlement *Entitlement) (Order, *validate.Errors, error) {
 

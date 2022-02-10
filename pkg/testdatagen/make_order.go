@@ -21,7 +21,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	station := assertions.Order.NewDutyStation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyStationID) {
-		station = FetchOrMakeDefaultNewOrdersDutyStation(db)
+		station = FetchOrMakeDefaultNewOrdersDutyLocation(db)
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -71,9 +71,9 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		entitlement = MakeEntitlement(db, assertions)
 	}
 
-	originDutyStation := assertions.OriginDutyStation
+	originDutyStation := assertions.OriginDutyLocation
 	if isZeroUUID(originDutyStation.ID) {
-		originDutyStation = MakeDutyStation(db, assertions)
+		originDutyStation = MakeDutyLocation(db, assertions)
 	}
 
 	orderTypeDetail := assertions.Order.OrdersTypeDetail
@@ -128,7 +128,7 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 	station := assertions.Order.NewDutyStation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyStationID) {
-		station = FetchOrMakeDefaultNewOrdersDutyStation(db)
+		station = FetchOrMakeDefaultNewOrdersDutyLocation(db)
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -176,9 +176,9 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 		entitlement = MakeEntitlement(db, assertions)
 	}
 
-	originDutyStation := assertions.OriginDutyStation
+	originDutyStation := assertions.OriginDutyLocation
 	if isZeroUUID(originDutyStation.ID) {
-		originDutyStation = MakeDutyStation(db, assertions)
+		originDutyStation = MakeDutyLocation(db, assertions)
 	}
 
 	var orderTypeDetail *internalmessages.OrdersTypeDetail

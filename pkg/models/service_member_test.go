@@ -154,8 +154,8 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	dutyStation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -180,10 +180,10 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		OrdersType:          ordersType,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
-		OriginDutyStationID: &dutyStation.ID,
-		OriginDutyStation:   &dutyStation,
-		NewDutyStationID:    dutyStation2.ID,
-		NewDutyStation:      dutyStation2,
+		OriginDutyStationID: &dutyLocation.ID,
+		OriginDutyStation:   &dutyLocation,
+		NewDutyStationID:    dutyLocation2.ID,
+		NewDutyStation:      dutyLocation2,
 		UploadedOrdersID:    uploadedOrder.ID,
 		UploadedOrders:      uploadedOrder,
 		Status:              OrderStatusSUBMITTED,

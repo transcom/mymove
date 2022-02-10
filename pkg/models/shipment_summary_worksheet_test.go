@@ -286,8 +286,8 @@ func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() 
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
-	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
 	wtgEntitlements := models.SSWMaxWeightEntitlement{
 		Entitlement:   15000,
 		ProGear:       2000,
@@ -656,8 +656,8 @@ func (suite *ModelSuite) TestFormatSSWGetEntitlementNoDependants() {
 }
 
 func (suite *ModelSuite) TestFormatLocation() {
-	fortGordon := models.DutyStation{Name: "Fort Gordon", Address: models.Address{State: "GA", PostalCode: "30813"}}
-	yuma := models.DutyStation{Name: "Yuma AFB", Address: models.Address{State: "IA", PostalCode: "50309"}}
+	fortGordon := models.DutyLocation{Name: "Fort Gordon", Address: models.Address{State: "GA", PostalCode: "30813"}}
+	yuma := models.DutyLocation{Name: "Yuma AFB", Address: models.Address{State: "IA", PostalCode: "50309"}}
 
 	suite.Equal("Fort Gordon, GA 30813", models.FormatLocation(fortGordon))
 	suite.Equal("Yuma AFB, IA 50309", models.FormatLocation(yuma))

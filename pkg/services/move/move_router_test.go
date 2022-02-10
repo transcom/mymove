@@ -174,14 +174,14 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 
 	suite.Run("moves going to the services counselor return errors if the move doesn't have DRAFT/NEEDS SERVICE COUNSELING status", func() {
-		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-			DutyStation: models.DutyStation{
+		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+			DutyLocation: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 		})
 		assertions := testdatagen.Assertions{
 			Order: models.Order{
-				OriginDutyStation: &dutyStation,
+				OriginDutyStation: &dutyLocation,
 			},
 		}
 		move := testdatagen.MakeMove(suite.DB(), assertions)

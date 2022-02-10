@@ -43,7 +43,7 @@ type Order struct {
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 
 	// destination duty station
-	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
+	DestinationDutyStation *DutyLocation `json:"destinationDutyStation,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -101,7 +101,7 @@ type Order struct {
 	OrderTypeDetail *OrdersTypeDetail `json:"order_type_detail,omitempty"`
 
 	// origin duty station
-	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
+	OriginDutyStation *DutyLocation `json:"originDutyStation,omitempty"`
 
 	// report by date
 	// Example: 2020-01-01

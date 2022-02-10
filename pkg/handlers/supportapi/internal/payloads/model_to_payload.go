@@ -180,7 +180,8 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 
 // DutyStation converts Dutystation model to payload
 // Only includes ID and duty station name
-func DutyStation(dutyStation *models.DutyStation) *supportmessages.DutyStation {
+// TODO rename
+func DutyStation(dutyStation *models.DutyLocation) *supportmessages.DutyStation {
 	if dutyStation == nil {
 		return nil
 	}

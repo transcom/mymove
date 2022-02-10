@@ -129,8 +129,8 @@ func Order(order *models.Order) *primemessages.Order {
 	if order == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&order.NewDutyStation)
-	originDutyStation := DutyStation(order.OriginDutyStation)
+	destinationDutyStation := DutyLocation(&order.NewDutyStation)
+	originDutyStation := DutyLocation(order.OriginDutyStation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
@@ -191,8 +191,8 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	}
 }
 
-// DutyStation payload
-func DutyStation(dutyStation *models.DutyStation) *primemessages.DutyStation {
+// DutyLocation payload
+func DutyLocation(dutyStation *models.DutyLocation) *primemessages.DutyStation {
 	if dutyStation == nil {
 		return nil
 	}

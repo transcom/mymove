@@ -77,7 +77,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		TransportationOffice: models.TransportationOffice{
 			Gbloc: "ABCD",
 		},
-		OriginDutyStation: models.DutyStation{
+		OriginDutyLocation: models.DutyLocation{
 			Name: "KJKJKJKJKJK",
 		},
 	})
@@ -436,14 +436,14 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	//
 	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
-	originDutyStation1 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	originDutyLocation1 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name: "Applewood, CA 99999",
 		},
 	})
 
-	originDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	originDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name: "Scott AFB",
 		},
 	})
@@ -463,8 +463,8 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			Status: models.PaymentRequestStatusPaid,
 		},
 		Order: models.Order{
-			OriginDutyStationID: &originDutyStation1.ID,
-			OriginDutyStation:   &originDutyStation1,
+			OriginDutyStationID: &originDutyLocation1.ID,
+			OriginDutyStation:   &originDutyLocation1,
 		},
 	})
 
@@ -479,8 +479,8 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			Locator:          "ZZZZ",
 		},
 		Order: models.Order{
-			OriginDutyStationID: &originDutyStation2.ID,
-			OriginDutyStation:   &originDutyStation2,
+			OriginDutyStationID: &originDutyLocation2.ID,
+			OriginDutyStation:   &originDutyLocation2,
 		},
 	})
 

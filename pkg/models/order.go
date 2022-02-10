@@ -43,10 +43,10 @@ type Order struct {
 	OrdersTypeDetail            *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents               bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear            bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
-	OriginDutyStation           *DutyStation                       `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
+	OriginDutyStation           *DutyLocation                      `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
 	OriginDutyStationID         *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 	NewDutyStationID            uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
-	NewDutyStation              DutyStation                        `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
+	NewDutyStation              DutyLocation                       `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
 	UploadedOrders              Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
 	UploadedOrdersID            uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber                *string                            `json:"orders_number" db:"orders_number"`

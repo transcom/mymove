@@ -347,11 +347,11 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 	affiliation := models.AffiliationNAVY
 	edipi := "9999999999"
 
-	// SET UP: New Duty Station for sorting by destination duty station
-	newDutyStationName := "Ze Duty Station"
-	newDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			Name: newDutyStationName,
+	// SET UP: New Duty Location for sorting by destination duty location
+	newDutyLocationName := "Ze Duty Location"
+	newDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			Name: newDutyLocationName,
 		},
 	})
 
@@ -373,8 +373,8 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 		// Lea Spacemen
 		ServiceMember: models.ServiceMember{Affiliation: &affiliation, FirstName: &serviceMemberFirstName, Edipi: &edipi},
 		Order: models.Order{
-			NewDutyStation:   newDutyStation2,
-			NewDutyStationID: newDutyStation2.ID,
+			NewDutyStation:   newDutyLocation2,
+			NewDutyStationID: newDutyLocation2.ID,
 		},
 		MTOShipment: models.MTOShipment{
 			RequestedPickupDate: &requestedMoveDate2,
@@ -528,7 +528,7 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	// Create a dutystation with ZANY GBLOC
-	dutyStationAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+	dutyLocationAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "Anchor 1212",
 			City:           "Augusta",
@@ -538,15 +538,15 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 		},
 	})
 
-	originDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	originDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name:      "Fort Sam Snap",
-			AddressID: dutyStationAddress2.ID,
-			Address:   dutyStationAddress2,
+			AddressID: dutyLocationAddress2.ID,
+			Address:   dutyLocationAddress2,
 		},
 	})
 
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyStationAddress2.PostalCode, "ZANY")
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocationAddress2.PostalCode, "ZANY")
 
 	// Create a second move from the ZANY gbloc
 	testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -555,8 +555,8 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 			Locator: "ZZ1234",
 		},
 		Order: models.Order{
-			OriginDutyStation:   &originDutyStation2,
-			OriginDutyStationID: &originDutyStation2.ID,
+			OriginDutyStation:   &originDutyLocation2,
+			OriginDutyStationID: &originDutyLocation2.ID,
 		},
 	})
 

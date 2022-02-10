@@ -69,8 +69,8 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	if order.Entitlement != nil {
 		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
 	}
-	var originDutyStation models.DutyStation
-	originDutyStation = models.DutyStation{}
+	var originDutyStation models.DutyLocation
+	originDutyStation = models.DutyLocation{}
 	if order.OriginDutyStation != nil {
 		originDutyStation = *order.OriginDutyStation
 	}
@@ -128,7 +128,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
-	newDutyStation, err := models.FetchDutyStation(appCtx.DB(), stationID)
+	newDutyStation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
@@ -247,7 +247,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
-	dutyStation, err := models.FetchDutyStation(appCtx.DB(), stationID)
+	dutyStation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}

@@ -63,7 +63,7 @@ type Assertions struct {
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	Organization                             models.Organization
-	OriginDutyStation                        models.DutyStation
+	OriginDutyLocation                       models.DutyLocation
 	PaymentRequest                           models.PaymentRequest
 	PaymentRequestToInterchangeControlNumber models.PaymentRequestToInterchangeControlNumber
 	PaymentServiceItem                       models.PaymentServiceItem

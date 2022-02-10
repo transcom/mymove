@@ -80,14 +80,14 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
-	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
 		},
 	})
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			OriginDutyStation: &dutyStation,
+			OriginDutyStation: &dutyLocation,
 		},
 	})
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -122,8 +122,8 @@ func (suite *HandlerSuite) TestShowOrder() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrder() {
-	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
 		},
 	})
@@ -131,7 +131,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			OriginDutyStation: &dutyStation,
+			OriginDutyStation: &dutyLocation,
 		},
 		Move: mto,
 	})
