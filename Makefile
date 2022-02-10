@@ -304,7 +304,6 @@ pkg/assets/assets.go:
 # ----- START SERVER TARGETS -----
 #
 
-.PHONY: swagger_generate
 swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
 
 # If any swagger files (source or generated) have changed, re-run so
@@ -322,10 +321,11 @@ endif
 	./scripts/openapi bundle -o swagger/ ## Bundles the API definition files into a complete specification
 	touch .swagger_build.stamp
 
-.PHONY: server_generate
-server_generate: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/gen/ ## Generate golang server code from Swagger files
-pkg/gen/: pkg/assets/assets.go $(wildcard swagger/*.yaml)
+server_generate: .server_generate.stamp
+
+.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/assets/assets.go $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
 	scripts/gen-server
+	touch .server_generate.stamp
 
 .PHONY: server_build
 server_build: bin/milmove ## Build the server

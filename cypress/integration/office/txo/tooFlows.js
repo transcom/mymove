@@ -16,6 +16,7 @@ describe('TOO user', () => {
     cy.intercept('POST', '**/ghc/v1/shipments/**/request-cancellation').as('requestShipmentCancellation');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
+    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('patchShipment');
     cy.intercept('PATCH', '**/ghc/v1/orders/**/allowances').as('patchAllowances');
     cy.intercept('**/ghc/v1/moves/**/financial-review-flag').as('financialReviewFlagCompleted');
 
@@ -343,6 +344,27 @@ describe('TOO user', () => {
     cy.url().should('include', `/moves/${moveLocator}/details`);
   });
 
+  it('is able to edit shipment', () => {
+    const moveLocator = 'TEST12';
+    const deliveryDate = new Date().toLocaleDateString('en-US');
+
+    // TOO Moves queue
+    cy.wait(['@getSortedOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Edit the shipment
+    cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
+    // fill out some changes on the form
+    cy.get('#requestedDeliveryDate').clear().type(deliveryDate).blur();
+    cy.get('input[name="delivery.address.streetAddress1"]').clear().type('7 q st');
+    cy.get('input[name="delivery.address.city"]').clear().type('city');
+    cy.get('select[name="delivery.address.state"]').select('OH');
+    cy.get('input[name="delivery.address.postalCode"]').clear().type('90210');
+    cy.get('[data-testid="submitForm"]').click();
+    // the shipment should be saved successfully
+    cy.wait('@patchShipment');
+  });
+
   it('is able to request cancellation for a shipment', () => {
     const moveLocator = 'TEST12';
 
@@ -417,5 +439,21 @@ describe('TOO user', () => {
     cy.contains('Serious illness of the member');
     cy.contains('The customer requested an extension.');
     cy.contains('The service member is unable to move into their new home at the expected time');
+  });
+
+  it('is able to edit shipment destination type', () => {
+    const moveLocator = 'PCCIV1';
+
+    // TOO Moves queue
+    cy.wait(['@getSortedOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Edit the shipment
+    cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
+    // Select destination type for retiree
+    cy.get('select[name="destinationAddressType"]').select('Home of selection (HOS)');
+    cy.get('[data-testid="submitForm"]').click();
+    // the shipment should be saved with the type
+    cy.wait('@patchShipment');
   });
 });
