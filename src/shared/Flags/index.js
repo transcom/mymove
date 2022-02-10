@@ -2,7 +2,11 @@ import classNames from 'classnames';
 
 import styles from './index.module.scss';
 
-let errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment;
+let errorIfMissing = [],
+  warnIfMissing = [],
+  showWhenCollapsed = [],
+  neverShow = [],
+  shipment = null;
 
 /*
   Set flags for a shipment based on fieldname. Null values will be set to empty arrays by default.
