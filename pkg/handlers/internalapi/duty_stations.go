@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// TODO change return to DutyLocationPayload
 func payloadForDutyStationModel(station models.DutyLocation) *internalmessages.DutyStationPayload {
 	// If the station ID has no UUID then it isn't real data
 	// Unlike other payloads the
