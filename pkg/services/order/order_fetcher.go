@@ -90,7 +90,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	query := appCtx.DB().Q().EagerPreload(
 		"Orders.ServiceMember",
-		"Orders.NewDutyStation.Address",
+		"Orders.NewDutyLocation.Address",
 		"Orders.OriginDutyLocation.Address",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
 		// "Orders.OriginDutyLocation.TransportationOffice",
@@ -187,7 +187,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	err := appCtx.DB().Q().Eager(
 		"ServiceMember.BackupContacts",
 		"ServiceMember.ResidentialAddress",
-		"NewDutyStation.Address",
+		"NewDutyLocation.Address",
 		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",

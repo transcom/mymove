@@ -96,7 +96,7 @@ func Order(order *models.Order) *supportmessages.Order {
 	if order == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&order.NewDutyStation)
+	destinationDutyStation := DutyStation(&order.NewDutyLocation)
 	originDutyLocation := DutyStation(order.OriginDutyLocation)
 	uploadedOrders := Document(&order.UploadedOrders)
 	if order.Grade != nil && order.Entitlement != nil {
@@ -107,7 +107,7 @@ func Order(order *models.Order) *supportmessages.Order {
 	issueDate := strfmt.Date(order.IssueDate)
 	payload := supportmessages.Order{
 		DestinationDutyStation:   destinationDutyStation,
-		DestinationDutyStationID: handlers.FmtUUID(order.NewDutyStationID),
+		DestinationDutyStationID: handlers.FmtUUID(order.NewDutyLocationID),
 		Entitlement:              Entitlement(order.Entitlement),
 		Customer:                 Customer(&order.ServiceMember),
 		OrderNumber:              order.OrdersNumber,

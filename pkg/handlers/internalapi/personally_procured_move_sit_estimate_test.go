@@ -216,10 +216,10 @@ func setupShowPPMSitEstimateHandlerData(suite *HandlerSuite) (orderID uuid.UUID,
 	ordersID := uuid.Must(uuid.NewV4())
 	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               ordersID,
-			NewDutyStationID: location.ID,
-			ServiceMember:    user,
-			ServiceMemberID:  user.ID,
+			ID:                ordersID,
+			NewDutyLocationID: location.ID,
+			ServiceMember:     user,
+			ServiceMemberID:   user.ID,
 		},
 	})
 

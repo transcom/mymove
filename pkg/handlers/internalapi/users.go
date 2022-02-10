@@ -101,14 +101,14 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 		serviceMember.Orders[0] = orders
 
-		newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), orders.NewDutyStationID)
+		newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), orders.NewDutyLocationID)
 		if dutyStationErr != nil {
 			if errors.Cause(dutyStationErr) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
 				return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
 			}
 		}
-		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
+		serviceMember.Orders[0].NewDutyLocation.TransportationOffice = newDutyStationTransportationOffice
 
 		// Load associations on PPM if they exist
 		if len(serviceMember.Orders[0].Moves) > 0 {

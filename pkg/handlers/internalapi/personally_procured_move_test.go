@@ -444,8 +444,8 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			NewDutyStationID: newDutyLocation.ID,
-			NewDutyStation:   newDutyLocation,
+			NewDutyLocationID: newDutyLocation.ID,
+			NewDutyLocation:   newDutyLocation,
 		},
 	})
 

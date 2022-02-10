@@ -23,10 +23,10 @@ func (suite *OrderServiceSuite) TestOrderFetcher() {
 
 	suite.Equal(expectedOrder.ID, order.ID)
 	suite.Equal(expectedOrder.ServiceMemberID, order.ServiceMemberID)
-	suite.NotNil(order.NewDutyStation)
-	suite.Equal(expectedOrder.NewDutyStationID, order.NewDutyStation.ID)
-	suite.Equal(expectedOrder.NewDutyStation.AddressID, order.NewDutyStation.AddressID)
-	suite.Equal(expectedOrder.NewDutyStation.Address.StreetAddress1, order.NewDutyStation.Address.StreetAddress1)
+	suite.NotNil(order.NewDutyLocation)
+	suite.Equal(expectedOrder.NewDutyLocationID, order.NewDutyLocation.ID)
+	suite.Equal(expectedOrder.NewDutyLocation.AddressID, order.NewDutyLocation.AddressID)
+	suite.Equal(expectedOrder.NewDutyLocation.Address.StreetAddress1, order.NewDutyLocation.Address.StreetAddress1)
 	suite.NotNil(order.Entitlement)
 	suite.Equal(*expectedOrder.EntitlementID, order.Entitlement.ID)
 	suite.Equal(expectedOrder.OriginDutyLocation.ID, order.OriginDutyLocation.ID)
@@ -100,8 +100,8 @@ func (suite *OrderServiceSuite) TestListMoves() {
 		suite.Equal(expectedMove.Orders.ServiceMember.LastName, move.Orders.ServiceMember.LastName)
 		suite.Equal(expectedMove.Orders.ID, move.Orders.ID)
 		suite.Equal(expectedMove.Orders.ServiceMemberID, move.Orders.ServiceMemberID)
-		suite.NotNil(move.Orders.NewDutyStation)
-		suite.Equal(expectedMove.Orders.NewDutyStationID, move.Orders.NewDutyStation.ID)
+		suite.NotNil(move.Orders.NewDutyLocation)
+		suite.Equal(expectedMove.Orders.NewDutyLocationID, move.Orders.NewDutyLocation.ID)
 		suite.NotNil(move.Orders.Entitlement)
 		suite.Equal(*expectedMove.Orders.EntitlementID, move.Orders.Entitlement.ID)
 		suite.Equal(expectedMove.Orders.OriginDutyLocation.ID, move.Orders.OriginDutyLocation.ID)
@@ -373,8 +373,8 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 		// Lea Spacemen
 		ServiceMember: models.ServiceMember{Affiliation: &affiliation, FirstName: &serviceMemberFirstName, Edipi: &edipi},
 		Order: models.Order{
-			NewDutyStation:   newDutyLocation2,
-			NewDutyStationID: newDutyLocation2.ID,
+			NewDutyLocation:   newDutyLocation2,
+			NewDutyLocationID: newDutyLocation2.ID,
 		},
 		MTOShipment: models.MTOShipment{
 			RequestedPickupDate: &requestedMoveDate2,
@@ -445,15 +445,15 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
-		suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
+		suite.Equal(expectedMove1.Orders.NewDutyLocation.Name, moves[0].Orders.NewDutyLocation.Name)
+		suite.Equal(expectedMove2.Orders.NewDutyLocation.Name, moves[1].Orders.NewDutyLocation.Name)
 
 		params = services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("desc")}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
-		suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
+		suite.Equal(expectedMove2.Orders.NewDutyLocation.Name, moves[0].Orders.NewDutyLocation.Name)
+		suite.Equal(expectedMove1.Orders.NewDutyLocation.Name, moves[1].Orders.NewDutyLocation.Name)
 	})
 
 	suite.T().Run("Sort by request move date", func(t *testing.T) {

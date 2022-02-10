@@ -26,8 +26,8 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveSharedTest(orderID uuid.UU
 
 	_ = testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               orderID,
-			NewDutyStationID: location.ID,
+			ID:                orderID,
+			NewDutyLocationID: location.ID,
 		},
 	})
 }

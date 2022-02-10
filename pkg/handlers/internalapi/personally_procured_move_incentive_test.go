@@ -116,8 +116,8 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uui
 
 	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               ordersID,
-			NewDutyStationID: location.ID,
+			ID:                ordersID,
+			NewDutyLocationID: location.ID,
 		},
 	})
 

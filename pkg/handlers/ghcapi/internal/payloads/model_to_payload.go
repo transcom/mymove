@@ -119,7 +119,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		return nil
 	}
 
-	destinationDutyStation := DutyLocation(&order.NewDutyStation)
+	destinationDutyStation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
@@ -801,7 +801,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
-			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyStation),
+			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
 			OriginGBLOC:             gbloc,
 		}
 	}

@@ -4857,10 +4857,10 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 
 	order := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
-			NewDutyStationID: newDutyLocation.ID,
-			NewDutyStation:   newDutyLocation,
-			OrdersNumber:     models.StringPointer("ORDER3"),
-			TAC:              models.StringPointer("F8E1"),
+			NewDutyLocationID: newDutyLocation.ID,
+			NewDutyLocation:   newDutyLocation,
+			OrdersNumber:      models.StringPointer("ORDER3"),
+			TAC:               models.StringPointer("F8E1"),
 		},
 	})
 
@@ -5735,13 +5735,13 @@ func createRandomMove(appCtx appcontext.AppContext, possibleStatuses []models.Mo
 		}
 	}
 
-	if assertions.Order.NewDutyStationID == uuid.Nil {
+	if assertions.Order.NewDutyLocationID == uuid.Nil {
 		randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
 		if err != nil {
 			log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 		}
-		assertions.Order.NewDutyStation = allDutyLocations[randDutyStaionIndex]
-		assertions.Order.NewDutyStationID = assertions.Order.NewDutyStation.ID
+		assertions.Order.NewDutyLocation = allDutyLocations[randDutyStaionIndex]
+		assertions.Order.NewDutyLocationID = assertions.Order.NewDutyLocation.ID
 	}
 
 	randomFirst, randomLast := fakedata.RandomName()

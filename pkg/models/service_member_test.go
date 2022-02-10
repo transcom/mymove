@@ -182,8 +182,8 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		SpouseHasProGear:     spouseHasProGear,
 		OriginDutyLocationID: &dutyLocation.ID,
 		OriginDutyLocation:   &dutyLocation,
-		NewDutyStationID:     dutyLocation2.ID,
-		NewDutyStation:       dutyLocation2,
+		NewDutyLocationID:    dutyLocation2.ID,
+		NewDutyLocation:      dutyLocation2,
 		UploadedOrdersID:     uploadedOrder.ID,
 		UploadedOrders:       uploadedOrder,
 		Status:               OrderStatusSUBMITTED,
@@ -207,7 +207,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 	if suite.NoError(err) {
 		suite.Equal(order.Grade, actualOrder.Grade)
 		suite.Equal(order.OriginDutyLocationID, actualOrder.OriginDutyLocationID)
-		suite.Equal(order.NewDutyStationID, actualOrder.NewDutyStationID)
+		suite.Equal(order.NewDutyLocationID, actualOrder.NewDutyLocationID)
 		suite.True(order.IssueDate.Equal(actualOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(actualOrder.ReportByDate))
 		suite.Equal(order.OrdersType, actualOrder.OrdersType)

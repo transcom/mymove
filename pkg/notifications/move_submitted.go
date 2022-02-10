@@ -83,7 +83,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		Link:                       "https://my.move.mil/",
 		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
 		OriginDutyStation:          originDutyStation,
-		DestinationDutyStation:     orders.NewDutyStation.Name,
+		DestinationDutyStation:     orders.NewDutyLocation.Name,
 		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
 		Locator:                    move.Locator,
 		WeightAllowance:            humanize.Comma(int64(totalEntitlement)),

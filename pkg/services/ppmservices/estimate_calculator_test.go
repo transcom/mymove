@@ -397,8 +397,8 @@ func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, origi
 
 	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			NewDutyStationID: newLocation.ID,
-			NewDutyStation:   newLocation,
+			NewDutyLocationID: newLocation.ID,
+			NewDutyLocation:   newLocation,
 			ServiceMember: models.ServiceMember{
 				DutyStation:   originLocation,
 				DutyStationID: &originLocation.ID,

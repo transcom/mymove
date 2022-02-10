@@ -45,8 +45,8 @@ type Order struct {
 	SpouseHasProGear            bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
 	OriginDutyLocation          *DutyLocation                      `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
 	OriginDutyLocationID        *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
-	NewDutyStationID            uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
-	NewDutyStation              DutyLocation                       `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
+	NewDutyLocationID           uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
+	NewDutyLocation             DutyLocation                       `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
 	UploadedOrders              Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
 	UploadedOrdersID            uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber                *string                            `json:"orders_number" db:"orders_number"`
@@ -75,7 +75,7 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.TimeIsPresent{Field: o.IssueDate, Name: "IssueDate"},
 		&validators.TimeIsPresent{Field: o.ReportByDate, Name: "ReportByDate"},
 		&validators.UUIDIsPresent{Field: o.ServiceMemberID, Name: "ServiceMemberID"},
-		&validators.UUIDIsPresent{Field: o.NewDutyStationID, Name: "NewDutyStationID"},
+		&validators.UUIDIsPresent{Field: o.NewDutyLocationID, Name: "NewDutyLocationID"},
 		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
 		&StringIsNilOrNotBlank{Field: o.TAC, Name: "TransportationAccountingCode"},
 		&StringIsNilOrNotBlank{Field: o.SAC, Name: "SAC"},
@@ -108,7 +108,7 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 		if ppm.ID != uuid.Nil {
 			// If we're going to do this, we should check to see if the PMM postal code matches the postal code of the
 			// previous destination duty station.  Otherwise, we may be overwriting a home address postal code.
-			ppm.DestinationPostalCode = &order.NewDutyStation.Address.PostalCode
+			ppm.DestinationPostalCode = &order.NewDutyLocation.Address.PostalCode
 			if verrs, err := dbConnection.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -160,8 +160,8 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	err := db.Q().EagerPreload("ServiceMember.User",
 		"OriginDutyLocation.Address",
 		"OriginDutyLocation.TransportationOffice",
-		"NewDutyStation.Address",
-		"NewDutyStation.TransportationOffice",
+		"NewDutyLocation.Address",
+		"NewDutyLocation.TransportationOffice",
 		"UploadedOrders",
 		"UploadedAmendedOrders",
 		"Moves.PersonallyProcuredMoves",

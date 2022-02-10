@@ -47,8 +47,8 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 			SelectedMoveType: &moveType,
 		},
 		Order: models.Order{
-			OrdersType:       ordersType,
-			NewDutyStationID: fortGordon.ID,
+			OrdersType:        ordersType,
+			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
 			ID:            serviceMemberID,

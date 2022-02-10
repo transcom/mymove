@@ -434,7 +434,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.T().Run("adds orders destination address", func(t *testing.T) {
-		expectedDutyStation := paymentRequest.MoveTaskOrder.Orders.NewDutyStation
+		expectedDutyStation := paymentRequest.MoveTaskOrder.Orders.NewDutyLocation
 		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), expectedDutyStation.ID)
 		suite.FatalNoError(err)
 		// name
@@ -840,11 +840,11 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
 	})
 
-	suite.T().Run("nil country for NewDutyStation does not cause panic", func(t *testing.T) {
-		oldCountry := nilPaymentRequest.MoveTaskOrder.Orders.NewDutyStation.Address.Country
-		nilPaymentRequest.MoveTaskOrder.Orders.NewDutyStation.Address.Country = nil
+	suite.T().Run("nil country for NewDutyLocation does not cause panic", func(t *testing.T) {
+		oldCountry := nilPaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.Country
+		nilPaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.Country = nil
 		suite.NotPanics(panicFunc)
-		nilPaymentRequest.MoveTaskOrder.Orders.NewDutyStation.Address.Country = oldCountry
+		nilPaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.Country = oldCountry
 	})
 
 	suite.T().Run("nil country for OriginDutyLocation does not cause panic", func(t *testing.T) {

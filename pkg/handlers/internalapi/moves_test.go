@@ -389,13 +389,13 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMemberID:  serviceMember.ID,
-			ServiceMember:    serviceMember,
-			ReportByDate:     time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
-			NewDutyStationID: newDutyLocation.ID,
-			NewDutyStation:   newDutyLocation,
-			HasDependents:    true,
-			SpouseHasProGear: true,
+			ServiceMemberID:   serviceMember.ID,
+			ServiceMember:     serviceMember,
+			ReportByDate:      time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
+			NewDutyLocationID: newDutyLocation.ID,
+			NewDutyLocation:   newDutyLocation,
+			HasDependents:     true,
+			SpouseHasProGear:  true,
 		},
 	})
 

@@ -88,7 +88,7 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveApprovedEmailData{
 		Link:                       ppmInfoSheetURL.String(),
 		OriginDutyStation:          originDutyStation,
-		DestinationDutyStation:     orders.NewDutyStation.Name,
+		DestinationDutyStation:     orders.NewDutyLocation.Name,
 		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
 		Locator:                    move.Locator,
 	})

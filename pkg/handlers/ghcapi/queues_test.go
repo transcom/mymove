@@ -548,8 +548,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		Order: models.Order{
 			OriginDutyLocation:   &dutyLocation1,
 			OriginDutyLocationID: &dutyLocation1.ID,
-			NewDutyStation:       dutyLocation1,
-			NewDutyStationID:     dutyLocation1.ID,
+			NewDutyLocation:      dutyLocation1,
+			NewDutyLocationID:    dutyLocation1.ID,
 		},
 		ServiceMember: serviceMember1,
 	})
@@ -562,8 +562,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		Order: models.Order{
 			OriginDutyLocation:   &dutyLocation2,
 			OriginDutyLocationID: &dutyLocation2.ID,
-			NewDutyStation:       dutyLocation2,
-			NewDutyStationID:     dutyLocation2.ID,
+			NewDutyLocation:      dutyLocation2,
+			NewDutyLocationID:    dutyLocation2.ID,
 		},
 		ServiceMember: serviceMember2,
 	})
@@ -1193,7 +1193,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result1.RequestedMoveDate).Format(time.RFC3339Nano))
 		suite.Equal(subtestData.needsCounselingMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result1.SubmittedAt).Format(time.RFC3339Nano))
 		suite.Equal(order.ServiceMember.Affiliation.String(), result1.Customer.Agency)
-		suite.Equal(order.NewDutyStation.ID.String(), result1.DestinationDutyLocation.ID.String())
+		suite.Equal(order.NewDutyLocation.ID.String(), result1.DestinationDutyLocation.ID.String())
 
 		suite.EqualValues(subtestData.needsCounselingMove.Status, result2.Status)
 		suite.Equal("MARINES", result2.Customer.Agency)

@@ -183,7 +183,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 		ReportByDate:        handlers.FmtDate(order.ReportByDate),
 		OrdersType:          newOrdersType,
 		OrdersTypeDetail:    &newOrdersTypeDetail,
-		NewDutyStationID:    handlers.FmtUUID(order.NewDutyStationID),
+		NewDutyStationID:    handlers.FmtUUID(order.NewDutyLocationID),
 		Tac:                 order.TAC,
 		Sac:                 handlers.FmtString("N3TEST"),
 		DepartmentIndicator: &departmentIndicator,

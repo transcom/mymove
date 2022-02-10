@@ -127,9 +127,9 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	orderID := uuid.Must(uuid.NewV4())
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               orderID,
-			NewDutyStationID: location.ID,
-			NewDutyStation:   location,
+			ID:                orderID,
+			NewDutyLocationID: location.ID,
+			NewDutyLocation:   location,
 		},
 	})
 

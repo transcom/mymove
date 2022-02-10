@@ -94,7 +94,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	suite.NotNil(emailInfo)
 	suite.Len(emailInfo, 2, "Wrong number of rows returned")
-	suite.Equal(ppms[0].Move.Orders.NewDutyStation.Name, emailInfo[0].NewDutyStationName)
+	suite.Equal(ppms[0].Move.Orders.NewDutyLocation.Name, emailInfo[0].NewDutyStationName)
 	suite.NotNil(emailInfo[0].Email)
 	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
 	suite.Equal(ppms[0].WeightEstimate, emailInfo[0].WeightEstimate)

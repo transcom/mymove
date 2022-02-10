@@ -61,8 +61,8 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.Equal(order.ID.String(), ordersPayload.ID.String())
 	suite.Equal(move.Locator, ordersPayload.MoveCode)
 	suite.Equal(order.ServiceMemberID.String(), ordersPayload.Customer.ID.String())
-	suite.Equal(order.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
-	suite.NotNil(order.NewDutyStation)
+	suite.Equal(order.NewDutyLocationID.String(), ordersPayload.DestinationDutyStation.ID.String())
+	suite.NotNil(order.NewDutyLocation)
 	payloadEntitlement := ordersPayload.Entitlement
 	suite.Equal((*order.EntitlementID).String(), payloadEntitlement.ID.String())
 	orderEntitlement := order.Entitlement

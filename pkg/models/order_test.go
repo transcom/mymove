@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"issue_date":                     {"IssueDate can not be blank."},
 		"report_by_date":                 {"ReportByDate can not be blank."},
 		"service_member_id":              {"ServiceMemberID can not be blank."},
-		"new_duty_station_id":            {"NewDutyStationID can not be blank."},
+		"new_duty_location_id":           {"NewDutyLocationID can not be blank."},
 		"status":                         {"Status can not be blank."},
 		"uploaded_orders_id":             {"UploadedOrdersID can not be blank."},
 		"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters.", "TransportationAccountingCode can not be blank."},
@@ -140,8 +140,8 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		SpouseHasProGear:     spouseHasProGear,
 		OriginDutyLocationID: &dutyLocation.ID,
 		OriginDutyLocation:   &dutyLocation,
-		NewDutyStationID:     dutyLocation2.ID,
-		NewDutyStation:       dutyLocation2,
+		NewDutyLocationID:    dutyLocation2.ID,
+		NewDutyLocation:      dutyLocation2,
 		UploadedOrdersID:     uploadedOrder.ID,
 		UploadedOrders:       uploadedOrder,
 		Status:               OrderStatusSUBMITTED,
@@ -168,7 +168,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		suite.Equal(order.HasDependents, goodOrder.HasDependents)
 		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
 		suite.Equal(order.OriginDutyLocation.ID, goodOrder.OriginDutyLocation.ID)
-		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
+		suite.Equal(order.NewDutyLocation.ID, goodOrder.NewDutyLocation.ID)
 		suite.Equal(order.Grade, goodOrder.Grade)
 		suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
 	}
@@ -212,8 +212,8 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 		OrdersType:          ordersType,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
-		NewDutyStationID:    dutyLocation.ID,
-		NewDutyStation:      dutyLocation,
+		NewDutyLocationID:   dutyLocation.ID,
+		NewDutyLocation:     dutyLocation,
 		UploadedOrdersID:    uploadedOrder.ID,
 		UploadedOrders:      uploadedOrder,
 		Status:              OrderStatusSUBMITTED,
@@ -230,7 +230,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 		suite.Equal(order.OrdersType, goodOrder.OrdersType)
 		suite.Equal(order.HasDependents, goodOrder.HasDependents)
 		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
-		suite.Equal(order.NewDutyStationID, goodOrder.NewDutyStationID)
+		suite.Equal(order.NewDutyLocationID, goodOrder.NewDutyLocationID)
 	}
 }
 
@@ -258,8 +258,8 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 		OrdersType:          ordersType,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
-		NewDutyStationID:    dutyLocation.ID,
-		NewDutyStation:      dutyLocation,
+		NewDutyLocationID:   dutyLocation.ID,
+		NewDutyLocation:     dutyLocation,
 		UploadedOrdersID:    uploadedOrder.ID,
 		UploadedOrders:      uploadedOrder,
 		Status:              OrderStatusDRAFT,
@@ -319,17 +319,17 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	suite.Equal(postalCode, order.NewDutyStation.Address.PostalCode, "Wrong orig postal code")
-	order.NewDutyStationID = location.ID
-	order.NewDutyStation = location
+	suite.Equal(postalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
+	order.NewDutyLocationID = location.ID
+	order.NewDutyLocation = location
 	verrs, err = SaveOrder(suite.DB(), &order)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	orderUpdated, err := FetchOrder(suite.DB(), orderID)
 	suite.NoError(err)
-	suite.Equal(location.ID, orderUpdated.NewDutyStationID, "Wrong order new_duty_station_id")
-	suite.Equal(newPostalCode, order.NewDutyStation.Address.PostalCode, "Wrong orig postal code")
+	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_station_id")
+	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 
 	ppm, err := FetchPersonallyProcuredMoveByOrderID(suite.DB(), orderUpdated.ID)
 	suite.NoError(err)
@@ -372,10 +372,10 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	}
 	suite.MustSave(&location)
 
-	suite.Equal(postalCode, order.NewDutyStation.Address.PostalCode, "Wrong orig postal code")
+	suite.Equal(postalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 
-	order.NewDutyStationID = location.ID
-	order.NewDutyStation = location
+	order.NewDutyLocationID = location.ID
+	order.NewDutyLocation = location
 
 	verrs, err := SaveOrder(suite.DB(), &order)
 	suite.NoError(err)
@@ -383,6 +383,6 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 
 	orderUpdated, err := FetchOrder(suite.DB(), orderID)
 	suite.NoError(err)
-	suite.Equal(location.ID, orderUpdated.NewDutyStationID, "Wrong order new_duty_station_id")
-	suite.Equal(newPostalCode, order.NewDutyStation.Address.PostalCode, "Wrong orig postal code")
+	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_station_id")
+	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 }

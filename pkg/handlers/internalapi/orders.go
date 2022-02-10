@@ -87,7 +87,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		OrdersTypeDetail:      order.OrdersTypeDetail,
 		OriginDutyStation:     payloadForDutyStationModel(originDutyStation),
 		Grade:                 order.Grade,
-		NewDutyStation:        payloadForDutyStationModel(order.NewDutyStation),
+		NewDutyStation:        payloadForDutyStationModel(order.NewDutyLocation),
 		HasDependents:         handlers.FmtBool(order.HasDependents),
 		SpouseHasProGear:      handlers.FmtBool(order.SpouseHasProGear),
 		UploadedOrders:        orderPayload,
@@ -263,8 +263,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	order.OrdersTypeDetail = payload.OrdersTypeDetail
 	order.HasDependents = *payload.HasDependents
 	order.SpouseHasProGear = *payload.SpouseHasProGear
-	order.NewDutyStationID = dutyStation.ID
-	order.NewDutyStation = dutyStation
+	order.NewDutyLocationID = dutyStation.ID
+	order.NewDutyLocation = dutyStation
 	order.TAC = payload.Tac
 	order.SAC = payload.Sac
 

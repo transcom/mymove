@@ -205,7 +205,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	move := Move{}
 	dbQErr := db.Q().Eager(
 		"Orders",
-		"Orders.NewDutyStation.Address",
+		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.DutyStation.Address",
 		"PersonallyProcuredMoves",
@@ -266,7 +266,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
 		CurrentDutyStation:      serviceMember.DutyStation,
-		NewDutyStation:          move.Orders.NewDutyStation,
+		NewDutyStation:          move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
 		SignedCertification:     *signedCertification,

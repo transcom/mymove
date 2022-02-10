@@ -157,7 +157,7 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 
 	if payload.NewDutyStationID != nil {
 		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
-		order.NewDutyStationID = newDutyStationID
+		order.NewDutyLocationID = newDutyStationID
 	}
 
 	if payload.DepartmentIndicator != nil {
@@ -284,7 +284,7 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 
 	if payload.NewDutyStationID != nil {
 		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
-		order.NewDutyStationID = newDutyStationID
+		order.NewDutyLocationID = newDutyStationID
 	}
 
 	if payload.IssueDate != nil {
@@ -549,20 +549,20 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		}
 	}
 
-	if order.NewDutyStationID != uuid.Nil {
+	if order.NewDutyLocationID != uuid.Nil {
 		// TODO refactor to use service objects to fetch duty station
 		var newDutyStation models.DutyLocation
-		newDutyStation, err = models.FetchDutyLocation(appCtx.DB(), order.NewDutyStationID)
+		newDutyStation, err = models.FetchDutyLocation(appCtx.DB(), order.NewDutyLocationID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
+				return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for NewDutyLocation")
 			default:
 				return nil, apperror.NewQueryError("DutyStation", err, "")
 			}
 		}
-		order.NewDutyStationID = newDutyStation.ID
-		order.NewDutyStation = newDutyStation
+		order.NewDutyLocationID = newDutyStation.ID
+		order.NewDutyLocation = newDutyStation
 	}
 
 	verrs, err = appCtx.DB().ValidateAndUpdate(&order)

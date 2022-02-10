@@ -114,8 +114,8 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 			return nil, apperror.NewQueryError("DutyStation", err, "")
 		}
 	}
-	order.NewDutyStation = destinationDutyStation
-	order.NewDutyStationID = destinationDutyStationID
+	order.NewDutyLocation = destinationDutyStation
+	order.NewDutyLocationID = destinationDutyStationID
 	// Check that if provided, the origin duty station exists, then hook up to order
 	var originDutyStation *models.DutyLocation
 	if orderPayload.OriginDutyStationID != nil {
@@ -298,7 +298,7 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	}
 
 	if orderPayload.DestinationDutyStationID != nil {
-		model.NewDutyStationID = uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
+		model.NewDutyLocationID = uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
 	}
 
 	if orderPayload.OriginDutyStationID != nil {

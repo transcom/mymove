@@ -416,13 +416,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
 	var err error
 	var destinationDutyLocation models.DutyLocation
-	if orders.NewDutyStationID != uuid.Nil {
-		destinationDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), orders.NewDutyStationID)
+	if orders.NewDutyLocationID != uuid.Nil {
+		destinationDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), orders.NewDutyLocationID)
 		if err != nil {
-			return apperror.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
+			return apperror.NewInvalidInputError(orders.NewDutyLocationID, err, nil, "unable to find new duty station")
 		}
 	} else {
-		return apperror.NewConflictError(orders.ID, "Invalid Order, must have NewDutyStation")
+		return apperror.NewConflictError(orders.ID, "Invalid Order, must have NewDutyLocation")
 	}
 
 	destTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), destinationDutyLocation.ID)

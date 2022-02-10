@@ -117,8 +117,8 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest(ordersID uuid
 
 	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               ordersID,
-			NewDutyStationID: location.ID,
+			ID:                ordersID,
+			NewDutyLocationID: location.ID,
 		},
 	})
 

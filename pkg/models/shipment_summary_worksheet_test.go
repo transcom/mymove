@@ -40,8 +40,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 			SelectedMoveType: &moveType,
 		},
 		Order: models.Order{
-			OrdersType:       ordersType,
-			NewDutyStationID: fortGordon.ID,
+			OrdersType:        ordersType,
+			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
 			ID:            serviceMemberID,
@@ -153,8 +153,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 			SelectedMoveType: &moveType,
 		},
 		Order: models.Order{
-			OrdersType:       ordersType,
-			NewDutyStationID: fortGordon.ID,
+			OrdersType:        ordersType,
+			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
 			ID:            serviceMemberID,
@@ -314,14 +314,14 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 
 	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
 	order := models.Order{
-		IssueDate:        orderIssueDate,
-		OrdersType:       internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:     models.StringPointer("012345"),
-		NewDutyStationID: fortGordon.ID,
-		TAC:              models.StringPointer("NTA4"),
-		SAC:              models.StringPointer("SAC"),
-		HasDependents:    true,
-		SpouseHasProGear: true,
+		IssueDate:         orderIssueDate,
+		OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:      models.StringPointer("012345"),
+		NewDutyLocationID: fortGordon.ID,
+		TAC:               models.StringPointer("NTA4"),
+		SAC:               models.StringPointer("SAC"),
+		HasDependents:     true,
+		SpouseHasProGear:  true,
 	}
 	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
@@ -399,14 +399,14 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
 
 	order := models.Order{
-		IssueDate:        orderIssueDate,
-		OrdersType:       internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:     models.StringPointer("012345"),
-		NewDutyStationID: fortGordon.ID,
-		TAC:              models.StringPointer("NTA4"),
-		SAC:              models.StringPointer("SAC"),
-		HasDependents:    true,
-		SpouseHasProGear: true,
+		IssueDate:         orderIssueDate,
+		OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:      models.StringPointer("012345"),
+		NewDutyLocationID: fortGordon.ID,
+		TAC:               models.StringPointer("NTA4"),
+		SAC:               models.StringPointer("SAC"),
+		HasDependents:     true,
+		SpouseHasProGear:  true,
 	}
 	movingExpenses := models.MovingExpenseDocuments{
 		{
