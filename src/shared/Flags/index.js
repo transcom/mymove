@@ -1,13 +1,8 @@
 import classNames from 'classnames';
 
-import flagStyles from './index.module.scss';
+import styles from './index.module.scss';
 
-let errorIfMissing,
-  warnIfMissing,
-  showWhenCollapsed,
-  neverShow,
-  shipment,
-  styles = null;
+let errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment;
 
 /*
   Set flags for a shipment based on fieldname. Null values will be set to empty arrays by default.
@@ -46,7 +41,7 @@ export function getShipmentFlags(fieldname) {
 
   if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
     alwaysShow = true;
-    classes = classNames(styles.row, flagStyles.missingInfoError);
+    classes = classNames(styles.row, styles.missingInfoError);
     return {
       alwaysShow,
       classes,
@@ -54,7 +49,7 @@ export function getShipmentFlags(fieldname) {
   }
   if (warnIfMissing.includes(fieldname) && !shipment[fieldname]) {
     alwaysShow = true;
-    classes = classNames(styles.row, flagStyles.warning);
+    classes = classNames(styles.row, styles.warning);
     return {
       alwaysShow,
       classes,

@@ -1,13 +1,12 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 
-import styles from 'styles/descriptionList.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
 import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { setShipmentFlags, setFlagRowStyles } from 'shared/Flags';
+import { setShipmentFlags } from 'shared/Flags';
 
 const ShipmentInfoListSelector = ({
   className,
@@ -19,8 +18,6 @@ const ShipmentInfoListSelector = ({
   neverShow,
   shipmentType,
 }) => {
-  setFlagRowStyles(styles);
-
   // Never show is an option since NTSShipmentInfoList is used by both the TOO
   // and services counselor and show different things.
   setShipmentFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment);
