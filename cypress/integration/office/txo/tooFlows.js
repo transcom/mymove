@@ -442,7 +442,7 @@ describe('TOO user', () => {
   });
 
   it('is able to edit shipment destination type', () => {
-    const moveLocator = 'PCCIV1';
+    const moveLocator = 'RET1RE';
 
     // TOO Moves queue
     cy.wait(['@getSortedOrders']);

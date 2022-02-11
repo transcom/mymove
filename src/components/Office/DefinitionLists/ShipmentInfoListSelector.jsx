@@ -1,7 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 
-import styles from './flagStyles.module.scss';
+import styles from './FlagStyles.module.scss';
 
 import { ShipmentShape } from 'types/shipment';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
