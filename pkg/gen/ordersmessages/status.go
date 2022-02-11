@@ -20,8 +20,12 @@ import (
 type Status string
 
 func NewStatus(value Status) *Status {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Status.
+func (m Status) Pointer() *Status {
+	return &m
 }
 
 const (

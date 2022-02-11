@@ -20,8 +20,12 @@ import (
 type ReimbursementStatus string
 
 func NewReimbursementStatus(value ReimbursementStatus) *ReimbursementStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ReimbursementStatus.
+func (m ReimbursementStatus) Pointer() *ReimbursementStatus {
+	return &m
 }
 
 const (
