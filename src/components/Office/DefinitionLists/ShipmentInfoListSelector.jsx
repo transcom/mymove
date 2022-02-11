@@ -6,7 +6,7 @@ import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
 import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { setShipmentFlags } from 'helpers/Flags';
+import { setShipmentFlags } from 'shared/Flags';
 
 const ShipmentInfoListSelector = ({
   className,

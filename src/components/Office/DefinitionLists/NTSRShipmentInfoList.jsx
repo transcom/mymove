@@ -7,7 +7,7 @@ import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
 import { formatWeight } from 'utils/formatters';
-import { getShipmentFlags, getMissingOrDash } from 'helpers/Flags';
+import { getShipmentFlags, getMissingOrDash } from 'shared/Flags';
 
 const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
   const {

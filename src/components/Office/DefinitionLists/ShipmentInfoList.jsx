@@ -6,7 +6,7 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
-import { getShipmentFlags, getMissingOrDash } from 'helpers/Flags';
+import { getShipmentFlags, getMissingOrDash } from 'shared/Flags';
 
 const ShipmentInfoList = ({ className, shipment }) => {
   const {
