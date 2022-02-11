@@ -26,6 +26,7 @@ const props = {
   reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
   maxBillableWeight: 1200,
   totalBillableWeight: 1500,
+  shipmentType: 'HHG',
 };
 
 export const Card = () => (
