@@ -304,7 +304,6 @@ pkg/assets/assets.go:
 # ----- START SERVER TARGETS -----
 #
 
-.PHONY: swagger_generate
 swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
 
 # If any swagger files (source or generated) have changed, re-run so
@@ -322,10 +321,11 @@ endif
 	./scripts/openapi bundle -o swagger/ ## Bundles the API definition files into a complete specification
 	touch .swagger_build.stamp
 
-.PHONY: server_generate
-server_generate: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/gen/ ## Generate golang server code from Swagger files
-pkg/gen/: pkg/assets/assets.go $(wildcard swagger/*.yaml)
+server_generate: .server_generate.stamp
+
+.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/assets/assets.go $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
 	scripts/gen-server
+	touch .server_generate.stamp
 
 .PHONY: server_build
 server_build: bin/milmove ## Build the server
@@ -1122,8 +1122,8 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-3739e422811794dd0ebe5ab1f0244764520a18c4
-	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-3739e422811794dd0ebe5ab1f0244764520a18c4 bash
+	docker pull milmove/circleci-docker:milmove-app-7a53b275e24f79a860fa6180b6d983bf9110fc16
+	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-7a53b275e24f79a860fa6180b6d983bf9110fc16 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

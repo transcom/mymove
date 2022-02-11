@@ -37,8 +37,12 @@ import (
 type OrdersType string
 
 func NewOrdersType(value OrdersType) *OrdersType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated OrdersType.
+func (m OrdersType) Pointer() *OrdersType {
+	return &m
 }
 
 const (

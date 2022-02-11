@@ -53,7 +53,7 @@ export default function ReviewBillableWeight() {
   const { order, mtoShipments, move } = useMovePaymentRequestsQueries(moveCode);
   /* Only show shipments in statuses of approved, diversion requested, or cancellation requested */
   const filteredShipments = mtoShipments?.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status));
-  const isLastShipment = selectedShipmentIndex === filteredShipments?.length - 1;
+  const isLastShipment = filteredShipments && selectedShipmentIndex === filteredShipments.length - 1;
 
   const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments);
   const weightRequested = useCalculatedWeightRequested(filteredShipments);

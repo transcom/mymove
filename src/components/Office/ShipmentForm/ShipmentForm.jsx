@@ -280,42 +280,42 @@ const ShipmentForm = ({
                 {isNTSR && <ShipmentWeightInput />}
 
                 {showPickupFields && (
-                  <>
-                    <SectionWrapper className={formStyles.formSection}>
-                      <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
-                      <Fieldset>
-                        <DatePickerInput
-                          name="pickup.requestedDate"
-                          label="Requested pickup date"
-                          id="requestedPickupDate"
-                          validate={validateDate}
-                        />
-                      </Fieldset>
-
-                      <AddressFields
-                        name="pickup.address"
-                        legend="Pickup location"
-                        render={(fields) => (
-                          <>
-                            <Checkbox
-                              data-testid="useCurrentResidence"
-                              label="Use current address"
-                              name="useCurrentResidence"
-                              onChange={handleUseCurrentResidenceChange}
-                              id="useCurrentResidenceCheckbox"
-                            />
-                            {fields}
-                          </>
-                        )}
+                  <SectionWrapper className={formStyles.formSection}>
+                    <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
+                    <Fieldset>
+                      <DatePickerInput
+                        name="pickup.requestedDate"
+                        label="Requested pickup date"
+                        id="requestedPickupDate"
+                        validate={validateDate}
                       />
+                    </Fieldset>
 
-                      <ContactInfoFields
-                        name="pickup.agent"
-                        legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
-                        render={(fields) => <>{fields}</>}
-                      />
-                    </SectionWrapper>
-                  </>
+                    <AddressFields
+                      name="pickup.address"
+                      legend="Pickup location"
+                      render={(fields) => (
+                        <>
+                          <Checkbox
+                            data-testid="useCurrentResidence"
+                            label="Use current address"
+                            name="useCurrentResidence"
+                            onChange={handleUseCurrentResidenceChange}
+                            id="useCurrentResidenceCheckbox"
+                          />
+                          {fields}
+                        </>
+                      )}
+                    />
+
+                    <ContactInfoFields
+                      name="pickup.agent"
+                      legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
+                      render={(fields) => {
+                        return fields;
+                      }}
+                    />
+                  </SectionWrapper>
                 )}
 
                 {isTOO && (isNTS || isNTSR) && (
@@ -333,18 +333,35 @@ const ShipmentForm = ({
                 )}
 
                 {showDeliveryFields && (
-                  <>
-                    <SectionWrapper className={formStyles.formSection}>
-                      <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
-                      <Fieldset>
-                        <DatePickerInput
-                          name="delivery.requestedDate"
-                          label="Requested delivery date"
-                          id="requestedDeliveryDate"
-                          validate={validateDate}
-                        />
-                      </Fieldset>
+                  <SectionWrapper className={formStyles.formSection}>
+                    <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
+                    <Fieldset>
+                      <DatePickerInput
+                        name="delivery.requestedDate"
+                        label="Requested delivery date"
+                        id="requestedDeliveryDate"
+                        validate={validateDate}
+                      />
+                    </Fieldset>
 
+                    {isNTSR ? (
+                      <Fieldset legend="Delivery location">
+                        <AddressFields
+                          name="delivery.address"
+                          render={(fields) => {
+                            return fields;
+                          }}
+                        />
+                        {isRetirementOrSeparation && (
+                          <DropdownInput
+                            label="Destination type"
+                            name="destinationAddressType"
+                            options={shipmentDestinationAddressOptions}
+                            id="destinationAddressType"
+                          />
+                        )}
+                      </Fieldset>
+                    ) : (
                       <Fieldset legend="Delivery location">
                         <FormGroup>
                           <p>Does the customer know their delivery address yet?</p>
@@ -371,7 +388,12 @@ const ShipmentForm = ({
                         </FormGroup>
                         {hasDeliveryAddress === 'yes' ? (
                           <>
-                            <AddressFields name="delivery.address" render={(fields) => <>{fields}</>} />
+                            <AddressFields
+                              name="delivery.address"
+                              render={(fields) => {
+                                return fields;
+                              }}
+                            />
                             {isRetirementOrSeparation && (
                               <DropdownInput
                                 label="Destination type"
@@ -393,14 +415,16 @@ const ShipmentForm = ({
                           </p>
                         )}
                       </Fieldset>
+                    )}
 
-                      <ContactInfoFields
-                        name="delivery.agent"
-                        legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
-                        render={(fields) => <>{fields}</>}
-                      />
-                    </SectionWrapper>
-                  </>
+                    <ContactInfoFields
+                      name="delivery.agent"
+                      legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                      render={(fields) => {
+                        return fields;
+                      }}
+                    />
+                  </SectionWrapper>
                 )}
 
                 <ShipmentFormRemarks

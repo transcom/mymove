@@ -21,8 +21,12 @@ import (
 type MoveDocumentType string
 
 func NewMoveDocumentType(value MoveDocumentType) *MoveDocumentType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated MoveDocumentType.
+func (m MoveDocumentType) Pointer() *MoveDocumentType {
+	return &m
 }
 
 const (

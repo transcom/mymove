@@ -1208,6 +1208,20 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 		},
 		UserUploader: userUploader,
 	})
+
+	testdatagen.MakeMoveDocument(appCtx.DB(), testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm6.Move.ID,
+			Move:                     ppm6.Move,
+			PersonallyProcuredMoveID: &ppm6.ID,
+		},
+		Document: models.Document{
+			ID:              uuid.FromStringOrNil("c26421b6-e4c3-446b-88f3-493bb25c1756"),
+			ServiceMemberID: ppm6.Move.Orders.ServiceMember.ID,
+			ServiceMember:   ppm6.Move.Orders.ServiceMember,
+		},
+	})
+
 	moveRouter.Submit(appCtx, &ppm6.Move)
 	moveRouter.Approve(appCtx, &ppm6.Move)
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -3150,6 +3164,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE3ET")
 	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE4ET")
 	createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx)
+	createHHGNoGovCounselingForRetirementWithDestinationAddressAndType(appCtx)
 	createBasicNTSMove(appCtx, userUploader)
 	createBasicMovePPM01(appCtx, userUploader)
 	createBasicMovePPM02(appCtx, userUploader)

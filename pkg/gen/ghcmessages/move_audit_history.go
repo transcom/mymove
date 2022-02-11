@@ -34,7 +34,7 @@ type MoveAuditHistory struct {
 	// Format: date-time
 	ActionTstampTx strfmt.DateTime `json:"actionTstampTx,omitempty"`
 
-	// A list of (changed) MoveAuditHistoryItem's for a record after the change.
+	// A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.
 	ChangedValues MoveAuditHistoryItems `json:"changedValues,omitempty"`
 
 	// Record the text of the client query that triggered the audit event
@@ -53,7 +53,7 @@ type MoveAuditHistory struct {
 	// Format: uuid
 	ObjectID *strfmt.UUID `json:"objectId,omitempty"`
 
-	// A list of (old) MoveAuditHistoryItem's for a record before the change.
+	// A list of (old/previous) MoveAuditHistoryItem's for a record before the change.
 	OldValues MoveAuditHistoryItems `json:"oldValues,omitempty"`
 
 	// relation OID. Table OID (object identifier). Changes with drop/create.

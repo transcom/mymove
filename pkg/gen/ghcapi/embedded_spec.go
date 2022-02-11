@@ -3305,7 +3305,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
         }
@@ -3425,11 +3425,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -4177,6 +4173,7 @@ func init() {
       ]
     },
     "MTOServiceItems": {
+      "description": "A list of service items connected to this shipment.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
@@ -4543,7 +4540,7 @@ func init() {
           "format": "date-time"
         },
         "changedValues": {
-          "description": "A list of (changed) MoveAuditHistoryItem's for a record after the change.",
+          "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "x-nullable": true,
           "$ref": "#/definitions/MoveAuditHistoryItems"
         },
@@ -4571,7 +4568,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "oldValues": {
-          "description": "A list of (old) MoveAuditHistoryItem's for a record before the change.",
+          "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
           "x-nullable": true,
           "$ref": "#/definitions/MoveAuditHistoryItems"
         },
@@ -5303,6 +5300,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -5324,17 +5323,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -5695,7 +5697,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
         }
@@ -10219,7 +10221,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
@@ -10340,11 +10342,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -11092,6 +11090,7 @@ func init() {
       ]
     },
     "MTOServiceItems": {
+      "description": "A list of service items connected to this shipment.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
@@ -11458,7 +11457,7 @@ func init() {
           "format": "date-time"
         },
         "changedValues": {
-          "description": "A list of (changed) MoveAuditHistoryItem's for a record after the change.",
+          "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "x-nullable": true,
           "$ref": "#/definitions/MoveAuditHistoryItems"
         },
@@ -11486,7 +11485,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "oldValues": {
-          "description": "A list of (old) MoveAuditHistoryItem's for a record before the change.",
+          "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
           "x-nullable": true,
           "$ref": "#/definitions/MoveAuditHistoryItems"
         },
@@ -12218,6 +12217,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -12239,17 +12240,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -12616,7 +12620,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0

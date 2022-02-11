@@ -21,6 +21,7 @@ describe('Services counselor user', () => {
     cy.intercept('**/ghc/v1/moves/**/financial-review-flag').as('financialReviewFlagCompleted');
     cy.intercept('POST', '**/ghc/v1/mto-shipments').as('createShipment');
     cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('patchShipment');
+    cy.intercept('PATCH', '**/ghc/v1/counseling/orders/**/allowances').as('patchAllowances');
 
     const userId = 'a6c8663f-998f-4626-a978-ad60da2476ec';
     cy.apiSignInAsUser(userId, ServicesCounselorOfficeUserType);

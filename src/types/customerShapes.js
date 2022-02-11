@@ -85,6 +85,15 @@ export const MtoShipmentFormValuesShape = shape({
   customerRemarks: string,
 });
 
+export const PPMShipmentShape = shape({
+  pickupPostalCode: string,
+  secondaryPickupPostalCode: string,
+  destinationPostalCode: string,
+  secondaryDestinationPostalCode: string,
+  sitExpected: bool,
+  expectedDepartureDate: string,
+});
+
 export const MtoShipmentShape = shape({
   agents: arrayOf(MtoAgentShape),
   customerRemarks: string,
@@ -96,6 +105,7 @@ export const MtoShipmentShape = shape({
   destinationAddress: AddressShape,
   secondaryDeliveryAddress: AddressShape,
   secondaryPickupAddress: AddressShape,
+  ppmShipment: PPMShipmentShape,
 });
 
 export const HhgShipmentShape = MtoShipmentShape;

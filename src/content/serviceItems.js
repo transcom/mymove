@@ -50,4 +50,5 @@ const serviceItemCodes = {
   NSTUB: 'Nonstandard UB',
 };
 
-export { serviceItemCodes as default, serviceItemCodes };
+export default serviceItemCodes;
+export { serviceItemCodes };
