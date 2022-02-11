@@ -20,8 +20,12 @@ import (
 type MTOShipmentStatus string
 
 func NewMTOShipmentStatus(value MTOShipmentStatus) *MTOShipmentStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated MTOShipmentStatus.
+func (m MTOShipmentStatus) Pointer() *MTOShipmentStatus {
+	return &m
 }
 
 const (

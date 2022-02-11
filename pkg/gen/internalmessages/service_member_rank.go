@@ -20,8 +20,12 @@ import (
 type ServiceMemberRank string
 
 func NewServiceMemberRank(value ServiceMemberRank) *ServiceMemberRank {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ServiceMemberRank.
+func (m ServiceMemberRank) Pointer() *ServiceMemberRank {
+	return &m
 }
 
 const (
