@@ -1,14 +1,10 @@
 package ppmshipment
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -39,9 +35,7 @@ func checkPPMShipmentID() ppmShipmentValidator {
 			}
 		} else {
 			if newPPMShipment.ID != oldPPMShipment.ID {
-				return apperror.NewImplementationError(
-					fmt.Sprintf("the newPPMShipment ID (%s) must match oldPPMShipment ID (%s).", newPPMShipment.ID, oldPPMShipment.ID),
-				)
+				verrs.Add("ID", "ID can not be updated once it is set")
 			}
 		}
 		return verrs
@@ -53,21 +47,24 @@ func checkRequiredFields() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
-		var createdAt time.Time
-
-		// Set any pre-existing values as the baseline:
-		if oldPPMShipment != nil {
-			createdAt = oldPPMShipment.CreatedAt
+		// Check that we have something in the expectedDepartureDate field:
+		if newPPMShipment.ExpectedDepartureDate == nil || !newPPMShipment.ExpectedDepartureDate.IsZero() {
+			verrs.Add("expectedDepartureDate", "cannot be nil or a zero value")
 		}
 
-		// Override pre-existing values with anything sent in for the update/create:
-		if !newPPMShipment.CreatedAt.IsZero() {
-			createdAt = newPPMShipment.CreatedAt
+		// Check that we have something in the pickupPostalCode field:
+		if newPPMShipment.PickupPostalCode == nil || *newPPMShipment.PickupPostalCode == "" {
+			verrs.Add("pickupPostalCode", "cannot be nil or empty")
 		}
 
-		// Check that we have something in the CreatedAt field:
-		if createdAt.IsZero() {
-			verrs.Add("requestedAt", "cannot be empty")
+		// Check that we have something in the destinationPostalCode field:
+		if newPPMShipment.DestinationPostalCode == nil || *newPPMShipment.DestinationPostalCode == "" {
+			verrs.Add("destinationPostalCode", "cannot be nil or empty")
+		}
+
+		// Check that we have something in the sit Expected field:
+		if newPPMShipment.SitExpected == nil {
+			verrs.Add("sitExpected", "cannot be nil")
 		}
 
 		return verrs
