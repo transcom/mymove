@@ -48,7 +48,7 @@ func checkRequiredFields() ppmShipmentValidator {
 		verrs := validate.NewErrors()
 
 		// Check that we have something in the expectedDepartureDate field:
-		if newPPMShipment.ExpectedDepartureDate == nil || !newPPMShipment.ExpectedDepartureDate.IsZero() {
+		if newPPMShipment.ExpectedDepartureDate == nil || newPPMShipment.ExpectedDepartureDate.IsZero() {
 			verrs.Add("expectedDepartureDate", "cannot be nil or a zero value")
 		}
 
