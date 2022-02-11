@@ -1,0 +1,46 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/_variables';
+
+.ShipmentDefinitionLists {
+  .missingInfoError {
+    dt {
+      @include u-border-left(0.5); //4px
+      @include u-border-left('error');
+    }
+    // These first-child styles added here since the descriptionList compact
+    // display removes the border.
+    dt:first-child {
+      @include u-border-left(0.5); //4px
+      @include u-padding-left(0.5); // Adjust padding so that content still ines up
+    }
+
+    dd {
+      color: $error;
+      font-weight: bold;
+    }
+  }
+
+  .warning {
+    dt {
+      border-left: 4px solid $mm-gold;
+    }
+    // These first-child styles added here since the descriptionList compact
+    // display removes the border.
+    dt:first-child {
+      @include u-border-left(0.5); //4px
+      @include u-padding-left(0.5); // Adjust padding so that content still ines up
+    }
+  }
+
+  .row {
+    display: flex;
+    @include u-font('body', 'xs');
+    @include u-line-height('body', 2);
+
+    .noBorder {
+      @include u-border(0);
+    }
+  }
+}
