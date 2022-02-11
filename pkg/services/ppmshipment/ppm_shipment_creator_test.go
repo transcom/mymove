@@ -54,14 +54,12 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 	// InvalidInputError
 	suite.T().Run("A PPM shipment with validation errors returns an InvalidInputError with a bad UUID", func(t *testing.T) {
-		//badCreatedAt := models.PPMShipment{CreatedAt: time.Time{}} // createdAt is empty because there is no PPM shipment
-		//newPPMShipment.CreatedAt = badCreatedAt
 		blankPPMShipment := models.PPMShipment{}
 		ppmShipmentCreator := NewPPMShipmentCreator(mtoShipmentCreator)
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentCheck(suite.AppContextForTest(), &blankPPMShipment)
 
 		suite.Error(err)
 		suite.Nil(createdPPMShipment)
-		suite.IsType(apperror.QueryError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }

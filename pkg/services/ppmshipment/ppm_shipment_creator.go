@@ -58,10 +58,12 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		createShipment, err := f.mtoShipmentCreator.CreateMTOShipment(txnAppCtx, &ppmShipment.Shipment, nil)
 		// Check that mtoshipment is created. If not, bail out.
 		if err != nil {
-			return apperror.NewQueryError("MTOShipment", err, "")
+			return err
 		}
 
 		ppmShipment.ShipmentID = createShipment.ID
+		// Update the model with ppm shipment data:
+		ppmShipment.Shipment = *createShipment
 		// Validate the ppmShipment, and return an error
 		err = validatePPMShipment(txnAppCtx, *ppmShipment, nil, &ppmShipment.Shipment)
 		if err != nil {
