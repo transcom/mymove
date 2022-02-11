@@ -21,8 +21,12 @@ import (
 type LOAType string
 
 func NewLOAType(value LOAType) *LOAType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated LOAType.
+func (m LOAType) Pointer() *LOAType {
+	return &m
 }
 
 const (

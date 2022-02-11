@@ -20,8 +20,12 @@ import (
 type DeptIndicator string
 
 func NewDeptIndicator(value DeptIndicator) *DeptIndicator {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated DeptIndicator.
+func (m DeptIndicator) Pointer() *DeptIndicator {
+	return &m
 }
 
 const (

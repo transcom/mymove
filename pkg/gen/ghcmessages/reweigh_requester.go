@@ -20,8 +20,12 @@ import (
 type ReweighRequester string
 
 func NewReweighRequester(value ReweighRequester) *ReweighRequester {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ReweighRequester.
+func (m ReweighRequester) Pointer() *ReweighRequester {
+	return &m
 }
 
 const (
