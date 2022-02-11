@@ -6,10 +6,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/services/fetch"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -18,19 +14,13 @@ import (
 func (suite *PPMShipmentSuite) TestValidationRules() {
 	suite.Run("checkMTOShipmentID", func() {
 		suite.Run("success", func() {
-			//newPPMShipment := models.PPMShipment{ShipmentID: uuid.Must(uuid.NewV4())}
-			ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-				Stub: true,
-			})
+			newPPMShipment := models.PPMShipment{ShipmentID: uuid.Must(uuid.NewV4())}
 			testCases := map[string]struct {
 				newPPMShipment models.PPMShipment
 				oldPPMShipment *models.PPMShipment
 			}{
 				"create": {
-					newPPMShipment: ppmShipment,
+					newPPMShipment: newPPMShipment,
 					oldPPMShipment: nil,
 				},
 				//"update": {
@@ -83,18 +73,13 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 
 	suite.Run("checkPPMShipmentID", func() {
 		suite.Run("success", func() {
-			ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-				Stub: true,
-			})
+			newPPMShipment := models.PPMShipment{ShipmentID: uuid.Must(uuid.NewV4())}
 			testCases := map[string]struct {
 				newPPMShipment models.PPMShipment
 				oldPPMShipment *models.PPMShipment
 			}{
 				"create": {
-					newPPMShipment: ppmShipment,
+					newPPMShipment: newPPMShipment,
 					oldPPMShipment: nil,
 				},
 				// Add Update Test case here
@@ -106,7 +91,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 				})
 			}
 		})
-		//
+
 		suite.Run("failure", func() {
 			ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
@@ -114,7 +99,6 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 				},
 				Stub: true,
 			})
-			//id := uuid.Must(uuid.NewV4())
 			testCases := map[string]struct {
 				newPPMShipment models.PPMShipment
 				oldPPMShipment *models.PPMShipment
@@ -143,47 +127,26 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		})
 	})
 	suite.Run("CheckRequiredFields()", func() {
-		builder := query.NewQueryBuilder()
-		fetcher := fetch.NewFetcher(builder)
-		moveRouter := moverouter.NewMoveRouter()
-		mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-		//subtestData := suite.createSubtestData(testdatagen.Assertions{
-		//	PPMshipment: models.PPMShipment{
-		//		ExpectedDepartureDate: &expectedTime,
-		//		PickupPostalCode:      &pickupPostal,
-		//		DestinationPostalCode: &destPostalcode,
-		//		SitExpected:           &sitExpected,
-		//	}
-		//})
-
 		suite.Run("Success", func() {
 			expectedTime := time.Now()
 			pickupPostal := "99999"
 			destPostalcode := "99999"
 			sitExpected := false
+			shipmentID := uuid.Must(uuid.NewV4())
 
-			//newPPMShipment := models.PPMShipment{
-			//	ExpectedDepartureDate: &expectedTime,
-			//	PickupPostalCode:      &pickupPostal,
-			//	DestinationPostalCode: &destPostalcode,
-			//	SitExpected:           &sitExpected,
-			//}
+			newPPMShipment := models.PPMShipment{
+				ShipmentID:            shipmentID,
+				ExpectedDepartureDate: &expectedTime,
+				PickupPostalCode:      &pickupPostal,
+				DestinationPostalCode: &destPostalcode,
+				SitExpected:           &sitExpected,
+			}
 
-			ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ExpectedDepartureDate: &expectedTime,
-					PickupPostalCode:      &pickupPostal,
-					DestinationPostalCode: &destPostalcode,
-					SitExpected:           &sitExpected,
-				},
-				Stub: true,
-			})
+			err := checkRequiredFields().Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
 
-			ppmShipmentCreator := NewPPMShipmentCreator(mtoShipmentCreator)
-			createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentCheck(suite.AppContextForTest(), &ppmShipment)
-
-			suite.Nil(err)
-			suite.NotNil(createdPPMShipment)
+			// Verrs is initialized but empty, and we expect err as a return value in the func:
+			suite.NilOrNoVerrs(err)
+			//suite.NotNil(createdPPMShipment)
 		})
 	})
 }
