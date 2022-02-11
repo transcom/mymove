@@ -1,15 +1,21 @@
 import classNames from 'classnames';
 
-import styles from './index.module.scss';
-
-let errorIfMissing = [],
-  warnIfMissing = [],
-  showWhenCollapsed = [],
-  neverShow = [],
-  shipment = null;
+let errorIfMissing = [];
+let warnIfMissing = [];
+let showWhenCollapsed = [];
+let neverShow = [];
+let flaggedItem = null;
+let flagStyles = null;
 
 /*
-  Set flags for a shipment based on fieldname. Null values will be set to empty arrays by default.
+  Set CSS styles for the flags
+*/
+export function setFlagStyles(incomingStyles) {
+  flagStyles = incomingStyles || {};
+}
+
+/*
+  Set flags for a item based on fieldname. Null values will be set to empty arrays by default.
 
   Flag options:
     errorIfMissing,
@@ -19,14 +25,12 @@ let errorIfMissing = [],
 
   Pass in an array with string fieldnames to set any option e.g. ['counselorRemarks']
 */
-export function setShipmentFlags(error, warn, show, never, ship) {
+export function setDisplayFlags(error, warn, show, never, item) {
   errorIfMissing = error || [];
   warnIfMissing = warn || [];
   showWhenCollapsed = show || [];
   neverShow = never || [];
-  shipment = ship;
-
-  return;
+  flaggedItem = item;
 }
 
 /*
@@ -37,23 +41,27 @@ export function setShipmentFlags(error, warn, show, never, ship) {
     showWhenCollapsed,
     neverShow
 */
-export function getShipmentFlags(fieldname) {
+export function getDisplayFlags(fieldname) {
+  if (!flagStyles) {
+    return {};
+  }
+
   let alwaysShow = false;
-  let classes = styles.row;
+  let classes = flagStyles.row;
   // Hide row will override any always show that is set.
   let hideRow = false;
 
-  if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
+  if (errorIfMissing.includes(fieldname) && !flaggedItem[fieldname]) {
     alwaysShow = true;
-    classes = classNames(styles.row, styles.missingInfoError);
+    classes = classNames(flagStyles.row, flagStyles.missingInfoError);
     return {
       alwaysShow,
       classes,
     };
   }
-  if (warnIfMissing.includes(fieldname) && !shipment[fieldname]) {
+  if (warnIfMissing.includes(fieldname) && !flaggedItem[fieldname]) {
     alwaysShow = true;
-    classes = classNames(styles.row, styles.warning);
+    classes = classNames(flagStyles.row, flagStyles.warning);
     return {
       alwaysShow,
       classes,

@@ -7,7 +7,7 @@ import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
 import { formatWeight } from 'utils/formatters';
-import { getShipmentFlags, getMissingOrDash } from 'shared/Flags';
+import { getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
 const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
   const {
@@ -28,7 +28,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     sac,
   } = shipment;
 
-  const storageFacilityAddressElementFlags = getShipmentFlags('storageFacility');
+  const storageFacilityAddressElementFlags = getDisplayFlags('storageFacility');
   const storageFacilityAddressElement = (
     <div className={storageFacilityAddressElementFlags.classes}>
       <dt>Storage facility address</dt>
@@ -43,7 +43,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const ntsRecordedWeightElementFlags = getShipmentFlags('ntsRecordedWeight');
+  const ntsRecordedWeightElementFlags = getDisplayFlags('ntsRecordedWeight');
   const ntsRecordedWeightElement = (
     <div className={ntsRecordedWeightElementFlags.classes}>
       <dt>Shipment weight</dt>
@@ -53,7 +53,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const storageFacilityInfoElementFlags = getShipmentFlags('storageFacility');
+  const storageFacilityInfoElementFlags = getDisplayFlags('storageFacility');
   const storageFacilityInfoElement = (
     <div className={storageFacilityInfoElementFlags.classes}>
       <dt>Storage facility info</dt>
@@ -63,7 +63,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const serviceOrderNumberElementFlags = getShipmentFlags('serviceOrderNumber');
+  const serviceOrderNumberElementFlags = getDisplayFlags('serviceOrderNumber');
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
@@ -71,7 +71,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const requestedDeliveryDateElementFlags = getShipmentFlags('requestedDeliveryDate');
+  const requestedDeliveryDateElementFlags = getDisplayFlags('requestedDeliveryDate');
   const requestedDeliveryDateElement = (
     <div className={requestedDeliveryDateElementFlags.classes}>
       <dt>Preferred delivery date</dt>
@@ -79,7 +79,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const destinationAddressElementFlags = getShipmentFlags('destinationAddress');
+  const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
       <dt>Delivery address</dt>
@@ -87,7 +87,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const destinationTypeFlags = getShipmentFlags('destinationType');
+  const destinationTypeFlags = getDisplayFlags('destinationType');
   const destinationTypeElement = (
     <div className={destinationTypeFlags.classes}>
       <dt>Destination type</dt>
@@ -95,7 +95,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const secondaryDeliveryAddressElementFlags = getShipmentFlags('secondaryDeliveryAddress');
+  const secondaryDeliveryAddressElementFlags = getDisplayFlags('secondaryDeliveryAddress');
   const secondaryDeliveryAddressElement = (
     <div className={secondaryDeliveryAddressElementFlags.classes}>
       <dt>Second delivery address</dt>
@@ -105,7 +105,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const tacElementFlags = getShipmentFlags('tacType');
+  const tacElementFlags = getDisplayFlags('tacType');
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
@@ -113,7 +113,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const sacElementFlags = getShipmentFlags('sacType');
+  const sacElementFlags = getDisplayFlags('sacType');
   const sacElement = (
     <div className={sacElementFlags.classes}>
       <dt>SAC</dt>
@@ -130,7 +130,7 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
       ))
     : null;
 
-  const counselorRemarksElementFlags = getShipmentFlags('counselorRemarks');
+  const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
       <dt>Counselor remarks</dt>

@@ -6,7 +6,7 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
-import { getShipmentFlags, getMissingOrDash } from 'shared/Flags';
+import { getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
 const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
   const {
@@ -29,7 +29,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
   };
 
-  const usesExternalVendorElementFlags = getShipmentFlags('usesExternalVendor');
+  const usesExternalVendorElementFlags = getDisplayFlags('usesExternalVendor');
   const usesExternalVendorElement = (
     <div className={usesExternalVendorElementFlags.classes}>
       <dt>Vendor</dt>
@@ -37,7 +37,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const storageFacilityAddressElementFlags = getShipmentFlags('storageFacility');
+  const storageFacilityAddressElementFlags = getDisplayFlags('storageFacility');
   const storageFacilityAddressElement = (
     <div className={storageFacilityAddressElementFlags.classes}>
       <dt>Storage facility address</dt>
@@ -52,7 +52,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const storageFacilityInfoElementFlags = getShipmentFlags('storageFacility');
+  const storageFacilityInfoElementFlags = getDisplayFlags('storageFacility');
   const storageFacilityInfoElement = (
     <div className={storageFacilityInfoElementFlags.classes}>
       <dt>Storage facility info</dt>
@@ -64,7 +64,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const serviceOrderNumberElementFlags = getShipmentFlags('serviceOrderNumber');
+  const serviceOrderNumberElementFlags = getDisplayFlags('serviceOrderNumber');
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
@@ -72,7 +72,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const requestedPickupDateElementFlags = getShipmentFlags('requestedPickupDate');
+  const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
   const requestedPickupDateElement = (
     <div className={requestedPickupDateElementFlags.classes}>
       <dt>Preferred pickup date</dt>
@@ -82,7 +82,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const pickupAddressElementFlags = getShipmentFlags('pickupAddress');
+  const pickupAddressElementFlags = getDisplayFlags('pickupAddress');
   const pickupAddressElement = (
     <div className={pickupAddressElementFlags.classes}>
       <dt>Pickup address</dt>
@@ -90,7 +90,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const secondaryPickupAddressElementFlags = getShipmentFlags('secondaryPickupAddress');
+  const secondaryPickupAddressElementFlags = getDisplayFlags('secondaryPickupAddress');
   const secondaryPickupAddressElement = (
     <div className={secondaryPickupAddressElementFlags.classes}>
       <dt>Second pickup address</dt>
@@ -100,7 +100,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const tacElementFlags = getShipmentFlags('tacType');
+  const tacElementFlags = getDisplayFlags('tacType');
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
@@ -108,7 +108,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const sacElementFlags = getShipmentFlags('sacType');
+  const sacElementFlags = getDisplayFlags('sacType');
   const sacElement = (
     <div className={sacElementFlags.classes}>
       <dt>SAC</dt>
@@ -116,7 +116,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const agentsElementFlags = getShipmentFlags('agents');
+  const agentsElementFlags = getDisplayFlags('agents');
   const agentsElement = agents
     ? agents.map((agent) => (
         <div className={agentsElementFlags.classes} key={`${agent.agentType}-${agent.email}`}>
@@ -126,7 +126,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
       ))
     : null;
 
-  const counselorRemarksElementFlags = getShipmentFlags('counselorRemarks');
+  const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
       <dt>Counselor remarks</dt>
@@ -134,7 +134,7 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     </div>
   );
 
-  const customerRemarksElementFlags = getShipmentFlags('customerRemarks');
+  const customerRemarksElementFlags = getDisplayFlags('customerRemarks');
   const customerRemarksElement = (
     <div className={customerRemarksElementFlags.classes}>
       <dt>Customer remarks</dt>

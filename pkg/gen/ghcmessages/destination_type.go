@@ -21,8 +21,12 @@ import (
 type DestinationType string
 
 func NewDestinationType(value DestinationType) *DestinationType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated DestinationType.
+func (m DestinationType) Pointer() *DestinationType {
+	return &m
 }
 
 const (
