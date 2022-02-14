@@ -4434,12 +4434,14 @@ func init() {
         "HHG_LONGHAUL_DOMESTIC",
         "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC"
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "PPM"
       ],
       "x-display-value": {
         "HHG": "HHG",
         "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "INTERNATIONAL_UB": "International UB",
+        "PPM": "PPM"
       },
       "example": "HHG"
     },
@@ -11108,12 +11110,14 @@ func init() {
         "HHG_LONGHAUL_DOMESTIC",
         "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC"
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "PPM"
       ],
       "x-display-value": {
         "HHG": "HHG",
         "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "INTERNATIONAL_UB": "International UB",
+        "PPM": "PPM"
       },
       "example": "HHG"
     },
