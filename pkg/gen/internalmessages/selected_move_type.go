@@ -20,8 +20,12 @@ import (
 type SelectedMoveType string
 
 func NewSelectedMoveType(value SelectedMoveType) *SelectedMoveType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated SelectedMoveType.
+func (m SelectedMoveType) Pointer() *SelectedMoveType {
+	return &m
 }
 
 const (

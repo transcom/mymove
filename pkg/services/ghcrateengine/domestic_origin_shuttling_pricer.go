@@ -18,8 +18,8 @@ func NewDomesticOriginShuttlingPricer() services.DomesticOriginShuttlingPricer {
 }
 
 // Price determines the price for domestic origin first day SIT
-func (p domesticOriginShuttlingPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticShuttling(appCtx, models.ReServiceCodeDOSHUT, contractCode, requestedPickupDate, weight, serviceSchedule)
+func (p domesticOriginShuttlingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticShuttling(appCtx, models.ReServiceCodeDOSHUT, contractCode, referenceDate, weight, serviceSchedule)
 }
 
 // PriceUsingParams determines the price for domestic origin first day SIT given PaymentServiceItemParams
@@ -29,12 +29,7 @@ func (p domesticOriginShuttlingPricer) PriceUsingParams(appCtx appcontext.AppCon
 		return unit.Cents(0), nil, err
 	}
 
-	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
-
-	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
+	referenceDate, err := getParamTime(params, models.ServiceItemParamNameReferenceDate)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -44,5 +39,10 @@ func (p domesticOriginShuttlingPricer) PriceUsingParams(appCtx appcontext.AppCon
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilled), serviceScheduleOrigin)
+	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
+
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceScheduleOrigin)
 }

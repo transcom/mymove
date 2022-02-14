@@ -20,8 +20,12 @@ import (
 type DimensionType string
 
 func NewDimensionType(value DimensionType) *DimensionType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated DimensionType.
+func (m DimensionType) Pointer() *DimensionType {
+	return &m
 }
 
 const (

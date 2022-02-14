@@ -20,8 +20,12 @@ import (
 type QueueMoveStatus string
 
 func NewQueueMoveStatus(value QueueMoveStatus) *QueueMoveStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated QueueMoveStatus.
+func (m QueueMoveStatus) Pointer() *QueueMoveStatus {
+	return &m
 }
 
 const (

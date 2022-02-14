@@ -16,6 +16,7 @@ function BillableWeightHintText({
   maxBillableWeight,
   originalWeight,
   totalBillableWeight,
+  isNTSRShipment,
 }) {
   const estimatedWeightTimes110 = estimatedWeight * 1.1;
 
@@ -30,7 +31,7 @@ function BillableWeightHintText({
       <div className={styles.hintText}>
         <strong>{formatWeight(originalWeight)}</strong> <span>| original weight</span>
       </div>
-      {show110OfTotalEstimatedWeight && (
+      {show110OfTotalEstimatedWeight && !isNTSRShipment && (
         <div className={styles.hintText}>
           <strong>{formatWeight(estimatedWeightTimes110)}</strong> <span>| 110% of total estimated weight</span>
         </div>
@@ -50,6 +51,7 @@ BillableWeightHintText.propTypes = {
   maxBillableWeight: number.isRequired,
   originalWeight: number,
   totalBillableWeight: number,
+  isNTSRShipment: bool,
 };
 
 BillableWeightHintText.defaultProps = {
@@ -57,16 +59,17 @@ BillableWeightHintText.defaultProps = {
   estimatedWeight: null,
   originalWeight: null,
   totalBillableWeight: null,
+  isNTSRShipment: false,
 };
 
-function MaxBillableWeightHintText({ weightAllowance, estimatedWeight }) {
+function MaxBillableWeightHintText({ weightAllowance, estimatedWeight, isNTSRShipment }) {
   return (
     <>
       <div>
         <strong data-testid="maxWeight-weightAllowance">{formatWeight(weightAllowance)}</strong>{' '}
         <span>| weight allowance</span>
       </div>
-      {!Number.isNaN(estimatedWeight) && estimatedWeight && (
+      {!Number.isNaN(estimatedWeight) && estimatedWeight && !isNTSRShipment && (
         <div className={styles.hintText}>
           <strong data-testid="maxWeight-estimatedWeight">{formatWeight(estimatedWeight * 1.1)}</strong>{' '}
           <span>| 110% of total estimated weight</span>
@@ -79,11 +82,13 @@ function MaxBillableWeightHintText({ weightAllowance, estimatedWeight }) {
 MaxBillableWeightHintText.propTypes = {
   estimatedWeight: number,
   weightAllowance: number,
+  isNTSRShipment: bool,
 };
 
 MaxBillableWeightHintText.defaultProps = {
   estimatedWeight: null,
   weightAllowance: null,
+  isNTSRShipment: false,
 };
 
 const validationSchema = Yup.object({
@@ -101,6 +106,7 @@ export default function EditBillableWeight({
   title,
   totalBillableWeight,
   weightAllowance,
+  isNTSRShipment,
 }) {
   const [showFields, setShowFields] = useState(showFieldsInitial);
 
@@ -142,9 +148,14 @@ export default function EditBillableWeight({
                   maxBillableWeight={maxBillableWeight}
                   originalWeight={originalWeight}
                   totalBillableWeight={totalBillableWeight}
+                  isNTSRShipment={isNTSRShipment}
                 />
               ) : (
-                <MaxBillableWeightHintText weightAllowance={weightAllowance} estimatedWeight={estimatedWeight} />
+                <MaxBillableWeightHintText
+                  weightAllowance={weightAllowance}
+                  estimatedWeight={estimatedWeight}
+                  isNTSRShipment={isNTSRShipment}
+                />
               )}
               <Fieldset className={styles.fieldset}>
                 <MaskedTextField
@@ -225,6 +236,7 @@ EditBillableWeight.propTypes = {
   title: string.isRequired,
   totalBillableWeight: number,
   weightAllowance: number,
+  isNTSRShipment: bool,
 };
 
 EditBillableWeight.defaultProps = {
@@ -236,4 +248,5 @@ EditBillableWeight.defaultProps = {
   showFieldsInitial: false,
   totalBillableWeight: null,
   weightAllowance: null,
+  isNTSRShipment: false,
 };
