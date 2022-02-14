@@ -1,5 +1,7 @@
 import * as Yup from 'yup';
 
+import { ValidateZipRateData } from 'shared/api';
+
 const INVALID_DATE = 'Invalid date';
 
 // RA Summary: eslint - security/detect-unsafe-regex - Denial of Service: Regular Expression
@@ -20,6 +22,24 @@ export function validateDate(value) {
   }
   return error;
 }
+
+const UnsupportedZipCodeErrorMsg =
+  'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
+
+export const validatePostalCode = async (value, postalCodeType, errMsg = UnsupportedZipCodeErrorMsg) => {
+  if (!value || (value.length !== 5 && value.length !== 10)) {
+    return undefined;
+  }
+
+  let responseBody;
+  try {
+    responseBody = await ValidateZipRateData(value, postalCodeType);
+  } catch (e) {
+    return 'Error checking ZIP';
+  }
+
+  return responseBody.valid ? undefined : errMsg;
+};
 
 /** Yup validation schemas */
 

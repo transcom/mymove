@@ -33,24 +33,24 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 					Value:   testdatagen.DefaultContractCode,
 				},
 				{
-					Key:     models.ServiceItemParamNameRequestedPickupDate,
-					KeyType: models.ServiceItemParamTypeDate,
-					Value:   requestedPickup,
-				},
-				{
 					Key:     models.ServiceItemParamNameDistanceZip5,
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   strconv.Itoa(dshTestMileage),
 				},
 				{
-					Key:     models.ServiceItemParamNameWeightBilled,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   "0",
+					Key:     models.ServiceItemParamNameReferenceDate,
+					KeyType: models.ServiceItemParamTypeDate,
+					Value:   requestedPickup,
 				},
 				{
 					Key:     models.ServiceItemParamNameServiceAreaOrigin,
 					KeyType: models.ServiceItemParamTypeString,
 					Value:   dshTestServiceArea,
+				},
+				{
+					Key:     models.ServiceItemParamNameWeightBilled,
+					KeyType: models.ServiceItemParamTypeInteger,
+					Value:   "0",
 				},
 			},
 		)
@@ -89,11 +89,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 		suite.Equal("could not find param with key ContractCode", err.Error())
 		suite.Nil(rateEngineParams)
 
-		// No requested pickup date
-		missingRequestedPickupDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameRequestedPickupDate)
-		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingRequestedPickupDate)
+		// No reference date
+		missingReferenceDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameReferenceDate)
+		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingReferenceDate)
 		suite.Error(err)
-		suite.Equal("could not find param with key RequestedPickupDate", err.Error())
+		suite.Equal("could not find param with key ReferenceDate", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No distance
@@ -231,10 +231,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		suite.Equal("ContractCode is required", err.Error())
 		suite.Nil(rateEngineParams)
 
-		// No requested pickup date
+		// No reference date
 		_, rateEngineParams, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, dshTestMileage, dshTestWeight, dshTestServiceArea)
 		suite.Error(err)
-		suite.Equal("RequestedPickupDate is required", err.Error())
+		suite.Equal("ReferenceDate is required", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No distance
@@ -268,24 +268,24 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems(reque
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
-				KeyType: models.ServiceItemParamTypeDate,
-				Value:   requestedPickup,
-			},
-			{
 				Key:     models.ServiceItemParamNameDistanceZip5,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(dshTestMileage),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilled,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(dshTestWeight),
+				Key:     models.ServiceItemParamNameReferenceDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   requestedPickup,
 			},
 			{
 				Key:     models.ServiceItemParamNameServiceAreaOrigin,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   dshTestServiceArea,
+			},
+			{
+				Key:     models.ServiceItemParamNameWeightBilled,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(dshTestWeight),
 			},
 		},
 	)

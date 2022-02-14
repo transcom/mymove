@@ -344,59 +344,78 @@ const ShipmentForm = ({
                       />
                     </Fieldset>
 
-                    <Fieldset legend="Delivery location">
-                      <FormGroup>
-                        <p>Does the customer know their delivery address yet?</p>
-                        <div className={formStyles.radioGroup}>
-                          <Field
-                            as={Radio}
-                            id="has-delivery-address"
-                            label="Yes"
-                            name="hasDeliveryAddress"
-                            value="yes"
-                            title="Yes, I know my delivery address"
-                            checked={hasDeliveryAddress === 'yes'}
+                    {isNTSR ? (
+                      <Fieldset legend="Delivery location">
+                        <AddressFields
+                          name="delivery.address"
+                          render={(fields) => {
+                            return fields;
+                          }}
+                        />
+                        {isRetirementOrSeparation && (
+                          <DropdownInput
+                            label="Destination type"
+                            name="destinationAddressType"
+                            options={shipmentDestinationAddressOptions}
+                            id="destinationAddressType"
                           />
-                          <Field
-                            as={Radio}
-                            id="no-delivery-address"
-                            label="No"
-                            name="hasDeliveryAddress"
-                            value="no"
-                            title="No, I do not know my delivery address"
-                            checked={hasDeliveryAddress === 'no'}
-                          />
-                        </div>
-                      </FormGroup>
-                      {hasDeliveryAddress === 'yes' ? (
-                        <>
-                          <AddressFields
-                            name="delivery.address"
-                            render={(fields) => {
-                              return fields;
-                            }}
-                          />
-                          {isRetirementOrSeparation && (
-                            <DropdownInput
-                              label="Destination type"
-                              name="destinationAddressType"
-                              options={shipmentDestinationAddressOptions}
-                              id="destinationAddressType"
+                        )}
+                      </Fieldset>
+                    ) : (
+                      <Fieldset legend="Delivery location">
+                        <FormGroup>
+                          <p>Does the customer know their delivery address yet?</p>
+                          <div className={formStyles.radioGroup}>
+                            <Field
+                              as={Radio}
+                              id="has-delivery-address"
+                              label="Yes"
+                              name="hasDeliveryAddress"
+                              value="yes"
+                              title="Yes, I know my delivery address"
+                              checked={hasDeliveryAddress === 'yes'}
                             />
-                          )}
-                        </>
-                      ) : (
-                        <p>
-                          We can use the zip of their{' '}
-                          {isRetirementOrSeparation ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
-                          <br />
-                          <strong>
-                            {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                            {newDutyStationAddress.postalCode}{' '}
-                          </strong>
-                        </p>
-                      )}
-                    </Fieldset>
+                            <Field
+                              as={Radio}
+                              id="no-delivery-address"
+                              label="No"
+                              name="hasDeliveryAddress"
+                              value="no"
+                              title="No, I do not know my delivery address"
+                              checked={hasDeliveryAddress === 'no'}
+                            />
+                          </div>
+                        </FormGroup>
+                        {hasDeliveryAddress === 'yes' ? (
+                          <>
+                            <AddressFields
+                              name="delivery.address"
+                              render={(fields) => {
+                                return fields;
+                              }}
+                            />
+                            {isRetirementOrSeparation && (
+                              <DropdownInput
+                                label="Destination type"
+                                name="destinationAddressType"
+                                options={shipmentDestinationAddressOptions}
+                                id="destinationAddressType"
+                              />
+                            )}
+                          </>
+                        ) : (
+                          <p>
+                            We can use the zip of their{' '}
+                            {isRetirementOrSeparation ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
+                            <br />
+                            <strong>
+                              {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                              {newDutyStationAddress.postalCode}{' '}
+                            </strong>
+                          </p>
+                        )}
+                      </Fieldset>
+                    )}
 
                     <ContactInfoFields
                       name="delivery.agent"

@@ -106,6 +106,8 @@ const (
 	ServiceItemParamNameRateAreaNonStdDest ServiceItemParamName = "RateAreaNonStdDest"
 	// ServiceItemParamNameRateAreaNonStdOrigin is the param key name RateAreaNonStdOrigin
 	ServiceItemParamNameRateAreaNonStdOrigin ServiceItemParamName = "RateAreaNonStdOrigin"
+	// ServiceItemParamNameReferenceDate is the param key name ReferenceDate
+	ServiceItemParamNameReferenceDate ServiceItemParamName = "ReferenceDate"
 	// ServiceItemParamNameRequestedPickupDate is the param key name RequestedPickupDate
 	ServiceItemParamNameRequestedPickupDate ServiceItemParamName = "RequestedPickupDate"
 	// ServiceItemParamNameServiceAreaDest is the param key name ServiceAreaDest
@@ -236,6 +238,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNamePSIShippingLinehaulIntlOOPrice,
 	ServiceItemParamNameRateAreaNonStdDest,
 	ServiceItemParamNameRateAreaNonStdOrigin,
+	ServiceItemParamNameReferenceDate,
 	ServiceItemParamNameRequestedPickupDate,
 	ServiceItemParamNameServiceAreaDest,
 	ServiceItemParamNameServiceAreaOrigin,
@@ -303,6 +306,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNamePSIShippingLinehaulIntlOOPrice),
 	string(ServiceItemParamNameRateAreaNonStdDest),
 	string(ServiceItemParamNameRateAreaNonStdOrigin),
+	string(ServiceItemParamNameReferenceDate),
 	string(ServiceItemParamNameRequestedPickupDate),
 	string(ServiceItemParamNameServiceAreaDest),
 	string(ServiceItemParamNameServiceAreaOrigin),
