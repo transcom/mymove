@@ -2525,6 +2525,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
+			ActualPickupDate:     swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
 			StorageFacility:      &storageFacility,
 			TACType:              &tacType,
@@ -4803,7 +4804,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 			Value:   testdatagen.DefaultContractCode,
 		},
 		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			Key:     models.ServiceItemParamNameReferenceDate,
 			KeyType: models.ServiceItemParamTypeDate,
 			Value:   currentTime.Format(testDateFormat),
 		},

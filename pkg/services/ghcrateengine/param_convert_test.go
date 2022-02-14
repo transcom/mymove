@@ -111,7 +111,7 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamTime() {
 
 	params := models.PaymentServiceItemParams{
 		setupParamConvertParam(models.ServiceItemParamNameMTOAvailableToPrimeAt, models.ServiceItemParamTypeTimestamp, testDate.Format(TimestampParamFormat)),
-		setupParamConvertParam(models.ServiceItemParamNameRequestedPickupDate, models.ServiceItemParamTypeDate, testDate.Format(DateParamFormat)),
+		setupParamConvertParam(models.ServiceItemParamNameReferenceDate, models.ServiceItemParamTypeDate, testDate.Format(DateParamFormat)),
 	}
 
 	suite.Run("finding expected timestamp param value", func() {
@@ -122,7 +122,7 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamTime() {
 	})
 
 	suite.Run("finding expected date param value", func() {
-		value, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
+		value, err := getParamTime(params, models.ServiceItemParamNameReferenceDate)
 		suite.NoError(err)
 		suite.Equal(testDate.Year(), value.Year())
 		suite.Equal(testDate.Month(), value.Month())

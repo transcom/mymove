@@ -23,8 +23,12 @@ import (
 type TourType string
 
 func NewTourType(value TourType) *TourType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated TourType.
+func (m TourType) Pointer() *TourType {
+	return &m
 }
 
 const (
