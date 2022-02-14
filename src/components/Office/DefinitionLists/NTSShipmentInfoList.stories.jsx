@@ -1,10 +1,6 @@
 import React from 'react';
 
 import NTSShipmentInfoList from './NTSShipmentInfoList';
-// setting styles for warning and error info
-import styles from './ShipmentDefinitionLists.module.scss';
-
-import { setFlagStyles } from 'utils/displayFlags';
 
 export default {
   title: 'Office Components/Shipment Info List',
@@ -71,7 +67,6 @@ export const NTSBasic = () => (
   />
 );
 
-setFlagStyles(styles);
 export const NTSMissingInfo = () => (
   <NTSShipmentInfoList
     isExpanded
@@ -84,7 +79,6 @@ export const NTSMissingInfo = () => (
   />
 );
 
-setFlagStyles(styles);
 export const NTSWarning = () => (
   <NTSShipmentInfoList
     isExpanded
