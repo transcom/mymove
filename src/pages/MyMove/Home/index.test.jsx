@@ -2,11 +2,14 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import moment from 'moment';
+import { generatePath } from 'react-router';
 
 import { Home } from './index';
 
 import { MockProviders } from 'testUtils';
 import { formatCustomerDate } from 'utils/formatters';
+import { customerRoutes } from 'constants/routes';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -79,20 +82,69 @@ describe('Home component', () => {
   });
 
   describe('contents of Step 3', () => {
-    it('contains ppm and hhg cards if those shipments exist', () => {
-      const testProps = {
-        currentPpm: { id: '12345', createdAt: moment() },
-        mtoShipments: [
-          { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: 'HHG' },
-          { id: '4322', createdAt: moment().subtract(1, 'days'), shipmentType: 'HHG' },
-        ],
-      };
+    const testProps = {
+      currentPpm: { id: '12345', createdAt: moment() },
+      mtoShipments: [
+        { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
+        { id: '4322', createdAt: moment().subtract(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
+        { id: '4323', createdAt: moment().add(2, 'days'), shipmentType: SHIPMENT_OPTIONS.NTS },
+        { id: '4324', createdAt: moment().add(3, 'days'), shipmentType: SHIPMENT_OPTIONS.NTSR },
+      ],
+    };
 
-      const wrapper = mountHomeWithProviders(testProps);
-      expect(wrapper.find('ShipmentListItem').length).toBe(3);
+    const wrapper = mountHomeWithProviders(testProps);
+
+    it('contains ppm and hhg cards if those shipments exist', () => {
+      expect(wrapper.find('ShipmentListItem').length).toBe(5);
       expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('HHG 1');
       expect(wrapper.find('ShipmentListItem').at(1).text()).toContain('PPM');
       expect(wrapper.find('ShipmentListItem').at(2).text()).toContain('HHG 2');
+      expect(wrapper.find('ShipmentListItem').at(3).text()).toContain('NTS');
+      expect(wrapper.find('ShipmentListItem').at(4).text()).toContain('NTS-release');
+    });
+
+    it('handles edit click to edit hhg shipment route', () => {
+      const editHHGShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: defaultProps.move.id,
+        mtoShipmentId: testProps.mtoShipments[1].id,
+      });
+
+      wrapper.find('ShipmentListItem').at(0).simulate('click');
+
+      expect(defaultProps.history.push).toHaveBeenCalledWith(`${editHHGShipmentPath}?shipmentNumber=1`);
+    });
+
+    it('handles edit click to edit ppm shipment route', () => {
+      const editPPMShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: defaultProps.move.id,
+        mtoShipmentId: testProps.currentPpm.id,
+      });
+
+      wrapper.find('ShipmentListItem').at(1).simulate('click');
+
+      expect(defaultProps.history.push).toHaveBeenCalledWith(`${editPPMShipmentPath}?shipmentNumber=1`);
+    });
+
+    it('handles edit click to edit nts shipment route', () => {
+      const editNTSShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: defaultProps.move.id,
+        mtoShipmentId: testProps.mtoShipments[2].id,
+      });
+
+      wrapper.find('ShipmentListItem').at(3).simulate('click');
+
+      expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSShipmentPath);
+    });
+
+    it('handles edit click to edit ntsr shipment route', () => {
+      const editNTSRShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: defaultProps.move.id,
+        mtoShipmentId: testProps.mtoShipments[3].id,
+      });
+
+      wrapper.find('ShipmentListItem').at(4).simulate('click');
+
+      expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSRShipmentPath);
     });
   });
 

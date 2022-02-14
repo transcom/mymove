@@ -5,8 +5,7 @@ import { Formik, Field } from 'formik';
 import { Button, Form, Radio, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import styles from './DatesAndLocation.module.scss';
-
+import styles from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { ZIP_CODE_REGEX } from 'utils/validation';
@@ -39,11 +38,11 @@ const validationSchema = Yup.object().shape({
 });
 
 const setZip = (setFieldValue, postalCodeField, postalCode, isChecked, isCheckedField) => {
-  setFieldValue(isCheckedField, isChecked === 'true' ? 'false' : 'true');
-  setFieldValue(postalCodeField, isChecked === 'true' ? '' : postalCode);
+  setFieldValue(isCheckedField, !isChecked);
+  setFieldValue(postalCodeField, isChecked ? '' : postalCode);
 };
 
-const DatesAndLocation = ({
+const DateAndLocationForm = ({
   mtoShipment,
   destinationDutyStation,
   serviceMember,
@@ -53,18 +52,19 @@ const DatesAndLocation = ({
 }) => {
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
-    useResidentialAddressZIP: '',
+    useResidentialAddressZIP: false,
     hasSecondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
-    useDestinationDutyLocationZIP: '',
+    useDestinationDutyLocationZIP: false,
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
     hasSecondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode ? 'true' : 'false',
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
-    sitExpected: mtoShipment?.ppmShipment?.sitExpected || 'false',
+    sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
   };
 
-  // TODO: async validation call to validate postal codes are valid for rate engine
+  const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
+  const destinationDutyLocationPostalCode = destinationDutyStation?.address?.postalCode;
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -84,17 +84,16 @@ const DatesAndLocation = ({
                 <CheckboxField
                   id="useResidentialAddressZIP"
                   name="useResidentialAddressZIP"
-                  label={`Use my current ZIP (${serviceMember?.residentialAddress?.postalCode})`}
+                  label={`Use my current ZIP (${residentialAddressPostalCode})`}
                   onChange={() =>
                     setZip(
                       setFieldValue,
                       'pickupPostalCode',
-                      serviceMember?.residentialAddress?.postalCode,
+                      residentialAddressPostalCode,
                       values.useResidentialAddressZIP,
                       'useResidentialAddressZIP',
                     )
                   }
-                  checked={values.useResidentialAddressZIP === 'true'}
                 />
                 <FormGroup>
                   <Fieldset>
@@ -152,17 +151,16 @@ const DatesAndLocation = ({
                 <CheckboxField
                   id="useDestinationDutyLocationZIP"
                   name="useDestinationDutyLocationZIP"
-                  label={`Use the ZIP for my new duty location (${destinationDutyStation?.address?.postalCode})`}
+                  label={`Use the ZIP for my new duty location (${destinationDutyLocationPostalCode})`}
                   onChange={() =>
                     setZip(
                       setFieldValue,
                       'destinationPostalCode',
-                      destinationDutyStation?.address?.postalCode,
+                      destinationDutyLocationPostalCode,
                       values.useDestinationDutyLocationZIP,
                       'useDestinationDutyLocationZIP',
                     )
                   }
-                  checked={values.useDestinationDutyLocationZIP === 'true'}
                 />
                 <Hint className={styles.hint}>
                   Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you
@@ -279,7 +277,7 @@ const DatesAndLocation = ({
   );
 };
 
-DatesAndLocation.propTypes = {
+DateAndLocationForm.propTypes = {
   mtoShipment: MtoShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
   destinationDutyStation: DutyStationShape.isRequired,
@@ -288,8 +286,8 @@ DatesAndLocation.propTypes = {
   postalCodeValidator: func.isRequired,
 };
 
-DatesAndLocation.defaultProps = {
+DateAndLocationForm.defaultProps = {
   mtoShipment: undefined,
 };
 
-export default DatesAndLocation;
+export default DateAndLocationForm;

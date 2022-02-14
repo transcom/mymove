@@ -2,14 +2,14 @@ import React from 'react';
 import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import DatesAndLocation from './DatesAndLocation';
+import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
 
 const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
   serviceMember: {
     id: '123',
-    residentialAddress: {
+    residential_address: {
       postalCode: '90210',
     },
   },
@@ -37,10 +37,10 @@ const mtoShipmentProps = {
   },
 };
 
-describe('DatesAndLocation component', () => {
+describe('DateAndLocationForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load', async () => {
-      render(<DatesAndLocation {...defaultProps} />);
+      render(<DateAndLocationForm {...defaultProps} />);
       expect(await screen.getByRole('heading', { level: 2, name: 'Origin' })).toBeInTheDocument();
       expect(screen.getAllByLabelText('ZIP')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
@@ -59,24 +59,24 @@ describe('DatesAndLocation component', () => {
 
   describe('displays conditional inputs', () => {
     it('displays current zip when "use my current zip" is selected', async () => {
-      render(<DatesAndLocation {...defaultProps} />);
+      render(<DateAndLocationForm {...defaultProps} />);
       const useCurrentZip = await screen.getByText('Use my current ZIP (90210)');
       const originZip = screen.getAllByLabelText('ZIP')[0];
       expect(originZip.value).toBe('');
       userEvent.click(useCurrentZip);
       await waitFor(() => {
-        expect(originZip.value).toBe(defaultProps.serviceMember.residentialAddress.postalCode);
+        expect(originZip.value).toBe(defaultProps.serviceMember.residential_address.postalCode);
       });
     });
 
     it('removes current zip when "use my current zip" is deselected', async () => {
-      render(<DatesAndLocation {...defaultProps} />);
+      render(<DateAndLocationForm {...defaultProps} />);
       const useCurrentZip = await screen.getByText('Use my current ZIP (90210)');
       const originZip = screen.getAllByLabelText('ZIP')[0];
       expect(originZip.value).toBe('');
       userEvent.click(useCurrentZip);
       await waitFor(() => {
-        expect(originZip.value).toBe(defaultProps.serviceMember.residentialAddress.postalCode);
+        expect(originZip.value).toBe(defaultProps.serviceMember.residential_address.postalCode);
       });
       userEvent.click(useCurrentZip);
       await waitFor(() => {
@@ -85,7 +85,7 @@ describe('DatesAndLocation component', () => {
     });
 
     it('displays secondary pickup postal code input when hasSecondaryPickupPostalCode is true', async () => {
-      render(<DatesAndLocation {...defaultProps} />);
+      render(<DateAndLocationForm {...defaultProps} />);
       const hasSecondaryPickupPostalCode = await screen.getAllByLabelText('Yes')[0];
       expect(screen.queryByLabelText('Second ZIP')).toBeNull();
       userEvent.click(hasSecondaryPickupPostalCode);
@@ -96,7 +96,7 @@ describe('DatesAndLocation component', () => {
     });
 
     it('displays destination zip when "Use the ZIP for my new duty location" is selected', async () => {
-      render(<DatesAndLocation {...defaultProps} />);
+      render(<DateAndLocationForm {...defaultProps} />);
       const useDestinationZip = await screen.getByText('Use the ZIP for my new duty location (94611)');
       const destinationZip = screen.getAllByLabelText('ZIP')[1];
       expect(destinationZip.value).toBe('');
@@ -107,7 +107,7 @@ describe('DatesAndLocation component', () => {
     });
 
     it('removes destination zip when "Use the ZIP for my new duty location" is deselected', async () => {
-      render(<DatesAndLocation {...defaultProps} />);
+      render(<DateAndLocationForm {...defaultProps} />);
       const useDestinationZip = await screen.getByText('Use the ZIP for my new duty location (94611)');
       const destinationZip = screen.getAllByLabelText('ZIP')[1];
       expect(destinationZip.value).toBe('');
@@ -123,7 +123,7 @@ describe('DatesAndLocation component', () => {
     });
 
     it('displays secondary destination postal code input when hasSecondaryDestinationPostalCode is true', async () => {
-      render(<DatesAndLocation {...defaultProps} />);
+      render(<DateAndLocationForm {...defaultProps} />);
       const hasSecondaryDestinationPostalCode = await screen.getAllByLabelText('Yes')[0];
       expect(screen.queryByLabelText('Second ZIP')).toBeNull();
       userEvent.click(hasSecondaryDestinationPostalCode);
@@ -136,7 +136,7 @@ describe('DatesAndLocation component', () => {
 
   describe('pull values from the ppm shipment when available', () => {
     it('renders blank form on load', async () => {
-      render(<DatesAndLocation {...mtoShipmentProps} />);
+      render(<DateAndLocationForm {...mtoShipmentProps} />);
       expect(await screen.getAllByLabelText('ZIP')[0].value).toBe(
         mtoShipmentProps.mtoShipment.ppmShipment.pickupPostalCode,
       );
@@ -151,7 +151,7 @@ describe('DatesAndLocation component', () => {
 
   describe('validates form fields and displays error messages', () => {
     it('marks required inputs when left empty', async () => {
-      render(<DatesAndLocation {...defaultProps} />);
+      render(<DateAndLocationForm {...defaultProps} />);
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -187,7 +187,7 @@ describe('DatesAndLocation component', () => {
           },
         },
       };
-      render(<DatesAndLocation {...hasSecondaryZIPs} />);
+      render(<DateAndLocationForm {...hasSecondaryZIPs} />);
 
       const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
 
@@ -229,7 +229,7 @@ describe('DatesAndLocation component', () => {
           },
         },
       };
-      render(<DatesAndLocation {...invalidTypes} />);
+      render(<DateAndLocationForm {...invalidTypes} />);
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '1 January 2022');
 
@@ -265,7 +265,7 @@ describe('DatesAndLocation component', () => {
     });
 
     it('calls postalCodeValidator when the ZIP value changes', async () => {
-      render(<DatesAndLocation {...defaultProps} />);
+      render(<DateAndLocationForm {...defaultProps} />);
 
       const primaryZIPs = screen.getAllByLabelText('ZIP');
       await userEvent.type(primaryZIPs[0], '12345');
@@ -295,7 +295,7 @@ describe('DatesAndLocation component', () => {
           .fn()
           .mockReturnValue('Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.'),
       };
-      render(<DatesAndLocation {...postalCodeValidatorFailure} />);
+      render(<DateAndLocationForm {...postalCodeValidatorFailure} />);
 
       const primaryZIPs = screen.getAllByLabelText('ZIP');
       await userEvent.type(primaryZIPs[0], '99999');

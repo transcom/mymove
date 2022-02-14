@@ -17,6 +17,7 @@ import {
 } from 'store/entities/selectors';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { LocationShape } from 'types/index';
+import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation';
 
 export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
@@ -39,15 +40,18 @@ export class CreateOrEditMtoShipment extends Component {
 
     const { type } = qs.parse(location.search);
 
-    if (type === SHIPMENT_OPTIONS.PPM) {
-      const { moveId } = match.params;
-
-      history.replace(`/moves/${moveId}/ppm-start`);
-      return <div />;
-    }
-
     // wait until MTO shipment has loaded to render form
     if (type || mtoShipment?.id) {
+      if (type === SHIPMENT_OPTIONS.PPM || mtoShipment?.shipmentType === SHIPMENT_OPTIONS.PPM) {
+        return (
+          <DateAndLocation
+            mtoShipment={mtoShipment}
+            serviceMember={serviceMember}
+            destinationDutyLocation={orders.new_duty_station}
+          />
+        );
+      }
+
       return (
         <MtoShipmentForm
           match={match}
