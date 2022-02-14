@@ -18,6 +18,7 @@ CREATE TRIGGER service_members_copy_duty_station_id_to_duty_location_id
 	ON service_members
 	FOR EACH ROW
 EXECUTE PROCEDURE copy_duty_station_id_to_duty_location_id();
+COMMENT ON TRIGGER service_members_copy_duty_station_id_to_duty_location_id ON service_members IS 'This trigger is meant to temporarily keep duty_station_id and duty_location_id in sync while we are switching from duty_station_id to duty_location_id. It should be deleted when duty_station_id is deleted.';
 
 
 -- Create copies of duty_station columns on orders with new wording
@@ -52,3 +53,4 @@ CREATE TRIGGER orders_copy_duty_station_ids_to_duty_location_ids
 	ON orders
 	FOR EACH ROW
 EXECUTE PROCEDURE copy_duty_station_ids_to_duty_location_ids();
+COMMENT ON TRIGGER orders_copy_duty_station_ids_to_duty_location_ids ON orders IS 'This trigger is meant to temporarily keep origin_duty_station_id/new_duty_station_id and origin_duty_location_id/new_duty_location_id in sync while we are switching from duty_station_id to duty_location_id. It should be deleted when origin_duty_station_id and new_duty_station_id are deleted.';
