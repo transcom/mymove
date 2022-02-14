@@ -422,7 +422,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
-			{"PPM", models.MTOShipmentTypePPM},
+			//{"PPM", models.MTOShipmentTypePPM},
 		}
 
 		for _, tt := range testCases {
