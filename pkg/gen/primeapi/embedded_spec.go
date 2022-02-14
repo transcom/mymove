@@ -2079,6 +2079,18 @@ func init() {
             }
           ]
         },
+        "destinationAddressType": {
+          "type": "string",
+          "title": "Destination Address Type",
+          "enum": [
+            "HOME_OF_RECORD",
+            "HOME_OF_SELECTION",
+            "PLACE_ENTERED_ACTIVE_DUTY",
+            "OTHER_THAN_AUTHORIZED"
+          ],
+          "x-nullable": true,
+          "example": "OTHER_THAN_AUTHORIZED"
+        },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
@@ -3065,6 +3077,18 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "destinationAddressType": {
+          "type": "string",
+          "title": "Destination Address Type",
+          "enum": [
+            "HOME_OF_RECORD",
+            "HOME_OF_SELECTION",
+            "PLACE_ENTERED_ACTIVE_DUTY",
+            "OTHER_THAN_AUTHORIZED"
+          ],
+          "x-nullable": true,
+          "example": "OTHER_THAN_AUTHORIZED"
         },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
@@ -5732,6 +5756,18 @@ func init() {
             }
           ]
         },
+        "destinationAddressType": {
+          "type": "string",
+          "title": "Destination Address Type",
+          "enum": [
+            "HOME_OF_RECORD",
+            "HOME_OF_SELECTION",
+            "PLACE_ENTERED_ACTIVE_DUTY",
+            "OTHER_THAN_AUTHORIZED"
+          ],
+          "x-nullable": true,
+          "example": "OTHER_THAN_AUTHORIZED"
+        },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
@@ -6721,6 +6757,18 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "destinationAddressType": {
+          "type": "string",
+          "title": "Destination Address Type",
+          "enum": [
+            "HOME_OF_RECORD",
+            "HOME_OF_SELECTION",
+            "PLACE_ENTERED_ACTIVE_DUTY",
+            "OTHER_THAN_AUTHORIZED"
+          ],
+          "x-nullable": true,
+          "example": "OTHER_THAN_AUTHORIZED"
         },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",

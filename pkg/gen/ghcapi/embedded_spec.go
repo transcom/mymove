@@ -3371,7 +3371,7 @@ func init() {
             "OTHER_THAN_AUTHORIZED"
           ],
           "x-nullable": true,
-          "example": "Other than authorized"
+          "example": "OTHER_THAN_AUTHORIZED"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -5750,7 +5750,7 @@ func init() {
             "OTHER_THAN_AUTHORIZED"
           ],
           "x-nullable": true,
-          "example": "Other than authorized"
+          "example": "OTHER_THAN_AUTHORIZED"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -10097,7 +10097,7 @@ func init() {
             "OTHER_THAN_AUTHORIZED"
           ],
           "x-nullable": true,
-          "example": "Other than authorized"
+          "example": "OTHER_THAN_AUTHORIZED"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -12483,7 +12483,7 @@ func init() {
             "OTHER_THAN_AUTHORIZED"
           ],
           "x-nullable": true,
-          "example": "Other than authorized"
+          "example": "OTHER_THAN_AUTHORIZED"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",

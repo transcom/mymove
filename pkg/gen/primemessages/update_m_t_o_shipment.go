@@ -7,6 +7,7 @@ package primemessages
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -32,6 +33,11 @@ type UpdateMTOShipment struct {
 	DestinationAddress struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
+
+	// Destination Address Type
+	// Example: OTHER_THAN_AUTHORIZED
+	// Enum: [HOME_OF_RECORD HOME_OF_SELECTION PLACE_ENTERED_ACTIVE_DUTY OTHER_THAN_AUTHORIZED]
+	DestinationAddressType *string `json:"destinationAddressType,omitempty"`
 
 	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
 	//
@@ -98,6 +104,10 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationAddressType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateFirstAvailableDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -147,6 +157,54 @@ func (m *UpdateMTOShipment) validateActualPickupDate(formats strfmt.Registry) er
 func (m *UpdateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+var updateMTOShipmentTypeDestinationAddressTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["HOME_OF_RECORD","HOME_OF_SELECTION","PLACE_ENTERED_ACTIVE_DUTY","OTHER_THAN_AUTHORIZED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		updateMTOShipmentTypeDestinationAddressTypePropEnum = append(updateMTOShipmentTypeDestinationAddressTypePropEnum, v)
+	}
+}
+
+const (
+
+	// UpdateMTOShipmentDestinationAddressTypeHOMEOFRECORD captures enum value "HOME_OF_RECORD"
+	UpdateMTOShipmentDestinationAddressTypeHOMEOFRECORD string = "HOME_OF_RECORD"
+
+	// UpdateMTOShipmentDestinationAddressTypeHOMEOFSELECTION captures enum value "HOME_OF_SELECTION"
+	UpdateMTOShipmentDestinationAddressTypeHOMEOFSELECTION string = "HOME_OF_SELECTION"
+
+	// UpdateMTOShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY captures enum value "PLACE_ENTERED_ACTIVE_DUTY"
+	UpdateMTOShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY string = "PLACE_ENTERED_ACTIVE_DUTY"
+
+	// UpdateMTOShipmentDestinationAddressTypeOTHERTHANAUTHORIZED captures enum value "OTHER_THAN_AUTHORIZED"
+	UpdateMTOShipmentDestinationAddressTypeOTHERTHANAUTHORIZED string = "OTHER_THAN_AUTHORIZED"
+)
+
+// prop value enum
+func (m *UpdateMTOShipment) validateDestinationAddressTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, updateMTOShipmentTypeDestinationAddressTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *UpdateMTOShipment) validateDestinationAddressType(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationAddressType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateDestinationAddressTypeEnum("destinationAddressType", "body", *m.DestinationAddressType); err != nil {
+		return err
 	}
 
 	return nil

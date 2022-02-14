@@ -417,6 +417,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	if mtoShipment.DestinationAddress != nil {
 		payload.DestinationAddress.Address = *Address(mtoShipment.DestinationAddress)
 	}
+	if mtoShipment.DestinationAddressType != nil {
+		destinationAddressType := string(*mtoShipment.DestinationAddressType)
+		payload.DestinationAddressType = &destinationAddressType
+	}
 	if mtoShipment.SecondaryPickupAddress != nil {
 		payload.SecondaryPickupAddress.Address = *Address(mtoShipment.SecondaryPickupAddress)
 	}

@@ -45,7 +45,7 @@ type UpdateShipment struct {
 	} `json:"destinationAddress,omitempty"`
 
 	// Destination Address Type
-	// Example: Other than authorized
+	// Example: OTHER_THAN_AUTHORIZED
 	// Enum: [HOME_OF_RECORD HOME_OF_SELECTION PLACE_ENTERED_ACTIVE_DUTY OTHER_THAN_AUTHORIZED]
 	DestinationAddressType *string `json:"destinationAddressType,omitempty"`
 

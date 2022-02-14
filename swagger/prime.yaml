@@ -1963,6 +1963,16 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: OTHER_THAN_AUTHORIZED
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
+        x-nullable: true
       secondaryPickupAddress:
         description: >-
           A second pickup address for this shipment, if the customer entered
@@ -2461,6 +2471,16 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationAddressType:
+        type: string
+        title: Destination Address Type
+        example: OTHER_THAN_AUTHORIZED
+        enum:
+          - HOME_OF_RECORD
+          - HOME_OF_SELECTION
+          - PLACE_ENTERED_ACTIVE_DUTY
+          - OTHER_THAN_AUTHORIZED
+        x-nullable: true
       secondaryPickupAddress:
         description: >-
           A second pickup address for this shipment, if the customer entered
