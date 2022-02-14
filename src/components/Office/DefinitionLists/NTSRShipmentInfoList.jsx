@@ -2,14 +2,23 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
+
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
 import { formatWeight } from 'utils/formatters';
-import { getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
+import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
-const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
+const NTSRShipmentInfoList = ({
+  className,
+  shipment,
+  isExpanded,
+  warnIfMissing,
+  errorIfMissing,
+  showWhenCollapsed,
+}) => {
   const {
     destinationAddress,
     destinationType,
@@ -27,6 +36,13 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
     tac,
     sac,
   } = shipment;
+
+  setFlagStyles({
+    row: styles.row,
+    warning: shipmentDefinitionListsStyles.warning,
+    missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
+  });
+  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
 
   const storageFacilityAddressElementFlags = getDisplayFlags('storageFacility');
   const storageFacilityAddressElement = (
@@ -146,7 +162,13 @@ const NTSRShipmentInfoList = ({ className, shipment, isExpanded }) => {
   );
   return (
     <dl
-      className={classNames(styles.descriptionList, styles.tableDisplay, styles.compact, className)}
+      className={classNames(
+        shipmentDefinitionListsStyles.ShipmentDefinitionLists,
+        styles.descriptionList,
+        styles.tableDisplay,
+        styles.compact,
+        className,
+      )}
       data-testid="nts-release-shipment-info-list"
     >
       {(isExpanded || ntsRecordedWeightElementFlags.alwaysShow) && ntsRecordedWeightElement}
@@ -170,11 +192,17 @@ NTSRShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
   isExpanded: PropTypes.bool,
+  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
+  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
 };
 
 NTSRShipmentInfoList.defaultProps = {
   className: '',
   isExpanded: false,
+  warnIfMissing: [],
+  errorIfMissing: [],
+  showWhenCollapsed: [],
 };
 
 export default NTSRShipmentInfoList;

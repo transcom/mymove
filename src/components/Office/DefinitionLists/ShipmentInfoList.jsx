@@ -2,13 +2,15 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
+
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
-import { getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
+import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
-const ShipmentInfoList = ({ className, shipment }) => {
+const ShipmentInfoList = ({ className, shipment, errorIfMissing }) => {
   const {
     requestedPickupDate,
     pickupAddress,
@@ -22,6 +24,13 @@ const ShipmentInfoList = ({ className, shipment }) => {
     customerRemarks,
   } = shipment;
 
+  setFlagStyles({
+    row: styles.row,
+    warning: shipmentDefinitionListsStyles.warning,
+    missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
+  });
+  setDisplayFlags(errorIfMissing, null, null, null, shipment);
+
   const destinationTypeFlags = getDisplayFlags('destinationType');
   const destinationTypeElement = (
     <div className={destinationTypeFlags.classes}>
@@ -32,7 +41,13 @@ const ShipmentInfoList = ({ className, shipment }) => {
 
   return (
     <dl
-      className={classNames(styles.descriptionList, styles.tableDisplay, styles.compact, className)}
+      className={classNames(
+        shipmentDefinitionListsStyles.ShipmentDefinitionLists,
+        styles.descriptionList,
+        styles.tableDisplay,
+        styles.compact,
+        className,
+      )}
       data-testid="shipment-info-list"
     >
       <div className={styles.row}>
@@ -82,10 +97,12 @@ const ShipmentInfoList = ({ className, shipment }) => {
 ShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
+  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
 };
 
 ShipmentInfoList.defaultProps = {
   className: '',
+  errorIfMissing: [],
 };
 
 export default ShipmentInfoList;

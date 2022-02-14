@@ -2,13 +2,23 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
+
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
-import { getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
+import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
-const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
+const NTSShipmentInfoList = ({
+  className,
+  shipment,
+  isExpanded,
+  warnIfMissing,
+  errorIfMissing,
+  showWhenCollapsed,
+  neverShow,
+}) => {
   const {
     pickupAddress,
     secondaryPickupAddress,
@@ -24,6 +34,15 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
     sac,
     usesExternalVendor,
   } = shipment;
+
+  setFlagStyles({
+    row: styles.row,
+    warning: shipmentDefinitionListsStyles.warning,
+    missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
+  });
+  // Never show is an option since NTSShipmentInfoList is used by both the TOO
+  // and services counselor and show different things.
+  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment);
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
@@ -143,7 +162,13 @@ const NTSShipmentInfoList = ({ className, shipment, isExpanded }) => {
   );
   return (
     <dl
-      className={classNames(styles.descriptionList, styles.tableDisplay, styles.compact, className)}
+      className={classNames(
+        shipmentDefinitionListsStyles.ShipmentDefinitionLists,
+        styles.descriptionList,
+        styles.tableDisplay,
+        styles.compact,
+        className,
+      )}
       data-testid="nts-shipment-info-list"
     >
       {showElement(usesExternalVendorElementFlags) && usesExternalVendorElement}
@@ -166,11 +191,19 @@ NTSShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
   isExpanded: PropTypes.bool,
+  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
+  errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  neverShow: PropTypes.arrayOf(PropTypes.string),
 };
 
 NTSShipmentInfoList.defaultProps = {
   className: '',
   isExpanded: false,
+  warnIfMissing: [],
+  errorIfMissing: [],
+  showWhenCollapsed: [],
+  neverShow: [],
 };
 
 export default NTSShipmentInfoList;

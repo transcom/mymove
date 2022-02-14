@@ -11,7 +11,15 @@ let flagStyles = null;
   Set CSS styles for the flags
 */
 export function setFlagStyles(incomingStyles) {
-  flagStyles = incomingStyles || {};
+  if (incomingStyles) {
+    flagStyles = {
+      row: incomingStyles.row || null,
+      warning: incomingStyles.warning || null,
+      missingInfoError: incomingStyles.missingInfoError || null,
+    };
+  } else {
+    flagStyles = {};
+  }
 }
 
 /*

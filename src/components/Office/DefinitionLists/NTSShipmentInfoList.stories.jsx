@@ -1,6 +1,13 @@
 import React from 'react';
 
 import NTSShipmentInfoList from './NTSShipmentInfoList';
+// setting styles for warning and error info
+import styles from './ShipmentDefinitionLists.module.scss';
+
+import { setFlagStyles } from 'utils/displayFlags';
+
+const errorIfMissing = ['storageFacility', 'serviceOrderNumber', 'tacType'];
+const warnIfMissing = ['storageFacility', 'serviceOrderNumber', 'tacType'];
 
 export default {
   title: 'Office Components/Shipment Info List',
@@ -67,29 +74,19 @@ export const NTSBasic = () => (
   />
 );
 
+const shipment = {
+  requestedPickupDate: info.requestedPickupDate,
+  pickupAddress: info.pickupAddress,
+  sacType: info.sacType,
+};
+
+setFlagStyles(styles);
 export const NTSMissingInfo = () => (
-  <NTSShipmentInfoList
-    isExpanded
-    shipment={{
-      requestedPickupDate: info.requestedPickupDate,
-      pickupAddress: info.pickupAddress,
-      sacType: info.sacType,
-    }}
-    errorIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
-  />
+  <NTSShipmentInfoList isExpanded shipment={shipment} errorIfMissing={errorIfMissing} />
 );
 
-export const NTSWarning = () => (
-  <NTSShipmentInfoList
-    isExpanded
-    shipment={{
-      requestedPickupDate: info.requestedPickupDate,
-      pickupAddress: info.pickupAddress,
-      sacType: info.sacType,
-    }}
-    warnIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
-  />
-);
+setFlagStyles(styles);
+export const NTSWarning = () => <NTSShipmentInfoList isExpanded shipment={shipment} warnIfMissing={warnIfMissing} />;
 
 export const NTSWithAllInfo = () => (
   <NTSShipmentInfoList

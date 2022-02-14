@@ -1,14 +1,11 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 
-import styles from './ShipmentDefinitionLists.module.scss';
-
 import { ShipmentShape } from 'types/shipment';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
 import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { setDisplayFlags, setFlagStyles } from 'utils/displayFlags';
 
 const ShipmentInfoListSelector = ({
   className,
@@ -20,18 +17,38 @@ const ShipmentInfoListSelector = ({
   neverShow,
   shipmentType,
 }) => {
-  setFlagStyles(styles);
-  // Never show is an option since NTSShipmentInfoList is used by both the TOO
-  // and services counselor and show different things.
-  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment);
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
-      return <ShipmentInfoList className={className} shipment={shipment} shipmentType={shipmentType} />;
+      return (
+        <ShipmentInfoList
+          className={className}
+          shipment={shipment}
+          errorIfMissing={errorIfMissing}
+          shipmentType={shipmentType}
+        />
+      );
     case SHIPMENT_OPTIONS.NTSR:
-      return <NTSRShipmentInfoList className={className} shipment={shipment} isExpanded={isExpanded} getFlags />;
+      return (
+        <NTSRShipmentInfoList
+          className={className}
+          shipment={shipment}
+          isExpanded={isExpanded}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          showWhenCollapsed={showWhenCollapsed}
+        />
+      );
     case SHIPMENT_OPTIONS.NTS:
       return (
-        <NTSShipmentInfoList className={className} shipment={shipment} isExpanded={isExpanded} neverShow={neverShow} />
+        <NTSShipmentInfoList
+          className={className}
+          shipment={shipment}
+          isExpanded={isExpanded}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          showWhenCollapsed={showWhenCollapsed}
+          neverShow={neverShow}
+        />
       );
     default:
       return (
