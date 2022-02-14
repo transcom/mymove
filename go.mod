@@ -88,7 +88,7 @@ require (
 	github.com/rickar/cal/v2 v2.1.2
 	github.com/trussworks/otelhttp v0.0.0-20211201183707-a6d8db57ed9b
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.3.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.28.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.29.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0
 	go.opentelemetry.io/contrib/propagators/aws v1.3.0
 	go.opentelemetry.io/otel v1.4.0
@@ -97,7 +97,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.4.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.4.0
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.26.0
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.3.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.4.0
 	go.opentelemetry.io/otel/metric v0.26.0
 	go.opentelemetry.io/otel/sdk v1.4.0
 	go.opentelemetry.io/otel/sdk/export/metric v0.26.0
