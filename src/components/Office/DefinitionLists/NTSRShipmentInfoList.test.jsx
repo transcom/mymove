@@ -1,7 +1,12 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { object, text } from '@storybook/addon-knobs';
 
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
+
+const showWhenCollapsed = ['counselorRemarks'];
+const warnIfMissing = ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
+const errorIfMissing = ['storageFacility'];
 
 const shipment = {
   ntsRecordedWeight: 2000,
@@ -67,5 +72,73 @@ describe('NTSR Shipment Info List renders all fields when provided and expanded'
     render(<NTSRShipmentInfoList isExpanded shipment={shipment} />);
     const shipmentFieldElement = screen.getByTestId(shipmentField);
     expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+  });
+});
+
+describe('NTSR Shipment Info List renders missing non-required items correctly', () => {
+  it.each(['counselorRemarks', 'tacType', 'sacType', 'ntsRecordedWeight', 'serviceOrderNumber'])(
+    'Verify Shipment field %s displays "—" with a warning class',
+    async (shipmentField) => {
+      render(
+        <NTSRShipmentInfoList
+          isExpanded
+          shipment={{
+            requestedDeliveryDate: text('requestedDeliveryDate', shipment.requestedDeliveryDate),
+            storageFacility: object('storageFacility', shipment.storageFacility),
+            destinationAddress: object('destinationAddress', shipment.destinationAddress),
+          }}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          showWhenCollapsed={showWhenCollapsed}
+        />,
+      );
+      const shipmentFieldElement = screen.getByTestId(shipmentField);
+      expect(shipmentFieldElement).toHaveTextContent('—');
+      expect(shipmentFieldElement.parentElement).toHaveClass('warning');
+    },
+  );
+});
+
+describe('NTSR Shipment Info List renders missing required items correctly', () => {
+  it.each(['storageFacilityName', 'storageFacilityAddress'])(
+    'Verify Shipment field %s displays "Missing" with an error class',
+    async (shipmentField) => {
+      render(
+        <NTSRShipmentInfoList
+          shipment={{
+            counselorRemarks: text('counselorRemarks', shipment.counselorRemarks),
+            requestedDeliveryDate: text('requestedDeliveryDate', shipment.requestedDeliveryDate),
+            destinationAddress: object('destinationAddress', shipment.destinationAddress),
+          }}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          showWhenCollapsed={showWhenCollapsed}
+        />,
+      );
+      const shipmentFieldElement = screen.getByTestId(shipmentField);
+      expect(shipmentFieldElement).toHaveTextContent('Missing');
+      expect(shipmentFieldElement.parentElement).toHaveClass('missingInfoError');
+    },
+  );
+});
+
+describe('NTSR Shipment Info List collapsed view', () => {
+  it('hides fields when collapsed unless explicitly passed', () => {
+    render(
+      <NTSRShipmentInfoList
+        isExpanded={false}
+        shipment={shipment}
+        warnIfMissing={warnIfMissing}
+        errorIfMissing={errorIfMissing}
+        showWhenCollapsed={showWhenCollapsed}
+      />,
+    );
+
+    expect(screen.queryByTestId('ntsRecordedWeight')).toBeNull();
+    expect(screen.queryByTestId('storageFacility')).toBeNull();
+    expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
+    expect(screen.queryByTestId('secondaryDeliveryAddress')).toBeNull();
+    expect(screen.queryByTestId('agents')).toBeNull();
+    expect(screen.getByTestId('counselorRemarks')).toBeInTheDocument();
   });
 });
