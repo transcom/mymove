@@ -65,7 +65,7 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		// Update the model with ppm shipment data:
 		ppmShipment.Shipment = *createShipment
 		// Validate the ppmShipment, and return an error
-		err = validatePPMShipment(txnAppCtx, *ppmShipment, nil, &ppmShipment.Shipment)
+		err = validatePPMShipment(txnAppCtx, *ppmShipment, nil, &ppmShipment.Shipment, checks...)
 		if err != nil {
 			return err
 		}

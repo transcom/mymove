@@ -2,6 +2,9 @@ package ppmshipment
 
 import (
 	"testing"
+	"time"
+
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -15,13 +18,20 @@ import (
 )
 
 type createShipmentSubtestData struct {
-	move           models.Move
-	newPPMShipment *models.PPMShipment
+	move               models.Move
+	newPPMShipment     *models.PPMShipment
+	ppmShipmentCreator services.PPMShipmentCreator
 }
 
-func (suite *PPMShipmentSuite) createSubtestData(assertions testdatagen.Assertions) (subtestData *createShipmentSubtestData) {
+func (suite *PPMShipmentSuite) createSubtestData() (subtestData *createShipmentSubtestData) {
 	// Create new move
 	subtestData = &createShipmentSubtestData{}
+
+	builder := query.NewQueryBuilder()
+	fetcher := fetch.NewFetcher(builder)
+	moveRouter := moverouter.NewMoveRouter()
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+	subtestData.ppmShipmentCreator = NewPPMShipmentCreator(mtoShipmentCreator)
 
 	subtestData.move = testdatagen.MakeDefaultMove(suite.DB())
 
@@ -36,17 +46,20 @@ func (suite *PPMShipmentSuite) createSubtestData(assertions testdatagen.Assertio
 }
 
 func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
-	builder := query.NewQueryBuilder()
-	fetcher := fetch.NewFetcher(builder)
-	moveRouter := moverouter.NewMoveRouter()
-	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+
 	suite.T().Run("CreatePPMShipment - Success", func(t *testing.T) {
 		// Under test:	CreatePPMShipment
 		// Set up:		Established valid shipment and valid new PPM shipment
 		// Expected:	New PPM shipment successfully created
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
-		ppmShipmentCreator := NewPPMShipmentCreator(mtoShipmentCreator)
-		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), subtestData.newPPMShipment)
+
+		// Set required fields to their pointer values:
+		subtestData := suite.createSubtestData()
+		subtestData.newPPMShipment.ExpectedDepartureDate = models.TimePointer(time.Now())
+		subtestData.newPPMShipment.PickupPostalCode = models.StringPointer("90909")
+		subtestData.newPPMShipment.DestinationPostalCode = models.StringPointer("90905")
+		subtestData.newPPMShipment.SitExpected = models.BoolPointer(false)
+
+		createdPPMShipment, err := subtestData.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), subtestData.newPPMShipment)
 
 		suite.Nil(err)
 		suite.NotNil(createdPPMShipment)
@@ -55,8 +68,8 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	// InvalidInputError
 	suite.T().Run("A PPM shipment with validation errors returns an InvalidInputError with a bad UUID", func(t *testing.T) {
 		blankPPMShipment := models.PPMShipment{}
-		ppmShipmentCreator := NewPPMShipmentCreator(mtoShipmentCreator)
-		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &blankPPMShipment)
+		subtestData := suite.createSubtestData()
+		createdPPMShipment, err := subtestData.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &blankPPMShipment)
 
 		suite.Error(err)
 		suite.Nil(createdPPMShipment)

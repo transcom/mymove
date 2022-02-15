@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -41,6 +43,9 @@ func validatePPMShipment(
 	if verrs.HasAny() {
 		result = apperror.NewInvalidInputError(newPPMShipment.ID, nil, verrs, "Invalid input found while validating the PPM shipment.")
 	}
+	fmt.Println("⚱️⚱️⚱️⚱️⚱️")
+	fmt.Printf("%v", verrs)
+	fmt.Println("⚱️⚱️⚱️⚱️⚱️")
 	return result
 }
 
