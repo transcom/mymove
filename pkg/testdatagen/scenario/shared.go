@@ -538,6 +538,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(2000)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-8cf96ede2606"),
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -551,6 +552,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	})
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-333333333333"),
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -565,6 +567,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	})
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedHHGWeight,
 			PrimeActualWeight:    &actualHHGWeight,
@@ -577,17 +580,74 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	})
 
-	ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
-		ServiceMember: move.Orders.ServiceMember,
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &nextValidMoveDate,
-			Move:             move,
-			MoveID:           move.ID,
+	testdatagen.MakePPMShipment(db, testdatagen.Assertions{
+		Move: move,
+		PPMShipment: models.PPMShipment{
+			ID: uuid.FromStringOrNil("d733fe2f-b08d-434a-ad8d-551f4d597b03"),
 		},
-		UserUploader: userUploader,
 	})
 
-	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
+	err := moveRouter.Submit(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
+func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	/*
+	 * A service member with orders and a submitted move with a ppm
+	 */
+	email := "user@ppm"
+	uuidStr := "28837508-1942-4188-a7ef-a7b544309ea6"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smIDPPM := "c29418e5-5d69-498d-9709-b493d5bbc814"
+	smWithPPM := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.FromString(smIDPPM)),
+			UserID:        uuid.Must(uuid.FromString(uuidStr)),
+			FirstName:     models.StringPointer("Submitted"),
+			LastName:      models.StringPointer("Ppm"),
+			Edipi:         models.StringPointer("7598050675"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.Must(uuid.FromString(smIDPPM)),
+			ServiceMember:   smWithPPM,
+		},
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.Must(uuid.FromString("5174fd6c-3cab-4304-b4b3-89bd0f59b00b")),
+			Locator:          "PPM001",
+			SelectedMoveType: &ppmMoveType,
+		},
+	})
+
+	testdatagen.MakePPMShipment(db, testdatagen.Assertions{
+		Move:         move,
+		UserUploader: userUploader,
+		PPMShipment: models.PPMShipment{
+			ID: uuid.Must(uuid.FromString("0914dfa2-6988-4a12-82b1-2586fb4aa8c7")),
+		},
+	})
+
 	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
