@@ -7,6 +7,7 @@ import ShipmentForm from './ShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { roleTypes } from 'constants/userRoles';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const mockPush = jest.fn();
 
@@ -37,6 +38,7 @@ const defaultProps = {
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
   userRole: roleTypes.SERVICES_COUNSELOR,
+  orderType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
 };
 
 const mockMtoShipment = {
@@ -83,12 +85,12 @@ const mockShipmentWithDestinationType = {
 
 const defaultPropsRetirement = {
   ...defaultProps,
-  orderType: 'RETIREMENT',
+  orderType: ORDERS_TYPE.RETIREMENT,
 };
 
 const defaultPropsSeparation = {
   ...defaultProps,
-  orderType: 'SEPARATION',
+  orderType: ORDERS_TYPE.SEPARATION,
 };
 
 describe('ShipmentForm component', () => {

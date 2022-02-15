@@ -217,8 +217,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 // moveTaskOrderPopulated function spot checks a few values in the Move, Orders, and Customer to
 // ensure they are populated.
 func (suite *HandlerSuite) moveTaskOrderPopulated(response *movetaskorderops.CreateMoveTaskOrderCreated,
-	destinationDutyStation *models.DutyStation,
-	originDutyStation *models.DutyStation) {
+	destinationDutyStation *models.DutyLocation,
+	originDutyStation *models.DutyLocation) {
 
 	responsePayload := response.Payload
 
@@ -233,8 +233,8 @@ func (suite *HandlerSuite) moveTaskOrderPopulated(response *movetaskorderops.Cre
 func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	// Create the objects that are already in the db
-	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	destinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	originDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 	dbCustomer := testdatagen.MakeDefaultServiceMember(suite.DB())
 	contractor := testdatagen.MakeDefaultContractor(suite.DB())
 	document := testdatagen.MakeDefaultDocument(suite.DB())
@@ -254,8 +254,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		Order: &supportmessages.Order{
 			Rank:                     &rank,
 			OrderNumber:              swag.String("4554"),
-			DestinationDutyStationID: handlers.FmtUUID(destinationDutyStation.ID),
-			OriginDutyStationID:      handlers.FmtUUID(originDutyStation.ID),
+			DestinationDutyStationID: handlers.FmtUUID(destinationDutyLocation.ID),
+			OriginDutyStationID:      handlers.FmtUUID(originDutyLocation.ID),
 			Entitlement: &supportmessages.Entitlement{
 				DependentsAuthorized: swag.Bool(true),
 				TotalDependents:      5,
@@ -309,7 +309,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Check that the referenceID was populated
 		suite.NotEmpty(responsePayload.ReferenceID)
 		// Check that moveTaskOrder was populated, including nested objects
-		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyStation, &originDutyStation)
+		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyLocation, &originDutyLocation)
 		// Check that customer name matches the DB
 		suite.Equal(dbCustomer.FirstName, responsePayload.Order.Customer.FirstName)
 		// Check that status has defaulted to DRAFT
@@ -415,7 +415,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Check that the referenceID was populated
 		suite.NotEmpty(responsePayload.ReferenceID)
 		// Check that moveTaskOrder was populated, including nested objects
-		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyStation, &originDutyStation)
+		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyLocation, &originDutyLocation)
 		// Check that customer name matches the DB
 		suite.Equal(dbCustomer.FirstName, responsePayload.Order.Customer.FirstName)
 		// Check that status has been set to CANCELED
@@ -459,7 +459,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Check that the referenceID was populated
 		suite.NotEmpty(responsePayload.ReferenceID)
 		// Check that moveTaskOrder was populated, including nested objects
-		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyStation, &originDutyStation)
+		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyLocation, &originDutyLocation)
 		// Check that customer name matches the passed in value
 		suite.Equal(newCustomerFirstName, *responsePayload.Order.Customer.FirstName)
 		// Check that status has been set to CANCELED
@@ -496,7 +496,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Check that the referenceID DOES NOT match what was sent in
 		suite.NotEqual(mtoPayload.ReferenceID, responsePayload.ReferenceID)
 		// Check that moveTaskOrder was populated, including nested objects
-		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyStation, &originDutyStation)
+		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyLocation, &originDutyLocation)
 	})
 
 	suite.T().Run("Failed createMoveTaskOrder 422 UnprocessableEntity due to no customer", func(t *testing.T) {

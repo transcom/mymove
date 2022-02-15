@@ -83,8 +83,8 @@ func NewMigrationBuilder() MigrationBuilder {
 	return MigrationBuilder{}
 }
 
-func (b *MigrationBuilder) filterMarines(dss models.DutyStations) models.DutyStations {
-	var filtered []models.DutyStation
+func (b *MigrationBuilder) filterMarines(dss models.DutyLocations) models.DutyLocations {
+	var filtered []models.DutyLocation
 	for _, ds := range dss {
 		if ds.Affiliation != nil && *ds.Affiliation == internalmessages.AffiliationMARINES {
 			filtered = append(filtered, ds)
@@ -93,14 +93,14 @@ func (b *MigrationBuilder) filterMarines(dss models.DutyStations) models.DutySta
 	return filtered
 }
 
-func (b *MigrationBuilder) findDutyStations(appCtx appcontext.AppContext, s StationData) models.DutyStations {
+func (b *MigrationBuilder) findDutyStations(appCtx appcontext.AppContext, s StationData) models.DutyLocations {
 	zip := s.Zip
-	stations, err := models.FetchDutyStationsByPostalCode(appCtx.DB(), zip)
+	locations, err := models.FetchDutyLocationsByPostalCode(appCtx.DB(), zip)
 	if err != nil {
 		appCtx.Logger().Warn("Error fetching duty stations", zap.Error(err))
 	}
-	filteredStations := b.filterMarines(stations)
-	return filteredStations
+	filteredLocations := b.filterMarines(locations)
+	return filteredLocations
 }
 
 func (b *MigrationBuilder) addressLatLong(appCtx appcontext.AppContext, address models.Address) (route.LatLong, error) {

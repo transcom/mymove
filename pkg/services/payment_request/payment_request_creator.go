@@ -290,9 +290,9 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(appCtx appcontext.A
 	if moveTaskOrder.Orders.TAC == nil || *moveTaskOrder.Orders.TAC == "" {
 		return nil, apperror.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID))
 	}
-	// Verify that the Orders have OriginDutyStation
-	if moveTaskOrder.Orders.OriginDutyStationID == nil {
-		return nil, apperror.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", moveTaskOrder.ID))
+	// Verify that the Orders have OriginDutyLocation
+	if moveTaskOrder.Orders.OriginDutyLocationID == nil {
+		return nil, apperror.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyLocation", moveTaskOrder.ID))
 	}
 	// Verify that ServiceMember is Valid
 	err = appCtx.DB().Load(&moveTaskOrder.Orders, "ServiceMember")

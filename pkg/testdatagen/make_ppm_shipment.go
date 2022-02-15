@@ -58,7 +58,7 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 		pickupPostalCode = residentialAddress.PostalCode
 	}
 
-	destinationPostalCode := orders.NewDutyStation.Address.PostalCode
+	destinationPostalCode := orders.NewDutyLocation.Address.PostalCode
 
 	sitExpected := false
 	hasProGear := true
