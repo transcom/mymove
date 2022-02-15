@@ -11,8 +11,9 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MakePPMShipment creates a single PPMShipment and associated relationships
-func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// checkOrCreateMTOShipment checks MTOShipment in assertions, or creates one if none exists. Caller can specify if this
+// should create a minimal or full MTOShipment.
+func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions, minimalMTOShipment bool) models.MTOShipment {
 	shipment := assertions.MTOShipment
 
 	if isZeroUUID(shipment.ID) {
@@ -22,10 +23,23 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 			assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
 		}
 
-		shipment = MakeMTOShipment(db, assertions) // has some fields that we may want to clear out like pickup dates and addresses
+		if minimalMTOShipment {
+			assertions.MTOShipment.RequestedPickupDate = nil
+
+			shipment = MakeMTOShipmentMinimal(db, assertions)
+		} else {
+			shipment = MakeMTOShipment(db, assertions) // has some fields that we may want to clear out like pickup dates and addresses
+		}
 	} else if shipment.ShipmentType != models.MTOShipmentTypePPM {
 		log.Panicf("Expected asserted MTOShipment to be of type %s but instead got type %s", models.MTOShipmentTypePPM, shipment.ShipmentType)
 	}
+
+	return shipment
+}
+
+// MakePPMShipment creates a single PPMShipment and associated relationships
+func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	shipment := checkOrCreateMTOShipment(db, assertions, false)
 
 	expectedDepartureDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
@@ -89,24 +103,7 @@ func MakeStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
 
 // MakeMinimalPPMShipment creates a single PPMShipment and associated relationships with a minimal set of data
 func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	log.Print("Creating minimal PPM Shipment...") // TODO: Remove before merging, just debugging here...
-	// Make shipment if it was not provided
-	shipment := assertions.MTOShipment
-	if isZeroUUID(shipment.ID) {
-		log.Print("Creating minimal MTOShipment...") // TODO: Remove before merging, just debugging here...
-
-		assertions.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
-
-		if assertions.MTOShipment.Status == "" {
-			assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
-		}
-
-		assertions.MTOShipment.RequestedPickupDate = nil
-
-		shipment = MakeMTOShipmentMinimal(db, assertions)
-	} else if shipment.ShipmentType != models.MTOShipmentTypePPM {
-		log.Panicf("Expected asserted MTOShipment to be of type %s but instead got type %s", models.MTOShipmentTypePPM, shipment.ShipmentType)
-	}
+	shipment := checkOrCreateMTOShipment(db, assertions, true)
 
 	newPPMShipment := models.PPMShipment{
 		ShipmentID: shipment.ID,
