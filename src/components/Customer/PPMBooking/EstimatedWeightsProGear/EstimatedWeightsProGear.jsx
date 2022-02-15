@@ -4,9 +4,11 @@ import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import { Button, Form, Radio, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './EstimatedWeightsProGear.module.scss';
 
+import { MtoShipmentShape } from 'types/customerShapes';
 import formStyles from 'styles/form.module.scss';
 import { EntitlementShape } from 'types/order';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -15,8 +17,8 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
 import { formatWeight } from 'utils/formatters';
 
-const validationSchema = Yup.object().shape(
-  {
+const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack }) => {
+  const validationSchema = Yup.object().shape({
     estimatedPPMWeight: Yup.number().required('Required'),
     hasProGear: Yup.boolean().required('Required'),
     estimatedProGearWeight: Yup.number().when(['hasProGear', 'estimatedSpouseProGearWeight'], {
@@ -27,31 +29,18 @@ const validationSchema = Yup.object().shape(
         ),
       otherwise: Yup.number().max(2000, 'Enter a weight less than 2,000 lbs'),
     }),
-    estimatedSpouseProGearWeight: Yup.number().when(['hasProGear', 'estimatedProGearWeight'], {
-      is: (hasProGear, estimatedProGearWeight) => hasProGear && !estimatedProGearWeight,
-      then: (schema) =>
-        schema.required(
-          `Enter a weight into at least one pro-gear field. If you won&apos;t have pro-gear, select No above.`,
-        ),
-      otherwise: Yup.number().max(500, 'Enter a weight less than 500 lbs'),
-    }),
-  },
-  ['estimatedSpouseProGearWeight, estimatedProGearWeight'],
-);
+    estimatedSpouseProGearWeight: Yup.number(),
+  });
 
-const EstimatedWeightsProGear = ({ entitlement, onSubmit, onBack }) => {
   const initialValues = {
-    estimatedPPMWeight: '',
-    hasProGear: 'false',
-    estimatedProGearWeight: '',
-    estimatedSpouseProGearWeight: '',
+    estimatedPPMWeight: mtoShipment?.ppmShipment?.estimatedWeight || '',
+    hasProGear: mtoShipment?.ppmShipment?.hasProGear || 'false',
+    estimatedProGearWeight: mtoShipment?.ppmShipment?.estimatedProGearWeight || '',
+    estimatedSpouseProGearWeight: mtoShipment?.ppmShipment?.estimatedSpouseProGearWeight || '',
   };
 
-  // TODO: update validation logic so that has progear and spouse progear pass validation if either is filled in
-  // TODO: pull in mtoshipment and prefill values if theyre present in ppmShipment
   // TODO: make link for weight estimator calculator and bring in external link icon
-  // TODO: create storybook story for prefilled form
-  // TODO: create storybook story for failing validations
+  // TODO: unit test
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -80,6 +69,11 @@ const EstimatedWeightsProGear = ({ entitlement, onSubmit, onBack }) => {
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   suffix="lbs"
+                  warning={
+                    values.estimatedPPMWeight > entitlement?.authorizedWeight
+                      ? 'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.'
+                      : ''
+                  }
                 />
 
                 <p>
@@ -96,8 +90,12 @@ const EstimatedWeightsProGear = ({ entitlement, onSubmit, onBack }) => {
 
                 <p>
                   If you own a lot of things for your space, estimate on the higher side. If you own less, estimate
-                  lower. The services have an official weight estimation calculator you can use for a more accurate
-                  estimate. (Link opens a new window.)
+                  lower. The services have an official{' '}
+                  <a href="https://www.ustranscom.mil/dp3/weightestimator.cfm" target="_blank" rel="noreferrer">
+                    weight estimation calculator
+                  </a>{' '}
+                  <FontAwesomeIcon icon="external-link-alt" /> you can use for a more accurate estimate. (Link opens a
+                  new window.)
                 </p>
               </SectionWrapper>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection)}>
@@ -187,8 +185,13 @@ const EstimatedWeightsProGear = ({ entitlement, onSubmit, onBack }) => {
 
 EstimatedWeightsProGear.propTypes = {
   entitlement: EntitlementShape.isRequired,
+  mtoShipment: MtoShipmentShape,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
+};
+
+EstimatedWeightsProGear.defaultProps = {
+  mtoShipment: undefined,
 };
 
 export default EstimatedWeightsProGear;

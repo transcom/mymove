@@ -92,6 +92,10 @@ export const PPMShipmentShape = shape({
   secondaryDestinationPostalCode: string,
   sitExpected: bool,
   expectedDepartureDate: string,
+  hasProGear: bool,
+  estimatedProGearWeight: number,
+  estimatedSpouseProGearWeight: number,
+  estimatedWeight: number,
 });
 
 export const MtoShipmentShape = shape({
