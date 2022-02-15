@@ -114,7 +114,9 @@ const ShipmentForm = ({
 
   const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
-    isCreatePage ? { userRole } : { userRole, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    isCreatePage
+      ? { userRole, shipmentType }
+      : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
   );
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
