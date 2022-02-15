@@ -2,7 +2,6 @@ package supportmovetaskorder
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -139,7 +138,6 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	if orderPayload.UploadedOrdersID != nil {
 		uploadedOrders = &models.Document{}
 		uploadedOrdersID := uuid.FromStringOrNil(orderPayload.UploadedOrdersID.String())
-		fmt.Println("\n\nUploaded orders id is ", uploadedOrdersID)
 		err = appCtx.DB().Find(uploadedOrders, uploadedOrdersID)
 		if err != nil {
 			appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))

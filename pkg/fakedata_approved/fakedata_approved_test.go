@@ -116,37 +116,37 @@ func (suite *FakeDataSuite) TestFakeDataTestCases() {
 	for i, testCase := range fakeDataTestCases {
 		result, err = IsValidFakeDataFullName(testCase.firstName, testCase.lastName)
 		if !suite.Equal(testCase.expected, result) {
-			fmt.Printf("Failure on IsValidFakeDataFullName test case %d (0 indexed)\n", i)
+			suite.Fail(fmt.Sprintf("Failure on IsValidFakeDataFullName test case %d (0 indexed)\n", i))
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataFullNameStrict(testCase.firstName, testCase.lastName)
 		if !suite.Equal(testCase.expectedStrict, result) {
-			fmt.Printf("Failure on IsValidFakeDataFullNameStrict test case %d (0 indexed)\n", i)
+			suite.Fail(fmt.Sprintf("Failure on IsValidFakeDataFullNameStrict test case %d (0 indexed)\n", i))
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataName(fmt.Sprintf("%s %s", testCase.firstName, testCase.lastName))
 		if !suite.Equal(testCase.expected, result) {
-			fmt.Printf("Failure on IsValidFakeDataName test case %d (0 indexed)\n", i)
+			suite.Fail(fmt.Sprintf("Failure on IsValidFakeDataName test case %d (0 indexed)\n", i))
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataAddress(testCase.address)
 		if !suite.Equal(testCase.expected, result) {
-			fmt.Printf("Failure on IsValidFakeDataAddress test case %d (0 indexed)\n", i)
+			suite.Fail(fmt.Sprintf("Failure on IsValidFakeDataAddress test case %d (0 indexed)\n", i))
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataAddressStrict(testCase.address)
 		if !suite.Equal(testCase.expectedStrict, result) {
-			fmt.Printf("Failure on IsValidFakeDataAddressStrict test case %d (0 indexed)\n", i)
+			suite.Fail(fmt.Sprintf("Failure on IsValidFakeDataAddressStrict test case %d (0 indexed)\n", i))
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataPhone(testCase.phone)
 		if !suite.Equal(testCase.expected, result) {
-			fmt.Printf("Failure on IsValidFakeDataPhone test case %d (0 indexed)\n", i)
+			suite.Fail(fmt.Sprintf("Failure on IsValidFakeDataPhone test case %d (0 indexed)\n", i))
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataEmail(testCase.email)
 		if !suite.Equal(testCase.expected, result) {
-			fmt.Printf("Failure on IsValidFakeDataEmail test case %d (0 indexed)\n", i)
+			suite.Fail(fmt.Sprintf("Failure on IsValidFakeDataEmail test case %d (0 indexed)\n", i))
 		}
 		suite.NoError(err)
 	}

@@ -18,8 +18,8 @@ func NewDomesticDestinationSITDeliveryPricer() services.DomesticDestinationSITDe
 }
 
 // Price determines the price for domestic destination SIT delivery
-func (p domesticDestinationSITDeliveryPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPickupDeliverySIT(appCtx, models.ReServiceCodeDDDSIT, contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
+func (p domesticDestinationSITDeliveryPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticPickupDeliverySIT(appCtx, models.ReServiceCodeDDDSIT, contractCode, referenceDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 }
 
 // PriceUsingParams determines the price for domestic destination SIT delivery given PaymentServiceItemParams
@@ -29,12 +29,12 @@ func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext
 		return unit.Cents(0), nil, err
 	}
 
-	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
+	distanceZipSITDest, err := getParamInt(params, models.ServiceItemParamNameDistanceZipSITDest)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
 
-	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
+	referenceDate, err := getParamTime(params, models.ServiceItemParamNameReferenceDate)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -49,6 +49,11 @@ func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext
 		return unit.Cents(0), nil, err
 	}
 
+	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
+
 	zipDestAddress, err := getParamString(params, models.ServiceItemParamNameZipDestAddress)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -59,11 +64,6 @@ func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext
 		return unit.Cents(0), nil, err
 	}
 
-	distanceZipSITDest, err := getParamInt(params, models.ServiceItemParamNameDistanceZipSITDest)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
-
-	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilled), serviceAreaDest,
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaDest,
 		sitScheduleDest, zipDestAddress, zipSITDestHHGFinalAddress, unit.Miles(distanceZipSITDest))
 }

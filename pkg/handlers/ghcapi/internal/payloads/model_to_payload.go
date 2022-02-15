@@ -288,6 +288,9 @@ func StorageFacility(storageFacility *models.StorageFacility) *ghcmessages.Stora
 
 // BackupContact payload
 func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
+	if len(contacts) == 0 {
+		return nil
+	}
 	var name, email, phone string
 
 	if len(contacts) != 0 {
@@ -445,9 +448,9 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
-	if mtoShipment.DestinationAddressType != nil {
-		destinationAddressType := string(*mtoShipment.DestinationAddressType)
-		payload.DestinationAddressType = &destinationAddressType
+	if mtoShipment.DestinationType != nil {
+		destinationType := ghcmessages.DestinationType(*mtoShipment.DestinationType)
+		payload.DestinationType = &destinationType
 	}
 
 	if sitStatusPayload != nil {
@@ -793,7 +796,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
-			Status:                  ghcmessages.QueueMoveStatus(move.Status),
+			Status:                  ghcmessages.MoveStatus(move.Status),
 			ID:                      *handlers.FmtUUID(move.ID),
 			Locator:                 move.Locator,
 			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
@@ -853,7 +856,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			MoveID:             *handlers.FmtUUID(moveTaskOrder.ID),
 			Customer:           Customer(&orders.ServiceMember),
 			Status:             ghcmessages.PaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
-			Age:                int64(math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0)),
+			Age:                math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        ghcmessages.GBLOC(moveTaskOrder.ShipmentGBLOC[0].GBLOC),

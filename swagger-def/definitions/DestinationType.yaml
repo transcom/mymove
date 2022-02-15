@@ -1,0 +1,9 @@
+type: string
+title: Destination Type
+example: Other than authorized
+x-nullable: true
+enum:
+  - HOME_OF_RECORD
+  - HOME_OF_SELECTION
+  - PLACE_ENTERED_ACTIVE_DUTY
+  - OTHER_THAN_AUTHORIZED

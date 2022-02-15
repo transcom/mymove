@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+
 	"github.com/go-openapi/strfmt"
 )
 
@@ -18,6 +19,7 @@ type Int struct {
 	Present bool // Present is true if key is present in json
 	Value   *int64
 }
+
 // NewInt creates a new nullable Int
 func NewInt(i int64) Int {
 	return Int{
@@ -33,7 +35,6 @@ func NewNullInt() Int {
 		Value:   nil,
 	}
 }
-
 
 // UnmarshalJSON implements json.Unmarshaler interface.
 func (i *Int) UnmarshalJSON(data []byte) error {

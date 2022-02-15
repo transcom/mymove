@@ -14,7 +14,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
@@ -167,9 +166,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		}
 		var actualUsers models.OfficeUsers
 
-		pop.Debug = true
 		err := builder.FetchMany(suite.AppContextForTest(), &actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
-		pop.Debug = false
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
@@ -183,9 +180,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		}
 		var actualUsers models.OfficeUsers
 
-		pop.Debug = true
 		err := builder.FetchMany(suite.AppContextForTest(), &actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
-		pop.Debug = false
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 4)
@@ -201,9 +196,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 
 		var actualUsers models.OfficeUsers
 
-		pop.Debug = true
 		err := builder.FetchMany(suite.AppContextForTest(), &actualUsers, filters, defaultAssociations(), defaultPagination(), ordering)
-		pop.Debug = false
 
 		suite.NoError(err)
 		// check if we have at least two users
@@ -221,9 +214,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 
 		var actualUsers models.OfficeUsers
 
-		pop.Debug = true
 		err := builder.FetchMany(suite.AppContextForTest(), &actualUsers, filters, defaultAssociations(), defaultPagination(), ordering)
-		pop.Debug = false
 
 		suite.NoError(err)
 		// check if we have at least two users
@@ -389,9 +380,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
 		}
 
-		pop.Debug = true
 		count, err := builder.Count(suite.AppContextForTest(), &models.OfficeUsers{}, filters)
-		pop.Debug = false
 		suite.NoError(err)
 		suite.Equal(1, count)
 	})

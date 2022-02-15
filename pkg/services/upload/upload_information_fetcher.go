@@ -3,7 +3,6 @@ package upload
 import (
 	"database/sql"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -22,7 +21,6 @@ func NewUploadInformationFetcher() services.UploadInformationFetcher {
 
 // FetchUploadInformation fetches upload information
 func (uif *uploadInformationFetcher) FetchUploadInformation(appCtx appcontext.AppContext, uploadID uuid.UUID) (services.UploadInformation, error) {
-	pop.Debug = true
 	q := `
 SELECT uploads.id as upload_id,
        uploads.content_type,
@@ -60,6 +58,5 @@ where uploads.id = $1`
 			return services.UploadInformation{}, apperror.NewQueryError("UploadInformation", err, "")
 		}
 	}
-	pop.Debug = false
 	return ui, nil
 }

@@ -89,19 +89,19 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticCratingServiceItem() models
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameServicesScheduleOrigin,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(dcrtTestServiceSchedule),
-			},
-			{
 				Key:     models.ServiceItemParamNameCubicFeetBilled,
 				KeyType: models.ServiceItemParamTypeDecimal,
 				Value:   fmt.Sprintf("%d", int(dcrtTestBilledCubicFeet)),
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
 				Value:   dcrtTestRequestedPickupDate.Format(DateParamFormat),
+			},
+			{
+				Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(dcrtTestServiceSchedule),
 			},
 		},
 	)

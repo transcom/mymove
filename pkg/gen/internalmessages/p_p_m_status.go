@@ -20,8 +20,12 @@ import (
 type PPMStatus string
 
 func NewPPMStatus(value PPMStatus) *PPMStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated PPMStatus.
+func (m PPMStatus) Pointer() *PPMStatus {
+	return &m
 }
 
 const (

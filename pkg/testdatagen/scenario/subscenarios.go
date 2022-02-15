@@ -96,12 +96,44 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 		createTXOServicesUSMCCounselor(appCtx)
 
 		// Services Counseling
-		createHHGNeedsServicesCounseling(appCtx)
+		//Order Types -- PCoS, Retr, Sep
+		pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		retirement := internalmessages.OrdersTypeRETIREMENT
+		separation := internalmessages.OrdersTypeSEPARATION
+
+		//Shipment Types -- HHG, NTS, NTSR
+		hhg := models.MTOShipmentTypeHHG
+		nts := models.MTOShipmentTypeHHGIntoNTSDom
+		ntsR := models.MTOShipmentTypeHHGOutOfNTSDom
+
+		//Destination Types -- PLEAD, HOR, HOS, OTHER
+		plead := models.DestinationTypePlaceEnteredActiveDuty
+		hor := models.DestinationTypeHomeOfRecord
+		hos := models.DestinationTypeHomeOfSelection
+		other := models.DestinationTypeOtherThanAuthorized
+
+		//PCOS - one with nil dest type, 2 others with PLEAD status
+		createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "NODEST")
+		createNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD1")
+		createNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD2")
+
+		//Retirees
+		createNeedsServicesCounseling(appCtx, retirement, hhg, &hor, "RETIR3")
+		createNeedsServicesCounseling(appCtx, retirement, nts, &hos, "RETIR4")
+		createNeedsServicesCounseling(appCtx, retirement, ntsR, &other, "RETIR5")
+		createNeedsServicesCounseling(appCtx, retirement, hhg, &plead, "RETIR6")
+
+		//Separatees
+		createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "SEPAR3")
+		createNeedsServicesCounseling(appCtx, separation, nts, &hos, "SEPAR4")
+		createNeedsServicesCounseling(appCtx, separation, ntsR, &other, "SEPAR5")
+		createNeedsServicesCounseling(appCtx, separation, ntsR, &plead, "SEPAR6")
+
+		//USMC
 		createHHGNeedsServicesCounselingUSMC(appCtx, userUploader)
 		createHHGNeedsServicesCounselingUSMC2(appCtx, userUploader)
 		createHHGServicesCounselingCompleted(appCtx)
 		createHHGNoShipments(appCtx)
-		createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx)
 
 		for i := 0; i < 12; i++ {
 			validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
@@ -283,9 +315,6 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createMoveWith2ShipmentsAndPaymentRequest(appCtx, userUploader)
 		createMoveWith2MinimalShipments(appCtx, userUploader)
 		createApprovedMoveWithMinimalShipment(appCtx, userUploader)
-
-		// A move for a retiree
-		createHHGNoGovCounselingForRetirementWithDestinationAddressAndType(appCtx)
 
 		// Prime API
 		createWebhookSubscriptionForPaymentRequestUpdate(appCtx)

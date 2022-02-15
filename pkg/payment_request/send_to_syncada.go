@@ -48,7 +48,7 @@ func SendToSyncada(appCtx appcontext.AppContext, edi string, icn int64, gexSende
 		edi858String := strings.NewReader(edi)
 
 		logger.Info("SendToSyncada() is in send mode, sending syncadaFileName: " + syncadaFileName + "")
-		_, err := sftpSender.SendToSyncadaViaSFTP(edi858String, syncadaFileName)
+		_, err := sftpSender.SendToSyncadaViaSFTP(appCtx, edi858String, syncadaFileName)
 		if err != nil {
 			return err
 		}

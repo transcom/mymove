@@ -430,6 +430,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 
 	if mtoShipment.MTOServiceItems != nil {
 		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
+	} else {
+		payload.SetMtoServiceItems([]primemessages.MTOServiceItem{})
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {
@@ -562,7 +564,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 
 // MTOServiceItems payload
 func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.MTOServiceItem {
-	var payload []primemessages.MTOServiceItem
+	payload := []primemessages.MTOServiceItem{}
 
 	for _, p := range *mtoServiceItems {
 		copyOfP := p // Make copy to avoid implicit memory aliasing of items from a range statement.

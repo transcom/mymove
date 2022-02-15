@@ -63,7 +63,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			Value:   testdatagen.DefaultContractCode,
 		},
 		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			Key:     models.ServiceItemParamNameReferenceDate,
 			KeyType: models.ServiceItemParamTypeDate,
 			Value:   currentTime.Format(testDateFormat),
 		},
@@ -753,7 +753,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 			Value:   testdatagen.DefaultContractCode,
 		},
 		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			Key:     models.ServiceItemParamNameReferenceDate,
 			KeyType: models.ServiceItemParamTypeDate,
 			Value:   currentTime.Format(testDateFormat),
 		},
@@ -950,7 +950,7 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 			Value:   testdatagen.DefaultContractCode,
 		},
 		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			Key:     models.ServiceItemParamNameReferenceDate,
 			KeyType: models.ServiceItemParamTypeDate,
 			Value:   currentTime.Format(testDateFormat),
 		},

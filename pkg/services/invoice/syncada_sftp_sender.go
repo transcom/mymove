@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -62,7 +63,7 @@ func InitNewSyncadaSFTPSession() (services.SyncadaSFTPSender, error) {
 }
 
 // SendToSyncadaViaSFTP copies specified local content to Syncada's SFTP server
-func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reader, syncadaFileName string) (int64, error) {
+func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(appCtx appcontext.AppContext, localDataReader io.Reader, syncadaFileName string) (int64, error) {
 	config := &ssh.ClientConfig{
 		User: s.userID,
 		Auth: []ssh.AuthMethod{
@@ -79,7 +80,7 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reade
 
 	defer func() {
 		if closeErr := connection.Close(); closeErr != nil {
-			fmt.Println("Failed to close connection", zap.Error(closeErr))
+			appCtx.Logger().Error("Failed to close connection", zap.Error(closeErr))
 		}
 	}()
 
@@ -91,7 +92,7 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reade
 
 	defer func() {
 		if closeErr := client.Close(); closeErr != nil {
-			fmt.Println("Failed to close SFTP client", zap.Error(closeErr))
+			appCtx.Logger().Error("Failed to close SFTP client", zap.Error(closeErr))
 		}
 	}()
 
@@ -104,7 +105,7 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reade
 
 	defer func() {
 		if closeErr := syncadaFile.Close(); closeErr != nil {
-			fmt.Println("Failed to close Syncada destination file", zap.Error(closeErr))
+			appCtx.Logger().Error("Failed to close Syncada destination file", zap.Error(closeErr))
 		}
 	}()
 

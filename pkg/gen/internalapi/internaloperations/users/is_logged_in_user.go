@@ -6,9 +6,14 @@ package users
 // Editing this file might prove futile when you re-run the generate command
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // IsLoggedInUserHandlerFunc turns a function with the right signature into a is logged in user handler
@@ -55,4 +60,60 @@ func (o *IsLoggedInUser) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	res := o.Handler.Handle(Params) // actually handle the request
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
+}
+
+// IsLoggedInUserOKBody is logged in user o k body
+//
+// swagger:model IsLoggedInUserOKBody
+type IsLoggedInUserOKBody struct {
+
+	// is logged in
+	// Required: true
+	IsLoggedIn *bool `json:"isLoggedIn"`
+}
+
+// Validate validates this is logged in user o k body
+func (o *IsLoggedInUserOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateIsLoggedIn(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *IsLoggedInUserOKBody) validateIsLoggedIn(formats strfmt.Registry) error {
+
+	if err := validate.Required("isLoggedInUserOK"+"."+"isLoggedIn", "body", o.IsLoggedIn); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this is logged in user o k body based on context it is used
+func (o *IsLoggedInUserOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *IsLoggedInUserOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *IsLoggedInUserOKBody) UnmarshalBinary(b []byte) error {
+	var res IsLoggedInUserOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
 }

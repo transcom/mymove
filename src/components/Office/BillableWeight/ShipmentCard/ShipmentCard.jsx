@@ -7,11 +7,13 @@ import EditBillableWeight from '../EditBillableWeight/EditBillableWeight';
 import styles from './ShipmentCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatAddressShort, formatDateFromIso } from 'shared/formatters';
 import { formatWeight } from 'utils/formatters';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { MandatorySimpleAddressShape } from 'types/address';
+import { ShipmentOptionsOneOf } from 'types/shipment';
+import { shipmentTypeLabels } from 'content/shipments';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default function ShipmentCard({
   billableWeight,
@@ -28,6 +30,7 @@ export default function ShipmentCard({
   reweighWeight,
   maxBillableWeight,
   totalBillableWeight,
+  shipmentType,
 }) {
   let showOriginalWeightHighlight = false;
   let showReweighWeightHighlight = false;
@@ -52,9 +55,10 @@ export default function ShipmentCard({
   }
 
   return (
-    <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG} className={styles.container}>
+    <ShipmentContainer shipmentType={shipmentType} className={styles.container}>
       <header>
-        <h2>HHG</h2>
+        <h2>{shipmentTypeLabels[shipmentType]}</h2>
+
         <section>
           <span>
             <strong>Departed</strong>
@@ -125,6 +129,7 @@ export default function ShipmentCard({
           editEntity={editEntity}
           maxBillableWeight={maxBillableWeight}
           totalBillableWeight={totalBillableWeight}
+          isNTSRShipment={shipmentType === SHIPMENT_OPTIONS.NTSR}
         />
       </footer>
     </ShipmentContainer>
@@ -146,6 +151,7 @@ ShipmentCard.propTypes = {
   reweighWeight: number,
   maxBillableWeight: number.isRequired,
   totalBillableWeight: number,
+  shipmentType: ShipmentOptionsOneOf.isRequired,
 };
 
 ShipmentCard.defaultProps = {
