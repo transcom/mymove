@@ -90,7 +90,18 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, allDutyLocations []models.DutyLocation, originDutyLocationsInGBLOC []models.DutyLocation) func() {
+func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
+	return func() {
+		createTXO(appCtx)
+		createTXOUSMC(appCtx)
+
+		// Onboarding
+		createMoveWithPPM(appCtx, userUploader, moveRouter)
+	}
+}
+
+func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader *uploader.UserUploader,
+	allDutyLocations []models.DutyLocation, originDutyLocationsInGBLOC []models.DutyLocation) func() {
 	return func() {
 		createTXOServicesCounselor(appCtx)
 		createTXOServicesUSMCCounselor(appCtx)
@@ -200,7 +211,8 @@ func subScenarioPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploader.U
 	}
 }
 
-func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, allDutyLocations []models.DutyLocation, originDutyLocationsInGBLOC []models.DutyLocation) func() {
+func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader,
+	allDutyLocations []models.DutyLocation, originDutyLocationsInGBLOC []models.DutyLocation) func() {
 	return func() {
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
