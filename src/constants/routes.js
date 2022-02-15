@@ -23,6 +23,7 @@ export const customerRoutes = {
   SHIPMENT_SELECT_TYPE_PATH: '/moves/:moveId/shipment-type',
   SHIPMENT_CREATE_PATH: '/moves/:moveId/new-shipment',
   SHIPMENT_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/edit',
+  SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/estimated-weight',
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
   EDIT_PROFILE_PATH: '/moves/review/edit-profile',

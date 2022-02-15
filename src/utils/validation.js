@@ -14,6 +14,8 @@ const INVALID_DATE = 'Invalid date';
 // eslint-disable-next-line security/detect-unsafe-regex
 export const ZIP_CODE_REGEX = /^(\d{5}([-]\d{4})?)$/;
 
+export const ZIP5_CODE_REGEX = /^(\d{5})$/;
+
 // eslint-disable-next-line import/prefer-default-export
 export function validateDate(value) {
   let error;
@@ -23,8 +25,11 @@ export function validateDate(value) {
   return error;
 }
 
-const UnsupportedZipCodeErrorMsg =
+export const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
+
+export const UnsupportedZipCodePPMErrorMsg =
+  "We don't have rates for this ZIP code. Please verify that you have entered the correct one.  Contact support if this problem persists.";
 
 export const validatePostalCode = async (value, postalCodeType, errMsg = UnsupportedZipCodeErrorMsg) => {
   if (!value || (value.length !== 5 && value.length !== 10)) {

@@ -7,6 +7,8 @@ import { DutyStationShape } from 'types';
 import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
 import { validatePostalCode } from 'utils/validation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
+import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }) => {
   const history = useHistory();
@@ -22,7 +24,61 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
     return history.push(generalRoutes.HOME_PATH);
   };
 
-  const handleSubmit = () => {};
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const createOrUpdateShipment = {
+      moveTaskOrderID: moveId,
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        pickupPostalCode: values.pickupPostalCode,
+        destinationPostalCode: values.destinationPostalCode,
+        sitExpected: values.sitExpected,
+        expectedDepartureDate: values.expectedDepartureDate,
+      },
+    };
+
+    if (values.hasSecondaryPickupPostalCode) {
+      createOrUpdateShipment.secondaryPickupPostalCode = values.secondaryPickupPostalCode;
+    }
+
+    if (values.hasSecondaryDestinationPostalCode) {
+      createOrUpdateShipment.secondaryDestinationPostalCode = values.secondaryDestinationPostalCode;
+    }
+
+    let newShipmentId;
+    if (isNewShipment) {
+      createMTOShipment(createOrUpdateShipment)
+        .then(() => {
+          setSubmitting(false);
+          newShipmentId = '00000000-0000-0000-0000-000000000000'; // TODO: replace me
+          history.push(
+            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+              moveId,
+              mtoShipmentId: newShipmentId,
+            }),
+          );
+        })
+        .catch(() => {
+          setSubmitting(false);
+        });
+    } else {
+      createOrUpdateShipment.id = mtoShipment.id;
+      createOrUpdateShipment.ppmShipment.id = mtoShipment.ppmShipment?.id;
+
+      patchMTOShipment(mtoShipment.id, createOrUpdateShipment, mtoShipment.eTag)
+        .then(() => {
+          setSubmitting(false);
+          history.push(
+            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+              moveId,
+              mtoShipmentId: mtoShipment?.id,
+            }),
+          );
+        })
+        .catch(() => {
+          setSubmitting(false);
+        });
+    }
+  };
 
   return (
     <GridContainer>

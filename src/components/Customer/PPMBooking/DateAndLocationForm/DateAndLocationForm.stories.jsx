@@ -6,7 +6,7 @@ import { within, userEvent } from '@storybook/testing-library';
 import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
 
 export default {
-  title: 'Customer Components / PPM Booking / Dates and Location',
+  title: 'Customer Components / PPM Booking / Date and Location Form',
   component: DateAndLocationForm,
   decorators: [
     (Story) => (
