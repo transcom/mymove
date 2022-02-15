@@ -10,7 +10,7 @@ require (
 	github.com/XSAM/otelsql v0.10.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.42.51
+	github.com/aws/aws-sdk-go v1.42.53
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -98,7 +98,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.4.0
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.26.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.4.0
-	go.opentelemetry.io/otel/metric v0.26.0
+	go.opentelemetry.io/otel/metric v0.27.0
 	go.opentelemetry.io/otel/sdk v1.4.0
 	go.opentelemetry.io/otel/sdk/export/metric v0.26.0
 	go.opentelemetry.io/otel/sdk/metric v0.26.0
@@ -205,7 +205,7 @@ require (
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 	go.mongodb.org/mongo-driver v1.7.5 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.4.0 // indirect
-	go.opentelemetry.io/otel/internal/metric v0.26.0 // indirect
+	go.opentelemetry.io/otel/internal/metric v0.27.0 // indirect
 	go.opentelemetry.io/proto/otlp v0.12.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
