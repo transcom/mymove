@@ -660,6 +660,68 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newStorageFacilityAddress.StreetAddress1, updatedShipment.StorageFacility.Address.StreetAddress1)
 	})
 
+	suite.Run("Allow update to have an empty TACType and SACType", func() {
+		setupTestData()
+
+		tacType := models.LOATypeNTS
+		sacType := models.LOATypeNTS
+		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				TACType: &tacType,
+				SACType: &sacType,
+			},
+		})
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		updatedShipment := models.MTOShipment{
+			ID:      oldShipment.ID,
+			TACType: nil,
+			SACType: nil,
+		}
+
+		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.Nil(newShipment.TACType)
+		suite.Nil(newShipment.SACType)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
+	})
+
+	suite.Run("Allow update to TACType and SACType", func() {
+		setupTestData()
+
+		tacType := models.LOATypeNTS
+		sacType := models.LOATypeNTS
+		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				TACType: &tacType,
+				SACType: &sacType,
+			},
+		})
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		newTacType := models.LOATypeHHG
+		newSacType := models.LOATypeHHG
+		updatedShipment := models.MTOShipment{
+			ID:      oldShipment.ID,
+			TACType: &newTacType,
+			SACType: &newSacType,
+		}
+
+		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.Equal(newTacType, *newShipment.TACType)
+		suite.Equal(newSacType, *newShipment.SACType)
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
+	})
+
 	suite.Run("Successfully update NTS previously recorded weight to shipment", func() {
 		setupTestData()
 
