@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -1144,8 +1143,6 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			Affiliation: &marineCorpsAffiliation,
 		},
 	})
-
-	fmt.Printf("marine corps move locator %s affiliation %s", subtestData.marineCorpsMove.Locator, subtestData.marineCorpsMove.Orders.ServiceMember.Affiliation)
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: subtestData.marineCorpsMove,

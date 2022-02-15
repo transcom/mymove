@@ -40,7 +40,7 @@ func (suite *MigrateSuite) TestBuilderCompile() {
 
 	// Compile the migration
 	wait := 10 * time.Millisecond
-	migration, errCompile := builder.Compile(nil, wait)
+	migration, errCompile := builder.Compile(nil, wait, suite.Logger())
 	suite.NoError(errCompile)
 	suite.NotNil(migration)
 
@@ -67,7 +67,7 @@ func (suite *MigrateSuite) TestBuilderCompileInvalidPath() {
 	builder := &Builder{Match: &m, Path: uri}
 
 	wait := 10 * time.Millisecond
-	migration, err := builder.Compile(nil, wait)
+	migration, err := builder.Compile(nil, wait, suite.Logger())
 	suite.NotNil(err)
 	suite.Nil(migration)
 }
@@ -86,7 +86,7 @@ func (suite *MigrateSuite) TestBuilderCompileBadType() {
 	builder := &Builder{Match: &m, Path: uri}
 
 	wait := 10 * time.Millisecond
-	migration, err := builder.Compile(nil, wait)
+	migration, err := builder.Compile(nil, wait, suite.Logger())
 	suite.NotNil(err)
 	suite.Nil(migration)
 }
@@ -105,7 +105,7 @@ func (suite *MigrateSuite) TestBuilderCompileInvalidDirection() {
 	builder := &Builder{Match: &m, Path: uri}
 
 	wait := 10 * time.Millisecond
-	migration, err := builder.Compile(nil, wait)
+	migration, err := builder.Compile(nil, wait, suite.Logger())
 	suite.NotNil(err)
 	suite.Nil(migration)
 }
@@ -124,7 +124,7 @@ func (suite *MigrateSuite) TestBuilderCompileUnsupportedDialect() {
 	builder := &Builder{Match: &m, Path: uri}
 
 	wait := 10 * time.Millisecond
-	migration, err := builder.Compile(nil, wait)
+	migration, err := builder.Compile(nil, wait, suite.Logger())
 	suite.NotNil(err)
 	suite.Nil(migration)
 }
@@ -143,7 +143,7 @@ func (suite *MigrateSuite) TestBuilderCompileUpdateFromSetSQL() {
 	builder := &Builder{Match: &m, Path: uri}
 
 	wait := 10 * time.Millisecond
-	migration, err := builder.Compile(nil, wait)
+	migration, err := builder.Compile(nil, wait, suite.Logger())
 	suite.Nil(err)
 	suite.NotNil(migration)
 
