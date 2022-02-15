@@ -280,6 +280,7 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
+	currentTimeStr := time.Now().Format("20060102")
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -289,7 +290,12 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		{
 			Key:     models.ServiceItemParamNameRequestedPickupDate,
 			KeyType: models.ServiceItemParamTypeDate,
-			Value:   time.Now().Format("20060102"),
+			Value:   currentTimeStr,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeStr,
 		},
 		{
 			Key:     models.ServiceItemParamNameWeightBilled,
@@ -457,7 +463,7 @@ const testDateFormat = "060102"
 func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests {
 	var prs models.PaymentRequests
 	for i := 0; i < num; i++ {
-		currentTime := time.Now()
+		currentTimeStr := time.Now().Format(testDateFormat)
 		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
@@ -467,7 +473,12 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
 				KeyType: models.ServiceItemParamTypeDate,
-				Value:   currentTime.Format(testDateFormat),
+				Value:   currentTimeStr,
+			},
+			{
+				Key:     models.ServiceItemParamNameReferenceDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   currentTimeStr,
 			},
 			{
 				Key:     models.ServiceItemParamNameWeightBilled,

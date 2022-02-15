@@ -90,79 +90,6 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSIT
 		psiParams       []testdatagen.CreatePaymentServiceItemParams
 		expectedError   string
 	}{
-		// TODO: cannot run this test until MB-1564 is done
-		//{
-		//testDescription: "not finding number of days in SIT",
-		//expectedError:   "could not find param with key NumberDaysSIT",
-		//psiParams: []testdatagen.CreatePaymentServiceItemParams{
-		//{
-		//Key:     models.ServiceItemParamNameContractCode,
-		//KeyType: models.ServiceItemParamTypeString,
-		//Value:   testdatagen.DefaultContractCode,
-		//},
-		//{
-		//Key:     models.ServiceItemParamNameRequestedPickupDate,
-		//KeyType: models.ServiceItemParamTypeTimestamp,
-		//Value:   ddasitTestRequestedPickupDate.Format(TimestampParamFormat),
-		//},
-		//{
-		//Key:     models.ServiceItemParamNameServiceAreaDest,
-		//KeyType: models.ServiceItemParamTypeString,
-		//Value:   ddasitTestServiceArea,
-		//},
-		//{
-		//Key:     models.ServiceItemParamNameWeightOriginal,
-		//KeyType: models.ServiceItemParamTypeInteger,
-		//Value:   "2700",
-		//},
-		//{
-		//Key:     models.ServiceItemParamNameWeightBilled,
-		//KeyType: models.ServiceItemParamTypeInteger,
-		//Value:   fmt.Sprintf("%d", int(ddasitTestWeight)),
-		//},
-		//{
-		//Key:     models.ServiceItemParamNameWeightEstimated,
-		//KeyType: models.ServiceItemParamTypeInteger,
-		//Value:   "2500",
-		//},
-		//{
-		//Key:     models.ServiceItemParamNameZipDestAddress,
-		//KeyType: models.ServiceItemParamTypeString,
-		//Value:   "30907",
-		//},
-		//},
-		//},
-		{
-			testDescription: "not finding service area dest",
-			expectedError:   "could not find param with key ServiceAreaDest",
-			psiParams: []testdatagen.CreatePaymentServiceItemParams{
-				{
-					Key:     models.ServiceItemParamNameContractCode,
-					KeyType: models.ServiceItemParamTypeString,
-					Value:   testdatagen.DefaultContractCode,
-				},
-				{
-					Key:     models.ServiceItemParamNameRequestedPickupDate,
-					KeyType: models.ServiceItemParamTypeTimestamp,
-					Value:   ddasitTestRequestedPickupDate.Format(TimestampParamFormat),
-				},
-				{
-					Key:     models.ServiceItemParamNameWeightOriginal,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   "2700",
-				},
-				{
-					Key:     models.ServiceItemParamNameWeightBilled,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   fmt.Sprintf("%d", int(ddasitTestWeight)),
-				},
-				{
-					Key:     models.ServiceItemParamNameWeightEstimated,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   "2500",
-				},
-			},
-		},
 		{
 			testDescription: "not finding weight billed",
 			expectedError:   "could not find param with key WeightBilled",
@@ -173,15 +100,63 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSIT
 					Value:   testdatagen.DefaultContractCode,
 				},
 				{
-					Key:     models.ServiceItemParamNameRequestedPickupDate,
-					KeyType: models.ServiceItemParamTypeTimestamp,
-					Value:   ddasitTestRequestedPickupDate.Format(TimestampParamFormat),
+					Key:     models.ServiceItemParamNameNumberDaysSIT,
+					KeyType: models.ServiceItemParamTypeInteger,
+					Value:   fmt.Sprintf("%d", int(ddasitTestNumberOfDaysInSIT)),
+				},
+				{
+					Key:     models.ServiceItemParamNameReferenceDate,
+					KeyType: models.ServiceItemParamTypeDate,
+					Value:   ddasitTestRequestedPickupDate.Format(DateParamFormat),
+				},
+				{
+					Key:     models.ServiceItemParamNameServiceAreaDest,
+					KeyType: models.ServiceItemParamTypeString,
+					Value:   ddasitTestServiceArea,
 				},
 			},
 		},
 		{
-			testDescription: "not finding requested pickup date",
-			expectedError:   "could not find param with key RequestedPickupDate",
+			testDescription: "not finding service area dest",
+			expectedError:   "could not find param with key ServiceAreaDest",
+			psiParams: []testdatagen.CreatePaymentServiceItemParams{
+
+				{
+					Key:     models.ServiceItemParamNameContractCode,
+					KeyType: models.ServiceItemParamTypeString,
+					Value:   testdatagen.DefaultContractCode,
+				},
+				{
+					Key:     models.ServiceItemParamNameNumberDaysSIT,
+					KeyType: models.ServiceItemParamTypeInteger,
+					Value:   fmt.Sprintf("%d", int(ddasitTestNumberOfDaysInSIT)),
+				},
+				{
+					Key:     models.ServiceItemParamNameReferenceDate,
+					KeyType: models.ServiceItemParamTypeDate,
+					Value:   ddasitTestRequestedPickupDate.Format(DateParamFormat),
+				},
+			},
+		},
+		{
+			testDescription: "not finding reference date",
+			expectedError:   "could not find param with key ReferenceDate",
+			psiParams: []testdatagen.CreatePaymentServiceItemParams{
+				{
+					Key:     models.ServiceItemParamNameContractCode,
+					KeyType: models.ServiceItemParamTypeString,
+					Value:   testdatagen.DefaultContractCode,
+				},
+				{
+					Key:     models.ServiceItemParamNameNumberDaysSIT,
+					KeyType: models.ServiceItemParamTypeInteger,
+					Value:   fmt.Sprintf("%d", int(ddasitTestNumberOfDaysInSIT)),
+				},
+			},
+		},
+		{
+			testDescription: "not finding number of days in SIT",
+			expectedError:   "could not find param with key NumberDaysSIT",
 			psiParams: []testdatagen.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameContractCode,
@@ -189,6 +164,11 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSIT
 					Value:   testdatagen.DefaultContractCode,
 				},
 			},
+		},
+		{
+			testDescription: "not finding contract code",
+			expectedError:   "could not find param with key ContractCode",
+			psiParams:       []testdatagen.CreatePaymentServiceItemParams{},
 		},
 	}
 
@@ -218,9 +198,14 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationAdditionalDaysSI
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
-				KeyType: models.ServiceItemParamTypeTimestamp,
-				Value:   ddasitTestRequestedPickupDate.Format(TimestampParamFormat),
+				Key:     models.ServiceItemParamNameNumberDaysSIT,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(ddasitTestNumberOfDaysInSIT),
+			},
+			{
+				Key:     models.ServiceItemParamNameReferenceDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   ddasitTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameServiceAreaDest,
@@ -228,29 +213,9 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationAdditionalDaysSI
 				Value:   ddasitTestServiceArea,
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightOriginal,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "2700",
-			},
-			{
 				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(ddasitTestWeight)),
-			},
-			{
-				Key:     models.ServiceItemParamNameWeightEstimated,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "2500",
-			},
-			{
-				Key:     models.ServiceItemParamNameZipDestAddress,
-				KeyType: models.ServiceItemParamTypeString,
-				Value:   "30907",
-			},
-			{
-				Key:     models.ServiceItemParamNameNumberDaysSIT,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(ddasitTestNumberOfDaysInSIT),
 			},
 		},
 	)

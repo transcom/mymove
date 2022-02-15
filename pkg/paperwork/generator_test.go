@@ -122,9 +122,6 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 
 	checksums := make([]string, 2)
 	files, err := ioutil.ReadDir(tmpDir)
-	for _, f := range files {
-		fmt.Println(f.Name())
-	}
 	suite.FatalNil(err)
 
 	suite.Equal(2, len(files), "did not find 2 images")

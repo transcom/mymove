@@ -6,8 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
-
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -21,16 +19,14 @@ func payloadForDutyLocationModel(location models.DutyLocation) *internalmessages
 		return nil
 	}
 	payload := internalmessages.DutyLocationPayload{
-		ID:          handlers.FmtUUID(location.ID),
-		CreatedAt:   handlers.FmtDateTime(location.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(location.UpdatedAt),
-		Name:        swag.String(location.Name),
-		Affiliation: location.Affiliation,
-		AddressID:   handlers.FmtUUID(location.AddressID),
-		Address:     payloads.Address(&location.Address),
+		ID:                     handlers.FmtUUID(location.ID),
+		CreatedAt:              handlers.FmtDateTime(location.CreatedAt),
+		UpdatedAt:              handlers.FmtDateTime(location.UpdatedAt),
+		Name:                   swag.String(location.Name),
+		Affiliation:            location.Affiliation,
+		AddressID:              handlers.FmtUUID(location.AddressID),
+		TransportationOfficeID: handlers.FmtUUIDPtr(location.TransportationOfficeID),
 	}
-
-	payload.TransportationOffice = payloads.TransportationOffice(location.TransportationOffice)
 
 	return &payload
 }

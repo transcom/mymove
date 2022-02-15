@@ -1,11 +1,10 @@
 package user
 
 import (
-	"fmt"
-
 	"github.com/alexedwards/scs/v2"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -28,7 +27,7 @@ func (o *userSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, 
 		return nil, nil, err
 	}
 
-	redisErr := deleteSessionIDFromRedis(foundUser, payload, sessionStore)
+	redisErr := deleteSessionIDFromRedis(appCtx, foundUser, payload, sessionStore)
 	if redisErr != nil {
 		return nil, nil, redisErr
 	}
@@ -41,7 +40,7 @@ func NewUserSessionRevocation(builder userQueryBuilder) services.UserSessionRevo
 	return &userSessionRevocation{builder}
 }
 
-func deleteSessionIDFromRedis(user models.User, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) error {
+func deleteSessionIDFromRedis(appCtx appcontext.AppContext, user models.User, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) error {
 	var currentAdminSessionID, currentOfficeSessionID, currentMilSessionID string
 	userID := user.ID
 
@@ -66,17 +65,17 @@ func deleteSessionIDFromRedis(user models.User, payload *adminmessages.UserUpdat
 	for field, sessionID := range sessionIDMap {
 		_, exists, err := sessionStore.Find(sessionID)
 		if err != nil {
-			fmt.Printf("Error looking up %s in Redis for user ID %s", field, userID)
+			appCtx.Logger().Error("Error looking up field in Redis for user ID", zap.String("field", field), zap.String("UserID", userID.String()), zap.Error(err))
 			return err
 		}
 
 		if !exists {
-			fmt.Printf("%s not found in Redis; nothing to revoke. \n", field)
+			appCtx.Logger().Info("Not found in Redis; nothing to revoke", zap.String("field", field))
 		} else {
-			fmt.Printf("%s found for user ID %s; deleting it from Redis. \n", field, userID)
+			appCtx.Logger().Info("Found for user ID; deleting it from Redis", zap.String("field", field), zap.String("UserID", userID.String()))
 			err := sessionStore.Delete(sessionID)
 			if err != nil {
-				fmt.Printf("Error deleting %s from Redis for user ID %s.", field, userID)
+				appCtx.Logger().Error("Error deleting field from Redis for user ID", zap.String("field", field), zap.String("UserID", userID.String()), zap.Error(err))
 				return err
 			}
 		}

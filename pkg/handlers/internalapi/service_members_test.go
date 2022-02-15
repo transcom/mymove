@@ -115,7 +115,6 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	suite.Assertions.NotEqual(*serviceMemberPayload.UserID, uuid.Nil)
 	suite.Assertions.Equal(*serviceMemberPayload.IsProfileComplete, false)
 	suite.Assertions.Equal(len((*serviceMemberPayload).Orders), 0)
-	fmt.Println((*serviceMemberPayload).CurrentStation)
 
 	// These shouldn't return any value or Swagger clients will complain during validation
 	// because the payloads for these objects are defined to require non-null values for most fields
