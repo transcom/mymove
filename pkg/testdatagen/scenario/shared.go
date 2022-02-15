@@ -538,6 +538,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(2000)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-8cf96ede2606"),
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -551,6 +552,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	})
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-333333333333"),
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -565,6 +567,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	})
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedHHGWeight,
 			PrimeActualWeight:    &actualHHGWeight,
@@ -577,25 +580,13 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	})
 
-	//testdatagen.MakeMinimalDefaultPPMShipment(db)
-	testdatagen.MakeMinimalPPMShipment(db, testdatagen.Assertions{
+	testdatagen.MakePPMShipment(db, testdatagen.Assertions{
 		Move: move,
 		PPMShipment: models.PPMShipment{
 			ID: uuid.FromStringOrNil("d733fe2f-b08d-434a-ad8d-551f4d597b03"),
 		},
 	})
 
-	//ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
-	//	ServiceMember: move.Orders.ServiceMember,
-	//	PersonallyProcuredMove: models.PersonallyProcuredMove{
-	//		OriginalMoveDate: &nextValidMoveDate,
-	//		Move:             move,
-	//		MoveID:           move.ID,
-	//	},
-	//	UserUploader: userUploader,
-	//})
-	//
-	//move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
 	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
@@ -4944,99 +4935,23 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 	})
 }
 
-func createHHGNeedsServicesCounseling(appCtx appcontext.AppContext) {
+/*
+	Create Needs Service Counseling - pass in orders, shipment type, destination type, locator
+*/
+func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
 		DutyStation: models.DutyStation{
 			ProvidesServicesCounseling: true,
 		},
+		Order: models.Order{
+			OrdersType: ordersType,
+		},
 	})
-
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Locator:     "SRVCSL",
-			Status:      models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt: &submittedAt,
-		},
-		Order: orders,
-	})
-
-	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
-	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-		},
-	})
-
-	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
-	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-		},
-	})
-}
-
-func createHHGNoGovCounselingForRetirementWithDestinationAddressAndType(appCtx appcontext.AppContext) {
-	db := appCtx.DB()
-	submittedAt := time.Now()
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			ProvidesServicesCounseling: false,
-		},
-		Order: models.Order{OrdersType: internalmessages.OrdersTypeRETIREMENT},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:     "PCCIV1",
-			Status:      models.MoveStatusSUBMITTED,
-			SubmittedAt: &submittedAt,
-		},
-		Order: orders,
-	})
-
-	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
-	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
-	destinationAddressType := models.DestinationAddressTypeHomeOfRecord
-
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:           models.MTOShipmentTypeHHG,
-			Status:                 models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:    &requestedPickupDate,
-			RequestedDeliveryDate:  &requestedDeliveryDate,
-			DestinationAddressID:   &destinationAddress.ID,
-			DestinationAddressType: &destinationAddressType,
-		},
-	})
-}
-
-func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcontext.AppContext) {
-	db := appCtx.DB()
-	submittedAt := time.Now()
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			ProvidesServicesCounseling: true,
-		},
-		Order: models.Order{OrdersType: internalmessages.OrdersTypeRETIREMENT},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:     "DATYPE",
+			Locator:     locator,
 			Status:      models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt: &submittedAt,
 		},
@@ -5046,17 +4961,15 @@ func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcon
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := testdatagen.MakeDefaultAddress(db)
-	destinationAddressType := models.DestinationAddressTypeHomeOfRecord
-
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:           models.MTOShipmentTypeHHG,
-			Status:                 models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:    &requestedPickupDate,
-			RequestedDeliveryDate:  &requestedDeliveryDate,
-			DestinationAddressID:   &destinationAddress.ID,
-			DestinationAddressType: &destinationAddressType,
+			ShipmentType:          shipmentType,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+			DestinationType:       destinationType,
 		},
 	})
 
@@ -5065,7 +4978,7 @@ func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcon
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
+			ShipmentType:          shipmentType,
 			Status:                models.MTOShipmentStatusSubmitted,
 			RequestedPickupDate:   &requestedPickupDate,
 			RequestedDeliveryDate: &requestedDeliveryDate,

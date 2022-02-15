@@ -19,10 +19,6 @@ import (
 // swagger:model DutyLocationPayload
 type DutyLocationPayload struct {
 
-	// address
-	// Required: true
-	Address *Address `json:"address"`
-
 	// address id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
@@ -49,8 +45,10 @@ type DutyLocationPayload struct {
 	// Required: true
 	Name *string `json:"name"`
 
-	// transportation office
-	TransportationOffice *TransportationOffice `json:"transportation_office,omitempty"`
+	// transportation office id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	TransportationOfficeID *strfmt.UUID `json:"transportation_office_id,omitempty"`
 
 	// updated at
 	// Required: true
@@ -61,10 +59,6 @@ type DutyLocationPayload struct {
 // Validate validates this duty location payload
 func (m *DutyLocationPayload) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateAddress(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateAddressID(formats); err != nil {
 		res = append(res, err)
@@ -86,7 +80,7 @@ func (m *DutyLocationPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTransportationOffice(formats); err != nil {
+	if err := m.validateTransportationOfficeID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -97,26 +91,6 @@ func (m *DutyLocationPayload) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *DutyLocationPayload) validateAddress(formats strfmt.Registry) error {
-
-	if err := validate.Required("address", "body", m.Address); err != nil {
-		return err
-	}
-
-	if m.Address != nil {
-		if err := m.Address.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("address")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("address")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -192,20 +166,13 @@ func (m *DutyLocationPayload) validateName(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *DutyLocationPayload) validateTransportationOffice(formats strfmt.Registry) error {
-	if swag.IsZero(m.TransportationOffice) { // not required
+func (m *DutyLocationPayload) validateTransportationOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.TransportationOfficeID) { // not required
 		return nil
 	}
 
-	if m.TransportationOffice != nil {
-		if err := m.TransportationOffice.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("transportation_office")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("transportation_office")
-			}
-			return err
-		}
+	if err := validate.FormatOf("transportation_office_id", "body", "uuid", m.TransportationOfficeID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -228,37 +195,13 @@ func (m *DutyLocationPayload) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *DutyLocationPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateAddress(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateAffiliation(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateTransportationOffice(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *DutyLocationPayload) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Address != nil {
-		if err := m.Address.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("address")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("address")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -270,22 +213,6 @@ func (m *DutyLocationPayload) contextValidateAffiliation(ctx context.Context, fo
 				return ve.ValidateName("affiliation")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("affiliation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *DutyLocationPayload) contextValidateTransportationOffice(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.TransportationOffice != nil {
-		if err := m.TransportationOffice.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("transportation_office")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("transportation_office")
 			}
 			return err
 		}

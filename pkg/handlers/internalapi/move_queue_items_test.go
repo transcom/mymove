@@ -63,7 +63,6 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 
 		// Then: Expect a 200 status code
 		okResponse := showResponse.(*queueop.ShowQueueOK)
-		fmt.Printf("status: %v res: %v", status, okResponse)
 		moveQueueItem := okResponse.Payload[0]
 
 		// And: Returned query to include our added move

@@ -482,7 +482,7 @@ func (suite *PopTestSuite) MustDestroy(model interface{}) {
 // NoVerrs prints any errors it receives
 func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 	if !suite.False(verrs.HasAny()) {
-		fmt.Println(verrs.String())
+		suite.Fail(verrs.String())
 		return false
 	}
 	return true

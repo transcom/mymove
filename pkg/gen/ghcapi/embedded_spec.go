@@ -3361,17 +3361,8 @@ func init() {
             }
           ]
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -3576,6 +3567,18 @@ func init() {
         "NAVY_AND_MARINES": "17 Navy and Marine Corps"
       },
       "x-nullable": true
+    },
+    "DestinationType": {
+      "type": "string",
+      "title": "Destination Type",
+      "enum": [
+        "HOME_OF_RECORD",
+        "HOME_OF_SELECTION",
+        "PLACE_ENTERED_ACTIVE_DUTY",
+        "OTHER_THAN_AUTHORIZED"
+      ],
+      "x-nullable": true,
+      "example": "Other than authorized"
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -4188,17 +4191,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "type": "boolean",
@@ -4472,7 +4466,7 @@ func init() {
       "enum": [
         "DRAFT",
         "NEEDS SERVICE COUNSELING",
-        "SEVICE COUNSELING COMPLETED",
+        "SERVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -5009,7 +5003,7 @@ func init() {
           "type": "integer"
         },
         "status": {
-          "$ref": "#/definitions/QueueMoveStatus"
+          "$ref": "#/definitions/MoveStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -5017,14 +5011,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "QueueMoveStatus": {
-      "type": "string",
-      "enum": [
-        "New move",
-        "Move approved",
-        "Approvals requested"
-      ]
     },
     "QueueMoves": {
       "type": "array",
@@ -5055,7 +5041,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "integer"
+          "format": "double"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -5740,17 +5726,8 @@ func init() {
           ],
           "x-nullable": true
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -10087,17 +10064,8 @@ func init() {
             }
           ]
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -10302,6 +10270,18 @@ func init() {
         "NAVY_AND_MARINES": "17 Navy and Marine Corps"
       },
       "x-nullable": true
+    },
+    "DestinationType": {
+      "type": "string",
+      "title": "Destination Type",
+      "enum": [
+        "HOME_OF_RECORD",
+        "HOME_OF_SELECTION",
+        "PLACE_ENTERED_ACTIVE_DUTY",
+        "OTHER_THAN_AUTHORIZED"
+      ],
+      "x-nullable": true,
+      "example": "Other than authorized"
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -10914,17 +10894,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "type": "boolean",
@@ -11198,7 +11169,7 @@ func init() {
       "enum": [
         "DRAFT",
         "NEEDS SERVICE COUNSELING",
-        "SEVICE COUNSELING COMPLETED",
+        "SERVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -11735,7 +11706,7 @@ func init() {
           "type": "integer"
         },
         "status": {
-          "$ref": "#/definitions/QueueMoveStatus"
+          "$ref": "#/definitions/MoveStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -11743,14 +11714,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "QueueMoveStatus": {
-      "type": "string",
-      "enum": [
-        "New move",
-        "Move approved",
-        "Approvals requested"
-      ]
     },
     "QueueMoves": {
       "type": "array",
@@ -11781,7 +11744,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "integer"
+          "format": "double"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -12473,17 +12436,8 @@ func init() {
           ],
           "x-nullable": true
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",

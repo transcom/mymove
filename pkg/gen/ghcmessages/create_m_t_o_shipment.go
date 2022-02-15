@@ -7,7 +7,6 @@ package ghcmessages
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -49,10 +48,8 @@ type CreateMTOShipment struct {
 		Address
 	} `json:"destinationAddress"`
 
-	// Destination Address Type
-	// Example: Other than authorized
-	// Enum: [HOME_OF_RECORD HOME_OF_SELECTION PLACE_ENTERED_ACTIVE_DUTY OTHER_THAN_AUTHORIZED]
-	DestinationAddressType *string `json:"destinationAddressType,omitempty"`
+	// destination type
+	DestinationType *DestinationType `json:"destinationType,omitempty"`
 
 	// The ID of the move this new shipment is for.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -115,7 +112,7 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDestinationAddressType(formats); err != nil {
+	if err := m.validateDestinationType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -183,49 +180,20 @@ func (m *CreateMTOShipment) validateDestinationAddress(formats strfmt.Registry) 
 	return nil
 }
 
-var createMTOShipmentTypeDestinationAddressTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["HOME_OF_RECORD","HOME_OF_SELECTION","PLACE_ENTERED_ACTIVE_DUTY","OTHER_THAN_AUTHORIZED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		createMTOShipmentTypeDestinationAddressTypePropEnum = append(createMTOShipmentTypeDestinationAddressTypePropEnum, v)
-	}
-}
-
-const (
-
-	// CreateMTOShipmentDestinationAddressTypeHOMEOFRECORD captures enum value "HOME_OF_RECORD"
-	CreateMTOShipmentDestinationAddressTypeHOMEOFRECORD string = "HOME_OF_RECORD"
-
-	// CreateMTOShipmentDestinationAddressTypeHOMEOFSELECTION captures enum value "HOME_OF_SELECTION"
-	CreateMTOShipmentDestinationAddressTypeHOMEOFSELECTION string = "HOME_OF_SELECTION"
-
-	// CreateMTOShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY captures enum value "PLACE_ENTERED_ACTIVE_DUTY"
-	CreateMTOShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY string = "PLACE_ENTERED_ACTIVE_DUTY"
-
-	// CreateMTOShipmentDestinationAddressTypeOTHERTHANAUTHORIZED captures enum value "OTHER_THAN_AUTHORIZED"
-	CreateMTOShipmentDestinationAddressTypeOTHERTHANAUTHORIZED string = "OTHER_THAN_AUTHORIZED"
-)
-
-// prop value enum
-func (m *CreateMTOShipment) validateDestinationAddressTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, createMTOShipmentTypeDestinationAddressTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *CreateMTOShipment) validateDestinationAddressType(formats strfmt.Registry) error {
-	if swag.IsZero(m.DestinationAddressType) { // not required
+func (m *CreateMTOShipment) validateDestinationType(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationType) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := m.validateDestinationAddressTypeEnum("destinationAddressType", "body", *m.DestinationAddressType); err != nil {
-		return err
+	if m.DestinationType != nil {
+		if err := m.DestinationType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -376,6 +344,10 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMtoServiceItems(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -421,6 +393,22 @@ func (m *CreateMTOShipment) contextValidateAgents(ctx context.Context, formats s
 }
 
 func (m *CreateMTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationType != nil {
+		if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
+	}
 
 	return nil
 }
