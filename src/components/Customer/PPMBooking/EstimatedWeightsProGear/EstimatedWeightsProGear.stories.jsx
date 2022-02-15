@@ -23,8 +23,8 @@ export default {
 
 const Template = (args) => <EstimatedWeightsProGear {...args} />;
 
-export const BlanEstimatedWeightsProGear = Template.bind({});
-BlanEstimatedWeightsProGear.args = {
+export const BlankEstimatedWeightsProGear = Template.bind({});
+BlankEstimatedWeightsProGear.args = {
   onSubmit: action('submit button clicked'),
   onBack: action('back button clicked'),
   entitlement: {

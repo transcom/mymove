@@ -2,7 +2,7 @@ import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
-import { Button, Form, Radio, FormGroup } from '@trussworks/react-uswds';
+import { Button, Form, Radio, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import styles from './EstimatedWeightsProGear.module.scss';
@@ -13,19 +13,31 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import Hint from 'components/Hint/index';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
+import { formatWeight } from 'utils/formatters';
 
-const validationSchema = Yup.object().shape({
-  estimatedPPMWeight: Yup.number().required('Required'),
-  hasProGear: Yup.boolean().required('Required'),
-  estimatedProGearWeight: Yup.number().when('hasProGear', {
-    is: true,
-    then: (schema) => schema.required('Required'),
-  }),
-  estimatedSpouseProGearWeight: Yup.number().when('hasProGear', {
-    is: true,
-    then: (schema) => schema.required('Required'),
-  }),
-});
+const validationSchema = Yup.object().shape(
+  {
+    estimatedPPMWeight: Yup.number().required('Required'),
+    hasProGear: Yup.boolean().required('Required'),
+    estimatedProGearWeight: Yup.number().when(['hasProGear', 'estimatedSpouseProGearWeight'], {
+      is: (hasProGear, estimatedSpouseProGearWeight) => hasProGear && !estimatedSpouseProGearWeight,
+      then: (schema) =>
+        schema.required(
+          `Enter a weight into at least one pro-gear field. If you won&apos;t have pro-gear, select No above.`,
+        ),
+      otherwise: Yup.number().max(2000, 'Enter a weight less than 2,000 lbs'),
+    }),
+    estimatedSpouseProGearWeight: Yup.number().when(['hasProGear', 'estimatedProGearWeight'], {
+      is: (hasProGear, estimatedProGearWeight) => hasProGear && !estimatedProGearWeight,
+      then: (schema) =>
+        schema.required(
+          `Enter a weight into at least one pro-gear field. If you won&apos;t have pro-gear, select No above.`,
+        ),
+      otherwise: Yup.number().max(500, 'Enter a weight less than 500 lbs'),
+    }),
+  },
+  ['estimatedSpouseProGearWeight, estimatedProGearWeight'],
+);
 
 const EstimatedWeightsProGear = ({ entitlement, onSubmit, onBack }) => {
   const initialValues = {
@@ -35,12 +47,21 @@ const EstimatedWeightsProGear = ({ entitlement, onSubmit, onBack }) => {
     estimatedSpouseProGearWeight: '',
   };
 
+  // TODO: update validation logic so that has progear and spouse progear pass validation if either is filled in
+  // TODO: pull in mtoshipment and prefill values if theyre present in ppmShipment
+  // TODO: make link for weight estimator calculator and bring in external link icon
+  // TODO: create storybook story for prefilled form
+  // TODO: create storybook story for failing validations
+
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
           <div className={styles.EstimatedWeightsProGearForm}>
             <Form className={(formStyles.form, styles.form)}>
+              <Alert type="info">{`Total weight allowance for your move: ${formatWeight(
+                entitlement.authorizedWeight,
+              )}`}</Alert>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection)}>
                 <h2>Full PPM</h2>
                 <p>
@@ -58,7 +79,9 @@ const EstimatedWeightsProGear = ({ entitlement, onSubmit, onBack }) => {
                   signed={false} // disallow negative
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
+                  suffix="lbs"
                 />
+
                 <p>
                   This estimate can give you an idea of what you could earn for your PPM incentive. It&apos;s OK if you
                   end up moving more or less weight than this estimate.
@@ -121,6 +144,7 @@ const EstimatedWeightsProGear = ({ entitlement, onSubmit, onBack }) => {
                       signed={false} // disallow negative
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
+                      suffix="lbs"
                     />
                     <MaskedTextField
                       defaultValue="0"
@@ -132,7 +156,11 @@ const EstimatedWeightsProGear = ({ entitlement, onSubmit, onBack }) => {
                       signed={false} // disallow negative
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
+                      suffix="lbs"
                     />
+                    <Hint>
+                      Talk to your counselor about requirements for documenting pro-gear included in your PPM.
+                    </Hint>
                   </>
                 )}
               </SectionWrapper>
