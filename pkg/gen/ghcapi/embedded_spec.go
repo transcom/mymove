@@ -4472,7 +4472,7 @@ func init() {
       "enum": [
         "DRAFT",
         "NEEDS SERVICE COUNSELING",
-        "SEVICE COUNSELING COMPLETED",
+        "SERVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -5009,7 +5009,7 @@ func init() {
           "type": "integer"
         },
         "status": {
-          "$ref": "#/definitions/QueueMoveStatus"
+          "$ref": "#/definitions/MoveStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -5017,14 +5017,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "QueueMoveStatus": {
-      "type": "string",
-      "enum": [
-        "New move",
-        "Move approved",
-        "Approvals requested"
-      ]
     },
     "QueueMoves": {
       "type": "array",
@@ -5055,7 +5047,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "integer"
+          "format": "double"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -11198,7 +11190,7 @@ func init() {
       "enum": [
         "DRAFT",
         "NEEDS SERVICE COUNSELING",
-        "SEVICE COUNSELING COMPLETED",
+        "SERVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -11735,7 +11727,7 @@ func init() {
           "type": "integer"
         },
         "status": {
-          "$ref": "#/definitions/QueueMoveStatus"
+          "$ref": "#/definitions/MoveStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -11743,14 +11735,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "QueueMoveStatus": {
-      "type": "string",
-      "enum": [
-        "New move",
-        "Move approved",
-        "Approvals requested"
-      ]
     },
     "QueueMoves": {
       "type": "array",
@@ -11781,7 +11765,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "integer"
+          "format": "double"
         },
         "customer": {
           "$ref": "#/definitions/Customer"

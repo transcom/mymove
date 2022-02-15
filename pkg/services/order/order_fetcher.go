@@ -165,6 +165,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 				return []models.Move{}, 0, err
 			}
 		}
+
+		err := appCtx.DB().Load(&moves[i].Orders.ServiceMember, "BackupContacts")
+		if err != nil {
+			return []models.Move{}, 0, err
+		}
 	}
 
 	return moves, count, nil
