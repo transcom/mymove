@@ -1,7 +1,6 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
-import { within, userEvent } from '@storybook/testing-library';
 
 import EstimatedWeightsProGear from './EstimatedWeightsProGear';
 
@@ -78,7 +77,7 @@ BlankEstimatedWeightsProGear.args = {
 //     },
 //   },
 //   postalCodeValidator: () =>
-//     'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
+//     'Sorry, we don't support that zip code yet. Please contact your local PPPO for assistance.',
 // };
 // ErrorDatesAndLocation.play = async ({ canvasElement }) => {
 //   // Starts querying the component from its root element
