@@ -1,10 +1,13 @@
+@import 'shared/styles/colors';
+
 .hasSuffix {
     display: inline-block;
     position: relative;
 
     div {
         position: absolute;
-        right: 0;
-        bottom: 20.5px;
+        right: 10px;
+        bottom: 9px;
+        color: $base-darkest;
     }
 }

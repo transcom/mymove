@@ -24,12 +24,12 @@ const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack })
     estimatedProGearWeight: Yup.number().when(['hasProGear', 'estimatedSpouseProGearWeight'], {
       is: (hasProGear, estimatedSpouseProGearWeight) => hasProGear && !estimatedSpouseProGearWeight,
       then: (schema) =>
-        schema.required(
-          `Enter a weight into at least one pro-gear field. If you won&apos;t have pro-gear, select No above.`,
-        ),
+        schema
+          .required(`Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.`)
+          .max(2000, 'Enter a weight less than 2,000 lbs'),
       otherwise: Yup.number().max(2000, 'Enter a weight less than 2,000 lbs'),
     }),
-    estimatedSpouseProGearWeight: Yup.number(),
+    estimatedSpouseProGearWeight: Yup.number().max(500, 'Enter a weight less than 500 lbs'),
   });
 
   const initialValues = {
@@ -40,7 +40,6 @@ const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack })
   };
 
   // TODO: abstract out PPM form styles in to a shared file
-  // TODO: unit test
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
