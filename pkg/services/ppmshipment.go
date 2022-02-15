@@ -7,7 +7,7 @@ import (
 
 // PPMShipmentCreator creates a PPM shipment
 type PPMShipmentCreator interface {
-	CreatePPMShipmentCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment) (*models.PPMShipment, error)
+	CreatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment) (*models.PPMShipment, error)
 }
 
 // PPMShipmentUpdater updates a PPM shipment

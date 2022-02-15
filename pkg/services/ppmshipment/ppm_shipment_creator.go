@@ -27,8 +27,8 @@ func NewPPMShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator) servi
 	}
 }
 
-// CreatePPMShipmentCheck passes a validator key to CreatePPMShipment
-func (f *ppmShipmentCreator) CreatePPMShipmentCheck(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*models.PPMShipment, error) {
+// CreatePPMShipmentWithDefaultCheck passes a validator key to CreatePPMShipment
+func (f *ppmShipmentCreator) CreatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*models.PPMShipment, error) {
 	return f.createPPMShipment(appCtx, ppmShipment, f.checks...)
 }
 

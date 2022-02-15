@@ -46,7 +46,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		// Expected:	New PPM shipment successfully created
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		ppmShipmentCreator := NewPPMShipmentCreator(mtoShipmentCreator)
-		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentCheck(suite.AppContextForTest(), subtestData.newPPMShipment)
+		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), subtestData.newPPMShipment)
 
 		suite.Nil(err)
 		suite.NotNil(createdPPMShipment)
@@ -56,7 +56,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	suite.T().Run("A PPM shipment with validation errors returns an InvalidInputError with a bad UUID", func(t *testing.T) {
 		blankPPMShipment := models.PPMShipment{}
 		ppmShipmentCreator := NewPPMShipmentCreator(mtoShipmentCreator)
-		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentCheck(suite.AppContextForTest(), &blankPPMShipment)
+		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &blankPPMShipment)
 
 		suite.Error(err)
 		suite.Nil(createdPPMShipment)
