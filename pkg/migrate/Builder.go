@@ -13,6 +13,7 @@ import (
 	"github.com/gobuffalo/fizz/translators"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 // Builder is a builder for pop migrations.
@@ -22,7 +23,7 @@ type Builder struct {
 }
 
 // Compile compiles the provided configration into a migration.
-func (b *Builder) Compile(s3Client *s3.S3, wait time.Duration) (*pop.Migration, error) {
+func (b *Builder) Compile(s3Client *s3.S3, wait time.Duration, logger *zap.Logger) (*pop.Migration, error) {
 
 	if b.Type != "sql" && b.Type != "fizz" {
 		return nil, &ErrInvalidFormat{Value: b.Type}
@@ -61,7 +62,9 @@ func (b *Builder) Compile(s3Client *s3.S3, wait time.Duration) (*pop.Migration, 
 
 			switch m.Type {
 			case "sql":
-				errExec := Exec(f, tx, wait)
+				// have to use the tx from the Runner callback and
+				// pass the logger
+				errExec := Exec(f, tx, wait, logger)
 				if errExec != nil {
 					fmt.Fprintln(os.Stderr, errors.Wrapf(errExec, "error executing %s", m.Path).Error())
 					return errors.Wrapf(errExec, "error executing %s", m.Path)
@@ -95,14 +98,14 @@ func (b *Builder) Compile(s3Client *s3.S3, wait time.Duration) (*pop.Migration, 
 			})
 			if errGetObject != nil {
 				if aerr, ok := errGetObject.(awserr.Error); ok {
-					fmt.Printf("AWS Error Code: %q, %q, %q \n", aerr.Code(), aerr.Message(), aerr.OrigErr())
+					logger.Error("AWS Error Code", zap.String("code", aerr.Code()), zap.String("message", aerr.Message()), zap.Any("AWSErr", aerr.OrigErr()))
 				}
 				return errors.Wrap(errGetObject, fmt.Sprintf("error reading migration file at %q", m.Path))
 			}
 
 			switch m.Type {
 			case "sql":
-				errExec := Exec(result.Body, tx, wait)
+				errExec := Exec(result.Body, tx, wait, logger)
 				if errExec != nil {
 					return errors.Wrapf(errExec, "error executing %s", m.Path)
 				}

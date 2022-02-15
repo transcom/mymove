@@ -7,7 +7,6 @@ package ghcmessages
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -44,10 +43,8 @@ type UpdateShipment struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
 
-	// Destination Address Type
-	// Example: Other than authorized
-	// Enum: [HOME_OF_RECORD HOME_OF_SELECTION PLACE_ENTERED_ACTIVE_DUTY OTHER_THAN_AUTHORIZED]
-	DestinationAddressType *string `json:"destinationAddressType,omitempty"`
+	// destination type
+	DestinationType *DestinationType `json:"destinationType,omitempty"`
 
 	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
 	// Example: 2000
@@ -98,7 +95,7 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDestinationAddressType(formats); err != nil {
+	if err := m.validateDestinationType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -161,49 +158,20 @@ func (m *UpdateShipment) validateDestinationAddress(formats strfmt.Registry) err
 	return nil
 }
 
-var updateShipmentTypeDestinationAddressTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["HOME_OF_RECORD","HOME_OF_SELECTION","PLACE_ENTERED_ACTIVE_DUTY","OTHER_THAN_AUTHORIZED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		updateShipmentTypeDestinationAddressTypePropEnum = append(updateShipmentTypeDestinationAddressTypePropEnum, v)
-	}
-}
-
-const (
-
-	// UpdateShipmentDestinationAddressTypeHOMEOFRECORD captures enum value "HOME_OF_RECORD"
-	UpdateShipmentDestinationAddressTypeHOMEOFRECORD string = "HOME_OF_RECORD"
-
-	// UpdateShipmentDestinationAddressTypeHOMEOFSELECTION captures enum value "HOME_OF_SELECTION"
-	UpdateShipmentDestinationAddressTypeHOMEOFSELECTION string = "HOME_OF_SELECTION"
-
-	// UpdateShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY captures enum value "PLACE_ENTERED_ACTIVE_DUTY"
-	UpdateShipmentDestinationAddressTypePLACEENTEREDACTIVEDUTY string = "PLACE_ENTERED_ACTIVE_DUTY"
-
-	// UpdateShipmentDestinationAddressTypeOTHERTHANAUTHORIZED captures enum value "OTHER_THAN_AUTHORIZED"
-	UpdateShipmentDestinationAddressTypeOTHERTHANAUTHORIZED string = "OTHER_THAN_AUTHORIZED"
-)
-
-// prop value enum
-func (m *UpdateShipment) validateDestinationAddressTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, updateShipmentTypeDestinationAddressTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *UpdateShipment) validateDestinationAddressType(formats strfmt.Registry) error {
-	if swag.IsZero(m.DestinationAddressType) { // not required
+func (m *UpdateShipment) validateDestinationType(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationType) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := m.validateDestinationAddressTypeEnum("destinationAddressType", "body", *m.DestinationAddressType); err != nil {
-		return err
+	if m.DestinationType != nil {
+		if err := m.DestinationType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -327,6 +295,10 @@ func (m *UpdateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -368,6 +340,22 @@ func (m *UpdateShipment) contextValidateAgents(ctx context.Context, formats strf
 }
 
 func (m *UpdateShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationType != nil {
+		if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
+	}
 
 	return nil
 }

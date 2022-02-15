@@ -9,7 +9,6 @@
 package uploader_test
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -184,13 +183,9 @@ func (suite *UploaderSuite) createFileOfArbitrarySize(size uint64) (afero.File, 
 	data := make([]byte, size)
 	tmpFileName := "tmpfile"
 	f, err := suite.fs.Create(tmpFileName)
-	if err != nil {
-		fmt.Printf("Error: %s", err)
-	}
+	suite.NoError(err)
 	_, err = f.Write(data)
-	if err != nil {
-		fmt.Printf("Error: %s", err)
-	}
+	suite.NoError(err)
 	cleanup := func() {
 		if closeErr := f.Close(); closeErr != nil {
 			log.Println("error closing file")
