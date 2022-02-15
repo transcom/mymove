@@ -6,6 +6,8 @@ import { Button, Form, Radio, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import ppmBookingStyles from '../PPMBooking.module.scss';
+
 import styles from './EstimatedWeightsProGear.module.scss';
 
 import { MtoShipmentShape } from 'types/customerShapes';
@@ -39,18 +41,16 @@ const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack })
     estimatedSpouseProGearWeight: mtoShipment?.ppmShipment?.estimatedSpouseProGearWeight || '',
   };
 
-  // TODO: abstract out PPM form styles in to a shared file
-
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
-          <div className={styles.EstimatedWeightsProGearForm}>
-            <Form className={(formStyles.form, styles.form)}>
+          <div className={classnames(styles.EstimatedWeightsProGearForm, ppmBookingStyles.formContainer)}>
+            <Form className={(formStyles.form, ppmBookingStyles.form)}>
               <Alert type="info">{`Total weight allowance for your move: ${formatWeight(
                 entitlement.authorizedWeight,
               )}`}</Alert>
-              <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Full PPM</h2>
                 <p>
                   Estimate the full weight of your PPM, including everything you plan to move. If you’re moving pro-gear
@@ -97,7 +97,7 @@ const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack })
                   new window.)
                 </p>
               </SectionWrapper>
-              <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Pro-gear</h2>
                 <p>
                   Pro-gear, or PBP&E, includes books, papers, and equipment you need for your official duties. Service
@@ -126,7 +126,7 @@ const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack })
                     checked={values.hasProGear === 'false'}
                   />
                 </Fieldset>
-                <Hint className={styles.hint}>
+                <Hint className={ppmBookingStyles.hint}>
                   If you&apos;re not sure, select yes and your counselor can help you figure it out.
                 </Hint>
                 {values.hasProGear === 'true' && (
@@ -161,12 +161,12 @@ const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack })
                   </>
                 )}
               </SectionWrapper>
-              <div className={styles.buttonContainer}>
-                <Button className={styles.backButton} type="button" onClick={onBack} secondary outline>
+              <div className={ppmBookingStyles.buttonContainer}>
+                <Button className={ppmBookingStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
                 <Button
-                  className={styles.saveButton}
+                  className={ppmBookingStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}
