@@ -492,7 +492,7 @@ ShipmentForm.propTypes = {
   TACs: AccountingCodesShape,
   SACs: AccountingCodesShape,
   userRole: oneOf(officeRoles).isRequired,
-  orderType: oneOf(ORDERS_TYPE).isRequired,
+  orderType: oneOf(Object.values(ORDERS_TYPE)).isRequired,
 };
 
 ShipmentForm.defaultProps = {
