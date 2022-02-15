@@ -80,7 +80,7 @@ const mockMtoShipment = {
 
 const mockShipmentWithDestinationType = {
   ...mockMtoShipment,
-  destinationAddressType: 'HOME_OF_SELECTION',
+  destinationType: 'HOME_OF_SELECTION',
 };
 
 const defaultPropsRetirement = {
@@ -187,7 +187,7 @@ describe('ShipmentForm component', () => {
       userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
-      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationAddressType');
+      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
     });
 
     it('does not render delivery address type for PCS order type', async () => {
@@ -203,7 +203,7 @@ describe('ShipmentForm component', () => {
       userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
-      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationAddressType');
+      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
     });
 
     it('does not render an Accounting Codes section', async () => {

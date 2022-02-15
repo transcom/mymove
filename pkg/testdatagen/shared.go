@@ -71,6 +71,7 @@ type Assertions struct {
 	PaymentServiceItemParams                 models.PaymentServiceItemParams
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	PickupAddress                            models.Address
+	PPMShipment                              models.PPMShipment
 	PrimeUpload                              models.PrimeUpload
 	PrimeUploader                            *uploader.PrimeUploader
 	ProofOfServiceDoc                        models.ProofOfServiceDoc

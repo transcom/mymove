@@ -26,7 +26,7 @@ import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import { dropdownInputOptions } from 'shared/formatters';
 import { formatWeight } from 'utils/formatters';
 import { ORDERS_TYPE } from 'constants/orders';
-import { shipmentDestinationAddressTypes } from 'constants/shipments';
+import { shipmentDestinationTypes } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MtoShipmentShape } from 'types/customerShapes';
@@ -110,7 +110,7 @@ const ShipmentForm = ({
   const isServiceCounselor = userRole === roleTypes.SERVICES_COUNSELOR;
 
   const isRetirementOrSeparation = orderType === ORDERS_TYPE.RETIREMENT || orderType === ORDERS_TYPE.SEPARATION;
-  const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationAddressTypes);
+  const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
   const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
@@ -140,7 +140,7 @@ const ShipmentForm = ({
     serviceOrderNumber,
     storageFacility,
     usesExternalVendor,
-    destinationAddressType,
+    destinationType,
   }) => {
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no') {
@@ -160,7 +160,7 @@ const ShipmentForm = ({
       serviceOrderNumber,
       storageFacility,
       usesExternalVendor,
-      destinationAddressType,
+      destinationType,
     });
 
     const updateMTOShipmentPayload = {
@@ -357,9 +357,9 @@ const ShipmentForm = ({
                         {isRetirementOrSeparation && (
                           <DropdownInput
                             label="Destination type"
-                            name="destinationAddressType"
+                            name="destinationType"
                             options={shipmentDestinationAddressOptions}
-                            id="destinationAddressType"
+                            id="destinationType"
                           />
                         )}
                       </Fieldset>
@@ -399,9 +399,9 @@ const ShipmentForm = ({
                             {isRetirementOrSeparation && (
                               <DropdownInput
                                 label="Destination type"
-                                name="destinationAddressType"
+                                name="destinationType"
                                 options={shipmentDestinationAddressOptions}
-                                id="destinationAddressType"
+                                id="destinationType"
                               />
                             )}
                           </>
