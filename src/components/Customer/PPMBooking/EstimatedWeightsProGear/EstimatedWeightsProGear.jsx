@@ -39,7 +39,7 @@ const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack })
     estimatedSpouseProGearWeight: mtoShipment?.ppmShipment?.estimatedSpouseProGearWeight || '',
   };
 
-  // TODO: make link for weight estimator calculator and bring in external link icon
+  // TODO: abstract out PPM form styles in to a shared file
   // TODO: unit test
 
   return (

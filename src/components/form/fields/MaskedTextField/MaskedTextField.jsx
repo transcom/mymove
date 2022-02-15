@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { useField } from 'formik';
 import { IMaskInput } from 'react-imask';
-import { FormGroup, Label, InputSuffix } from '@trussworks/react-uswds';
+import { FormGroup, Label } from '@trussworks/react-uswds';
 
 import styles from './MaskedTextField.module.scss';
 
@@ -74,7 +74,7 @@ const MaskedTextField = ({
         >
           {children}
         </IMaskInput>
-        {suffix && <InputSuffix className="suffix">{suffix}</InputSuffix>}
+        {suffix && <div className="suffix">{suffix}</div>}
       </div>
       {/* eslint-enable react/jsx-props-no-spreading */}
     </FormGroup>
