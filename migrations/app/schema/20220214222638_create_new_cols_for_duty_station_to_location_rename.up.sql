@@ -31,7 +31,7 @@ ALTER TABLE orders
 			REFERENCES duty_locations (id)
 			ON DELETE CASCADE,
 	ADD COLUMN new_duty_location_id uuid
-		CONSTRAINT orders_lol_new_duty_location_id_2_fkey
+		CONSTRAINT orders_new_duty_location_id_2_fkey
 			REFERENCES duty_locations (id)
 			ON DELETE CASCADE;
 
