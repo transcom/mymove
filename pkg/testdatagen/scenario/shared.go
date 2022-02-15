@@ -538,6 +538,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(2000)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-8cf96ede2606"),
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -551,6 +552,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	})
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-333333333333"),
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -565,6 +567,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	})
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedHHGWeight,
 			PrimeActualWeight:    &actualHHGWeight,
