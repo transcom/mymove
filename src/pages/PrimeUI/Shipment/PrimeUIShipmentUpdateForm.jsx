@@ -11,7 +11,7 @@ import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInf
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
-import { shipmentDestinationAddressTypes } from 'constants/shipments';
+import { shipmentDestinationTypes } from 'constants/shipments';
 
 const emptyAddressShape = {
   streetAddress1: '',
@@ -21,7 +21,7 @@ const emptyAddressShape = {
   postalCode: '',
 };
 
-const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationAddressTypes);
+const shipmentDestinationTypeOptions = dropdownInputOptions(shipmentDestinationTypes);
 
 const PrimeUIShipmentUpdateForm = ({
   editableWeightEstimateField,
@@ -97,9 +97,9 @@ const PrimeUIShipmentUpdateForm = ({
       {!editableDestinationAddress && formatAddress(destinationAddress)}
       <DropdownInput
         label="Destination type"
-        name="destinationAddressType"
-        options={shipmentDestinationAddressOptions}
-        id="destinationAddressType"
+        name="destinationType"
+        options={shipmentDestinationTypeOptions}
+        id="destinationType"
       />
     </SectionWrapper>
   );

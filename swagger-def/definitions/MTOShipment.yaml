@@ -63,16 +63,8 @@ properties:
   destinationAddress:
     x-nullable: true
     $ref: 'Address.yaml'
-  destinationAddressType:
-    type: string
-    title: Destination Address Type
-    example: Other than authorized
-    enum:
-      - HOME_OF_RECORD
-      - HOME_OF_SELECTION
-      - PLACE_ENTERED_ACTIVE_DUTY
-      - OTHER_THAN_AUTHORIZED
-    x-nullable: true
+  destinationType:
+    $ref: 'DestinationType.yaml'
   secondaryPickupAddress:
     x-nullable: true
     $ref: 'Address.yaml'

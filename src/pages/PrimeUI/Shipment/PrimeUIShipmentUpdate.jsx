@@ -106,7 +106,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       scheduledPickupDate,
       pickupAddress,
       destinationAddress,
-      destinationAddressType,
+      destinationType,
       diversion,
     } = values;
 
@@ -117,7 +117,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
       pickupAddress: editablePickupAddress ? formatAddressForPrimeAPI(pickupAddress) : null,
       destinationAddress: editableDestinationAddress ? formatAddressForPrimeAPI(destinationAddress) : null,
-      destinationAddressType,
+      destinationType,
       diversion,
     };
     mutateMTOShipment({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag, body }).then(() => {
@@ -133,7 +133,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     actualPickupDate: shipment.actualPickupDate,
     pickupAddress: editablePickupAddress ? emptyAddress : reformatPrimeApiPickupAddress,
     destinationAddress: editableDestinationAddress ? emptyAddress : reformatPrimeApiDestinationAddress,
-    destinationAddressType: shipment.destinationAddressType,
+    destinationType: shipment.destinationType,
     diversion: shipment.diversion,
   };
 

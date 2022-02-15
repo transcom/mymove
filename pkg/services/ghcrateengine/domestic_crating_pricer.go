@@ -18,8 +18,8 @@ func NewDomesticCratingPricer() services.DomesticCratingPricer {
 }
 
 // Price determines the price for domestic destination first day SIT
-func (p domesticCratingPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticCrating(appCtx, models.ReServiceCodeDCRT, contractCode, requestedPickupDate, billedCubicFeet, serviceSchedule)
+func (p domesticCratingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticCrating(appCtx, models.ReServiceCodeDCRT, contractCode, referenceDate, billedCubicFeet, serviceSchedule)
 }
 
 // PriceUsingParams determines the price for domestic destination first day SIT given PaymentServiceItemParams
@@ -36,7 +36,7 @@ func (p domesticCratingPricer) PriceUsingParams(appCtx appcontext.AppContext, pa
 
 	cubicFeetBilled := unit.CubicFeet(cubicFeetFloat)
 
-	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
+	referenceDate, err := getParamTime(params, models.ServiceItemParamNameReferenceDate)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -46,5 +46,5 @@ func (p domesticCratingPricer) PriceUsingParams(appCtx appcontext.AppContext, pa
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, requestedPickupDate, cubicFeetBilled, serviceScheduleDestination)
+	return p.Price(appCtx, contractCode, referenceDate, cubicFeetBilled, serviceScheduleDestination)
 }

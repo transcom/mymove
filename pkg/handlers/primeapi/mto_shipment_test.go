@@ -475,9 +475,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             data.
 
 		// Create an update with just destinationAddressType
-		destinationAddressType := string(models.DestinationAddressTypeHomeOfRecord)
+		destinationType := primemessages.DestinationTypeHOMEOFRECORD
 		minimalUpdate := primemessages.UpdateMTOShipment{
-			DestinationAddressType: &destinationAddressType,
+			DestinationType: &destinationType,
 		}
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
@@ -509,7 +509,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.EqualAddress(*shipment.SecondaryPickupAddress, &okPayload.SecondaryPickupAddress.Address, true)
 
 		// Confirm new value
-		suite.Equal(params.Body.DestinationAddressType, okPayload.DestinationAddressType)
+		suite.Equal(params.Body.DestinationType, okPayload.DestinationType)
 
 		// Refresh local copy of shipment from DB for etag regeneration in future tests
 		shipment = suite.refreshFromDB(shipment.ID)

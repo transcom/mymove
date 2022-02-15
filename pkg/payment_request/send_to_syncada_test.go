@@ -83,7 +83,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		// int64, error
 		sftpSender := &mocks.SyncadaSFTPSender{}
 		sftpSender.
-			On("SendToSyncadaViaSFTP", mock.Anything, mock.Anything).Return(bytesSent, fmt.Errorf("test error"))
+			On("SendToSyncadaViaSFTP", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(bytesSent, fmt.Errorf("test error"))
 		gexSender := services.GexSender(nil)
 		err := SendToSyncada(suite.AppContextForTest(), "edi string", 12345, gexSender, sftpSender, true)
 		suite.Error(err)
@@ -97,7 +97,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		sftpSender := &mocks.SyncadaSFTPSender{}
 		expectedFilename := fmt.Sprintf("%s_%d_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"), 12345)
 		sftpSender.
-			On("SendToSyncadaViaSFTP", strings.NewReader(fakeEdi), expectedFilename).Return(bytesSent, nil)
+			On("SendToSyncadaViaSFTP", mock.AnythingOfType("*appcontext.appContext"), strings.NewReader(fakeEdi), expectedFilename).Return(bytesSent, nil)
 		gexSender := services.GexSender(nil)
 		err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
 		suite.NoError(err)

@@ -2456,6 +2456,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
+			ActualPickupDate:     swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
 			StorageFacility:      &storageFacility,
 			TACType:              &tacType,
@@ -4734,7 +4735,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 			Value:   testdatagen.DefaultContractCode,
 		},
 		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			Key:     models.ServiceItemParamNameReferenceDate,
 			KeyType: models.ServiceItemParamTypeDate,
 			Value:   currentTime.Format(testDateFormat),
 		},
@@ -4874,99 +4875,23 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 	})
 }
 
-func createHHGNeedsServicesCounseling(appCtx appcontext.AppContext) {
+/*
+	Create Needs Service Counseling - pass in orders, shipment type, destination type, locator
+*/
+func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
 		DutyStation: models.DutyStation{
 			ProvidesServicesCounseling: true,
 		},
+		Order: models.Order{
+			OrdersType: ordersType,
+		},
 	})
-
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Locator:     "SRVCSL",
-			Status:      models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt: &submittedAt,
-		},
-		Order: orders,
-	})
-
-	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
-	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-		},
-	})
-
-	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
-	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-		},
-	})
-}
-
-func createHHGNoGovCounselingForRetirementWithDestinationAddressAndType(appCtx appcontext.AppContext) {
-	db := appCtx.DB()
-	submittedAt := time.Now()
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			ProvidesServicesCounseling: false,
-		},
-		Order: models.Order{OrdersType: internalmessages.OrdersTypeRETIREMENT},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:     "PCCIV1",
-			Status:      models.MoveStatusSUBMITTED,
-			SubmittedAt: &submittedAt,
-		},
-		Order: orders,
-	})
-
-	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
-	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(db)
-	destinationAddressType := models.DestinationAddressTypeHomeOfRecord
-
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:           models.MTOShipmentTypeHHG,
-			Status:                 models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:    &requestedPickupDate,
-			RequestedDeliveryDate:  &requestedDeliveryDate,
-			DestinationAddressID:   &destinationAddress.ID,
-			DestinationAddressType: &destinationAddressType,
-		},
-	})
-}
-
-func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcontext.AppContext) {
-	db := appCtx.DB()
-	submittedAt := time.Now()
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			ProvidesServicesCounseling: true,
-		},
-		Order: models.Order{OrdersType: internalmessages.OrdersTypeRETIREMENT},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:     "DATYPE",
+			Locator:     locator,
 			Status:      models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt: &submittedAt,
 		},
@@ -4976,17 +4901,15 @@ func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcon
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := testdatagen.MakeDefaultAddress(db)
-	destinationAddressType := models.DestinationAddressTypeHomeOfRecord
-
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:           models.MTOShipmentTypeHHG,
-			Status:                 models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:    &requestedPickupDate,
-			RequestedDeliveryDate:  &requestedDeliveryDate,
-			DestinationAddressID:   &destinationAddress.ID,
-			DestinationAddressType: &destinationAddressType,
+			ShipmentType:          shipmentType,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+			DestinationType:       destinationType,
 		},
 	})
 
@@ -4995,7 +4918,7 @@ func createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx appcon
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
+			ShipmentType:          shipmentType,
 			Status:                models.MTOShipmentStatusSubmitted,
 			RequestedPickupDate:   &requestedPickupDate,
 			RequestedDeliveryDate: &requestedDeliveryDate,

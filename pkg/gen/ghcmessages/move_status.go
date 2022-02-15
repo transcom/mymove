@@ -20,8 +20,12 @@ import (
 type MoveStatus string
 
 func NewMoveStatus(value MoveStatus) *MoveStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated MoveStatus.
+func (m MoveStatus) Pointer() *MoveStatus {
+	return &m
 }
 
 const (
@@ -32,8 +36,8 @@ const (
 	// MoveStatusNEEDSSERVICECOUNSELING captures enum value "NEEDS SERVICE COUNSELING"
 	MoveStatusNEEDSSERVICECOUNSELING MoveStatus = "NEEDS SERVICE COUNSELING"
 
-	// MoveStatusSEVICECOUNSELINGCOMPLETED captures enum value "SEVICE COUNSELING COMPLETED"
-	MoveStatusSEVICECOUNSELINGCOMPLETED MoveStatus = "SEVICE COUNSELING COMPLETED"
+	// MoveStatusSERVICECOUNSELINGCOMPLETED captures enum value "SERVICE COUNSELING COMPLETED"
+	MoveStatusSERVICECOUNSELINGCOMPLETED MoveStatus = "SERVICE COUNSELING COMPLETED"
 
 	// MoveStatusSUBMITTED captures enum value "SUBMITTED"
 	MoveStatusSUBMITTED MoveStatus = "SUBMITTED"
@@ -53,7 +57,7 @@ var moveStatusEnum []interface{}
 
 func init() {
 	var res []MoveStatus
-	if err := json.Unmarshal([]byte(`["DRAFT","NEEDS SERVICE COUNSELING","SEVICE COUNSELING COMPLETED","SUBMITTED","APPROVALS REQUESTED","APPROVED","CANCELED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DRAFT","NEEDS SERVICE COUNSELING","SERVICE COUNSELING COMPLETED","SUBMITTED","APPROVALS REQUESTED","APPROVED","CANCELED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

@@ -63,6 +63,8 @@ func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
 	listMovesResponse := response.(*movetaskorderops.ListMovesOK)
 	movesList := listMovesResponse.Payload
 
+	suite.NoError(movesList.Validate(strfmt.Default))
+
 	suite.Equal(1, len(movesList))
 	suite.Equal(move.ID.String(), movesList[0].ID.String())
 }
@@ -86,6 +88,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 		movePayload := moveResponse.Payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
 		suite.Equal(movePayload.ID.String(), successMove.ID.String())
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
@@ -103,6 +106,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 		movePayload := moveResponse.Payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
 		suite.Equal(movePayload.ID.String(), successMove.ID.String())
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
@@ -116,13 +120,13 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 		})
 		destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
-		destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+		destinationType := models.DestinationTypeHomeOfRecord
 		successShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID:        successMove.ID,
-				DestinationAddressID:   &destinationAddress.ID,
-				DestinationAddressType: &destinationAddressType,
-				Status:                 models.MTOShipmentStatusApproved,
+				MoveTaskOrderID:      successMove.ID,
+				DestinationAddressID: &destinationAddress.ID,
+				DestinationType:      &destinationType,
+				Status:               models.MTOShipmentStatusApproved,
 			},
 		})
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -140,7 +144,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
 
 		// check for the destination address type
-		suite.Equal(string(*successShipment.DestinationAddressType), *movePayload.MtoShipments[0].DestinationAddressType)
+		suite.Equal(string(*successShipment.DestinationType), string(*movePayload.MtoShipments[0].DestinationType))
 
 	})
 
@@ -161,6 +165,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 		movePayload := moveResponse.Payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
 		reweighPayload := movePayload.MtoShipments[0].Reweigh
 		suite.Equal(movePayload.ID.String(), successMove.ID.String())
 		suite.NotNil(movePayload.AvailableToPrimeAt)
@@ -177,6 +182,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		sitExtension := testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
 			Move: successMove,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
 		})
 
 		response := handler.Handle(params)
@@ -185,6 +193,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 		movePayload := moveResponse.Payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
 		reweighPayload := movePayload.MtoShipments[0].SitExtensions[0]
 		suite.Equal(successMove.ID.String(), movePayload.ID.String())
 		suite.Equal(strfmt.UUID(sitExtension.ID.String()), reweighPayload.ID)
@@ -219,6 +228,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 		movePayload := moveResponse.Payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
 		suite.Equal(move.ID.String(), movePayload.ID.String())
 		if suite.Len(movePayload.MtoShipments, 1) {
 			suite.Equal(primeShipment.ID.String(), movePayload.MtoShipments[0].ID.String())
@@ -237,6 +247,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderNotFound)
 		movePayload := moveResponse.Payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
 		suite.Contains(*movePayload.Detail, failureMove.ID.String())
 	})
 }
@@ -272,6 +283,7 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 		suite.Require().IsType(&movetaskorderops.CreateExcessWeightRecordCreated{}, response)
 
 		okResponse := response.(*movetaskorderops.CreateExcessWeightRecordCreated)
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 		suite.Equal(availableMove.ID.String(), okResponse.Payload.MoveID.String())
 		suite.NotNil(okResponse.Payload.MoveExcessWeightQualifiedAt)
 		suite.Equal(okResponse.Payload.MoveExcessWeightQualifiedAt.String(), strfmt.DateTime(*availableMove.ExcessWeightQualifiedAt).String())
@@ -305,6 +317,7 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 		suite.Require().IsType(&movetaskorderops.CreateExcessWeightRecordNotFound{}, response)
 
 		notFoundResponse := response.(*movetaskorderops.CreateExcessWeightRecordNotFound)
+		suite.NoError(notFoundResponse.Payload.Validate(strfmt.Default))
 		suite.Require().NotNil(notFoundResponse.Payload.Detail)
 		suite.Contains(*notFoundResponse.Payload.Detail, unavailableMove.ID.String())
 	})
@@ -367,6 +380,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		okResponse := response.(*movetaskorderops.UpdateMTOPostCounselingInformationOK)
 		okPayload := okResponse.Payload
 
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 		suite.Equal(mto.ID.String(), okPayload.ID.String())
 		suite.NotNil(okPayload.ETag)
 		suite.Equal(okPayload.PpmType, "FULL")

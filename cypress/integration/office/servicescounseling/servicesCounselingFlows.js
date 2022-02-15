@@ -116,7 +116,7 @@ describe('Services counselor user', () => {
   it('is able to add a shipment', () => {
     const deliveryDate = new Date().toLocaleDateString('en-US');
 
-    const moveLocator = 'DATYPE';
+    const moveLocator = 'S3PAR3';
 
     /**
      * SC Moves queue
@@ -138,7 +138,7 @@ describe('Services counselor user', () => {
     cy.get('input[name="delivery.address.city"]').type('city');
     cy.get('select[name="delivery.address.state"]').select('OH');
     cy.get('input[name="delivery.address.postalCode"]').type('90210');
-    cy.get('select[name="destinationAddressType"]').select('Home of record (HOR)');
+    cy.get('select[name="destinationType"]').select('Home of record (HOR)');
     cy.get('[data-testid="submitForm"]').click();
     // the shipment should be saved with the type
     cy.wait('@createShipment');
@@ -147,7 +147,7 @@ describe('Services counselor user', () => {
   it('is able to edit a shipment', () => {
     const deliveryDate = new Date().toLocaleDateString('en-US');
 
-    const moveLocator = 'DATYPE';
+    const moveLocator = 'RET1RE';
 
     /**
      * SC Moves queue
@@ -169,7 +169,7 @@ describe('Services counselor user', () => {
     cy.get('input[name="delivery.address.city"]').clear().type('city');
     cy.get('select[name="delivery.address.state"]').select('OH');
     cy.get('input[name="delivery.address.postalCode"]').clear().type('90210');
-    cy.get('select[name="destinationAddressType"]').select('Home of selection (HOS)');
+    cy.get('select[name="destinationType"]').select('Home of selection (HOS)');
     cy.get('[data-testid="submitForm"]').click();
     // the shipment should be saved with the type
     cy.wait('@patchShipment');

@@ -20,8 +20,12 @@ import (
 type TShirtSize string
 
 func NewTShirtSize(value TShirtSize) *TShirtSize {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated TShirtSize.
+func (m TShirtSize) Pointer() *TShirtSize {
+	return &m
 }
 
 const (

@@ -39,7 +39,7 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
 				Value:   currentTime.Format(testDateFormat),
 			},

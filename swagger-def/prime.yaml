@@ -1699,16 +1699,8 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: 'definitions/Address.yaml'
-      destinationAddressType:
-        type: string
-        title: Destination Address Type
-        example: OTHER_THAN_AUTHORIZED
-        enum:
-          - HOME_OF_RECORD
-          - HOME_OF_SELECTION
-          - PLACE_ENTERED_ACTIVE_DUTY
-          - OTHER_THAN_AUTHORIZED
-        x-nullable: true
+      destinationType:
+        $ref: 'definitions/DestinationType.yaml'
       secondaryPickupAddress:
         description: A second pickup address for this shipment, if the customer entered one. An optional field.
         allOf:
@@ -2167,16 +2159,8 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: 'definitions/Address.yaml'
-      destinationAddressType:
-        type: string
-        title: Destination Address Type
-        example: OTHER_THAN_AUTHORIZED
-        enum:
-          - HOME_OF_RECORD
-          - HOME_OF_SELECTION
-          - PLACE_ENTERED_ACTIVE_DUTY
-          - OTHER_THAN_AUTHORIZED
-        x-nullable: true
+      destinationType:
+        $ref: 'definitions/DestinationType.yaml'
       secondaryPickupAddress:
         description: A second pickup address for this shipment, if the customer entered one. An optional field.
         allOf:

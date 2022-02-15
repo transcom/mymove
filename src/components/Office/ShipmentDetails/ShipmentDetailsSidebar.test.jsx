@@ -63,7 +63,7 @@ const shipment = {
   serviceOrderNumber: '1234',
   tacType: LOA_TYPE.HHG,
   sacType: LOA_TYPE.NTS,
-  shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+  shipmentType: 'HHG',
 };
 
 const ordersLOA = {
