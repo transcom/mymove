@@ -440,20 +440,4 @@ describe('TOO user', () => {
     cy.contains('The customer requested an extension.');
     cy.contains('The service member is unable to move into their new home at the expected time');
   });
-
-  it('is able to edit shipment destination type', () => {
-    const moveLocator = 'PCCIV1';
-
-    // TOO Moves queue
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
-    // Edit the shipment
-    cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
-    // Select destination type for retiree
-    cy.get('select[name="destinationAddressType"]').select('Home of selection (HOS)');
-    cy.get('[data-testid="submitForm"]').click();
-    // the shipment should be saved with the type
-    cy.wait('@patchShipment');
-  });
 });

@@ -212,6 +212,11 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		model.DestinationAddress = addressModel
 	}
 
+	if mtoShipment.DestinationType != nil {
+		destinationType := models.DestinationType(*mtoShipment.DestinationType)
+		model.DestinationType = &destinationType
+	}
+
 	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
 	if addressModel != nil {
 		model.SecondaryPickupAddress = addressModel

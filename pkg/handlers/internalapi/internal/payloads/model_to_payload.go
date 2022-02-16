@@ -99,7 +99,7 @@ func TransportationOffice(office models.TransportationOffice) *internalmessages.
 		return nil
 	}
 
-	var phoneLines []string
+	phoneLines := []string{}
 	for _, phoneLine := range office.PhoneLines {
 		if phoneLine.Type == "voice" {
 			phoneLines = append(phoneLines, phoneLine.Number)

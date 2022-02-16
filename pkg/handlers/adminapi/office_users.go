@@ -240,8 +240,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload)
 
 	if err != nil || verrs != nil {
-		fmt.Printf("%#v", verrs)
-		appCtx.Logger().Error("Error saving user", zap.Error(err))
+		appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
 	if updatedOfficeUser.UserID != nil && payload.Roles != nil {

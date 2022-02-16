@@ -116,29 +116,29 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	}
 	suite.MustSave(&address)
 
-	stationName := "New Duty Station"
-	station := models.DutyStation{
-		Name:      stationName,
+	locationName := "New Duty Location"
+	location := models.DutyLocation{
+		Name:      locationName,
 		AddressID: address.ID,
 		Address:   address,
 	}
-	suite.MustSave(&station)
+	suite.MustSave(&location)
 
 	orderID := uuid.Must(uuid.NewV4())
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               orderID,
-			NewDutyStationID: station.ID,
-			NewDutyStation:   station,
+			ID:                orderID,
+			NewDutyLocationID: location.ID,
+			NewDutyLocation:   location,
 		},
 	})
 
-	currentDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	currentDutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
 	params := models.ShipmentSummaryFormData{
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 		WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
-		CurrentDutyStation:      currentDutyStation,
+		CurrentDutyStation:      currentDutyLocation,
 		Order:                   order,
 	}
 	suite.Run("TestComputeObligations", func() {
@@ -159,7 +159,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		expectMaxObligationParams := ppmComputerParams{
 			Weight:                                totalWeightEntitlement,
 			OriginPickupZip5:                      pickupPostalCode,
-			OriginDutyStationZip5:                 currentDutyStation.Address.PostalCode,
+			OriginDutyStationZip5:                 currentDutyLocation.Address.PostalCode,
 			DestinationZip5:                       destinationPostalCode,
 			DistanceMilesFromOriginPickupZip:      miles,
 			DistanceMilesFromOriginDutyStationZip: miles,
@@ -169,7 +169,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		expectActualObligationParams := ppmComputerParams{
 			Weight:                                ppmRemainingEntitlement,
 			OriginPickupZip5:                      pickupPostalCode,
-			OriginDutyStationZip5:                 currentDutyStation.Address.PostalCode,
+			OriginDutyStationZip5:                 currentDutyLocation.Address.PostalCode,
 			DestinationZip5:                       destinationPostalCode,
 			DistanceMilesFromOriginPickupZip:      miles,
 			DistanceMilesFromOriginDutyStationZip: miles,
@@ -227,11 +227,11 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 				DestinationPostalCode: &destinationPostalCode,
 			},
 		})
-		currentDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+		currentDutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
 		shipmentSummaryFormParams := models.ShipmentSummaryFormData{
 			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
-			CurrentDutyStation:      currentDutyStation,
+			CurrentDutyStation:      currentDutyLocation,
 			Order:                   order,
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)

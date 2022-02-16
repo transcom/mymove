@@ -39,6 +39,7 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Role'
+        x-nullable: true
     required:
       - id
   DutyLocationsPayload:
@@ -2315,10 +2316,12 @@ definitions:
       - HHG_SHORTHAUL_DOMESTIC
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
+      - PPM
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+      PPM: PPM
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -2742,12 +2745,13 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      address:
-        $ref: '#/definitions/Address'
       affiliation:
         $ref: '#/definitions/Affiliation'
-      transportation_office:
-        $ref: '#/definitions/TransportationOffice'
+      transportation_office_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -2758,7 +2762,6 @@ definitions:
       - id
       - name
       - address_id
-      - address
       - affiliation
       - created_at
       - updated_at
@@ -2901,7 +2904,12 @@ paths:
         '200':
           description: Currently logged in user
           schema:
-            type: boolean
+            type: object
+            required:
+              - isLoggedIn
+            properties:
+              isLoggedIn:
+                type: boolean
         '400':
           description: invalid request
         '500':
