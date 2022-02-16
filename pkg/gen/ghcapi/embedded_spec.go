@@ -3578,7 +3578,7 @@ func init() {
         "OTHER_THAN_AUTHORIZED"
       ],
       "x-nullable": true,
-      "example": "Other than authorized"
+      "example": "OTHER_THAN_AUTHORIZED"
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -10256,7 +10256,7 @@ func init() {
         "OTHER_THAN_AUTHORIZED"
       ],
       "x-nullable": true,
-      "example": "Other than authorized"
+      "example": "OTHER_THAN_AUTHORIZED"
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
