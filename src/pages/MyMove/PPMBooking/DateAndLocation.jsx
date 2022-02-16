@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
+import styles from './DateAndLocation.module.scss';
+
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { DutyStationShape } from 'types';
 import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
@@ -91,27 +93,29 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
   };
 
   return (
-    <GridContainer>
-      <Grid row>
-        <Grid col desktop={{ col: 8, offset: 2 }}>
-          <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
-          <h1>PPM date & location</h1>
-          {errorMessage && (
-            <Alert slim type="error">
-              {errorMessage}
-            </Alert>
-          )}
-          <DateAndLocationForm
-            mtoShipment={mtoShipment}
-            serviceMember={serviceMember}
-            destinationDutyStation={destinationDutyLocation}
-            onSubmit={handleSubmit}
-            onBack={handleBack}
-            postalCodeValidator={validatePostalCode}
-          />
+    <div className={styles.DateAndLocation}>
+      <GridContainer>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
+            <h1>PPM date & location</h1>
+            {errorMessage && (
+              <Alert slim type="error">
+                {errorMessage}
+              </Alert>
+            )}
+            <DateAndLocationForm
+              mtoShipment={mtoShipment}
+              serviceMember={serviceMember}
+              destinationDutyStation={destinationDutyLocation}
+              onSubmit={handleSubmit}
+              onBack={handleBack}
+              postalCodeValidator={validatePostalCode}
+            />
+          </Grid>
         </Grid>
-      </Grid>
-    </GridContainer>
+      </GridContainer>
+    </div>
   );
 };
 
