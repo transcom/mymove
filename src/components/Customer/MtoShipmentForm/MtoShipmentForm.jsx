@@ -71,14 +71,18 @@ class MtoShipmentForm extends Component {
     const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
 
+    const shipmentTypeToSave = shipmentType || selectedMoveType;
+    const isNTSR = shipmentTypeToSave === SHIPMENT_OPTIONS.NTSR;
+    const saveDeliveryAddress = hasDeliveryAddress === 'yes' || isNTSR === true;
+
     const preformattedMtoShipment = {
-      shipmentType: shipmentType || selectedMoveType,
+      shipmentType: shipmentTypeToSave,
       moveId,
       customerRemarks,
       pickup,
       delivery: {
         ...delivery,
-        address: hasDeliveryAddress === 'yes' ? delivery.address : undefined,
+        address: saveDeliveryAddress ? delivery.address : undefined,
       },
       secondaryPickup: hasSecondaryPickup ? secondaryPickup : {},
       secondaryDelivery: hasSecondaryDelivery ? secondaryDelivery : {},
