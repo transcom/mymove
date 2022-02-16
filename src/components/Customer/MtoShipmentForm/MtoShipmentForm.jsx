@@ -217,7 +217,6 @@ class MtoShipmentForm extends Component {
                       {orders.has_dependents
                         ? formatWeight(serviceMember.weight_allotment?.total_weight_self_plus_dependents)
                         : formatWeight(serviceMember.weight_allotment?.total_weight_self)}{' '}
-                      total. You’ll be billed for any excess weight you move.
                     </Alert>
 
                     <Form className={formStyles.form}>
