@@ -8,7 +8,6 @@ import ShipmentForm from './ShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
-import { ORDERS_TYPE } from 'constants/orders';
 
 const mockPush = jest.fn();
 
