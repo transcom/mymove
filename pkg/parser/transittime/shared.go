@@ -58,7 +58,6 @@ func getDomesticHeaderBounds(bounds string) ([]string, error) {
 
 	// header format should be like "0 - 100"
 	if len(slice) != 2 {
-		fmt.Println()
 		return nil, fmt.Errorf("Could not parse lower and upper bounds. Should be of format: %s", "1 - 1000 or >= 8000")
 	}
 

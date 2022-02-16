@@ -515,21 +515,21 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				return fmt.Sprintf("ID: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", ordersID, mtoID)
 			},
 		},
-		// Orders with no OriginDutyStation
+		// Orders with no OriginDutyLocation
 		{
-			TestDescription: "Given move with orders no OriginDutyStation, the create should fail",
+			TestDescription: "Given move with orders no OriginDutyLocation, the create should fail",
 			InvalidMove: func() models.Move {
 				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 				orders := mtoInvalid.Orders
-				orders.OriginDutyStation = nil
-				orders.OriginDutyStationID = nil
+				orders.OriginDutyLocation = nil
+				orders.OriginDutyLocationID = nil
 				err := suite.DB().Update(&orders)
 				suite.FatalNoError(err)
 				return mtoInvalid
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(ordersID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("ID: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", ordersID, mtoID)
+				return fmt.Sprintf("ID: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyLocation", ordersID, mtoID)
 			},
 		},
 	}

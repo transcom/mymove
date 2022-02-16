@@ -7,6 +7,7 @@ import ShipmentForm from './ShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { roleTypes } from 'constants/userRoles';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const mockPush = jest.fn();
 
@@ -37,6 +38,7 @@ const defaultProps = {
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
   userRole: roleTypes.SERVICES_COUNSELOR,
+  orderType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
 };
 
 const mockMtoShipment = {
@@ -78,17 +80,17 @@ const mockMtoShipment = {
 
 const mockShipmentWithDestinationType = {
   ...mockMtoShipment,
-  destinationAddressType: 'HOME_OF_SELECTION',
+  destinationType: 'HOME_OF_SELECTION',
 };
 
 const defaultPropsRetirement = {
   ...defaultProps,
-  orderType: 'RETIREMENT',
+  orderType: ORDERS_TYPE.RETIREMENT,
 };
 
 const defaultPropsSeparation = {
   ...defaultProps,
-  orderType: 'SEPARATION',
+  orderType: ORDERS_TYPE.SEPARATION,
 };
 
 describe('ShipmentForm component', () => {
@@ -183,7 +185,7 @@ describe('ShipmentForm component', () => {
     it('renders a delivery address type for retirement orders type', async () => {
       render(<ShipmentForm {...defaultPropsRetirement} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
       userEvent.click(screen.getByLabelText('Yes'));
-      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationAddressType');
+      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
     });
 
     it('does not render delivery address type for PCS order type', async () => {
@@ -195,7 +197,7 @@ describe('ShipmentForm component', () => {
     it('renders a delivery address type for separation orders type', async () => {
       render(<ShipmentForm {...defaultPropsSeparation} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
       userEvent.click(screen.getByLabelText('Yes'));
-      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationAddressType');
+      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
     });
 
     it('does not render an Accounting Codes section', async () => {

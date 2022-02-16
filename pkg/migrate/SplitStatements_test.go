@@ -13,25 +13,20 @@ import (
 	"bufio"
 	"os"
 	"strings"
-	"testing"
 	"time"
-
-	"go.uber.org/zap"
-
-	"github.com/stretchr/testify/require"
 )
 
-func TestSplitStatementsCopyFromStdin(t *testing.T) {
+func (suite *MigrateSuite) TestSplitStatementsCopyFromStdin() {
 
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdin.sql"
 	f, err := os.Open(fixture)
 	defer func() {
 		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
-			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+			suite.Error(fixtureCloseErr, "Failed to close fixture")
 		}
 	}()
-	require.Nil(t, err)
+	suite.NoError(err)
 	lines := make(chan string, 1000)
 	dropComments := true
 	dropSearchPath := true
@@ -45,7 +40,7 @@ func TestSplitStatementsCopyFromStdin(t *testing.T) {
 
 	wait := 10 * time.Millisecond
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements, wait)
+	go SplitStatements(lines, statements, wait, suite.Logger())
 
 	expectedStmt := []string{
 		"SET statement_timeout = 0;",
@@ -64,22 +59,22 @@ func TestSplitStatementsCopyFromStdin(t *testing.T) {
 
 	i := 0
 	for stmt := range statements {
-		require.Equal(t, expectedStmt[i], stmt)
+		suite.Equal(expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 12)
+	suite.Equal(i, 12)
 }
 
-func TestSplitStatementsCommentMultipleQuotes(t *testing.T) {
+func (suite *MigrateSuite) TestSplitStatementsCommentMultipleQuotes() {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/commentWithMultipleQuotes.sql"
 	f, err := os.Open(fixture)
 	defer func() {
 		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
-			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+			suite.Error(fixtureCloseErr, "Failed to close fixture")
 		}
 	}()
-	require.Nil(t, err)
+	suite.NoError(err)
 	lines := make(chan string, 1000)
 	dropComments := true
 	dropSearchPath := true
@@ -93,7 +88,7 @@ func TestSplitStatementsCommentMultipleQuotes(t *testing.T) {
 
 	wait := 10 * time.Millisecond
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements, wait)
+	go SplitStatements(lines, statements, wait, suite.Logger())
 
 	expectedStmt := []string{
 		"COMMENT ON COLUMN public.office_emails.label IS 'The department the email gets sent to. For example, ''Customer Service''';",
@@ -105,22 +100,22 @@ func TestSplitStatementsCommentMultipleQuotes(t *testing.T) {
 
 	i := 0
 	for stmt := range statements {
-		require.Equal(t, expectedStmt[i], stmt)
+		suite.Equal(expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 5)
+	suite.Equal(i, 5)
 }
-func TestSplitStatementsCopyFromStdinWithQuotes(t *testing.T) {
+func (suite *MigrateSuite) TestSplitStatementsCopyFromStdinWithQuotes() {
 
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdinQuotes.sql"
 	f, err := os.Open(fixture)
 	defer func() {
 		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
-			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+			suite.Error(fixtureCloseErr, "Failed to close fixture")
 		}
 	}()
-	require.Nil(t, err)
+	suite.NoError(err)
 	lines := make(chan string, 1000)
 	dropComments := true
 	dropSearchPath := true
@@ -134,7 +129,7 @@ func TestSplitStatementsCopyFromStdinWithQuotes(t *testing.T) {
 
 	wait := 10 * time.Millisecond
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements, wait)
+	go SplitStatements(lines, statements, wait, suite.Logger())
 
 	expectedStmt := []string{
 		"COPY public.addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, country) FROM stdin;",
@@ -151,22 +146,23 @@ func TestSplitStatementsCopyFromStdinWithQuotes(t *testing.T) {
 
 	i := 0
 	for stmt := range statements {
-		require.Equal(t, expectedStmt[i], stmt)
+		suite.Equal(expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 10)
+	suite.Equal(i, 10)
 }
-func TestSplitStatementsCopyFromStdinWithSemicolons(t *testing.T) {
+
+func (suite *MigrateSuite) TestSplitStatementsCopyFromStdinWithSemicolons() {
 
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdinSemicolons.sql"
 	f, err := os.Open(fixture)
 	defer func() {
 		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
-			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+			suite.Error(fixtureCloseErr, "Failed to close fixture")
 		}
 	}()
-	require.Nil(t, err)
+	suite.NoError(err)
 	lines := make(chan string, 1000)
 	dropComments := true
 	dropSearchPath := true
@@ -180,7 +176,7 @@ func TestSplitStatementsCopyFromStdinWithSemicolons(t *testing.T) {
 
 	wait := 10 * time.Millisecond
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements, wait)
+	go SplitStatements(lines, statements, wait, suite.Logger())
 
 	expectedStmt := []string{
 		"COPY public.addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, country) FROM stdin;",
@@ -190,13 +186,13 @@ func TestSplitStatementsCopyFromStdinWithSemicolons(t *testing.T) {
 
 	i := 0
 	for stmt := range statements {
-		require.Equal(t, expectedStmt[i], stmt)
+		suite.Equal(expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 3)
+	suite.Equal(i, 3)
 }
 
-func TestSplitStatementsCopyFromStdinTrailingEmptyColumns(t *testing.T) {
+func (suite *MigrateSuite) TestSplitStatementsCopyFromStdinTrailingEmptyColumns() {
 	// Data loaded with COPY ... FROM stdin has columns separated by tabs. Empty columns at the end of a record will leave
 	// tabs at the end of the line. We want to make sure that this trailing whitespace is not trimmed because it is significant.
 	// We're using a string for this test case instead of a file so the trailing whitespace doesn't accidentally get trimmed off by
@@ -223,27 +219,28 @@ func TestSplitStatementsCopyFromStdinTrailingEmptyColumns(t *testing.T) {
 
 	wait := 10 * time.Millisecond
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements, wait)
+	go SplitStatements(lines, statements, wait, suite.Logger())
 
 	i := 0
 	for stmt := range statements {
-		require.Equal(t, originalStatements[i], stmt)
+		suite.Equal(originalStatements[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 4)
+	suite.Equal(i, 4)
 }
 
-func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
+func (suite *MigrateSuite) TestSplitStatementsCopyFromStdinMultiple() {
 
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdinMultiple.sql"
 	f, err := os.Open(fixture)
 	defer func() {
 		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
-			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+			suite.Error(fixtureCloseErr, "Failed to close fixture")
+
 		}
 	}()
-	require.Nil(t, err)
+	suite.NoError(err)
 
 	lines := make(chan string, 1000)
 	dropComments := true
@@ -258,7 +255,7 @@ func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
 
 	wait := 10 * time.Millisecond
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements, wait)
+	go SplitStatements(lines, statements, wait, suite.Logger())
 
 	expectedStmt := []string{
 		"COPY public.tariff400ng_full_unpack_rates (id, schedule, rate_millicents, effective_date_lower, effective_date_upper, created_at, updated_at) FROM stdin;",
@@ -274,13 +271,13 @@ func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
 
 	i := 0
 	for stmt := range statements {
-		require.Equal(t, expectedStmt[i], stmt)
+		suite.Equal(expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 9)
+	suite.Equal(i, 9)
 }
 
-func TestSplitStatementsLoop(t *testing.T) {
+func (suite *MigrateSuite) TestSplitStatementsLoop() {
 
 	// Load the fixture with the sql example
 	fixture := "./fixtures/loop.sql"
@@ -288,10 +285,10 @@ func TestSplitStatementsLoop(t *testing.T) {
 
 	defer func() {
 		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
-			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+			suite.Error(fixtureCloseErr, "Failed to close fixture")
 		}
 	}()
-	require.Nil(t, err)
+	suite.NoError(err)
 
 	lines := make(chan string, 1000)
 	dropComments := true
@@ -306,7 +303,7 @@ func TestSplitStatementsLoop(t *testing.T) {
 
 	wait := 10 * time.Millisecond
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements, wait)
+	go SplitStatements(lines, statements, wait, suite.Logger())
 
 	expectedStmt := []string{
 		"CREATE TABLE IF NOT EXISTS shipments (id serial PRIMARY KEY);",
@@ -382,8 +379,8 @@ END $do$;`,
 
 	i := 0
 	for stmt := range statements {
-		require.Equal(t, expectedStmt[i], stmt)
+		suite.Equal(expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 7)
+	suite.Equal(i, 7)
 }
