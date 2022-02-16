@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import ppmBookingStyles from '../PPMBooking.module.scss';
 
-import styles from './EstimatedWeightsProGear.module.scss';
+import styles from './EstimatedWeightsProGearForm.module.scss';
 
 import { MtoShipmentShape } from 'types/customerShapes';
 import formStyles from 'styles/form.module.scss';
@@ -33,7 +33,7 @@ const validationSchema = Yup.object().shape({
   estimatedSpouseProGearWeight: Yup.number().max(500, 'Enter a weight less than 500 lbs'),
 });
 
-const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack }) => {
+const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBack }) => {
   const initialValues = {
     estimatedPPMWeight: mtoShipment?.ppmShipment?.estimatedWeight || '',
     hasProGear: mtoShipment?.ppmShipment?.hasProGear || 'false',
@@ -184,15 +184,15 @@ const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack })
   );
 };
 
-EstimatedWeightsProGear.propTypes = {
+EstimatedWeightsProGearForm.propTypes = {
   entitlement: EntitlementShape.isRequired,
   mtoShipment: MtoShipmentShape,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
 };
 
-EstimatedWeightsProGear.defaultProps = {
+EstimatedWeightsProGearForm.defaultProps = {
   mtoShipment: undefined,
 };
 
-export default EstimatedWeightsProGear;
+export default EstimatedWeightsProGearForm;

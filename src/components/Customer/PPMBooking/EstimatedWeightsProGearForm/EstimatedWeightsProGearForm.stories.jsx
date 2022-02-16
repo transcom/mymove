@@ -3,11 +3,11 @@ import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { within, userEvent } from '@storybook/testing-library';
 
-import EstimatedWeightsProGear from './EstimatedWeightsProGear';
+import EstimatedWeightsProGearForm from './EstimatedWeightsProGearForm';
 
 export default {
   title: 'Customer Components / PPM Booking / Estimated Weights and Pro-gear',
-  component: EstimatedWeightsProGear,
+  component: EstimatedWeightsProGearForm,
   decorators: [
     (Story) => (
       <GridContainer>
@@ -21,7 +21,7 @@ export default {
   ],
 };
 
-const Template = (args) => <EstimatedWeightsProGear {...args} />;
+const Template = (args) => <EstimatedWeightsProGearForm {...args} />;
 
 export const BlankEstimatedWeightsProGear = Template.bind({});
 BlankEstimatedWeightsProGear.args = {

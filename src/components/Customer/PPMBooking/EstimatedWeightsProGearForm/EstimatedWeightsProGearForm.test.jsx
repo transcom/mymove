@@ -2,7 +2,7 @@ import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import EstimatedWeightsProGear from './EstimatedWeightsProGear';
+import EstimatedWeightsProGearForm from './EstimatedWeightsProGearForm';
 
 const defaultProps = {
   onSubmit: jest.fn(),
@@ -26,10 +26,10 @@ const mtoShipmentProps = {
   },
 };
 
-describe('EstimatedWeightsProGear component', () => {
+describe('EstimatedWeightsProGearForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load', async () => {
-      render(<EstimatedWeightsProGear {...defaultProps} />);
+      render(<EstimatedWeightsProGearForm {...defaultProps} />);
       expect(await screen.getByRole('heading', { level: 2, name: 'Full PPM' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Pro-gear' })).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
@@ -40,7 +40,7 @@ describe('EstimatedWeightsProGear component', () => {
 
   describe('displays conditional inputs', () => {
     it('displays secondary pro gear weight inputs when hasProGear is true', async () => {
-      render(<EstimatedWeightsProGear {...defaultProps} />);
+      render(<EstimatedWeightsProGearForm {...defaultProps} />);
       const hasProGear = await screen.getByLabelText('Yes');
       expect(screen.queryByLabelText('Estimated weight of your pro-gear')).toBeNull();
       expect(screen.queryByLabelText('Estimated weight of your spouse’s pro-gear')).toBeNull();
@@ -55,7 +55,7 @@ describe('EstimatedWeightsProGear component', () => {
 
   describe('pull values from the ppm shipment when available', () => {
     it('renders blank form on load', async () => {
-      render(<EstimatedWeightsProGear {...mtoShipmentProps} />);
+      render(<EstimatedWeightsProGearForm {...mtoShipmentProps} />);
       expect(await screen.getByLabelText('Estimated weight of this PPM shipment').value).toBe(
         mtoShipmentProps.mtoShipment.ppmShipment.estimatedWeight,
       );
@@ -71,7 +71,7 @@ describe('EstimatedWeightsProGear component', () => {
 
   describe('validates form fields and displays error messages', () => {
     it('marks required inputs when left empty', async () => {
-      render(<EstimatedWeightsProGear {...defaultProps} />);
+      render(<EstimatedWeightsProGearForm {...defaultProps} />);
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -86,7 +86,7 @@ describe('EstimatedWeightsProGear component', () => {
     });
 
     it('marks secondary pro gear inputs as required when conditionally displayed', async () => {
-      render(<EstimatedWeightsProGear {...defaultProps} />);
+      render(<EstimatedWeightsProGearForm {...defaultProps} />);
 
       const inputHasProGear = screen.getByLabelText('Yes');
 
