@@ -43,11 +43,11 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		newDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		newDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.UpdateOrderPayload{
-			NewDutyStationID:    handlers.FmtUUID(newDutyStation.ID),
+			NewDutyStationID:    handlers.FmtUUID(newDutyLocation.ID),
 			OriginDutyStationID: handlers.FmtUUID(nonexistentUUID),
 		}
 		eTag := etag.GenerateEtag(order.UpdatedAt)
@@ -62,12 +62,12 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		originDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.UpdateOrderPayload{
 			NewDutyStationID:    handlers.FmtUUID(nonexistentUUID),
-			OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(originDutyLocation.ID),
 		}
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
@@ -98,8 +98,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -108,8 +108,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		payload := ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator: &deptIndicator,
 			IssueDate:           &dateIssued,
-			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
-			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyLocation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyLocation.ID),
 			OrdersNumber:        handlers.FmtString("ORDER100"),
 			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
@@ -129,8 +129,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
-		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyLocation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyLocation.ID.String())
 		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
@@ -139,9 +139,9 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
 		suite.Equal(payload.Tac, updatedOrder.TAC)
 		suite.Equal(payload.Sac.Value, updatedOrder.SAC)
-		suite.EqualValues(&updatedOriginDutyStation.ID, fetchedSM.DutyStationID)
-		suite.EqualValues(updatedOriginDutyStation.ID, fetchedSM.DutyStation.ID)
-		suite.EqualValues(updatedOriginDutyStation.Name, fetchedSM.DutyStation.Name)
+		suite.EqualValues(&updatedOriginDutyLocation.ID, fetchedSM.DutyStationID)
+		suite.EqualValues(updatedOriginDutyLocation.ID, fetchedSM.DutyStation.ID)
+		suite.EqualValues(updatedOriginDutyLocation.Name, fetchedSM.DutyStation.Name)
 	})
 
 	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
@@ -151,8 +151,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -161,8 +161,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		payload := ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator: &deptIndicator,
 			IssueDate:           &dateIssued,
-			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
-			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyLocation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyLocation.ID),
 			OrdersNumber:        handlers.FmtString("ORDER100"),
 			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
@@ -185,8 +185,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -195,8 +195,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		payload := ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator: &deptIndicator,
 			IssueDate:           &dateIssued,
-			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
-			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyLocation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyLocation.ID),
 			OrdersNumber:        handlers.FmtString("ORDER100"),
 			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
@@ -210,8 +210,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		// check that we get back a validation error
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
-		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyLocation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyLocation.ID.String())
 		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
@@ -229,8 +229,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -239,8 +239,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		payload := ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator: &deptIndicator,
 			IssueDate:           &dateIssued,
-			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
-			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyLocation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyLocation.ID),
 			OrdersNumber:        handlers.FmtString("ORDER100"),
 			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
@@ -254,8 +254,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		// check that we get back a validation error
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
-		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyLocation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyLocation.ID.String())
 		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
@@ -273,8 +273,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -283,8 +283,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		payload := ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator: &deptIndicator,
 			IssueDate:           &dateIssued,
-			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
-			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyLocation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyLocation.ID),
 			OrdersNumber:        handlers.FmtString("ORDER100"),
 			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
@@ -298,8 +298,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		// check that we get back a validation error
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
-		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyLocation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyLocation.ID.String())
 		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
@@ -317,8 +317,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -327,8 +327,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		payload := ghcmessages.UpdateOrderPayload{
 			DepartmentIndicator: &deptIndicator,
 			IssueDate:           &dateIssued,
-			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
-			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyLocation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyLocation.ID),
 			OrdersNumber:        handlers.FmtString("ORDER100"),
 			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
@@ -360,14 +360,14 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
-		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 
 		payload := ghcmessages.UpdateOrderPayload{
 			IssueDate:           &dateIssued,
-			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
-			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyLocation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyLocation.ID),
 			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			ReportByDate:        &reportByDate,
 		}
@@ -421,15 +421,15 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
-		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 
 		body := ghcmessages.CounselingUpdateOrderPayload{
 			IssueDate:           &dateIssued,
-			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
-			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyLocation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyLocation.ID),
 			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			ReportByDate:        &reportByDate,
 		}
@@ -444,8 +444,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(body.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
-		suite.Equal(body.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(body.NewDutyStationID.String(), updatedOrder.NewDutyLocation.ID.String())
+		suite.Equal(body.OriginDutyStationID.String(), updatedOrder.OriginDutyLocation.ID.String())
 		suite.Equal(time.Time(*body.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*body.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*body.OrdersType, updatedOrder.OrdersType)
@@ -731,8 +731,8 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	suite.T().Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func(t *testing.T) {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-			DutyStation: models.DutyStation{
+		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+			DutyLocation: models.DutyLocation{
 				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
 			},
 		})
@@ -741,7 +741,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
-				OriginDutyStation: &dutyStation,
+				OriginDutyLocation: &dutyLocation,
 			},
 			Move: mto,
 		})
@@ -821,8 +821,8 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	suite.T().Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func(t *testing.T) {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-			DutyStation: models.DutyStation{
+		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+			DutyLocation: models.DutyLocation{
 				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
 			},
 		})
@@ -832,7 +832,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
-				OriginDutyStation:       &dutyStation,
+				OriginDutyLocation:      &dutyLocation,
 				UploadedAmendedOrders:   &document,
 				UploadedAmendedOrdersID: &document.ID,
 			},

@@ -1652,48 +1652,6 @@ func serviceMemberWithPPMMoveWithAccessCode(appCtx appcontext.AppContext, userUp
 	})
 }
 
-func createHHGNeedsServicesCounselingWithLocator(appCtx appcontext.AppContext, locator string) {
-	submittedAt := time.Now()
-	ordersSC := testdatagen.MakeOrderWithoutDefaults(appCtx.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			ProvidesServicesCounseling: true,
-		},
-	})
-
-	moveSC := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Locator:     locator,
-			Status:      models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt: &submittedAt,
-		},
-		Order: ordersSC,
-	})
-
-	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
-	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: moveSC,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-		},
-	})
-
-	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
-	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: moveSC,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-		},
-	})
-}
-
 func createBasicNTSMove(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "nts.test.user@example.com"
 	uuidStr := "2194daed-3589-408f-b988-e9889c9f120e"
@@ -1984,6 +1942,11 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 			Value:   currentTime.Format("2006-01-02"),
 		},
 		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
 			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   strconv.Itoa(2),
@@ -2067,6 +2030,11 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 		{
 			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
 			KeyType: models.ServiceItemParamTypeDate,
 			Value:   currentTimeDCRT.Format("2006-01-03"),
 		},
@@ -3088,13 +3056,13 @@ func createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext, u
 func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	moveRouter := moverouter.NewMoveRouter()
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
-	var allDutyStations []models.DutyStation
-	appCtx.DB().All(&allDutyStations)
+	var allDutyLocations []models.DutyLocation
+	appCtx.DB().All(&allDutyLocations)
 
-	var originDutyStationsInGBLOC []models.DutyStation
+	var originDutyLocationsInGBLOC []models.DutyLocation
 	appCtx.DB().Where("transportation_offices.GBLOC = ?", "LKNQ").
-		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
-		All(&originDutyStationsInGBLOC)
+		InnerJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
+		All(&originDutyLocationsInGBLOC)
 
 	/*
 	* Creates two valid, unclaimed access codes
@@ -3159,12 +3127,27 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithOrdersAndPPMMove07(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove08(appCtx, userUploader)
 	serviceMemberWithPPMMoveWithAccessCode(appCtx, userUploader)
-	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE1ET")
-	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE2ET")
-	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE3ET")
-	createHHGNeedsServicesCounselingWithLocator(appCtx, "SCE4ET")
-	createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx)
-	createHHGNoGovCounselingForRetirementWithDestinationAddressAndType(appCtx)
+
+	//destination type
+	hos := models.DestinationTypeHomeOfSelection
+	hor := models.DestinationTypeHomeOfRecord
+
+	//shipment type
+	hhg := models.MTOShipmentTypeHHG
+
+	//orders type
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	retirement := internalmessages.OrdersTypeRETIREMENT
+	separation := internalmessages.OrdersTypeSEPARATION
+
+	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE1ET")
+	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE2ET")
+	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE3ET")
+	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE4ET")
+
+	createNeedsServicesCounseling(appCtx, retirement, hhg, &hos, "RET1RE")
+	createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "S3PAR3")
+
 	createBasicNTSMove(appCtx, userUploader)
 	createBasicMovePPM01(appCtx, userUploader)
 	createBasicMovePPM02(appCtx, userUploader)

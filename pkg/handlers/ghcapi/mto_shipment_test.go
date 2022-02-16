@@ -76,13 +76,13 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 
 	// third shipment with destination address and type
 	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
-	destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+	destinationType := models.DestinationTypeHomeOfRecord
 	_ = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
-			Status:                 models.MTOShipmentStatusSubmitted,
-			DestinationAddressID:   &destinationAddress.ID,
-			DestinationAddressType: &destinationAddressType,
+			Status:               models.MTOShipmentStatusSubmitted,
+			DestinationAddressID: &destinationAddress.ID,
+			DestinationType:      &destinationType,
 		},
 	})
 
@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		// This one has a destination shipment type
 		payloadShipment3 := okResponse.Payload[2]
-		suite.Equal(string(models.DestinationAddressTypeHomeOfRecord), *payloadShipment3.DestinationAddressType)
+		suite.Equal(string(models.DestinationTypeHomeOfRecord), string(*payloadShipment3.DestinationType))
 
 	})
 
@@ -216,7 +216,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewQueryError("MTOShipment", errors.New("query error"), ""))
 
-		fmt.Println("failure list fetch test 500")
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)
 	})
@@ -235,7 +234,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewNotFoundError(uuid.FromStringOrNil(params.MoveTaskOrderID.String()), "move not found"))
 
-		fmt.Println("failure list fetch 404")
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
 	})

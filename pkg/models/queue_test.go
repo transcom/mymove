@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
@@ -140,8 +138,6 @@ func (suite *ModelSuite) TestShowPPMQueue() {
 		suite.NoError(err)
 		suite.Len(moves, tc.movesCount)
 		for _, move := range moves {
-			fmt.Printf("%+v", *move.PpmStatus)
-			fmt.Println(tc.want[*move.PpmStatus])
 			suite.True(tc.want[*move.PpmStatus])
 		}
 	}

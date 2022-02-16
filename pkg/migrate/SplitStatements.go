@@ -1,14 +1,15 @@
 package migrate
 
 import (
-	"fmt"
 	"io"
 	"strings"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // SplitStatements splits a string of SQL statements into a slice with each element being a statement.
-func SplitStatements(lines chan string, statements chan string, wait time.Duration) {
+func SplitStatements(lines chan string, statements chan string, wait time.Duration, logger *zap.Logger) {
 
 	in := NewBuffer()
 
@@ -19,7 +20,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 
 				_, err := in.WriteString(line + "\n")
 				if err != nil {
-					fmt.Println(fmt.Errorf("Failed to ignore empty lines when writing to the buffer: %s", err).Error())
+					logger.Error("Failed to ignore empty lines when writing to the buffer: %s", zap.Error(err))
 				}
 			}
 		}

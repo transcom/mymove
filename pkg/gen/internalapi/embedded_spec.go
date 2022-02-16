@@ -3069,7 +3069,15 @@ func init() {
           "200": {
             "description": "Currently logged in user",
             "schema": {
-              "type": "boolean"
+              "type": "object",
+              "required": [
+                "isLoggedIn"
+              ],
+              "properties": {
+                "isLoggedIn": {
+                  "type": "boolean"
+                }
+              }
             }
           },
           "400": {
@@ -4081,15 +4089,11 @@ func init() {
         "id",
         "name",
         "address_id",
-        "address",
         "affiliation",
         "created_at",
         "updated_at"
       ],
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
         "address_id": {
           "type": "string",
           "format": "uuid",
@@ -4111,8 +4115,11 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
+        "transportation_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updated_at": {
           "type": "string",
@@ -4277,7 +4284,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Role"
-          }
+          },
+          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -9728,7 +9736,15 @@ func init() {
           "200": {
             "description": "Currently logged in user",
             "schema": {
-              "type": "boolean"
+              "type": "object",
+              "required": [
+                "isLoggedIn"
+              ],
+              "properties": {
+                "isLoggedIn": {
+                  "type": "boolean"
+                }
+              }
             }
           },
           "400": {
@@ -10744,15 +10760,11 @@ func init() {
         "id",
         "name",
         "address_id",
-        "address",
         "affiliation",
         "created_at",
         "updated_at"
       ],
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
         "address_id": {
           "type": "string",
           "format": "uuid",
@@ -10774,8 +10786,11 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
+        "transportation_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updated_at": {
           "type": "string",
@@ -10951,7 +10966,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Role"
-          }
+          },
+          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"

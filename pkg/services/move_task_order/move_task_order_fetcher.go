@@ -38,8 +38,8 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 		"MTOShipments.MTOAgents",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
-		"Orders.NewDutyStation.Address",
-		"Orders.OriginDutyStation.Address",
+		"Orders.NewDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address",
 	)
 
 	setMTOQueryFilters(query, searchParams)
@@ -87,8 +87,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.SITExtensions",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
-		"Orders.NewDutyStation.Address",
-		"Orders.OriginDutyStation.Address", // this line breaks Eager, but works with EagerPreload
+		"Orders.NewDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload
 	)
 
 	if searchParams == nil {

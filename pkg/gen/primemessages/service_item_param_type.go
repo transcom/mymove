@@ -20,8 +20,12 @@ import (
 type ServiceItemParamType string
 
 func NewServiceItemParamType(value ServiceItemParamType) *ServiceItemParamType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ServiceItemParamType.
+func (m ServiceItemParamType) Pointer() *ServiceItemParamType {
+	return &m
 }
 
 const (

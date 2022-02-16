@@ -42,26 +42,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	date10DaysAgo := offsetDate(-10)
 	date9DaysAgo := offsetDate(-9)
 
-	address := testdatagen.MakeDefaultAddress(suite.DB())
-
-	office := models.TransportationOffice{
-		Name:      "JPPSO McTest",
-		AddressID: address.ID,
-		Address:   address,
-		Gbloc:     "ABCD",
-		Latitude:  1.23445,
-		Longitude: -23.34455,
-	}
-	suite.MustSave(&office)
-
-	station := models.DutyStation{
-		Name:                   "Fort Bragg",
-		AddressID:              address.ID,
-		TransportationOfficeID: &office.ID,
-		TransportationOffice:   office,
-	}
-	suite.MustSave(&station)
-
 	moves := []testdatagen.Assertions{
 		{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
@@ -74,7 +54,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 		{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc789"},
-			DestinationDutyStation: station,
 		},
 		{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
@@ -115,7 +94,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	suite.NotNil(emailInfo)
 	suite.Len(emailInfo, 2, "Wrong number of rows returned")
-	suite.Equal(ppms[0].Move.Orders.NewDutyStation.Name, emailInfo[0].NewDutyStationName)
+	suite.Equal(ppms[0].Move.Orders.NewDutyLocation.Name, emailInfo[0].NewDutyStationName)
 	suite.NotNil(emailInfo[0].Email)
 	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
 	suite.Equal(ppms[0].WeightEstimate, emailInfo[0].WeightEstimate)

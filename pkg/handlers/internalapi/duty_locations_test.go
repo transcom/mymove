@@ -3,10 +3,12 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	locationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -25,20 +27,22 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
+		State:          "CA",
 		PostalCode:     "12345",
 	}
 	suite.MustSave(&address)
 
 	location1 := models.DutyLocation{
-		Name:      "First Location",
-		AddressID: address.ID,
+		Name:        "First Location",
+		AddressID:   address.ID,
+		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
 	}
 	suite.MustSave(&location1)
 
 	location2 := models.DutyLocation{
-		Name:      "Second Location",
-		AddressID: address.ID,
+		Name:        "Second Location",
+		AddressID:   address.ID,
+		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
 	}
 	suite.MustSave(&location2)
 
@@ -63,6 +67,8 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 	// Assert we got back the 201 response
 	searchResponse := response.(*locationop.SearchDutyLocationsOK)
 	locationPayloads := searchResponse.Payload
+
+	suite.NoError(locationPayloads.Validate(strfmt.Default))
 
 	if len(locationPayloads) != 1 {
 		t.Errorf("Should have 1 responses, got %v", len(locationPayloads))

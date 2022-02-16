@@ -20,8 +20,12 @@ import (
 type Rank string
 
 func NewRank(value Rank) *Rank {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Rank.
+func (m Rank) Pointer() *Rank {
+	return &m
 }
 
 const (

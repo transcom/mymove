@@ -701,3 +701,4 @@
 20220203001924_add_ppm_to_mto_shipments_shipment_type_enum_values.up.sql
 20220204201618_archive_ppm_data.up.sql
 20220204213113_rename_duty_station_names.up.sql
+20220207230521_adjust_pricing_params_for_ntsr.up.sql

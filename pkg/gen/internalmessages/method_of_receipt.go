@@ -20,8 +20,12 @@ import (
 type MethodOfReceipt string
 
 func NewMethodOfReceipt(value MethodOfReceipt) *MethodOfReceipt {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated MethodOfReceipt.
+func (m MethodOfReceipt) Pointer() *MethodOfReceipt {
+	return &m
 }
 
 const (

@@ -20,8 +20,12 @@ import (
 type SignedCertificationType string
 
 func NewSignedCertificationType(value SignedCertificationType) *SignedCertificationType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated SignedCertificationType.
+func (m SignedCertificationType) Pointer() *SignedCertificationType {
+	return &m
 }
 
 const (

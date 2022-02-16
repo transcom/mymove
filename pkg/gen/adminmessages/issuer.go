@@ -20,8 +20,12 @@ import (
 type Issuer string
 
 func NewIssuer(value Issuer) *Issuer {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Issuer.
+func (m Issuer) Pointer() *Issuer {
+	return &m
 }
 
 const (

@@ -192,13 +192,13 @@ func assembleOrderPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUI
 	model := models.Order{}
 	// Important to be specific about which addl associations to load to reduce DB hits
 	err := appCtx.DB().Eager(
-		"ServiceMember", "Entitlement", "OriginDutyStation", "NewDutyStation.Address").Find(&model, updatedObjectID)
+		"ServiceMember", "Entitlement", "OriginDutyLocation", "NewDutyLocation.Address").Find(&model, updatedObjectID)
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-	// cannot eager load the address as "OriginDutyStation.Address" because
-	// OriginDutyStation is a pointer.
-	if model.OriginDutyStation != nil {
-		err = appCtx.DB().Load(model.OriginDutyStation, "Address")
+	// cannot eager load the address as "OriginDutyLocation.Address" because
+	// OriginDutyLocation is a pointer.
+	if model.OriginDutyLocation != nil {
+		err = appCtx.DB().Load(model.OriginDutyLocation, "Address")
 	}
 
 	if err != nil {

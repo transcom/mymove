@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -88,8 +87,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(hhgMove.ID.String(), result.ID.String())
 	suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
 	suite.Equal(*order.DepartmentIndicator, string(deptIndicator))
-	suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
-	suite.Equal(order.OriginDutyStation.ID.String(), result.OriginDutyLocation.ID.String())
+	suite.Equal(order.OriginDutyLocation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
+	suite.Equal(order.OriginDutyLocation.ID.String(), result.OriginDutyLocation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
 }
@@ -273,9 +272,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	suite.IsNotErrResponse(response)
 
 	payload := response.(*queues.GetMovesQueueOK).Payload
+	suite.NoError(payload.Validate(strfmt.Default))
 	result := payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("SUBMITTED"), result.Status)
+	suite.Equal(ghcmessages.MoveStatus("SUBMITTED"), result.Status)
 
 	// let's test for the Move approved status
 	hhgMove.Status = models.MoveStatusAPPROVED
@@ -289,7 +289,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	result = payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("APPROVED"), result.Status)
+	suite.Equal(ghcmessages.MoveStatus("APPROVED"), result.Status)
 
 	// Now let's test Approvals requested
 	hhgMove.Status = models.MoveStatusAPPROVALSREQUESTED
@@ -303,7 +303,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	result = payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("APPROVALS REQUESTED"), result.Status)
+	suite.Equal(ghcmessages.MoveStatus("APPROVALS REQUESTED"), result.Status)
 
 }
 
@@ -401,10 +401,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
 		suite.EqualValues(3, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 3)
 		// test that the moves are sorted by status descending
-		suite.Equal(ghcmessages.QueueMoveStatus("SUBMITTED"), payload.QueueMoves[0].Status)
+		suite.Equal(ghcmessages.MoveStatus("SUBMITTED"), payload.QueueMoves[0].Status)
 	})
 
 	suite.Run("loads results with all STATUSes and 1 page selected", func() {
@@ -505,13 +506,13 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
-	dutyStation1 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	dutyLocation1 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name: "This Other Station",
 		},
 	})
 
-	dutyStation2 := testdatagen.MakeDefaultDutyStation(suite.DB())
+	dutyLocation2 := testdatagen.MakeDefaultDutyLocation(suite.DB())
 
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
@@ -546,10 +547,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			Status:           models.MoveStatusSUBMITTED,
 		},
 		Order: models.Order{
-			OriginDutyStation:   &dutyStation1,
-			OriginDutyStationID: &dutyStation1.ID,
-			NewDutyStation:      dutyStation1,
-			NewDutyStationID:    dutyStation1.ID,
+			OriginDutyLocation:   &dutyLocation1,
+			OriginDutyLocationID: &dutyLocation1.ID,
+			NewDutyLocation:      dutyLocation1,
+			NewDutyLocationID:    dutyLocation1.ID,
 		},
 		ServiceMember: serviceMember1,
 	})
@@ -560,10 +561,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			Status:           models.MoveStatusSUBMITTED,
 		},
 		Order: models.Order{
-			OriginDutyStation:   &dutyStation2,
-			OriginDutyStationID: &dutyStation2.ID,
-			NewDutyStation:      dutyStation2,
-			NewDutyStationID:    dutyStation2.ID,
+			OriginDutyLocation:   &dutyLocation2,
+			OriginDutyLocationID: &dutyLocation2.ID,
+			NewDutyLocation:      dutyLocation2,
+			NewDutyLocationID:    dutyLocation2.ID,
 		},
 		ServiceMember: serviceMember2,
 	})
@@ -659,7 +660,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	suite.Run("returns results matching OriginDutyLocation name search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest:        request,
-			OriginDutyLocation: &dutyStation1.Name,
+			OriginDutyLocation: &dutyLocation1.Name,
 		}
 
 		response := handler.Handle(params)
@@ -678,7 +679,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			LastName:           models.StringPointer("Dar"),
 			DodID:              serviceMember1.Edipi,
 			Locator:            &move1.Locator,
-			OriginDutyLocation: &dutyStation1.Name,
+			OriginDutyLocation: &dutyLocation1.Name,
 		}
 
 		response := handler.Handle(params)
@@ -821,6 +822,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
 	payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
 
+	// unfortunately, what we return and what our swagger definition
+	// says are pretty far apart
+	// we don't return the associated addresses for the duty stations
+	// and the status returned is from the query string not the
+	// defined PaymentRequestStatus enum as indicated in the swagger
+	// definition
+	//
+	// suite.NoError(payload.Validate(strfmt.Default))
+
 	suite.Len(payload.QueuePaymentRequests, 1)
 
 	paymentRequest := *payload.QueuePaymentRequests[0]
@@ -832,7 +842,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal("KKFA", string(paymentRequest.OriginGBLOC))
 
 	//createdAt := actualPaymentRequest.CreatedAt
-	age := int64(2)
+	age := float64(2)
 	deptIndicator := *paymentRequest.DepartmentIndicator
 
 	suite.Equal(age, paymentRequest.Age)
@@ -1076,7 +1086,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	})
 
 	// Create a move with an origin duty station outside of office user GBLOC	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "30813", "AGFM")
-	dutyStationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+	dutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "Fort Gordon",
 			City:           "Augusta",
@@ -1086,11 +1096,11 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
-	originDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	originDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name:      "Fort Sam Houston",
-			AddressID: dutyStationAddress.ID,
-			Address:   dutyStationAddress,
+			AddressID: dutyLocationAddress.ID,
+			Address:   dutyLocationAddress,
 		},
 	})
 
@@ -1099,7 +1109,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
 		},
-		OriginDutyStation: originDutyStation,
+		OriginDutyLocation: originDutyLocation,
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1119,7 +1129,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			Status:           models.MoveStatusSUBMITTED,
 		},
 		Order: models.Order{
-			OriginDutyStation: &originDutyStation,
+			OriginDutyLocation: &originDutyLocation,
 		},
 	})
 
@@ -1144,8 +1154,6 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			Affiliation: &marineCorpsAffiliation,
 		},
 	})
-
-	fmt.Printf("marine corps move locator %s affiliation %s", subtestData.marineCorpsMove.Locator, subtestData.marineCorpsMove.Orders.ServiceMember.Affiliation)
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: subtestData.marineCorpsMove,
@@ -1193,7 +1201,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result1.RequestedMoveDate).Format(time.RFC3339Nano))
 		suite.Equal(subtestData.needsCounselingMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result1.SubmittedAt).Format(time.RFC3339Nano))
 		suite.Equal(order.ServiceMember.Affiliation.String(), result1.Customer.Agency)
-		suite.Equal(order.NewDutyStation.ID.String(), result1.DestinationDutyLocation.ID.String())
+		suite.Equal(order.NewDutyLocation.ID.String(), result1.DestinationDutyLocation.ID.String())
 
 		suite.EqualValues(subtestData.needsCounselingMove.Status, result2.Status)
 		suite.Equal("MARINES", result2.Customer.Agency)

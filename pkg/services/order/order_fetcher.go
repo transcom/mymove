@@ -90,10 +90,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	query := appCtx.DB().Q().EagerPreload(
 		"Orders.ServiceMember",
-		"Orders.NewDutyStation.Address",
-		"Orders.OriginDutyStation.Address",
+		"Orders.NewDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
-		// "Orders.OriginDutyStation.TransportationOffice",
+		// "Orders.OriginDutyLocation.TransportationOffice",
 		"Orders.Entitlement",
 		"MTOShipments",
 		"MTOServiceItems",
@@ -151,20 +151,24 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	for i := range moves {
 		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
 		// where the first 2 levels match.  For example:
-		//   "Orders.OriginDutyStation.Address" and "Orders.OriginDutyStation.TransportationOffice"
+		//   "Orders.OriginDutyLocation.Address" and "Orders.OriginDutyLocation.TransportationOffice"
 		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
 		// in the EagerPreload above and request the second one explicitly with a separate Load call.
 		//
 		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
 		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-		//   cannot eager load the address as "OriginDutyStation.Address" because
-		//   OriginDutyStation is a pointer.
-		if moves[i].Orders.OriginDutyStation != nil {
-			fmt.Println("POSTAL CODE: ", moves[i].Orders.OriginDutyStation.Address.PostalCode)
-			loadErr := appCtx.DB().Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
+		//   cannot eager load the address as "OriginDutyLocation.Address" because
+		//   OriginDutyLocation is a pointer.
+		if moves[i].Orders.OriginDutyLocation != nil {
+			loadErr := appCtx.DB().Load(moves[i].Orders.OriginDutyLocation, "TransportationOffice")
 			if loadErr != nil {
 				return []models.Move{}, 0, err
 			}
+		}
+
+		err := appCtx.DB().Load(&moves[i].Orders.ServiceMember, "BackupContacts")
+		if err != nil {
+			return []models.Move{}, 0, err
 		}
 	}
 
@@ -184,8 +188,8 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	err := appCtx.DB().Q().Eager(
 		"ServiceMember.BackupContacts",
 		"ServiceMember.ResidentialAddress",
-		"NewDutyStation.Address",
-		"OriginDutyStation",
+		"NewDutyLocation.Address",
+		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",
 	).Find(order, orderID)
@@ -200,10 +204,10 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	}
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-	// cannot eager load the address as "OriginDutyStation.Address" because
-	// OriginDutyStation is a pointer.
-	if order.OriginDutyStation != nil {
-		err = appCtx.DB().Load(order.OriginDutyStation, "Address")
+	// cannot eager load the address as "OriginDutyLocation.Address" because
+	// OriginDutyLocation is a pointer.
+	if order.OriginDutyLocation != nil {
+		err = appCtx.DB().Load(order.OriginDutyLocation, "Address")
 		if err != nil {
 			return order, err
 		}
@@ -309,8 +313,6 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 // Need to fix GBLOC for services counselor
 func gblocFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
-		fmt.Println("🍉🍉🍉🍉🍉")
-		fmt.Println(gbloc)
 		if gbloc != nil {
 			query.Where("o_gbloc.gbloc = ?", *gbloc)
 		}

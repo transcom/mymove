@@ -96,8 +96,8 @@ func Order(order *models.Order) *supportmessages.Order {
 	if order == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&order.NewDutyStation)
-	originDutyStation := DutyStation(order.OriginDutyStation)
+	destinationDutyStation := DutyStation(&order.NewDutyLocation)
+	originDutyLocation := DutyStation(order.OriginDutyLocation)
 	uploadedOrders := Document(&order.UploadedOrders)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
@@ -107,13 +107,13 @@ func Order(order *models.Order) *supportmessages.Order {
 	issueDate := strfmt.Date(order.IssueDate)
 	payload := supportmessages.Order{
 		DestinationDutyStation:   destinationDutyStation,
-		DestinationDutyStationID: handlers.FmtUUID(order.NewDutyStationID),
+		DestinationDutyStationID: handlers.FmtUUID(order.NewDutyLocationID),
 		Entitlement:              Entitlement(order.Entitlement),
 		Customer:                 Customer(&order.ServiceMember),
 		OrderNumber:              order.OrdersNumber,
 		OrdersType:               supportmessages.NewOrdersType(supportmessages.OrdersType(order.OrdersType)),
 		ID:                       strfmt.UUID(order.ID.String()),
-		OriginDutyStation:        originDutyStation,
+		OriginDutyStation:        originDutyLocation,
 		ETag:                     etag.GenerateEtag(order.UpdatedAt),
 		Status:                   supportmessages.NewOrdersStatus(supportmessages.OrdersStatus(order.Status)),
 		UploadedOrders:           uploadedOrders,
@@ -127,8 +127,8 @@ func Order(order *models.Order) *supportmessages.Order {
 		rank := (supportmessages.Rank)(*order.Grade)
 		payload.Rank = &rank
 	}
-	if order.OriginDutyStationID != nil {
-		payload.OriginDutyStationID = handlers.FmtUUID(*order.OriginDutyStationID)
+	if order.OriginDutyLocationID != nil {
+		payload.OriginDutyStationID = handlers.FmtUUID(*order.OriginDutyLocationID)
 	}
 	if order.DepartmentIndicator != nil {
 		payload.DepartmentIndicator = (*supportmessages.DeptIndicator)(order.DepartmentIndicator)
@@ -180,7 +180,8 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 
 // DutyStation converts Dutystation model to payload
 // Only includes ID and duty station name
-func DutyStation(dutyStation *models.DutyStation) *supportmessages.DutyStation {
+// TODO rename
+func DutyStation(dutyStation *models.DutyLocation) *supportmessages.DutyStation {
 	if dutyStation == nil {
 		return nil
 	}

@@ -20,8 +20,12 @@ import (
 type MoveStatus string
 
 func NewMoveStatus(value MoveStatus) *MoveStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated MoveStatus.
+func (m MoveStatus) Pointer() *MoveStatus {
+	return &m
 }
 
 const (

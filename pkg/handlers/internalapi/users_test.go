@@ -146,7 +146,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 
 		// Remove transportation office info from new station
 		// happens when a customer is not done
-		station := order.NewDutyStation
+		station := order.NewDutyLocation
 		station.TransportationOfficeID = nil
 		suite.MustSave(&station)
 

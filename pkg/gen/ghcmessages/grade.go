@@ -20,8 +20,12 @@ import (
 type Grade string
 
 func NewGrade(value Grade) *Grade {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Grade.
+func (m Grade) Pointer() *Grade {
+	return &m
 }
 
 const (

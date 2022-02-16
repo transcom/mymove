@@ -20,8 +20,12 @@ import (
 type WebhookNotificationStatus string
 
 func NewWebhookNotificationStatus(value WebhookNotificationStatus) *WebhookNotificationStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated WebhookNotificationStatus.
+func (m WebhookNotificationStatus) Pointer() *WebhookNotificationStatus {
+	return &m
 }
 
 const (

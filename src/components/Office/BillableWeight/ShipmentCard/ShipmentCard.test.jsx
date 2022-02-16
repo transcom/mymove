@@ -5,6 +5,7 @@ import ShipmentCard from './ShipmentCard';
 
 import { formatAddressShort, formatDateFromIso } from 'shared/formatters';
 import { formatWeight } from 'utils/formatters';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const tomorrow = new Date();
 tomorrow.setDate(tomorrow.getDate() + 1);
@@ -30,6 +31,7 @@ const defaultShipmentCardProps = {
   adjustedWeight: null,
   reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
   editEntity: () => {},
+  shipmentType: SHIPMENT_OPTIONS.HHG,
 };
 
 describe('ShipmentCard', () => {
@@ -53,6 +55,7 @@ describe('ShipmentCard', () => {
       originalWeight: 4300,
       reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
       editEntity: () => {},
+      shipmentType: SHIPMENT_OPTIONS.HHG,
     };
 
     render(<ShipmentCard {...defaultProps} />);
@@ -192,6 +195,7 @@ describe('ShipmentCard', () => {
       estimatedWeight: 5000,
       originalWeight: 4300,
       editEntity: () => {},
+      shipmentType: SHIPMENT_OPTIONS.HHG,
     };
 
     render(<ShipmentCard {...defaultProps} />);

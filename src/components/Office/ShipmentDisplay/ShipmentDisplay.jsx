@@ -127,6 +127,8 @@ ShipmentDisplay.propTypes = {
     pickupAddress: AddressShape,
     secondaryPickupAddress: AddressShape,
     destinationAddress: AddressShape,
+    destinationType: PropTypes.string,
+    displayDestinationType: PropTypes.bool,
     secondaryDeliveryAddress: AddressShape,
     counselorRemarks: PropTypes.string,
     shipmentId: PropTypes.string,

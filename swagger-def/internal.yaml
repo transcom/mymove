@@ -39,6 +39,7 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Role'
+        x-nullable: true
     required:
       - id
   DutyLocationsPayload:
@@ -2615,7 +2616,12 @@ paths:
         '200':
           description: Currently logged in user
           schema:
-            type: boolean
+            type: object
+            required:
+              - isLoggedIn
+            properties:
+              isLoggedIn:
+                type: boolean
         '400':
           description: invalid request
         '500':

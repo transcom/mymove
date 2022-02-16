@@ -94,6 +94,12 @@ var (
 		Type:        models.ServiceItemParamTypeDecimal,
 		Origin:      models.ServiceItemParamOriginPricer,
 	}
+	paramReferenceDate = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameReferenceDate,
+		Description: "reference date",
+		Type:        models.ServiceItemParamTypeDate,
+		Origin:      models.ServiceItemParamOriginSystem,
+	}
 	paramRequestedPickupDate = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameRequestedPickupDate,
 		Description: "requested pickup date",
@@ -180,12 +186,14 @@ var fixtureServiceItemParamsMap = map[models.ReServiceCode]models.ServiceItemPar
 		paramPriceRateOrFactor,
 	},
 	models.ReServiceCodeDLH: {
+		paramActualPickupDate,
 		paramContractCode,
 		paramContractYearName,
 		paramDistanceZip3,
 		paramEscalationCompounded,
 		paramIsPeak,
 		paramPriceRateOrFactor,
+		paramReferenceDate,
 		paramRequestedPickupDate,
 		paramServiceAreaOrigin,
 		paramWeightAdjusted,
@@ -214,11 +222,13 @@ var fixtureServiceItemParamsMap = map[models.ReServiceCode]models.ServiceItemPar
 		paramZipPickupAddress,
 	},
 	models.ReServiceCodeDPK: {
+		paramActualPickupDate,
 		paramContractCode,
 		paramContractYearName,
 		paramEscalationCompounded,
 		paramIsPeak,
 		paramPriceRateOrFactor,
+		paramReferenceDate,
 		paramRequestedPickupDate,
 		paramServiceAreaOrigin,
 		paramServicesScheduleOrigin,
@@ -230,11 +240,13 @@ var fixtureServiceItemParamsMap = map[models.ReServiceCode]models.ServiceItemPar
 		paramZipPickupAddress,
 	},
 	models.ReServiceCodeDOP: {
+		paramActualPickupDate,
 		paramContractCode,
 		paramContractYearName,
 		paramEscalationCompounded,
 		paramIsPeak,
 		paramPriceRateOrFactor,
+		paramReferenceDate,
 		paramRequestedPickupDate,
 		paramServiceAreaOrigin,
 		paramWeightAdjusted,
@@ -245,12 +257,14 @@ var fixtureServiceItemParamsMap = map[models.ReServiceCode]models.ServiceItemPar
 		paramZipPickupAddress,
 	},
 	models.ReServiceCodeDOASIT: {
+		paramActualPickupDate,
 		paramContractCode,
 		paramContractYearName,
 		paramEscalationCompounded,
 		paramIsPeak,
 		paramNumberDaysSIT,
 		paramPriceRateOrFactor,
+		paramReferenceDate,
 		paramRequestedPickupDate,
 		paramServiceAreaOrigin,
 		paramSITPaymentRequestEnd,
@@ -353,6 +367,7 @@ func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.Re
 			_ = MakeServiceParam(db, Assertions{
 				ServiceParam: models.ServiceParam{
 					ServiceID:             reService.ID,
+					Service:               reService,
 					ServiceItemParamKeyID: serviceItemParamKey.ID,
 					ServiceItemParamKey:   serviceItemParamKey,
 				},
