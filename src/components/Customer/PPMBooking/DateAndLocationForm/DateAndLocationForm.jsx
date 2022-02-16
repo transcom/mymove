@@ -88,6 +88,20 @@ const DateAndLocationForm = ({
     return postalCodeValid[`${name}`]?.isValid ? undefined : UnsupportedZipCodePPMErrorMsg;
   };
 
+  const handlePrefillPostalCodeChange = (
+    value,
+    setFieldValue,
+    postalCodeField,
+    prefillValue,
+    isCheckedField,
+    checkedFieldValue,
+  ) => {
+    if (checkedFieldValue && value !== prefillValue) {
+      setFieldValue(isCheckedField, false);
+    }
+    setFieldValue(postalCodeField, value);
+  };
+
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, setFieldValue, values }) => {
@@ -101,6 +115,16 @@ const DateAndLocationForm = ({
                   id="pickupPostalCode"
                   name="pickupPostalCode"
                   maxLength={5}
+                  onChange={(e) => {
+                    handlePrefillPostalCodeChange(
+                      e.target.value,
+                      setFieldValue,
+                      'pickupPostalCode',
+                      residentialAddressPostalCode,
+                      'useResidentialAddressZIP',
+                      values.useResidentialAddressZIP,
+                    );
+                  }}
                   validate={(value) => postalCodeValidate(value, 'origin', 'pickupPostalCode')}
                 />
                 <CheckboxField
@@ -168,6 +192,16 @@ const DateAndLocationForm = ({
                   id="destinationPostalCode"
                   name="destinationPostalCode"
                   maxLength={5}
+                  onChange={(e) => {
+                    handlePrefillPostalCodeChange(
+                      e.target.value,
+                      setFieldValue,
+                      'destinationPostalCode',
+                      destinationDutyLocationPostalCode,
+                      'useDestinationDutyLocationZIP',
+                      values.useDestinationDutyLocationZIP,
+                    );
+                  }}
                   validate={(value) => postalCodeValidate(value, 'destination', 'destinationPostalCode')}
                 />
                 <CheckboxField
