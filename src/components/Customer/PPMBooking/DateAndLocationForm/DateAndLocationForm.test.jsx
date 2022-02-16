@@ -3,6 +3,7 @@ import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
+import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 
 const defaultProps = {
   onSubmit: jest.fn(),
@@ -241,19 +242,19 @@ describe('DateAndLocationForm component', () => {
         const requiredAlerts = screen.getAllByRole('alert');
 
         // origin ZIP
-        expect(requiredAlerts[0]).toHaveTextContent('Must be valid code');
+        expect(requiredAlerts[0]).toHaveTextContent('Enter a 5-digit ZIP code');
         expect(requiredAlerts[0].nextElementSibling).toHaveAttribute('name', 'pickupPostalCode');
 
         // Secondary origin ZIP
-        expect(requiredAlerts[1]).toHaveTextContent('Must be valid code');
+        expect(requiredAlerts[1]).toHaveTextContent('Enter a 5-digit ZIP code');
         expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'secondaryPickupPostalCode');
 
         // Secondary destination ZIP
-        expect(requiredAlerts[2]).toHaveTextContent('Must be valid code');
+        expect(requiredAlerts[2]).toHaveTextContent('Enter a 5-digit ZIP code');
         expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('name', 'destinationPostalCode');
 
         // Secondary destination ZIP
-        expect(requiredAlerts[3]).toHaveTextContent('Must be valid code');
+        expect(requiredAlerts[3]).toHaveTextContent('Enter a 5-digit ZIP code');
         expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('name', 'secondaryDestinationPostalCode');
 
         // Departure date
@@ -281,10 +282,18 @@ describe('DateAndLocationForm component', () => {
       await userEvent.type(secondaryZIPs[1], '22222');
 
       await waitFor(() => {
-        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('12345', 'origin');
-        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('67890', 'destination');
-        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('11111', 'origin');
-        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('22222', 'destination');
+        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('12345', 'origin', UnsupportedZipCodePPMErrorMsg);
+        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith(
+          '67890',
+          'destination',
+          UnsupportedZipCodePPMErrorMsg,
+        );
+        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('11111', 'origin', UnsupportedZipCodePPMErrorMsg);
+        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith(
+          '22222',
+          'destination',
+          UnsupportedZipCodePPMErrorMsg,
+        );
       });
     });
 
@@ -301,7 +310,11 @@ describe('DateAndLocationForm component', () => {
       await userEvent.type(primaryZIPs[0], '99999');
 
       await waitFor(() => {
-        expect(postalCodeValidatorFailure.postalCodeValidator).toHaveBeenCalledWith('99999', 'origin');
+        expect(postalCodeValidatorFailure.postalCodeValidator).toHaveBeenCalledWith(
+          '99999',
+          'origin',
+          UnsupportedZipCodePPMErrorMsg,
+        );
         /*
         expect(screen.getByRole('alert')).toHaveTextContent(
           'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
