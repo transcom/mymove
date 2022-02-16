@@ -32,6 +32,22 @@ BlankEstimatedWeightsProGear.args = {
   },
 };
 
+export const WarningForOverweightEstimatedWeightProGear = Template.bind({});
+WarningForOverweightEstimatedWeightProGear.args = {
+  onSubmit: action('submit button clicked'),
+  onBack: action('back button clicked'),
+  entitlement: {
+    authorizedWeight: 5000,
+  },
+  mtoShipment: {
+    id: '123',
+    ppmShipment: {
+      id: '123',
+      estimatedWeight: '7000',
+    },
+  },
+};
+
 export const MTOShipmentEstimatedWeightProGear = Template.bind({});
 MTOShipmentEstimatedWeightProGear.args = {
   onSubmit: action('submit button clicked'),

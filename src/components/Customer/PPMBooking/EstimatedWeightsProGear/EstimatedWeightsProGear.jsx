@@ -19,21 +19,21 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
 import { formatWeight } from 'utils/formatters';
 
-const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack }) => {
-  const validationSchema = Yup.object().shape({
-    estimatedPPMWeight: Yup.number().required('Required'),
-    hasProGear: Yup.boolean().required('Required'),
-    estimatedProGearWeight: Yup.number().when(['hasProGear', 'estimatedSpouseProGearWeight'], {
-      is: (hasProGear, estimatedSpouseProGearWeight) => hasProGear && !estimatedSpouseProGearWeight,
-      then: (schema) =>
-        schema
-          .required(`Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.`)
-          .max(2000, 'Enter a weight less than 2,000 lbs'),
-      otherwise: Yup.number().max(2000, 'Enter a weight less than 2,000 lbs'),
-    }),
-    estimatedSpouseProGearWeight: Yup.number().max(500, 'Enter a weight less than 500 lbs'),
-  });
+const validationSchema = Yup.object().shape({
+  estimatedPPMWeight: Yup.number().required('Required'),
+  hasProGear: Yup.boolean().required('Required'),
+  estimatedProGearWeight: Yup.number().when(['hasProGear', 'estimatedSpouseProGearWeight'], {
+    is: (hasProGear, estimatedSpouseProGearWeight) => hasProGear && !estimatedSpouseProGearWeight,
+    then: (schema) =>
+      schema
+        .required(`Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.`)
+        .max(2000, 'Enter a weight less than 2,000 lbs'),
+    otherwise: Yup.number().max(2000, 'Enter a weight less than 2,000 lbs'),
+  }),
+  estimatedSpouseProGearWeight: Yup.number().max(500, 'Enter a weight less than 500 lbs'),
+});
 
+const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack }) => {
   const initialValues = {
     estimatedPPMWeight: mtoShipment?.ppmShipment?.estimatedWeight || '',
     hasProGear: mtoShipment?.ppmShipment?.hasProGear || 'false',
@@ -48,7 +48,7 @@ const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack })
           <div className={classnames(styles.EstimatedWeightsProGearForm, ppmBookingStyles.formContainer)}>
             <Form className={(formStyles.form, ppmBookingStyles.form)}>
               <Alert type="info">{`Total weight allowance for your move: ${formatWeight(
-                entitlement.authorizedWeight,
+                entitlement?.authorizedWeight,
               )}`}</Alert>
               <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Full PPM</h2>
@@ -68,8 +68,10 @@ const EstimatedWeightsProGear = ({ entitlement, mtoShipment, onSubmit, onBack })
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   suffix="lbs"
+                  // formatWeight will display 0lbs if the weight is undefined.
+                  // therefore if entitlement is undefined display the overweight warning
                   warning={
-                    values.estimatedPPMWeight > entitlement?.authorizedWeight
+                    values.estimatedPPMWeight > entitlement?.authorizedWeight || !entitlement
                       ? 'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.'
                       : ''
                   }
