@@ -39,7 +39,7 @@ describe('TOO user', () => {
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('#approved-shipments').should('not.exist');
     cy.get('#requested-shipments');
-    cy.contains('Approve selected shipments').should('be.disabled');
+    cy.contains('Approve selected').should('be.disabled');
     cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
 
     // Select & approve items
@@ -53,7 +53,7 @@ describe('TOO user', () => {
       cy.get('label[for="shipmentManagementFee"]').click();
       cy.get('label[for="counselingFee"]').click();
       // Open modal
-      const button = cy.contains('Approve selected shipments');
+      const button = cy.contains('Approve selected');
       button.should('be.enabled');
       button.click();
       cy.get('#approvalConfirmationModal [data-testid="modal"]').then(($modal) => {
@@ -86,7 +86,7 @@ describe('TOO user', () => {
     cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
     cy.get('#approved-shipments');
     cy.get('#requested-shipments').should('not.exist');
-    cy.contains('Approve selected shipments').should('not.exist');
+    cy.contains('Approve selected').should('not.exist');
   });
 
   it('is able to flag a move for financial review', () => {

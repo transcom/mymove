@@ -126,7 +126,7 @@ describe('RequestedShipments', () => {
       const wrapper = mount(requestedShipmentsComponent);
       const approveButton = wrapper.find('button[data-testid="shipmentApproveButton"]');
       expect(approveButton.exists()).toBe(true);
-      expect(approveButton.text()).toContain('Approve selected shipments');
+      expect(approveButton.text()).toContain('Approve selected');
       expect(approveButton.html()).toContain('disabled=""');
     });
 
@@ -161,7 +161,7 @@ describe('RequestedShipments', () => {
       expect(screen.getAllByText('Second destination address')).toHaveLength(2);
     });
 
-    it('enables the Approve selected shipments button when a shipment and service item are checked', async () => {
+    it('enables the Approve selected button when a shipment and service item are checked', async () => {
       const wrapper = mount(requestedShipmentsComponent);
 
       await act(async () => {
@@ -197,7 +197,7 @@ describe('RequestedShipments', () => {
       expect(wrapper.find('#approvalConfirmationModal').prop('style')).toHaveProperty('display', 'block');
     });
 
-    it('disables the Approve selected shipments button when there is missing required information', async () => {
+    it('disables the Approve selected button when there is missing required information', async () => {
       const wrapper = mount(requestedShipmentsComponentMissingRequiredInfo);
 
       await act(async () => {
@@ -348,7 +348,7 @@ describe('RequestedShipments', () => {
   });
 
   describe('External vendor shipments', () => {
-    it('enables the Approve selected shipments button when there is only external vendor shipments and a service item is checked', async () => {
+    it('enables the Approve selected button when there is only external vendor shipments and a service item is checked', async () => {
       render(requestedExternalVendorShipmentsComponent);
 
       expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
