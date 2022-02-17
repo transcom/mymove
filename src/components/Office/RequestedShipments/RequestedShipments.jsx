@@ -15,6 +15,8 @@ import { formatDateFromIso } from 'shared/formatters';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { tooRoutes } from 'constants/routes';
+import { ORDERS_TYPE } from 'constants/orders';
+import { shipmentDestinationTypes } from 'constants/shipments';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -62,13 +64,29 @@ const RequestedShipments = ({
     ntsSac: ordersInfo.ntsSac,
   };
 
+  // for now we are only showing dest type on retiree and separatee orders
+  const isRetirementOrSeparation =
+    ordersInfo.order_type === ORDERS_TYPE.RETIREMENT || ordersInfo.order_type === ORDERS_TYPE.SEPARATION;
+
+  if (isRetirementOrSeparation) {
+    // destination type must be set for for HHG, NTSR shipments only
+    errorIfMissing.HHG = ['destinationType'];
+    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push('destinationType');
+    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
+    errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
+  }
+
   const shipmentDisplayInfo = (shipment, dutyStationPostal) => {
+    const destType = isRetirementOrSeparation ? shipmentDestinationTypes[shipment.destinationType] : null;
+
     return {
       ...shipment,
       heading: shipmentTypeLabels[shipment.shipmentType],
       isDiversion: shipment.diversion,
       shipmentStatus: shipment.status,
       destinationAddress: shipment.destinationAddress || dutyStationPostal,
+      destinationType: destType,
+      displayDestinationType: isRetirementOrSeparation,
     };
   };
 
