@@ -20,17 +20,23 @@ import Fieldset from 'shared/Fieldset';
 import { formatWeight } from 'utils/formatters';
 
 const validationSchema = Yup.object().shape({
-  estimatedWeight: Yup.number().required('Required'),
+  estimatedWeight: Yup.number().min(1, 'Enter a weight greater than 0 lbs').required('Required'),
   hasProGear: Yup.boolean().required('Required'),
-  proGearWeight: Yup.number().when(['hasProGear', 'spouseProGearWeight'], {
-    is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,
-    then: (schema) =>
-      schema
-        .required(`Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.`)
+  proGearWeight: Yup.number()
+    .min(1, 'Enter a weight greater than 0 lbs')
+    .when(['hasProGear', 'spouseProGearWeight'], {
+      is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,
+      then: (schema) =>
+        schema
+          .required(`Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.`)
+          .max(2000, 'Enter a weight less than 2,000 lbs'),
+      otherwise: Yup.number()
+        .min(1, 'Enter a weight greater than 0 lbs')
         .max(2000, 'Enter a weight less than 2,000 lbs'),
-    otherwise: Yup.number().max(2000, 'Enter a weight less than 2,000 lbs'),
-  }),
-  spouseProGearWeight: Yup.number().max(500, 'Enter a weight less than 500 lbs'),
+    }),
+  spouseProGearWeight: Yup.number()
+    .min(1, 'Enter a weight greater than 0 lbs')
+    .max(500, 'Enter a weight less than 500 lbs'),
 });
 
 const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBack }) => {
