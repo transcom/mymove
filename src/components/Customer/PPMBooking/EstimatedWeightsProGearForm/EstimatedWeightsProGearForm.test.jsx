@@ -18,10 +18,10 @@ const mtoShipmentProps = {
     id: '123',
     ppmShipment: {
       id: '123',
-      hasProGear: 'true',
-      estimatedProGearWeight: '1000',
-      estimatedSpouseProGearWeight: '100',
-      estimatedWeight: '4000',
+      hasProGear: true,
+      estimatedProGearWeight: 1000,
+      estimatedSpouseProGearWeight: 100,
+      estimatedWeight: 4000,
     },
   },
 };
@@ -47,8 +47,8 @@ describe('EstimatedWeightsProGearForm component', () => {
       userEvent.click(hasProGear);
 
       await waitFor(() => {
-        expect(screen.queryByLabelText('Estimated weight of your pro-gear')).toBeInstanceOf(HTMLInputElement);
-        expect(screen.queryByLabelText('Estimated weight of your spouse’s pro-gear')).toBeInstanceOf(HTMLInputElement);
+        expect(screen.getByLabelText('Estimated weight of your pro-gear')).toBeInstanceOf(HTMLInputElement);
+        expect(screen.getByLabelText('Estimated weight of your spouse’s pro-gear')).toBeInstanceOf(HTMLInputElement);
       });
     });
   });

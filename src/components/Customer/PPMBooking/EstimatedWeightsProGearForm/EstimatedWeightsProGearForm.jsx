@@ -35,10 +35,10 @@ const validationSchema = Yup.object().shape({
 
 const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBack }) => {
   const initialValues = {
-    estimatedPPMWeight: mtoShipment?.ppmShipment?.estimatedWeight || '',
-    hasProGear: mtoShipment?.ppmShipment?.hasProGear || 'false',
-    estimatedProGearWeight: mtoShipment?.ppmShipment?.estimatedProGearWeight || '',
-    estimatedSpouseProGearWeight: mtoShipment?.ppmShipment?.estimatedSpouseProGearWeight || '',
+    estimatedPPMWeight: mtoShipment?.ppmShipment?.estimatedWeight?.toString() || '',
+    hasProGear: mtoShipment?.ppmShipment?.hasProGear?.toString() || 'false',
+    estimatedProGearWeight: mtoShipment?.ppmShipment?.estimatedProGearWeight?.toString() || '',
+    estimatedSpouseProGearWeight: mtoShipment?.ppmShipment?.estimatedSpouseProGearWeight?.toString() || '',
   };
 
   return (
@@ -54,8 +54,11 @@ const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBac
                 <h2>Full PPM</h2>
                 <p>
                   Estimate the full weight of your PPM, including everything you plan to move. If you’re moving pro-gear
-                  in this PPM, include that weight in this estimate. Do not count weight twice, though. Do not include
-                  weight in your estimate that will be moved in other shipments.{' '}
+                  in this PPM, include that weight in this estimate.
+                </p>
+                <p>
+                  Do not count weight twice, though. Do not include weight in your estimate that will be moved in other
+                  shipments.
                 </p>
                 <MaskedTextField
                   defaultValue="0"

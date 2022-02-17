@@ -59,10 +59,10 @@ MTOShipmentEstimatedWeightProGear.args = {
     id: '123',
     ppmShipment: {
       id: '123',
-      hasProGear: 'true',
-      estimatedProGearWeight: '1000',
-      estimatedSpouseProGearWeight: '100',
-      estimatedWeight: '4000',
+      hasProGear: true,
+      estimatedProGearWeight: 1000,
+      estimatedSpouseProGearWeight: 100,
+      estimatedWeight: 4000,
     },
   },
 };
