@@ -73,7 +73,7 @@ class MtoShipmentForm extends Component {
 
     const shipmentTypeToSave = shipmentType || selectedMoveType;
     const isNTSR = shipmentTypeToSave === SHIPMENT_OPTIONS.NTSR;
-    const saveDeliveryAddress = hasDeliveryAddress === 'yes' || isNTSR === true;
+    const saveDeliveryAddress = hasDeliveryAddress === 'yes' || isNTSR;
 
     const preformattedMtoShipment = {
       shipmentType: shipmentTypeToSave,
@@ -217,6 +217,7 @@ class MtoShipmentForm extends Component {
                       {orders.has_dependents
                         ? formatWeight(serviceMember.weight_allotment?.total_weight_self_plus_dependents)
                         : formatWeight(serviceMember.weight_allotment?.total_weight_self)}{' '}
+                      total. You’ll be billed for any excess weight you move.
                     </Alert>
 
                     <Form className={formStyles.form}>
