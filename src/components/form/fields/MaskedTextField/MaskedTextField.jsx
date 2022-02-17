@@ -71,9 +71,8 @@ const MaskedTextField = ({
             helpers.setTouched(true, false);
           }}
           {...props}
-        >
-          {children}
-        </IMaskInput>
+        />
+        {children}
         {suffix && <div className="suffix">{suffix}</div>}
       </div>
       {/* eslint-enable react/jsx-props-no-spreading */}
