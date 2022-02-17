@@ -69,10 +69,10 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	if order.Entitlement != nil {
 		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
 	}
-	var originDutyStation models.DutyStation
-	originDutyStation = models.DutyStation{}
-	if order.OriginDutyStation != nil {
-		originDutyStation = *order.OriginDutyStation
+	var originDutyStation models.DutyLocation
+	originDutyStation = models.DutyLocation{}
+	if order.OriginDutyLocation != nil {
+		originDutyStation = *order.OriginDutyLocation
 	}
 
 	ordersType := order.OrdersType
@@ -87,7 +87,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		OrdersTypeDetail:      order.OrdersTypeDetail,
 		OriginDutyStation:     payloadForDutyStationModel(originDutyStation),
 		Grade:                 order.Grade,
-		NewDutyStation:        payloadForDutyStationModel(order.NewDutyStation),
+		NewDutyStation:        payloadForDutyStationModel(order.NewDutyLocation),
 		HasDependents:         handlers.FmtBool(order.HasDependents),
 		SpouseHasProGear:      handlers.FmtBool(order.SpouseHasProGear),
 		UploadedOrders:        orderPayload,
@@ -128,7 +128,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
-	newDutyStation, err := models.FetchDutyStation(appCtx.DB(), stationID)
+	newDutyStation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
@@ -247,7 +247,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
-	dutyStation, err := models.FetchDutyStation(appCtx.DB(), stationID)
+	dutyStation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
@@ -263,8 +263,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	order.OrdersTypeDetail = payload.OrdersTypeDetail
 	order.HasDependents = *payload.HasDependents
 	order.SpouseHasProGear = *payload.SpouseHasProGear
-	order.NewDutyStationID = dutyStation.ID
-	order.NewDutyStation = dutyStation
+	order.NewDutyLocationID = dutyStation.ID
+	order.NewDutyLocation = dutyStation
 	order.TAC = payload.Tac
 	order.SAC = payload.Sac
 

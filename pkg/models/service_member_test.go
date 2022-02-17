@@ -44,8 +44,8 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	email := "bobsally@gmail.com"
 	fakeAddress := testdatagen.MakeStubbedAddress(suite.DB())
 	fakeBackupAddress := testdatagen.MakeStubbedAddress(suite.DB())
-	station := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: DutyStation{
+	location := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: DutyLocation{
 			ID: uuid.Must(uuid.NewV4()),
 		},
 		Stub: true,
@@ -63,7 +63,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 		PersonalEmail:          &email,
 		ResidentialAddressID:   &fakeAddress.ID,
 		BackupMailingAddressID: &fakeBackupAddress.ID,
-		DutyStationID:          &station.ID,
+		DutyStationID:          &location.ID,
 	}
 
 	suite.Equal(false, serviceMember.IsProfileComplete())
@@ -154,8 +154,8 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	dutyStation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -173,25 +173,25 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 	ordersNumber := "FD4534JFJ"
 
 	order := Order{
-		ServiceMemberID:     serviceMember.ID,
-		ServiceMember:       serviceMember,
-		IssueDate:           issueDate,
-		ReportByDate:        reportByDate,
-		OrdersType:          ordersType,
-		HasDependents:       hasDependents,
-		SpouseHasProGear:    spouseHasProGear,
-		OriginDutyStationID: &dutyStation.ID,
-		OriginDutyStation:   &dutyStation,
-		NewDutyStationID:    dutyStation2.ID,
-		NewDutyStation:      dutyStation2,
-		UploadedOrdersID:    uploadedOrder.ID,
-		UploadedOrders:      uploadedOrder,
-		Status:              OrderStatusSUBMITTED,
-		OrdersNumber:        &ordersNumber,
-		TAC:                 &TAC,
-		SAC:                 &SAC,
-		DepartmentIndicator: &deptIndicator,
-		Grade:               swag.String("E-1"),
+		ServiceMemberID:      serviceMember.ID,
+		ServiceMember:        serviceMember,
+		IssueDate:            issueDate,
+		ReportByDate:         reportByDate,
+		OrdersType:           ordersType,
+		HasDependents:        hasDependents,
+		SpouseHasProGear:     spouseHasProGear,
+		OriginDutyLocationID: &dutyLocation.ID,
+		OriginDutyLocation:   &dutyLocation,
+		NewDutyLocationID:    dutyLocation2.ID,
+		NewDutyLocation:      dutyLocation2,
+		UploadedOrdersID:     uploadedOrder.ID,
+		UploadedOrders:       uploadedOrder,
+		Status:               OrderStatusSUBMITTED,
+		OrdersNumber:         &ordersNumber,
+		TAC:                  &TAC,
+		SAC:                  &SAC,
+		DepartmentIndicator:  &deptIndicator,
+		Grade:                swag.String("E-1"),
 	}
 	suite.MustSave(&order)
 
@@ -206,8 +206,8 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 
 	if suite.NoError(err) {
 		suite.Equal(order.Grade, actualOrder.Grade)
-		suite.Equal(order.OriginDutyStationID, actualOrder.OriginDutyStationID)
-		suite.Equal(order.NewDutyStationID, actualOrder.NewDutyStationID)
+		suite.Equal(order.OriginDutyLocationID, actualOrder.OriginDutyLocationID)
+		suite.Equal(order.NewDutyLocationID, actualOrder.NewDutyLocationID)
 		suite.True(order.IssueDate.Equal(actualOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(actualOrder.ReportByDate))
 		suite.Equal(order.OrdersType, actualOrder.OrdersType)

@@ -451,12 +451,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
 		customerRemarks := "I have a grandfather clock"
 		counselorRemarks := "Counselor approved"
-		destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+		destinationType := models.DestinationTypeHomeOfRecord
 		updatedShipment := models.MTOShipment{
 			ID:                       oldShipment.ID,
 			DestinationAddress:       &newDestinationAddress,
 			DestinationAddressID:     &newDestinationAddress.ID,
-			DestinationAddressType:   &destinationAddressType,
+			DestinationType:          &destinationType,
 			PickupAddress:            &newPickupAddress,
 			PickupAddressID:          &newPickupAddress.ID,
 			SecondaryPickupAddress:   &secondaryPickupAddress,
@@ -470,7 +470,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
-		suite.Equal(destinationAddressType, *newShipment.DestinationAddressType)
+		suite.Equal(destinationType, *newShipment.DestinationType)
 	})
 
 	suite.Run("Successfully update MTO Agents", func() {

@@ -119,8 +119,8 @@ func Order(order *models.Order) *ghcmessages.Order {
 		return nil
 	}
 
-	destinationDutyStation := DutyStation(&order.NewDutyStation)
-	originDutyStation := DutyStation(order.OriginDutyStation)
+	destinationDutyStation := DutyLocation(&order.NewDutyLocation)
+	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
@@ -160,7 +160,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		OrderNumber:                 order.OrdersNumber,
 		OrderTypeDetail:             &ordersTypeDetail,
 		ID:                          strfmt.UUID(order.ID.String()),
-		OriginDutyStation:           originDutyStation,
+		OriginDutyStation:           originDutyLocation,
 		ETag:                        etag.GenerateEtag(order.UpdatedAt),
 		Agency:                      branch,
 		CustomerID:                  strfmt.UUID(order.ServiceMemberID.String()),
@@ -233,34 +233,18 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 }
 
-// TODO: Temporary workaround for transforming duty stations into location model, once changes to dutyStation are fully complete we can change this to just DutyLocation
-func DutyStationToLocation(dutyStation *models.DutyStation) *ghcmessages.DutyLocation {
-	if dutyStation == nil {
+// DutyLocation payload
+func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
+	if dutyLocation == nil {
 		return nil
 	}
-	address := Address(&dutyStation.Address)
+	address := Address(&dutyLocation.Address)
 	payload := ghcmessages.DutyLocation{
 		Address:   address,
 		AddressID: address.ID,
-		ID:        strfmt.UUID(dutyStation.ID.String()),
-		Name:      dutyStation.Name,
-		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
-	}
-	return &payload
-}
-
-// DutyStation payload
-func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
-	if dutyStation == nil {
-		return nil
-	}
-	address := Address(&dutyStation.Address)
-	payload := ghcmessages.DutyStation{
-		Address:   address,
-		AddressID: address.ID,
-		ID:        strfmt.UUID(dutyStation.ID.String()),
-		Name:      dutyStation.Name,
-		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
+		ID:        strfmt.UUID(dutyLocation.ID.String()),
+		Name:      dutyLocation.Name,
+		ETag:      etag.GenerateEtag(dutyLocation.UpdatedAt),
 	}
 	return &payload
 }
@@ -464,9 +448,9 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
-	if mtoShipment.DestinationAddressType != nil {
-		destinationAddressType := string(*mtoShipment.DestinationAddressType)
-		payload.DestinationAddressType = &destinationAddressType
+	if mtoShipment.DestinationType != nil {
+		destinationType := ghcmessages.DestinationType(*mtoShipment.DestinationType)
+		payload.DestinationType = &destinationType
 	}
 
 	if sitStatusPayload != nil {
@@ -819,8 +803,8 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
-			OriginDutyLocation:      DutyStationToLocation(move.Orders.OriginDutyStation),
-			DestinationDutyLocation: DutyStationToLocation(&move.Orders.NewDutyStation),
+			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
+			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
 			OriginGBLOC:             gbloc,
 		}
 	}
@@ -876,7 +860,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        ghcmessages.GBLOC(moveTaskOrder.ShipmentGBLOC[0].GBLOC),
-			OriginDutyLocation: DutyStationToLocation(orders.OriginDutyStation),
+			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
 		}
 
 		if orders.DepartmentIndicator != nil {

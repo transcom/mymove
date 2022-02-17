@@ -62,7 +62,7 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 	}
 
 	var originDutyStation, originDutyStationPhoneLine *string
-	dsTransportInfo, err := models.FetchDSContactInfo(appCtx.DB(), serviceMember.DutyStationID)
+	dsTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyStationID)
 	if err != nil {
 		return emails, err
 	}
@@ -88,7 +88,7 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveApprovedEmailData{
 		Link:                       ppmInfoSheetURL.String(),
 		OriginDutyStation:          originDutyStation,
-		DestinationDutyStation:     orders.NewDutyStation.Name,
+		DestinationDutyStation:     orders.NewDutyLocation.Name,
 		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
 		Locator:                    move.Locator,
 	})
