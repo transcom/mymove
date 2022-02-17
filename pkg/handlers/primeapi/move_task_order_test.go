@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/upload"
@@ -108,6 +110,42 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(movePayload.ID.String(), successMove.ID.String())
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
+	})
+
+	suite.T().Run("Returns the destination address type for a shipment on a move if it exists", func(t *testing.T) {
+		successMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: swag.Time(time.Now()),
+				Status:             models.MoveStatusAPPROVED,
+			},
+		})
+		destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+		destinationType := models.DestinationTypeHomeOfRecord
+		successShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrderID:      successMove.ID,
+				DestinationAddressID: &destinationAddress.ID,
+				DestinationType:      &destinationType,
+				Status:               models.MTOShipmentStatusApproved,
+			},
+		})
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+		suite.Equal(movePayload.ID.String(), successMove.ID.String())
+		suite.NotNil(movePayload.AvailableToPrimeAt)
+		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
+
+		// check for the destination address type
+		suite.Equal(string(*successShipment.DestinationType), string(*movePayload.MtoShipments[0].DestinationType))
+
 	})
 
 	suite.T().Run("Success returns reweighs on shipments if they exist", func(t *testing.T) {

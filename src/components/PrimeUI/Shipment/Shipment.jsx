@@ -10,6 +10,7 @@ import { shipmentTypeLabels } from 'content/shipments';
 import { formatDateFromIso } from 'shared/formatters';
 import { ShipmentShape } from 'types/shipment';
 import { primeSimulatorRoutes } from 'constants/routes';
+import { shipmentDestinationTypes } from 'constants/shipments';
 import styles from 'pages/PrimeUI/MoveTaskOrder/MoveDetails.module.scss';
 
 const Shipment = ({ shipment, moveId }) => {
@@ -113,6 +114,14 @@ const Shipment = ({ shipment, moveId }) => {
         <dt>Destination Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.destinationAddress)}</dd>
         <dd>{shipment.destinationAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Destination type:</dt>
+        <dd>
+          {shipmentDestinationTypes[shipment.destinationType]
+            ? shipmentDestinationTypes[shipment.destinationType]
+            : '-'}
+        </dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Created at:</dt>

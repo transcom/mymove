@@ -6,8 +6,8 @@ import userEvent from '@testing-library/user-event';
 import ShipmentForm from './ShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { roleTypes } from 'constants/userRoles';
 import { ORDERS_TYPE } from 'constants/orders';
+import { roleTypes } from 'constants/userRoles';
 
 const mockPush = jest.fn();
 
@@ -185,18 +185,24 @@ describe('ShipmentForm component', () => {
     it('renders a delivery address type for retirement orders type', async () => {
       render(<ShipmentForm {...defaultPropsRetirement} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
       userEvent.click(screen.getByLabelText('Yes'));
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
     });
 
     it('does not render delivery address type for PCS order type', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
       userEvent.click(screen.getByLabelText('Yes'));
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByLabelText('Destination type')).toBeNull();
     });
 
     it('renders a delivery address type for separation orders type', async () => {
       render(<ShipmentForm {...defaultPropsSeparation} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
       userEvent.click(screen.getByLabelText('Yes'));
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
     });
 

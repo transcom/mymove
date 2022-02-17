@@ -58,8 +58,8 @@ const RequestedShipments = ({
   const ordersLOA = {
     tac: ordersInfo.tacMDC,
     sac: ordersInfo.sacSDN,
-    ntsTac: ordersInfo.ntsTac,
-    ntsSac: ordersInfo.ntsSac,
+    ntsTac: ordersInfo.NTStac,
+    ntsSac: ordersInfo.NTSsac,
   };
 
   const shipmentDisplayInfo = (shipment, dutyStationPostal) => {
@@ -265,6 +265,7 @@ const RequestedShipments = ({
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
                     displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                    ordersLOA={ordersLOA}
                     showWhenCollapsed={
                       shipment.usesExternalVendor
                         ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]

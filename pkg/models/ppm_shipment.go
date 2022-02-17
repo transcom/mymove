@@ -12,6 +12,8 @@ import (
 type PPMShipmentStatus string
 
 const (
+	// PPMShipmentStatusDraft captures enum value "DRAFT"
+	PPMShipmentStatusDraft PPMShipmentStatus = "DRAFT"
 	// PPMShipmentStatusSubmitted captures enum value "SUBMITTED"
 	PPMShipmentStatusSubmitted PPMShipmentStatus = "SUBMITTED"
 	// PPMShipmentStatusWaitingOnCustomer captures enum value "WAITING_ON_CUSTOMER"
