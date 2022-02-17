@@ -93,6 +93,12 @@ describe('EstimatedWeightsProGearForm component', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+
+        const requiredAlerts = screen.getByRole('alert');
+
+        expect(requiredAlerts).toHaveTextContent(
+          "Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.",
+        );
       });
     });
   });

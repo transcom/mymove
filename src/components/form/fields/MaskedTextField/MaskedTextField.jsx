@@ -72,6 +72,7 @@ const MaskedTextField = ({
               helpers.setTouched(true, false);
             }}
             {...props}
+            {...field}
           />
           {suffix && <div className="suffix">{suffix}</div>}
         </div>
@@ -92,6 +93,7 @@ const MaskedTextField = ({
             helpers.setTouched(true, false);
           }}
           {...props}
+          {...field}
         />
       )}
       {children}
