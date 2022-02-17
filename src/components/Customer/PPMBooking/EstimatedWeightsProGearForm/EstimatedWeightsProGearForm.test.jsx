@@ -56,16 +56,10 @@ describe('EstimatedWeightsProGearForm component', () => {
   describe('pull values from the ppm shipment when available', () => {
     it('renders blank form on load', async () => {
       render(<EstimatedWeightsProGearForm {...mtoShipmentProps} />);
-      expect(await screen.getByLabelText('Estimated weight of this PPM shipment').value).toBe(
-        mtoShipmentProps.mtoShipment.ppmShipment.estimatedWeight,
-      );
+      expect(await screen.getByLabelText('Estimated weight of this PPM shipment').value).toBe('4,000');
       expect(screen.getByLabelText('Yes').value).toBe('true');
-      expect(screen.getByLabelText('Estimated weight of your pro-gear').value).toBe(
-        mtoShipmentProps.mtoShipment.ppmShipment.proGearWeight,
-      );
-      expect(screen.getByLabelText('Estimated weight of your spouse’s pro-gear').value).toBe(
-        mtoShipmentProps.mtoShipment.ppmShipment.spouseProGearWeight,
-      );
+      expect(screen.getByLabelText('Estimated weight of your pro-gear').value).toBe('1,000');
+      expect(screen.getByLabelText('Estimated weight of your spouse’s pro-gear').value).toBe('100');
     });
   });
 
@@ -99,11 +93,6 @@ describe('EstimatedWeightsProGearForm component', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
-
-        const requiredAlerts = screen.getByRole('alert');
-
-        expect(requiredAlerts).toHaveTextContent('Required');
-        expect(requiredAlerts.nextElementSibling).toHaveAttribute('name', 'spouseProGearWeight');
       });
     });
   });

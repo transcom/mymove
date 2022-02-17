@@ -54,7 +54,28 @@ const MaskedTextField = ({
       )}
       {showWarning && <Hint data-testid="textInputWarning">{warning}</Hint>}
       {/* eslint-disable react/jsx-props-no-spreading */}
-      <div className={suffix && styles.hasSuffix}>
+      {suffix ? (
+        <div className={suffix && styles.hasSuffix}>
+          <IMaskInput
+            className={classnames('usa-input', inputClassName)}
+            data-testid={inputTestId}
+            type={type}
+            id={id}
+            name={name}
+            value={value ?? defaultValue}
+            mask={mask}
+            blocks={blocks}
+            lazy={lazy}
+            onAccept={(val, masked) => {
+              helpers.setValue(masked.unmaskedValue);
+              // setValue is already triggering validation for this field so we should be able to skip it in setTouched
+              helpers.setTouched(true, false);
+            }}
+            {...props}
+          />
+          {suffix && <div className="suffix">{suffix}</div>}
+        </div>
+      ) : (
         <IMaskInput
           className={classnames('usa-input', inputClassName)}
           data-testid={inputTestId}
@@ -72,9 +93,8 @@ const MaskedTextField = ({
           }}
           {...props}
         />
-        {children}
-        {suffix && <div className="suffix">{suffix}</div>}
-      </div>
+      )}
+      {children}
       {/* eslint-enable react/jsx-props-no-spreading */}
     </FormGroup>
   );
