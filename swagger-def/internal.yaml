@@ -2392,6 +2392,8 @@ definitions:
         type: string
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
+      ppmshipment:
+        $ref: '#/definitions/PPMShipment'
       requestedPickupDate:
         format: date
         type: string
@@ -2490,10 +2492,35 @@ definitions:
           The net weight of the shipment once it has been weight
         type: integer
         example: 4300
+      hasProGear:
+        description: >
+          Indicates whether PPM shipment has pro gear.
+        type: boolean
+      proGearWeight:
+        type: integer
+      spouseProGearWeight:
+        type: integer
+      estimatedIncentive:
+        type: integer
+      advanceRequested:
+        type: boolean
+      advanceId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      advanceWorksheetId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       eTag:
         description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+        required:
+          - expectedDepartureDate
+          - pickupPostalCode
+          - destinationPostalCode
+          - sitExpected
   UpdateShipment:
     type: object
     properties:
@@ -4634,6 +4661,34 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/mto-shipments/{mtoShipmentID}/ppm-shipments/{ppmShipmentID}':
+    post:
+      summary: createMTOShipment
+      description: This endpoint is used **create** a ppm shipment and a new shipment on the mto shipment table.
+      operationId: createPPMShipment
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: mtoShipmentID
+          description: ppm shipment information
+      responses:
+        201:
+          description: Successfully created PPM Shipment
+          schema:
+            $ref: '#/definitions/PPMShipment'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to create a ppm shipment
+        500:
+          description: Server error
   /moves/{moveTaskOrderID}/mto_shipments:
     get:
       summary: Gets all shipments for a move task order
