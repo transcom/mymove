@@ -6,8 +6,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/testdatagen"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -23,10 +21,10 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 					newPPMShipment: newPPMShipment,
 					oldPPMShipment: nil,
 				},
-				//"update": {
-				//	newPPMShipment: newPPMShipment,
-				//	oldPPMShipment: &models.PPMShipment{ShipmentID: newPPMShipment.ShipmentID},
-				//},
+				"update": {
+					newPPMShipment: newPPMShipment,
+					oldPPMShipment: &models.PPMShipment{ShipmentID: newPPMShipment.ShipmentID},
+				},
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
@@ -37,24 +35,21 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		})
 
 		suite.Run("failure", func() {
-			ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-				Stub: true,
-			})
+			id1 := uuid.Must(uuid.NewV4())
+			id2 := uuid.Must(uuid.NewV4())
+
 			testCases := map[string]struct {
 				newPPMShipment models.PPMShipment
 				oldPPMShipment *models.PPMShipment
 			}{
 				"create": {
-					newPPMShipment: ppmShipment,
+					newPPMShipment: models.PPMShipment{},
 					oldPPMShipment: nil,
 				},
-				//"update": {
-				//	newPPMShipment: models.PPMShipment{ShipmentID: id},
-				//	oldPPMShipment: &models.PPMShipment{},
-				//},
+				"update": {
+					newPPMShipment: models.PPMShipment{ShipmentID: id1},
+					oldPPMShipment: &models.PPMShipment{ShipmentID: id2},
+				},
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
@@ -82,7 +77,10 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 					newPPMShipment: newPPMShipment,
 					oldPPMShipment: nil,
 				},
-				// Add Update Test case here
+				"update": {
+					newPPMShipment: newPPMShipment,
+					oldPPMShipment: &models.PPMShipment{ID: newPPMShipment.ID},
+				},
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
@@ -93,33 +91,33 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		})
 
 		suite.Run("failure", func() {
-			ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-				Stub: true,
-			})
+			id1 := uuid.Must(uuid.NewV4())
+			id2 := uuid.Must(uuid.NewV4())
+
 			testCases := map[string]struct {
 				newPPMShipment models.PPMShipment
 				oldPPMShipment *models.PPMShipment
 				verr           bool
 			}{
 				"create": {
-					newPPMShipment: ppmShipment,
+					newPPMShipment: models.PPMShipment{ID: id1},
 					oldPPMShipment: nil,
 					verr:           true,
 				},
-				//"update": Add Update Test Case here
-			}
+				"update": {
+					newPPMShipment: models.PPMShipment{ID: id1},
+					oldPPMShipment: &models.PPMShipment{ID: id2},
+					verr:           true,
+				}}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
 					err := checkPPMShipmentID().Validate(suite.AppContextForTest(), testCase.newPPMShipment, testCase.oldPPMShipment, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
-						suite.True(testCase.verr, "expected something other than a *validate.Errors type")
+						suite.True(verr.HasAny())
 						suite.Contains(verr.Keys(), "ID")
 					default:
-						suite.False(testCase.verr, "expected a *validate.Errors: %t - naid %s", err, testCase.newPPMShipment.ID)
+						suite.Failf("expected *validate.Errors", "%t - %v", err, err)
 					}
 				})
 			}
@@ -127,13 +125,12 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		})
 	})
 	suite.Run("CheckRequiredFields()", func() {
-		suite.Run("Success", func() {
-			expectedTime := time.Now()
-			pickupPostal := "99999"
-			destPostalcode := "99999"
-			sitExpected := false
-			shipmentID := uuid.Must(uuid.NewV4())
-
+		expectedTime := time.Now()
+		pickupPostal := "99999"
+		destPostalcode := "99999"
+		sitExpected := false
+		shipmentID := uuid.Must(uuid.NewV4())
+		suite.Run("success", func() {
 			newPPMShipment := models.PPMShipment{
 				ShipmentID:            shipmentID,
 				ExpectedDepartureDate: &expectedTime,
@@ -143,10 +140,25 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			}
 
 			err := checkRequiredFields().Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
-
-			// Verrs is initialized but empty, and we expect err as a return value in the func:
 			suite.NilOrNoVerrs(err)
-			//suite.NotNil(createdPPMShipment)
+		})
+
+		suite.Run("failure", func() {
+			newPPMShipment := models.PPMShipment{
+				ShipmentID:            shipmentID,
+				ExpectedDepartureDate: &expectedTime,
+				PickupPostalCode:      &pickupPostal,
+				SitExpected:           &sitExpected,
+			}
+
+			err := checkRequiredFields().Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
+			switch verr := err.(type) {
+			case *validate.Errors:
+				suite.True(verr.HasAny())
+				suite.Contains(verr.Keys(), "destinationPostalCode")
+			default:
+				suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+			}
 		})
 	})
 }
