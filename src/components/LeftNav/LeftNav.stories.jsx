@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import LeftNav from './index';
 
+import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
+
 // Left Nav
 export default {
   title: 'Components/Left Nav',
@@ -18,26 +20,26 @@ export default {
 export const Basic = () => (
   <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
     <LeftNav>
-      <a href="#">Default</a>
+      <LeftNavSection sectionName="default">Default</LeftNavSection>
 
-      <a href="#" className="active">
+      <LeftNavSection sectionName="allowances" isActive>
         Allowances
-      </a>
-      <a href="#">
+      </LeftNavSection>
+      <LeftNavSection sectionName="requestedShipments">
         Requested Shipments
         <Tag className="usa-tag usa-tag--alert">
           <FontAwesomeIcon icon="exclamation" />
         </Tag>
-      </a>
-      <a href="#orders-anchor">
+      </LeftNavSection>
+      <LeftNavSection sectionName="orders-anchor">
         Orders
         <Tag className="usa-tag--teal">INTL</Tag>
-      </a>
+      </LeftNavSection>
 
-      <a href="#">
+      <LeftNavSection sectionName="customerInfo">
         Customer Info
         <Tag>3</Tag>
-      </a>
+      </LeftNavSection>
     </LeftNav>
   </div>
 );
