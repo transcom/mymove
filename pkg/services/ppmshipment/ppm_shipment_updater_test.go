@@ -55,7 +55,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 	eTag := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
 	suite.T().Run("UpdatePPMShipment - Success", func(t *testing.T) {
-		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentCheck(suite.AppContextForTest(), &newPPM, eTag)
+		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM, eTag)
 
 		suite.NilOrNoVerrs(err)
 		suite.True(*updatedPPMShipment.SitExpected)
@@ -64,10 +64,10 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 	suite.T().Run("Not Found Error", func(t *testing.T) {
 		ppmForNotFound := models.PPMShipment{
-			ID:          uuid.FromStringOrNil(""),
+			ID:          uuid.Nil,
 			SitExpected: models.BoolPointer(true),
 		}
-		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentCheck(suite.AppContextForTest(), &ppmForNotFound, eTag)
+		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &ppmForNotFound, eTag)
 
 		suite.Nil(updatedPPMShipment)
 		suite.Error(err)
@@ -75,7 +75,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentCheck(suite.AppContextForTest(), &newPPM, "")
+		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM, "")
 
 		suite.Nil(updatedPPMShipment)
 		suite.Error(err)

@@ -30,16 +30,14 @@ func NewPPMShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater) servi
 	}
 }
 
-// UpdatePPMShipmentCheck
-func (f *ppmShipmentUpdater) UpdatePPMShipmentCheck(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, eTag string) (*models.PPMShipment, error) {
-	return f.UpdatePPMShipment(appCtx, ppmShipment, eTag, f.checks...)
+func (f *ppmShipmentUpdater) UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, eTag string) (*models.PPMShipment, error) {
+	return f.updatePPMShipment(appCtx, ppmShipment, eTag, f.checks...)
 }
 
-func (f *ppmShipmentUpdater) UpdatePPMShipment(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, eTag string, checks ...ppmShipmentValidator) (*models.PPMShipment, error) {
-	// var updatedPPMShipment *models.PPMShipment
-
+func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, eTag string, checks ...ppmShipmentValidator) (*models.PPMShipment, error) {
 	oldPPMShipment := models.PPMShipment{}
-	// Find the ppmShipment, return an error if not found
+
+	// Find the previous ppmShipment, return an error if not found
 	err := appCtx.DB().Find(&oldPPMShipment, ppmShipment.ID)
 	if err != nil {
 		switch err {
@@ -50,8 +48,13 @@ func (f *ppmShipmentUpdater) UpdatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 	}
 
+	encodedUpdatedAt := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
+	if encodedUpdatedAt != eTag {
+		return nil, apperror.NewPreconditionFailedError(ppmShipment.ID, nil)
+	}
+
 	mtoShipment := models.MTOShipment{}
-	// Find the mtoShipment, return an error if not found
+	// Find the associated mtoShipment, return an error if not found
 	err = appCtx.DB().Find(&mtoShipment, oldPPMShipment.ShipmentID)
 	if err != nil {
 		switch err {
@@ -62,13 +65,6 @@ func (f *ppmShipmentUpdater) UpdatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 	}
 	oldPPMShipment.Shipment = mtoShipment
-
-	// Check the If-Match header against existing eTag before updating
-	// TODO: does order matter? should this happen after validation checks?
-	encodedUpdatedAt := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
-	if encodedUpdatedAt != eTag {
-		return nil, apperror.NewPreconditionFailedError(ppmShipment.ID, nil)
-	}
 
 	var oldPPMCopy, newPPMCopy models.PPMShipment
 	err = deepcopy.Copy(&oldPPMCopy, oldPPMShipment)
@@ -84,12 +80,10 @@ func (f *ppmShipmentUpdater) UpdatePPMShipment(appCtx appcontext.AppContext, ppm
 	updatedPPMShipment := &oldPPMCopy
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		// err = validatePPMShipment(appCtx, *ppmShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
 		err = validatePPMShipment(appCtx, *updatedPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
 		if err != nil {
 			return err
 		}
-		// verrs, err := appCtx.DB().ValidateAndUpdate(&updatedPPMShipment)
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
 
 		if verrs != nil && verrs.HasAny() {
@@ -104,6 +98,5 @@ func (f *ppmShipmentUpdater) UpdatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, transactionError
 	}
 
-	// return &updatedPPMShipment, nil
 	return updatedPPMShipment, nil
 }
