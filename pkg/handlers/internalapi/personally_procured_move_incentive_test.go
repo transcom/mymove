@@ -106,18 +106,18 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uui
 	}
 	suite.MustSave(&address)
 
-	stationName := "New Duty Station"
-	station := models.DutyStation{
-		Name:      stationName,
+	locationName := "New Duty Location"
+	location := models.DutyLocation{
+		Name:      locationName,
 		AddressID: address.ID,
 		Address:   address,
 	}
-	suite.MustSave(&station)
+	suite.MustSave(&location)
 
 	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               ordersID,
-			NewDutyStationID: station.ID,
+			ID:                ordersID,
+			NewDutyLocationID: location.ID,
 		},
 	})
 

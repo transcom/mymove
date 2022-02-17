@@ -4909,8 +4909,8 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 		},
 	})
 
-	newDutyStation := testdatagen.MakeDutyStation(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	newDutyLocation := testdatagen.MakeDutyLocation(db, testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			AddressID: address.ID,
 			Address:   address,
 		},
@@ -4918,10 +4918,10 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 
 	order := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
-			NewDutyStationID: newDutyStation.ID,
-			NewDutyStation:   newDutyStation,
-			OrdersNumber:     models.StringPointer("ORDER3"),
-			TAC:              models.StringPointer("F8E1"),
+			NewDutyLocationID: newDutyLocation.ID,
+			NewDutyLocation:   newDutyLocation,
+			OrdersNumber:      models.StringPointer("ORDER3"),
+			TAC:               models.StringPointer("F8E1"),
 		},
 	})
 
@@ -4942,7 +4942,7 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 		Order: models.Order{
@@ -4993,7 +4993,7 @@ func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUplo
 	submittedAt := time.Now()
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 		Move: models.Move{
@@ -5041,7 +5041,7 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 	submittedAt := time.Now()
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 		Move: models.Move{
@@ -5080,7 +5080,7 @@ func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
 	servicesCounselingCompletedAt := time.Now()
 	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 		Move: models.Move{
@@ -5104,7 +5104,7 @@ func createHHGNoShipments(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 	})
@@ -5680,8 +5680,8 @@ func makeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 func createRandomMove(
 	appCtx appcontext.AppContext,
 	possibleStatuses []models.MoveStatus,
-	allDutyStations []models.DutyStation,
-	dutyStationsInGBLOC []models.DutyStation,
+	allDutyLocations []models.DutyLocation,
+	dutyLocationsInGBLOC []models.DutyLocation,
 	withFullOrder bool,
 	assertions testdatagen.Assertions) models.Move {
 	db := appCtx.DB()
@@ -5704,33 +5704,33 @@ func createRandomMove(
 			models.AffiliationMARINES}[randomAffiliation]
 	}
 
-	dutyStationCount := len(allDutyStations)
-	if assertions.Order.OriginDutyStationID == nil {
+	dutyStationCount := len(allDutyLocations)
+	if assertions.Order.OriginDutyLocationID == nil {
 		// We can pick any origin duty station not only one in the office user's GBLOC
 		if *assertions.ServiceMember.Affiliation == models.AffiliationMARINES {
 			randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 			}
-			assertions.Order.OriginDutyStation = &allDutyStations[randDutyStaionIndex]
-			assertions.Order.OriginDutyStationID = &assertions.Order.OriginDutyStation.ID
+			assertions.Order.OriginDutyLocation = &allDutyLocations[randDutyStaionIndex]
+			assertions.Order.OriginDutyLocationID = &assertions.Order.OriginDutyLocation.ID
 		} else {
-			randDutyStaionIndex, err := random.GetRandomInt(len(dutyStationsInGBLOC))
+			randDutyStaionIndex, err := random.GetRandomInt(len(dutyLocationsInGBLOC))
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 			}
-			assertions.Order.OriginDutyStation = &dutyStationsInGBLOC[randDutyStaionIndex]
-			assertions.Order.OriginDutyStationID = &assertions.Order.OriginDutyStation.ID
+			assertions.Order.OriginDutyLocation = &dutyLocationsInGBLOC[randDutyStaionIndex]
+			assertions.Order.OriginDutyLocationID = &assertions.Order.OriginDutyLocation.ID
 		}
 	}
 
-	if assertions.Order.NewDutyStationID == uuid.Nil {
+	if assertions.Order.NewDutyLocationID == uuid.Nil {
 		randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
 		if err != nil {
 			log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 		}
-		assertions.Order.NewDutyStation = allDutyStations[randDutyStaionIndex]
-		assertions.Order.NewDutyStationID = assertions.Order.NewDutyStation.ID
+		assertions.Order.NewDutyLocation = allDutyLocations[randDutyStaionIndex]
+		assertions.Order.NewDutyLocationID = assertions.Order.NewDutyLocation.ID
 	}
 
 	randomFirst, randomLast := fakedata.RandomName()

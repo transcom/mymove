@@ -36,8 +36,8 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 	serviceMemberID, _ := uuid.NewV4()
 	//advanceID, _ := uuid.NewV4()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypeHHGPPM
 
@@ -47,8 +47,8 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 			SelectedMoveType: &moveType,
 		},
 		Order: models.Order{
-			OrdersType:       ordersType,
-			NewDutyStationID: fortGordon.ID,
+			OrdersType:        ordersType,
+			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
 			ID:            serviceMemberID,

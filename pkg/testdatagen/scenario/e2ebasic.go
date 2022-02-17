@@ -3056,13 +3056,13 @@ func createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext, u
 func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	moveRouter := moverouter.NewMoveRouter()
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
-	var allDutyStations []models.DutyStation
-	appCtx.DB().All(&allDutyStations)
+	var allDutyLocations []models.DutyLocation
+	appCtx.DB().All(&allDutyLocations)
 
-	var originDutyStationsInGBLOC []models.DutyStation
+	var originDutyLocationsInGBLOC []models.DutyLocation
 	appCtx.DB().Where("transportation_offices.GBLOC = ?", "LKNQ").
-		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
-		All(&originDutyStationsInGBLOC)
+		InnerJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
+		All(&originDutyLocationsInGBLOC)
 
 	/*
 	* Creates two valid, unclaimed access codes

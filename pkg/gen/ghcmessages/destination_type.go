@@ -15,7 +15,7 @@ import (
 )
 
 // DestinationType Destination Type
-// Example: Other than authorized
+// Example: OTHER_THAN_AUTHORIZED
 //
 // swagger:model DestinationType
 type DestinationType string

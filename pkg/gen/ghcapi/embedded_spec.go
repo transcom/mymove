@@ -3578,7 +3578,7 @@ func init() {
         "OTHER_THAN_AUTHORIZED"
       ],
       "x-nullable": true,
-      "example": "Other than authorized"
+      "example": "OTHER_THAN_AUTHORIZED"
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -3615,31 +3615,6 @@ func init() {
       }
     },
     "DutyLocation": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "address_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
-        }
-      }
-    },
-    "DutyStation": {
       "type": "object",
       "properties": {
         "address": {
@@ -4591,7 +4566,7 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string"
@@ -4656,7 +4631,7 @@ func init() {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
           "type": "string",
@@ -10281,7 +10256,7 @@ func init() {
         "OTHER_THAN_AUTHORIZED"
       ],
       "x-nullable": true,
-      "example": "Other than authorized"
+      "example": "OTHER_THAN_AUTHORIZED"
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -10318,31 +10293,6 @@ func init() {
       }
     },
     "DutyLocation": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "address_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
-        }
-      }
-    },
-    "DutyStation": {
       "type": "object",
       "properties": {
         "address": {
@@ -11294,7 +11244,7 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string"
@@ -11359,7 +11309,7 @@ func init() {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
           "type": "string",

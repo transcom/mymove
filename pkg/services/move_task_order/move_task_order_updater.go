@@ -272,7 +272,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCon
 	var moveTaskOrder models.Move
 
 	err := appCtx.DB().Q().EagerPreload(
-		"Orders.NewDutyStation.Address",
+		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
 		"MTOShipments",

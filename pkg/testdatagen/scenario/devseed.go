@@ -32,13 +32,13 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 	moveRouter := moverouter.NewMoveRouter()
 
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
-	var allDutyStations []models.DutyStation
-	db.All(&allDutyStations)
+	var allDutyLocations []models.DutyLocation
+	db.All(&allDutyLocations)
 
-	var originDutyStationsInGBLOC []models.DutyStation
+	var originDutyLocationsInGBLOC []models.DutyLocation
 	db.Where("transportation_offices.GBLOC = ?", "KKFA").
-		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
-		All(&originDutyStationsInGBLOC)
+		InnerJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
+		All(&originDutyLocationsInGBLOC)
 
 	/*
 		ADD NEW SUB-SCENARIOS HERE
@@ -47,14 +47,14 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 	// sets the sub-scenarios
 	e.SubScenarios = map[string]func(){
 		"additional_ppm_users":         subScenarioAdditionalPPMUsers(appCtx, userUploader),
-		"diverted_shipments":           subScenarioDivertedShipments(appCtx, userUploader, allDutyStations, originDutyStationsInGBLOC),
+		"diverted_shipments":           subScenarioDivertedShipments(appCtx, userUploader, allDutyLocations, originDutyLocationsInGBLOC),
 		"hhg_onboarding":               subScenarioHHGOnboarding(appCtx, userUploader),
-		"hhg_services_counseling":      subScenarioHHGServicesCounseling(appCtx, userUploader, allDutyStations, originDutyStationsInGBLOC),
+		"hhg_services_counseling":      subScenarioHHGServicesCounseling(appCtx, userUploader, allDutyLocations, originDutyLocationsInGBLOC),
 		"payment_request_calculations": subScenarioPaymentRequestCalculations(appCtx, userUploader, primeUploader, moveRouter),
 		"ppm_onboarding":               subScenarioPPMOnboarding(appCtx, userUploader, moveRouter),
 		"ppm_and_hhg":                  subScenarioPPMAndHHG(appCtx, userUploader, moveRouter),
 		"ppm_office_queue":             subScenarioPPMOfficeQueue(appCtx, userUploader, moveRouter),
-		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(appCtx, allDutyStations, originDutyStationsInGBLOC),
+		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(appCtx, allDutyLocations, originDutyLocationsInGBLOC),
 		"txo_queues":                   subScenarioTXOQueues(appCtx, userUploader, logger),
 		"misc":                         subScenarioMisc(appCtx, userUploader, primeUploader, moveRouter),
 		"reweighs":                     subScenarioReweighs(appCtx, userUploader, primeUploader, moveRouter),

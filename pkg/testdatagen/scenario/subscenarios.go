@@ -15,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
+func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocations []models.DutyLocation, originDutyLocationsInGBLOC []models.DutyLocation) func() {
 	db := appCtx.DB()
 	return func() {
 		createTXO(appCtx)
@@ -30,7 +30,7 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyStatio
 		ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 		tac := "1234"
 		// make sure to create moves that does not go to US marines affiliation
-		move := createRandomMove(appCtx, validStatuses, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
+		move := createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, true, testdatagen.Assertions{
 			Order: models.Order{
 				DepartmentIndicator: (*string)(&affiliationAirForce),
 				OrdersNumber:        &ordersNumber,
@@ -101,7 +101,7 @@ func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *upload
 }
 
 func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader *uploader.UserUploader,
-	allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
+	allDutyLocations []models.DutyLocation, originDutyLocationsInGBLOC []models.DutyLocation) func() {
 	return func() {
 		createTXOServicesCounselor(appCtx)
 		createTXOServicesUSMCCounselor(appCtx)
@@ -148,7 +148,7 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 
 		for i := 0; i < 12; i++ {
 			validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
-			createRandomMove(appCtx, validStatuses, allDutyStations, originDutyStationsInGBLOC, false, testdatagen.Assertions{
+			createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, false, testdatagen.Assertions{
 				UserUploader: userUploader,
 			})
 		}
@@ -212,7 +212,7 @@ func subScenarioPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploader.U
 }
 
 func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader,
-	allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
+	allDutyLocations []models.DutyLocation, originDutyLocationsInGBLOC []models.DutyLocation) func() {
 	return func() {
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
@@ -221,7 +221,7 @@ func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *up
 		createMoveWithDivertedShipments(appCtx, userUploader)
 
 		// Create diverted shipments that are approved and appear on the Move Task Order page
-		createRandomMove(appCtx, nil, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
+		createRandomMove(appCtx, nil, allDutyLocations, originDutyLocationsInGBLOC, true, testdatagen.Assertions{
 			UserUploader: userUploader,
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,

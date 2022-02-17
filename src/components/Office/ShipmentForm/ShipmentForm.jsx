@@ -114,7 +114,9 @@ const ShipmentForm = ({
 
   const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
-    isCreatePage ? { userRole } : { userRole, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    isCreatePage
+      ? { userRole, shipmentType }
+      : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
   );
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
@@ -492,7 +494,7 @@ ShipmentForm.propTypes = {
   TACs: AccountingCodesShape,
   SACs: AccountingCodesShape,
   userRole: oneOf(officeRoles).isRequired,
-  orderType: oneOf(ORDERS_TYPE).isRequired,
+  orderType: oneOf(Object.values(ORDERS_TYPE)).isRequired,
 };
 
 ShipmentForm.defaultProps = {

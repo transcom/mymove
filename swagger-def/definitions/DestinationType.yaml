@@ -1,6 +1,6 @@
 type: string
 title: Destination Type
-example: Other than authorized
+example: OTHER_THAN_AUTHORIZED
 x-nullable: true
 enum:
   - HOME_OF_RECORD

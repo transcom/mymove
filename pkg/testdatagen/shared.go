@@ -38,10 +38,9 @@ type Assertions struct {
 	BackupContact                            models.BackupContact
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
-	DestinationDutyStation                   models.DutyStation
+	DestinationDutyStation                   models.DutyLocation
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
-	DutyStation                              models.DutyStation
 	DutyLocation                             models.DutyLocation
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
@@ -63,7 +62,7 @@ type Assertions struct {
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	Organization                             models.Organization
-	OriginDutyStation                        models.DutyStation
+	OriginDutyLocation                       models.DutyLocation
 	PaymentRequest                           models.PaymentRequest
 	PaymentRequestToInterchangeControlNumber models.PaymentRequestToInterchangeControlNumber
 	PaymentServiceItem                       models.PaymentServiceItem
