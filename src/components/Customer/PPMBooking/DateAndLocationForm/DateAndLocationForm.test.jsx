@@ -38,6 +38,10 @@ const mtoShipmentProps = {
   },
 };
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 describe('DateAndLocationForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load', async () => {
@@ -176,17 +180,10 @@ describe('DateAndLocationForm component', () => {
         ).toBeInTheDocument();
       });
     });
-
     it('marks secondary ZIP fields as required when conditionally displayed', async () => {
       const hasSecondaryZIPs = {
         ...defaultProps,
-        mtoShipment: {
-          ppmShipment: {
-            pickupPostalCode: '90210',
-            destinationPostalCode: '10001',
-            expectedDepartureDate: '2022-07-04',
-          },
-        },
+        postalCodeValidator: jest.fn(),
       };
       render(<DateAndLocationForm {...hasSecondaryZIPs} />);
 
@@ -198,7 +195,6 @@ describe('DateAndLocationForm component', () => {
       const secondaryZIPs = screen.getAllByLabelText('Second ZIP');
 
       await userEvent.click(secondaryZIPs[0]);
-      await userEvent.tab();
 
       await userEvent.click(secondaryZIPs[1]);
       await userEvent.tab();
@@ -217,7 +213,6 @@ describe('DateAndLocationForm component', () => {
         expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'secondaryDestinationPostalCode');
       });
     });
-
     it('displays type errors when input fails validation schema', async () => {
       const invalidTypes = {
         ...defaultProps,
@@ -264,32 +259,44 @@ describe('DateAndLocationForm component', () => {
         ).toBeInTheDocument();
       });
     });
-
     it('calls postalCodeValidator when the ZIP value changes', async () => {
-      render(<DateAndLocationForm {...defaultProps} />);
-
+      const validatorProps = {
+        ...defaultProps,
+        postalCodeValidator: jest.fn(),
+      };
+      render(<DateAndLocationForm {...validatorProps} />);
       const primaryZIPs = screen.getAllByLabelText('ZIP');
-      await userEvent.type(primaryZIPs[0], '12345');
-      await userEvent.type(primaryZIPs[1], '67890');
+
+      userEvent.type(primaryZIPs[0], '12345');
+
+      userEvent.type(primaryZIPs[1], '67890');
 
       const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
 
-      await userEvent.click(inputHasSecondaryZIP[0]);
-      await userEvent.click(inputHasSecondaryZIP[1]);
+      userEvent.click(inputHasSecondaryZIP[0]);
+      userEvent.click(inputHasSecondaryZIP[1]);
 
       const secondaryZIPs = screen.getAllByLabelText('Second ZIP');
-      await userEvent.type(secondaryZIPs[0], '11111');
-      await userEvent.type(secondaryZIPs[1], '22222');
+      userEvent.type(secondaryZIPs[0], '11111');
+      userEvent.type(secondaryZIPs[1], '22222');
 
-      await waitFor(() => {
-        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('12345', 'origin', UnsupportedZipCodePPMErrorMsg);
-        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith(
+      await waitFor(async () => {
+        expect(validatorProps.postalCodeValidator).toHaveBeenCalledWith(
+          '12345',
+          'origin',
+          UnsupportedZipCodePPMErrorMsg,
+        );
+        expect(validatorProps.postalCodeValidator).toHaveBeenCalledWith(
           '67890',
           'destination',
           UnsupportedZipCodePPMErrorMsg,
         );
-        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith('11111', 'origin', UnsupportedZipCodePPMErrorMsg);
-        expect(defaultProps.postalCodeValidator).toHaveBeenCalledWith(
+        expect(validatorProps.postalCodeValidator).toHaveBeenCalledWith(
+          '11111',
+          'origin',
+          UnsupportedZipCodePPMErrorMsg,
+        );
+        expect(validatorProps.postalCodeValidator).toHaveBeenCalledWith(
           '22222',
           'destination',
           UnsupportedZipCodePPMErrorMsg,
@@ -307,7 +314,7 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...postalCodeValidatorFailure} />);
 
       const primaryZIPs = screen.getAllByLabelText('ZIP');
-      await userEvent.type(primaryZIPs[0], '99999');
+      userEvent.type(primaryZIPs[0], '99999');
 
       await waitFor(() => {
         expect(postalCodeValidatorFailure.postalCodeValidator).toHaveBeenCalledWith(
@@ -319,7 +326,7 @@ describe('DateAndLocationForm component', () => {
         expect(screen.getByRole('alert')).toHaveTextContent(
           'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
         );
-        */
+       */
       });
     });
   });
