@@ -19,8 +19,8 @@ const mtoShipmentProps = {
     ppmShipment: {
       id: '123',
       hasProGear: true,
-      estimatedProGearWeight: 1000,
-      estimatedSpouseProGearWeight: 100,
+      proGearWeight: 1000,
+      spouseProGearWeight: 100,
       estimatedWeight: 4000,
     },
   },
@@ -61,10 +61,10 @@ describe('EstimatedWeightsProGearForm component', () => {
       );
       expect(screen.getByLabelText('Yes').value).toBe('true');
       expect(screen.getByLabelText('Estimated weight of your pro-gear').value).toBe(
-        mtoShipmentProps.mtoShipment.ppmShipment.estimatedProGearWeight,
+        mtoShipmentProps.mtoShipment.ppmShipment.proGearWeight,
       );
       expect(screen.getByLabelText('Estimated weight of your spouse’s pro-gear').value).toBe(
-        mtoShipmentProps.mtoShipment.ppmShipment.estimatedSpouseProGearWeight,
+        mtoShipmentProps.mtoShipment.ppmShipment.spouseProGearWeight,
       );
     });
   });
@@ -103,7 +103,7 @@ describe('EstimatedWeightsProGearForm component', () => {
         const requiredAlerts = screen.getByRole('alert');
 
         expect(requiredAlerts).toHaveTextContent('Required');
-        expect(requiredAlerts.nextElementSibling).toHaveAttribute('name', 'estimatedSpouseProGearWeight');
+        expect(requiredAlerts.nextElementSibling).toHaveAttribute('name', 'spouseProGearWeight');
       });
     });
   });

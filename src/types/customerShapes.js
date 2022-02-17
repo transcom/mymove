@@ -93,8 +93,8 @@ export const PPMShipmentShape = shape({
   sitExpected: bool,
   expectedDepartureDate: string,
   hasProGear: bool,
-  estimatedProGearWeight: number,
-  estimatedSpouseProGearWeight: number,
+  proGearWeight: number,
+  spouseProGearWeight: number,
   estimatedWeight: number,
 });
 

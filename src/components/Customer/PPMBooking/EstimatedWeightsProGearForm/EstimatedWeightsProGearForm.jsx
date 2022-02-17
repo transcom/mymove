@@ -20,25 +20,25 @@ import Fieldset from 'shared/Fieldset';
 import { formatWeight } from 'utils/formatters';
 
 const validationSchema = Yup.object().shape({
-  estimatedPPMWeight: Yup.number().required('Required'),
+  estimatedWeight: Yup.number().required('Required'),
   hasProGear: Yup.boolean().required('Required'),
-  estimatedProGearWeight: Yup.number().when(['hasProGear', 'estimatedSpouseProGearWeight'], {
-    is: (hasProGear, estimatedSpouseProGearWeight) => hasProGear && !estimatedSpouseProGearWeight,
+  proGearWeight: Yup.number().when(['hasProGear', 'spouseProGearWeight'], {
+    is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,
     then: (schema) =>
       schema
         .required(`Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.`)
         .max(2000, 'Enter a weight less than 2,000 lbs'),
     otherwise: Yup.number().max(2000, 'Enter a weight less than 2,000 lbs'),
   }),
-  estimatedSpouseProGearWeight: Yup.number().max(500, 'Enter a weight less than 500 lbs'),
+  spouseProGearWeight: Yup.number().max(500, 'Enter a weight less than 500 lbs'),
 });
 
 const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBack }) => {
   const initialValues = {
-    estimatedPPMWeight: mtoShipment?.ppmShipment?.estimatedWeight?.toString() || '',
+    estimatedWeight: mtoShipment?.ppmShipment?.estimatedWeight?.toString() || '',
     hasProGear: mtoShipment?.ppmShipment?.hasProGear?.toString() || 'false',
-    estimatedProGearWeight: mtoShipment?.ppmShipment?.estimatedProGearWeight?.toString() || '',
-    estimatedSpouseProGearWeight: mtoShipment?.ppmShipment?.estimatedSpouseProGearWeight?.toString() || '',
+    proGearWeight: mtoShipment?.ppmShipment?.proGearWeight?.toString() || '',
+    spouseProGearWeight: mtoShipment?.ppmShipment?.spouseProGearWeight?.toString() || '',
   };
 
   return (
@@ -62,9 +62,9 @@ const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBac
                 </p>
                 <MaskedTextField
                   defaultValue="0"
-                  name="estimatedPPMWeight"
+                  name="estimatedWeight"
                   label="Estimated weight of this PPM shipment"
-                  id="estimatedPPMWeight"
+                  id="estimatedWeight"
                   mask={Number}
                   scale={0} // digits after point, 0 for integers
                   signed={false} // disallow negative
@@ -74,7 +74,7 @@ const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBac
                   // formatWeight will display 0lbs if the weight is undefined.
                   // therefore if entitlement is undefined display the overweight warning
                   warning={
-                    values.estimatedPPMWeight > entitlement?.authorizedWeight || !entitlement
+                    values.estimatedWeight > entitlement?.authorizedWeight || !entitlement
                       ? 'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.'
                       : ''
                   }
@@ -138,9 +138,9 @@ const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBac
                   <>
                     <MaskedTextField
                       defaultValue="0"
-                      name="estimatedProGearWeight"
+                      name="proGearWeight"
                       label="Estimated weight of your pro-gear"
-                      id="estimatedProGearWeight"
+                      id="proGearWeight"
                       mask={Number}
                       scale={0} // digits after point, 0 for integers
                       signed={false} // disallow negative
@@ -150,9 +150,9 @@ const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBac
                     />
                     <MaskedTextField
                       defaultValue="0"
-                      name="estimatedSpouseProGearWeight"
+                      name="spouseProGearWeight"
                       label="Estimated weight of your spouse’s pro-gear"
-                      id="estimatedSpouseProGearWeight"
+                      id="spouseProGearWeight"
                       mask={Number}
                       scale={0} // digits after point, 0 for integers
                       signed={false} // disallow negative
