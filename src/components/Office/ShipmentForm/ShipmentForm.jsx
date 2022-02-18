@@ -248,6 +248,12 @@ const ShipmentForm = ({
                 {errorMessage}
               </Alert>
             )}
+            {isTOO && mtoShipment.usesExternalVendor && (
+              <Alert type="warning">
+                The GHC prime contractor is not handling the shipment. Information will not be automatically shared with
+                the movers handling it.
+              </Alert>
+            )}
 
             <div className={styles.ShipmentForm}>
               <div className={styles.headerWrapper}>
