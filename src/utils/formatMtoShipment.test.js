@@ -111,7 +111,7 @@ describe('formatMtoShipmentForDisplay', () => {
       expect(displayValues.delivery.requestedDate.toDateString()).toBe('Tue Jan 27 2026');
       checkAddressesAreEqual(displayValues.delivery.address, emptyAddressShape);
       checkAgentsAreEqual(displayValues.delivery.agent, emptyAgentShape);
-      expect(displayValues.hasDeliveryAddress).toBe(shipmentType === SHIPMENT_OPTIONS.NTSR ? 'yes' : 'no');
+      expect(displayValues.hasDeliveryAddress).toBe('no');
 
       checkAddressesAreEqual(displayValues.secondaryPickup.address, emptyAddressShape);
       expect(displayValues.hasSecondaryPickup).toBe('no');

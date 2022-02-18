@@ -51,6 +51,8 @@ const RequestedShipments = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
 
+  const filterPrimeShipments = mtoShipments.filter((shipment) => !shipment.usesExternalVendor);
+
   const filterShipments = (formikShipmentIds) => {
     return mtoShipments.filter(({ id }) => formikShipmentIds.includes(id));
   };
@@ -149,13 +151,19 @@ const RequestedShipments = ({
     setIsModalVisible(true);
   };
 
-  // if showing service items, enable button when shipment and service item are selected and there is no missing required Orders information
-  // if not showing service items, enable button if a shipment is selected and there is no missing required Orders information
-  const isButtonEnabled = moveTaskOrder.availableToPrimeAt
+  // if showing service items on a move with Prime shipments, enable button when shipment and service item are selected and there is no missing required Orders information
+  // if not showing service items on a move with Prime shipments, enable button if a shipment is selected and there is no missing required Orders information
+  const primeShipmentsForApproval = moveTaskOrder.availableToPrimeAt
     ? formik.values.shipments.length > 0 && !missingRequiredOrdersInfo
     : formik.values.shipments.length > 0 &&
       (formik.values.counselingFee || formik.values.shipmentManagementFee) &&
       !missingRequiredOrdersInfo;
+
+  // on a move with only External Vendor shipments enable button if a a service item is selected
+  const externalVendorShipmentsOnly = formik.values.counselingFee || formik.values.shipmentManagementFee;
+
+  // Check that there are Prime-handled shipments before determining if the button should be enabled
+  const isButtonEnabled = filterPrimeShipments.length > 0 ? primeShipmentsForApproval : externalVendorShipmentsOnly;
 
   const dutyStationPostal = { postalCode: ordersInfo.newDutyStation?.address?.postalCode };
 
@@ -163,7 +171,11 @@ const RequestedShipments = ({
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
       {shipmentsStatus === 'SUBMITTED' && (
         <>
-          <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
+          <div
+            id="approvalConfirmationModal"
+            data-testid="approvalConfirmationModal"
+            style={{ display: isModalVisible ? 'block' : 'none' }}
+          >
             <ShipmentApprovalPreview
               mtoShipments={filteredShipments}
               ordersInfo={ordersInfo}
@@ -241,7 +253,7 @@ const RequestedShipments = ({
                 type="button"
                 disabled={!isButtonEnabled}
               >
-                <span>Approve selected shipments</span>
+                <span>Approve selected</span>
               </Button>
             </div>
           </form>
