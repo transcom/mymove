@@ -26,6 +26,7 @@ import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from '
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -36,8 +37,8 @@ const sectionLabels = {
 };
 
 const errorIfMissing = {
-  HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
-  HHG_INTO_NTS_DOMESTIC: ['tacType'],
+  HHG_INTO_NTS_DOMESTIC: ['storageFacility', 'serviceOrderNumber', 'tacType'],
+  HHG_OUTOF_NTS_DOMESTIC: ['storageFacility', 'ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
 };
 
 const MoveDetails = ({
@@ -56,6 +57,18 @@ const MoveDetails = ({
   const [activeSection, setActiveSection] = useState('');
 
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
+
+  // for now we are only showing dest type on retiree and separatee orders
+  const isRetirementOrSeparation =
+    order.order_type === ORDERS_TYPE.RETIREMENT || order.order_type === ORDERS_TYPE.SEPARATION;
+
+  if (isRetirementOrSeparation) {
+    // destination type must be set for for HHG, NTSR shipments only
+    errorIfMissing.HHG = ['destinationType'];
+    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push('destinationType');
+    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
+    errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
+  }
 
   let sections = useMemo(() => {
     return ['orders', 'allowances', 'customer-info'];
@@ -334,6 +347,8 @@ const MoveDetails = ({
                 missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
                 handleAfterSuccess={history.push}
                 moveCode={moveCode}
+                errorIfMissing={errorIfMissing}
+                displayDestinationType={isRetirementOrSeparation}
               />
             </div>
           )}
@@ -348,6 +363,8 @@ const MoveDetails = ({
                 mtoServiceItems={mtoServiceItems}
                 shipmentsStatus={shipmentStatuses.APPROVED}
                 moveCode={moveCode}
+                errorIfMissing={errorIfMissing}
+                displayDestinationType={isRetirementOrSeparation}
               />
             </div>
           )}
