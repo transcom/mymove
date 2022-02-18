@@ -5,9 +5,12 @@ import { generatePath } from 'react-router';
 
 import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
+import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
+import { updateMTOShipment } from 'sagas/entities';
 
 const mockPush = jest.fn();
 const mockMoveId = 'move123';
+
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useHistory: () => ({
@@ -16,6 +19,24 @@ jest.mock('react-router-dom', () => ({
   useParams: () => ({
     moveId: mockMoveId,
   }),
+}));
+
+const mockNewShipmentId = 'newShipment123';
+
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  createMTOShipment: jest.fn(),
+  patchMTOShipment: jest.fn(),
+}));
+
+jest.mock('utils/validation', () => ({
+  ...jest.requireActual('utils/validation'),
+  validatePostalCode: jest.fn(),
+}));
+
+jest.mock('sagas/entities', () => ({
+  ...jest.requireActual('sagas/entities'),
+  updateMTOShipment: jest.fn(),
 }));
 
 const defaultProps = {
@@ -30,13 +51,16 @@ const defaultProps = {
       postalCode: '10002',
     },
   },
+  postalCodeValidator: jest.fn(),
 };
 
 const fullShipmentProps = {
+  ...defaultProps,
   mtoShipment: {
     id: '9',
     moveTaskOrderID: mockMoveId,
     ppmShipment: {
+      id: '10',
       pickupPostalCode: '20002',
       secondaryPickupPostalCode: '20003',
       destinationPostalCode: '20004',
@@ -44,8 +68,13 @@ const fullShipmentProps = {
       sitExpected: true,
       expectedDepartureDate: '2022-12-31',
     },
+    eTag: 'Za8lF',
   },
 };
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('DateAndLocation component', () => {
   describe('creating a new PPM shipment', () => {
@@ -67,11 +96,99 @@ describe('DateAndLocation component', () => {
 
       expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
     });
+
+    it('calls create shipment endpoint and formats required payload values', async () => {
+      createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
+
+      render(<DateAndLocation {...defaultProps} />);
+
+      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
+      userEvent.type(primaryPostalCodes[0], '10001');
+      userEvent.type(primaryPostalCodes[1], '10002');
+
+      userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+
+      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        expect(createMTOShipment).toHaveBeenCalledWith({
+          moveTaskOrderID: mockMoveId,
+          shipmentType: 'PPM',
+          ppmShipment: {
+            pickupPostalCode: '10001',
+            destinationPostalCode: '10002',
+            hasSecondaryPickupPostalCode: false,
+            secondaryPickupPostalCode: null,
+            hasSecondaryDestinationPostalCode: false,
+            secondaryDestinationPostalCode: null,
+            sitExpected: false,
+            expectedDepartureDate: '2022-07-04',
+          },
+        });
+
+        expect(updateMTOShipment).toHaveBeenCalledWith({ id: mockNewShipmentId });
+        expect(mockPush).toHaveBeenCalledWith(
+          generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+            moveId: mockMoveId,
+            mtoShipmentId: mockNewShipmentId,
+          }),
+        );
+      });
+    });
+
+    it('calls create shipment endpoint and formats optional payload values', async () => {
+      createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
+
+      render(<DateAndLocation {...defaultProps} />);
+
+      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
+      userEvent.type(primaryPostalCodes[0], '10001');
+      userEvent.type(primaryPostalCodes[1], '10002');
+
+      const radioElements = screen.getAllByLabelText('Yes');
+      userEvent.click(radioElements[0]);
+      userEvent.click(radioElements[1]);
+
+      const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
+      userEvent.type(secondaryPostalCodes[0], '10003');
+      userEvent.type(secondaryPostalCodes[1], '10004');
+
+      userEvent.click(radioElements[2]);
+
+      userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+
+      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        expect(createMTOShipment).toHaveBeenCalledWith({
+          moveTaskOrderID: mockMoveId,
+          shipmentType: 'PPM',
+          ppmShipment: {
+            pickupPostalCode: '10001',
+            destinationPostalCode: '10002',
+            hasSecondaryPickupPostalCode: true,
+            secondaryPickupPostalCode: '10003',
+            hasSecondaryDestinationPostalCode: true,
+            secondaryDestinationPostalCode: '10004',
+            sitExpected: true,
+            expectedDepartureDate: '2022-07-04',
+          },
+        });
+
+        expect(updateMTOShipment).toHaveBeenCalledWith({ id: mockNewShipmentId });
+        expect(mockPush).toHaveBeenCalledWith(
+          generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+            moveId: mockMoveId,
+            mtoShipmentId: mockNewShipmentId,
+          }),
+        );
+      });
+    });
   });
 
   describe('editing an existing PPM shipment', () => {
     it('renders the heading and form with shipment values', async () => {
-      render(<DateAndLocation {...defaultProps} {...fullShipmentProps} />);
+      render(<DateAndLocation {...fullShipmentProps} />);
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
 
@@ -79,13 +196,14 @@ describe('DateAndLocation component', () => {
       const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
 
       await waitFor(() => {
-        expect(postalCodes[0]).toHaveValue('20002');
-        expect(postalCodes[1]).toHaveValue('20004');
-        expect(secondaryPostalCodes[0]).toHaveValue('20003');
-        expect(secondaryPostalCodes[1]).toHaveValue('20005');
-        expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
         expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
       });
+
+      expect(postalCodes[0]).toHaveValue('20002');
+      expect(postalCodes[1]).toHaveValue('20004');
+      expect(secondaryPostalCodes[0]).toHaveValue('20003');
+      expect(secondaryPostalCodes[1]).toHaveValue('20005');
+      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
     });
 
     it('routes back to the home page screen when back is clicked', async () => {
@@ -96,6 +214,61 @@ describe('DateAndLocation component', () => {
       userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
       expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
+    });
+
+    it('calls update shipment endpoint and formats optional payload values', async () => {
+      patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
+
+      render(<DateAndLocation {...fullShipmentProps} />);
+
+      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
+      userEvent.clear(primaryPostalCodes[0]);
+      userEvent.type(primaryPostalCodes[0], '10001');
+      userEvent.clear(primaryPostalCodes[1]);
+      userEvent.type(primaryPostalCodes[1], '10002');
+
+      const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
+      userEvent.clear(secondaryPostalCodes[0]);
+      userEvent.type(secondaryPostalCodes[0], '10003');
+      userEvent.clear(secondaryPostalCodes[1]);
+      userEvent.type(secondaryPostalCodes[1], '10004');
+
+      const expectedDepartureDate = screen.getByLabelText('When do you plan to start moving your PPM?');
+      userEvent.clear(expectedDepartureDate);
+      userEvent.type(expectedDepartureDate, '04 Jul 2022');
+
+      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        expect(patchMTOShipment).toHaveBeenCalledWith(
+          fullShipmentProps.mtoShipment.id,
+          {
+            id: fullShipmentProps.mtoShipment.id,
+            moveTaskOrderID: mockMoveId,
+            shipmentType: 'PPM',
+            ppmShipment: {
+              id: fullShipmentProps.mtoShipment.ppmShipment.id,
+              pickupPostalCode: '10001',
+              destinationPostalCode: '10002',
+              hasSecondaryPickupPostalCode: true,
+              secondaryPickupPostalCode: '10003',
+              hasSecondaryDestinationPostalCode: true,
+              secondaryDestinationPostalCode: '10004',
+              sitExpected: true,
+              expectedDepartureDate: '2022-07-04',
+            },
+          },
+          fullShipmentProps.mtoShipment.eTag,
+        );
+
+        expect(updateMTOShipment).toHaveBeenCalledWith({ id: fullShipmentProps.mtoShipment.id });
+        expect(mockPush).toHaveBeenCalledWith(
+          generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+            moveId: mockMoveId,
+            mtoShipmentId: fullShipmentProps.mtoShipment.id,
+          }),
+        );
+      });
     });
   });
 });

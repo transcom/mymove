@@ -14,6 +14,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { updateMTOShipment } from 'sagas/entities';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
+import { formatDateForSwagger } from 'shared/dates';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -24,35 +25,34 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
 
   const handleBack = () => {
     if (isNewShipment) {
-      return history.push(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
+      history.push(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
     }
 
-    return history.push(generalRoutes.HOME_PATH);
+    history.push(generalRoutes.HOME_PATH);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
+
+    const hasSecondaryPickupPostalCode = values.hasSecondaryPickupPostalCode === 'true';
+    const hasSecondaryDestinationPostalCode = values.hasSecondaryDestinationPostalCode === 'true';
 
     const createOrUpdateShipment = {
       moveTaskOrderID: moveId,
       shipmentType: SHIPMENT_OPTIONS.PPM,
       ppmShipment: {
         pickupPostalCode: values.pickupPostalCode,
-        hasSecondaryPickupPostalCode: values.hasSecondaryPickupPostalCode, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+        hasSecondaryPickupPostalCode, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+        secondaryPickupPostalCode: hasSecondaryPickupPostalCode ? values.secondaryPickupPostalCode : null,
         destinationPostalCode: values.destinationPostalCode,
-        hasSecondaryDestinationPostalCode: values.hasSecondaryDestinationPostalCode,
-        sitExpected: values.sitExpected,
-        expectedDepartureDate: values.expectedDepartureDate,
+        hasSecondaryDestinationPostalCode,
+        secondaryDestinationPostalCode: hasSecondaryDestinationPostalCode
+          ? values.secondaryDestinationPostalCode
+          : null,
+        sitExpected: values.sitExpected === 'true',
+        expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),
       },
     };
-
-    if (values.hasSecondaryPickupPostalCode) {
-      createOrUpdateShipment.secondaryPickupPostalCode = values.secondaryPickupPostalCode;
-    }
-
-    if (values.hasSecondaryDestinationPostalCode) {
-      createOrUpdateShipment.secondaryDestinationPostalCode = values.secondaryDestinationPostalCode;
-    }
 
     if (isNewShipment) {
       createMTOShipment(createOrUpdateShipment)
