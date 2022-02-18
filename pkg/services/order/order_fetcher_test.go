@@ -583,32 +583,18 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		suite.Equal(lknqMove.ID, moves[0].ID)
 	})
 }
-func (suite *OrderServiceSuite) TestListOrdersForNTSRelease() {
+func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	// Make an NTS-Release shipment (and a move).  Should not have a pickup address.
 	move := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
-	// These users should both have the same transportation office.
-	scOfficeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+	// Make a TOO user and the postal code to GBLOC link.
 	tooOfficeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
-
-	// Make the postal code to GBLOC link.
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, tooOfficeUser.TransportationOffice.Gbloc)
 
 	orderFetcher := NewOrderFetcher()
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), tooOfficeUser.ID, &services.ListOrderParams{})
 
-	suite.T().Run("returns NTS-Release move as SC", func(t *testing.T) {
-		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), scOfficeUser.ID, &services.ListOrderParams{})
-
-		suite.FatalNoError(err)
-		suite.Equal(1, moveCount)
-		suite.Len(moves, 1)
-	})
-
-	suite.T().Run("returns NTS-Release move as TOO", func(t *testing.T) {
-		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), tooOfficeUser.ID, &services.ListOrderParams{})
-
-		suite.FatalNoError(err)
-		suite.Equal(1, moveCount)
-		suite.Len(moves, 1)
-	})
+	suite.FatalNoError(err)
+	suite.Equal(1, moveCount)
+	suite.Len(moves, 1)
 }
