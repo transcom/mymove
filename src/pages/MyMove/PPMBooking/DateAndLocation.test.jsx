@@ -278,7 +278,7 @@ describe('DateAndLocation component', () => {
           fullShipmentProps.mtoShipment.eTag,
         );
 
-        expect(screen.getByText('There was an error attempting to updateq your shipment.')).toBeInTheDocument();
+        expect(screen.getByText('There was an error attempting to update your shipment.')).toBeInTheDocument();
       });
     });
 
