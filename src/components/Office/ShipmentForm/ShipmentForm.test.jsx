@@ -564,4 +564,44 @@ describe('ShipmentForm component', () => {
       });
     });
   });
+
+  describe('external vendor shipment', () => {
+    it('shows the TOO an alert', async () => {
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.NTSR}
+          mtoShipment={{ ...mockMtoShipment, usesExternalVendor: true }}
+          isCreatePage={false}
+          userRole={roleTypes.TOO}
+        />,
+      );
+
+      expect(
+        await screen.findByText(
+          'The GHC prime contractor is not handling the shipment. Information will not be automatically shared with the movers handling it.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show the SC an alert', async () => {
+      render(
+        <ShipmentForm
+          // SC is default role from test props
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.NTSR}
+          mtoShipment={{ ...mockMtoShipment, usesExternalVendor: true }}
+          isCreatePage={false}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(
+            'The GHC prime contractor is not handling the shipment. Information will not be automatically shared with the movers handling it.',
+          ),
+        ).not.toBeInTheDocument();
+      });
+    });
+  });
 });
