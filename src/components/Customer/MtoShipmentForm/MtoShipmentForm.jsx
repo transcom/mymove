@@ -384,7 +384,7 @@ class MtoShipmentForm extends Component {
                               />
                             ) : (
                               <p>
-                                We can use the zip of your new duty location.
+                                We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
                                 <br />
                                 <strong>
                                   {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
