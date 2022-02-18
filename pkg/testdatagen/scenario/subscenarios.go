@@ -174,7 +174,94 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		for i := 1; i < 12; i++ {
 			createDefaultHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationAIRFORCE)
 		}
+
+		// Marines
 		createDefaultHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationMARINES)
+
+		//destination type
+		hos := models.DestinationTypeHomeOfSelection
+		hor := models.DestinationTypeHomeOfRecord
+
+		//shipment type
+		hhg := models.MTOShipmentTypeHHG
+		nts := models.MTOShipmentTypeHHGIntoNTSDom
+		ntsR := models.MTOShipmentTypeHHGOutOfNTSDom
+
+		//orders type
+		retirement := internalmessages.OrdersTypeRETIREMENT
+		separation := internalmessages.OrdersTypeSEPARATION
+
+		//Retiree, HOR, HHG
+		createMoveWithOptions(appCtx, testdatagen.Assertions{
+			Order: models.Order{
+				OrdersType: retirement,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    hhg,
+				DestinationType: &hor,
+			},
+			Move: models.Move{
+				Locator: "R3T1R3",
+				Status:  models.MoveStatusSUBMITTED,
+			},
+			DutyLocation: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		})
+
+		//Retiree, HOS, NTS
+		createMoveWithOptions(appCtx, testdatagen.Assertions{
+			Order: models.Order{
+				OrdersType: retirement,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    nts,
+				DestinationType: &hor,
+			},
+			Move: models.Move{
+				Locator: "R3TNTS",
+				Status:  models.MoveStatusSUBMITTED,
+			},
+			DutyLocation: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		})
+
+		//Retiree, HOS, NTSR
+		createMoveWithOptions(appCtx, testdatagen.Assertions{
+			Order: models.Order{
+				OrdersType: retirement,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    ntsR,
+				DestinationType: &hos,
+			},
+			Move: models.Move{
+				Locator: "R3TNTR",
+				Status:  models.MoveStatusSUBMITTED,
+			},
+			DutyLocation: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		})
+
+		//Separatee, HOS, hhg
+		createMoveWithOptions(appCtx, testdatagen.Assertions{
+			Order: models.Order{
+				OrdersType: separation,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    hhg,
+				DestinationType: &hos,
+			},
+			Move: models.Move{
+				Locator: "S3P4R3",
+				Status:  models.MoveStatusSUBMITTED,
+			},
+			DutyLocation: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		})
 	}
 }
 
