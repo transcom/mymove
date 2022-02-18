@@ -168,11 +168,10 @@ describe('Services counselor user', () => {
       cy.get('input[name="dependentsAuthorized"]').click({ force: true });
 
       // Edit allowances page | Save
-      cy.get('button').contains('Save').click();
+      cy.root().submit();
+      // cy.get('button').contains('Save').click();
+      cy.wait(['@patchAllowances']);
     });
-
-    cy.wait(['@patchAllowances']);
-
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     cy.get('[data-testid="progear"]').contains('1,999');
