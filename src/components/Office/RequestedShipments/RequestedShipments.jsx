@@ -66,7 +66,7 @@ const RequestedShipments = ({
 
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
-    ordersInfo.order_type === ORDERS_TYPE.RETIREMENT || ordersInfo.order_type === ORDERS_TYPE.SEPARATION;
+    ordersInfo.ordersType === ORDERS_TYPE.RETIREMENT || ordersInfo.ordersType === ORDERS_TYPE.SEPARATION;
 
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only

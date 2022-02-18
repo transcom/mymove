@@ -1746,6 +1746,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	logger.Info(fmt.Sprintf("New payment request with service item params created with locator %s", move.Locator))
 }
 
+// A generic method
 func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.Assertions) {
 
 	ordersType := assertions.Order.OrdersType
