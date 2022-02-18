@@ -4,7 +4,6 @@ import { Alert, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
-import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -26,6 +25,7 @@ import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from '
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -259,11 +259,11 @@ const MoveDetails = ({
         <LeftNav className={styles.sidebar}>
           {sections.map((s) => {
             return (
-              <a
+              <LeftNavSection
                 key={`sidenav_${s}`}
-                href={`#${s}`}
-                className={classnames({ active: s === activeSection })}
-                onClick={() => setActiveSection(s)}
+                sectionName={s}
+                isActive={s === activeSection}
+                onClickHandler={() => setActiveSection(s)}
               >
                 {sectionLabels[`${s}`]}
                 {s === 'orders' && hasMissingOrdersRequiredInfo && (
@@ -286,7 +286,7 @@ const MoveDetails = ({
                     <FontAwesomeIcon icon="exclamation" />
                   </Tag>
                 )}
-              </a>
+              </LeftNavSection>
             );
           })}
         </LeftNav>

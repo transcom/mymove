@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
-import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
@@ -53,6 +52,7 @@ import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } f
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -590,24 +590,23 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         <LeftNav className={styles.sidebar}>
           {nonShipmentSections.map((s) => {
             return (
-              <a
+              <LeftNavSection
                 key={`sidenav_${s}`}
-                href={`#${s}`}
-                className={classnames({ active: `#${s}` === activeSection })}
-                onClick={() => setActiveSection(`#${s}`)}
+                sectionName={s}
+                isActive={`#${s}` === activeSection}
+                onClickHandler={() => setActiveSection(`#${s}`)}
               >
                 {nonShipmentSectionLabels[`${s}`]}
-              </a>
+              </LeftNavSection>
             );
           })}
           {sections.map((s) => {
-            const classes = classnames({ active: `#s-${s.id}` === activeSection });
             return (
-              <a
+              <LeftNavSection
                 key={`sidenav_${s.id}`}
-                href={`#s-${s.id}`}
-                className={classes}
-                onClick={() => setActiveSection(`#s-${s.id}`)}
+                sectionName={`s-${s.id}`}
+                isActive={`#s-${s.id}` === activeSection}
+                onClickHandler={() => setActiveSection(`#s-${s.id}`)}
               >
                 {s.label}{' '}
                 {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
@@ -616,7 +615,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                       (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
                   </Tag>
                 )}
-              </a>
+              </LeftNavSection>
             );
           })}
         </LeftNav>

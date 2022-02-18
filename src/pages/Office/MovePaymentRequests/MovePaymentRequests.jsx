@@ -34,6 +34,7 @@ import { updateFinancialFlag, updateMTOReviewedBillableWeights, updateMTOShipmen
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 
 const sectionLabels = {
   'billable-weights': 'Billable weights',
@@ -213,11 +214,11 @@ const MovePaymentRequests = ({
         <LeftNav className={txoStyles.sidebar}>
           {sections?.map((s) => {
             return (
-              <a
+              <LeftNavSection
                 key={`sidenav_${s}`}
-                href={`#${s}`}
-                className={classnames({ active: s === activeSection })}
-                onClick={() => setActiveSection(s)}
+                sectionName={s}
+                isActive={s === activeSection}
+                onClickHandler={() => setActiveSection(s)}
               >
                 {sectionLabels[`${s}`]}
                 {s === 'payment-requests' && paymentRequests?.length > 0 && (
@@ -244,7 +245,7 @@ const MovePaymentRequests = ({
                       className={classnames(styles.warning, styles.errorTag)}
                     />
                   )}
-              </a>
+              </LeftNavSection>
             );
           })}
         </LeftNav>
