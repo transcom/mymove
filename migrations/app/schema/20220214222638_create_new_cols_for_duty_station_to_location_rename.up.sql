@@ -31,12 +31,10 @@ ALTER TABLE orders
 	    -- so the names that I would like to use here are already taken.
 	    -- I think we can just rename them when we remove the old fk constraints
 		CONSTRAINT orders_origin_duty_location_id_2_fkey
-			REFERENCES duty_locations (id)
-			ON DELETE CASCADE,
+			REFERENCES duty_locations (id),
 	ADD COLUMN new_duty_location_id uuid
 		CONSTRAINT orders_new_duty_location_id_2_fkey
-			REFERENCES duty_locations (id)
-			ON DELETE CASCADE;
+			REFERENCES duty_locations (id);
 
 CREATE INDEX orders_origin_duty_location_id_idx
 	ON orders (origin_duty_location_id);
