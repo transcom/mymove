@@ -80,16 +80,21 @@ const mockMtoShipment = {
 
 const mockShipmentWithDestinationType = {
   ...mockMtoShipment,
-  destinationType: 'HOME_OF_SELECTION',
+  displayDestinationType: true,
+  destinationType: 'PLACE_ENTERED_ACTIVE_DUTY',
 };
 
 const defaultPropsRetirement = {
   ...defaultProps,
+  displayDestinationType: true,
+  desintationType: 'HOME_OF_RECORD',
   orderType: ORDERS_TYPE.RETIREMENT,
 };
 
 const defaultPropsSeparation = {
   ...defaultProps,
+  displayDestinationType: true,
+  destinationType: 'HOME_OF_SELECTION',
   orderType: ORDERS_TYPE.SEPARATION,
 };
 
@@ -231,6 +236,7 @@ describe('ShipmentForm component', () => {
           isCreatePage={false}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
+          displayDestinationType
         />,
       );
 
@@ -270,6 +276,7 @@ describe('ShipmentForm component', () => {
           isCreatePage={false}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockShipmentWithDestinationType}
+          displayDestinationType
         />,
       );
 

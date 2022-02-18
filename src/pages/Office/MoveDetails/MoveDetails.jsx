@@ -59,8 +59,10 @@ const MoveDetails = ({
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
   // for now we are only showing dest type on retiree and separatee orders
-  const isRetirementOrSeparation =
-    order.order_type === ORDERS_TYPE.RETIREMENT || order.order_type === ORDERS_TYPE.SEPARATION;
+  let isRetirementOrSeparation = false;
+
+  isRetirementOrSeparation =
+    order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION;
 
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only

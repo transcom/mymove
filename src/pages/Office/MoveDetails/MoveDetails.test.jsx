@@ -879,7 +879,6 @@ describe('MoveDetails page', () => {
       const navLinks = wrapper.find('LeftNav a');
 
       expect(navLinks.at(0).contains('Requested shipments')).toBe(true);
-      expect(navLinks.at(0).contains(1)).toBe(true);
       expect(navLinks.at(0).prop('href')).toBe('#requested-shipments');
 
       expect(navLinks.at(1).contains('Approved shipments')).toBe(true);
