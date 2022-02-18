@@ -136,6 +136,39 @@ describe('DateAndLocation component', () => {
       });
     });
 
+    it('displays an error alert when the create shipment fails', async () => {
+      createMTOShipment.mockRejectedValueOnce('fatal error');
+
+      render(<DateAndLocation {...defaultProps} />);
+
+      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
+      userEvent.type(primaryPostalCodes[0], '10001');
+      userEvent.type(primaryPostalCodes[1], '10002');
+
+      userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+
+      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        expect(createMTOShipment).toHaveBeenCalledWith({
+          moveTaskOrderID: mockMoveId,
+          shipmentType: 'PPM',
+          ppmShipment: {
+            pickupPostalCode: '10001',
+            destinationPostalCode: '10002',
+            hasSecondaryPickupPostalCode: false,
+            secondaryPickupPostalCode: null,
+            hasSecondaryDestinationPostalCode: false,
+            secondaryDestinationPostalCode: null,
+            sitExpected: false,
+            expectedDepartureDate: '2022-07-04',
+          },
+        });
+
+        expect(screen.getByText('There was an error attempting to create your shipment.')).toBeInTheDocument();
+      });
+    });
+
     it('calls create shipment endpoint and formats optional payload values', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
@@ -214,6 +247,39 @@ describe('DateAndLocation component', () => {
       userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
       expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
+    });
+
+    it('displays an error alert when the update shipment fails', async () => {
+      patchMTOShipment.mockRejectedValueOnce('fatal error');
+
+      render(<DateAndLocation {...fullShipmentProps} />);
+
+      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        expect(patchMTOShipment).toHaveBeenCalledWith(
+          fullShipmentProps.mtoShipment.id,
+          {
+            id: fullShipmentProps.mtoShipment.id,
+            moveTaskOrderID: mockMoveId,
+            shipmentType: 'PPM',
+            ppmShipment: {
+              id: fullShipmentProps.mtoShipment.ppmShipment.id,
+              pickupPostalCode: '20002',
+              destinationPostalCode: '20004',
+              hasSecondaryPickupPostalCode: true,
+              secondaryPickupPostalCode: '20003',
+              hasSecondaryDestinationPostalCode: true,
+              secondaryDestinationPostalCode: '20005',
+              sitExpected: true,
+              expectedDepartureDate: '2022-12-31',
+            },
+          },
+          fullShipmentProps.mtoShipment.eTag,
+        );
+
+        expect(screen.getByText('There was an error attempting to updateq your shipment.')).toBeInTheDocument();
+      });
     });
 
     it('calls update shipment endpoint and formats optional payload values', async () => {
