@@ -5,6 +5,9 @@ ALTER TABLE service_members
 			REFERENCES duty_locations (id)
 			ON DELETE SET NULL;
 
+CREATE INDEX service_members_duty_location_id_idx
+	ON service_members (duty_location_id);
+
 -- Set up a trigger to copy values written to the old columns to the new columns
 CREATE OR REPLACE FUNCTION copy_duty_station_id_to_duty_location_id()
 	RETURNS TRIGGER LANGUAGE plpgsql AS $$
@@ -35,6 +38,11 @@ ALTER TABLE orders
 			REFERENCES duty_locations (id)
 			ON DELETE CASCADE;
 
+CREATE INDEX orders_origin_duty_location_id_idx
+	ON orders (origin_duty_location_id);
+
+CREATE INDEX orders_new_duty_location_id_idx
+	ON orders (new_duty_location_id);
 
 -- Set up a trigger to copy values written to the old columns to the new columns
 CREATE OR REPLACE FUNCTION copy_duty_station_ids_to_duty_location_ids()
