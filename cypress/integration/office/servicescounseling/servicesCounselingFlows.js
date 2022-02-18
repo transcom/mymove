@@ -144,6 +144,47 @@ describe('Services counselor user', () => {
     cy.wait('@createShipment');
   });
 
+  it('is able to edit allowances', () => {
+    cy.wait(['@getSortedMoves']);
+    // It doesn't matter which move we click on in the queue.
+    cy.get('td').first().click();
+    cy.url().should('include', `details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.get('[data-testid="edit-allowances"]').click();
+
+    cy.get('form').within(($form) => {
+      // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
+      cy.get('input[name="proGearWeight"]').clear().type('1999');
+      cy.get('input[name="proGearWeightSpouse"]').clear().type('499');
+      cy.get('input[name="requiredMedicalEquipmentWeight"]').clear().type('999');
+      cy.get('input[name="storageInTransit"]').clear().type('199');
+      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').click({ force: true });
+
+      // Edit grade and authorized weight
+      cy.get('select[name=agency]').select('Navy');
+      cy.get('select[name="grade"]').select('W-2');
+
+      //Edit DependentsAuthorized
+      cy.get('input[name="dependentsAuthorized"]').click({ force: true });
+
+      // Edit allowances page | Save
+      cy.get('button').contains('Save').click();
+    });
+
+    cy.wait(['@patchAllowances']);
+
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    cy.get('[data-testid="progear"]').contains('1,999');
+    cy.get('[data-testid="spouseProgear"]').contains('499');
+    cy.get('[data-testid="rme"]').contains('999');
+    cy.get('[data-testid="storageInTransit"]').contains('199');
+    cy.get('[data-testid="ocie"]').contains('Unauthorized');
+    cy.get('[data-testid="branchRank"]').contains('Navy');
+    cy.get('[data-testid="branchRank"]').contains('W-2');
+    cy.get('[data-testid="dependents"]').contains('Unauthorized');
+  });
+
   it('is able to edit a shipment', () => {
     const deliveryDate = new Date().toLocaleDateString('en-US');
 
