@@ -320,7 +320,7 @@ func gblocFilterForSC(gbloc *string) QueryOption {
 }
 
 func gblocFilterForTOO(gbloc *string) QueryOption {
-	// The SC should only see moves where the GBLOC for the first shipment's pickup address matches the given GBLOC
+	// The TOO should only see moves where the GBLOC for the first shipment's pickup address matches the given GBLOC
 	// unless we're dealing with an NTS-Release shipment. For NTS-Release shipments, we drop back to looking at the
 	// origin duty station's GBLOC since an NTS-Release does not populate the pickup address.
 	return func(query *pop.Query) {
