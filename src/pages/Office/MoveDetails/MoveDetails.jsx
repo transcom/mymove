@@ -12,7 +12,7 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { shipmentStatuses } from 'constants/shipments';
-import LeftNav from 'components/LeftNav';
+import LeftNav from 'components/LeftNav/LeftNav';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';

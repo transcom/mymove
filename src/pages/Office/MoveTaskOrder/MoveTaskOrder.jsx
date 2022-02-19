@@ -21,7 +21,7 @@ import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
-import LeftNav from 'components/LeftNav';
+import LeftNav from 'components/LeftNav/LeftNav';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';

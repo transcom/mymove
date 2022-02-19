@@ -15,7 +15,7 @@ import styles from './MovePaymentRequests.module.scss';
 import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
-import LeftNav from 'components/LeftNav';
+import LeftNav from 'components/LeftNav/LeftNav';
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
 import BillableWeightCard from 'components/Office/BillableWeight/BillableWeightCard/BillableWeightCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
