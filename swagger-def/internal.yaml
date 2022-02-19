@@ -2393,7 +2393,7 @@ definitions:
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       ppmshipment:
-        $ref: '#/definitions/PPMShipment'
+        $ref: '#/definitions/CreatePPMShipment'
       requestedPickupDate:
         format: date
         type: string
@@ -2417,6 +2417,42 @@ definitions:
     required:
       - moveTaskOrderID
       - shipmentType
+  CreatePPMShipment:
+    description: A personally procured move is a type of shipment that a service members moves themselves.
+    properties:
+      expectedDepartureDate:
+        description: >
+          Date the customer expects to move.
+        format: date
+        type: string
+      pickupPostalCode:
+        description: zip code, international allowed
+        format: zip
+        type: string
+        title: ZIP
+        example: "'90210' or 'N15 3NL'"
+      secondaryPickupPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: "'90210' or 'N15 3NL'"
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: "'90210' or 'N15 3NL'"
+      secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: "'90210' or 'N15 3NL'"
+      sitExpected:
+        type: boolean
+    required:
+      - expectedDepartureDate
+      - pickupPostalCode
+      - destinationPostalCode
+      - sitExpected
   PPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
@@ -2516,11 +2552,16 @@ definitions:
         description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
-        required:
-          - expectedDepartureDate
-          - pickupPostalCode
-          - destinationPostalCode
-          - sitExpected
+    required:
+      - id
+      - shipmentId
+      - createdAt
+      - updatedAt
+      - status
+      - expectedDepartureDate
+      - pickupPostalCode
+      - destinationPostalCode
+      - sitExpected
   UpdateShipment:
     type: object
     properties:
@@ -4661,34 +4702,6 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{mtoShipmentID}/ppm-shipments/{ppmShipmentID}':
-    post:
-      summary: createMTOShipment
-      description: This endpoint is used **create** a ppm shipment and a new shipment on the mto shipment table.
-      operationId: createPPMShipment
-      tags:
-        - mtoShipment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: mtoShipmentID
-          description: ppm shipment information
-      responses:
-        201:
-          description: Successfully created PPM Shipment
-          schema:
-            $ref: '#/definitions/PPMShipment'
-        400:
-          description: Invalid Request
-        401:
-          description: Must be authenticated to use this end point
-        403:
-          description: Not authorized to create a ppm shipment
-        500:
-          description: Server error
   /moves/{moveTaskOrderID}/mto_shipments:
     get:
       summary: Gets all shipments for a move task order
