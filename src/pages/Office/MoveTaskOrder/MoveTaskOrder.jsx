@@ -5,12 +5,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
+import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
-import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
+import leftNavStyles from 'components/LeftNav/LeftNav.module.scss';
+import EditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
@@ -21,7 +23,6 @@ import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
-import LeftNav from 'components/LeftNav/LeftNav';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
@@ -587,7 +588,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        <LeftNav className={styles.sidebar}>
+        <nav className={classnames(leftNavStyles.LeftNav, styles.sidebar)}>
           {nonShipmentSections.map((s) => {
             return (
               <LeftNavSection
@@ -618,7 +619,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               </LeftNavSection>
             );
           })}
-        </LeftNav>
+        </nav>
         <FlashGridContainer className={styles.gridContainer} data-testid="too-shipment-container">
           <Grid row className={styles.pageHeader}>
             {alertMessage && (
