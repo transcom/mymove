@@ -593,8 +593,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               <LeftNavSection
                 key={`sidenav_${s}`}
                 sectionName={s}
-                isActive={`#${s}` === activeSection}
-                onClickHandler={() => setActiveSection(`#${s}`)}
+                isActive={`${s}` === activeSection}
+                onClickHandler={() => setActiveSection(`${s}`)}
               >
                 {nonShipmentSectionLabels[`${s}`]}
               </LeftNavSection>
@@ -605,8 +605,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               <LeftNavSection
                 key={`sidenav_${s.id}`}
                 sectionName={`s-${s.id}`}
-                isActive={`#s-${s.id}` === activeSection}
-                onClickHandler={() => setActiveSection(`#s-${s.id}`)}
+                isActive={`s-${s.id}` === activeSection}
+                onClickHandler={() => setActiveSection(`s-${s.id}`)}
               >
                 {s.label}{' '}
                 {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
