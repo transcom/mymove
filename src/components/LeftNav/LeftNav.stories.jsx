@@ -1,10 +1,10 @@
 import React from 'react';
-import { Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import LeftNav from './index';
 
 import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 // Left Nav
 export default {
@@ -27,18 +27,20 @@ export const Basic = () => (
       </LeftNavSection>
       <LeftNavSection sectionName="requestedShipments">
         Requested Shipments
-        <Tag className="usa-tag usa-tag--alert">
+        <LeftNavTag showTag className="usa-tag usa-tag--alert">
           <FontAwesomeIcon icon="exclamation" />
-        </Tag>
+        </LeftNavTag>
       </LeftNavSection>
       <LeftNavSection sectionName="orders-anchor">
         Orders
-        <Tag className="usa-tag--teal">INTL</Tag>
+        <LeftNavTag showTag className="usa-tag--teal">
+          INTL
+        </LeftNavTag>
       </LeftNavSection>
 
       <LeftNavSection sectionName="customerInfo">
         Customer Info
-        <Tag>3</Tag>
+        <LeftNavTag showTag>3</LeftNavTag>
       </LeftNavSection>
     </LeftNav>
   </div>
