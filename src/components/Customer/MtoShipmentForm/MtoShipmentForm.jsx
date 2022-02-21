@@ -304,8 +304,8 @@ class MtoShipmentForm extends Component {
                           {showPickupFields && <h2>Destination info</h2>}
                           <Fieldset legend="Date">
                             <Hint>
-                              If you’re not sure, use your report-by date. You’ll finalize an actual delivery date later
-                              by talking with your movers once the shipment is underway.
+                              You’ll finalize an actual delivery date later by talking with your movers once the
+                              shipment is underway.
                             </Hint>
                             <DatePickerInput
                               name="delivery.requestedDate"
