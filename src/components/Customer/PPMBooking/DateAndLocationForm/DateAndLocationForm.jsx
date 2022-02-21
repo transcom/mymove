@@ -1,15 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import { Button, Form, Radio, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import styles from './DatesAndLocation.module.scss';
-
+import styles from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
-import { ZIP_CODE_REGEX } from 'utils/validation';
+import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX } from 'utils/validation';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
@@ -17,20 +16,22 @@ import { DutyStationShape } from 'types';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
 
+const InvalidZIPTypeError = 'Enter a 5-digit ZIP code';
+
 const validationSchema = Yup.object().shape({
-  pickupPostalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid code').required('Required'),
+  pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
   useResidentialAddressZIP: Yup.boolean(),
   hasSecondaryPickupPostalCode: Yup.boolean().required('Required'),
   secondaryPickupPostalCode: Yup.string().when('hasSecondaryPickupPostalCode', {
     is: true,
-    then: (schema) => schema.matches(ZIP_CODE_REGEX, 'Must be valid code').required('Required'),
+    then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
   }),
   useDestinationDutyLocationZIP: Yup.boolean(),
-  destinationPostalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid code').required('Required'),
+  destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
   hasSecondaryDestinationPostalCode: Yup.boolean().required('Required'),
   secondaryDestinationPostalCode: Yup.string().when('hasSecondaryDestinationPostalCode', {
     is: true,
-    then: (schema) => schema.matches(ZIP_CODE_REGEX, 'Must be valid code').required('Required'),
+    then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
   }),
   sitExpected: Yup.boolean().required('Required'),
   expectedDepartureDate: Yup.date()
@@ -39,11 +40,11 @@ const validationSchema = Yup.object().shape({
 });
 
 const setZip = (setFieldValue, postalCodeField, postalCode, isChecked, isCheckedField) => {
-  setFieldValue(isCheckedField, isChecked === 'true' ? 'false' : 'true');
-  setFieldValue(postalCodeField, isChecked === 'true' ? '' : postalCode);
+  setFieldValue(isCheckedField, !isChecked);
+  setFieldValue(postalCodeField, isChecked ? '' : postalCode);
 };
 
-const DatesAndLocation = ({
+const DateAndLocationForm = ({
   mtoShipment,
   destinationDutyStation,
   serviceMember,
@@ -51,20 +52,55 @@ const DatesAndLocation = ({
   onSubmit,
   postalCodeValidator,
 }) => {
+  const [postalCodeValid, setPostalCodeValid] = useState({});
+
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
-    useResidentialAddressZIP: '',
+    useResidentialAddressZIP: false,
     hasSecondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
-    useDestinationDutyLocationZIP: '',
+    useDestinationDutyLocationZIP: false,
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
     hasSecondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode ? 'true' : 'false',
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
-    sitExpected: mtoShipment?.ppmShipment?.sitExpected || 'false',
+    sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
   };
 
-  // TODO: async validation call to validate postal codes are valid for rate engine
+  const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
+  const destinationDutyLocationPostalCode = destinationDutyStation?.address?.postalCode;
+
+  const postalCodeValidate = async (value, location, name) => {
+    if (value?.length !== 5) {
+      return undefined;
+    }
+    // only revalidate if the value has changed, editing other fields will re-validate unchanged ones
+    if (postalCodeValid[`${name}`]?.value !== value) {
+      const response = await postalCodeValidator(value, location, UnsupportedZipCodePPMErrorMsg);
+      setPostalCodeValid((state) => {
+        return {
+          ...state,
+          [name]: { value, isValid: !response },
+        };
+      });
+      return response;
+    }
+    return postalCodeValid[`${name}`]?.isValid ? undefined : UnsupportedZipCodePPMErrorMsg;
+  };
+
+  const handlePrefillPostalCodeChange = (
+    value,
+    setFieldValue,
+    postalCodeField,
+    prefillValue,
+    isCheckedField,
+    checkedFieldValue,
+  ) => {
+    if (checkedFieldValue && value !== prefillValue) {
+      setFieldValue(isCheckedField, false);
+    }
+    setFieldValue(postalCodeField, value);
+  };
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -78,23 +114,32 @@ const DatesAndLocation = ({
                   label="ZIP"
                   id="pickupPostalCode"
                   name="pickupPostalCode"
-                  maxLength={10}
-                  validate={(value) => postalCodeValidator(value, 'origin')}
+                  maxLength={5}
+                  onChange={(e) => {
+                    handlePrefillPostalCodeChange(
+                      e.target.value,
+                      setFieldValue,
+                      'pickupPostalCode',
+                      residentialAddressPostalCode,
+                      'useResidentialAddressZIP',
+                      values.useResidentialAddressZIP,
+                    );
+                  }}
+                  validate={(value) => postalCodeValidate(value, 'origin', 'pickupPostalCode')}
                 />
                 <CheckboxField
                   id="useResidentialAddressZIP"
                   name="useResidentialAddressZIP"
-                  label={`Use my current ZIP (${serviceMember?.residentialAddress?.postalCode})`}
+                  label={`Use my current ZIP (${residentialAddressPostalCode})`}
                   onChange={() =>
                     setZip(
                       setFieldValue,
                       'pickupPostalCode',
-                      serviceMember?.residentialAddress?.postalCode,
+                      residentialAddressPostalCode,
                       values.useResidentialAddressZIP,
                       'useResidentialAddressZIP',
                     )
                   }
-                  checked={values.useResidentialAddressZIP === 'true'}
                 />
                 <FormGroup>
                   <Fieldset>
@@ -127,8 +172,8 @@ const DatesAndLocation = ({
                       label="Second ZIP"
                       id="secondaryPickupPostalCode"
                       name="secondaryPickupPostalCode"
-                      maxLength={10}
-                      validate={(value) => postalCodeValidator(value, 'origin')}
+                      maxLength={5}
+                      validate={(value) => postalCodeValidate(value, 'origin', 'secondaryPickupPostalCode')}
                     />
                     <Hint className={styles.hint}>
                       <p>A second origin ZIP could mean that your final incentive is lower than your estimate.</p>
@@ -146,23 +191,32 @@ const DatesAndLocation = ({
                   label="ZIP"
                   id="destinationPostalCode"
                   name="destinationPostalCode"
-                  maxLength={10}
-                  validate={(value) => postalCodeValidator(value, 'destination')}
+                  maxLength={5}
+                  onChange={(e) => {
+                    handlePrefillPostalCodeChange(
+                      e.target.value,
+                      setFieldValue,
+                      'destinationPostalCode',
+                      destinationDutyLocationPostalCode,
+                      'useDestinationDutyLocationZIP',
+                      values.useDestinationDutyLocationZIP,
+                    );
+                  }}
+                  validate={(value) => postalCodeValidate(value, 'destination', 'destinationPostalCode')}
                 />
                 <CheckboxField
                   id="useDestinationDutyLocationZIP"
                   name="useDestinationDutyLocationZIP"
-                  label={`Use the ZIP for my new duty location (${destinationDutyStation?.address?.postalCode})`}
+                  label={`Use the ZIP for my new duty location (${destinationDutyLocationPostalCode})`}
                   onChange={() =>
                     setZip(
                       setFieldValue,
                       'destinationPostalCode',
-                      destinationDutyStation?.address?.postalCode,
+                      destinationDutyLocationPostalCode,
                       values.useDestinationDutyLocationZIP,
                       'useDestinationDutyLocationZIP',
                     )
                   }
-                  checked={values.useDestinationDutyLocationZIP === 'true'}
                 />
                 <Hint className={styles.hint}>
                   Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you
@@ -197,8 +251,8 @@ const DatesAndLocation = ({
                       label="Second ZIP"
                       id="secondaryDestinationPostalCode"
                       name="secondaryDestinationPostalCode"
-                      maxLength={10}
-                      validate={(value) => postalCodeValidator(value, 'destination')}
+                      maxLength={5}
+                      validate={(value) => postalCodeValidate(value, 'destination', 'secondaryDestinationPostalCode')}
                     />
                     <Hint className={styles.hint}>
                       <p>A second destination ZIP could mean that your final incentive is lower than your estimate.</p>
@@ -279,7 +333,7 @@ const DatesAndLocation = ({
   );
 };
 
-DatesAndLocation.propTypes = {
+DateAndLocationForm.propTypes = {
   mtoShipment: MtoShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
   destinationDutyStation: DutyStationShape.isRequired,
@@ -288,8 +342,8 @@ DatesAndLocation.propTypes = {
   postalCodeValidator: func.isRequired,
 };
 
-DatesAndLocation.defaultProps = {
+DateAndLocationForm.defaultProps = {
   mtoShipment: undefined,
 };
 
-export default DatesAndLocation;
+export default DateAndLocationForm;
