@@ -100,7 +100,12 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                 <p>
                   If you own a lot of things for your space, estimate on the higher side. If you own less, estimate
                   lower. The services have an official{' '}
-                  <a href="https://www.ustranscom.mil/dp3/weightestimator.cfm" target="_blank" rel="noreferrer">
+                  <a
+                    href="https://www.ustranscom.mil/dp3/weightestimator.cfm"
+                    target="_blank"
+                    noopener
+                    rel="noreferrer"
+                  >
                     weight estimation calculator
                   </a>{' '}
                   <FontAwesomeIcon icon="external-link-alt" /> you can use for a more accurate estimate. (Link opens a
