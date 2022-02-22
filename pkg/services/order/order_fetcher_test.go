@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *OrderServiceSuite) TestOrderFetcher() {
+func (suite *OrderServiceSuite) TestFetchOrder() {
 	expectedMove := testdatagen.MakeDefaultMove(suite.DB())
 	expectedOrder := expectedMove.Orders
 	orderFetcher := NewOrderFetcher()
@@ -36,7 +36,7 @@ func (suite *OrderServiceSuite) TestOrderFetcher() {
 	suite.Equal(expectedMove.Locator, order.Moves[0].Locator)
 }
 
-func (suite *OrderServiceSuite) TestOrderFetcherWithEmptyFields() {
+func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 	// When move_orders and orders were consolidated, we moved the OriginDutyLocation
 	// field that used to only exist on the move_orders table into the orders table.
 	// This means that existing orders in production won't have any values in the
@@ -66,7 +66,7 @@ func (suite *OrderServiceSuite) TestOrderFetcherWithEmptyFields() {
 	suite.Nil(order.Grade)
 }
 
-func (suite *OrderServiceSuite) TestListMoves() {
+func (suite *OrderServiceSuite) TestListOrders() {
 	// Create a Move without a shipment to test that only Orders with shipments
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
@@ -75,7 +75,7 @@ func (suite *OrderServiceSuite) TestListMoves() {
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	//"30813"
-	// May have to create postalcodetogbolc for office user
+	// May have to create postalcodetogbloc for office user
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
 		expectedMove.MTOShipments[0].PickupAddress.PostalCode,
 		officeUser.TransportationOffice.Gbloc)
@@ -215,7 +215,7 @@ func (suite *OrderServiceSuite) TestListMoves() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
+func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	orderFetcher := NewOrderFetcher()
 
 	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
@@ -253,7 +253,7 @@ func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListMovesMarines() {
+func (suite *OrderServiceSuite) TestListOrdersMarines() {
 	suite.T().Run("does not return moves where the service member affiliation is Marines for non-USMC office user", func(t *testing.T) {
 		orderFetcher := NewOrderFetcher()
 		marines := models.AffiliationMARINES
@@ -273,7 +273,7 @@ func (suite *OrderServiceSuite) TestListMovesMarines() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListMovesWithEmptyFields() {
+func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 
 	expectedOrder.Entitlement = nil
@@ -312,7 +312,7 @@ func (suite *OrderServiceSuite) TestListMovesWithEmptyFields() {
 
 }
 
-func (suite *OrderServiceSuite) TestListMovesWithPagination() {
+func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Map default shipment postal code to office user's GBLOC
@@ -333,7 +333,7 @@ func (suite *OrderServiceSuite) TestListMovesWithPagination() {
 
 }
 
-func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
+func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	// SET UP: Dates for sorting by Requested Move Date
 	// - We want dates 2 and 3 to sandwich requestedMoveDate1 so we can test that the min() query is working
 	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 02, 20, 0, 0, 0, 0, time.UTC)
@@ -503,7 +503,7 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCSortFilter() {
+func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOCSortFilter() {
 
 	// TESTCASE SCENARIO
 	// Under test: OrderFetcher.ListOrders function
@@ -582,4 +582,19 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 		suite.Equal(1, len(moves))
 		suite.Equal(lknqMove.ID, moves[0].ID)
 	})
+}
+func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
+	// Make an NTS-Release shipment (and a move).  Should not have a pickup address.
+	move := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+	// Make a TOO user and the postal code to GBLOC link.
+	tooOfficeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, tooOfficeUser.TransportationOffice.Gbloc)
+
+	orderFetcher := NewOrderFetcher()
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), tooOfficeUser.ID, &services.ListOrderParams{})
+
+	suite.FatalNoError(err)
+	suite.Equal(1, moveCount)
+	suite.Len(moves, 1)
 }

@@ -24,8 +24,6 @@ type orderFetcher struct {
 type QueryOption func(*pop.Query)
 
 func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
-	// Now that we've joined orders and move_orders, we only want to return orders that
-	// have an associated move.
 	var moves []models.Move
 	var transportationOffice models.TransportationOffice
 	// select the GBLOC associated with the transportation office of the session's current office user
@@ -43,7 +41,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// Essentially these are private functions that return query objects that we can mash together to form a complete
 	// query from modular parts.
 
-	// The services counselot queue does not base exclude marine results.
+	// The services counselor queue does not base exclude marine results.
 	// Only the TIO and TOO queues should.
 	needsCounseling := false
 	if len(params.Status) > 0 {
@@ -68,13 +66,17 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	}
 
 	// We need to use two different GBLOC filter queries because:
-	//  - The Services Counselor queue filters based on the GBLOC of the transportation office
-	//  - The TOO queue uses the GBLOC we get from the first shipment's postal code
+	//  - The Services Counselor queue filters based on the GBLOC of the origin duty station's
+	//    transportation office
+	//  - The TOO queue uses the GBLOC we get from examining the postal code of the first shipment's
+	//    pickup address. However, if that shipment happens to be an NTS-Release, we instead drop
+	//    back to the GBLOC of the origin duty station's transportation office since an NTS-Release
+	//    does not populate the pickup address field.
 	var gblocQuery QueryOption
 	if needsCounseling {
-		gblocQuery = gblocFilter(gblocToFilterBy)
+		gblocQuery = gblocFilterForSC(gblocToFilterBy)
 	} else {
-		gblocQuery = shipmentGBLOCFilter(gblocToFilterBy)
+		gblocQuery = gblocFilterForTOO(gblocToFilterBy)
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
@@ -182,8 +184,6 @@ func NewOrderFetcher() services.OrderFetcher {
 
 // FetchOrder retrieves an Order for a given UUID
 func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
-	// Now that we've joined orders and move_orders, we only want to return orders that
-	// have an associated move_task_order.
 	order := &models.Order{}
 	err := appCtx.DB().Q().Eager(
 		"ServiceMember.BackupContacts",
@@ -310,8 +310,8 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	}
 }
 
-// Need to fix GBLOC for services counselor
-func gblocFilter(gbloc *string) QueryOption {
+func gblocFilterForSC(gbloc *string) QueryOption {
+	// The SC should only see moves where the origin duty station's GBLOC matches the given GBLOC.
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			query.Where("o_gbloc.gbloc = ?", *gbloc)
@@ -319,10 +319,15 @@ func gblocFilter(gbloc *string) QueryOption {
 	}
 }
 
-func shipmentGBLOCFilter(gbloc *string) QueryOption {
+func gblocFilterForTOO(gbloc *string) QueryOption {
+	// The TOO should only see moves where the GBLOC for the first shipment's pickup address matches the given GBLOC
+	// unless we're dealing with an NTS-Release shipment. For NTS-Release shipments, we drop back to looking at the
+	// origin duty station's GBLOC since an NTS-Release does not populate the pickup address.
 	return func(query *pop.Query) {
 		if gbloc != nil {
-			query.Where("move_to_gbloc.gbloc = ?", *gbloc)
+			// Note: extra parens necessary to keep precedence correct when AND'ing all filters together.
+			query.Where("((mto_shipments.shipment_type != ? AND move_to_gbloc.gbloc = ?) OR (mto_shipments.shipment_type = ? AND o_gbloc.gbloc = ?))",
+				models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc, models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc)
 		}
 	}
 }
