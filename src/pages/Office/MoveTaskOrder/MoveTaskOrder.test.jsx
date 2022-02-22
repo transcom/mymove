@@ -16,6 +16,8 @@ import {
   riskOfExcessWeightQuery,
   lowerActualsMTOQuery,
   sitExtensionApproved,
+  allApprovedExternalVendorMTOQuery,
+  riskOfExcessWeightQueryExternalShipment,
 } from './moveTaskOrderUnitTestData';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
@@ -85,6 +87,9 @@ describe('MoveTaskOrder', () => {
 
       const riskOfExcessTag = await screen.queryByText(/Risk of excess/);
       expect(riskOfExcessTag).toBeFalsy();
+
+      const externalVendorShipmentCount = await screen.queryByText(/1 prime shipment not moved by GHC prime./);
+      expect(externalVendorShipmentCount).toBeFalsy();
     });
 
     it('displays the max billable weight', async () => {
@@ -370,6 +375,46 @@ describe('MoveTaskOrder', () => {
 
       const moveWeightTotal = await screen.getByText(/250 lbs/);
       expect(moveWeightTotal).toBeInTheDocument();
+    });
+
+    it('displays the external vendor shipment count and link to move details when there are external vendor shipments', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(allApprovedExternalVendorMTOQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const externalVendorShipmentCount = await screen.getByText(/1 prime shipment not moved by GHC prime./);
+      expect(externalVendorShipmentCount).toBeInTheDocument();
+    });
+
+    it('displays risk of excess tag and external vendor shipment count', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQueryExternalShipment);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const riskOfExcessTag = await screen.getByText(/Risk of excess/);
+      expect(riskOfExcessTag).toBeInTheDocument();
+      const externalVendorShipmentCount = await screen.getByText(/1 prime shipment not moved by GHC prime./);
+      expect(externalVendorShipmentCount).toBeInTheDocument();
     });
   });
 
