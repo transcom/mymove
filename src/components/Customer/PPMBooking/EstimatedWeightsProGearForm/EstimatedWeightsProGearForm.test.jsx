@@ -7,8 +7,13 @@ import EstimatedWeightsProGearForm from './EstimatedWeightsProGearForm';
 const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
-  entitlement: {
-    authorizedWeight: 5000,
+  orders: {
+    has_dependents: true,
+  },
+  serviceMember: {
+    weight_allotment: {
+      total_weight_self_plus_dependents: 7000,
+    },
   },
 };
 

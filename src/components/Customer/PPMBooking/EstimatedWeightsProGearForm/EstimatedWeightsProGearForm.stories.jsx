@@ -27,8 +27,13 @@ export const BlankEstimatedWeightsProGear = Template.bind({});
 BlankEstimatedWeightsProGear.args = {
   onSubmit: action('submit button clicked'),
   onBack: action('back button clicked'),
-  entitlement: {
-    authorizedWeight: 5000,
+  orders: {
+    has_dependents: true,
+  },
+  serviceMember: {
+    weight_allotment: {
+      total_weight_self_plus_dependents: 8000,
+    },
   },
 };
 
@@ -36,8 +41,13 @@ export const WarningForOverweightEstimatedWeightProGear = Template.bind({});
 WarningForOverweightEstimatedWeightProGear.args = {
   onSubmit: action('submit button clicked'),
   onBack: action('back button clicked'),
-  entitlement: {
-    authorizedWeight: 5000,
+  orders: {
+    has_dependents: true,
+  },
+  serviceMember: {
+    weight_allotment: {
+      total_weight_self_plus_dependents: 5000,
+    },
   },
   mtoShipment: {
     id: '123',
@@ -52,8 +62,13 @@ export const MTOShipmentEstimatedWeightProGear = Template.bind({});
 MTOShipmentEstimatedWeightProGear.args = {
   onSubmit: action('submit button clicked'),
   onBack: action('back button clicked'),
-  entitlement: {
-    authorizedWeight: 5000,
+  orders: {
+    has_dependents: true,
+  },
+  serviceMember: {
+    weight_allotment: {
+      total_weight_self_plus_dependents: 5000,
+    },
   },
   mtoShipment: {
     id: '123',
@@ -71,8 +86,13 @@ export const ErrorEstimatedWeightsProGear = Template.bind({});
 ErrorEstimatedWeightsProGear.args = {
   onSubmit: action('submit button clicked'),
   onBack: action('back button clicked'),
-  entitlement: {
-    authorizedWeight: 5000,
+  orders: {
+    has_dependents: true,
+  },
+  serviceMember: {
+    weight_allotment: {
+      total_weight_self_plus_dependents: 5000,
+    },
   },
 };
 ErrorEstimatedWeightsProGear.play = async ({ canvasElement }) => {

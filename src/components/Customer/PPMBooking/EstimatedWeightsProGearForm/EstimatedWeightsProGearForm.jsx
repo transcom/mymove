@@ -10,9 +10,8 @@ import ppmBookingStyles from '../PPMBooking.module.scss';
 
 import styles from './EstimatedWeightsProGearForm.module.scss';
 
-import { MtoShipmentShape } from 'types/customerShapes';
+import { MtoShipmentShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import formStyles from 'styles/form.module.scss';
-import { EntitlementShape } from 'types/order';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import Hint from 'components/Hint/index';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -39,7 +38,7 @@ const validationSchema = Yup.object().shape({
     .max(500, 'Enter a weight less than 500 lbs'),
 });
 
-const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBack }) => {
+const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSubmit, onBack }) => {
   const initialValues = {
     estimatedWeight: mtoShipment?.ppmShipment?.estimatedWeight?.toString() || '',
     hasProGear: mtoShipment?.ppmShipment?.hasProGear?.toString() || 'false',
@@ -47,15 +46,17 @@ const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBac
     spouseProGearWeight: mtoShipment?.ppmShipment?.spouseProGearWeight?.toString() || '',
   };
 
+  const authorizedWeight = orders.has_dependents
+    ? serviceMember.weight_allotment?.total_weight_self_plus_dependents
+    : serviceMember.weight_allotment?.total_weight_self;
+
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
           <div className={classnames(styles.EstimatedWeightsProGearForm, ppmBookingStyles.formContainer)}>
             <Form className={(formStyles.form, ppmBookingStyles.form)}>
-              <Alert type="info">{`Total weight allowance for your move: ${formatWeight(
-                entitlement?.authorizedWeight,
-              )}`}</Alert>
+              <Alert type="info">{`Total weight allowance for your move: ${formatWeight(authorizedWeight)}`}</Alert>
               <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Full PPM</h2>
                 <p>
@@ -80,7 +81,7 @@ const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBac
                   // formatWeight will display 0lbs if the weight is undefined.
                   // therefore if entitlement is undefined display the overweight warning
                   warning={
-                    values.estimatedWeight > entitlement?.authorizedWeight || !entitlement
+                    values.estimatedWeight > authorizedWeight || !authorizedWeight
                       ? 'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.'
                       : ''
                   }
@@ -194,7 +195,8 @@ const EstimatedWeightsProGearForm = ({ entitlement, mtoShipment, onSubmit, onBac
 };
 
 EstimatedWeightsProGearForm.propTypes = {
-  entitlement: EntitlementShape.isRequired,
+  orders: OrdersShape.isRequired,
+  serviceMember: ServiceMemberShape.isRequired,
   mtoShipment: MtoShipmentShape,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
