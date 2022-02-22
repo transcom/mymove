@@ -39,29 +39,6 @@ const MaskedTextField = ({
   const showError = (metaProps.touched && !!metaProps.error) || error;
   const showWarning = !showError && warning;
   const { value } = field;
-
-  /* eslint-disable react/jsx-props-no-spreading */
-  const input = (
-    <IMaskInput
-      className={classnames('usa-input', inputClassName)}
-      data-testid={inputTestId}
-      type={type}
-      id={id}
-      name={name}
-      value={value ?? defaultValue}
-      mask={mask}
-      blocks={blocks}
-      lazy={lazy}
-      onAccept={(val, masked) => {
-        helpers.setValue(masked.unmaskedValue);
-        // setValue is already triggering validation for this field so we should be able to skip it in setTouched
-        helpers.setTouched(true, false);
-      }}
-      {...props}
-      {...field}
-    />
-  );
-
   return (
     <FormGroup className={classnames(!!warning && !showError && `warning`, formGroupClassName)} error={showError}>
       <div className="labelWrapper">
@@ -79,12 +56,45 @@ const MaskedTextField = ({
       {/* eslint-disable react/jsx-props-no-spreading */}
       {suffix ? (
         <div className={suffix && styles.hasSuffix}>
-          {input}
+          <IMaskInput
+            className={classnames('usa-input', inputClassName)}
+            data-testid={inputTestId}
+            type={type}
+            id={id}
+            name={name}
+            value={value ?? defaultValue}
+            mask={mask}
+            blocks={blocks}
+            lazy={lazy}
+            onAccept={(val, masked) => {
+              helpers.setValue(masked.unmaskedValue);
+              // setValue is already triggering validation for this field so we should be able to skip it in setTouched
+              helpers.setTouched(true, false);
+            }}
+            {...props}
+            {...field}
+          />
           {suffix && <div className="suffix">{suffix}</div>}
         </div>
       ) : (
-        // Span is used here because the use of a div will break multiple existing test that are not expecting a div here
-        <span>{input}</span>
+        <IMaskInput
+          className={classnames('usa-input', inputClassName)}
+          data-testid={inputTestId}
+          type={type}
+          id={id}
+          name={name}
+          value={value ?? defaultValue}
+          mask={mask}
+          blocks={blocks}
+          lazy={lazy}
+          onAccept={(val, masked) => {
+            helpers.setValue(masked.unmaskedValue);
+            // setValue is already triggering validation for this field so we should be able to skip it in setTouched
+            helpers.setTouched(true, false);
+          }}
+          {...props}
+          {...field}
+        />
       )}
       {children}
       {/* eslint-enable react/jsx-props-no-spreading */}
