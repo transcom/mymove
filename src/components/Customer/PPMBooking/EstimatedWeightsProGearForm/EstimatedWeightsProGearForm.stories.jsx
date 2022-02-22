@@ -43,7 +43,7 @@ WarningForOverweightEstimatedWeightProGear.args = {
     id: '123',
     ppmShipment: {
       id: '123',
-      estimatedWeight: '7000',
+      estimatedWeight: 7000,
     },
   },
 };
