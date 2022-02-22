@@ -83,8 +83,8 @@ const MaskedTextField = ({
           {suffix && <div className="suffix">{suffix}</div>}
         </div>
       ) : (
-        // eslint-disable-next-line react/jsx-no-useless-fragment
-        <>{input}</>
+        // Span is used here because the use of a div will break multiple existing test that are not expecting a div here
+        <span>{input}</span>
       )}
       {children}
       {/* eslint-enable react/jsx-props-no-spreading */}
