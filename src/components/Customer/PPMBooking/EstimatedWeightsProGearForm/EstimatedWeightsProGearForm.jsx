@@ -78,10 +78,8 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   suffix="lbs"
-                  // formatWeight will display 0lbs if the weight is undefined.
-                  // therefore if entitlement is undefined display the overweight warning
                   warning={
-                    values.estimatedWeight > authorizedWeight || !authorizedWeight
+                    values.estimatedWeight > authorizedWeight
                       ? 'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.'
                       : ''
                   }
