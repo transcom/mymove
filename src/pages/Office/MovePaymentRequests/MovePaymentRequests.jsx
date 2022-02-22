@@ -239,11 +239,13 @@ const MovePaymentRequests = ({
                   filteredShipments?.length > 0 &&
                   !billableWeightsReviewed &&
                   (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments)) && (
-                    <FontAwesomeIcon
-                      icon="exclamation-triangle"
-                      data-testid="maxBillableWeightWarningTag"
-                      className={classnames(styles.warning, styles.errorTag)}
-                    />
+                    <Tag background="none">
+                      <FontAwesomeIcon
+                        icon="exclamation-triangle"
+                        data-testid="maxBillableWeightWarningTag"
+                        className={classnames(styles.warning, styles.errorTag)}
+                      />
+                    </Tag>
                   )}
               </LeftNavSection>
             );
