@@ -167,7 +167,7 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="scAllowancesSave"]').contains('Save').click();
 
     // things should save and then load afterward with new data
-    cy.wait(['@patchAllowances', '@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="progear"]').contains('1,999');
     cy.get('[data-testid="spouseProgear"]').contains('499');
     cy.get('[data-testid="rme"]').contains('999');
