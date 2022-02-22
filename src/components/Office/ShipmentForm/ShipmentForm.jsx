@@ -143,7 +143,7 @@ const ShipmentForm = ({
     destinationType,
   }) => {
     const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'no') {
+    if (hasDeliveryAddress === 'no' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
       delete deliveryDetails.address;
     }
 
