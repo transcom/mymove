@@ -166,6 +166,10 @@ describe('Services counselor user', () => {
     // Edit allowances page | Save
     cy.get('[data-testid="scAllowancesSave"]').contains('Save').click();
 
+    cy.location().should((loc) => {
+      expect(loc.pathname).to.include('/details');
+    });
+
     // things should save and then load afterward with new data
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="progear"]').contains('1,999');
