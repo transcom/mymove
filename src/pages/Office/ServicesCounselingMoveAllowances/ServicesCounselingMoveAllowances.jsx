@@ -164,7 +164,7 @@ const ServicesCounselingMoveAllowances = () => {
               </div>
               <div className={styles.bottom}>
                 <div className={styles.buttonGroup}>
-                  <Button disabled={formik.isSubmitting} type="submit">
+                  <Button disabled={formik.isSubmitting} data-testid="scAllowancesSave" type="submit">
                     Save
                   </Button>
                   <Button type="button" secondary onClick={handleClose}>

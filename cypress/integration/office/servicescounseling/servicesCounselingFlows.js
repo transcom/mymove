@@ -152,28 +152,22 @@ describe('Services counselor user', () => {
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="edit-allowances"]').click();
 
-    cy.get('form').within(($form) => {
-      // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
-      cy.get('input[name="proGearWeight"]').clear().type('1999');
-      cy.get('input[name="proGearWeightSpouse"]').clear().type('499');
-      cy.get('input[name="requiredMedicalEquipmentWeight"]').clear().type('999');
-      cy.get('input[name="storageInTransit"]').clear().type('199');
-      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').click({ force: true });
+    // the form
+    cy.get('[data-testid="proGearWeightInput"]').clear().type('1999');
+    cy.get('[data-testid="proGearWeightSpouseInput"]').clear().type('499');
+    cy.get('[data-testid="rmeInput"]').clear().type('999');
+    cy.get('[data-testid="sitInput"]').clear().type('199');
+    cy.get('[data-testid="ocieInput"]').click({ force: true });
+    // Edit grade and authorized weight
+    cy.get('[data-testid="branchInput"]').select('Navy');
+    cy.get('[data-testid="rankInput"]').select('W-2');
+    //Edit DependentsAuthorized
+    cy.get('[data-testid="dependentsAuthorizedInput"]').click({ force: true });
+    // Edit allowances page | Save
+    cy.get('[data-testid="scAllowancesSave"]').contains('Save').click();
 
-      // Edit grade and authorized weight
-      cy.get('select[name=agency]').select('Navy');
-      cy.get('select[name="grade"]').select('W-2');
-
-      //Edit DependentsAuthorized
-      cy.get('input[name="dependentsAuthorized"]').click({ force: true });
-
-      // Edit allowances page | Save
-      cy.root().submit();
-      // cy.get('button').contains('Save').click();
-      cy.wait(['@patchAllowances']);
-    });
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-
+    // things should save and then load afterward with new data
+    cy.wait(['@patchAllowances', '@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="progear"]').contains('1,999');
     cy.get('[data-testid="spouseProgear"]').contains('499');
     cy.get('[data-testid="rme"]').contains('999');
