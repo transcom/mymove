@@ -166,6 +166,8 @@ describe('Services counselor user', () => {
     // Edit allowances page | Save
     cy.get('[data-testid="scAllowancesSave"]').contains('Save').click();
 
+    cy.wait('@patchAllowances');
+
     cy.location().should((loc) => {
       expect(loc.pathname).to.include('/details');
     });
