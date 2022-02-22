@@ -48,6 +48,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	var err error
 
 	err = checkShipmentIDFields(shipment, serviceItems)
+
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +59,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
 				fmt.Sprintf("RequestedPickupDate should not be set when creating a %s shipment", shipment.ShipmentType))
 		}
-	} else {
+	} else if shipment.ShipmentType != models.MTOShipmentTypePPM {
+		// No need for a PPM to have a RequestedPickupDate
 		if shipment.RequestedPickupDate == nil || shipment.RequestedPickupDate.IsZero() {
 			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
 				fmt.Sprintf("RequestedPickupDate is required to create a %s shipment", shipment.ShipmentType))
@@ -132,7 +134,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
-		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && shipment.ShipmentType != models.MTOShipmentTypePPM {
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 

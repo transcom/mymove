@@ -34,7 +34,7 @@ func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 	suite.NoError(err)
 	suite.NotNil(emailInfo)
 	suite.Len(emailInfo, 1)
-	suite.Equal(ppms[0].Move.Orders.NewDutyStation.Name, emailInfo[0].NewDutyStationName)
+	suite.Equal(ppms[0].Move.Orders.NewDutyLocation.Name, emailInfo[0].NewDutyStationName)
 	suite.NotNil(emailInfo[0].Email)
 	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
 	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.Name, emailInfo[0].DutyStationName)
@@ -105,10 +105,10 @@ func (suite *NotificationSuite) TestHTMLTemplateRender() {
 	suite.NoError(err)
 	s := moveReviewedEmailData{
 		Link:                   "www.survey",
-		OriginDutyStation:      "OriginDutyStation",
+		OriginDutyStation:      "OriginDutyLocation",
 		DestinationDutyStation: "DestDutyStation",
 	}
-	expectedHTMLContent := `<p><strong>Good news:</strong> Your move from OriginDutyStation to DestDutyStation has been processed for payment.</p>
+	expectedHTMLContent := `<p><strong>Good news:</strong> Your move from OriginDutyLocation to DestDutyStation has been processed for payment.</p>
 
 <p>Can we ask a quick favor? <a href="www.survey"> Tell us about your experience</a> with requesting and receiving payment.</p>
 
@@ -130,10 +130,10 @@ func (suite *NotificationSuite) TestTextTemplateRender() {
 	suite.NoError(err)
 	s := moveReviewedEmailData{
 		Link:                   "www.survey",
-		OriginDutyStation:      "OriginDutyStation",
+		OriginDutyStation:      "OriginDutyLocation",
 		DestinationDutyStation: "DestDutyStation",
 	}
-	expectedTextContent := `Good news: Your move from OriginDutyStation to DestDutyStation has been processed for payment.
+	expectedTextContent := `Good news: Your move from OriginDutyLocation to DestDutyStation has been processed for payment.
 
 Can we ask a quick favor? Tell us about your experience with requesting and receiving payment at www.survey.
 

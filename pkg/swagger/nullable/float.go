@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+
 	"github.com/go-openapi/strfmt"
 )
 

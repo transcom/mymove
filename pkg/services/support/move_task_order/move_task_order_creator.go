@@ -101,7 +101,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 
 	// Check that the order destination duty station exists, then hook up to order
 	// It's required in the payload
-	destinationDutyStation := models.DutyStation{}
+	destinationDutyStation := models.DutyLocation{}
 	destinationDutyStationID := uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
 	err := appCtx.DB().Find(&destinationDutyStation, destinationDutyStationID)
 	if err != nil {
@@ -113,12 +113,12 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 			return nil, apperror.NewQueryError("DutyStation", err, "")
 		}
 	}
-	order.NewDutyStation = destinationDutyStation
-	order.NewDutyStationID = destinationDutyStationID
+	order.NewDutyLocation = destinationDutyStation
+	order.NewDutyLocationID = destinationDutyStationID
 	// Check that if provided, the origin duty station exists, then hook up to order
-	var originDutyStation *models.DutyStation
+	var originDutyStation *models.DutyLocation
 	if orderPayload.OriginDutyStationID != nil {
-		originDutyStation = &models.DutyStation{}
+		originDutyStation = &models.DutyLocation{}
 		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
 		err = appCtx.DB().Find(originDutyStation, originDutyStationID)
 		if err != nil {
@@ -130,8 +130,8 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 				return nil, apperror.NewQueryError("DutyStation", err, "")
 			}
 		}
-		order.OriginDutyStation = originDutyStation
-		order.OriginDutyStationID = &originDutyStationID
+		order.OriginDutyLocation = originDutyStation
+		order.OriginDutyLocationID = &originDutyStationID
 	}
 	// Check that the uploaded orders document exists
 	var uploadedOrders *models.Document
@@ -296,12 +296,12 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	}
 
 	if orderPayload.DestinationDutyStationID != nil {
-		model.NewDutyStationID = uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
+		model.NewDutyLocationID = uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
 	}
 
 	if orderPayload.OriginDutyStationID != nil {
 		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
-		model.OriginDutyStationID = &originDutyStationID
+		model.OriginDutyLocationID = &originDutyStationID
 	}
 
 	if orderPayload.Customer != nil {

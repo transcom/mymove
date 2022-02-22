@@ -90,6 +90,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{nil, models.MTOShipmentTypeHHGOutOfNTSDom, false},
 			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTSDom, true},
 			{swag.Time(time.Now()), models.MTOShipmentTypeHHGOutOfNTSDom, true},
+			{nil, models.MTOShipmentTypePPM, false},
+			{swag.Time(time.Now()), models.MTOShipmentTypePPM, false},
 		}
 
 		for _, testCase := range testCases {
@@ -235,6 +237,28 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				suite.Equal(requestedDeliveryDate, *createdShipment.RequestedDeliveryDate)
 			}
 		}
+	})
+
+	suite.Run("If the submitted shipment is a PPM shipment", func() {
+		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
+		creator := subtestData.shipmentCreator
+
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: subtestData.move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusDraft,
+			},
+			Stub: true,
+		})
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
+
+		suite.NoError(err)
+		suite.NotNil(createdShipment)
 	})
 
 	suite.Run("When NTSRecordedWeight it set for a non NTS Release shipment", func() {

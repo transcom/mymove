@@ -140,6 +140,7 @@ type MTOShipment struct {
 	ServiceOrderNumber               *string           `db:"service_order_number"`
 	TACType                          *LOAType          `db:"tac_type"`
 	SACType                          *LOAType          `db:"sac_type"`
+	PPMShipment                      *PPMShipment      `has_one:"ppm_shipment" fk_id:"shipment_id"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 	DeletedAt                        *time.Time        `db:"deleted_at"`

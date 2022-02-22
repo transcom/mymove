@@ -46,6 +46,7 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
+import { shipmentTypes } from 'constants/shipments';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -189,9 +190,7 @@ export class Home extends Component {
     }
 
     let destLink = '';
-    if (shipmentType === 'PPM') {
-      destLink = `/moves/${move.id}/review/edit-date-and-location`;
-    } else if (shipmentType === 'HHG') {
+    if (shipmentType === shipmentTypes.HHG || shipmentType === shipmentTypes.PPM) {
       destLink = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: move.id,
         mtoShipmentId: shipmentId,

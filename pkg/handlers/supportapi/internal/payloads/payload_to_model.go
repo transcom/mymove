@@ -56,10 +56,10 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	model.ServiceMemberID = customerID
 
 	destinationDutyStationID := uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
-	model.NewDutyStationID = destinationDutyStationID
+	model.NewDutyLocationID = destinationDutyStationID
 
 	originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
-	model.OriginDutyStationID = &originDutyStationID
+	model.OriginDutyLocationID = &originDutyStationID
 
 	reportByDate := time.Time(*orderPayload.ReportByDate)
 	if !reportByDate.IsZero() {

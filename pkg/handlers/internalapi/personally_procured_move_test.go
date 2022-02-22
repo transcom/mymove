@@ -424,7 +424,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	newPickupPostalCode := swag.String("32168")
 	newSitCost := swag.Int64(60)
 
-	dutyStationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+	dutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "test address1",
 			City:           "charleston",
@@ -434,18 +434,18 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 		},
 	})
 
-	newDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	newDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name:      "test duty station",
-			AddressID: dutyStationAddress.ID,
-			Address:   dutyStationAddress,
+			AddressID: dutyLocationAddress.ID,
+			Address:   dutyLocationAddress,
 		},
 	})
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			NewDutyStationID: newDutyStation.ID,
-			NewDutyStation:   newDutyStation,
+			NewDutyLocationID: newDutyLocation.ID,
+			NewDutyLocation:   newDutyLocation,
 		},
 	})
 

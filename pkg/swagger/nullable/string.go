@@ -67,4 +67,3 @@ func (s *String) ContextValidate(context context.Context, formats strfmt.Registr
 	// always validate ok
 	return nil
 }
-
