@@ -105,7 +105,9 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByLabelText('Email')[1]).toHaveAttribute('name', 'delivery.agent.email');
 
       expect(
-        screen.queryByText('The storage facility or address where your items are currently stored'),
+        screen.queryByText(
+          'Details about the facility where your things are now, including the name or address (if you know them)',
+        ),
       ).not.toBeInTheDocument();
 
       expect(
@@ -778,7 +780,9 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByText('Pickup location')).toHaveLength(1);
       expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
       expect(
-        screen.queryByText('The storage facility or address where your items are currently stored'),
+        screen.queryByText(
+          'Details about the facility where your things are now, including the name or address (if you know them)',
+        ),
       ).not.toBeInTheDocument();
 
       expect(
@@ -836,7 +840,9 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
 
       expect(
-        screen.queryByText('The storage facility or address where your items are currently stored'),
+        screen.queryByText(
+          'Details about the facility where your things are now, including the name or address (if you know them)',
+        ),
       ).toBeInTheDocument();
 
       expect(
