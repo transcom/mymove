@@ -226,6 +226,37 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 	return returnFile
 }
 
+// EqualDateTime compares the time.Time from the model with the strfmt.DateTime from the payload
+func (suite *BaseHandlerTestSuite) EqualDateTime(expected time.Time, actual strfmt.DateTime) {
+	actualDateTime := time.Time(actual)
+
+	suite.True(expected.Equal(actualDateTime))
+}
+
+// EqualDateTimePointerNilOrEmpty compares the time.Time from the model with the strfmt.date from the payload
+// If one is nil or zero-value, both should be nil or zero-value, else they should match in value
+func (suite *BaseHandlerTestSuite) EqualDateTimePointerNilOrEmpty(expected *time.Time, actual *strfmt.DateTime) {
+	var actualDateTime *time.Time
+	if actual == nil {
+		actualDateTime = nil
+	} else {
+		dateTime := time.Time(*actual)
+		actualDateTime = &dateTime
+	}
+
+	if expected == nil || expected.IsZero() || actualDateTime == nil || actualDateTime.IsZero() {
+		if expected != nil {
+			suite.True(expected.IsZero())
+		}
+
+		if actualDateTime != nil {
+			suite.True(actualDateTime.IsZero())
+		}
+	} else {
+		suite.True(expected.Equal(*actualDateTime))
+	}
+}
+
 // EqualDatePtr compares the time.Time from the model with the strfmt.date from the payload
 // If one is nil, both should be nil, else they should match in value
 // This is to be strictly used for dates as it drops any time parameters in the comparison
@@ -236,5 +267,47 @@ func (suite *BaseHandlerTestSuite) EqualDatePtr(expected *time.Time, actual *str
 	} else {
 		isoDate := "2006-01-02" // Create a date format
 		suite.Equal(expected.Format(isoDate), time.Time(*actual).Format(isoDate))
+	}
+}
+
+// EqualDatePtrNilOrEmpty compares the time.Time from the model with the strfmt.date from the payload
+// If one is nil or zero-value, both should be nil or zero-value, else they should match in value
+func (suite *BaseHandlerTestSuite) EqualDatePtrNilOrEmpty(expected *time.Time, actual *strfmt.Date) {
+	var actualDate *time.Time
+	if actual == nil {
+		actualDate = nil
+	} else {
+		dateTime := time.Time(*actual)
+		actualDate = &dateTime
+	}
+
+	if expected == nil || expected.IsZero() || actualDate == nil || actualDate.IsZero() {
+		if expected != nil {
+			suite.True(expected.IsZero())
+		}
+
+		if actualDate != nil {
+			suite.True(actualDate.IsZero())
+		}
+	} else {
+		suite.True(expected.Equal(*actualDate))
+	}
+}
+
+// EqualUUID compares the uuid.UUID from the model with the strfmt.UUID from the payload
+func (suite *BaseHandlerTestSuite) EqualUUID(expected uuid.UUID, actual strfmt.UUID) {
+	actualUUID := uuid.FromStringOrNil(actual.String())
+
+	suite.Equal(expected, actualUUID)
+}
+
+// EqualUUIDPointers compares the uuid.UUID from the model with the strfmt.UUID from the payload
+// If one is nil, both should be nil, else they should match in value
+func (suite *BaseHandlerTestSuite) EqualUUIDPointers(expected *uuid.UUID, actual *strfmt.UUID) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected)
+		suite.Nil(actual)
+	} else {
+		suite.EqualUUID(*expected, *actual)
 	}
 }
