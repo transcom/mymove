@@ -47,24 +47,22 @@ func checkRequiredFields() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
+		// TODO: We'll need to add logic for when a shipment is being updated, otherwise the code below could break.
+		// Look at pkg/services/reweigh/rules.go  checkRequiredFields() for an example.
+
 		// Check that we have something in the expectedDepartureDate field:
-		if newPPMShipment.ExpectedDepartureDate == nil || newPPMShipment.ExpectedDepartureDate.IsZero() {
-			verrs.Add("expectedDepartureDate", "cannot be nil or a zero value")
+		if newPPMShipment.ExpectedDepartureDate.IsZero() {
+			verrs.Add("expectedDepartureDate", "cannot be a zero value")
 		}
 
 		// Check that we have something in the pickupPostalCode field:
-		if newPPMShipment.PickupPostalCode == nil || *newPPMShipment.PickupPostalCode == "" {
+		if newPPMShipment.PickupPostalCode == "" {
 			verrs.Add("pickupPostalCode", "cannot be nil or empty")
 		}
 
 		// Check that we have something in the destinationPostalCode field:
-		if newPPMShipment.DestinationPostalCode == nil || *newPPMShipment.DestinationPostalCode == "" {
+		if newPPMShipment.DestinationPostalCode == "" {
 			verrs.Add("destinationPostalCode", "cannot be nil or empty")
-		}
-
-		// Check that we have something in the sit Expected field:
-		if newPPMShipment.SitExpected == nil {
-			verrs.Add("sitExpected", "cannot be nil")
 		}
 
 		return verrs
