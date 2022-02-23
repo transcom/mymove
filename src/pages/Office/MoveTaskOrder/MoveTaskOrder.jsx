@@ -79,15 +79,6 @@ function showShipmentFilter(shipment) {
   );
 }
 
-const externalVendorShipmentMessage = (shipmentCount, moveCode) => (
-  <small>
-    {shipmentCount} prime shipment not moved by GHC prime.{' '}
-    <Link className="usa-link" to={`/moves/${moveCode}`}>
-      View move details
-    </Link>
-  </small>
-);
-
 export const MoveTaskOrder = ({ match, ...props }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
@@ -721,7 +712,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && externalVendorShipmentCount && (
                 <br />
               )}
-              {externalVendorShipmentCount && externalVendorShipmentMessage(externalVendorShipmentCount, moveCode)}
+              {externalVendorShipmentCount && (
+                <small>
+                  {externalVendorShipmentCount} shipment not moved by GHC prime.{' '}
+                  <Link className="usa-link" to={`/moves/${moveCode}`}>
+                    View move details
+                  </Link>
+                </small>
+              )}
             </WeightDisplay>
             <WeightDisplay
               heading="Max billable weight"
