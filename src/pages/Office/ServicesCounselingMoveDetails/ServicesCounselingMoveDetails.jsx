@@ -49,7 +49,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
   // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
   const showWhenCollapsed = {
-    HHG: ['counselorRemarks'],
     HHG_INTO_NTS_DOMESTIC: ['counselorRemarks'],
     HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'],
   }; // add any additional fields that we also want to always show
