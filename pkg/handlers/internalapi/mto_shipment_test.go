@@ -9,6 +9,7 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -439,6 +440,30 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MT
 	return params
 }
 
+func (suite *HandlerSuite) getUpdateMTOShipmentParamsForHHGAndPPM(originalShipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentParams {
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
+	customerRemarks := "testing"
+
+	req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
+	req = suite.AuthenticateRequest(req, serviceMember)
+
+	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
+
+	payload := internalmessages.UpdateShipment{
+		CustomerRemarks: &customerRemarks,
+	}
+
+	params := mtoshipmentops.UpdateMTOShipmentParams{
+		HTTPRequest:   req,
+		MtoShipmentID: *handlers.FmtUUID(originalShipment.ID),
+		Body:          &payload,
+		IfMatch:       eTag,
+	}
+
+	return params
+}
+
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
@@ -454,13 +479,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 
+	// TODO: Confirm if we need to have a new handler objects, instructions seem to advice to put into a helper function and call per test
+	builder := query.NewQueryBuilder()
+	fetcher := fetch.NewFetcher(builder)
+	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	ppmUpdater := ppmshipment.NewPPMShipmentUpdater()
+
 	suite.Run("Successful PATCH - Integration Test", func() {
-		builder := query.NewQueryBuilder()
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
+			ppmUpdater,
 		}
 
 		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
@@ -490,13 +519,42 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.NotEmpty(updatedShipment.Agents[0].ID)
 	})
 
-	suite.Run("Successful PATCH - Can update shipment status", func() {
-		builder := query.NewQueryBuilder()
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	suite.Run("Successful PATCH with PPMShipment - Integration Test", func() {
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
+			ppmUpdater,
+		}
+
+		existingPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+
+		params := suite.getUpdateMTOShipmentParamsForHHGAndPPM(existingPPMShipment.Shipment)
+		updatedPPM := &internalmessages.PPMShipment{
+			ID:          strfmt.UUID(existingPPMShipment.ID.String()),
+			SitExpected: models.BoolPointer(true),
+		}
+		params.Body.PpmShipment = updatedPPM
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		suite.Equal(existingPPMShipment.Shipment.ID.String(), updatedShipment.ID.String())
+		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
+
+		suite.Equal(*params.Body.PpmShipment.SitExpected, *updatedShipment.PpmShipment.SitExpected)
+		suite.True(updatedShipment.PpmShipment.HasProGear)
+		suite.Equal(*handlers.FmtPoundPtr(existingPPMShipment.ProGearWeight), updatedShipment.PpmShipment.ProGearWeight)
+		suite.Equal(*handlers.FmtPoundPtr(existingPPMShipment.SpouseProGearWeight), updatedShipment.PpmShipment.SpouseProGearWeight)
+	})
+
+	suite.Run("Successful PATCH - Can update shipment status", func() {
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			updater,
+			ppmUpdater,
 		}
 
 		expectedStatus := internalmessages.MTOShipmentStatusSUBMITTED
@@ -515,12 +573,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {
-		builder := query.NewQueryBuilder()
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
+			ppmUpdater,
 		}
 
 		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
@@ -533,12 +589,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 400 -- invalid requested status update", func() {
-		builder := query.NewQueryBuilder()
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
+			ppmUpdater,
 		}
 
 		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
@@ -551,12 +605,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 401- permission denied - not authenticated", func() {
-		builder := query.NewQueryBuilder()
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
+			ppmUpdater,
 		}
 
 		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
@@ -572,20 +624,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 403- permission denied - wrong application / user", func() {
-		builder := query.NewQueryBuilder()
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(
-			builder,
-			fetcher,
-			planner,
-			moveRouter,
-			moveWeights,
-			suite.TestNotificationSender(),
-			paymentRequestShipmentRecalculator)
+
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
+			ppmUpdater,
 		}
 
 		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
@@ -602,12 +646,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 404 -- not found", func() {
-		builder := query.NewQueryBuilder()
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
+			ppmUpdater,
 		}
 
 		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
@@ -621,12 +663,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
-		builder := query.NewQueryBuilder()
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			updater,
+			ppmUpdater,
 		}
 
 		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
@@ -688,6 +728,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockUpdater,
+			ppmUpdater,
 		}
 
 		err := errors.New("ServerError")

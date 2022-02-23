@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -22,9 +21,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		SitExpected: models.BoolPointer(true),
 	}
 
-	eTag := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
+	// eTag := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
 	suite.T().Run("UpdatePPMShipment - Success", func(t *testing.T) {
-		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM, eTag)
+		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM)
 
 		suite.NilOrNoVerrs(err)
 		suite.True(*updatedPPMShipment.SitExpected)
@@ -35,18 +34,18 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		ppmForNotFound := models.PPMShipment{
 			ID: uuid.Nil,
 		}
-		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &ppmForNotFound, eTag)
+		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &ppmForNotFound)
 
 		suite.Nil(updatedPPMShipment)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM, "")
+	// suite.T().Run("Precondition Failed", func(t *testing.T) {
+	// 	updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM)
 
-		suite.Nil(updatedPPMShipment)
-		suite.Error(err)
-		suite.IsType(apperror.PreconditionFailedError{}, err)
-	})
+	// 	suite.Nil(updatedPPMShipment)
+	// 	suite.Error(err)
+	// 	suite.IsType(apperror.PreconditionFailedError{}, err)
+	// })
 }

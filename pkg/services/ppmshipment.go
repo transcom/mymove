@@ -12,5 +12,5 @@ type PPMShipmentCreator interface {
 
 // PPMShipmentUpdater updates a PPM shipment
 type PPMShipmentUpdater interface {
-	UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment, eTag string) (*models.PPMShipment, error)
+	UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment) (*models.PPMShipment, error)
 }

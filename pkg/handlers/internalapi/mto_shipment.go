@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -80,6 +81,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerContext
 	mtoShipmentUpdater services.MTOShipmentUpdater
+	ppmShipmentUpdater services.PPMShipmentUpdater
 }
 
 // Handle updates the mto shipment
@@ -114,7 +116,22 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
 
-	updatedMtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(appCtx, mtoShipment, params.IfMatch)
+	var updatedMTOShipment *models.MTOShipment
+	var updatedPPMShipment *models.PPMShipment
+	var err error
+	err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		updatedMTOShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(txnAppCtx, mtoShipment, params.IfMatch)
+		if err != nil {
+			return err
+		}
+
+		updatedPPMShipment, err = h.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 
 	if err != nil {
 		appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
@@ -136,7 +153,8 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		}
 	}
 
-	returnPayload := payloads.MTOShipment(updatedMtoShipment)
+	updatedMTOShipment.PPMShipment = updatedPPMShipment
+	returnPayload := payloads.MTOShipment(updatedMTOShipment)
 
 	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
 }

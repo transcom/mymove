@@ -8,7 +8,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -28,11 +27,15 @@ func NewPPMShipmentUpdater() services.PPMShipmentUpdater {
 	}
 }
 
-func (f *ppmShipmentUpdater) UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, eTag string) (*models.PPMShipment, error) {
-	return f.updatePPMShipment(appCtx, ppmShipment, eTag, f.checks...)
+func (f *ppmShipmentUpdater) UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*models.PPMShipment, error) {
+	return f.updatePPMShipment(appCtx, ppmShipment, f.checks...)
 }
 
-func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, eTag string, checks ...ppmShipmentValidator) (*models.PPMShipment, error) {
+func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*models.PPMShipment, error) {
+	if ppmShipment == nil {
+		return nil, nil
+	}
+
 	oldPPMShipment := models.PPMShipment{}
 
 	// Find the previous ppmShipment, return an error if not found
@@ -46,10 +49,9 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 	}
 
-	encodedUpdatedAt := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
-	if encodedUpdatedAt != eTag {
-		return nil, apperror.NewPreconditionFailedError(ppmShipment.ID, nil)
-	}
+	// if etag.GenerateEtag(oldPPMShipment.UpdatedAt) != eTag {
+	// 	return nil, apperror.NewPreconditionFailedError(ppmShipment.ID, nil)
+	// }
 
 	mtoShipment := models.MTOShipment{}
 	// Find the associated mtoShipment, return an error if not found
@@ -73,6 +75,7 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 	if err != nil {
 		return nil, fmt.Errorf("error copying PPMShipment data %w", err)
 	}
+	// TODO: Write merge function + validation tests
 	testdatagen.MergeModels(&oldPPMCopy, newPPMCopy)
 	// oldPPMCopy now has the new combined values
 	updatedPPMShipment := &oldPPMCopy
