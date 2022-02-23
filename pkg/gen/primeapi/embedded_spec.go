@@ -2397,7 +2397,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
@@ -2418,7 +2418,7 @@ func init() {
         "orderNumber": {
           "type": "string"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "rank": {
@@ -6068,7 +6068,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
@@ -6089,7 +6089,7 @@ func init() {
         "orderNumber": {
           "type": "string"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "rank": {

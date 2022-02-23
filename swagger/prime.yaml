@@ -2078,9 +2078,9 @@ definitions:
         type: string
       entitlement:
         $ref: '#/definitions/Entitlements'
-      destinationDutyStation:
+      destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
-      originDutyStation:
+      originDutyLocation:
         $ref: '#/definitions/DutyLocation'
       rank:
         type: string
