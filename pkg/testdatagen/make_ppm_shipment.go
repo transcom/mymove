@@ -83,6 +83,8 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 
 	mustCreate(db, &ppmShipment, assertions.Stub)
 
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
 	return ppmShipment
 }
 
@@ -115,6 +117,8 @@ func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PP
 	mergeModels(&newPPMShipment, assertions.PPMShipment)
 
 	mustCreate(db, &newPPMShipment, assertions.Stub)
+
+	newPPMShipment.Shipment.PPMShipment = &newPPMShipment
 
 	return newPPMShipment
 }
