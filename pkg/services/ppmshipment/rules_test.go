@@ -1,6 +1,7 @@
 package ppmshipment
 
 import (
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
@@ -136,17 +137,84 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 
 			newPPMShipment := models.PPMShipment{
 				ShipmentID:            shipmentID,
-				ExpectedDepartureDate: &expectedTime,
-				PickupPostalCode:      &pickupPostal,
-				DestinationPostalCode: &destPostalcode,
-				SitExpected:           &sitExpected,
+				ExpectedDepartureDate: expectedTime,
+				PickupPostalCode:      pickupPostal,
+				DestinationPostalCode: destPostalcode,
+				SitExpected:           sitExpected,
 			}
 
 			err := checkRequiredFields().Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
 
 			// Verrs is initialized but empty, and we expect err as a return value in the func:
 			suite.NilOrNoVerrs(err)
-			//suite.NotNil(createdPPMShipment)
+		})
+
+		suite.Run("Failure - New shipment", func() {
+			shipmentID := uuid.Must(uuid.NewV4())
+
+			expectedTime := time.Now()
+			pickupPostal := "99999"
+			destPostalcode := "99999"
+			sitExpected := false
+
+			testCases := []struct {
+				desc     string
+				shipment models.PPMShipment
+				errorKey string
+				errorMsg string
+			}{
+				{
+					"Missing expected departure date",
+					models.PPMShipment{
+						ShipmentID:            shipmentID,
+						PickupPostalCode:      pickupPostal,
+						DestinationPostalCode: destPostalcode,
+						SitExpected:           sitExpected,
+					},
+					"expectedDepartureDate",
+					"cannot be a zero value"},
+				{
+					"Missing pickup postal code",
+					models.PPMShipment{
+						ShipmentID:            shipmentID,
+						ExpectedDepartureDate: expectedTime,
+						DestinationPostalCode: destPostalcode,
+						SitExpected:           sitExpected,
+					},
+					"pickupPostalCode",
+					"cannot be nil or empty",
+				},
+				{
+					"Missing destination postal code",
+					models.PPMShipment{
+						ShipmentID:            shipmentID,
+						ExpectedDepartureDate: expectedTime,
+						PickupPostalCode:      pickupPostal,
+						SitExpected:           sitExpected,
+					},
+					"destinationPostalCode",
+					"cannot be nil or empty",
+				},
+			}
+
+			for _, tc := range testCases {
+				tc := tc
+				suite.Run(tc.desc, func() {
+					err := checkRequiredFields().Validate(suite.AppContextForTest(), tc.shipment, nil, nil)
+
+					switch verr := err.(type) {
+					case *validate.Errors:
+						suite.Equal(1, verr.Count())
+
+						errorMsg, hasErrKey := verr.Errors[tc.errorKey]
+
+						suite.True(hasErrKey)
+						suite.Equal(tc.errorMsg, strings.Join(errorMsg, ""))
+					default:
+						suite.Failf("expected *validate.Errs", "%v", err)
+					}
+				})
+			}
 		})
 	})
 }
