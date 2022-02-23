@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
@@ -32,6 +32,7 @@ import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
+import LeftNav from 'components/LeftNav/LeftNav';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   const { moveCode } = useParams();
@@ -45,6 +46,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   const { customer, entitlement: allowances } = order;
 
   const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
+
+  const sections = useMemo(() => {
+    return ['shipments', 'orders', 'allowances', 'customer-info'];
+  }, []);
 
   // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
   // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -233,6 +238,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
+        <LeftNav className={styles.sidebar} sections={sections} />
         {isSubmitModalVisible && (
           <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
         )}

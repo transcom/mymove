@@ -7,6 +7,7 @@ import styles from './LeftNav.module.scss';
 import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 
 const sectionLabels = {
+  shipments: 'Shipments',
   'requested-shipments': 'Requested shipments',
   'approved-shipments': 'Approved shipments',
   orders: 'Orders',
