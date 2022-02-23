@@ -153,18 +153,10 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="edit-allowances"]').click();
 
     // the form
-    cy.get('[data-testid="proGearWeightInput"]').clear().type('1999');
-    cy.get('[data-testid="proGearWeightSpouseInput"]').clear().type('499');
-    cy.get('[data-testid="rmeInput"]').clear().type('999');
     cy.get('[data-testid="sitInput"]').clear().type('199');
-    cy.get('[data-testid="ocieInput"]').click({ force: true });
-    // Edit grade and authorized weight
-    cy.get('[data-testid="branchInput"]').select('Navy');
-    cy.get('[data-testid="rankInput"]').select('W-2');
-    //Edit DependentsAuthorized
-    cy.get('[data-testid="dependentsAuthorizedInput"]').click({ force: true });
+
     // Edit allowances page | Save
-    cy.get('[data-testid="scAllowancesSave"]').click({ force: true });
+    cy.get('[data-testid="scAllowancesSave"]').click();
 
     cy.wait('@patchAllowances');
 
@@ -174,14 +166,7 @@ describe('Services counselor user', () => {
 
     // things should save and then load afterward with new data
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-    cy.get('[data-testid="progear"]').contains('1,999');
-    cy.get('[data-testid="spouseProgear"]').contains('499');
-    cy.get('[data-testid="rme"]').contains('999');
     cy.get('[data-testid="storageInTransit"]').contains('199');
-    cy.get('[data-testid="ocie"]').contains('Unauthorized');
-    cy.get('[data-testid="branchRank"]').contains('Navy');
-    cy.get('[data-testid="branchRank"]').contains('W-2');
-    cy.get('[data-testid="dependents"]').contains('Unauthorized');
   });
 
   it('is able to edit a shipment', () => {
