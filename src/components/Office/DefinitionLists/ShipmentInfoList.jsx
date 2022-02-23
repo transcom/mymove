@@ -10,7 +10,7 @@ import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
-const ShipmentInfoList = ({ className, shipment, errorIfMissing }) => {
+const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing }) => {
   const {
     requestedPickupDate,
     pickupAddress,
@@ -29,13 +29,21 @@ const ShipmentInfoList = ({ className, shipment, errorIfMissing }) => {
     warning: shipmentDefinitionListsStyles.warning,
     missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
-  setDisplayFlags(errorIfMissing, null, null, null, shipment);
+  setDisplayFlags(errorIfMissing, warnIfMissing, null, null, shipment);
 
   const destinationTypeFlags = getDisplayFlags('destinationType');
   const destinationTypeElement = (
     <div className={destinationTypeFlags.classes}>
       <dt>Destination type</dt>
       <dd data-testid="destinationType">{destinationType || getMissingOrDash('destinationType')}</dd>
+    </div>
+  );
+
+  const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
+  const counselorRemarksElement = (
+    <div className={counselorRemarksElementFlags.classes}>
+      <dt>Counselor remarks</dt>
+      <dd data-testid="counselorRemarks">{counselorRemarks || '—'}</dd>
     </div>
   );
 
@@ -82,10 +90,7 @@ const ShipmentInfoList = ({ className, shipment, errorIfMissing }) => {
             <dd>{formatAgent(agent)}</dd>
           </div>
         ))}
-      <div className={styles.row}>
-        <dt>Counselor remarks</dt>
-        <dd data-testid="counselorRemarks">{counselorRemarks || '—'}</dd>
-      </div>
+      {counselorRemarksElement}
       <div className={styles.row}>
         <dt>Customer remarks</dt>
         <dd data-testid="customerRemarks">{customerRemarks || '—'}</dd>
@@ -97,11 +102,13 @@ const ShipmentInfoList = ({ className, shipment, errorIfMissing }) => {
 ShipmentInfoList.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
+  warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
 };
 
 ShipmentInfoList.defaultProps = {
   className: '',
+  warnIfMissing: [],
   errorIfMissing: [],
 };
 
