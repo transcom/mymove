@@ -351,13 +351,19 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
-server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run redis_run ## Debug the server
+server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/milmove build/index.html server_generate db_dev_run db_dev_migrate redis_run ## Debug the server
 	scripts/kill-process-on-port 8080
 	scripts/kill-process-on-port 9443
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	AWS_REGION=us-gov-west-1 \
 	aws-vault exec transcom-gov-dev -- \
-	dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
+	dlv \
+		--listen=:2345 \
+		--headless=true \
+		--api-version=2 \
+		--accept-multiclient \
+		exec ./bin/milmove -- serve
+		2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
 build_tools: bin/gin \
