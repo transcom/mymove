@@ -154,8 +154,6 @@ describe('Services counselor user', () => {
 
     // the form
     cy.get('[data-testid="proGearWeightInput"]').clear().type('1999');
-    cy.get('[data-testid="proGearWeightSpouseInput"]').clear().type('499');
-    cy.get('[data-testid="rmeInput"]').clear().type('999');
     cy.get('[data-testid="sitInput"]').clear().type('199');
 
     // Edit allowances page | Save
