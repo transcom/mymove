@@ -826,7 +826,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.EqualDateTime(expectedShipment.PPMShipment.CreatedAt, returnedShipment.PpmShipment.CreatedAt)
 				suite.EqualDateTime(expectedShipment.PPMShipment.UpdatedAt, returnedShipment.PpmShipment.UpdatedAt)
 				suite.Equal(string(expectedShipment.PPMShipment.Status), string(returnedShipment.PpmShipment.Status))
-				suite.EqualDatePtrNilOrEmpty(expectedShipment.PPMShipment.ExpectedDepartureDate, returnedShipment.PpmShipment.ExpectedDepartureDate)
+				suite.EqualDate(expectedShipment.PPMShipment.ExpectedDepartureDate, *returnedShipment.PpmShipment.ExpectedDepartureDate)
 				suite.EqualDatePtrNilOrEmpty(expectedShipment.PPMShipment.ActualMoveDate, &returnedShipment.PpmShipment.ActualMoveDate)
 				suite.EqualDateTimePointerNilOrEmpty(expectedShipment.PPMShipment.SubmittedAt, &returnedShipment.PpmShipment.SubmittedAt)
 				suite.EqualDateTimePointerNilOrEmpty(expectedShipment.PPMShipment.ReviewedAt, &returnedShipment.PpmShipment.ReviewedAt)

@@ -233,6 +233,13 @@ func (suite *BaseHandlerTestSuite) EqualDateTime(expected time.Time, actual strf
 	suite.True(expected.Equal(actualDateTime))
 }
 
+// EqualDate compares the time.Time from the model with the strfmt.Date from the payload
+func (suite *BaseHandlerTestSuite) EqualDate(expected time.Time, actual strfmt.Date) {
+	actualDate := time.Time(actual)
+
+	suite.True(expected.Equal(actualDate))
+}
+
 // EqualDateTimePointerNilOrEmpty compares the time.Time from the model with the strfmt.date from the payload
 // If one is nil or zero-value, both should be nil or zero-value, else they should match in value
 func (suite *BaseHandlerTestSuite) EqualDateTimePointerNilOrEmpty(expected *time.Time, actual *strfmt.DateTime) {
@@ -265,8 +272,9 @@ func (suite *BaseHandlerTestSuite) EqualDatePtr(expected *time.Time, actual *str
 		suite.Nil(expected)
 		suite.Nil(actual)
 	} else {
-		isoDate := "2006-01-02" // Create a date format
-		suite.Equal(expected.Format(isoDate), time.Time(*actual).Format(isoDate))
+		actualDate := time.Time(*actual)
+
+		suite.True(expected.Equal(actualDate))
 	}
 }
 

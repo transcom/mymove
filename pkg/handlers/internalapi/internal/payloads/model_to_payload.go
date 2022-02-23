@@ -76,10 +76,10 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		CreatedAt:             strfmt.DateTime(ppmShipment.CreatedAt),
 		UpdatedAt:             strfmt.DateTime(ppmShipment.UpdatedAt),
 		Status:                internalmessages.PPMShipmentStatus(ppmShipment.Status),
-		ExpectedDepartureDate: handlers.FmtDate(*ppmShipment.ExpectedDepartureDate),
-		PickupPostalCode:      ppmShipment.PickupPostalCode,
-		DestinationPostalCode: ppmShipment.DestinationPostalCode,
-		SitExpected:           ppmShipment.SitExpected,
+		ExpectedDepartureDate: handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
+		PickupPostalCode:      &ppmShipment.PickupPostalCode,
+		DestinationPostalCode: &ppmShipment.DestinationPostalCode,
+		SitExpected:           &ppmShipment.SitExpected,
 		ETag:                  etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
