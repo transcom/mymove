@@ -153,6 +153,9 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="edit-allowances"]').click();
 
     // the form
+    cy.get('[data-testid="proGearWeightInput"]').clear().type('1999');
+    cy.get('[data-testid="proGearWeightSpouseInput"]').clear().type('499');
+    cy.get('[data-testid="rmeInput"]').clear().type('999');
     cy.get('[data-testid="sitInput"]').clear().type('199');
 
     // Edit allowances page | Save
@@ -166,6 +169,9 @@ describe('Services counselor user', () => {
 
     // things should save and then load afterward with new data
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.get('[data-testid="progear"]').contains('1,999');
+    cy.get('[data-testid="spouseProgear"]').contains('499');
+    cy.get('[data-testid="rme"]').contains('999');
     cy.get('[data-testid="storageInTransit"]').contains('199');
   });
 
