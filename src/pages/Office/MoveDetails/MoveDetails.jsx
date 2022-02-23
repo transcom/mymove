@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import { Alert, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
+import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
@@ -26,6 +26,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -266,26 +267,34 @@ const MoveDetails = ({
                 onClickHandler={() => setActiveSection(s)}
               >
                 {sectionLabels[`${s}`]}
-                {s === 'orders' && hasMissingOrdersRequiredInfo && (
-                  <Tag className="usa-tag usa-tag--alert">
-                    <FontAwesomeIcon icon="exclamation" />
-                  </Tag>
-                )}
-                {s === 'orders' && !hasMissingOrdersRequiredInfo && hasAmendedOrders && (
-                  <Tag className={styles.tag} data-testid="newOrdersNavTag">
-                    NEW
-                  </Tag>
-                )}
-                {s === 'requested-shipments' && !shipmentMissingRequiredInformation && (
-                  <Tag className={styles.tag} data-testid="requestedShipmentsTag">
-                    {submittedShipments?.length}
-                  </Tag>
-                )}
-                {s === 'requested-shipments' && shipmentMissingRequiredInformation && (
-                  <Tag className="usa-tag usa-tag--alert" data-testid="shipment-missing-info-alert">
-                    <FontAwesomeIcon icon="exclamation" />
-                  </Tag>
-                )}
+                <LeftNavTag
+                  className="usa-tag usa-tag--alert"
+                  showTag={s === 'orders' && hasMissingOrdersRequiredInfo}
+                  testID="tag"
+                >
+                  <FontAwesomeIcon icon="exclamation" />
+                </LeftNavTag>
+                <LeftNavTag
+                  className={styles.tag}
+                  showTag={Boolean(s === 'orders' && !hasMissingOrdersRequiredInfo && hasAmendedOrders)}
+                  testID="newOrdersNavTag"
+                >
+                  NEW
+                </LeftNavTag>
+                <LeftNavTag
+                  className={styles.tag}
+                  showTag={s === 'requested-shipments' && !shipmentMissingRequiredInformation}
+                  testID="requestedShipmentsTag"
+                >
+                  {submittedShipments?.length}
+                </LeftNavTag>
+                <LeftNavTag
+                  className="usa-tag usa-tag--alert"
+                  showTag={s === 'requested-shipments' && shipmentMissingRequiredInformation}
+                  testID="shipment-missing-info-alert"
+                >
+                  <FontAwesomeIcon icon="exclamation" />
+                </LeftNavTag>
               </LeftNavSection>
             );
           })}

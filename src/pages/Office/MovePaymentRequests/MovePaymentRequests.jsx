@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { queryCache, useMutation } from 'react-query';
 import { useParams, useHistory } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { Alert, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
+import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -35,6 +35,7 @@ import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 const sectionLabels = {
   'billable-weights': 'Billable weights',
@@ -221,32 +222,36 @@ const MovePaymentRequests = ({
                 onClickHandler={() => setActiveSection(s)}
               >
                 {sectionLabels[`${s}`]}
-                {s === 'payment-requests' && paymentRequests?.length > 0 && (
-                  <Tag className={txoStyles.tag} data-testid="numOfPaymentRequestsTag">
-                    {paymentRequests.length}
-                  </Tag>
-                )}
-                {s === 'billable-weights' && maxBillableWeightExceeded && filteredShipments?.length > 0 && (
-                  <Tag
-                    className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
-                    data-testid="maxBillableWeightErrorTag"
-                  >
-                    <FontAwesomeIcon icon="exclamation" />
-                  </Tag>
-                )}
-                {s === 'billable-weights' &&
-                  !maxBillableWeightExceeded &&
-                  filteredShipments?.length > 0 &&
-                  !billableWeightsReviewed &&
-                  (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments)) && (
-                    <Tag background="none">
-                      <FontAwesomeIcon
-                        icon="exclamation-triangle"
-                        data-testid="maxBillableWeightWarningTag"
-                        className={classnames(styles.warning, styles.errorTag)}
-                      />
-                    </Tag>
-                  )}
+                <LeftNavTag
+                  className={txoStyles.tag}
+                  showTag={s === 'payment-requests' && paymentRequests?.length > 0}
+                  testID="numOfPaymentRequestsTag"
+                >
+                  {paymentRequests.length}
+                </LeftNavTag>
+                <LeftNavTag
+                  className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
+                  showTag={s === 'billable-weights' && maxBillableWeightExceeded && filteredShipments?.length > 0}
+                  testID="maxBillableWeightErrorTag"
+                >
+                  <FontAwesomeIcon icon="exclamation" />
+                </LeftNavTag>
+                <LeftNavTag
+                  background="none"
+                  showTag={
+                    s === 'billable-weights' &&
+                    !maxBillableWeightExceeded &&
+                    filteredShipments?.length > 0 &&
+                    !billableWeightsReviewed &&
+                    (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments))
+                  }
+                  testID="maxBillableWeightWarningTag"
+                >
+                  <FontAwesomeIcon
+                    icon="exclamation-triangle"
+                    className={classnames(styles.warning, styles.errorTag)}
+                  />
+                </LeftNavTag>
               </LeftNavSection>
             );
           })}

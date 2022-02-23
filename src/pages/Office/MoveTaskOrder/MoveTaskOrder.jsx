@@ -54,6 +54,7 @@ import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -610,12 +611,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                 onClickHandler={() => setActiveSection(`s-${s.id}`)}
               >
                 {s.label}{' '}
-                {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
-                  <Tag>
-                    {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
-                      (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
-                  </Tag>
-                )}
+                <LeftNavTag
+                  showTag={Boolean(
+                    unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`],
+                  )}
+                >
+                  {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
+                    (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
+                </LeftNavTag>
               </LeftNavSection>
             );
           })}
