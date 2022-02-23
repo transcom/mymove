@@ -28,7 +28,7 @@ type Order struct {
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
 
 	// destination duty station
-	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
+	DestinationDutyStation *DutyLocation `json:"destinationDutyStation,omitempty"`
 
 	// e tag
 	// Read Only: true
@@ -51,7 +51,7 @@ type Order struct {
 	OrderNumber *string `json:"orderNumber"`
 
 	// origin duty station
-	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
+	OriginDutyStation *DutyLocation `json:"originDutyStation,omitempty"`
 
 	// rank
 	// Example: E_5

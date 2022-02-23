@@ -1416,7 +1416,7 @@ func init() {
       "x-nullable": true,
       "example": "OTHER_THAN_AUTHORIZED"
     },
-    "DutyStation": {
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "address": {
@@ -2398,7 +2398,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string",
@@ -2419,7 +2419,7 @@ func init() {
           "type": "string"
         },
         "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "rank": {
           "type": "string",
@@ -5087,7 +5087,7 @@ func init() {
       "x-nullable": true,
       "example": "OTHER_THAN_AUTHORIZED"
     },
-    "DutyStation": {
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "address": {
@@ -6069,7 +6069,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string",
@@ -6090,7 +6090,7 @@ func init() {
           "type": "string"
         },
         "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "rank": {
           "type": "string",

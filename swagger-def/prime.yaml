@@ -1033,7 +1033,7 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  DutyStation:
+  DutyLocation:
     type: object
     properties:
       id:
@@ -1806,9 +1806,9 @@ definitions:
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
+        $ref: '#/definitions/DutyLocation'
       originDutyStation:
-        $ref: '#/definitions/DutyStation'
+        $ref: '#/definitions/DutyLocation'
       rank:
         type: string
         example: 'E_5'

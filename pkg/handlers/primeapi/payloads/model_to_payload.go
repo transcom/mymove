@@ -192,12 +192,12 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 }
 
 // DutyLocation payload
-func DutyLocation(dutyStation *models.DutyLocation) *primemessages.DutyStation {
+func DutyLocation(dutyStation *models.DutyLocation) *primemessages.DutyLocation {
 	if dutyStation == nil {
 		return nil
 	}
 	address := Address(&dutyStation.Address)
-	payload := primemessages.DutyStation{
+	payload := primemessages.DutyLocation{
 		Address:   address,
 		AddressID: address.ID,
 		ID:        strfmt.UUID(dutyStation.ID.String()),
