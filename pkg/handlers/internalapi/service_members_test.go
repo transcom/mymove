@@ -121,7 +121,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	// which can't be handled in OpenAPI Spec 2.0. Therefore we don't return them at all.
 	suite.Assertions.Equal((*serviceMemberPayload).Rank, (*internalmessages.ServiceMemberRank)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).Affiliation, (*internalmessages.Affiliation)(nil))
-	suite.Assertions.Equal((*serviceMemberPayload).CurrentStation, (*internalmessages.DutyStationPayload)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).CurrentStation, (*internalmessages.DutyLocationPayload)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).ResidentialAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupMailingAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupContacts, internalmessages.IndexServiceMemberBackupContactsPayload{})
@@ -298,7 +298,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
 	// Editing SM info DutyStation and Rank fields should edit Orders OriginDutyLocation and Grade fields
-	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyStation.Name, newServiceMember.DutyStation.Name)
+	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newServiceMember.DutyStation.Name)
 	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
 	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
 }

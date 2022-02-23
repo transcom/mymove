@@ -46,7 +46,7 @@ export const Error = (argTypes) => (
         id: 'testId',
       },
     }}
-    newDutyStation={{
+    newDutyLocation={{
       address: {
         city: 'Los Angeles',
         state: 'CA',

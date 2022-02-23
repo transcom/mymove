@@ -90,7 +90,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
-          postalCode: order.destinationDutyStation.address.postalCode,
+          postalCode: order.destinationDutyLocation.address.postalCode,
         },
         ...shipment,
         destinationType: destType,
@@ -137,8 +137,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   };
 
   const ordersInfo = {
-    currentDutyStation: order.originDutyStation,
-    newDutyStation: order.destinationDutyStation,
+    currentDutyLocation: order.originDutyLocation,
+    newDutyLocation: order.destinationDutyLocation,
     issuedDate: order.date_issued,
     reportByDate: order.report_by_date,
     ordersType: order.order_type,

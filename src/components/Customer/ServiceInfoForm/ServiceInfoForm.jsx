@@ -16,7 +16,7 @@ import { dropdownInputOptions } from 'shared/formatters';
 import formStyles from 'styles/form.module.scss';
 import { DutyStationShape } from 'types/dutyStation';
 
-const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyStation }) => {
+const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const rankOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -35,7 +35,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyStation }) 
       .test(
         'existing and new duty location should not match',
         'You entered the same duty location for your origin and destination. Please change one of them.',
-        (value) => value?.id !== newDutyStation?.id,
+        (value) => value?.id !== newDutyLocation?.id,
       ),
   });
 
@@ -120,11 +120,11 @@ ServiceInfoForm.propTypes = {
   }).isRequired,
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  newDutyStation: DutyStationShape,
+  newDutyLocation: DutyStationShape,
 };
 
 ServiceInfoForm.defaultProps = {
-  newDutyStation: {},
+  newDutyLocation: {},
 };
 
 export default ServiceInfoForm;

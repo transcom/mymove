@@ -207,8 +207,8 @@ const MoveDetails = ({
   }
 
   const ordersInfo = {
-    newDutyStation: order.destinationDutyStation,
-    currentDutyStation: order.originDutyStation,
+    newDutyLocation: order.destinationDutyLocation,
+    currentDutyLocation: order.originDutyLocation,
     issuedDate: order.date_issued,
     reportByDate: order.report_by_date,
     departmentIndicator: order.department_indicator,

@@ -35,7 +35,7 @@ type ServiceMemberPayload struct {
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
 	// current station
-	CurrentStation *DutyStationPayload `json:"current_station,omitempty"`
+	CurrentStation *DutyLocationPayload `json:"current_station,omitempty"`
 
 	// DoD ID number
 	// Example: 5789345789

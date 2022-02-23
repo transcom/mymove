@@ -48,7 +48,7 @@ const OrdersViewerDisplay = (props) => {
 
         <PanelField title="Current Duty Location" required value={currentDutyStation} />
 
-        <PanelField title="New Duty Location" required value={get(orders, 'new_duty_station.name', '')} />
+        <PanelField title="New Duty Location" required value={get(orders, 'new_duty_location.name', '')} />
 
         {orders.has_dependents && <PanelField title="Dependents" value="Authorized" />}
 
@@ -94,7 +94,7 @@ const OrdersViewerEdit = (props) => {
         </FormSection>
         <FormSection name="orders">
           <div className="duty-station">
-            <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Location' }} />
+            <Field name="new_duty_location" component={DutyStationSearchBox} props={{ title: 'New Duty Location' }} />
           </div>
           <SwaggerField fieldName="has_dependents" swagger={schema} title="Dependents authorized" />
           <SwaggerField title="Dept. Indicator" fieldName="department_indicator" swagger={schema} required />
@@ -150,7 +150,7 @@ function mapDispatchToProps(dispatch) {
       orders.spouse_has_pro_gear = false;
     }
 
-    orders.new_duty_station_id = orders.new_duty_station.id;
+    orders.new_duty_location_id = orders.new_duty_location.id;
     dispatch(updateOrders(ordersId, orders));
   };
 

@@ -163,7 +163,7 @@ describe('Home component', () => {
 
   describe('if the user has orders but not shipments', () => {
     const wrapper = mountHomeWithProviders({
-      orders: { testOrder: 'test', new_duty_station: { name: 'Test Duty Station' } },
+      orders: { testOrder: 'test', new_duty_location: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
     });
 
@@ -179,7 +179,7 @@ describe('Home component', () => {
 
   describe('if the user has orders with no dependents', () => {
     const wrapper = mountHomeWithProviders({
-      orders: { testOrder: 'test', has_dependents: false, new_duty_station: { name: 'Test Duty Station' } },
+      orders: { testOrder: 'test', has_dependents: false, new_duty_location: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
     });
 
@@ -190,7 +190,7 @@ describe('Home component', () => {
 
   describe('if the user has orders with dependents', () => {
     const wrapper = mountHomeWithProviders({
-      orders: { testOrder: 'test', has_dependents: true, new_duty_station: { name: 'Test Duty Station' } },
+      orders: { testOrder: 'test', has_dependents: true, new_duty_location: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
     });
 
@@ -201,7 +201,7 @@ describe('Home component', () => {
 
   describe('if the user has orders and shipments but has not submitted their move', () => {
     const wrapper = mountHomeWithProviders({
-      orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+      orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
       mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
     });
@@ -213,7 +213,7 @@ describe('Home component', () => {
 
   describe('if the user has orders and a currentPpm but has not submitted their move', () => {
     const wrapper = mountHomeWithProviders({
-      orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+      orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
       currentPpm: { id: 'testPpm123' },
     });
@@ -227,7 +227,7 @@ describe('Home component', () => {
     describe('for PPM moves', () => {
       const orders = {
         id: 'testOrder123',
-        new_duty_station: {
+        new_duty_location: {
           name: 'Test Duty Station',
         },
       };
@@ -263,7 +263,7 @@ describe('Home component', () => {
 
     describe('for HHG moves (no PPM)', () => {
       const wrapper = mountHomeWithProviders({
-        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
         mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
         move: { id: 'testMoveId', status: 'SUBMITTED' },
@@ -286,7 +286,7 @@ describe('Home component', () => {
 
     describe('for NTS moves (no PPM)', () => {
       const wrapper = mountHomeWithProviders({
-        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
         mtoShipments: [{ id: 'test123', shipmentType: 'NTS' }],
         move: { id: 'testMoveId', status: 'SUBMITTED' },
@@ -311,7 +311,7 @@ describe('Home component', () => {
       const submittedAt = new Date();
       const orders = {
         id: 'testOrder123',
-        new_duty_station: {
+        new_duty_location: {
           name: 'Test Duty Station',
         },
       };
@@ -365,7 +365,7 @@ describe('Home component', () => {
       const submittedAt = new Date();
       const orders = {
         id: 'testOrder123',
-        new_duty_station: {
+        new_duty_location: {
           name: 'Test Duty Station',
         },
       };
@@ -398,7 +398,7 @@ describe('Home component', () => {
       const submittedAt = new Date();
       const orders = {
         id: 'testOrder123',
-        new_duty_station: {
+        new_duty_location: {
           name: 'Test Duty Station',
         },
       };

@@ -121,7 +121,7 @@ const shipments = [
 ];
 
 const ordersInfo = {
-  newDutyStation: {
+  newDutyLocation: {
     address: {
       city: 'Augusta',
       country: 'United States',
@@ -136,7 +136,7 @@ const ordersInfo = {
     id: '2d5ada83-e09a-47f8-8de6-83ec51694a86',
     name: 'Fort Gordon',
   },
-  currentDutyStation: {
+  currentDutyLocation: {
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -313,7 +313,7 @@ describe('Shipment preview modal', () => {
       '987 Any Avenue, Fairfield, CA 94535',
     );
     expect(wrapper.find('[data-testid="destinationAddress"]').at(1).text()).toEqual(
-      ordersInfo.newDutyStation.address.postalCode,
+      ordersInfo.newDutyLocation.address.postalCode,
     );
   });
 

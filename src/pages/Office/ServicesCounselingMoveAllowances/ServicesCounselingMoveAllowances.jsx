@@ -91,10 +91,10 @@ const ServicesCounselingMoveAllowances = () => {
     } = values;
     const body = {
       issueDate: order.date_issued,
-      newDutyStationId: order.destinationDutyStation.id,
+      newDutyStationId: order.destinationDutyLocation.id,
       ordersNumber: order.order_number,
       ordersType: order.order_type,
-      originDutyStationId: order.originDutyStation.id,
+      originDutyStationId: order.originDutyLocation.id,
       reportByDate: order.report_by_date,
       grade,
       agency,

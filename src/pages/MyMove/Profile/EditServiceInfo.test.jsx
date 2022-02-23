@@ -87,7 +87,7 @@ describe('EditServiceInfo page', () => {
         currentOrders={{
           has_dependents: false,
           grade: testServiceMemberValues.rank,
-          origin_duty_station: testServiceMemberValues.current_station,
+          origin_duty_location: testServiceMemberValues.current_station,
         }}
       />,
     );
@@ -178,7 +178,7 @@ describe('EditServiceInfo page', () => {
         currentOrders={{
           grade: testServiceMemberValues.rank,
           has_dependents: true,
-          origin_duty_station: testServiceMemberValues.current_station,
+          origin_duty_location: testServiceMemberValues.current_station,
         }}
       />,
     );
@@ -254,7 +254,7 @@ describe('EditServiceInfo page', () => {
         serviceMember={testServiceMemberValues}
         currentOrders={{
           grade: testServiceMemberValues.rank,
-          origin_duty_station: testServiceMemberValues.current_station,
+          origin_duty_location: testServiceMemberValues.current_station,
         }}
       />,
     );

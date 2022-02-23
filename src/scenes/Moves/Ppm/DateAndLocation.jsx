@@ -175,7 +175,7 @@ export class DateAndLocation extends Component {
             <h2>Destination location</h2>
             <p>
               Enter the ZIP for your new home if you know it, or for{' '}
-              {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
+              {this.props.currentOrders && this.props.currentOrders.new_duty_location.name} if you don't.
             </p>
             <SwaggerField
               fieldName="destination_postal_code"
@@ -185,8 +185,8 @@ export class DateAndLocation extends Component {
             />
             <div style={{ marginTop: '0.5rem' }}>
               <span className="grey">
-                The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
-                {currentOrders && currentOrders.new_duty_station.address.postalCode}.
+                The ZIP code for {currentOrders && currentOrders.new_duty_location.name} is{' '}
+                {currentOrders && currentOrders.new_duty_location.address.postalCode}.
               </span>
             </div>
             <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />

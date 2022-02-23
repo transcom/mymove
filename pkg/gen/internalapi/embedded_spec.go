@@ -3897,7 +3897,7 @@ func init() {
         "orders_type",
         "has_dependents",
         "spouse_has_pro_gear",
-        "new_duty_station_id"
+        "new_duty_location_id"
       ],
       "properties": {
         "department_indicator": {
@@ -3914,7 +3914,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "new_duty_station_id": {
+        "new_duty_location_id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -4094,6 +4094,9 @@ func init() {
         "updated_at"
       ],
       "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
         "address_id": {
           "type": "string",
           "format": "uuid",
@@ -4131,51 +4134,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/DutyLocationPayload"
-      }
-    },
-    "DutyStationPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "name",
-        "address_id",
-        "address",
-        "affiliation",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "address_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "affiliation": {
-          "$ref": "#/definitions/Affiliation"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
-        },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        }
       }
     },
     "Error": {
@@ -5058,7 +5016,7 @@ func init() {
         "orders_type",
         "has_dependents",
         "spouse_has_pro_gear",
-        "new_duty_station",
+        "new_duty_location",
         "uploaded_orders",
         "created_at",
         "updated_at"
@@ -5100,8 +5058,8 @@ func init() {
         "moves": {
           "$ref": "#/definitions/IndexMovesPayload"
         },
-        "new_duty_station": {
-          "$ref": "#/definitions/DutyStationPayload"
+        "new_duty_location": {
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "orders_number": {
           "type": "string",
@@ -5115,9 +5073,9 @@ func init() {
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "origin_duty_station": {
+        "origin_duty_location": {
           "x-nullable": true,
-          "$ref": "#/definitions/DutyStationPayload"
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -5937,7 +5895,7 @@ func init() {
           "format": "date-time"
         },
         "current_station": {
-          "$ref": "#/definitions/DutyStationPayload"
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "edipi": {
           "type": "string",
@@ -10568,7 +10526,7 @@ func init() {
         "orders_type",
         "has_dependents",
         "spouse_has_pro_gear",
-        "new_duty_station_id"
+        "new_duty_location_id"
       ],
       "properties": {
         "department_indicator": {
@@ -10585,7 +10543,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "new_duty_station_id": {
+        "new_duty_location_id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -10767,6 +10725,9 @@ func init() {
         "updated_at"
       ],
       "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
         "address_id": {
           "type": "string",
           "format": "uuid",
@@ -10804,51 +10765,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/DutyLocationPayload"
-      }
-    },
-    "DutyStationPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "name",
-        "address_id",
-        "address",
-        "affiliation",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "address_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "affiliation": {
-          "$ref": "#/definitions/Affiliation"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
-        },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        }
       }
     },
     "Error": {
@@ -11744,7 +11660,7 @@ func init() {
         "orders_type",
         "has_dependents",
         "spouse_has_pro_gear",
-        "new_duty_station",
+        "new_duty_location",
         "uploaded_orders",
         "created_at",
         "updated_at"
@@ -11786,8 +11702,8 @@ func init() {
         "moves": {
           "$ref": "#/definitions/IndexMovesPayload"
         },
-        "new_duty_station": {
-          "$ref": "#/definitions/DutyStationPayload"
+        "new_duty_location": {
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "orders_number": {
           "type": "string",
@@ -11801,9 +11717,9 @@ func init() {
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "origin_duty_station": {
+        "origin_duty_location": {
           "x-nullable": true,
-          "$ref": "#/definitions/DutyStationPayload"
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -12627,7 +12543,7 @@ func init() {
           "format": "date-time"
         },
         "current_station": {
-          "$ref": "#/definitions/DutyStationPayload"
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "edipi": {
           "type": "string",

@@ -4,8 +4,8 @@ import { render, screen } from '@testing-library/react';
 import OrdersList from './OrdersList';
 
 const ordersInfo = {
-  currentDutyStation: { name: 'JBSA Lackland' },
-  newDutyStation: { name: 'JB Lewis-McChord' },
+  currentDutyLocation: { name: 'JBSA Lackland' },
+  newDutyLocation: { name: 'JB Lewis-McChord' },
   issuedDate: '2020-03-08',
   reportByDate: '2020-04-01',
   departmentIndicator: 'NAVY_AND_MARINES',
@@ -18,8 +18,8 @@ const ordersInfo = {
 
 // what ordersInfo from above should be rendered as
 const expectedRenderedOrdersInfo = {
-  currentDutyStation: 'JBSA Lackland',
-  newDutyStation: 'JB Lewis-McChord',
+  currentDutyLocation: 'JBSA Lackland',
+  newDutyLocation: 'JB Lewis-McChord',
   issuedDate: '08 Mar 2020',
   reportByDate: '01 Apr 2020',
   departmentIndicator: '17 Navy and Marine Corps',
@@ -31,8 +31,8 @@ const expectedRenderedOrdersInfo = {
 };
 
 const ordersInfoMissing = {
-  currentDutyStation: { name: 'JBSA Lackland' },
-  newDutyStation: { name: 'JB Lewis-McChord' },
+  currentDutyLocation: { name: 'JBSA Lackland' },
+  newDutyLocation: { name: 'JB Lewis-McChord' },
   issuedDate: '2020-03-08',
   reportByDate: '2020-04-01',
   departmentIndicator: '',

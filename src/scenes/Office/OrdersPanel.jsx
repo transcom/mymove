@@ -89,7 +89,7 @@ const OrdersDisplay = (props) => {
         <PanelSwaggerField fieldName="orders_type_detail" required {...fieldProps} />
         <PanelField title="Report by" value={formatDate(orders.report_by_date)} />
         <PanelField title="Current Duty Location">{get(serviceMember, 'current_station.name', '')}</PanelField>
-        <PanelField title="New Duty Location">{get(orders, 'new_duty_station.name', '')}</PanelField>
+        <PanelField title="New Duty Location">{get(orders, 'new_duty_location.name', '')}</PanelField>
       </div>
       <div className="editable-panel-column">
         {renderEntitlements(entitlements, orders)}
@@ -123,7 +123,7 @@ const OrdersEdit = (props) => {
 
         <FormSection name="orders">
           <div className="duty-station">
-            <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Location' }} />
+            <Field name="new_duty_location" component={DutyStationSearchBox} props={{ title: 'New Duty Location' }} />
           </div>
         </FormSection>
       </div>
@@ -188,7 +188,7 @@ function mapDispatchToProps(dispatch) {
         orders.spouse_has_pro_gear = false;
       }
 
-      orders.new_duty_station_id = orders.new_duty_station.id;
+      orders.new_duty_location_id = orders.new_duty_location.id;
       dispatch(updateOrders(ordersId, orders));
     });
   };

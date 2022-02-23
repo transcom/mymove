@@ -11,7 +11,7 @@ describe('CurrentDutyStationForm component', () => {
         onSubmit={jest.fn()}
         onBack={jest.fn()}
         initialValues={{ current_station: {} }}
-        newDutyStation={{}}
+        newDutyLocation={{}}
       />,
     );
     await waitFor(() => {
@@ -25,7 +25,7 @@ describe('CurrentDutyStationForm component', () => {
         onSubmit={jest.fn()}
         onBack={jest.fn()}
         initialValues={{ current_station: {} }}
-        newDutyStation={{}}
+        newDutyLocation={{}}
       />,
     );
     const submitBtn = getByRole('button', { name: 'Next' });
@@ -52,7 +52,7 @@ describe('CurrentDutyStationForm component', () => {
             id: 'testId',
           },
         }}
-        newDutyStation={{
+        newDutyLocation={{
           id: 'testId',
         }}
       />,
@@ -84,7 +84,7 @@ describe('CurrentDutyStationForm component', () => {
             id: 'testId',
           },
         }}
-        newDutyStation={{ id: 'test' }}
+        newDutyLocation={{ id: 'test' }}
       />,
     );
     const submitBtn = getByRole('button', { name: 'Next' });

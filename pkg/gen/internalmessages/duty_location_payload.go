@@ -19,6 +19,9 @@ import (
 // swagger:model DutyLocationPayload
 type DutyLocationPayload struct {
 
+	// address
+	Address *Address `json:"address,omitempty"`
+
 	// address id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
@@ -60,6 +63,10 @@ type DutyLocationPayload struct {
 func (m *DutyLocationPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateAddressID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -91,6 +98,25 @@ func (m *DutyLocationPayload) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *DutyLocationPayload) validateAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.Address) { // not required
+		return nil
+	}
+
+	if m.Address != nil {
+		if err := m.Address.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("address")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -195,6 +221,10 @@ func (m *DutyLocationPayload) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *DutyLocationPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateAffiliation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -202,6 +232,22 @@ func (m *DutyLocationPayload) ContextValidate(ctx context.Context, formats strfm
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *DutyLocationPayload) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Address != nil {
+		if err := m.Address.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("address")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

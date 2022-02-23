@@ -46,7 +46,7 @@ function ServiceMemberSummary(props) {
     { label: 'Orders type', value: get(schemaOrdersType['x-display-value'], get(orders, 'orders_type')) },
     { label: 'Orders date', value: formatDateSM(get(orders, 'issue_date')) },
     { label: 'Report by date', value: formatDateSM(get(orders, 'report_by_date')) },
-    { label: 'New duty location', value: get(orders, 'new_duty_station.name') },
+    { label: 'New duty location', value: get(orders, 'new_duty_location.name') },
     { label: 'Dependents', value: orders && yesNoMap[get(orders, 'has_dependents', '').toString()] },
     { label: 'Orders', value: uploads && uploads.length },
   ];

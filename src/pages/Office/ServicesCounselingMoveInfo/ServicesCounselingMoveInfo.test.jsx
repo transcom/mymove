@@ -27,10 +27,10 @@ jest.mock('hooks/queries', () => ({
         uploaded_order_id: '2',
         departmentIndicator: 'Navy',
         grade: 'E-6',
-        originDutyStation: {
+        originDutyLocation: {
           name: 'JBSA Lackland',
         },
-        destinationDutyStation: {
+        destinationDutyLocation: {
           name: 'JB Lewis-McChord',
         },
         report_by_date: '2018-08-01',
@@ -51,7 +51,7 @@ const newMoveDetailsQuery = {
   },
   order: {
     id: '1',
-    originDutyStation: {
+    originDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Knox',
@@ -59,7 +59,7 @@ const newMoveDetailsQuery = {
         postalCode: '40121',
       },
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Irwin',

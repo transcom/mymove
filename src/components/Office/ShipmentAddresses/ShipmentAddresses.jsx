@@ -18,8 +18,8 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 const ShipmentAddresses = ({
   pickupAddress,
   destinationAddress,
-  originDutyStation,
-  destinationDutyStation,
+  originDutyLocation,
+  destinationDutyLocation,
   handleDivertShipment,
   shipmentInfo,
 }) => {
@@ -56,7 +56,7 @@ const ShipmentAddresses = ({
             )}
           </div>,
         ]}
-        dataRow={[formatAddress(originDutyStation), formatAddress(destinationDutyStation)]}
+        dataRow={[formatAddress(originDutyLocation), formatAddress(destinationDutyLocation)]}
         icon={<FontAwesomeIcon icon="arrow-right" />}
       />
       <DataTable
@@ -74,8 +74,8 @@ const ShipmentAddresses = ({
 ShipmentAddresses.propTypes = {
   pickupAddress: AddressShape,
   destinationAddress: AddressShape,
-  originDutyStation: AddressShape,
-  destinationDutyStation: AddressShape,
+  originDutyLocation: AddressShape,
+  destinationDutyLocation: AddressShape,
   handleDivertShipment: PropTypes.func.isRequired,
   shipmentInfo: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -88,8 +88,8 @@ ShipmentAddresses.propTypes = {
 ShipmentAddresses.defaultProps = {
   pickupAddress: {},
   destinationAddress: {},
-  originDutyStation: {},
-  destinationDutyStation: {},
+  originDutyLocation: {},
+  destinationDutyLocation: {},
 };
 
 export default ShipmentAddresses;

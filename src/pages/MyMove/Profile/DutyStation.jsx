@@ -17,7 +17,7 @@ import { DutyStationShape } from 'types/dutyStation';
 
 const dutyStationFormName = 'duty_station';
 
-export const DutyStation = ({ serviceMember, existingStation, newDutyStation, updateServiceMember, push }) => {
+export const DutyStation = ({ serviceMember, existingStation, newDutyLocation, updateServiceMember, push }) => {
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -68,7 +68,7 @@ export const DutyStation = ({ serviceMember, existingStation, newDutyStation, up
             onSubmit={handleSubmit}
             onBack={handleBack}
             initialValues={initialValues}
-            newDutyStation={newDutyStation}
+            newDutyLocation={newDutyLocation}
           />
         </Grid>
       </Grid>
@@ -81,12 +81,12 @@ DutyStation.propTypes = {
   serviceMember: ServiceMemberShape.isRequired,
   push: PropTypes.func.isRequired,
   existingStation: DutyStationShape,
-  newDutyStation: DutyStationShape,
+  newDutyLocation: DutyStationShape,
 };
 
 DutyStation.defaultProps = {
   existingStation: {},
-  newDutyStation: {},
+  newDutyLocation: {},
 };
 
 const mapDispatchToProps = {
@@ -101,7 +101,7 @@ function mapStateToProps(state) {
     values: getFormValues(dutyStationFormName)(state),
     existingStation: serviceMember?.current_station,
     serviceMember,
-    newDutyStation: orders?.new_duty_station,
+    newDutyLocation: orders?.new_duty_location,
   };
 }
 

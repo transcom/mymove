@@ -181,7 +181,7 @@ const pages = {
         orders.orders_type,
         orders.issue_date,
         orders.report_by_date,
-        get(orders, 'new_duty_station.id', NULL_UUID) !== NULL_UUID,
+        get(orders, 'new_duty_location.id', NULL_UUID) !== NULL_UUID,
       ]),
     render:
       (key, pages) =>

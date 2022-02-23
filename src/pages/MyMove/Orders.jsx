@@ -70,7 +70,7 @@ export class Orders extends Component {
       const pendingValues = {
         ...values,
         service_member_id: serviceMemberId,
-        new_duty_station_id: values.new_duty_station.id,
+        new_duty_location_id: values.new_duty_location.id,
         has_dependents: formatYesNoAPIValue(values.has_dependents),
         report_by_date: formatDateForSwagger(values.report_by_date),
         issue_date: formatDateForSwagger(values.issue_date),
@@ -110,7 +110,7 @@ export class Orders extends Component {
       issue_date: currentOrders?.issue_date || '',
       report_by_date: currentOrders?.report_by_date || '',
       has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
-      new_duty_station: currentOrders?.new_duty_station || null,
+      new_duty_location: currentOrders?.new_duty_location || null,
     };
 
     // Only allow PCS unless feature flag is on

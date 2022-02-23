@@ -43,7 +43,7 @@ export const EditServiceInfo = ({
     affiliation: serviceMember?.affiliation || '',
     edipi: serviceMember?.edipi || '',
     rank: currentOrders?.grade || '',
-    current_station: currentOrders?.origin_duty_station || {},
+    current_station: currentOrders?.origin_duty_location || {},
   };
 
   const handleSubmit = (values) => {
@@ -103,7 +103,7 @@ export const EditServiceInfo = ({
       )}
       <ServiceInfoForm
         initialValues={initialValues}
-        newDutyStation={currentOrders?.new_duty_station}
+        newDutyLocation={currentOrders?.new_duty_location}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
       />

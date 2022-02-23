@@ -63,7 +63,7 @@ describe('EditOrders Page', () => {
       has_dependents: false,
       spouse_has_pro_gear: false,
       grade: 'E_2',
-      new_duty_station: {
+      new_duty_location: {
         address: {
           city: 'Des Moines',
           country: 'US',

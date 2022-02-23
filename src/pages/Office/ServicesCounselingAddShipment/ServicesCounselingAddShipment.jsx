@@ -64,7 +64,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   isCreatePage
                   ServicesCounselingShipmentForm
                   currentResidence={customer.current_address}
-                  newDutyStationAddress={order.destinationDutyStation?.address}
+                  newDutyStationAddress={order.destinationDutyLocation?.address}
                   selectedMoveType={selectedMoveType}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}

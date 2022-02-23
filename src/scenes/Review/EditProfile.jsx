@@ -150,7 +150,7 @@ class EditProfile extends Component {
     const initialValues = {
       ...serviceMember,
       rank: currentOrders ? currentOrders.grade : serviceMember.rank,
-      current_station: currentOrders ? currentOrders.origin_duty_station : serviceMember.current_station,
+      current_station: currentOrders ? currentOrders.origin_duty_location : serviceMember.current_station,
     };
     return (
       <div className="usa-grid">

@@ -140,7 +140,7 @@ describe('ServiceInfoForm', () => {
       rank: '',
       current_station: {},
     },
-    newDutyStation: {},
+    newDutyLocation: {},
   };
 
   it('renders the form inputs', async () => {
@@ -188,7 +188,7 @@ describe('ServiceInfoForm', () => {
     render(
       <ServiceInfoForm
         {...testProps}
-        newDutyStation={{ name: 'Luke AFB', id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a' }}
+        newDutyLocation={{ name: 'Luke AFB', id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a' }}
       />,
     );
 

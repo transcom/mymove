@@ -25,7 +25,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    new_duty_station: Yup.object()
+    new_duty_location: Yup.object()
       .shape({
         name: Yup.string().notOneOf(
           [currentStation?.name],
@@ -82,7 +82,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                   />
                 </div>
               </FormGroup>
-              <DutyStationInput name="new_duty_station" label="New duty location" displayAddress={false} />
+              <DutyStationInput name="new_duty_location" label="New duty location" displayAddress={false} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -106,7 +106,7 @@ OrdersInfoForm.propTypes = {
     issue_date: PropTypes.string,
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
-    new_duty_station: PropTypes.shape({}),
+    new_duty_location: PropTypes.shape({}),
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,

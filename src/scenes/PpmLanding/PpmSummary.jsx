@@ -24,7 +24,7 @@ const MoveInfoHeader = (props) => {
   return (
     <div>
       <h1>
-        {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
+        {get(orders, 'new_duty_location.name', 'New move')} (from {get(profile, 'current_station.name', '')})
       </h1>
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
       {!isEmpty(entitlement) && (
@@ -115,7 +115,7 @@ export class PpmSummaryComponent extends React.Component {
       <div>
         {move.status === 'CANCELED' && (
           <Alert type="info" heading="Your move was canceled">
-            Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the
+            Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_location.name')} with the
             move locator ID {get(move, 'locator')} was canceled.
           </Alert>
         )}

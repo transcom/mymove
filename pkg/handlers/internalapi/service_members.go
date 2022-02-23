@@ -61,7 +61,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		BackupMailingAddress: payloads.Address(serviceMember.BackupMailingAddress),
 		BackupContacts:       contactPayloads,
 		IsProfileComplete:    handlers.FmtBool(serviceMember.IsProfileComplete()),
-		CurrentStation:       payloadForDutyStationModel(serviceMember.DutyStation),
+		CurrentStation:       payloadForDutyLocationModel(serviceMember.DutyStation),
 		RequiresAccessCode:   requiresAccessCode,
 		WeightAllotment:      weightAllotment,
 	}
