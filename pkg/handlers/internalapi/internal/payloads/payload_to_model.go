@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -96,6 +97,43 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	return model
 }
 
+func PPMShipmentModel(ppmShipment *internalmessages.PPMShipment) *models.PPMShipment {
+	if ppmShipment == nil {
+		return nil
+	}
+
+	return &models.PPMShipment{
+		ID: uuid.FromStringOrNil(ppmShipment.ID.String()),
+		// ShipmentID:                     uuid.UUID
+		// Shipment:                       MTOShipment
+		// CreatedAt:                      time.Time
+		// UpdatedAt:                      time.Time
+		Status:                models.PPMShipmentStatus(ppmShipment.Status),
+		ExpectedDepartureDate: (*time.Time)(ppmShipment.ExpectedDepartureDate),
+		// ActualMoveDate:                 (*time.Time)(&ppmShipment.ActualMoveDate),
+		// SubmittedAt:                    (*time.Time)(&ppmShipment.SubmittedAt),
+		// ReviewedAt:                     (*time.Time)(&ppmShipment.ReviewedAt),
+		// ApprovedAt:                     (*time.Time)(&ppmShipment.ApprovedAt),
+		PickupPostalCode:               ppmShipment.PickupPostalCode,
+		SecondaryPickupPostalCode:      &ppmShipment.SecondaryPickupPostalCode,
+		DestinationPostalCode:          ppmShipment.DestinationPostalCode,
+		SecondaryDestinationPostalCode: &ppmShipment.SecondaryDestinationPostalCode,
+		SitExpected:                    ppmShipment.SitExpected,
+		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(&ppmShipment.EstimatedWeight),
+		// NetWeight:                      handlers.PoundPtrFromInt64Ptr(&ppmShipment.NetWeight),
+		HasProGear:          &ppmShipment.HasProGear,
+		ProGearWeight:       handlers.PoundPtrFromInt64Ptr(&ppmShipment.ProGearWeight),
+		SpouseProGearWeight: handlers.PoundPtrFromInt64Ptr(&ppmShipment.SpouseProGearWeight),
+		// EstimatedIncentive:             handlers.FmtInt64PtrToPopPtr(&ppmShipment.EstimatedIncentive),
+		// AdvanceRequested:               &ppmShipment.AdvanceRequested,
+		// TODO: add these fields
+		// AdvanceID:                      *uuid.UUID
+		// Advance:                        *Reimbursement
+		// AdvanceWorksheetID:             *uuid.UUID
+		// AdvanceWorksheet:               *Document
+	}
+}
+
 // MTOShipmentModelFromUpdate model
 func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *models.MTOShipment {
 	if mtoShipment == nil {
@@ -121,6 +159,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
+
+	model.PPMShipment = PPMShipmentModel(mtoShipment.PpmShipment)
 
 	return model
 }

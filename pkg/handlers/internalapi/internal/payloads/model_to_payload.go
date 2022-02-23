@@ -29,6 +29,37 @@ func Address(address *models.Address) *internalmessages.Address {
 	}
 }
 
+func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment {
+	if ppmShipment == nil {
+		return nil
+	}
+
+	return &internalmessages.PPMShipment{
+		ID:                             strfmt.UUID(ppmShipment.ID.String()),
+		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
+		Status:                         internalmessages.PPMShipmentStatus(ppmShipment.Status),
+		ExpectedDepartureDate:          handlers.FmtDatePtr(ppmShipment.ExpectedDepartureDate),
+		PickupPostalCode:               ppmShipment.PickupPostalCode,
+		DestinationPostalCode:          ppmShipment.DestinationPostalCode,
+		SitExpected:                    ppmShipment.SitExpected,
+		SecondaryPickupPostalCode:      *ppmShipment.SecondaryPickupPostalCode,
+		SecondaryDestinationPostalCode: *ppmShipment.SecondaryDestinationPostalCode,
+		EstimatedWeight:                *handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		HasProGear:                     *ppmShipment.HasProGear,
+		ProGearWeight:                  *handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:            *handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+	}
+	// SecondaryPickupPostalCode:      &ppmShipment.SecondaryPickupPostalCode,
+	// SecondaryDestinationPostalCode: &ppmShipment.SecondaryDestinationPostalCode,
+	// EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(&ppmShipment.EstimatedWeight),
+	// HasProGear:                     &ppmShipment.HasProGear,
+	// ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(&ppmShipment.ProGearWeight),
+	// SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(&ppmShipment.SpouseProGearWeight),
+
+}
+
 // MTOAgent payload
 func MTOAgent(mtoAgent *models.MTOAgent) *internalmessages.MTOAgent {
 	if mtoAgent == nil {
@@ -71,6 +102,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
+		PpmShipment:              PPMShipment(mtoShipment.PPMShipment),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
