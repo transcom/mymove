@@ -164,7 +164,7 @@ describe('Services counselor user', () => {
     //Edit DependentsAuthorized
     cy.get('[data-testid="dependentsAuthorizedInput"]').click({ force: true });
     // Edit allowances page | Save
-    cy.wait(1000);
+    cy.wait(3000);
     cy.get('[data-testid="scAllowancesSave"]').contains('Save').click();
 
     cy.wait('@patchAllowances');
