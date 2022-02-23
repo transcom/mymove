@@ -15,13 +15,11 @@ import (
 )
 
 type ppmShipmentUpdater struct {
-	checks             []ppmShipmentValidator
-	mtoShipmentUpdater services.MTOShipmentUpdater
+	checks []ppmShipmentValidator
 }
 
-func NewPPMShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater) services.PPMShipmentUpdater {
+func NewPPMShipmentUpdater() services.PPMShipmentUpdater {
 	return &ppmShipmentUpdater{
-		mtoShipmentUpdater: mtoShipmentUpdater,
 		checks: []ppmShipmentValidator{
 			checkShipmentID(),
 			checkPPMShipmentID(),
