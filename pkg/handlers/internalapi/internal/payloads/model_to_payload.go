@@ -17,6 +17,9 @@ func Address(address *models.Address) *internalmessages.Address {
 	if address == nil {
 		return nil
 	}
+	if *address == (models.Address{}) {
+		return nil
+	}
 	return &internalmessages.Address{
 		ID:             strfmt.UUID(address.ID.String()),
 		StreetAddress1: &address.StreetAddress1,
