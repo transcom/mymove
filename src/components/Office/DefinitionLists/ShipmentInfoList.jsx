@@ -128,7 +128,7 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing }
       {secondaryDeliveryAddress && secondaryDeliveryAddressElement}
       {agents && agentsElement}
       {counselorRemarksElement}
-      {customerRemarks && customerRemarksElement}
+      {customerRemarksElement}
     </dl>
   );
 };
