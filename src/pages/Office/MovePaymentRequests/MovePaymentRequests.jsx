@@ -223,6 +223,7 @@ const MovePaymentRequests = ({
             <FontAwesomeIcon icon="exclamation" />
           </LeftNavTag>
           <LeftNavTag
+            className={styles.warningTag}
             background="none"
             associatedSectionName="billable-weights"
             showTag={
