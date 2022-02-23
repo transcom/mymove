@@ -25,16 +25,7 @@ import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from '
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
-import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
-
-const sectionLabels = {
-  'requested-shipments': 'Requested shipments',
-  'approved-shipments': 'Approved shipments',
-  orders: 'Orders',
-  allowances: 'Allowances',
-  'customer-info': 'Customer info',
-};
 
 const errorIfMissing = {
   HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
@@ -53,8 +44,6 @@ const MoveDetails = ({
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const history = useHistory();
-
-  const [activeSection, setActiveSection] = useState('');
 
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
@@ -257,47 +246,39 @@ const MoveDetails = ({
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        <LeftNav className={styles.sidebar}>
-          {sections.map((s) => {
-            return (
-              <LeftNavSection
-                key={`sidenav_${s}`}
-                sectionName={s}
-                isActive={s === activeSection}
-                onClickHandler={() => setActiveSection(s)}
-              >
-                {sectionLabels[`${s}`]}
-                <LeftNavTag
-                  className="usa-tag usa-tag--alert"
-                  showTag={s === 'orders' && hasMissingOrdersRequiredInfo}
-                  testID="tag"
-                >
-                  <FontAwesomeIcon icon="exclamation" />
-                </LeftNavTag>
-                <LeftNavTag
-                  className={styles.tag}
-                  showTag={Boolean(s === 'orders' && !hasMissingOrdersRequiredInfo && hasAmendedOrders)}
-                  testID="newOrdersNavTag"
-                >
-                  NEW
-                </LeftNavTag>
-                <LeftNavTag
-                  className={styles.tag}
-                  showTag={s === 'requested-shipments' && !shipmentMissingRequiredInformation}
-                  testID="requestedShipmentsTag"
-                >
-                  {submittedShipments?.length}
-                </LeftNavTag>
-                <LeftNavTag
-                  className="usa-tag usa-tag--alert"
-                  showTag={s === 'requested-shipments' && shipmentMissingRequiredInformation}
-                  testID="shipment-missing-info-alert"
-                >
-                  <FontAwesomeIcon icon="exclamation" />
-                </LeftNavTag>
-              </LeftNavSection>
-            );
-          })}
+        <LeftNav className={styles.sidebar} sections={sections}>
+          <LeftNavTag
+            className="usa-tag usa-tag--alert"
+            associatedSectionName="orders"
+            showTag={hasMissingOrdersRequiredInfo}
+            testID="tag"
+          >
+            <FontAwesomeIcon icon="exclamation" />
+          </LeftNavTag>
+          <LeftNavTag
+            className={styles.tag}
+            associatedSectionName="orders"
+            showTag={Boolean(!hasMissingOrdersRequiredInfo && hasAmendedOrders)}
+            testID="newOrdersNavTag"
+          >
+            NEW
+          </LeftNavTag>
+          <LeftNavTag
+            className={styles.tag}
+            associatedSectionName="requested-shipments"
+            showTag={!shipmentMissingRequiredInformation}
+            testID="requestedShipmentsTag"
+          >
+            {submittedShipments?.length}
+          </LeftNavTag>
+          <LeftNavTag
+            className="usa-tag usa-tag--alert"
+            associatedSectionName="requested-shipments"
+            showTag={shipmentMissingRequiredInformation}
+            testID="shipment-missing-info-alert"
+          >
+            <FontAwesomeIcon icon="exclamation" />
+          </LeftNavTag>
         </LeftNav>
 
         <GridContainer className={styles.gridContainer} data-testid="too-move-details">

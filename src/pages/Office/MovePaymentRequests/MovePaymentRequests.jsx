@@ -8,10 +8,10 @@ import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import txoStyles from '../TXOMoveInfo/TXOTab.module.scss';
-import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
 import styles from './MovePaymentRequests.module.scss';
 
+import paymentRequestStatus from 'constants/paymentRequestStatus';
 import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
@@ -34,13 +34,7 @@ import { updateFinancialFlag, updateMTOReviewedBillableWeights, updateMTOShipmen
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
-import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
-
-const sectionLabels = {
-  'billable-weights': 'Billable weights',
-  'payment-requests': 'Payment requests',
-};
 
 const MovePaymentRequests = ({
   setUnapprovedShipmentCount,
@@ -51,7 +45,6 @@ const MovePaymentRequests = ({
   const history = useHistory();
 
   const { move, paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
-  const [activeSection, setActiveSection] = useState('');
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const sections = useMemo(() => {
@@ -212,49 +205,36 @@ const MovePaymentRequests = ({
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
-        <LeftNav className={txoStyles.sidebar}>
-          {sections?.map((s) => {
-            return (
-              <LeftNavSection
-                key={`sidenav_${s}`}
-                sectionName={s}
-                isActive={s === activeSection}
-                onClickHandler={() => setActiveSection(s)}
-              >
-                {sectionLabels[`${s}`]}
-                <LeftNavTag
-                  className={txoStyles.tag}
-                  showTag={s === 'payment-requests' && paymentRequests?.length > 0}
-                  testID="numOfPaymentRequestsTag"
-                >
-                  {paymentRequests.length}
-                </LeftNavTag>
-                <LeftNavTag
-                  className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
-                  showTag={s === 'billable-weights' && maxBillableWeightExceeded && filteredShipments?.length > 0}
-                  testID="maxBillableWeightErrorTag"
-                >
-                  <FontAwesomeIcon icon="exclamation" />
-                </LeftNavTag>
-                <LeftNavTag
-                  background="none"
-                  showTag={
-                    s === 'billable-weights' &&
-                    !maxBillableWeightExceeded &&
-                    filteredShipments?.length > 0 &&
-                    !billableWeightsReviewed &&
-                    (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments))
-                  }
-                  testID="maxBillableWeightWarningTag"
-                >
-                  <FontAwesomeIcon
-                    icon="exclamation-triangle"
-                    className={classnames(styles.warning, styles.errorTag)}
-                  />
-                </LeftNavTag>
-              </LeftNavSection>
-            );
-          })}
+        <LeftNav className={txoStyles.sidebar} sections={sections}>
+          <LeftNavTag
+            className={txoStyles.tag}
+            associatedSectionName="payment-requests"
+            showTag={paymentRequests?.length > 0}
+            testID="numOfPaymentRequestsTag"
+          >
+            {paymentRequests.length}
+          </LeftNavTag>
+          <LeftNavTag
+            className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
+            associatedSectionName="billable-weights"
+            showTag={maxBillableWeightExceeded && filteredShipments?.length > 0}
+            testID="maxBillableWeightErrorTag"
+          >
+            <FontAwesomeIcon icon="exclamation" />
+          </LeftNavTag>
+          <LeftNavTag
+            background="none"
+            associatedSectionName="billable-weights"
+            showTag={
+              !maxBillableWeightExceeded &&
+              filteredShipments?.length > 0 &&
+              !billableWeightsReviewed &&
+              (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments))
+            }
+            testID="maxBillableWeightWarningTag"
+          >
+            <FontAwesomeIcon icon="exclamation-triangle" className={classnames(styles.warning, styles.errorTag)} />
+          </LeftNavTag>
         </LeftNav>
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <Grid row className={txoStyles.pageHeader}>

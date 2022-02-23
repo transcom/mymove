@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import LeftNav from './LeftNav';
 
-import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 // Left Nav
@@ -19,29 +18,18 @@ export default {
 
 export const Basic = () => (
   <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
-    <LeftNav>
-      <LeftNavSection sectionName="default">Default</LeftNavSection>
+    <LeftNav sections={['allowances', 'requested-shipments', 'orders', 'customer-info']}>
+      <LeftNavTag associatedSectionName="requested-shipments" showTag className="usa-tag usa-tag--alert">
+        <FontAwesomeIcon icon="exclamation" />
+      </LeftNavTag>
 
-      <LeftNavSection sectionName="allowances" isActive>
-        Allowances
-      </LeftNavSection>
-      <LeftNavSection sectionName="requestedShipments">
-        Requested Shipments
-        <LeftNavTag showTag className="usa-tag usa-tag--alert">
-          <FontAwesomeIcon icon="exclamation" />
-        </LeftNavTag>
-      </LeftNavSection>
-      <LeftNavSection sectionName="orders-anchor">
-        Orders
-        <LeftNavTag showTag className="usa-tag--teal">
-          INTL
-        </LeftNavTag>
-      </LeftNavSection>
+      <LeftNavTag associatedSectionName="orders" showTag className="usa-tag--teal">
+        INTL
+      </LeftNavTag>
 
-      <LeftNavSection sectionName="customerInfo">
-        Customer Info
-        <LeftNavTag showTag>3</LeftNavTag>
-      </LeftNavSection>
+      <LeftNavTag associatedSectionName="customer-info" showTag>
+        3
+      </LeftNavTag>
     </LeftNav>
   </div>
 );
