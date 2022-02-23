@@ -5315,7 +5315,8 @@ func init() {
         "expectedDepartureDate",
         "pickupPostalCode",
         "destinationPostalCode",
-        "sitExpected"
+        "sitExpected",
+        "eTag"
       ],
       "properties": {
         "actualMoveDate": {
@@ -5325,6 +5326,7 @@ func init() {
         "advanceId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "advanceRequested": {
@@ -5333,6 +5335,7 @@ func init() {
         "advanceWorksheetId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "createdAt": {
@@ -5370,6 +5373,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "netWeight": {
@@ -5406,6 +5410,7 @@ func init() {
         "shipmentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "sitExpected": {
@@ -5415,17 +5420,7 @@ func init() {
           "type": "integer"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "DRAFT",
-            "SUBMITTED",
-            "WAITING_ON_CUSTOMER",
-            "NEEDS_ADVANCE_APPROVAL",
-            "NEEDS_PAYMENT_APPROVAL",
-            "PAYMENT_APPROVED"
-          ],
-          "readOnly": true,
-          "example": "DRAFT"
+          "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -5437,6 +5432,18 @@ func init() {
           "readOnly": true
         }
       }
+    },
+    "PPMShipmentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "WAITING_ON_CUSTOMER",
+        "NEEDS_ADVANCE_APPROVAL",
+        "NEEDS_PAYMENT_APPROVAL",
+        "PAYMENT_APPROVED"
+      ],
+      "readOnly": true
     },
     "PPMSitEstimate": {
       "type": "object",
@@ -12185,7 +12192,8 @@ func init() {
         "expectedDepartureDate",
         "pickupPostalCode",
         "destinationPostalCode",
-        "sitExpected"
+        "sitExpected",
+        "eTag"
       ],
       "properties": {
         "actualMoveDate": {
@@ -12195,6 +12203,7 @@ func init() {
         "advanceId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "advanceRequested": {
@@ -12203,6 +12212,7 @@ func init() {
         "advanceWorksheetId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "createdAt": {
@@ -12240,6 +12250,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "netWeight": {
@@ -12276,6 +12287,7 @@ func init() {
         "shipmentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "sitExpected": {
@@ -12285,17 +12297,7 @@ func init() {
           "type": "integer"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "DRAFT",
-            "SUBMITTED",
-            "WAITING_ON_CUSTOMER",
-            "NEEDS_ADVANCE_APPROVAL",
-            "NEEDS_PAYMENT_APPROVAL",
-            "PAYMENT_APPROVED"
-          ],
-          "readOnly": true,
-          "example": "DRAFT"
+          "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -12307,6 +12309,18 @@ func init() {
           "readOnly": true
         }
       }
+    },
+    "PPMShipmentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "WAITING_ON_CUSTOMER",
+        "NEEDS_ADVANCE_APPROVAL",
+        "NEEDS_PAYMENT_APPROVAL",
+        "PAYMENT_APPROVED"
+      ],
+      "readOnly": true
     },
     "PPMSitEstimate": {
       "type": "object",

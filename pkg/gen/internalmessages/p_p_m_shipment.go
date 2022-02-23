@@ -7,7 +7,6 @@ package internalmessages
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -26,6 +25,7 @@ type PPMShipment struct {
 
 	// advance Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Read Only: true
 	// Format: uuid
 	AdvanceID strfmt.UUID `json:"advanceId,omitempty"`
 
@@ -34,6 +34,7 @@ type PPMShipment struct {
 
 	// advance worksheet Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Read Only: true
 	// Format: uuid
 	AdvanceWorksheetID strfmt.UUID `json:"advanceWorksheetId,omitempty"`
 
@@ -49,8 +50,9 @@ type PPMShipment struct {
 	DestinationPostalCode *string `json:"destinationPostalCode"`
 
 	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+	// Required: true
 	// Read Only: true
-	ETag string `json:"eTag,omitempty"`
+	ETag string `json:"eTag"`
 
 	// estimated incentive
 	EstimatedIncentive int64 `json:"estimatedIncentive,omitempty"`
@@ -72,8 +74,9 @@ type PPMShipment struct {
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ID *strfmt.UUID `json:"id"`
+	ID strfmt.UUID `json:"id"`
 
 	// The net weight of the shipment once it has been weight
 	//
@@ -105,8 +108,9 @@ type PPMShipment struct {
 	// shipment Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ShipmentID *strfmt.UUID `json:"shipmentId"`
+	ShipmentID strfmt.UUID `json:"shipmentId"`
 
 	// sit expected
 	// Required: true
@@ -116,11 +120,8 @@ type PPMShipment struct {
 	SpouseProGearWeight int64 `json:"spouseProGearWeight,omitempty"`
 
 	// status
-	// Example: DRAFT
 	// Required: true
-	// Read Only: true
-	// Enum: [DRAFT SUBMITTED WAITING_ON_CUSTOMER NEEDS_ADVANCE_APPROVAL NEEDS_PAYMENT_APPROVAL PAYMENT_APPROVED]
-	Status string `json:"status"`
+	Status PPMShipmentStatus `json:"status"`
 
 	// submitted at
 	// Format: date-time
@@ -154,6 +155,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateETag(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -257,6 +262,15 @@ func (m *PPMShipment) validateDestinationPostalCode(formats strfmt.Registry) err
 	return nil
 }
 
+func (m *PPMShipment) validateETag(formats strfmt.Registry) error {
+
+	if err := validate.RequiredString("eTag", "body", m.ETag); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateExpectedDepartureDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("expectedDepartureDate", "body", m.ExpectedDepartureDate); err != nil {
@@ -272,7 +286,7 @@ func (m *PPMShipment) validateExpectedDepartureDate(formats strfmt.Registry) err
 
 func (m *PPMShipment) validateID(formats strfmt.Registry) error {
 
-	if err := validate.Required("id", "body", m.ID); err != nil {
+	if err := validate.Required("id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
 	}
 
@@ -306,7 +320,7 @@ func (m *PPMShipment) validateReviewedAt(formats strfmt.Registry) error {
 
 func (m *PPMShipment) validateShipmentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("shipmentId", "body", m.ShipmentID); err != nil {
+	if err := validate.Required("shipmentId", "body", strfmt.UUID(m.ShipmentID)); err != nil {
 		return err
 	}
 
@@ -326,55 +340,18 @@ func (m *PPMShipment) validateSitExpected(formats strfmt.Registry) error {
 	return nil
 }
 
-var pPMShipmentTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","WAITING_ON_CUSTOMER","NEEDS_ADVANCE_APPROVAL","NEEDS_PAYMENT_APPROVAL","PAYMENT_APPROVED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		pPMShipmentTypeStatusPropEnum = append(pPMShipmentTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// PPMShipmentStatusDRAFT captures enum value "DRAFT"
-	PPMShipmentStatusDRAFT string = "DRAFT"
-
-	// PPMShipmentStatusSUBMITTED captures enum value "SUBMITTED"
-	PPMShipmentStatusSUBMITTED string = "SUBMITTED"
-
-	// PPMShipmentStatusWAITINGONCUSTOMER captures enum value "WAITING_ON_CUSTOMER"
-	PPMShipmentStatusWAITINGONCUSTOMER string = "WAITING_ON_CUSTOMER"
-
-	// PPMShipmentStatusNEEDSADVANCEAPPROVAL captures enum value "NEEDS_ADVANCE_APPROVAL"
-	PPMShipmentStatusNEEDSADVANCEAPPROVAL string = "NEEDS_ADVANCE_APPROVAL"
-
-	// PPMShipmentStatusNEEDSPAYMENTAPPROVAL captures enum value "NEEDS_PAYMENT_APPROVAL"
-	PPMShipmentStatusNEEDSPAYMENTAPPROVAL string = "NEEDS_PAYMENT_APPROVAL"
-
-	// PPMShipmentStatusPAYMENTAPPROVED captures enum value "PAYMENT_APPROVED"
-	PPMShipmentStatusPAYMENTAPPROVED string = "PAYMENT_APPROVED"
-)
-
-// prop value enum
-func (m *PPMShipment) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, pPMShipmentTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *PPMShipment) validateStatus(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("status", "body", m.Status); err != nil {
+	if err := validate.Required("status", "body", PPMShipmentStatus(m.Status)); err != nil {
 		return err
 	}
 
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
+		}
 		return err
 	}
 
@@ -410,11 +387,27 @@ func (m *PPMShipment) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAdvanceID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateAdvanceWorksheetID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateShipmentID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -429,6 +422,24 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PPMShipment) contextValidateAdvanceID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "advanceId", "body", strfmt.UUID(m.AdvanceID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateAdvanceWorksheetID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "advanceWorksheetId", "body", strfmt.UUID(m.AdvanceWorksheetID)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -450,9 +461,32 @@ func (m *PPMShipment) contextValidateETag(ctx context.Context, formats strfmt.Re
 	return nil
 }
 
+func (m *PPMShipment) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateShipmentID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "shipmentId", "body", strfmt.UUID(m.ShipmentID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "status", "body", string(m.Status)); err != nil {
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
+		}
 		return err
 	}
 

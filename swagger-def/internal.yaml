@@ -2453,6 +2453,16 @@ definitions:
       - pickupPostalCode
       - destinationPostalCode
       - sitExpected
+  PPMShipmentStatus:
+    type: string
+    readOnly: true
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - WAITING_ON_CUSTOMER
+      - NEEDS_ADVANCE_APPROVAL
+      - NEEDS_PAYMENT_APPROVAL
+      - PAYMENT_APPROVED
   PPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
@@ -2460,10 +2470,12 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       shipmentId:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       createdAt:
         format: date-time
         type: string
@@ -2473,16 +2485,7 @@ definitions:
         type: string
         readOnly: true
       status:
-        example: 'DRAFT'
-        type: string
-        readOnly: true
-        enum:
-          - DRAFT
-          - SUBMITTED
-          - WAITING_ON_CUSTOMER
-          - NEEDS_ADVANCE_APPROVAL
-          - NEEDS_PAYMENT_APPROVAL
-          - PAYMENT_APPROVED
+        $ref: '#/definitions/PPMShipmentStatus'
       expectedDepartureDate:
         description: >
           Date the customer expects to move.
@@ -2544,10 +2547,12 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       advanceWorksheetId:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       eTag:
         description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
         type: string
@@ -2562,6 +2567,7 @@ definitions:
       - pickupPostalCode
       - destinationPostalCode
       - sitExpected
+      - eTag
   UpdateShipment:
     type: object
     properties:
