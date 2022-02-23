@@ -29,6 +29,7 @@ GIT_COMMIT ?= $(shell git rev-list -1 HEAD)
 export GIT_BRANCH GIT_COMMIT
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(GIT_BRANCH) -X main.gitCommit=$(GIT_COMMIT)
 GC_FLAGS=-trimpath=$(GOPATH)
+NO_OPTIMIZATION_GC_FLAGS=all=-N -l
 DB_PORT_DEV=5432
 DB_PORT_TEST=5433
 DB_PORT_DEPLOYED_MIGRATIONS=5434
@@ -42,10 +43,6 @@ ifdef CIRCLECI
 	ifeq ($(UNAME_S),Linux)
 		LDFLAGS=-linkmode external -extldflags -static
 	endif
-endif
-
-ifdef GOLAND
-	GOLAND_GC_FLAGS=all=-N -l
 endif
 
 SCHEMASPY_OUTPUT=./tmp/schemaspy
@@ -267,7 +264,7 @@ bin/iws: cmd/iws
 	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
 bin/milmove: cmd/milmove
-	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+	go build -gcflags="$(NO_OPTIMIZATION_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 bin/milmove-tasks: cmd/milmove-tasks
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
