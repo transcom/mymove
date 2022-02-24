@@ -83,8 +83,8 @@ github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdko
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
-github.com/XSAM/otelsql v0.10.0 h1:y8o7q4NaZEV0dBiUC7TuNTHNKyDaX3Z4anntNu7dfYw=
-github.com/XSAM/otelsql v0.10.0/go.mod h1:7n9dZASOnVJncMmBPQjL5OdjQosb5gryCgsgNISnJVo=
+github.com/XSAM/otelsql v0.11.0 h1:blXH8+2RABMsZgoSekHMMujCBwAmWHJ1UWn15jBY3pk=
+github.com/XSAM/otelsql v0.11.0/go.mod h1:WttdeLnbXIok0n2yfy1bN05yvhCuAcvsQHUwXvshs9M=
 github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5/go.mod h1:SkGFH1ia65gfNATL8TAiHDNxPzPdmEL5uirI2Uyuz6c=
 github.com/agnivade/levenshtein v1.0.1/go.mod h1:CURSv5d9Uaml+FovSIICkLbAUZ9S4RqaHDIsdSBg7lM=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
@@ -1158,8 +1158,8 @@ go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.29
 go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.29.0/go.mod h1:1MHmLB6ApYsNoUS/vUKC0kJnlq7MTdQzTxBswRrFrB0=
 go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0 h1:0VckNFxrgunf4bpAFcgyqwvBedyP53cK+MMlU/9O788=
 go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0/go.mod h1:6ZYYPfSKyhnkpw3xOssb1PMclnNs8dnSzO5POa+02ys=
-go.opentelemetry.io/contrib/propagators/aws v1.3.0 h1:BHhTUInxLQ6duq167/RIYERH6JM/33kYqePoCmSJsoM=
-go.opentelemetry.io/contrib/propagators/aws v1.3.0/go.mod h1:ugiMjPVWkdZy6FcU7YVYXF5jgLqiigf9TjDY+aRLjdw=
+go.opentelemetry.io/contrib/propagators/aws v1.4.0 h1:NalFeGVKlXawC/9g+9Mu/FPngL1L8YdAiZrcN4sLzGs=
+go.opentelemetry.io/contrib/propagators/aws v1.4.0/go.mod h1:JM5vN0iG8tDbrX6hIzcm/NKfzHs2qU2rsbl4YuZxTlU=
 go.opentelemetry.io/otel v1.2.0/go.mod h1:aT17Fk0Z1Nor9e0uisf98LrntPGMnk4frBO9+dkf69I=
 go.opentelemetry.io/otel v1.3.0/go.mod h1:PWIKzi6JCp7sM0k9yZ43VX+T345uNbAkDKwHVjb2PTs=
 go.opentelemetry.io/otel v1.4.0/go.mod h1:jeAqMFKy2uLIxCtKxoFj0FAL5zAPKQagc3+GtBWakzk=
