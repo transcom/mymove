@@ -304,8 +304,8 @@ func (suite *BaseHandlerTestSuite) EqualInt32Int64Pointers(expected *int32, actu
 		suite.Nil(expected)
 		suite.Nil(actual)
 	} else {
-		int32Actual := int32(*actual)
+		int64Expected := int64(*expected)
 
-		suite.Equal(*expected, int32Actual)
+		suite.Equal(int64Expected, *actual)
 	}
 }
