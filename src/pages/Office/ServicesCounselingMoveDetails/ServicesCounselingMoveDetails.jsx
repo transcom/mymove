@@ -33,6 +33,7 @@ import formattedCustomerName from 'utils/formattedCustomerName';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import LeftNav from 'components/LeftNav/LeftNav';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   const { moveCode } = useParams();
@@ -66,6 +67,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
 
   let shipmentsInfo = [];
   let disableSubmit = false;
+  let numberOfErrorIfMissingForAllShipments = 0;
+  let numberOfWarnIfMissingForAllShipments = 0;
 
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
@@ -102,13 +105,26 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
         displayDestinationType: isRetirementOrSeparation,
       };
 
-      if (!disableSubmit && errorIfMissing[shipment.shipmentType]) {
-        for (let i = 0; i < errorIfMissing[shipment.shipmentType].length; i += 1) {
-          if (!displayInfo[errorIfMissing[shipment.shipmentType][i]]) {
-            disableSubmit = true;
+      const errorIfMissingList = errorIfMissing[shipment.shipmentType];
+
+      if (errorIfMissingList) {
+        errorIfMissingList.forEach((fieldToCheck) => {
+          if (!displayInfo[fieldToCheck]) {
+            numberOfErrorIfMissingForAllShipments += 1;
           }
-        }
+        });
       }
+
+      const warnIfMissingList = warnIfMissing[shipment.shipmentType];
+      if (warnIfMissingList) {
+        warnIfMissingList.forEach((fieldToCheck) => {
+          if (!displayInfo[fieldToCheck]) {
+            numberOfWarnIfMissingForAllShipments += 1;
+          }
+        });
+      }
+
+      disableSubmit = numberOfErrorIfMissingForAllShipments !== 0;
 
       return {
         id: shipment.id,
@@ -238,7 +254,16 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        <LeftNav className={styles.sidebar} sections={sections} />
+        <LeftNav className={styles.sidebar} sections={sections}>
+          <LeftNavTag
+            className={styles.tag}
+            associatedSectionName="shipments"
+            showTag={numberOfErrorIfMissingForAllShipments !== 0 && numberOfWarnIfMissingForAllShipments !== 0}
+            testID="requestedShipmentsTag"
+          >
+            {numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments}
+          </LeftNavTag>
+        </LeftNav>
         {isSubmitModalVisible && (
           <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
         )}
