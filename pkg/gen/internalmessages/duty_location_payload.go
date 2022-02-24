@@ -48,6 +48,9 @@ type DutyLocationPayload struct {
 	// Required: true
 	Name *string `json:"name"`
 
+	// transportation office
+	TransportationOffice *TransportationOffice `json:"transportation_office,omitempty"`
+
 	// transportation office id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
@@ -84,6 +87,10 @@ func (m *DutyLocationPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTransportationOffice(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -192,6 +199,25 @@ func (m *DutyLocationPayload) validateName(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *DutyLocationPayload) validateTransportationOffice(formats strfmt.Registry) error {
+	if swag.IsZero(m.TransportationOffice) { // not required
+		return nil
+	}
+
+	if m.TransportationOffice != nil {
+		if err := m.TransportationOffice.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("transportation_office")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("transportation_office")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *DutyLocationPayload) validateTransportationOfficeID(formats strfmt.Registry) error {
 	if swag.IsZero(m.TransportationOfficeID) { // not required
 		return nil
@@ -229,6 +255,10 @@ func (m *DutyLocationPayload) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateTransportationOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -259,6 +289,22 @@ func (m *DutyLocationPayload) contextValidateAffiliation(ctx context.Context, fo
 				return ve.ValidateName("affiliation")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("affiliation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *DutyLocationPayload) contextValidateTransportationOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TransportationOffice != nil {
+		if err := m.TransportationOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("transportation_office")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("transportation_office")
 			}
 			return err
 		}

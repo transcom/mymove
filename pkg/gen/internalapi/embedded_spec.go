@@ -4118,6 +4118,9 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
+        "transportation_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "transportation_office_id": {
           "type": "string",
           "format": "uuid",
@@ -10748,6 +10751,9 @@ func init() {
         "name": {
           "type": "string",
           "example": "Fort Bragg North Station"
+        },
+        "transportation_office": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "transportation_office_id": {
           "type": "string",

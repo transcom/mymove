@@ -2654,42 +2654,6 @@ definitions:
       MARINES: Marine Corps
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
-  DutyLocationPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      address:
-        $ref: '#/definitions/Address'
-      address_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      affiliation:
-        $ref: '#/definitions/Affiliation'
-      transportation_office_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - name
-      - address_id
-      - affiliation
-      - created_at
-      - updated_at
   TransportationOffice:
     type: object
     properties:
@@ -2731,6 +2695,44 @@ definitions:
       - id
       - name
       - address
+      - created_at
+      - updated_at
+  DutyLocationPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      affiliation:
+        $ref: '#/definitions/Affiliation'
+      transportation_office_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      transportation_office:
+        $ref: '#/definitions/TransportationOffice'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address_id
+      - affiliation
       - created_at
       - updated_at
 paths:
