@@ -2396,8 +2396,6 @@ definitions:
         type: string
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
-      ppmshipment:
-        $ref: '#/definitions/CreatePPMShipment'
       requestedPickupDate:
         format: date
         type: string
@@ -2421,44 +2419,6 @@ definitions:
     required:
       - moveTaskOrderID
       - shipmentType
-  CreatePPMShipment:
-    description: >-
-      A personally procured move is a type of shipment that a service members
-      moves themselves.
-    properties:
-      expectedDepartureDate:
-        description: |
-          Date the customer expects to move.
-        format: date
-        type: string
-      pickupPostalCode:
-        description: zip code, international allowed
-        format: zip
-        type: string
-        title: ZIP
-        example: '''90210'' or ''N15 3NL'''
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '''90210'' or ''N15 3NL'''
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '''90210'' or ''N15 3NL'''
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '''90210'' or ''N15 3NL'''
-      sitExpected:
-        type: boolean
-    required:
-      - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
-      - sitExpected
   PPMShipmentStatus:
     type: string
     readOnly: true
