@@ -226,31 +226,6 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 	return returnFile
 }
 
-// EqualDateTime compares the time.Time from the model with the strfmt.DateTime from the payload
-func (suite *BaseHandlerTestSuite) EqualDateTime(expected time.Time, actual strfmt.DateTime) {
-	actualDateTime := time.Time(actual)
-
-	suite.True(expected.Equal(actualDateTime))
-}
-
-// EqualDateTimePtr compares the time.Time from the model with the strfmt.date from the payload
-// If one is nil, both should be nil, else they should match in value.
-func (suite *BaseHandlerTestSuite) EqualDateTimePtr(expected *time.Time, actual *strfmt.DateTime) {
-	if expected == nil || actual == nil {
-		suite.Nil(expected)
-		suite.Nil(actual)
-	} else {
-		suite.EqualDateTime(*expected, *actual)
-	}
-}
-
-// EqualDate compares the time.Time from the model with the strfmt.Date from the payload
-func (suite *BaseHandlerTestSuite) EqualDate(expected time.Time, actual strfmt.Date) {
-	actualDate := time.Time(actual)
-
-	suite.True(expected.Equal(actualDate))
-}
-
 // EqualDatePtr compares the time.Time from the model with the strfmt.date from the payload
 // If one is nil, both should be nil, else they should match in value
 // This is to be strictly used for dates as it drops any time parameters in the comparison
@@ -259,24 +234,7 @@ func (suite *BaseHandlerTestSuite) EqualDatePtr(expected *time.Time, actual *str
 		suite.Nil(expected)
 		suite.Nil(actual)
 	} else {
-		suite.EqualDate(*expected, *actual)
-	}
-}
-
-// EqualUUID compares the uuid.UUID from the model with the strfmt.UUID from the payload
-func (suite *BaseHandlerTestSuite) EqualUUID(expected uuid.UUID, actual strfmt.UUID) {
-	actualUUID := uuid.FromStringOrNil(actual.String())
-
-	suite.Equal(expected, actualUUID)
-}
-
-// EqualUUIDPointers compares the uuid.UUID from the model with the strfmt.UUID from the payload
-// If one is nil, both should be nil, else they should match in value
-func (suite *BaseHandlerTestSuite) EqualUUIDPointers(expected *uuid.UUID, actual *strfmt.UUID) {
-	if expected == nil || actual == nil {
-		suite.Nil(expected)
-		suite.Nil(actual)
-	} else {
-		suite.EqualUUID(*expected, *actual)
+		isoDate := "2006-01-02" // Create a date format
+		suite.Equal(expected.Format(isoDate), time.Time(*actual).Format(isoDate))
 	}
 }

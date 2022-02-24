@@ -74,7 +74,6 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 	shipment := checkOrCreateMTOShipment(db, assertions, false)
 
 	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
-	estimatedWeight := unit.Pound(4000)
 	hasProGear := true
 	proGearWeight := unit.Pound(1150)
 	spouseProGearWeight := unit.Pound(450)
@@ -86,7 +85,6 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
 		PickupPostalCode:      requiredFields.pickupPostalCode,
 		DestinationPostalCode: requiredFields.destinationPostalCode,
-		EstimatedWeight:       &estimatedWeight,
 		SitExpected:           requiredFields.sitExpected,
 		HasProGear:            &hasProGear,
 		ProGearWeight:         &proGearWeight,
@@ -97,8 +95,6 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 	mergeModels(&ppmShipment, assertions.PPMShipment)
 
 	mustCreate(db, &ppmShipment, assertions.Stub)
-
-	ppmShipment.Shipment.PPMShipment = &ppmShipment
 
 	return ppmShipment
 }
@@ -142,8 +138,6 @@ func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PP
 	mergeModels(&newPPMShipment, assertions.PPMShipment)
 
 	mustCreate(db, &newPPMShipment, assertions.Stub)
-
-	newPPMShipment.Shipment.PPMShipment = &newPPMShipment
 
 	return newPPMShipment
 }

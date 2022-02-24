@@ -767,11 +767,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 		SecondaryDeliveryAddress: secondaryDeliveryAddress,
 	})
 
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-	})
-
-	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment}
+	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2}
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
@@ -802,51 +798,19 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
-		suite.Len(okResponse.Payload, 3)
+		suite.Len(okResponse.Payload, 2)
 
 		firstShipmentReturned := okResponse.Payload[0]
 		secondShipmentReturned := okResponse.Payload[1]
-		thirdShipmentReturned := okResponse.Payload[2]
 
 		// we expect the shipment that was created first to come first in the response
 		suite.Equal(subtestData.shipments[0].ID.String(), firstShipmentReturned.ID.String())
 		suite.Equal(subtestData.shipments[1].ID.String(), secondShipmentReturned.ID.String())
-		suite.Equal(subtestData.shipments[2].ID.String(), thirdShipmentReturned.ID.String())
-
-		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
 		for i, returnedShipment := range okResponse.Payload {
 			expectedShipment := subtestData.shipments[i]
 
 			suite.Equal(expectedShipment.Status, models.MTOShipmentStatus(returnedShipment.Status))
-
-			if expectedShipment.ShipmentType == models.MTOShipmentTypePPM {
-				suite.EqualUUID(expectedShipment.PPMShipment.ID, returnedShipment.PpmShipment.ID)
-				suite.EqualUUID(expectedShipment.PPMShipment.ShipmentID, returnedShipment.PpmShipment.ShipmentID)
-				suite.EqualDateTime(expectedShipment.PPMShipment.CreatedAt, returnedShipment.PpmShipment.CreatedAt)
-				suite.EqualDateTime(expectedShipment.PPMShipment.UpdatedAt, returnedShipment.PpmShipment.UpdatedAt)
-				suite.Equal(string(expectedShipment.PPMShipment.Status), string(returnedShipment.PpmShipment.Status))
-				suite.EqualDate(expectedShipment.PPMShipment.ExpectedDepartureDate, *returnedShipment.PpmShipment.ExpectedDepartureDate)
-				suite.EqualDatePtr(expectedShipment.PPMShipment.ActualMoveDate, returnedShipment.PpmShipment.ActualMoveDate)
-				suite.EqualDateTimePtr(expectedShipment.PPMShipment.SubmittedAt, returnedShipment.PpmShipment.SubmittedAt)
-				suite.EqualDateTimePtr(expectedShipment.PPMShipment.ReviewedAt, returnedShipment.PpmShipment.ReviewedAt)
-				//suite.Equal(expectedShipment.PPMShipment.PickupPostalCode, returnedShipment.PpmShipment.PickupPostalCode)
-				//suite.Equal(*expectedShipment.PPMShipment.SecondaryPickupPostalCode, string(returnedShipment.PpmShipment.SecondaryPickupPostalCode))
-				//suite.Equal(expectedShipment.PPMShipment.DestinationPostalCode, returnedShipment.PpmShipment.DestinationPostalCode)
-				//suite.Equal(*expectedShipment.PPMShipment.SecondaryDestinationPostalCode, string(returnedShipment.PpmShipment.SecondaryDestinationPostalCode))
-				//suite.Equal(expectedShipment.PPMShipment.SitExpected, returnedShipment.PpmShipment.SitExpected)
-				//suite.Equal(expectedShipment.PPMShipment.EstimatedWeight, returnedShipment.PpmShipment.EstimatedWeight)
-				//suite.Equal(expectedShipment.PPMShipment.NetWeight, returnedShipment.PpmShipment.NetWeight)
-				//suite.Equal(expectedShipment.PPMShipment.HasProGear, returnedShipment.PpmShipment.HasProGear)
-				//suite.Equal(expectedShipment.PPMShipment.ProGearWeight, returnedShipment.PpmShipment.ProGearWeight)
-				//suite.Equal(expectedShipment.PPMShipment.SpouseProGearWeight, returnedShipment.PpmShipment.SpouseProGearWeight)
-				//suite.Equal(expectedShipment.PPMShipment.EstimatedIncentive, returnedShipment.PpmShipment.EstimatedIncentive)
-				//suite.Equal(expectedShipment.PPMShipment.AdvanceRequested, returnedShipment.PpmShipment.AdvanceRequested)
-				//suite.Equal(expectedShipment.PPMShipment.AdvanceID, returnedShipment.PpmShipment.AdvanceID)
-				//suite.Equal(expectedShipment.PPMShipment.AdvanceWorksheetID, returnedShipment.PpmShipment.AdvanceWorksheetID)
-
-				continue // PPM Shipments won't have the rest of the fields below.
-			}
 
 			suite.EqualDatePtr(expectedShipment.RequestedPickupDate, returnedShipment.RequestedPickupDate)
 

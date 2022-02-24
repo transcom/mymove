@@ -53,9 +53,6 @@ type MTOShipment struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
-	// ppm shipment
-	PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
-
 	// requested delivery date
 	// Read Only: true
 	// Format: date
@@ -109,10 +106,6 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePpmShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -233,25 +226,6 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 				return ve.ValidateName("pickupAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("pickupAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) validatePpmShipment(formats strfmt.Registry) error {
-	if swag.IsZero(m.PpmShipment) { // not required
-		return nil
-	}
-
-	if m.PpmShipment != nil {
-		if err := m.PpmShipment.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("ppmShipment")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ppmShipment")
 			}
 			return err
 		}
@@ -400,10 +374,6 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateRequestedDeliveryDate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -512,22 +482,6 @@ func (m *MTOShipment) contextValidatePickupAddress(ctx context.Context, formats 
 				return ve.ValidateName("pickupAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("pickupAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.PpmShipment != nil {
-		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("ppmShipment")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ppmShipment")
 			}
 			return err
 		}

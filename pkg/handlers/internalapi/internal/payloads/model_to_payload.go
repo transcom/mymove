@@ -64,84 +64,6 @@ func MTOAgents(mtoAgents *models.MTOAgents) *internalmessages.MTOAgents {
 	return &agents
 }
 
-// PPMShipment payload
-func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment {
-	if ppmShipment == nil || ppmShipment.ID.IsNil() {
-		return nil
-	}
-
-	payloadPPMShipment := &internalmessages.PPMShipment{
-		ID:                    *handlers.FmtUUID(ppmShipment.ID),
-		ShipmentID:            *handlers.FmtUUID(ppmShipment.ShipmentID),
-		CreatedAt:             strfmt.DateTime(ppmShipment.CreatedAt),
-		UpdatedAt:             strfmt.DateTime(ppmShipment.UpdatedAt),
-		Status:                internalmessages.PPMShipmentStatus(ppmShipment.Status),
-		ExpectedDepartureDate: handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
-		PickupPostalCode:      &ppmShipment.PickupPostalCode,
-		DestinationPostalCode: &ppmShipment.DestinationPostalCode,
-		SitExpected:           &ppmShipment.SitExpected,
-		ETag:                  etag.GenerateEtag(ppmShipment.UpdatedAt),
-	}
-
-	if ppmShipment.SecondaryPickupPostalCode != nil {
-		payloadPPMShipment.SecondaryPickupPostalCode = *ppmShipment.SecondaryPickupPostalCode
-	}
-
-	if ppmShipment.SecondaryDestinationPostalCode != nil {
-		payloadPPMShipment.SecondaryDestinationPostalCode = *ppmShipment.SecondaryDestinationPostalCode
-	}
-
-	if ppmShipment.ActualMoveDate != nil && !ppmShipment.ActualMoveDate.IsZero() {
-		payloadPPMShipment.ActualMoveDate = handlers.FmtDate(*ppmShipment.ActualMoveDate)
-	}
-
-	if ppmShipment.SubmittedAt != nil && !ppmShipment.SubmittedAt.IsZero() {
-		payloadPPMShipment.SubmittedAt = handlers.FmtDateTimePtr(ppmShipment.SubmittedAt)
-	}
-
-	if ppmShipment.ReviewedAt != nil && !ppmShipment.ReviewedAt.IsZero() {
-		payloadPPMShipment.ReviewedAt = handlers.FmtDateTimePtr(ppmShipment.ReviewedAt)
-	}
-
-	if ppmShipment.EstimatedWeight != nil {
-		payloadPPMShipment.EstimatedWeight = int64(*ppmShipment.EstimatedWeight)
-	}
-
-	if ppmShipment.NetWeight != nil {
-		payloadPPMShipment.NetWeight = int64(*ppmShipment.NetWeight)
-	}
-
-	if ppmShipment.HasProGear != nil {
-		payloadPPMShipment.HasProGear = *ppmShipment.HasProGear
-	}
-
-	if ppmShipment.ProGearWeight != nil {
-		payloadPPMShipment.ProGearWeight = int64(*ppmShipment.ProGearWeight)
-	}
-
-	if ppmShipment.SpouseProGearWeight != nil {
-		payloadPPMShipment.SpouseProGearWeight = int64(*ppmShipment.SpouseProGearWeight)
-	}
-
-	if ppmShipment.EstimatedIncentive != nil {
-		payloadPPMShipment.EstimatedIncentive = int64(*ppmShipment.EstimatedIncentive)
-	}
-
-	if ppmShipment.AdvanceRequested != nil {
-		payloadPPMShipment.AdvanceRequested = *ppmShipment.AdvanceRequested
-	}
-
-	if ppmShipment.AdvanceID != nil {
-		payloadPPMShipment.AdvanceID = *handlers.FmtUUIDPtr(ppmShipment.AdvanceID)
-	}
-
-	if ppmShipment.AdvanceWorksheetID != nil {
-		payloadPPMShipment.AdvanceWorksheetID = *handlers.FmtUUIDPtr(ppmShipment.AdvanceWorksheetID)
-	}
-
-	return payloadPPMShipment
-}
-
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
@@ -157,7 +79,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		Status:                   internalmessages.MTOShipmentStatus(mtoShipment.Status),
-		PpmShipment:              PPMShipment(mtoShipment.PPMShipment),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
