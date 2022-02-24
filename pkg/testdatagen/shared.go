@@ -292,3 +292,13 @@ func (t customTransformer) Transformer(typ reflect.Type) func(dst, src reflect.V
 	}
 	return nil
 }
+
+// CurrentDateWithoutTime returns a pointer to a time.Time, stripped of any time info (so date only).
+func CurrentDateWithoutTime() *time.Time {
+	currentTime := time.Now()
+	year, month, day := currentTime.Date()
+
+	currentDate := time.Date(year, month, day, 0, 0, 0, 0, currentTime.Location())
+
+	return &currentDate
+}
