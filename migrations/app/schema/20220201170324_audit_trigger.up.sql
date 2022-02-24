@@ -37,7 +37,7 @@ COMMENT ON COLUMN audit_history.action_tstamp_stm IS 'Statement start timestamp 
 COMMENT ON COLUMN audit_history.action_tstamp_clk IS 'Wall clock time at which audited event''s trigger call occurred';
 COMMENT ON COLUMN audit_history.transaction_id IS 'Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.';
 COMMENT ON COLUMN audit_history.action IS 'Action type';
-COMMENT ON COLUMN audit_history.old_data IS 'Record value. Null for statement-level trigger. For INSERT this is NULL. For DELETE and UPDATE it is the old state of the record.';
+COMMENT ON COLUMN audit_history.old_data IS 'Record value. Null for statement-level trigger. For INSERT this is NULL. For DELETE and UPDATE it is the old state of the record stored in json.';
 COMMENT ON COLUMN audit_history.changed_data IS 'New values of fields changed by INSERT AND UPDATE. Null except for row-level INSERT and UPDATE events.';
 COMMENT ON COLUMN audit_history.statement_only IS 'TRUE if audit event is from an FOR EACH STATEMENT trigger, FALSE for FOR EACH ROW';
 
