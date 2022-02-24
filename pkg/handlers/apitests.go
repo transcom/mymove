@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -232,7 +233,7 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 func (suite *BaseHandlerTestSuite) EqualDateTime(expected time.Time, actual strfmt.DateTime) {
 	actualDateTime := time.Time(actual)
 
-	suite.True(expected.Equal(actualDateTime))
+	suite.True(expected.Equal(actualDateTime), fmt.Sprintf("Expected DateTimes to be equal. Expected: %v | Actual: %v", expected, actualDateTime))
 }
 
 // EqualDateTimePtr compares the time.Time from the model with the strfmt.date from the payload
@@ -250,7 +251,7 @@ func (suite *BaseHandlerTestSuite) EqualDateTimePtr(expected *time.Time, actual 
 func (suite *BaseHandlerTestSuite) EqualDate(expected time.Time, actual strfmt.Date) {
 	actualDate := time.Time(actual)
 
-	suite.True(expected.Equal(actualDate))
+	suite.True(expected.Equal(actualDate), fmt.Sprintf("Expected Dates to be equal. Expected: %v | Actual: %v", expected, actualDate))
 }
 
 // EqualDatePtr compares the time.Time from the model with the strfmt.date from the payload
