@@ -168,3 +168,16 @@ export const NTSShipmentAsTOO = () => {
     />
   );
 };
+
+export const ExternalVendorShipment = () => {
+  return (
+    <ShipmentForm
+      {...defaultProps}
+      selectedMoveType={SHIPMENT_OPTIONS.NTSR}
+      TACs={{ HHG: '1234', NTS: '5678' }}
+      SACs={{ HHG: '000012345', NTS: '6789ABC' }}
+      mtoShipment={{ ...mockMtoShipment, usesExternalVendor: true }}
+      userRole={roleTypes.TOO}
+    />
+  );
+};

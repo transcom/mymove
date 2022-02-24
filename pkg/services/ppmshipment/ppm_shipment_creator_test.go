@@ -54,10 +54,10 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		// Set required fields to their pointer values:
 		subtestData := suite.createSubtestData()
-		subtestData.newPPMShipment.ExpectedDepartureDate = models.TimePointer(time.Now())
-		subtestData.newPPMShipment.PickupPostalCode = models.StringPointer("90909")
-		subtestData.newPPMShipment.DestinationPostalCode = models.StringPointer("90905")
-		subtestData.newPPMShipment.SitExpected = models.BoolPointer(false)
+		subtestData.newPPMShipment.ExpectedDepartureDate = time.Now()
+		subtestData.newPPMShipment.PickupPostalCode = "90909"
+		subtestData.newPPMShipment.DestinationPostalCode = "90905"
+		subtestData.newPPMShipment.SitExpected = false
 
 		createdPPMShipment, err := subtestData.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), subtestData.newPPMShipment)
 
