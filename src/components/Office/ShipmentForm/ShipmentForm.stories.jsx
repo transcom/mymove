@@ -127,6 +127,10 @@ export const EditHHGShipmentNoCustRemarks = () => (
   />
 );
 
+export const HHGShipmentAsTOO = () => {
+  return <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />;
+};
+
 export const NTSShipmentWithoutCodes = () => {
   return (
     <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.SERVICES_COUNSELOR} />

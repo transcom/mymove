@@ -102,6 +102,7 @@ const ShipmentForm = ({
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
   const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, userRole);
 
+  const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const showAccountingCodes = isNTS || isNTSR;
@@ -112,7 +113,7 @@ const ShipmentForm = ({
   const isRetirementOrSeparation = orderType === ORDERS_TYPE.RETIREMENT || orderType === ORDERS_TYPE.SEPARATION;
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
-  const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
+  const shipmentNumber = isHHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
     isCreatePage
       ? { userRole, shipmentType }
@@ -283,7 +284,7 @@ const ShipmentForm = ({
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && <ShipmentVendor />}
+                {isTOO && !isHHG && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput />}
 
