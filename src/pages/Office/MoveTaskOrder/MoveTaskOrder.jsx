@@ -709,10 +709,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
             <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
-              {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && externalVendorShipmentCount && (
-                <br />
-              )}
-              {externalVendorShipmentCount && (
+              {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) &&
+                externalVendorShipmentCount > 0 && <br />}
+              {externalVendorShipmentCount > 0 && (
                 <small>
                   {externalVendorShipmentCount} shipment not moved by GHC prime.{' '}
                   <Link className="usa-link" to={`/moves/${moveCode}`}>
