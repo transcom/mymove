@@ -23,6 +23,7 @@ const ShipmentInfoListSelector = ({
         <ShipmentInfoList
           className={className}
           shipment={shipment}
+          warnIfMissing={warnIfMissing}
           errorIfMissing={errorIfMissing}
           shipmentType={shipmentType}
         />
