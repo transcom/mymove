@@ -5,7 +5,8 @@ import { Formik, Field } from 'formik';
 import { Button, Form, Radio, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import styles from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm.module.scss';
+import ppmBookingStyles from '../PPMBooking.module.scss';
+
 import formStyles from 'styles/form.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX } from 'utils/validation';
@@ -106,9 +107,9 @@ const DateAndLocationForm = ({
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, setFieldValue, values }) => {
         return (
-          <div className={styles.DatesAndLocationForm}>
-            <Form className={(formStyles.form, styles.form)}>
-              <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection)}>
+          <div className={ppmBookingStyles.formContainer}>
+            <Form className={(formStyles.form, ppmBookingStyles.form)}>
+              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Origin</h2>
                 <TextField
                   label="ZIP"
@@ -175,7 +176,7 @@ const DateAndLocationForm = ({
                       maxLength={5}
                       validate={(value) => postalCodeValidate(value, 'origin', 'secondaryPickupPostalCode')}
                     />
-                    <Hint className={styles.hint}>
+                    <Hint className={ppmBookingStyles.hint}>
                       <p>A second origin ZIP could mean that your final incentive is lower than your estimate.</p>
                       <p>
                         Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to
@@ -185,7 +186,7 @@ const DateAndLocationForm = ({
                   </>
                 )}
               </SectionWrapper>
-              <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Destination</h2>
                 <TextField
                   label="ZIP"
@@ -218,7 +219,7 @@ const DateAndLocationForm = ({
                     )
                   }
                 />
-                <Hint className={styles.hint}>
+                <Hint className={ppmBookingStyles.hint}>
                   Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you
                   don&apos;t have a new address yet.
                 </Hint>
@@ -254,7 +255,7 @@ const DateAndLocationForm = ({
                       maxLength={5}
                       validate={(value) => postalCodeValidate(value, 'destination', 'secondaryDestinationPostalCode')}
                     />
-                    <Hint className={styles.hint}>
+                    <Hint className={ppmBookingStyles.hint}>
                       <p>A second destination ZIP could mean that your final incentive is lower than your estimate.</p>
                       <p>
                         Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to
@@ -264,7 +265,7 @@ const DateAndLocationForm = ({
                   </>
                 )}
               </SectionWrapper>
-              <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Storage</h2>
                 <Fieldset>
                   <legend className="usa-label">Do you plan to store items from your PPM?</legend>
@@ -286,7 +287,7 @@ const DateAndLocationForm = ({
                   />
                 </Fieldset>
                 {values.sitExpected === 'false' ? (
-                  <Hint className={styles.hint}>
+                  <Hint className={ppmBookingStyles.hint}>
                     You can be reimbursed for up to 90 days of temporary storage (SIT).
                   </Hint>
                 ) : (
@@ -304,20 +305,20 @@ const DateAndLocationForm = ({
                   </Hint>
                 )}
               </SectionWrapper>
-              <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
                 <DatePickerInput name="expectedDepartureDate" label="When do you plan to start moving your PPM?" />
-                <Hint className={styles.hint}>
+                <Hint className={ppmBookingStyles.hint}>
                   Enter the first day you expect to move things. It&apos;s OK if the actual date is different. We will
                   ask for your actual departure date when you document and complete your PPM.
                 </Hint>
               </SectionWrapper>
-              <div className={styles.buttonContainer}>
-                <Button className={styles.backButton} type="button" onClick={onBack} secondary outline>
+              <div className={ppmBookingStyles.buttonContainer}>
+                <Button className={ppmBookingStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
                 <Button
-                  className={styles.saveButton}
+                  className={ppmBookingStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}
