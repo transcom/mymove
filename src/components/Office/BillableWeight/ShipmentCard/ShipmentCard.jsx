@@ -86,10 +86,12 @@ export default function ShipmentCard({
     showReweighWeightHighlight = true;
   }
 
+  const shipmentIsNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const shipmentIsNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const dateText = shipmentIsNTSR ? 'Delivered' : 'Departed';
 
   const originAddress = shipmentIsNTSR ? storageFacilityAddress : pickupAddress;
+  const deliveryAddress = shipmentIsNTS ? storageFacilityAddress : destinationAddress;
 
   return (
     <ShipmentContainer shipmentType={shipmentType} className={styles.container}>
@@ -105,7 +107,7 @@ export default function ShipmentCard({
             <strong>From</strong> {originAddress && formatAddressShort(originAddress)}
           </span>
           <span>
-            <strong>To</strong> {destinationAddress && formatAddressShort(destinationAddress)}
+            <strong>To</strong> {deliveryAddress && formatAddressShort(deliveryAddress)}
           </span>
         </section>
       </header>
