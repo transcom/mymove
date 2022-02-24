@@ -5275,20 +5275,27 @@ func init() {
         "actualMoveDate": {
           "type": "string",
           "format": "date",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "advanceId": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "advanceRequested": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "advanceWorksheetId": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
@@ -5309,10 +5316,14 @@ func init() {
           "readOnly": true
         },
         "estimatedIncentive": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "estimatedWeight": {
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": 4200
         },
         "expectedDepartureDate": {
@@ -5322,7 +5333,9 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "type": "string",
@@ -5333,6 +5346,8 @@ func init() {
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": 4300
         },
         "pickupPostalCode": {
@@ -5343,23 +5358,30 @@ func init() {
           "example": "'90210' or 'N15 3NL'"
         },
         "proGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "reviewedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "secondaryDestinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "'90210' or 'N15 3NL'"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "'90210' or 'N15 3NL'"
         },
         "shipmentId": {
@@ -5372,7 +5394,9 @@ func init() {
           "type": "boolean"
         },
         "spouseProGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "status": {
           "$ref": "#/definitions/PPMShipmentStatus"
@@ -5380,7 +5404,8 @@ func init() {
         "submittedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "updatedAt": {
           "type": "string",
@@ -12108,20 +12133,27 @@ func init() {
         "actualMoveDate": {
           "type": "string",
           "format": "date",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "advanceId": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "advanceRequested": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "advanceWorksheetId": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
@@ -12142,10 +12174,14 @@ func init() {
           "readOnly": true
         },
         "estimatedIncentive": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "estimatedWeight": {
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": 4200
         },
         "expectedDepartureDate": {
@@ -12155,7 +12191,9 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "type": "string",
@@ -12166,6 +12204,8 @@ func init() {
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": 4300
         },
         "pickupPostalCode": {
@@ -12176,23 +12216,30 @@ func init() {
           "example": "'90210' or 'N15 3NL'"
         },
         "proGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "reviewedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "secondaryDestinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "'90210' or 'N15 3NL'"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "'90210' or 'N15 3NL'"
         },
         "shipmentId": {
@@ -12205,7 +12252,9 @@ func init() {
           "type": "boolean"
         },
         "spouseProGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "status": {
           "$ref": "#/definitions/PPMShipmentStatus"
@@ -12213,7 +12262,8 @@ func init() {
         "submittedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "updatedAt": {
           "type": "string",

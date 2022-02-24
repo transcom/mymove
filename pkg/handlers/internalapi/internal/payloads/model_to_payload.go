@@ -71,72 +71,34 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 	}
 
 	payloadPPMShipment := &internalmessages.PPMShipment{
-		ID:                    *handlers.FmtUUID(ppmShipment.ID),
-		ShipmentID:            *handlers.FmtUUID(ppmShipment.ShipmentID),
-		CreatedAt:             strfmt.DateTime(ppmShipment.CreatedAt),
-		UpdatedAt:             strfmt.DateTime(ppmShipment.UpdatedAt),
-		Status:                internalmessages.PPMShipmentStatus(ppmShipment.Status),
-		ExpectedDepartureDate: handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
-		PickupPostalCode:      &ppmShipment.PickupPostalCode,
-		DestinationPostalCode: &ppmShipment.DestinationPostalCode,
-		SitExpected:           &ppmShipment.SitExpected,
-		ETag:                  etag.GenerateEtag(ppmShipment.UpdatedAt),
-	}
-
-	if ppmShipment.SecondaryPickupPostalCode != nil {
-		payloadPPMShipment.SecondaryPickupPostalCode = *ppmShipment.SecondaryPickupPostalCode
-	}
-
-	if ppmShipment.SecondaryDestinationPostalCode != nil {
-		payloadPPMShipment.SecondaryDestinationPostalCode = *ppmShipment.SecondaryDestinationPostalCode
-	}
-
-	if ppmShipment.ActualMoveDate != nil && !ppmShipment.ActualMoveDate.IsZero() {
-		payloadPPMShipment.ActualMoveDate = handlers.FmtDate(*ppmShipment.ActualMoveDate)
-	}
-
-	if ppmShipment.SubmittedAt != nil && !ppmShipment.SubmittedAt.IsZero() {
-		payloadPPMShipment.SubmittedAt = handlers.FmtDateTimePtr(ppmShipment.SubmittedAt)
-	}
-
-	if ppmShipment.ReviewedAt != nil && !ppmShipment.ReviewedAt.IsZero() {
-		payloadPPMShipment.ReviewedAt = handlers.FmtDateTimePtr(ppmShipment.ReviewedAt)
-	}
-
-	if ppmShipment.EstimatedWeight != nil {
-		payloadPPMShipment.EstimatedWeight = int64(*ppmShipment.EstimatedWeight)
-	}
-
-	if ppmShipment.NetWeight != nil {
-		payloadPPMShipment.NetWeight = int64(*ppmShipment.NetWeight)
-	}
-
-	if ppmShipment.HasProGear != nil {
-		payloadPPMShipment.HasProGear = *ppmShipment.HasProGear
-	}
-
-	if ppmShipment.ProGearWeight != nil {
-		payloadPPMShipment.ProGearWeight = int64(*ppmShipment.ProGearWeight)
-	}
-
-	if ppmShipment.SpouseProGearWeight != nil {
-		payloadPPMShipment.SpouseProGearWeight = int64(*ppmShipment.SpouseProGearWeight)
+		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
+		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
+		Status:                         internalmessages.PPMShipmentStatus(ppmShipment.Status),
+		ExpectedDepartureDate:          handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
+		ActualMoveDate:                 handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
+		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
+		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
+		PickupPostalCode:               &ppmShipment.PickupPostalCode,
+		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
+		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		SitExpected:                    &ppmShipment.SitExpected,
+		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
+		HasProGear:                     ppmShipment.HasProGear,
+		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		AdvanceRequested:               ppmShipment.AdvanceRequested,
+		AdvanceID:                      handlers.FmtUUIDPtr(ppmShipment.AdvanceID),
+		AdvanceWorksheetID:             handlers.FmtUUIDPtr(ppmShipment.AdvanceWorksheetID),
+		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
 	if ppmShipment.EstimatedIncentive != nil {
-		payloadPPMShipment.EstimatedIncentive = int64(*ppmShipment.EstimatedIncentive)
-	}
-
-	if ppmShipment.AdvanceRequested != nil {
-		payloadPPMShipment.AdvanceRequested = *ppmShipment.AdvanceRequested
-	}
-
-	if ppmShipment.AdvanceID != nil {
-		payloadPPMShipment.AdvanceID = *handlers.FmtUUIDPtr(ppmShipment.AdvanceID)
-	}
-
-	if ppmShipment.AdvanceWorksheetID != nil {
-		payloadPPMShipment.AdvanceWorksheetID = *handlers.FmtUUIDPtr(ppmShipment.AdvanceWorksheetID)
+		int64EstimatedIncentive := int64(*ppmShipment.EstimatedIncentive)
+		payloadPPMShipment.EstimatedIncentive = &int64EstimatedIncentive
 	}
 
 	return payloadPPMShipment

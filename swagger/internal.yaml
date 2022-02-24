@@ -2463,14 +2463,17 @@ definitions:
         format: date
         type: string
         x-nullable: true
+        x-omitempty: false
       submittedAt:
         format: date-time
         type: string
         x-nullable: true
+        x-omitempty: false
       reviewedAt:
         format: date-time
         type: string
         x-nullable: true
+        x-omitempty: false
       pickupPostalCode:
         description: zip code, international allowed
         format: zip
@@ -2482,6 +2485,8 @@ definitions:
         type: string
         title: ZIP
         example: '''90210'' or ''N15 3NL'''
+        x-nullable: true
+        x-omitempty: false
       destinationPostalCode:
         format: zip
         type: string
@@ -2492,38 +2497,58 @@ definitions:
         type: string
         title: ZIP
         example: '''90210'' or ''N15 3NL'''
+        x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
       estimatedWeight:
         type: integer
         example: 4200
+        x-nullable: true
+        x-omitempty: false
       netWeight:
         description: |
           The net weight of the shipment once it has been weight
         type: integer
         example: 4300
+        x-nullable: true
+        x-omitempty: false
       hasProGear:
         description: |
           Indicates whether PPM shipment has pro gear.
         type: boolean
+        x-nullable: true
+        x-omitempty: false
       proGearWeight:
         type: integer
+        x-nullable: true
+        x-omitempty: false
       spouseProGearWeight:
         type: integer
+        x-nullable: true
+        x-omitempty: false
       estimatedIncentive:
         type: integer
+        x-nullable: true
+        x-omitempty: false
       advanceRequested:
         type: boolean
+        x-nullable: true
+        x-omitempty: false
       advanceId:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         readOnly: true
+        x-nullable: true
+        x-omitempty: false
       advanceWorksheetId:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         readOnly: true
+        x-nullable: true
+        x-omitempty: false
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"

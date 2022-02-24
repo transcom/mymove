@@ -21,22 +21,22 @@ type PPMShipment struct {
 
 	// actual move date
 	// Format: date
-	ActualMoveDate *strfmt.Date `json:"actualMoveDate,omitempty"`
+	ActualMoveDate *strfmt.Date `json:"actualMoveDate"`
 
 	// advance Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
 	// Format: uuid
-	AdvanceID strfmt.UUID `json:"advanceId,omitempty"`
+	AdvanceID *strfmt.UUID `json:"advanceId"`
 
 	// advance requested
-	AdvanceRequested bool `json:"advanceRequested,omitempty"`
+	AdvanceRequested *bool `json:"advanceRequested"`
 
 	// advance worksheet Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
 	// Format: uuid
-	AdvanceWorksheetID strfmt.UUID `json:"advanceWorksheetId,omitempty"`
+	AdvanceWorksheetID *strfmt.UUID `json:"advanceWorksheetId"`
 
 	// created at
 	// Required: true
@@ -55,11 +55,11 @@ type PPMShipment struct {
 	ETag string `json:"eTag"`
 
 	// estimated incentive
-	EstimatedIncentive int64 `json:"estimatedIncentive,omitempty"`
+	EstimatedIncentive *int64 `json:"estimatedIncentive"`
 
 	// estimated weight
 	// Example: 4200
-	EstimatedWeight int64 `json:"estimatedWeight,omitempty"`
+	EstimatedWeight *int64 `json:"estimatedWeight"`
 
 	// Date the customer expects to move.
 	//
@@ -69,7 +69,7 @@ type PPMShipment struct {
 
 	// Indicates whether PPM shipment has pro gear.
 	//
-	HasProGear bool `json:"hasProGear,omitempty"`
+	HasProGear *bool `json:"hasProGear"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -81,7 +81,7 @@ type PPMShipment struct {
 	// The net weight of the shipment once it has been weight
 	//
 	// Example: 4300
-	NetWeight int64 `json:"netWeight,omitempty"`
+	NetWeight *int64 `json:"netWeight"`
 
 	// ZIP
 	//
@@ -91,19 +91,19 @@ type PPMShipment struct {
 	PickupPostalCode *string `json:"pickupPostalCode"`
 
 	// pro gear weight
-	ProGearWeight int64 `json:"proGearWeight,omitempty"`
+	ProGearWeight *int64 `json:"proGearWeight"`
 
 	// reviewed at
 	// Format: date-time
-	ReviewedAt *strfmt.DateTime `json:"reviewedAt,omitempty"`
+	ReviewedAt *strfmt.DateTime `json:"reviewedAt"`
 
 	// ZIP
 	// Example: '90210' or 'N15 3NL'
-	SecondaryDestinationPostalCode string `json:"secondaryDestinationPostalCode,omitempty"`
+	SecondaryDestinationPostalCode *string `json:"secondaryDestinationPostalCode"`
 
 	// ZIP
 	// Example: '90210' or 'N15 3NL'
-	SecondaryPickupPostalCode string `json:"secondaryPickupPostalCode,omitempty"`
+	SecondaryPickupPostalCode *string `json:"secondaryPickupPostalCode"`
 
 	// shipment Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -117,7 +117,7 @@ type PPMShipment struct {
 	SitExpected *bool `json:"sitExpected"`
 
 	// spouse pro gear weight
-	SpouseProGearWeight int64 `json:"spouseProGearWeight,omitempty"`
+	SpouseProGearWeight *int64 `json:"spouseProGearWeight"`
 
 	// status
 	// Required: true
@@ -125,7 +125,7 @@ type PPMShipment struct {
 
 	// submitted at
 	// Format: date-time
-	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
+	SubmittedAt *strfmt.DateTime `json:"submittedAt"`
 
 	// updated at
 	// Required: true
@@ -427,7 +427,7 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 
 func (m *PPMShipment) contextValidateAdvanceID(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "advanceId", "body", strfmt.UUID(m.AdvanceID)); err != nil {
+	if err := validate.ReadOnly(ctx, "advanceId", "body", m.AdvanceID); err != nil {
 		return err
 	}
 
@@ -436,7 +436,7 @@ func (m *PPMShipment) contextValidateAdvanceID(ctx context.Context, formats strf
 
 func (m *PPMShipment) contextValidateAdvanceWorksheetID(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "advanceWorksheetId", "body", strfmt.UUID(m.AdvanceWorksheetID)); err != nil {
+	if err := validate.ReadOnly(ctx, "advanceWorksheetId", "body", m.AdvanceWorksheetID); err != nil {
 		return err
 	}
 

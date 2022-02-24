@@ -9,6 +9,8 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/gofrs/uuid"
@@ -278,5 +280,31 @@ func (suite *BaseHandlerTestSuite) EqualUUIDPointers(expected *uuid.UUID, actual
 		suite.Nil(actual)
 	} else {
 		suite.EqualUUID(*expected, *actual)
+	}
+}
+
+// EqualPoundPointers compares the unit.Pound from the model with the int64 from the payload
+// If one is nil, both should be nil, else they should match in value
+func (suite *BaseHandlerTestSuite) EqualPoundPointers(expected *unit.Pound, actual *int64) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected)
+		suite.Nil(actual)
+	} else {
+		actualPounds := PoundPtrFromInt64Ptr(actual)
+
+		suite.Equal(*expected, *actualPounds)
+	}
+}
+
+// EqualInt32Int64Pointers compares the int32 from the model with the int64 from the payload
+// If one is nil, both should be nil, else they should match in value
+func (suite *BaseHandlerTestSuite) EqualInt32Int64Pointers(expected *int32, actual *int64) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected)
+		suite.Nil(actual)
+	} else {
+		int32Actual := int32(*actual)
+
+		suite.Equal(*expected, int32Actual)
 	}
 }
