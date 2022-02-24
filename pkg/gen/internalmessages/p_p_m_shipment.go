@@ -21,7 +21,7 @@ type PPMShipment struct {
 
 	// actual move date
 	// Format: date
-	ActualMoveDate strfmt.Date `json:"actualMoveDate,omitempty"`
+	ActualMoveDate *strfmt.Date `json:"actualMoveDate,omitempty"`
 
 	// advance Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -95,7 +95,7 @@ type PPMShipment struct {
 
 	// reviewed at
 	// Format: date-time
-	ReviewedAt strfmt.DateTime `json:"reviewedAt,omitempty"`
+	ReviewedAt *strfmt.DateTime `json:"reviewedAt,omitempty"`
 
 	// ZIP
 	// Example: '90210' or 'N15 3NL'
@@ -125,7 +125,7 @@ type PPMShipment struct {
 
 	// submitted at
 	// Format: date-time
-	SubmittedAt strfmt.DateTime `json:"submittedAt,omitempty"`
+	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
 	// updated at
 	// Required: true

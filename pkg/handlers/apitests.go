@@ -233,35 +233,22 @@ func (suite *BaseHandlerTestSuite) EqualDateTime(expected time.Time, actual strf
 	suite.True(expected.Equal(actualDateTime))
 }
 
+// EqualDateTimePtr compares the time.Time from the model with the strfmt.date from the payload
+// If one is nil, both should be nil, else they should match in value.
+func (suite *BaseHandlerTestSuite) EqualDateTimePtr(expected *time.Time, actual *strfmt.DateTime) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected)
+		suite.Nil(actual)
+	} else {
+		suite.EqualDateTime(*expected, *actual)
+	}
+}
+
 // EqualDate compares the time.Time from the model with the strfmt.Date from the payload
 func (suite *BaseHandlerTestSuite) EqualDate(expected time.Time, actual strfmt.Date) {
 	actualDate := time.Time(actual)
 
 	suite.True(expected.Equal(actualDate))
-}
-
-// EqualDateTimePointerNilOrEmpty compares the time.Time from the model with the strfmt.date from the payload
-// If one is nil or zero-value, both should be nil or zero-value, else they should match in value
-func (suite *BaseHandlerTestSuite) EqualDateTimePointerNilOrEmpty(expected *time.Time, actual *strfmt.DateTime) {
-	var actualDateTime *time.Time
-	if actual == nil {
-		actualDateTime = nil
-	} else {
-		dateTime := time.Time(*actual)
-		actualDateTime = &dateTime
-	}
-
-	if expected == nil || expected.IsZero() || actualDateTime == nil || actualDateTime.IsZero() {
-		if expected != nil {
-			suite.True(expected.IsZero())
-		}
-
-		if actualDateTime != nil {
-			suite.True(actualDateTime.IsZero())
-		}
-	} else {
-		suite.True(expected.Equal(*actualDateTime))
-	}
 }
 
 // EqualDatePtr compares the time.Time from the model with the strfmt.date from the payload
@@ -272,33 +259,7 @@ func (suite *BaseHandlerTestSuite) EqualDatePtr(expected *time.Time, actual *str
 		suite.Nil(expected)
 		suite.Nil(actual)
 	} else {
-		actualDate := time.Time(*actual)
-
-		suite.True(expected.Equal(actualDate))
-	}
-}
-
-// EqualDatePtrNilOrEmpty compares the time.Time from the model with the strfmt.date from the payload
-// If one is nil or zero-value, both should be nil or zero-value, else they should match in value
-func (suite *BaseHandlerTestSuite) EqualDatePtrNilOrEmpty(expected *time.Time, actual *strfmt.Date) {
-	var actualDate *time.Time
-	if actual == nil {
-		actualDate = nil
-	} else {
-		dateTime := time.Time(*actual)
-		actualDate = &dateTime
-	}
-
-	if expected == nil || expected.IsZero() || actualDate == nil || actualDate.IsZero() {
-		if expected != nil {
-			suite.True(expected.IsZero())
-		}
-
-		if actualDate != nil {
-			suite.True(actualDate.IsZero())
-		}
-	} else {
-		suite.True(expected.Equal(*actualDate))
+		suite.EqualDate(*expected, *actual)
 	}
 }
 

@@ -5321,7 +5321,8 @@ func init() {
       "properties": {
         "actualMoveDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "advanceId": {
           "type": "string",
@@ -5393,7 +5394,8 @@ func init() {
         },
         "reviewedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
           "type": "string",
@@ -5424,7 +5426,8 @@ func init() {
         },
         "submittedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "updatedAt": {
           "type": "string",
@@ -12198,7 +12201,8 @@ func init() {
       "properties": {
         "actualMoveDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "advanceId": {
           "type": "string",
@@ -12270,7 +12274,8 @@ func init() {
         },
         "reviewedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
           "type": "string",
@@ -12301,7 +12306,8 @@ func init() {
         },
         "submittedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "updatedAt": {
           "type": "string",

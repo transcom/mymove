@@ -92,15 +92,15 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 	}
 
 	if ppmShipment.ActualMoveDate != nil && !ppmShipment.ActualMoveDate.IsZero() {
-		payloadPPMShipment.ActualMoveDate = strfmt.Date(*ppmShipment.ActualMoveDate)
+		payloadPPMShipment.ActualMoveDate = handlers.FmtDate(*ppmShipment.ActualMoveDate)
 	}
 
 	if ppmShipment.SubmittedAt != nil && !ppmShipment.SubmittedAt.IsZero() {
-		payloadPPMShipment.SubmittedAt = strfmt.DateTime(*ppmShipment.SubmittedAt)
+		payloadPPMShipment.SubmittedAt = handlers.FmtDateTimePtr(ppmShipment.SubmittedAt)
 	}
 
 	if ppmShipment.ReviewedAt != nil && !ppmShipment.ReviewedAt.IsZero() {
-		payloadPPMShipment.ReviewedAt = strfmt.DateTime(*ppmShipment.ReviewedAt)
+		payloadPPMShipment.ReviewedAt = handlers.FmtDateTimePtr(ppmShipment.ReviewedAt)
 	}
 
 	if ppmShipment.EstimatedWeight != nil {

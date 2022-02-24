@@ -2502,12 +2502,15 @@ definitions:
       actualMoveDate:
         format: date
         type: string
+        x-nullable: true
       submittedAt:
         format: date-time
         type: string
+        x-nullable: true
       reviewedAt:
         format: date-time
         type: string
+        x-nullable: true
       pickupPostalCode:
         description: zip code, international allowed
         format: zip
