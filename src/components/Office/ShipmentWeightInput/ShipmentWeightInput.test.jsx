@@ -12,7 +12,7 @@ describe('components/Office/ShipmentWeightInput', () => {
       </Formik>,
     );
 
-    expect(screen.getByText(/Shipment weight \(lbs\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Previous Recorded Weight \(lbs\)/)).toBeInTheDocument();
   });
 
   it('populates Formik initialValues', () => {
@@ -22,6 +22,6 @@ describe('components/Office/ShipmentWeightInput', () => {
       </Formik>,
     );
 
-    expect(screen.getByLabelText(/Shipment weight \(lbs\)/)).toHaveValue('4500');
+    expect(screen.getByLabelText(/Previous Recorded Weight \(lbs\)/)).toHaveValue('4500');
   });
 });

@@ -62,7 +62,7 @@ const NTSRShipmentInfoList = ({
   const ntsRecordedWeightElementFlags = getDisplayFlags('ntsRecordedWeight');
   const ntsRecordedWeightElement = (
     <div className={ntsRecordedWeightElementFlags.classes}>
-      <dt>Shipment weight</dt>
+      <dt>Previous Recorded Weight</dt>
       <dd data-testid="ntsRecordedWeight">
         {ntsRecordedWeight ? formatWeight(ntsRecordedWeight) : getMissingOrDash('ntsRecordedWeight')}
       </dd>
