@@ -1,0 +1,9 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+.EstimatedWeightsProGearForm {
+  svg {
+    color: $link;
+  }
+}

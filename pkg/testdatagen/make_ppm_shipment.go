@@ -37,17 +37,21 @@ func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions, minimal
 	return shipment
 }
 
-// MakePPMShipment creates a single PPMShipment and associated relationships
-func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	shipment := checkOrCreateMTOShipment(db, assertions, false)
+type ppmShipmentRequiredFields struct {
+	expectedDepartureDate time.Time
+	pickupPostalCode      string
+	destinationPostalCode string
+	sitExpected           bool
+}
 
-	expectedDepartureDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+// getDefaultValuesForRequiredFields returns sensible default values for required fields.
+func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOShipment) (requiredFields ppmShipmentRequiredFields) {
+	requiredFields.expectedDepartureDate = time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 	orders := shipment.MoveTaskOrder.Orders
 
-	var pickupPostalCode string
 	if orders.ServiceMember.ResidentialAddress != nil {
-		pickupPostalCode = orders.ServiceMember.ResidentialAddress.PostalCode
+		requiredFields.pickupPostalCode = orders.ServiceMember.ResidentialAddress.PostalCode
 	} else {
 		residentialAddress := models.FetchAddressByID(db, orders.ServiceMember.ResidentialAddressID)
 
@@ -55,12 +59,21 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 			log.Panicf("Could not find residential address to use as pickp zip.")
 		}
 
-		pickupPostalCode = residentialAddress.PostalCode
+		requiredFields.pickupPostalCode = residentialAddress.PostalCode
 	}
 
-	destinationPostalCode := orders.NewDutyLocation.Address.PostalCode
+	requiredFields.destinationPostalCode = orders.NewDutyLocation.Address.PostalCode
 
-	sitExpected := false
+	requiredFields.sitExpected = false
+
+	return requiredFields
+}
+
+// MakePPMShipment creates a single PPMShipment and associated relationships
+func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	shipment := checkOrCreateMTOShipment(db, assertions, false)
+
+	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
 	hasProGear := true
 	proGearWeight := unit.Pound(1150)
 	spouseProGearWeight := unit.Pound(450)
@@ -69,10 +82,10 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 		ShipmentID:            shipment.ID,
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusSubmitted,
-		ExpectedDepartureDate: &expectedDepartureDate,
-		PickupPostalCode:      &pickupPostalCode,
-		DestinationPostalCode: &destinationPostalCode,
-		SitExpected:           &sitExpected,
+		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
+		PickupPostalCode:      requiredFields.pickupPostalCode,
+		DestinationPostalCode: requiredFields.destinationPostalCode,
+		SitExpected:           requiredFields.sitExpected,
 		HasProGear:            &hasProGear,
 		ProGearWeight:         &proGearWeight,
 		SpouseProGearWeight:   &spouseProGearWeight,
@@ -103,12 +116,22 @@ func MakeStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
 
 // MakeMinimalPPMShipment creates a single PPMShipment and associated relationships with a minimal set of data
 func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	if assertions.MTOShipment.Status == "" {
+		assertions.MTOShipment.Status = models.MTOShipmentStatusDraft
+	}
+
 	shipment := checkOrCreateMTOShipment(db, assertions, true)
 
+	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
+
 	newPPMShipment := models.PPMShipment{
-		ShipmentID: shipment.ID,
-		Shipment:   shipment,
-		Status:     models.PPMShipmentStatusSubmitted,
+		ShipmentID:            shipment.ID,
+		Shipment:              shipment,
+		Status:                models.PPMShipmentStatusDraft,
+		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
+		PickupPostalCode:      requiredFields.pickupPostalCode,
+		DestinationPostalCode: requiredFields.destinationPostalCode,
+		SitExpected:           requiredFields.sitExpected,
 	}
 
 	// Overwrite values with those from assertions

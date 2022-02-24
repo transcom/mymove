@@ -28,7 +28,6 @@ var DevSeedScenario = devSeedScenario{
 // Setup initializes the run setup for the devseed scenario
 func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	db := appCtx.DB()
-	logger := appCtx.Logger()
 	moveRouter := moverouter.NewMoveRouter()
 
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
@@ -55,10 +54,10 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 		"ppm_and_hhg":                  subScenarioPPMAndHHG(appCtx, userUploader, moveRouter),
 		"ppm_office_queue":             subScenarioPPMOfficeQueue(appCtx, userUploader, moveRouter),
 		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(appCtx, allDutyLocations, originDutyLocationsInGBLOC),
-		"txo_queues":                   subScenarioTXOQueues(appCtx, userUploader, logger),
+		"txo_queues":                   subScenarioTXOQueues(appCtx, userUploader),
 		"misc":                         subScenarioMisc(appCtx, userUploader, primeUploader, moveRouter),
 		"reweighs":                     subScenarioReweighs(appCtx, userUploader, primeUploader, moveRouter),
-		"nts_and_ntsr":                 subScenarioNTSandNTSR(appCtx, userUploader, primeUploader, moveRouter),
+		"nts_and_ntsr":                 subScenarioNTSandNTSR(appCtx, userUploader, moveRouter),
 		"sit_extensions":               subScenarioSITExtensions(appCtx, userUploader, primeUploader),
 	}
 }
