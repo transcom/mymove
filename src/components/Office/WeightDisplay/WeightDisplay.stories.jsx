@@ -16,7 +16,7 @@ export default {
 
 const ExternalVendorShipmentMessage = () => (
   <small>
-    1 prime shipment not moved by GHC prime. <a href="">View move details</a>
+    1 shipment not moved by GHC prime. <a href="">View move details</a>
   </small>
 );
 

@@ -88,7 +88,7 @@ describe('MoveTaskOrder', () => {
       const riskOfExcessTag = await screen.queryByText(/Risk of excess/);
       expect(riskOfExcessTag).toBeFalsy();
 
-      const externalVendorShipmentCount = await screen.queryByText(/1 prime shipment not moved by GHC prime./);
+      const externalVendorShipmentCount = await screen.queryByText(/1 shipment not moved by GHC prime./);
       expect(externalVendorShipmentCount).toBeFalsy();
     });
 
@@ -392,7 +392,7 @@ describe('MoveTaskOrder', () => {
         </MockProviders>,
       );
 
-      const externalVendorShipmentCount = await screen.getByText(/1 prime shipment not moved by GHC prime./);
+      const externalVendorShipmentCount = await screen.getByText(/1 shipment not moved by GHC prime./);
       expect(externalVendorShipmentCount).toBeInTheDocument();
     });
 
@@ -413,7 +413,7 @@ describe('MoveTaskOrder', () => {
 
       const riskOfExcessTag = await screen.getByText(/Risk of excess/);
       expect(riskOfExcessTag).toBeInTheDocument();
-      const externalVendorShipmentCount = await screen.getByText(/1 prime shipment not moved by GHC prime./);
+      const externalVendorShipmentCount = await screen.getByText(/1 shipment not moved by GHC prime./);
       expect(externalVendorShipmentCount).toBeInTheDocument();
     });
   });
