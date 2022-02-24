@@ -39,7 +39,15 @@ export const HHG = () => (
 
 export const NTSrelease = () => (
   <div style={{ margin: '0 auto', height: '100%', width: 336 }}>
-    <ShipmentCard {...props} shipmentType={SHIPMENT_OPTIONS.NTSR} />
+    <ShipmentCard
+      {...props}
+      shipmentType={SHIPMENT_OPTIONS.NTSR}
+      storageFacilityAddress={{
+        city: 'Atco',
+        state: 'NJ',
+        postalCode: '08004',
+      }}
+    />
   </div>
 );
 NTSrelease.storyName = 'NTS-release';

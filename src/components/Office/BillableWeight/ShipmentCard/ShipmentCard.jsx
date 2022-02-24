@@ -10,7 +10,7 @@ import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentConta
 import { formatAddressShort, formatDateFromIso } from 'shared/formatters';
 import { formatWeight } from 'utils/formatters';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
-import { MandatorySimpleAddressShape } from 'types/address';
+import { MandatorySimpleAddressShape, SimpleAddressShape } from 'types/address';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { shipmentTypeLabels } from 'content/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -62,6 +62,7 @@ export default function ShipmentCard({
   maxBillableWeight,
   totalBillableWeight,
   shipmentType,
+  storageFacilityAddress,
 }) {
   let showOriginalWeightHighlight = false;
   let showReweighWeightHighlight = false;
@@ -88,6 +89,8 @@ export default function ShipmentCard({
   const shipmentIsNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const dateText = shipmentIsNTSR ? 'Delivered' : 'Departed';
 
+  const originAddress = shipmentIsNTSR ? storageFacilityAddress : pickupAddress;
+
   return (
     <ShipmentContainer shipmentType={shipmentType} className={styles.container}>
       <header>
@@ -99,7 +102,7 @@ export default function ShipmentCard({
             <span data-testid="departureDate"> {formatDateFromIso(departedDate, 'DD MMM YYYY')}</span>
           </span>
           <span>
-            <strong>From</strong> {pickupAddress && formatAddressShort(pickupAddress)}
+            <strong>From</strong> {originAddress && formatAddressShort(originAddress)}
           </span>
           <span>
             <strong>To</strong> {destinationAddress && formatAddressShort(destinationAddress)}
@@ -197,6 +200,7 @@ ShipmentCard.propTypes = {
   maxBillableWeight: number.isRequired,
   totalBillableWeight: number,
   shipmentType: ShipmentOptionsOneOf.isRequired,
+  storageFacilityAddress: SimpleAddressShape,
 };
 
 ShipmentCard.defaultProps = {
@@ -208,4 +212,5 @@ ShipmentCard.defaultProps = {
   reweighWeight: null,
   reweighRemarks: '',
   totalBillableWeight: 0,
+  storageFacilityAddress: {},
 };

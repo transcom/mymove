@@ -222,6 +222,11 @@ describe('ShipmentCard', () => {
         state: 'MA',
         postalCode: '01089',
       },
+      storageFacilityAddress: {
+        city: 'Atco',
+        state: 'NJ',
+        postalCode: '08004',
+      },
       estimatedWeight: 5000,
       originalWeight: 4300,
       reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
@@ -233,5 +238,9 @@ describe('ShipmentCard', () => {
 
     expect(screen.getByTestId('shipmentWeight')).toHaveTextContent('4,300 lbs');
     expect(screen.queryByTestId('estimatedWeight')).not.toBeInTheDocument();
+
+    // addresses
+    expect(screen.queryByText(formatAddressShort(props.pickupAddress))).not.toBeInTheDocument();
+    expect(screen.getByText(formatAddressShort(props.storageFacilityAddress))).toBeInTheDocument();
   });
 });

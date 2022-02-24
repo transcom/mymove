@@ -266,6 +266,7 @@ export default function ReviewBillableWeight() {
                   maxBillableWeight={maxBillableWeight}
                   totalBillableWeight={totalBillableWeight}
                   shipmentType={selectedShipment.shipmentType}
+                  storageFacilityAddress={selectedShipment.storageFacility?.address}
                 />
               </div>
             </DocumentViewerSidebar.Content>
