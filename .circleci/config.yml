@@ -40,7 +40,7 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for exp deploys. See the branch settings below.
-  exp-branch: &exp-branch placeholder_branch_name
+  exp-branch: &exp-branch rogeruiz/mb-7952-logoff-poam
 
   # set acceptance-branch to the branch you want to ENABLE acceptance
   # tests, or `placeholder_branch_name` if you don't want to run them
@@ -59,12 +59,12 @@ references:
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch placeholder_branch_name
+  client-ignore-branch: &client-ignore-branch client-ignore-branch
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch placeholder_branch_name
+  server-ignore-branch: &server-ignore-branch server-ignore-branch
 
 executors:
   av_medium:
