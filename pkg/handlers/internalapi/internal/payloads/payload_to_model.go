@@ -108,17 +108,17 @@ func PPMShipmentModel(ppmShipment *internalmessages.PPMShipment) *models.PPMShip
 		// Shipment:                       MTOShipment
 		// CreatedAt:                      time.Time
 		// UpdatedAt:                      time.Time
-		Status:                models.PPMShipmentStatus(ppmShipment.Status),
-		ExpectedDepartureDate: (*time.Time)(ppmShipment.ExpectedDepartureDate),
+		Status: models.PPMShipmentStatus(ppmShipment.Status),
+		// ExpectedDepartureDate: handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate),
 		// ActualMoveDate:                 (*time.Time)(&ppmShipment.ActualMoveDate),
 		// SubmittedAt:                    (*time.Time)(&ppmShipment.SubmittedAt),
 		// ReviewedAt:                     (*time.Time)(&ppmShipment.ReviewedAt),
 		// ApprovedAt:                     (*time.Time)(&ppmShipment.ApprovedAt),
-		PickupPostalCode:               ppmShipment.PickupPostalCode,
-		SecondaryPickupPostalCode:      &ppmShipment.SecondaryPickupPostalCode,
-		DestinationPostalCode:          ppmShipment.DestinationPostalCode,
+		// PickupPostalCode:               *ppmShipment.PickupPostalCode,
+		SecondaryPickupPostalCode: &ppmShipment.SecondaryPickupPostalCode,
+		// DestinationPostalCode:          *ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: &ppmShipment.SecondaryDestinationPostalCode,
-		SitExpected:                    ppmShipment.SitExpected,
+		SitExpected:                    *ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(&ppmShipment.EstimatedWeight),
 		// NetWeight:                      handlers.PoundPtrFromInt64Ptr(&ppmShipment.NetWeight),
 		HasProGear:          &ppmShipment.HasProGear,

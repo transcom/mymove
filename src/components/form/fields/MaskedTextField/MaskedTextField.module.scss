@@ -1,0 +1,14 @@
+@import 'shared/styles/colors';
+
+.hasSuffix {
+    display: inline-block;
+    position: relative;
+    margin-top: 0.53rem;
+
+    div {
+        position: absolute;
+        right: 10px;
+        bottom: 9px;
+        color: $base-darkest;
+    }
+}

@@ -18,7 +18,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 	newPPM := models.PPMShipment{
 		ID:          oldPPMShipment.ID,
-		SitExpected: models.BoolPointer(true),
+		SitExpected: true,
 	}
 
 	// eTag := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
@@ -26,7 +26,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM)
 
 		suite.NilOrNoVerrs(err)
-		suite.True(*updatedPPMShipment.SitExpected)
+		suite.True(updatedPPMShipment.SitExpected)
 		suite.Equal(unit.Pound(1150), *updatedPPMShipment.ProGearWeight)
 	})
 

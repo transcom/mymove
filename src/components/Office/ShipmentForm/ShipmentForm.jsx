@@ -143,7 +143,7 @@ const ShipmentForm = ({
     destinationType,
   }) => {
     const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'no') {
+    if (hasDeliveryAddress === 'no' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
       delete deliveryDetails.address;
     }
 
@@ -246,6 +246,12 @@ const ShipmentForm = ({
             {errorMessage && (
               <Alert type="error" heading="An error occurred">
                 {errorMessage}
+              </Alert>
+            )}
+            {isTOO && mtoShipment.usesExternalVendor && (
+              <Alert type="warning">
+                The GHC prime contractor is not handling the shipment. Information will not be automatically shared with
+                the movers handling it.
               </Alert>
             )}
 
