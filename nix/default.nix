@@ -169,6 +169,14 @@ in buildEnv {
       rev = "9c3de9dd586506a7694fc9f19d459ad381239e34";
     }) {}).postgresql_jdbc
 
+    (import (builtins.fetchGit {
+      # Descriptive name to make the store path easier to identify
+      name = "delve-1.8.1";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "cf266b999fb0227cdf037ab6a56097149ef2e8d6";
+    }) {}).delve
+
 ];
 
   # the pre-commit hooks expects the binary to be `circleci`
