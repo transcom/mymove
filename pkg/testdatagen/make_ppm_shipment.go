@@ -163,3 +163,21 @@ func MakeMinimalStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
 		Stub: true,
 	})
 }
+
+// MakeApprovedPPMShipment creates a single approved PPMShipment and associated relationships
+func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	approvedTime := time.Now()
+	reviewedTime := approvedTime.AddDate(0, 0, -1)
+	submittedDate := reviewedTime.AddDate(0, 0, -3)
+
+	approvedPPMShipment := models.PPMShipment{
+		Status:      models.PPMShipmentStatusPaymentApproved,
+		ApprovedAt:  &approvedTime,
+		ReviewedAt:  &reviewedTime,
+		SubmittedAt: &submittedDate,
+	}
+
+	mergeModels(&assertions.PPMShipment, approvedPPMShipment)
+
+	return MakePPMShipment(db, assertions)
+}
