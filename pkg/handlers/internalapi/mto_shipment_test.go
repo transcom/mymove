@@ -547,6 +547,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.True(*updatedShipment.PpmShipment.HasProGear)
 		suite.Equal(*handlers.FmtPoundPtr(existingPPMShipment.ProGearWeight), *updatedShipment.PpmShipment.ProGearWeight)
 		suite.Equal(*handlers.FmtPoundPtr(existingPPMShipment.SpouseProGearWeight), *updatedShipment.PpmShipment.SpouseProGearWeight)
+		suite.Equal(int64(10000), *updatedShipment.PpmShipment.EstimatedIncentive)
 	})
 
 	suite.Run("Successful PATCH - Can update shipment status", func() {

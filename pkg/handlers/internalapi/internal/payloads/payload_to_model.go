@@ -102,6 +102,9 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		return nil
 	}
 
+	// Temporarily hard code this value, until we determine this
+	estimatedIncentive := int32(10000)
+
 	return &models.PPMShipment{
 		ID:                             uuid.FromStringOrNil(ppmShipment.ID.String()),
 		ExpectedDepartureDate:          *handlers.FmtDatePtrToPopPtr(&ppmShipment.ExpectedDepartureDate),
@@ -119,13 +122,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		HasProGear:                     &ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(&ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(&ppmShipment.SpouseProGearWeight),
-		EstimatedIncentive:             handlers.FmtInt64PtrToPopPtr(&ppmShipment.EstimatedIncentive),
-		// AdvanceRequested:               &ppmShipment.AdvanceRequested,
-		// TODO: add these fields
-		// AdvanceID:                      *uuid.UUID
-		// Advance:                        *Reimbursement
-		// AdvanceWorksheetID:             *uuid.UUID
-		// AdvanceWorksheet:               *Document
+		EstimatedIncentive:             &estimatedIncentive,
 	}
 }
 
