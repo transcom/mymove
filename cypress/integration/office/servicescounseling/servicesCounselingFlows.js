@@ -144,7 +144,7 @@ describe('Services counselor user', () => {
     cy.wait('@createShipment');
   });
 
-  it('is able to edit allowances', () => {
+  it('is able to edit SIT allowance', () => {
     cy.wait(['@getSortedMoves']);
     // It doesn't matter which move we click on in the queue.
     cy.get('td').first().click();
@@ -153,7 +153,6 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="edit-allowances"]').click();
 
     // the form
-    cy.get('[data-testid="proGearWeightInput"]').clear().type('1999');
     cy.get('[data-testid="sitInput"]').clear().type('199');
 
     // Edit allowances page | Save
