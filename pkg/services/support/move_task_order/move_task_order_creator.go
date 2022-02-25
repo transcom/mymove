@@ -110,7 +110,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
 		default:
-			return nil, apperror.NewQueryError("DutyStation", err, "")
+			return nil, apperror.NewQueryError("DutyLocation", err, "")
 		}
 	}
 	order.NewDutyLocation = destinationDutyStation
@@ -127,7 +127,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 			case sql.ErrNoRows:
 				return nil, apperror.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
 			default:
-				return nil, apperror.NewQueryError("DutyStation", err, "")
+				return nil, apperror.NewQueryError("DutyLocation", err, "")
 			}
 		}
 		order.OriginDutyLocation = originDutyStation

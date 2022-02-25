@@ -365,7 +365,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		ServiceMember: models.ServiceMember{
 			Rank:          &rank,
 			DutyStationID: &dutyLocation.ID,
-			DutyStation:   dutyLocation,
+			DutyLocation:  dutyLocation,
 		},
 	})
 

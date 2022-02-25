@@ -61,7 +61,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		BackupMailingAddress: payloads.Address(serviceMember.BackupMailingAddress),
 		BackupContacts:       contactPayloads,
 		IsProfileComplete:    handlers.FmtBool(serviceMember.IsProfileComplete()),
-		CurrentStation:       payloadForDutyLocationModel(serviceMember.DutyStation),
+		CurrentStation:       payloadForDutyLocationModel(serviceMember.DutyLocation),
 		RequiresAccessCode:   requiresAccessCode,
 		WeightAllotment:      weightAllotment,
 	}
@@ -113,7 +113,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		EmailIsPreferred:     params.CreateServiceMemberPayload.EmailIsPreferred,
 		ResidentialAddress:   residentialAddress,
 		BackupMailingAddress: backupMailingAddress,
-		DutyStation:          station,
+		DutyLocation:         station,
 		RequiresAccessCode:   h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
 		DutyStationID:        stationID,
 	}
@@ -218,9 +218,9 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 			order.Grade = serviceMemberRank
 		}
 
-		if serviceMember.DutyStation.ID != order.OriginDutyLocation.ID {
-			order.OriginDutyLocation = &serviceMember.DutyStation
-			order.OriginDutyLocationID = &serviceMember.DutyStation.ID
+		if serviceMember.DutyLocation.ID != order.OriginDutyLocation.ID {
+			order.OriginDutyLocation = &serviceMember.DutyLocation
+			order.OriginDutyLocationID = &serviceMember.DutyLocation.ID
 		}
 
 		verrs, err = appCtx.DB().ValidateAndSave(&order)
@@ -246,7 +246,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(appCtx appconte
 			if err != nil {
 				return validate.NewErrors(), err
 			}
-			serviceMember.DutyStation = station
+			serviceMember.DutyLocation = station
 			serviceMember.DutyStationID = &stationID
 		}
 

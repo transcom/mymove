@@ -217,7 +217,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		UserID:             user.ID,
 		Edipi:              &origEdipi,
 		DutyStationID:      &dutyLocation.ID,
-		DutyStation:        dutyLocation,
+		DutyLocation:       dutyLocation,
 		Rank:               &origRank,
 		Affiliation:        &origAffiliation,
 		FirstName:          origFirstName,
@@ -297,8 +297,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
-	// Editing SM info DutyStation and Rank fields should edit Orders OriginDutyLocation and Grade fields
-	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newServiceMember.DutyStation.Name)
+	// Editing SM info DutyLocation and Rank fields should edit Orders OriginDutyLocation and Grade fields
+	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newServiceMember.DutyLocation.Name)
 	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
 	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
 }
@@ -354,7 +354,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		Rank:               &origRank,
 		Affiliation:        &origAffiliation,
 		DutyStationID:      &origDutyLocation.ID,
-		DutyStation:        origDutyLocation,
+		DutyLocation:       origDutyLocation,
 		FirstName:          origFirstName,
 		MiddleName:         origMiddleName,
 		LastName:           origLastName,

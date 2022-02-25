@@ -199,7 +199,7 @@ func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
 func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager("Move.Orders.ServiceMember.DutyStation.Address", "Move.Orders.NewDutyLocation.Address", "Advance").Find(&ppm, id)
+	err := db.Q().Eager("Move.Orders.ServiceMember.DutyLocation.Address", "Move.Orders.NewDutyLocation.Address", "Advance").Find(&ppm, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound

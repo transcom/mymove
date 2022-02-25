@@ -75,7 +75,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if dutyStationErr != nil {
 			return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
 		}
-		serviceMember.DutyStation = dutyStation
+		serviceMember.DutyLocation = dutyStation
 
 		// Fetch duty station transportation office
 		transportationOffice, tspErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), *serviceMember.DutyStationID)
@@ -89,7 +89,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				return handlers.ResponseForError(appCtx.Logger(), tspErr)
 			}
 		}
-		serviceMember.DutyStation.TransportationOffice = transportationOffice
+		serviceMember.DutyLocation.TransportationOffice = transportationOffice
 	}
 
 	// Load the latest orders associations and new duty station transport office

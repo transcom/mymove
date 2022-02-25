@@ -74,7 +74,7 @@ func (b MigrationBuilder) ParseStations(filename string) ([]StationData, error) 
 	return stations, nil
 }
 
-// MigrationBuilder has methods that assist in building a DutyStation INSERT migration
+// MigrationBuilder has methods that assist in building a DutyLocation INSERT migration
 type MigrationBuilder struct {
 }
 

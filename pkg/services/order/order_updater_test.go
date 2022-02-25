@@ -125,7 +125,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		err = suite.DB().Find(&orderInDB, order.ID)
 
 		fetchedSM := models.ServiceMember{}
-		_ = suite.DB().EagerPreload("DutyStation").Find(&fetchedSM, order.ServiceMember.ID)
+		_ = suite.DB().EagerPreload("DutyLocation").Find(&fetchedSM, order.ServiceMember.ID)
 
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
@@ -140,8 +140,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Equal(payload.Tac, updatedOrder.TAC)
 		suite.Equal(payload.Sac.Value, updatedOrder.SAC)
 		suite.EqualValues(&updatedOriginDutyLocation.ID, fetchedSM.DutyStationID)
-		suite.EqualValues(updatedOriginDutyLocation.ID, fetchedSM.DutyStation.ID)
-		suite.EqualValues(updatedOriginDutyLocation.Name, fetchedSM.DutyStation.Name)
+		suite.EqualValues(updatedOriginDutyLocation.ID, fetchedSM.DutyLocation.ID)
+		suite.EqualValues(updatedOriginDutyLocation.Name, fetchedSM.DutyLocation.Name)
 	})
 
 	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {

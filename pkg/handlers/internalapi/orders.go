@@ -132,7 +132,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
-	originDutyLocation := serviceMember.DutyStation
+	originDutyLocation := serviceMember.DutyLocation
 	grade := (*string)(serviceMember.Rank)
 
 	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
