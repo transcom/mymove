@@ -240,8 +240,8 @@ func (suite *BaseHandlerTestSuite) EqualDateTime(expected time.Time, actual strf
 // If one is nil, both should be nil, else they should match in value.
 func (suite *BaseHandlerTestSuite) EqualDateTimePtr(expected *time.Time, actual *strfmt.DateTime) {
 	if expected == nil || actual == nil {
-		suite.Nil(expected)
-		suite.Nil(actual)
+		suite.Nil(expected, fmt.Sprintf("Expected DateTime should be nil, got %v instead.", expected))
+		suite.Nil(actual, fmt.Sprintf("Actual DateTime should be nil, got %v instead.", actual))
 	} else {
 		suite.EqualDateTime(*expected, *actual)
 	}
@@ -259,8 +259,8 @@ func (suite *BaseHandlerTestSuite) EqualDate(expected time.Time, actual strfmt.D
 // This is to be strictly used for dates as it drops any time parameters in the comparison
 func (suite *BaseHandlerTestSuite) EqualDatePtr(expected *time.Time, actual *strfmt.Date) {
 	if expected == nil || actual == nil {
-		suite.Nil(expected)
-		suite.Nil(actual)
+		suite.Nil(expected, fmt.Sprintf("Expected Date should be nil, got %v instead.", expected))
+		suite.Nil(actual, fmt.Sprintf("Actual Date should be nil, got %v instead.", actual))
 	} else {
 		suite.EqualDate(*expected, *actual)
 	}
