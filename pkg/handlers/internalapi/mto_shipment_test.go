@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
@@ -138,9 +140,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 		response := handler.Handle(subtestData.params)
 
@@ -179,9 +183,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 		response := handler.Handle(subtestData.params)
 
@@ -213,10 +219,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 
 		badParams := subtestData.params
@@ -231,6 +239,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
 		shipmentType := internalmessages.MTOShipmentTypeHHG
@@ -258,6 +267,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 
 		response := handler.Handle(unauthorizedParams)
@@ -274,10 +284,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
 		unauthorizedParams := subtestData.params
 		unauthorizedParams.HTTPRequest = unauthorizedReq
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 
 		response := handler.Handle(unauthorizedParams)
@@ -290,10 +302,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 
 		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
@@ -309,10 +323,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 
 		otherParams := mtoshipmentops.CreateMTOShipmentParams{
@@ -326,10 +342,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.Run("POST failure - 500", func() {
 		subtestData := suite.makeCreateSubtestData()
 		mockCreator := mocks.MTOShipmentCreator{}
-
+		mockPPMShipmentCreator := mocks.PPMShipmentCreator{}
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockCreator,
+			&mockPPMShipmentCreator,
 		}
 
 		err := errors.New("ServerError")

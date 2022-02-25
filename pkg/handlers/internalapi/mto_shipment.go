@@ -3,6 +3,8 @@ package internalapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -28,6 +30,7 @@ import (
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerContext
 	mtoShipmentCreator services.MTOShipmentCreator
+	ppmShipmentCreator services.PPMShipmentCreator
 }
 
 // Handle creates the mto shipment
@@ -48,8 +51,26 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 	// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
 	mtoShipment.Status = models.MTOShipmentStatusSubmitted
-	serviceItemsList := make(models.MTOServiceItems, 0)
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
+	var err error
+	if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
+		var ppmShipment *models.PPMShipment
+		// Return a PPM Shipment with an MTO Shipment inside
+		ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
+		// Return an mtoShipment that has a ppmShipment
+		mtoShipment = &ppmShipment.Shipment
+	} else {
+
+		serviceItemsList := make(models.MTOServiceItems, 0)
+		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
+
+	}
+
+	//mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+	//ppmShipment := payloads.PPMShipmentModelFromCreate(payload.ShipmentType)
+	// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
+	//mtoShipment.Status = models.MTOShipmentStatusSubmitted
+	//serviceItemsList := make(models.MTOServiceItems, 0)
+	//mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
 
 	if err != nil {
 		appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
