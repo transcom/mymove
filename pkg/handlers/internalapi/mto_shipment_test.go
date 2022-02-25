@@ -771,7 +771,11 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 		Move: mto,
 	})
 
-	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment}
+	ppmShipment2 := testdatagen.MakeApprovedPPMShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+	})
+
+	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment}
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
@@ -802,21 +806,15 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
-		suite.Len(okResponse.Payload, 3)
-
-		firstShipmentReturned := okResponse.Payload[0]
-		secondShipmentReturned := okResponse.Payload[1]
-		thirdShipmentReturned := okResponse.Payload[2]
-
-		// we expect the shipment that was created first to come first in the response
-		suite.Equal(subtestData.shipments[0].ID.String(), firstShipmentReturned.ID.String())
-		suite.Equal(subtestData.shipments[1].ID.String(), secondShipmentReturned.ID.String())
-		suite.Equal(subtestData.shipments[2].ID.String(), thirdShipmentReturned.ID.String())
+		suite.Len(okResponse.Payload, 4)
 
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
 		for i, returnedShipment := range okResponse.Payload {
 			expectedShipment := subtestData.shipments[i]
+
+			// we expect the shipment that was created first to come first in the response
+			suite.EqualUUID(expectedShipment.ID, returnedShipment.ID)
 
 			suite.Equal(expectedShipment.Status, models.MTOShipmentStatus(returnedShipment.Status))
 
@@ -830,6 +828,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.EqualDatePtr(expectedShipment.PPMShipment.ActualMoveDate, returnedShipment.PpmShipment.ActualMoveDate)
 				suite.EqualDateTimePtr(expectedShipment.PPMShipment.SubmittedAt, returnedShipment.PpmShipment.SubmittedAt)
 				suite.EqualDateTimePtr(expectedShipment.PPMShipment.ReviewedAt, returnedShipment.PpmShipment.ReviewedAt)
+				suite.EqualDateTimePtr(expectedShipment.PPMShipment.ApprovedAt, returnedShipment.PpmShipment.ApprovedAt)
 				suite.Equal(expectedShipment.PPMShipment.PickupPostalCode, *returnedShipment.PpmShipment.PickupPostalCode)
 				suite.Equal(expectedShipment.PPMShipment.SecondaryPickupPostalCode, returnedShipment.PpmShipment.SecondaryPickupPostalCode)
 				suite.Equal(expectedShipment.PPMShipment.DestinationPostalCode, *returnedShipment.PpmShipment.DestinationPostalCode)

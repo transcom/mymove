@@ -2468,6 +2468,11 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
       pickupPostalCode:
         description: zip code, international allowed
         format: zip

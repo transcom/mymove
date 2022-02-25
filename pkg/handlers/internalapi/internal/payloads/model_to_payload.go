@@ -80,6 +80,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		ActualMoveDate:                 handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
 		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
+		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupPostalCode:               &ppmShipment.PickupPostalCode,
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,

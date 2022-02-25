@@ -5299,6 +5299,12 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -5308,7 +5314,8 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -5355,7 +5362,8 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "proGearWeight": {
           "type": "integer",
@@ -5372,17 +5380,19 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
-          "example": "'90210' or 'N15 3NL'"
+          "example": "90210"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
-          "example": "'90210' or 'N15 3NL'"
+          "example": "90210"
         },
         "shipmentId": {
           "type": "string",
@@ -12157,6 +12167,12 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -12166,7 +12182,8 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -12213,7 +12230,8 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "proGearWeight": {
           "type": "integer",
@@ -12230,17 +12248,19 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
-          "example": "'90210' or 'N15 3NL'"
+          "example": "90210"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
-          "example": "'90210' or 'N15 3NL'"
+          "example": "90210"
         },
         "shipmentId": {
           "type": "string",
