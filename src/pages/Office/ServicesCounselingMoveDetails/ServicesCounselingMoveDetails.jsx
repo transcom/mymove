@@ -258,7 +258,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
           <LeftNavTag
             className={styles.tag}
             associatedSectionName="shipments"
-            showTag={numberOfErrorIfMissingForAllShipments !== 0 && numberOfWarnIfMissingForAllShipments !== 0}
+            showTag={numberOfErrorIfMissingForAllShipments !== 0 || numberOfWarnIfMissingForAllShipments !== 0}
             testID="requestedShipmentsTag"
           >
             {numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments}
