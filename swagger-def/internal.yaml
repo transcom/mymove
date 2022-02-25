@@ -2473,24 +2473,28 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
       secondaryPickupPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
       sitExpected:
