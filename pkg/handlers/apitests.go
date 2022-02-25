@@ -233,7 +233,12 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 func (suite *BaseHandlerTestSuite) EqualDateTime(expected time.Time, actual strfmt.DateTime) {
 	actualDateTime := time.Time(actual)
 
-	suite.True(expected.Equal(actualDateTime), fmt.Sprintf("Expected DateTimes to be equal. Expected: %v | Actual: %v", expected, actualDateTime))
+	// The nanoseconds of `actual` get rounded at the microsecond level and can cause failures in CI, so we'll truncate
+	// at the next level of precision, milliseconds.
+	expectedDateTimeTruncated := expected.Truncate(time.Millisecond)
+	actualDateTimeTruncated := actualDateTime.Truncate(time.Millisecond)
+
+	suite.True(expectedDateTimeTruncated.Equal(actualDateTimeTruncated), fmt.Sprintf("Expected DateTimes to be equal. Expected: %v | Actual: %v", expected, actualDateTime))
 }
 
 // EqualDateTimePtr compares the time.Time from the model with the strfmt.date from the payload
