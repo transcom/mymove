@@ -213,7 +213,7 @@ export class Summary extends Component {
     const { entitlementWarning, showModal } = this.state;
 
     const { moveId } = match.params;
-    const currentStation = get(serviceMember, 'current_station');
+    const currentStation = get(serviceMember, 'current_location');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
     const rootReviewAddressWithMoveId = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });

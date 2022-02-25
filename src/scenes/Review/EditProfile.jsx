@@ -32,7 +32,7 @@ const editProfileFormName = 'edit_profile';
 
 let EditProfileForm = (props) => {
   const { schema, handleSubmit, submitting, valid, moveIsInDraft, initialValues, serviceMember } = props;
-  const currentStation = get(serviceMember, 'current_station');
+  const currentStation = get(serviceMember, 'current_location');
   const transportationOfficeName = get(currentStation, 'transportation_office.name');
   const transportationOfficePhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
@@ -63,7 +63,7 @@ let EditProfileForm = (props) => {
                   <SwaggerField fieldName="affiliation" swagger={schema} required />
                   <SwaggerField fieldName="rank" swagger={schema} required />
                   <SwaggerField fieldName="edipi" swagger={schema} required />
-                  <Field name="current_station" title="Current duty location" component={DutyStationSearchBox} />
+                  <Field name="current_location" title="Current duty location" component={DutyStationSearchBox} />
                 </>
               )}
               {!moveIsInDraft && (
@@ -87,7 +87,7 @@ let EditProfileForm = (props) => {
     </div>
   );
 };
-const validateProfileForm = validateAdditionalFields(['current_station']);
+const validateProfileForm = validateAdditionalFields(['current_location']);
 EditProfileForm = reduxForm({
   form: editProfileFormName,
   validate: validateProfileForm,
@@ -107,7 +107,7 @@ class EditProfile extends Component {
 
     let entitlementCouldChange = false;
 
-    fieldValues.current_station_id = fieldValues.current_station.id;
+    fieldValues.current_location_id = fieldValues.current_location.id;
     fieldValues.id = this.props.serviceMember.id;
     if (fieldValues.rank !== this.props.serviceMember.rank) {
       entitlementCouldChange = true;
@@ -150,7 +150,7 @@ class EditProfile extends Component {
     const initialValues = {
       ...serviceMember,
       rank: currentOrders ? currentOrders.grade : serviceMember.rank,
-      current_station: currentOrders ? currentOrders.origin_duty_location : serviceMember.current_station,
+      current_location: currentOrders ? currentOrders.origin_duty_location : serviceMember.current_location,
     };
     return (
       <div className="usa-grid">

@@ -12,7 +12,7 @@ import { DutyStationShape } from 'types/dutyStation';
 
 const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocation }) => {
   const validationSchema = Yup.object().shape({
-    current_station: Yup.object()
+    current_location: Yup.object()
       .required('Required')
       .test(
         'existing and new duty location should not match',
@@ -30,8 +30,8 @@ const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocati
             <SectionWrapper className={formStyles.formSection}>
               <DutyStationInput
                 label="What is your current duty location?"
-                name="current_station"
-                id="current_station"
+                name="current_location"
+                id="current_location"
                 required
               />
             </SectionWrapper>
@@ -51,7 +51,7 @@ const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocati
 
 CurrentDutyStationForm.propTypes = {
   initialValues: shape({
-    current_station: DutyStationShape,
+    current_location: DutyStationShape,
   }).isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,

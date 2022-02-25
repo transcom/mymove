@@ -10,7 +10,7 @@ describe('CurrentDutyStationForm component', () => {
       <CurrentDutyStationForm
         onSubmit={jest.fn()}
         onBack={jest.fn()}
-        initialValues={{ current_station: {} }}
+        initialValues={{ current_location: {} }}
         newDutyLocation={{}}
       />,
     );
@@ -24,7 +24,7 @@ describe('CurrentDutyStationForm component', () => {
       <CurrentDutyStationForm
         onSubmit={jest.fn()}
         onBack={jest.fn()}
-        initialValues={{ current_station: {} }}
+        initialValues={{ current_location: {} }}
         newDutyLocation={{}}
       />,
     );
@@ -42,7 +42,7 @@ describe('CurrentDutyStationForm component', () => {
         onSubmit={onSubmit}
         onBack={jest.fn()}
         initialValues={{
-          current_station: {
+          current_location: {
             address: {
               city: 'Los Angeles',
               state: 'CA',
@@ -75,7 +75,7 @@ describe('CurrentDutyStationForm component', () => {
         onSubmit={onSubmit}
         onBack={jest.fn()}
         initialValues={{
-          current_station: {
+          current_location: {
             address: {
               city: 'San Diego',
               state: 'CA',
@@ -103,7 +103,7 @@ describe('CurrentDutyStationForm component', () => {
         onSubmit={jest.fn()}
         onBack={onBack}
         initialValues={{
-          current_station: {},
+          current_location: {},
         }}
       />,
     );

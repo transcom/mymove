@@ -138,7 +138,7 @@ describe('ServiceInfoForm', () => {
       affiliation: '',
       edipi: '',
       rank: '',
-      current_station: {},
+      current_location: {},
     },
     newDutyLocation: {},
   };
@@ -198,7 +198,7 @@ describe('ServiceInfoForm', () => {
     await selectEvent.select(dutyStationInput, /Luke/);
 
     expect(await screen.findByRole('form')).toHaveFormValues({
-      current_station: 'Luke AFB',
+      current_location: 'Luke AFB',
     });
 
     expect(await screen.findByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
@@ -234,7 +234,7 @@ describe('ServiceInfoForm', () => {
     await selectEvent.select(screen.getByLabelText('Current duty location'), /Luke/);
 
     expect(screen.getByRole('form')).toHaveFormValues({
-      current_station: 'Luke AFB',
+      current_location: 'Luke AFB',
     });
 
     userEvent.click(submitBtn);
@@ -247,7 +247,7 @@ describe('ServiceInfoForm', () => {
           affiliation: 'NAVY',
           edipi: '1234567890',
           rank: 'E_5',
-          current_station: {
+          current_location: {
             address: {
               city: 'Test City',
               id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',

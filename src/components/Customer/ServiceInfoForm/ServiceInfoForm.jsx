@@ -30,7 +30,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation })
       .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
       .required('Required'),
     rank: Yup.mixed().oneOf(Object.keys(ORDERS_RANK_OPTIONS)).required('Required'),
-    current_station: Yup.object()
+    current_location: Yup.object()
       .required('Required')
       .test(
         'existing and new duty location should not match',
@@ -96,7 +96,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation })
                 </Grid>
               </Grid>
 
-              <DutyStationInput label="Current duty location" name="current_station" id="current_station" required />
+              <DutyStationInput label="Current duty location" name="current_location" id="current_location" required />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -116,7 +116,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation })
 
 ServiceInfoForm.propTypes = {
   initialValues: PropTypes.shape({
-    current_station: DutyStationShape,
+    current_location: DutyStationShape,
   }).isRequired,
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,

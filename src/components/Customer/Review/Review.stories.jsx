@@ -61,7 +61,7 @@ const defaultProps = {
   mtoShipments: [],
   serviceMember: {
     id: customerUuid,
-    current_station: {
+    current_location: {
       name: 'Fort Drum',
     },
     residential_address: {

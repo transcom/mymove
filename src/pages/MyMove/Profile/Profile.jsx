@@ -21,7 +21,7 @@ import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
   const showMessages = currentOrders.id && !moveIsInDraft;
   const rank = currentOrders.grade ?? serviceMember.rank;
-  const originStation = currentOrders.origin_duty_location ?? serviceMember.current_station;
+  const originStation = currentOrders.origin_duty_location ?? serviceMember.current_location;
   const transportationOfficePhoneLines = originStation?.transportation_office?.phone_lines;
   const transportationOfficePhone = transportationOfficePhoneLines ? transportationOfficePhoneLines[0] : '';
   const backupContact = {

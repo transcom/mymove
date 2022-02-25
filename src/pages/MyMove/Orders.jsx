@@ -176,7 +176,7 @@ const mapStateToProps = (state) => {
   return {
     serviceMemberId: serviceMember?.id,
     currentOrders: selectCurrentOrders(state),
-    currentStation: serviceMember?.current_station || {},
+    currentStation: serviceMember?.current_location || {},
   };
 };
 

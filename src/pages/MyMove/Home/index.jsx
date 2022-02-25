@@ -255,7 +255,7 @@ export class Home extends Component {
     }
 
     // eslint-disable-next-line camelcase
-    const { current_station } = serviceMember;
+    const { current_location } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
 
     const shipmentSelectionPath =
@@ -397,9 +397,9 @@ export class Home extends Component {
                 </SectionWrapper>
                 <Contact
                   header="Contacts"
-                  dutyStationName={current_station?.transportation_office?.name} // TODO this doesn't seem right? at least the var names are off
+                  dutyStationName={current_location?.transportation_office?.name} // TODO this doesn't seem right? at least the var names are off
                   officeType="Origin Transportation Office"
-                  telephone={current_station?.transportation_office?.phone_lines[0]}
+                  telephone={current_location?.transportation_office?.phone_lines[0]}
                 />
               </>
             )}

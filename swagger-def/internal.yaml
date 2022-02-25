@@ -1120,7 +1120,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station:
+      current_location:
         $ref: 'definitions/DutyLocationPayload.yaml'
       residential_address:
         $ref: 'definitions/Address.yaml'
@@ -1219,7 +1219,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station_id:
+      current_location_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1297,7 +1297,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station_id:
+      current_location_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538

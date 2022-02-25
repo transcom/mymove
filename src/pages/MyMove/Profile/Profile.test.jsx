@@ -64,7 +64,7 @@ describe('Profile component', () => {
               streetAddress1: 'Some Backup Street',
               country: 'USA',
             },
-            current_station: {
+            current_location: {
               origin_duty_location: {
                 name: 'Current Station',
               },
@@ -140,7 +140,7 @@ describe('Profile component', () => {
               streetAddress1: 'Some Backup Street',
               country: 'USA',
             },
-            current_station: {
+            current_location: {
               origin_duty_location: {
                 name: 'Current Station',
               },
@@ -240,7 +240,7 @@ describe('Profile component', () => {
               streetAddress1: 'Some Backup Street',
               country: 'USA',
             },
-            current_station: {
+            current_location: {
               origin_duty_location: {
                 name: 'Current Station',
               },

@@ -121,7 +121,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	// which can't be handled in OpenAPI Spec 2.0. Therefore we don't return them at all.
 	suite.Assertions.Equal((*serviceMemberPayload).Rank, (*internalmessages.ServiceMemberRank)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).Affiliation, (*internalmessages.Affiliation)(nil))
-	suite.Assertions.Equal((*serviceMemberPayload).CurrentStation, (*internalmessages.DutyLocationPayload)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).CurrentLocation, (*internalmessages.DutyLocationPayload)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).ResidentialAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupMailingAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupContacts, internalmessages.IndexServiceMemberBackupContactsPayload{})
@@ -405,7 +405,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		SecondaryTelephone:   newSecondaryTelephone,
 		Suffix:               newSuffix,
 		Telephone:            newTelephone,
-		CurrentStationID:     &newDutyLocationID,
+		CurrentLocationID:    &newDutyLocationID,
 	}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
@@ -432,7 +432,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// values) after the move has been submitted.
 	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
 	suite.Equal(origRank, models.ServiceMemberRank(*serviceMemberPayload.Rank))
-	suite.Equal(origDutyLocation.ID.String(), string(*serviceMemberPayload.CurrentStation.ID))
+	suite.Equal(origDutyLocation.ID.String(), string(*serviceMemberPayload.CurrentLocation.ID))
 
 	// These fields should change even if the move is submitted.
 	suite.Equal(*newFirstName, *serviceMemberPayload.FirstName)

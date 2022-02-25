@@ -20,7 +20,7 @@ jest.mock('containers/FlashMessage/FlashMessage', () => {
 const defaultProps = {
   serviceMember: {
     id: 'testServiceMemberId',
-    current_station: {
+    current_location: {
       transportation_office: {
         name: 'Test Transportation Office Name',
         phone_lines: ['555-555-5555'],

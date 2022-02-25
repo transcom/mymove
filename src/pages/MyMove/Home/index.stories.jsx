@@ -14,7 +14,7 @@ const uploadOrdersProps = {
     id: 'testServiceMemberId',
     first_name: 'John',
     last_name: 'Lee',
-    current_station: {
+    current_location: {
       name: 'Fort Knox',
       transportation_office: {
         name: 'Test Transportation Office Name',

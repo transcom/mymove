@@ -31,7 +31,7 @@ describe('EditOrders Page', () => {
     moveIsApproved: false,
     serviceMember: {
       id: 'id123',
-      current_station: {
+      current_location: {
         address: {
           city: 'Fort Bragg',
           country: 'United States',

@@ -18,7 +18,7 @@ export const DefaultState = (argTypes) => (
 export const InitialValues = (argTypes) => (
   <CurrentDutyStationForm
     initialValues={{
-      current_station: {
+      current_location: {
         address: {
           city: 'Los Angeles',
           state: 'CA',
@@ -36,7 +36,7 @@ export const InitialValues = (argTypes) => (
 export const Error = (argTypes) => (
   <CurrentDutyStationForm
     initialValues={{
-      current_station: {
+      current_location: {
         address: {
           city: 'Los Angeles',
           state: 'CA',

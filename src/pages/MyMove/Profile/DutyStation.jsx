@@ -21,7 +21,7 @@ export const DutyStation = ({ serviceMember, existingStation, newDutyLocation, u
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
-    current_station: existingStation.name ? existingStation : {},
+    current_location: existingStation.name ? existingStation : {},
   };
 
   const handleBack = () => {
@@ -31,7 +31,7 @@ export const DutyStation = ({ serviceMember, existingStation, newDutyLocation, u
   const handleSubmit = (values) => {
     const payload = {
       id: serviceMember.id,
-      current_station_id: values.current_station.id,
+      current_location_id: values.current_location.id,
     };
 
     return patchServiceMember(payload)
@@ -99,7 +99,7 @@ function mapStateToProps(state) {
 
   return {
     values: getFormValues(dutyStationFormName)(state),
-    existingStation: serviceMember?.current_station,
+    existingStation: serviceMember?.current_location,
     serviceMember,
     newDutyLocation: orders?.new_duty_location,
   };

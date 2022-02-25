@@ -16,7 +16,7 @@ import './office.scss';
 
 const OrdersViewerDisplay = (props) => {
   const orders = props.orders;
-  const currentDutyStation = get(props.serviceMember, 'current_station.name', '');
+  const currentDutyStation = get(props.serviceMember, 'current_location.name', '');
   const uploads = get(orders, 'uploaded_orders.uploads', []);
   const ordersFieldsProps = {
     values: props.orders,
@@ -89,7 +89,11 @@ const OrdersViewerEdit = (props) => {
         </FormSection>
         <FormSection name="serviceMember">
           <div className="duty-station">
-            <Field name="current_station" component={DutyStationSearchBox} props={{ title: 'Current Duty Location' }} />
+            <Field
+              name="current_location"
+              component={DutyStationSearchBox}
+              props={{ title: 'Current Duty Location' }}
+            />
           </div>
         </FormSection>
         <FormSection name="orders">
@@ -143,7 +147,7 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch) {
   const update = (ordersId, orders, serviceMemberId, serviceMember) => {
-    serviceMember.current_station_id = serviceMember.current_station.id;
+    serviceMember.current_location_id = serviceMember.current_location.id;
     dispatch(updateServiceMember(serviceMemberId, serviceMember));
 
     if (!orders.has_dependents) {

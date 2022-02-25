@@ -3726,7 +3726,7 @@ func init() {
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
         },
-        "current_station_id": {
+        "current_location_id": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -5386,7 +5386,7 @@ func init() {
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
         },
-        "current_station_id": {
+        "current_location_id": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -5897,7 +5897,7 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "current_station": {
+        "current_location": {
           "$ref": "#/definitions/DutyLocationPayload"
         },
         "edipi": {
@@ -10358,7 +10358,7 @@ func init() {
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
         },
-        "current_station_id": {
+        "current_location_id": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -12035,7 +12035,7 @@ func init() {
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
         },
-        "current_station_id": {
+        "current_location_id": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -12548,7 +12548,7 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "current_station": {
+        "current_location": {
           "$ref": "#/definitions/DutyLocationPayload"
         },
         "edipi": {

@@ -35,7 +35,7 @@ function ServiceMemberSummary(props) {
     { label: 'Branch', value: get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation')) },
     { label: 'Rank', value: get(schemaRank['x-display-value'], get(serviceMember, 'rank')) },
     { label: 'DoD ID#', value: get(serviceMember, 'edipi') },
-    { label: 'Current duty location', value: get(serviceMember, 'current_station.name') },
+    { label: 'Current duty location', value: get(serviceMember, 'current_location.name') },
     { label: 'Contact info' },
     { label: 'Best contact phone', value: get(serviceMember, 'telephone') },
     { label: 'Personal email', value: get(serviceMember, 'personal_email') },
