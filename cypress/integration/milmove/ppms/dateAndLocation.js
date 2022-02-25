@@ -8,12 +8,21 @@ describe('the PPM flow', function () {
   });
 
   it('can submit a PPM move', () => {
-    // profile2@complete.draft
-    const userId = '4635b5a7-0f57-4557-8ba4-bbbb760c300a';
+    // profile@comple.te
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884077';
     cy.apiSignInAsUser(userId);
-    SMSubmitsDateAndLocation();
+    customerChoosesAPPMMove();
+    submitsDateAndLocation();
   });
 });
+
+function customerChoosesAPPMMove() {
+  cy.get('button[data-testid="shipment-selection-btn"]').click();
+  cy.nextPage();
+
+  cy.get('input[type="radio"]').eq(1).check({ force: true });
+  cy.nextPage();
+}
 //   it('doesn’t allow SM to progress if don’t have rate data for zips"', () => {
 //     // profile@co.mple.te
 //     const userId = 'f154929c-5f07-41f5-b90c-d90b83d5773d';
@@ -42,23 +51,18 @@ describe('the PPM flow', function () {
 //     SMInputsInvalidPostalCodes();
 //   });
 
-function SMSubmitsDateAndLocation() {
+function submitsDateAndLocation() {
   cy.contains('PPM date & location');
   cy.get('input[name="pickupPostalCode"]').first().type('90210{enter}').blur();
-  cy.get('input[type="radio"][id="no-secondary-pickup-postal-code"][value="false"]').eq(0).check('no', { force: true });
 
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
-  cy.get('input[type="radio"][id="hasSecondaryDestinationPostalCodeNo"][value="false"]')
-    .eq(0)
-    .check('no', { force: true });
+  cy.get('input[name="expectedDepartureDate"]').first().type('01 Feb 2022').blur();
 
-  cy.get('input[type="radio"][id="sitExpectedNo"][value="false"]').eq(0).check('no', { force: true });
+  cy.contains('Save & Continue').click();
 
-  cy.nextPage();
-
-  //   cy.location().should((loc) => {
-  //     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
-  //   });
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
+  });
 }
 
 // function SMInputsInvalidPostalCodes() {
