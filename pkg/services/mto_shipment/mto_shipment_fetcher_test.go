@@ -33,6 +33,34 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Len(mtoShipments, 0, "Expected a zero length shipment list")
 	})
 
+	suite.T().Run("Returns external vendor shipments last", func(t *testing.T) {
+		db := appCtx.DB()
+		move := testdatagen.MakeMove(db, testdatagen.Assertions{})
+
+		externalVendorShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: true,
+			},
+		})
+		firstShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+			Move: move,
+		})
+		secondShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+			Move: move,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
+
+		suite.NoError(err, "Expected no error for a move with 3 shipments")
+		suite.Len(mtoShipments, 3, "Expected a shipment list of length 3")
+
+		suite.Equal(firstShipment.ID.String(), mtoShipments[0].ID.String())
+		suite.Equal(secondShipment.ID.String(), mtoShipments[1].ID.String())
+		suite.Equal(externalVendorShipment.ID.String(), mtoShipments[2].ID.String())
+
+	})
+
 	suite.T().Run("Returns multiple shipments for move ordered by created date", func(t *testing.T) {
 		db := appCtx.DB()
 		move := testdatagen.MakeMove(db, testdatagen.Assertions{})
