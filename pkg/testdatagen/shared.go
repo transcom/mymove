@@ -122,6 +122,10 @@ func poundPointer(p unit.Pound) *unit.Pound {
 	return &p
 }
 
+func timePointer(t time.Time) *time.Time {
+	return &t
+}
+
 func mustCreate(db *pop.Connection, model interface{}, stub bool) {
 	if stub {
 		return
