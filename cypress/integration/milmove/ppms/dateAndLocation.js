@@ -24,7 +24,7 @@ describe('the PPM flow', function () {
   it('doesn’t allow SM to progress if invalid postal codes are provided"', () => {
     // profile@co.mple.te
     const userId = '3b9360a3-3304-4c60-90f4-83d687884077';
-    cy.apiSignInAsPpmUser(userId);
+    cy.apiSignInAsUser(userId);
 
     customerChoosesAPPMMove();
     inputsInvalidPostalCodes();
