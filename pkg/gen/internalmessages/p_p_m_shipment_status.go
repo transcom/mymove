@@ -15,7 +15,6 @@ import (
 )
 
 // PPMShipmentStatus p p m shipment status
-// Example: DRAFT
 //
 // swagger:model PPMShipmentStatus
 type PPMShipmentStatus string

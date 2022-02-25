@@ -5263,32 +5263,44 @@ func init() {
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "updatedAt",
+        "status",
         "expectedDepartureDate",
         "pickupPostalCode",
         "destinationPostalCode",
-        "sitExpected"
+        "sitExpected",
+        "eTag"
       ],
       "properties": {
         "actualMoveDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "advanceId": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "advanceRequested": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "advanceWorksheetId": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "approvedAt": {
-          "type": "string",
-          "format": "date-time"
         },
         "createdAt": {
           "type": "string",
@@ -5307,10 +5319,14 @@ func init() {
           "readOnly": true
         },
         "estimatedIncentive": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "estimatedWeight": {
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": 4200
         },
         "expectedDepartureDate": {
@@ -5320,16 +5336,21 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": 4300
         },
         "pickupPostalCode": {
@@ -5340,41 +5361,54 @@ func init() {
           "example": "'90210' or 'N15 3NL'"
         },
         "proGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "reviewedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "secondaryDestinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "'90210' or 'N15 3NL'"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "'90210' or 'N15 3NL'"
         },
         "shipmentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "sitExpected": {
           "type": "boolean"
         },
         "spouseProGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "status": {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "updatedAt": {
           "type": "string",
@@ -5393,8 +5427,7 @@ func init() {
         "NEEDS_PAYMENT_APPROVAL",
         "PAYMENT_APPROVED"
       ],
-      "readOnly": true,
-      "example": "DRAFT"
+      "readOnly": true
     },
     "PPMSitEstimate": {
       "type": "object",
@@ -6420,6 +6453,90 @@ func init() {
         }
       }
     },
+    "UpdatePPMShipment": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "actualMoveDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "estimatedIncentive": {
+          "type": "integer"
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weight\n",
+          "type": "integer",
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code, international allowed",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "proGearWeight": {
+          "type": "integer"
+        },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "sitExpected": {
+          "type": "boolean"
+        },
+        "spouseProGearWeight": {
+          "type": "integer"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "UpdatePersonallyProcuredMovePayload": {
       "type": "object",
       "properties": {
@@ -6585,7 +6702,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
+          "$ref": "#/definitions/UpdatePPMShipment"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -12094,32 +12211,44 @@ func init() {
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "updatedAt",
+        "status",
         "expectedDepartureDate",
         "pickupPostalCode",
         "destinationPostalCode",
-        "sitExpected"
+        "sitExpected",
+        "eTag"
       ],
       "properties": {
         "actualMoveDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "advanceId": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "advanceRequested": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "advanceWorksheetId": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "approvedAt": {
-          "type": "string",
-          "format": "date-time"
         },
         "createdAt": {
           "type": "string",
@@ -12138,10 +12267,14 @@ func init() {
           "readOnly": true
         },
         "estimatedIncentive": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "estimatedWeight": {
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": 4200
         },
         "expectedDepartureDate": {
@@ -12151,16 +12284,21 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": 4300
         },
         "pickupPostalCode": {
@@ -12171,41 +12309,54 @@ func init() {
           "example": "'90210' or 'N15 3NL'"
         },
         "proGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "reviewedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "secondaryDestinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "'90210' or 'N15 3NL'"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "'90210' or 'N15 3NL'"
         },
         "shipmentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "sitExpected": {
           "type": "boolean"
         },
         "spouseProGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "status": {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "updatedAt": {
           "type": "string",
@@ -12224,8 +12375,7 @@ func init() {
         "NEEDS_PAYMENT_APPROVAL",
         "PAYMENT_APPROVED"
       ],
-      "readOnly": true,
-      "example": "DRAFT"
+      "readOnly": true
     },
     "PPMSitEstimate": {
       "type": "object",
@@ -13255,6 +13405,90 @@ func init() {
         }
       }
     },
+    "UpdatePPMShipment": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "actualMoveDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "estimatedIncentive": {
+          "type": "integer"
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weight\n",
+          "type": "integer",
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code, international allowed",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "proGearWeight": {
+          "type": "integer"
+        },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "sitExpected": {
+          "type": "boolean"
+        },
+        "spouseProGearWeight": {
+          "type": "integer"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "UpdatePersonallyProcuredMovePayload": {
       "type": "object",
       "properties": {
@@ -13423,7 +13657,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
+          "$ref": "#/definitions/UpdatePPMShipment"
         },
         "requestedDeliveryDate": {
           "type": "string",

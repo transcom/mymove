@@ -97,34 +97,29 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	return model
 }
 
-func PPMShipmentModel(ppmShipment *internalmessages.PPMShipment) *models.PPMShipment {
+func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *models.PPMShipment {
 	if ppmShipment == nil {
 		return nil
 	}
 
 	return &models.PPMShipment{
-		ID: uuid.FromStringOrNil(ppmShipment.ID.String()),
-		// ShipmentID:                     uuid.UUID
-		// Shipment:                       MTOShipment
-		// CreatedAt:                      time.Time
-		// UpdatedAt:                      time.Time
-		Status: models.PPMShipmentStatus(ppmShipment.Status),
-		// ExpectedDepartureDate: handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate),
-		// ActualMoveDate:                 (*time.Time)(&ppmShipment.ActualMoveDate),
-		// SubmittedAt:                    (*time.Time)(&ppmShipment.SubmittedAt),
-		// ReviewedAt:                     (*time.Time)(&ppmShipment.ReviewedAt),
-		// ApprovedAt:                     (*time.Time)(&ppmShipment.ApprovedAt),
-		// PickupPostalCode:               *ppmShipment.PickupPostalCode,
-		SecondaryPickupPostalCode: &ppmShipment.SecondaryPickupPostalCode,
-		// DestinationPostalCode:          *ppmShipment.DestinationPostalCode,
+		ID:                             uuid.FromStringOrNil(ppmShipment.ID.String()),
+		ExpectedDepartureDate:          *handlers.FmtDatePtrToPopPtr(&ppmShipment.ExpectedDepartureDate),
+		ActualMoveDate:                 (*time.Time)(&ppmShipment.ActualMoveDate),
+		SubmittedAt:                    (*time.Time)(&ppmShipment.SubmittedAt),
+		ReviewedAt:                     (*time.Time)(&ppmShipment.ReviewedAt),
+		ApprovedAt:                     (*time.Time)(&ppmShipment.ApprovedAt),
+		PickupPostalCode:               ppmShipment.PickupPostalCode,
+		SecondaryPickupPostalCode:      &ppmShipment.SecondaryPickupPostalCode,
+		DestinationPostalCode:          ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: &ppmShipment.SecondaryDestinationPostalCode,
-		SitExpected:                    *ppmShipment.SitExpected,
+		SitExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(&ppmShipment.EstimatedWeight),
-		// NetWeight:                      handlers.PoundPtrFromInt64Ptr(&ppmShipment.NetWeight),
-		HasProGear:          &ppmShipment.HasProGear,
-		ProGearWeight:       handlers.PoundPtrFromInt64Ptr(&ppmShipment.ProGearWeight),
-		SpouseProGearWeight: handlers.PoundPtrFromInt64Ptr(&ppmShipment.SpouseProGearWeight),
-		// EstimatedIncentive:             handlers.FmtInt64PtrToPopPtr(&ppmShipment.EstimatedIncentive),
+		NetWeight:                      handlers.PoundPtrFromInt64Ptr(&ppmShipment.NetWeight),
+		HasProGear:                     &ppmShipment.HasProGear,
+		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(&ppmShipment.ProGearWeight),
+		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(&ppmShipment.SpouseProGearWeight),
+		EstimatedIncentive:             handlers.FmtInt64PtrToPopPtr(&ppmShipment.EstimatedIncentive),
 		// AdvanceRequested:               &ppmShipment.AdvanceRequested,
 		// TODO: add these fields
 		// AdvanceID:                      *uuid.UUID
@@ -160,7 +155,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
-	model.PPMShipment = PPMShipmentModel(mtoShipment.PpmShipment)
+	model.PPMShipment = UpdatePPMShipmentModel(mtoShipment.PpmShipment)
 
 	return model
 }

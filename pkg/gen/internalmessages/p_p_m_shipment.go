@@ -21,29 +21,28 @@ type PPMShipment struct {
 
 	// actual move date
 	// Format: date
-	ActualMoveDate strfmt.Date `json:"actualMoveDate,omitempty"`
+	ActualMoveDate *strfmt.Date `json:"actualMoveDate"`
 
 	// advance Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Read Only: true
 	// Format: uuid
-	AdvanceID strfmt.UUID `json:"advanceId,omitempty"`
+	AdvanceID *strfmt.UUID `json:"advanceId"`
 
 	// advance requested
-	AdvanceRequested bool `json:"advanceRequested,omitempty"`
+	AdvanceRequested *bool `json:"advanceRequested"`
 
 	// advance worksheet Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Read Only: true
 	// Format: uuid
-	AdvanceWorksheetID strfmt.UUID `json:"advanceWorksheetId,omitempty"`
-
-	// approved at
-	// Format: date-time
-	ApprovedAt strfmt.DateTime `json:"approvedAt,omitempty"`
+	AdvanceWorksheetID *strfmt.UUID `json:"advanceWorksheetId"`
 
 	// created at
+	// Required: true
 	// Read Only: true
 	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// ZIP
 	// Example: '90210' or 'N15 3NL'
@@ -51,15 +50,16 @@ type PPMShipment struct {
 	DestinationPostalCode *string `json:"destinationPostalCode"`
 
 	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+	// Required: true
 	// Read Only: true
-	ETag string `json:"eTag,omitempty"`
+	ETag string `json:"eTag"`
 
 	// estimated incentive
-	EstimatedIncentive int64 `json:"estimatedIncentive,omitempty"`
+	EstimatedIncentive *int64 `json:"estimatedIncentive"`
 
 	// estimated weight
 	// Example: 4200
-	EstimatedWeight int64 `json:"estimatedWeight,omitempty"`
+	EstimatedWeight *int64 `json:"estimatedWeight"`
 
 	// Date the customer expects to move.
 	//
@@ -69,17 +69,19 @@ type PPMShipment struct {
 
 	// Indicates whether PPM shipment has pro gear.
 	//
-	HasProGear bool `json:"hasProGear,omitempty"`
+	HasProGear *bool `json:"hasProGear"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
+	ID strfmt.UUID `json:"id"`
 
 	// The net weight of the shipment once it has been weight
 	//
 	// Example: 4300
-	NetWeight int64 `json:"netWeight,omitempty"`
+	NetWeight *int64 `json:"netWeight"`
 
 	// ZIP
 	//
@@ -89,43 +91,47 @@ type PPMShipment struct {
 	PickupPostalCode *string `json:"pickupPostalCode"`
 
 	// pro gear weight
-	ProGearWeight int64 `json:"proGearWeight,omitempty"`
+	ProGearWeight *int64 `json:"proGearWeight"`
 
 	// reviewed at
 	// Format: date-time
-	ReviewedAt strfmt.DateTime `json:"reviewedAt,omitempty"`
+	ReviewedAt *strfmt.DateTime `json:"reviewedAt"`
 
 	// ZIP
 	// Example: '90210' or 'N15 3NL'
-	SecondaryDestinationPostalCode string `json:"secondaryDestinationPostalCode,omitempty"`
+	SecondaryDestinationPostalCode *string `json:"secondaryDestinationPostalCode"`
 
 	// ZIP
 	// Example: '90210' or 'N15 3NL'
-	SecondaryPickupPostalCode string `json:"secondaryPickupPostalCode,omitempty"`
+	SecondaryPickupPostalCode *string `json:"secondaryPickupPostalCode"`
 
 	// shipment Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ShipmentID strfmt.UUID `json:"shipmentId,omitempty"`
+	ShipmentID strfmt.UUID `json:"shipmentId"`
 
 	// sit expected
 	// Required: true
 	SitExpected *bool `json:"sitExpected"`
 
 	// spouse pro gear weight
-	SpouseProGearWeight int64 `json:"spouseProGearWeight,omitempty"`
+	SpouseProGearWeight *int64 `json:"spouseProGearWeight"`
 
 	// status
-	Status PPMShipmentStatus `json:"status,omitempty"`
+	// Required: true
+	Status PPMShipmentStatus `json:"status"`
 
 	// submitted at
 	// Format: date-time
-	SubmittedAt strfmt.DateTime `json:"submittedAt,omitempty"`
+	SubmittedAt *strfmt.DateTime `json:"submittedAt"`
 
 	// updated at
+	// Required: true
 	// Read Only: true
 	// Format: date-time
-	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+	UpdatedAt strfmt.DateTime `json:"updatedAt"`
 }
 
 // Validate validates this p p m shipment
@@ -144,15 +150,15 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateApprovedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateDestinationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateETag(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -234,21 +240,10 @@ func (m *PPMShipment) validateAdvanceWorksheetID(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *PPMShipment) validateApprovedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.ApprovedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *PPMShipment) validateCreatedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.CreatedAt) { // not required
-		return nil
+
+	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
@@ -261,6 +256,15 @@ func (m *PPMShipment) validateCreatedAt(formats strfmt.Registry) error {
 func (m *PPMShipment) validateDestinationPostalCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("destinationPostalCode", "body", m.DestinationPostalCode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateETag(formats strfmt.Registry) error {
+
+	if err := validate.RequiredString("eTag", "body", m.ETag); err != nil {
 		return err
 	}
 
@@ -281,8 +285,9 @@ func (m *PPMShipment) validateExpectedDepartureDate(formats strfmt.Registry) err
 }
 
 func (m *PPMShipment) validateID(formats strfmt.Registry) error {
-	if swag.IsZero(m.ID) { // not required
-		return nil
+
+	if err := validate.Required("id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
@@ -314,8 +319,9 @@ func (m *PPMShipment) validateReviewedAt(formats strfmt.Registry) error {
 }
 
 func (m *PPMShipment) validateShipmentID(formats strfmt.Registry) error {
-	if swag.IsZero(m.ShipmentID) { // not required
-		return nil
+
+	if err := validate.Required("shipmentId", "body", strfmt.UUID(m.ShipmentID)); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("shipmentId", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
@@ -335,8 +341,9 @@ func (m *PPMShipment) validateSitExpected(formats strfmt.Registry) error {
 }
 
 func (m *PPMShipment) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(m.Status) { // not required
-		return nil
+
+	if err := validate.Required("status", "body", PPMShipmentStatus(m.Status)); err != nil {
+		return err
 	}
 
 	if err := m.Status.Validate(formats); err != nil {
@@ -364,8 +371,9 @@ func (m *PPMShipment) validateSubmittedAt(formats strfmt.Registry) error {
 }
 
 func (m *PPMShipment) validateUpdatedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.UpdatedAt) { // not required
-		return nil
+
+	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
@@ -379,11 +387,27 @@ func (m *PPMShipment) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAdvanceID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateAdvanceWorksheetID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateShipmentID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -401,6 +425,24 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	return nil
 }
 
+func (m *PPMShipment) contextValidateAdvanceID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "advanceId", "body", m.AdvanceID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateAdvanceWorksheetID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "advanceWorksheetId", "body", m.AdvanceWorksheetID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
@@ -413,6 +455,24 @@ func (m *PPMShipment) contextValidateCreatedAt(ctx context.Context, formats strf
 func (m *PPMShipment) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateShipmentID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "shipmentId", "body", strfmt.UUID(m.ShipmentID)); err != nil {
 		return err
 	}
 

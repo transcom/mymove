@@ -7,7 +7,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
-	moveservices "github.com/transcom/mymove/pkg/services/move"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 
@@ -472,7 +471,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 	moveRouter := moverouter.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
@@ -529,9 +528,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		existingPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
 
 		params := suite.getUpdateMTOShipmentParamsForHHGAndPPM(existingPPMShipment.Shipment)
-		updatedPPM := &internalmessages.PPMShipment{
-			ID:          strfmt.UUID(existingPPMShipment.ID.String()),
-			SitExpected: models.BoolPointer(true),
+		updatedPPM := &internalmessages.UpdatePPMShipment{
+			ID:          handlers.FmtUUID(existingPPMShipment.ID),
+			SitExpected: true,
 		}
 		params.Body.PpmShipment = updatedPPM
 
@@ -544,10 +543,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(existingPPMShipment.Shipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
 
-		suite.Equal(*params.Body.PpmShipment.SitExpected, *updatedShipment.PpmShipment.SitExpected)
-		suite.True(updatedShipment.PpmShipment.HasProGear)
-		suite.Equal(*handlers.FmtPoundPtr(existingPPMShipment.ProGearWeight), updatedShipment.PpmShipment.ProGearWeight)
-		suite.Equal(*handlers.FmtPoundPtr(existingPPMShipment.SpouseProGearWeight), updatedShipment.PpmShipment.SpouseProGearWeight)
+		suite.Equal(params.Body.PpmShipment.SitExpected, *updatedShipment.PpmShipment.SitExpected)
+		suite.True(*updatedShipment.PpmShipment.HasProGear)
+		suite.Equal(*handlers.FmtPoundPtr(existingPPMShipment.ProGearWeight), *updatedShipment.PpmShipment.ProGearWeight)
+		suite.Equal(*handlers.FmtPoundPtr(existingPPMShipment.SpouseProGearWeight), *updatedShipment.PpmShipment.SpouseProGearWeight)
 	})
 
 	suite.Run("Successful PATCH - Can update shipment status", func() {
