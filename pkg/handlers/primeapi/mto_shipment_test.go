@@ -298,13 +298,13 @@ func ClearNonUpdateFields(mtoShipment *models.MTOShipment) *primemessages.MTOShi
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	// Create an available shipment in DB
-	now := time.Now()
+	now := testdatagen.CurrentDateWithoutTime()
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
 			Status:       models.MTOShipmentStatusApproved,
-			ApprovedDate: &now,
+			ApprovedDate: now,
 		},
 		SecondaryPickupAddress:   testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{}),
 		SecondaryDeliveryAddress: testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{}),
@@ -421,10 +421,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             data.
 
 		// Create an update with just diversion and actualPickupDate
-		now := time.Now()
+		now := testdatagen.CurrentDateWithoutTime()
 		minimalUpdate := primemessages.UpdateMTOShipment{
 			Diversion:        true,
-			ActualPickupDate: handlers.FmtDatePtr(&now),
+			ActualPickupDate: handlers.FmtDatePtr(now),
 		}
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
