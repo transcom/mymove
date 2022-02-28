@@ -1,4 +1,4 @@
-import { fileUploadTimeout } from '../../support/constants';
+import { fileUploadTimeout, longPageLoadTimeout } from '../../support/constants';
 
 describe('The document viewer', function () {
   describe('When not logged in', function () {
@@ -48,6 +48,7 @@ describe('The document viewer', function () {
 
       cy.upload_file('.filepond--root', 'sample-orders.png');
       cy.get('button.submit', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
+      cy.contains('super secret info document', { timeout: longPageLoadTimeout }).should('have.attr', 'href');
     });
     it('can upload a weight ticket set', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
@@ -60,6 +61,7 @@ describe('The document viewer', function () {
 
       cy.upload_file('.filepond--root', 'sample-orders.png');
       cy.get('button.submit', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
+      cy.contains('Weight ticket document', { timeout: 2 * longPageLoadTimeout }).should('have.attr', 'href');
     });
 
     it('can edit an uploaded weight ticket set', () => {
@@ -115,10 +117,11 @@ describe('The document viewer', function () {
 
       cy.upload_file('.filepond--root', 'sample-orders.png');
       cy.get('button.submit', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
+      cy.contains('expense document', { timeout: longPageLoadTimeout }).should('have.attr', 'href');
     });
     it('can select and update newly-uploaded expense document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-testid="doc-link"]')
+      cy.get('[data-testid="doc-link"]', { timeout: 2 * longPageLoadTimeout })
         .find('a')
         .contains('expense document')
         .should('have.attr', 'href')
