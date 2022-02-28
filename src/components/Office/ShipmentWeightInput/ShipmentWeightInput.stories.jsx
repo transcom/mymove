@@ -7,11 +7,18 @@ import ShipmentWeightInput from './ShipmentWeightInput';
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 import shipmentFormStyles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import { Form } from 'components/form/Form';
+import { roleTypes } from 'constants/userRoles';
 import formStyles from 'styles/form.module.scss';
 
 export default {
   title: 'Office Components / Forms / ShipmentForm / ShipmentWeightInput',
   component: ShipmentWeightInput,
+  argTypes: {
+    userRole: {
+      options: [roleTypes.SERVICES_COUNSELOR, roleTypes.TOO],
+      control: { type: 'radio' },
+    },
+  },
   decorators: [
     (Story) => (
       <GridContainer className={styles.gridContainer}>
@@ -35,4 +42,6 @@ export default {
   ],
 };
 
-export const standard = () => <ShipmentWeightInput />;
+const Template = (args) => <ShipmentWeightInput {...args} />;
+
+export const Standard = Template.bind({});

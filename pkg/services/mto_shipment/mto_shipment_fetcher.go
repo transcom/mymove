@@ -48,6 +48,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"StorageFacility.Address",
 		).
 		Where("move_id = ?", moveID).
+		Order("uses_external_vendor asc").
 		Order("created_at asc").
 		All(&shipments)
 

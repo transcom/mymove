@@ -790,8 +790,10 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// though there can never be more than one GBLOC for a move.
 			gbloc = ghcmessages.GBLOC(move.ShipmentGBLOC[0].GBLOC)
 		} else {
-			// If the move doesn't have any shipments, we cannot assign it a GBLOC
-			gbloc = ""
+			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
+			// we need to fall back to the origin duty location GBLOC.  If that's not available for
+			// some reason, then we should get the empty string (no GBLOC).
+			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
 		}
 
 		queueMoves[i] = &ghcmessages.QueueMove{
