@@ -1,5 +1,4 @@
 {
-  "nodeVersion": "system",
   "lighthouse": {
     "performance": 85,
     "accessibility": 50,
