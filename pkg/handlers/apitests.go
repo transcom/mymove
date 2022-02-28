@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -8,6 +9,8 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"time"
+
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/strfmt"
 
@@ -226,15 +229,88 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 	return returnFile
 }
 
+// EqualDateTime compares the time.Time from the model with the strfmt.DateTime from the payload
+func (suite *BaseHandlerTestSuite) EqualDateTime(expected time.Time, actual strfmt.DateTime) {
+	actualDateTime := time.Time(actual)
+
+	// The nanoseconds of `actual` get rounded at the microsecond level and can cause failures in CI, so we'll truncate
+	// at the next level of precision, milliseconds.
+	expectedDateTimeTruncated := expected.Truncate(time.Millisecond)
+	actualDateTimeTruncated := actualDateTime.Truncate(time.Millisecond)
+
+	suite.True(expectedDateTimeTruncated.Equal(actualDateTimeTruncated), fmt.Sprintf("Expected DateTimes to be equal. Expected: %v | Actual: %v", expected, actualDateTime))
+}
+
+// EqualDateTimePtr compares the time.Time from the model with the strfmt.date from the payload
+// If one is nil, both should be nil, else they should match in value.
+func (suite *BaseHandlerTestSuite) EqualDateTimePtr(expected *time.Time, actual *strfmt.DateTime) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected, fmt.Sprintf("Expected DateTime should be nil, got %v instead.", expected))
+		suite.Nil(actual, fmt.Sprintf("Actual DateTime should be nil, got %v instead.", actual))
+	} else {
+		suite.EqualDateTime(*expected, *actual)
+	}
+}
+
+// EqualDate compares the time.Time from the model with the strfmt.Date from the payload
+func (suite *BaseHandlerTestSuite) EqualDate(expected time.Time, actual strfmt.Date) {
+	actualDate := time.Time(actual)
+
+	suite.True(expected.Equal(actualDate), fmt.Sprintf("Expected Dates to be equal. Expected: %v | Actual: %v", expected, actualDate))
+}
+
 // EqualDatePtr compares the time.Time from the model with the strfmt.date from the payload
 // If one is nil, both should be nil, else they should match in value
 // This is to be strictly used for dates as it drops any time parameters in the comparison
 func (suite *BaseHandlerTestSuite) EqualDatePtr(expected *time.Time, actual *strfmt.Date) {
 	if expected == nil || actual == nil {
+		suite.Nil(expected, fmt.Sprintf("Expected Date should be nil, got %v instead.", expected))
+		suite.Nil(actual, fmt.Sprintf("Actual Date should be nil, got %v instead.", actual))
+	} else {
+		suite.EqualDate(*expected, *actual)
+	}
+}
+
+// EqualUUID compares the uuid.UUID from the model with the strfmt.UUID from the payload
+func (suite *BaseHandlerTestSuite) EqualUUID(expected uuid.UUID, actual strfmt.UUID) {
+	actualUUID := uuid.FromStringOrNil(actual.String())
+
+	suite.Equal(expected, actualUUID)
+}
+
+// EqualUUIDPointers compares the uuid.UUID from the model with the strfmt.UUID from the payload
+// If one is nil, both should be nil, else they should match in value
+func (suite *BaseHandlerTestSuite) EqualUUIDPointers(expected *uuid.UUID, actual *strfmt.UUID) {
+	if expected == nil || actual == nil {
 		suite.Nil(expected)
 		suite.Nil(actual)
 	} else {
-		isoDate := "2006-01-02" // Create a date format
-		suite.Equal(expected.Format(isoDate), time.Time(*actual).Format(isoDate))
+		suite.EqualUUID(*expected, *actual)
+	}
+}
+
+// EqualPoundPointers compares the unit.Pound from the model with the int64 from the payload
+// If one is nil, both should be nil, else they should match in value
+func (suite *BaseHandlerTestSuite) EqualPoundPointers(expected *unit.Pound, actual *int64) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected)
+		suite.Nil(actual)
+	} else {
+		actualPounds := PoundPtrFromInt64Ptr(actual)
+
+		suite.Equal(*expected, *actualPounds)
+	}
+}
+
+// EqualInt32Int64Pointers compares the int32 from the model with the int64 from the payload
+// If one is nil, both should be nil, else they should match in value
+func (suite *BaseHandlerTestSuite) EqualInt32Int64Pointers(expected *int32, actual *int64) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected)
+		suite.Nil(actual)
+	} else {
+		int64Expected := int64(*expected)
+
+		suite.Equal(int64Expected, *actual)
 	}
 }
