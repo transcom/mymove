@@ -8,10 +8,10 @@ import { func } from 'prop-types';
 import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
+import leftNavStyles from '../../../components/LeftNav/LeftNav.module.scss';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
-import leftNavStyles from 'components/LeftNav/LeftNav.module.scss';
 import EditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
