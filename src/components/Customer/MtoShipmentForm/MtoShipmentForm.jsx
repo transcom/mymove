@@ -71,14 +71,18 @@ class MtoShipmentForm extends Component {
     const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
 
+    const shipmentTypeToSave = shipmentType || selectedMoveType;
+    const isNTSR = shipmentTypeToSave === SHIPMENT_OPTIONS.NTSR;
+    const saveDeliveryAddress = hasDeliveryAddress === 'yes' || isNTSR;
+
     const preformattedMtoShipment = {
-      shipmentType: shipmentType || selectedMoveType,
+      shipmentType: shipmentTypeToSave,
       moveId,
       customerRemarks,
       pickup,
       delivery: {
         ...delivery,
-        address: hasDeliveryAddress === 'yes' ? delivery.address : undefined,
+        address: saveDeliveryAddress ? delivery.address : undefined,
       },
       secondaryPickup: hasSecondaryPickup ? secondaryPickup : {},
       secondaryDelivery: hasSecondaryDelivery ? secondaryDelivery : {},
@@ -429,7 +433,12 @@ class MtoShipmentForm extends Component {
                           <Callout>
                             Examples
                             <ul>
-                              {isNTSR && <li>The storage facility or address where your items are currently stored</li>}
+                              {isNTSR && (
+                                <li>
+                                  Details about the facility where your things are now, including the name or address
+                                  (if you know them)
+                                </li>
+                              )}
                               <li>Large, bulky, or fragile items</li>
                               <li>Access info for your origin or destination address</li>
                               <li>You’re shipping weapons or alcohol</li>

@@ -3,11 +3,11 @@ import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { within, userEvent } from '@storybook/testing-library';
 
-import DatesAndLocation from './DatesAndLocation';
+import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
 
 export default {
-  title: 'Customer Components / PPM Booking / Dates and Location',
-  component: DatesAndLocation,
+  title: 'Customer Components / PPM Booking / Date and Location Form',
+  component: DateAndLocationForm,
   decorators: [
     (Story) => (
       <GridContainer>
@@ -21,7 +21,7 @@ export default {
   ],
 };
 
-const Template = (args) => <DatesAndLocation {...args} />;
+const Template = (args) => <DateAndLocationForm {...args} />;
 
 export const BlankDatesAndLocation = Template.bind({});
 BlankDatesAndLocation.args = {
@@ -47,7 +47,7 @@ MTOShipmentDatesAndLocation.args = {
   onBack: action('back button clicked'),
   serviceMember: {
     id: '123',
-    residentialAddress: {
+    residential_address: {
       postalCode: '90210',
     },
   },
@@ -77,7 +77,7 @@ ErrorDatesAndLocation.args = {
   onBack: action('back button clicked'),
   serviceMember: {
     id: '123',
-    residentialAddress: {
+    residential_address: {
       postalCode: '99021',
     },
   },

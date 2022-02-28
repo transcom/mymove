@@ -122,6 +122,10 @@ func poundPointer(p unit.Pound) *unit.Pound {
 	return &p
 }
 
+func timePointer(t time.Time) *time.Time {
+	return &t
+}
+
 func mustCreate(db *pop.Connection, model interface{}, stub bool) {
 	if stub {
 		return
@@ -291,4 +295,14 @@ func (t customTransformer) Transformer(typ reflect.Type) func(dst, src reflect.V
 		}
 	}
 	return nil
+}
+
+// CurrentDateWithoutTime returns a pointer to a time.Time, stripped of any time info (so date only).
+func CurrentDateWithoutTime() *time.Time {
+	currentTime := time.Now()
+	year, month, day := currentTime.Date()
+
+	currentDate := time.Date(year, month, day, 0, 0, 0, 0, currentTime.Location())
+
+	return &currentDate
 }

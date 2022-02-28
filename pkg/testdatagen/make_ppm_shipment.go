@@ -37,17 +37,21 @@ func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions, minimal
 	return shipment
 }
 
-// MakePPMShipment creates a single PPMShipment and associated relationships
-func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	shipment := checkOrCreateMTOShipment(db, assertions, false)
+type ppmShipmentRequiredFields struct {
+	expectedDepartureDate time.Time
+	pickupPostalCode      string
+	destinationPostalCode string
+	sitExpected           bool
+}
 
-	expectedDepartureDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+// getDefaultValuesForRequiredFields returns sensible default values for required fields.
+func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOShipment) (requiredFields ppmShipmentRequiredFields) {
+	requiredFields.expectedDepartureDate = time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 	orders := shipment.MoveTaskOrder.Orders
 
-	var pickupPostalCode string
 	if orders.ServiceMember.ResidentialAddress != nil {
-		pickupPostalCode = orders.ServiceMember.ResidentialAddress.PostalCode
+		requiredFields.pickupPostalCode = orders.ServiceMember.ResidentialAddress.PostalCode
 	} else {
 		residentialAddress := models.FetchAddressByID(db, orders.ServiceMember.ResidentialAddressID)
 
@@ -55,12 +59,22 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 			log.Panicf("Could not find residential address to use as pickp zip.")
 		}
 
-		pickupPostalCode = residentialAddress.PostalCode
+		requiredFields.pickupPostalCode = residentialAddress.PostalCode
 	}
 
-	destinationPostalCode := orders.NewDutyLocation.Address.PostalCode
+	requiredFields.destinationPostalCode = orders.NewDutyLocation.Address.PostalCode
 
-	sitExpected := false
+	requiredFields.sitExpected = false
+
+	return requiredFields
+}
+
+// MakePPMShipment creates a single PPMShipment and associated relationships
+func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	shipment := checkOrCreateMTOShipment(db, assertions, false)
+
+	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
+	estimatedWeight := unit.Pound(4000)
 	hasProGear := true
 	proGearWeight := unit.Pound(1150)
 	spouseProGearWeight := unit.Pound(450)
@@ -69,10 +83,12 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 		ShipmentID:            shipment.ID,
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusSubmitted,
-		ExpectedDepartureDate: &expectedDepartureDate,
-		PickupPostalCode:      &pickupPostalCode,
-		DestinationPostalCode: &destinationPostalCode,
-		SitExpected:           &sitExpected,
+		SubmittedAt:           timePointer(time.Now()),
+		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
+		PickupPostalCode:      requiredFields.pickupPostalCode,
+		DestinationPostalCode: requiredFields.destinationPostalCode,
+		EstimatedWeight:       &estimatedWeight,
+		SitExpected:           requiredFields.sitExpected,
 		HasProGear:            &hasProGear,
 		ProGearWeight:         &proGearWeight,
 		SpouseProGearWeight:   &spouseProGearWeight,
@@ -82,6 +98,8 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 	mergeModels(&ppmShipment, assertions.PPMShipment)
 
 	mustCreate(db, &ppmShipment, assertions.Stub)
+
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
 
 	return ppmShipment
 }
@@ -103,18 +121,30 @@ func MakeStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
 
 // MakeMinimalPPMShipment creates a single PPMShipment and associated relationships with a minimal set of data
 func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	if assertions.MTOShipment.Status == "" {
+		assertions.MTOShipment.Status = models.MTOShipmentStatusDraft
+	}
+
 	shipment := checkOrCreateMTOShipment(db, assertions, true)
 
+	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
+
 	newPPMShipment := models.PPMShipment{
-		ShipmentID: shipment.ID,
-		Shipment:   shipment,
-		Status:     models.PPMShipmentStatusSubmitted,
+		ShipmentID:            shipment.ID,
+		Shipment:              shipment,
+		Status:                models.PPMShipmentStatusDraft,
+		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
+		PickupPostalCode:      requiredFields.pickupPostalCode,
+		DestinationPostalCode: requiredFields.destinationPostalCode,
+		SitExpected:           requiredFields.sitExpected,
 	}
 
 	// Overwrite values with those from assertions
 	mergeModels(&newPPMShipment, assertions.PPMShipment)
 
 	mustCreate(db, &newPPMShipment, assertions.Stub)
+
+	newPPMShipment.Shipment.PPMShipment = &newPPMShipment
 
 	return newPPMShipment
 }
@@ -132,4 +162,22 @@ func MakeMinimalStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
 		},
 		Stub: true,
 	})
+}
+
+// MakeApprovedPPMShipment creates a single approved PPMShipment and associated relationships
+func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	approvedTime := time.Now()
+	reviewedTime := approvedTime.AddDate(0, 0, -1)
+	submittedDate := reviewedTime.AddDate(0, 0, -3)
+
+	approvedPPMShipment := models.PPMShipment{
+		Status:      models.PPMShipmentStatusPaymentApproved,
+		ApprovedAt:  &approvedTime,
+		ReviewedAt:  &reviewedTime,
+		SubmittedAt: &submittedDate,
+	}
+
+	mergeModels(&assertions.PPMShipment, approvedPPMShipment)
+
+	return MakePPMShipment(db, assertions)
 }

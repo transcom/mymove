@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
-import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
+import { MTOAgentType } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { parseSwaggerDate } from 'shared/formatters';
 import { formatDelimitedNumber } from 'utils/formatters';
@@ -204,10 +204,6 @@ export function formatMtoShipmentForDisplay({
   if (userRole === roleTypes.TOO && usesExternalVendor === undefined) {
     // Vendor defaults to the Prime
     displayValues.usesExternalVendor = false;
-  }
-
-  if (shipmentType === SHIPMENT_OPTIONS.NTSR) {
-    displayValues.hasDeliveryAddress = 'yes';
   }
 
   return displayValues;

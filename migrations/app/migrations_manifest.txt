@@ -704,3 +704,4 @@
 20220207230521_adjust_pricing_params_for_ntsr.up.sql
 20220208225215_add_draft_to_ppm_shipment_status.up.sql
 20220214222638_create_new_cols_for_duty_station_to_location_rename.up.sql
+20220218230224_update_ppm_shipments_to_have_more_required_fields.up.sql
