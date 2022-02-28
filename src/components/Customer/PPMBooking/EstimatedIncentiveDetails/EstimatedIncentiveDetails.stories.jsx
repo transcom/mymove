@@ -35,7 +35,7 @@ WithoutSecondaryPostalCodes.args = {
 };
 
 export const WithSecondaryPostalCodes = Template.bind({});
-WithoutSecondaryPostalCodes.args = {
+WithSecondaryPostalCodes.args = {
   shipment: {
     ppmShipment: {
       pickupPostalCode: '10001',
