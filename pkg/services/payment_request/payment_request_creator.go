@@ -75,9 +75,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		}
 
 		// Service Item Param Cache
-		// NOTE: turning off param cache for now since we have a bug (MB-9497) that will likely require rethinking
-		// how we cache.  Also, the cache does not seem to be having the impact we first thought it might.
-		// serviceParamCache := serviceparamlookups.NewServiceParamsCache()
+		serviceParamCache := serviceparamlookups.NewServiceParamsCache()
 
 		// Track which shipments have been verified already
 		shipmentIDs := make(map[uuid.UUID]bool)
@@ -150,8 +148,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			}
 
 			// Get values for needed service item params (do lookups)
-			// NOTE: no caching for now as mentioned above
-			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(txnAppCtx, p.planner, paymentServiceItem.MTOServiceItemID, paymentRequestArg.ID, paymentRequestArg.MoveTaskOrderID, nil)
+			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(txnAppCtx, p.planner, paymentServiceItem.MTOServiceItemID, paymentRequestArg.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
 			if err != nil {
 				return err
 			}

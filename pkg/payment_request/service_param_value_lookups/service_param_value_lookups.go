@@ -157,8 +157,9 @@ func ServiceParamLookupInitialize(
 	// Set all lookup functions to "NOT IMPLEMENTED"
 	//
 
+	notImplementedLookup := NotImplementedLookup{}
 	for _, key := range models.ValidServiceItemParamNames {
-		s.lookups[key] = NotImplementedLookup{}
+		s.lookups[key] = notImplementedLookup
 	}
 
 	//
@@ -527,14 +528,16 @@ func (s *ServiceItemParamKeyData) serviceItemNeedsParamKey(appCtx appcontext.App
 
 // ServiceParamValue returns a service parameter value from a key
 func (s *ServiceItemParamKeyData) ServiceParamValue(appCtx appcontext.AppContext, key models.ServiceItemParamName) (string, error) {
+	// NOTE: turning off param cache for now since we have a bug (MB-9497) that will likely require rethinking
+	// how we cache.  Also, the cache does not seem to be having the impact we first thought it might.
 
 	// Check cache for lookup value
-	if s.paramCache != nil && s.mtoShipmentID != nil {
-		paramCacheValue := s.paramCache.ParamValue(*s.mtoShipmentID, key)
-		if paramCacheValue != nil {
-			return *paramCacheValue, nil
-		}
-	}
+	// if s.paramCache != nil && s.mtoShipmentID != nil {
+	// 	paramCacheValue := s.paramCache.ParamValue(*s.mtoShipmentID, key)
+	// 	if paramCacheValue != nil {
+	// 		return *paramCacheValue, nil
+	// 	}
+	// }
 
 	if lookup, ok := s.lookups[key]; ok {
 		value, err := lookup.lookup(appCtx, s)
@@ -542,6 +545,7 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(appCtx appcontext.AppContext
 			return "", fmt.Errorf(" failed ServiceParamValue %sLookup with error %w", key, err)
 		}
 		// Save param value to cache
+		// NOTE: although cache is not being checked above, continuing to cache values so existing tests don't break.
 		if s.paramCache != nil && s.mtoShipmentID != nil {
 			s.paramCache.addParamValue(*s.mtoShipmentID, key, value)
 		}
