@@ -51,10 +51,10 @@ import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
-import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
-import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
+import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
+import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',

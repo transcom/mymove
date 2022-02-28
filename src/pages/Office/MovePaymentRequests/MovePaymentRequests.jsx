@@ -32,9 +32,9 @@ import {
 } from 'hooks/custom';
 import { updateFinancialFlag, updateMTOReviewedBillableWeights, updateMTOShipment } from 'services/ghcApi';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
-import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 const MovePaymentRequests = ({
   setUnapprovedShipmentCount,
