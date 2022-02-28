@@ -25,6 +25,8 @@ import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirm
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import LeftNav from 'components/LeftNav/LeftNav';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -32,8 +34,6 @@ import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
-import LeftNav from 'components/LeftNav/LeftNav';
-import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   const { moveCode } = useParams();
