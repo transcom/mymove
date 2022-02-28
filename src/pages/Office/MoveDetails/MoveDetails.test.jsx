@@ -251,6 +251,7 @@ const requestedMoveDetailsQueryRetiree = {
         streetAddress2: 'P.O. Box 9876',
         streetAddress3: 'c/o Some Person',
       },
+      destinationType: 'HOME_OF_RECORD',
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
       id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
       moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -283,6 +284,7 @@ const requestedMoveDetailsQueryRetiree = {
         streetAddress2: 'P.O. Box 9876',
         streetAddress3: 'c/o Some Person',
       },
+      destinationType: 'HOME_OF_RECORD',
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
       id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
       moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -833,6 +835,7 @@ describe('MoveDetails page', () => {
       expect(wrapper.find('#orders h2').text()).toEqual('Orders');
       expect(wrapper.find('[data-testid="newDutyLocationLabel"]').text()).toEqual('HOR, HOS, or PLEAD');
       expect(wrapper.find('[data-testid="reportByDateLabel"]').text()).toEqual('Date of retirement');
+      expect(wrapper.find('[data-testid="destinationType"]').text()).toEqual('Home of record (HOR)');
     });
   });
 
