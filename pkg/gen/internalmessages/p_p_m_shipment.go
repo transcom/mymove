@@ -38,6 +38,10 @@ type PPMShipment struct {
 	// Format: uuid
 	AdvanceWorksheetID *strfmt.UUID `json:"advanceWorksheetId"`
 
+	// approved at
+	// Format: date-time
+	ApprovedAt *strfmt.DateTime `json:"approvedAt"`
+
 	// created at
 	// Required: true
 	// Read Only: true
@@ -45,8 +49,9 @@ type PPMShipment struct {
 	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// ZIP
-	// Example: '90210' or 'N15 3NL'
+	// Example: 90210
 	// Required: true
+	// Pattern: ^(\d{5})$
 	DestinationPostalCode *string `json:"destinationPostalCode"`
 
 	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
@@ -86,8 +91,9 @@ type PPMShipment struct {
 	// ZIP
 	//
 	// zip code, international allowed
-	// Example: '90210' or 'N15 3NL'
+	// Example: 90210
 	// Required: true
+	// Pattern: ^(\d{5})$
 	PickupPostalCode *string `json:"pickupPostalCode"`
 
 	// pro gear weight
@@ -98,11 +104,13 @@ type PPMShipment struct {
 	ReviewedAt *strfmt.DateTime `json:"reviewedAt"`
 
 	// ZIP
-	// Example: '90210' or 'N15 3NL'
+	// Example: 90210
+	// Pattern: ^(\d{5})$
 	SecondaryDestinationPostalCode *string `json:"secondaryDestinationPostalCode"`
 
 	// ZIP
-	// Example: '90210' or 'N15 3NL'
+	// Example: 90210
+	// Pattern: ^(\d{5})$
 	SecondaryPickupPostalCode *string `json:"secondaryPickupPostalCode"`
 
 	// shipment Id
@@ -150,6 +158,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateApprovedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -175,6 +187,14 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReviewedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryDestinationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -240,6 +260,18 @@ func (m *PPMShipment) validateAdvanceWorksheetID(formats strfmt.Registry) error 
 	return nil
 }
 
+func (m *PPMShipment) validateApprovedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ApprovedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateCreatedAt(formats strfmt.Registry) error {
 
 	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
@@ -256,6 +288,10 @@ func (m *PPMShipment) validateCreatedAt(formats strfmt.Registry) error {
 func (m *PPMShipment) validateDestinationPostalCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("destinationPostalCode", "body", m.DestinationPostalCode); err != nil {
+		return err
+	}
+
+	if err := validate.Pattern("destinationPostalCode", "body", *m.DestinationPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 
@@ -303,6 +339,10 @@ func (m *PPMShipment) validatePickupPostalCode(formats strfmt.Registry) error {
 		return err
 	}
 
+	if err := validate.Pattern("pickupPostalCode", "body", *m.PickupPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -312,6 +352,30 @@ func (m *PPMShipment) validateReviewedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("reviewedAt", "body", "date-time", m.ReviewedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateSecondaryDestinationPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("secondaryDestinationPostalCode", "body", *m.SecondaryDestinationPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateSecondaryPickupPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryPickupPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("secondaryPickupPostalCode", "body", *m.SecondaryPickupPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 

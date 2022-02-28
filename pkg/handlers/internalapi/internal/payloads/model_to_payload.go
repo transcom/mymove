@@ -29,45 +29,6 @@ func Address(address *models.Address) *internalmessages.Address {
 	}
 }
 
-func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment {
-	if ppmShipment == nil || ppmShipment.ID.IsNil() {
-		return nil
-	}
-
-	payloadPPMShipment := &internalmessages.PPMShipment{
-		ID:                             *handlers.FmtUUID(ppmShipment.ID),
-		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
-		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
-		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
-		Status:                         internalmessages.PPMShipmentStatus(ppmShipment.Status),
-		ExpectedDepartureDate:          handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
-		ActualMoveDate:                 handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
-		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
-		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
-		PickupPostalCode:               &ppmShipment.PickupPostalCode,
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		SitExpected:                    &ppmShipment.SitExpected,
-		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
-		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
-		HasProGear:                     ppmShipment.HasProGear,
-		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
-		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
-		AdvanceRequested:               ppmShipment.AdvanceRequested,
-		AdvanceID:                      handlers.FmtUUIDPtr(ppmShipment.AdvanceID),
-		AdvanceWorksheetID:             handlers.FmtUUIDPtr(ppmShipment.AdvanceWorksheetID),
-		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
-	}
-
-	if ppmShipment.EstimatedIncentive != nil {
-		int64EstimatedIncentive := int64(*ppmShipment.EstimatedIncentive)
-		payloadPPMShipment.EstimatedIncentive = &int64EstimatedIncentive
-	}
-
-	return payloadPPMShipment
-}
-
 // MTOAgent payload
 func MTOAgent(mtoAgent *models.MTOAgent) *internalmessages.MTOAgent {
 	if mtoAgent == nil {
@@ -103,6 +64,47 @@ func MTOAgents(mtoAgents *models.MTOAgents) *internalmessages.MTOAgents {
 	return &agents
 }
 
+// PPMShipment payload
+func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment {
+	if ppmShipment == nil || ppmShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadPPMShipment := &internalmessages.PPMShipment{
+		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
+		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
+		Status:                         internalmessages.PPMShipmentStatus(ppmShipment.Status),
+		ExpectedDepartureDate:          handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
+		ActualMoveDate:                 handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
+		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
+		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
+		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
+		PickupPostalCode:               &ppmShipment.PickupPostalCode,
+		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
+		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		SitExpected:                    &ppmShipment.SitExpected,
+		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
+		HasProGear:                     ppmShipment.HasProGear,
+		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		AdvanceRequested:               ppmShipment.AdvanceRequested,
+		AdvanceID:                      handlers.FmtUUIDPtr(ppmShipment.AdvanceID),
+		AdvanceWorksheetID:             handlers.FmtUUIDPtr(ppmShipment.AdvanceWorksheetID),
+		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+	}
+
+	if ppmShipment.EstimatedIncentive != nil {
+		int64EstimatedIncentive := int64(*ppmShipment.EstimatedIncentive)
+		payloadPPMShipment.EstimatedIncentive = &int64EstimatedIncentive
+	}
+
+	return payloadPPMShipment
+}
+
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
@@ -110,7 +112,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
-		PpmShipment:              PPMShipment(mtoShipment.PPMShipment),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
@@ -119,6 +120,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		Status:                   internalmessages.MTOShipmentStatus(mtoShipment.Status),
+		PpmShipment:              PPMShipment(mtoShipment.PPMShipment),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
