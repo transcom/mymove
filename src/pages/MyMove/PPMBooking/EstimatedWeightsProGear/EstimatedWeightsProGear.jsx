@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
@@ -9,6 +10,11 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { MtoShipmentShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
+import {
+  selectCurrentOrders,
+  selectMTOShipmentById,
+  selectServiceMemberFromLoggedInUser,
+} from 'store/entities/selectors';
 
 const EstimatedWeightsProGear = ({ orders, serviceMember, mtoShipment }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -84,4 +90,12 @@ EstimatedWeightsProGear.propTypes = {
   mtoShipment: MtoShipmentShape.isRequired,
 };
 
-export default EstimatedWeightsProGear;
+function mapStateToProps(state, ownProps) {
+  return {
+    orders: selectCurrentOrders(state) || {},
+    serviceMember: selectServiceMemberFromLoggedInUser(state),
+    mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId) || {},
+  };
+}
+
+export default connect(mapStateToProps)(EstimatedWeightsProGear);
