@@ -589,6 +589,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
+        {/* nav is being used here instead of LeftNav since there are two separate sections that need to be interated through */}
         <nav className={classnames(leftNavStyles.LeftNav, styles.sidebar)}>
           {nonShipmentSections.map((s) => {
             return (
