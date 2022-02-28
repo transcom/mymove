@@ -15,7 +15,7 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
     secondaryDestinationPostalCode,
     expectedDepartureDate,
     estimatedIncentive,
-  } = shipment.ppmShipment;
+  } = shipment?.ppmShipment || {};
 
   return (
     <div className={classnames(styles.EstimatedIncentiveDetails, 'container', 'container--popout')}>

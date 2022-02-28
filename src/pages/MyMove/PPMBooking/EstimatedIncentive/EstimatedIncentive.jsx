@@ -16,7 +16,6 @@ const EstimatedIncentive = () => {
   const history = useHistory();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const shipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
-
   const handleBack = () => {
     history.goBack();
   };
@@ -31,7 +30,7 @@ const EstimatedIncentive = () => {
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
-            <h1>Estimated Incentive</h1>
+            <h1>Estimated incentive</h1>
             <EstimatedIncentiveDetails shipment={shipment} />
             <div className={ppmBookingStyles.buttonContainer}>
               <Button className={ppmBookingStyles.backButton} type="button" onClick={handleBack} secondary outline>
