@@ -10,17 +10,26 @@ import (
 )
 
 type paramsCacheSubtestData struct {
-	paymentRequest       models.PaymentRequest
-	move                 models.Move
-	mtoShipment1         models.MTOShipment
-	mtoShipment2         models.MTOShipment
-	mtoServiceItem1      models.MTOServiceItem
-	mtoServiceItem3      models.MTOServiceItem
-	mtoServiceItem4      models.MTOServiceItem
-	serviceItemParamKey1 models.ServiceItemParamKey
-	serviceItemParamKey2 models.ServiceItemParamKey
-	serviceItemParamKey3 models.ServiceItemParamKey
-	estimatedWeight      unit.Pound
+	paymentRequest            models.PaymentRequest
+	move                      models.Move
+	mtoShipment1              models.MTOShipment
+	mtoShipment2              models.MTOShipment
+	mtoServiceItem1           models.MTOServiceItem
+	mtoServiceItem3           models.MTOServiceItem
+	mtoServiceItem4           models.MTOServiceItem
+	mtoServiceItemCrate1      models.MTOServiceItem
+	mtoServiceItemCrate2      models.MTOServiceItem
+	mtoServiceItemShuttle     models.MTOServiceItem
+	serviceItemParamKey1      models.ServiceItemParamKey
+	serviceItemParamKey2      models.ServiceItemParamKey
+	serviceItemParamKey3      models.ServiceItemParamKey
+	serviceItemParamKey4      models.ServiceItemParamKey
+	serviceItemParamKeyHeight models.ServiceItemParamKey
+	serviceItemParamKeyWidth  models.ServiceItemParamKey
+	serviceItemParamKeyLength models.ServiceItemParamKey
+	estimatedWeight           unit.Pound
+	shuttleEstimatedWeight    unit.Pound
+	shuttleActualWeight       unit.Pound
 }
 
 func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *paramsCacheSubtestData) {
@@ -55,6 +64,18 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	reService3 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeMS,
+		},
+	})
+
+	reServiceDCRT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDCRT,
+		},
+	})
+
+	reServiceDOSHUT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOSHUT,
 		},
 	})
 
@@ -153,6 +174,147 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		},
 	})
 
+	subtestData.shuttleEstimatedWeight = unit.Pound(400)
+	subtestData.shuttleActualWeight = unit.Pound(450)
+	subtestData.mtoServiceItemShuttle = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move:        subtestData.move,
+		ReService:   reServiceDOSHUT,
+		MTOShipment: subtestData.mtoShipment2,
+		MTOServiceItem: models.MTOServiceItem{
+			EstimatedWeight: &subtestData.shuttleEstimatedWeight,
+			ActualWeight:    &subtestData.shuttleActualWeight,
+		},
+	})
+
+	// DOSHUT estimated weight
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             subtestData.mtoServiceItemShuttle.ReServiceID,
+			ServiceItemParamKeyID: subtestData.serviceItemParamKey1.ID, // estimated weight
+			ServiceItemParamKey:   subtestData.serviceItemParamKey1,
+			IsOptional:            true,
+		},
+	})
+	subtestData.mtoServiceItemCrate1 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move:        subtestData.move,
+		ReService:   reServiceDCRT,
+		MTOShipment: subtestData.mtoShipment2,
+	})
+	_ = testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+		MTOServiceItemDimension: models.MTOServiceItemDimension{
+			MTOServiceItemID: subtestData.mtoServiceItemCrate1.ID,
+			Type:             models.DimensionTypeCrate,
+			// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
+			// when converted to cubic feet.
+			Length:    16*12*1000 + 1000,
+			Height:    8 * 12 * 1000,
+			Width:     8 * 12 * 1000,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+		},
+	})
+	_ = testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+		MTOServiceItemDimension: models.MTOServiceItemDimension{
+			MTOServiceItemID: subtestData.mtoServiceItemCrate1.ID,
+			Type:             models.DimensionTypeItem,
+			Length:           12000,
+			Height:           12000,
+			Width:            12000,
+			CreatedAt:        time.Time{},
+			UpdatedAt:        time.Time{},
+		},
+	})
+	subtestData.mtoServiceItemCrate2 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move:        subtestData.move,
+		ReService:   reServiceDCRT,
+		MTOShipment: subtestData.mtoShipment2,
+	})
+	_ = testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+		MTOServiceItemDimension: models.MTOServiceItemDimension{
+			MTOServiceItemID: subtestData.mtoServiceItemCrate2.ID,
+			Type:             models.DimensionTypeCrate,
+			// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
+			// when converted to cubic feet.
+			Length:    7000,
+			Height:    7000,
+			Width:     7000,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+		},
+	})
+	_ = testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+		MTOServiceItemDimension: models.MTOServiceItemDimension{
+			MTOServiceItemID: subtestData.mtoServiceItemCrate2.ID,
+			Type:             models.DimensionTypeItem,
+			Length:           6000,
+			Height:           6000,
+			Width:            6000,
+			CreatedAt:        time.Time{},
+			UpdatedAt:        time.Time{},
+		},
+	})
+	subtestData.serviceItemParamKeyHeight = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameDimensionHeight,
+			Description: "height",
+			Type:        models.ServiceItemParamTypeDecimal,
+			Origin:      models.ServiceItemParamOriginSystem,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             reServiceDCRT.ID,
+			ServiceItemParamKeyID: subtestData.serviceItemParamKeyHeight.ID,
+			ServiceItemParamKey:   subtestData.serviceItemParamKeyHeight,
+		},
+	})
+	subtestData.serviceItemParamKeyWidth = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameDimensionWidth,
+			Description: "width",
+			Type:        models.ServiceItemParamTypeDecimal,
+			Origin:      models.ServiceItemParamOriginSystem,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             reServiceDCRT.ID,
+			ServiceItemParamKeyID: subtestData.serviceItemParamKeyWidth.ID,
+			ServiceItemParamKey:   subtestData.serviceItemParamKeyWidth,
+		},
+	})
+	subtestData.serviceItemParamKeyLength = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameDimensionLength,
+			Description: "length",
+			Type:        models.ServiceItemParamTypeDecimal,
+			Origin:      models.ServiceItemParamOriginSystem,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             reServiceDCRT.ID,
+			ServiceItemParamKeyID: subtestData.serviceItemParamKeyLength.ID,
+			ServiceItemParamKey:   subtestData.serviceItemParamKeyLength,
+		},
+	})
+	subtestData.serviceItemParamKey4 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameCubicFeetBilled,
+			Description: "cubic feet billed",
+			Type:        models.ServiceItemParamTypeDecimal,
+			Origin:      models.ServiceItemParamOriginSystem,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             reServiceDCRT.ID,
+			ServiceItemParamKeyID: subtestData.serviceItemParamKey4.ID,
+			ServiceItemParamKey:   subtestData.serviceItemParamKey4,
+		},
+	})
+
 	return subtestData
 }
 
@@ -160,6 +322,50 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// Create some records we'll need to link to
 
 	paramCache := NewServiceParamsCache()
+
+	suite.Run("weight billed shuttling and DLH", func() {
+		// mtoSI3, PR, sipk1
+		subtestData := suite.makeSubtestData()
+
+		var paramLookupService1 *ServiceItemParamKeyData
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItem3.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+
+		var estimatedWeightStr string
+		estimatedWeightStr, err = paramLookupService1.ServiceParamValue(suite.AppContextForTest(), subtestData.serviceItemParamKey1.Key)
+		suite.FatalNoError(err)
+		expected := strconv.Itoa(subtestData.estimatedWeight.Int())
+		suite.Equal(expected, estimatedWeightStr)
+		//
+
+		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShuttle.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+
+		var shuttleEstimatedWeightStr string
+		shuttleEstimatedWeightStr, err = paramLookupService2.ServiceParamValue(suite.AppContextForTest(), subtestData.serviceItemParamKey1.Key)
+		suite.FatalNoError(err)
+		shuttleExpected := strconv.Itoa(subtestData.shuttleEstimatedWeight.Int())
+		suite.Equal(shuttleExpected, shuttleEstimatedWeightStr)
+	})
+
+	// cubic feet billed
+	suite.Run("cubic feet billed", func() {
+		subtestData := suite.makeSubtestData()
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemCrate1.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+
+		var cubicFeet string
+		cubicFeet, err = paramLookupService1.ServiceParamValue(suite.AppContextForTest(), subtestData.serviceItemParamKey4.Key)
+		suite.FatalNoError(err)
+		suite.Equal("1029.33", cubicFeet)
+
+		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemCrate2.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+
+		cubicFeet, err = paramLookupService2.ServiceParamValue(suite.AppContextForTest(), subtestData.serviceItemParamKey4.Key)
+		suite.FatalNoError(err)
+		suite.Equal("4.00", cubicFeet)
+	})
 
 	// Estimated Weight
 	suite.Run("Shipment 1 estimated weight", func() {
@@ -225,6 +431,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// DLH - for shipment 2
 	// Estimated Weight
 	suite.Run("Shipment 2 DLH estimated weight", func() {
+		// mtoSI3, PR, sipk1
 		subtestData := suite.makeSubtestData()
 
 		var paramLookupService2 *ServiceItemParamKeyData
