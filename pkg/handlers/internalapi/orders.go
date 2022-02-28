@@ -70,10 +70,10 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	if order.Entitlement != nil {
 		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
 	}
-	var originDutyStation models.DutyStation
-	originDutyStation = models.DutyStation{}
-	if order.OriginDutyStation != nil {
-		originDutyStation = *order.OriginDutyStation
+	var originDutyLocation models.DutyLocation
+	originDutyLocation = models.DutyLocation{}
+	if order.OriginDutyLocation != nil {
+		originDutyLocation = *order.OriginDutyLocation
 	}
 
 	ordersType := order.OrdersType
@@ -86,9 +86,9 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		ReportByDate:          handlers.FmtDate(order.ReportByDate),
 		OrdersType:            &ordersType,
 		OrdersTypeDetail:      order.OrdersTypeDetail,
-		OriginDutyStation:     payloadForDutyStationModel(originDutyStation),
+		OriginDutyStation:     payloadForDutyStationModel(originDutyLocation),
 		Grade:                 order.Grade,
-		NewDutyStation:        payloadForDutyStationModel(order.NewDutyStation),
+		NewDutyStation:        payloadForDutyStationModel(order.NewDutyLocation),
 		HasDependents:         handlers.FmtBool(order.HasDependents),
 		SpouseHasProGear:      handlers.FmtBool(order.SpouseHasProGear),
 		UploadedOrders:        orderPayload,
@@ -130,7 +130,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err)
 			}
-			newDutyStation, err := models.FetchDutyStation(appCtx.DB(), stationID)
+			newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err)
 			}
@@ -172,7 +172,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				*payload.OrdersType,
 				*payload.HasDependents,
 				*payload.SpouseHasProGear,
-				newDutyStation,
+				newDutyLocation,
 				payload.OrdersNumber,
 				payload.Tac,
 				payload.Sac,
@@ -250,7 +250,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
-	dutyStation, err := models.FetchDutyStation(appCtx.DB(), stationID)
+	dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(appCtx.Logger(), err)
 	}
@@ -266,8 +266,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	order.OrdersTypeDetail = payload.OrdersTypeDetail
 	order.HasDependents = *payload.HasDependents
 	order.SpouseHasProGear = *payload.SpouseHasProGear
-	order.NewDutyStationID = dutyStation.ID
-	order.NewDutyStation = dutyStation
+	order.NewDutyLocationID = dutyLocation.ID
+	order.NewDutyLocation = dutyLocation
 	order.TAC = payload.Tac
 	order.SAC = payload.Sac
 

@@ -44,6 +44,16 @@ EmptyMaxBillableWeight.args = {
   weightAllowance: 8000,
 };
 
+export const EmptyMaxBillableWeightNTSRelease = ToggledTemplate.bind({});
+
+EmptyMaxBillableWeightNTSRelease.args = {
+  billableWeightJustification: '',
+  estimatedWeight: 13750,
+  title: 'Max billable weight',
+  weightAllowance: 8000,
+  isNTSRShipment: true,
+};
+
 export const BillableWeight = Template.bind({});
 
 BillableWeight.args = {

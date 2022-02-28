@@ -61,8 +61,8 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.Equal(order.ID.String(), ordersPayload.ID.String())
 	suite.Equal(move.Locator, ordersPayload.MoveCode)
 	suite.Equal(order.ServiceMemberID.String(), ordersPayload.Customer.ID.String())
-	suite.Equal(order.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
-	suite.NotNil(order.NewDutyStation)
+	suite.Equal(order.NewDutyLocationID.String(), ordersPayload.DestinationDutyStation.ID.String())
+	suite.NotNil(order.NewDutyLocation)
 	payloadEntitlement := ordersPayload.Entitlement
 	suite.Equal((*order.EntitlementID).String(), payloadEntitlement.ID.String())
 	orderEntitlement := order.Entitlement
@@ -71,8 +71,8 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.EqualValues(orderEntitlement.ProGearWeightSpouse, payloadEntitlement.ProGearWeightSpouse)
 	suite.EqualValues(orderEntitlement.RequiredMedicalEquipmentWeight, payloadEntitlement.RequiredMedicalEquipmentWeight)
 	suite.EqualValues(orderEntitlement.OrganizationalClothingAndIndividualEquipment, payloadEntitlement.OrganizationalClothingAndIndividualEquipment)
-	suite.Equal(order.OriginDutyStation.ID.String(), ordersPayload.OriginDutyStation.ID.String())
-	suite.NotZero(order.OriginDutyStation)
+	suite.Equal(order.OriginDutyLocation.ID.String(), ordersPayload.OriginDutyStation.ID.String())
+	suite.NotZero(order.OriginDutyLocation)
 	suite.NotZero(ordersPayload.DateIssued)
 }
 
@@ -163,12 +163,12 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 }
 
 type updateOrderHandlerAmendedUploadSubtestData struct {
-	handlerContext         handlers.HandlerContext
-	userUploader           *uploader.UserUploader
-	amendedOrder           models.Order
-	approvalsRequestedMove models.Move
-	originDutyStation      models.DutyStation
-	destinationDutyStation models.DutyStation
+	handlerContext          handlers.HandlerContext
+	userUploader            *uploader.UserUploader
+	amendedOrder            models.Order
+	approvalsRequestedMove  models.Move
+	originDutyLocation      models.DutyLocation
+	destinationDutyLocation models.DutyLocation
 }
 
 func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (subtestData *updateOrderHandlerAmendedUploadSubtestData) {
@@ -200,8 +200,8 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 
 	subtestData.amendedOrder = subtestData.approvalsRequestedMove.Orders
 
-	subtestData.originDutyStation = testdatagen.MakeDefaultDutyStation(suite.DB())
-	subtestData.destinationDutyStation = testdatagen.MakeDefaultDutyStation(suite.DB())
+	subtestData.originDutyLocation = testdatagen.MakeDefaultDutyLocation(suite.DB())
+	subtestData.destinationDutyLocation = testdatagen.MakeDefaultDutyLocation(suite.DB())
 
 	return subtestData
 }
@@ -228,8 +228,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		subtestData := suite.makeUpdateOrderHandlerAmendedUploadSubtestData()
 		context := subtestData.handlerContext
 		userUploader := subtestData.userUploader
-		destinationDutyStation := subtestData.destinationDutyStation
-		originDutyStation := subtestData.originDutyStation
+		destinationDutyStation := subtestData.destinationDutyLocation
+		originDutyStation := subtestData.originDutyLocation
 
 		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 		upload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
@@ -322,8 +322,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	suite.Run("Does not update move status if orders are not acknowledged", func() {
 		subtestData := suite.makeUpdateOrderHandlerAmendedUploadSubtestData()
 		context := subtestData.handlerContext
-		destinationDutyStation := subtestData.destinationDutyStation
-		originDutyStation := subtestData.originDutyStation
+		destinationDutyStation := subtestData.destinationDutyLocation
+		originDutyStation := subtestData.originDutyLocation
 		amendedOrder := subtestData.amendedOrder
 		approvalsRequestedMove := subtestData.approvalsRequestedMove
 
@@ -387,8 +387,8 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 	subtestData.move = testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
 	subtestData.order = subtestData.move.Orders
 
-	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	originDutyStation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	destinationDutyStation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
@@ -683,8 +683,8 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	subtestData.move = testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 	subtestData.order = subtestData.move.Orders
-	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	originDutyStation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	destinationDutyStation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 
 	subtestData.body = &ghcmessages.CounselingUpdateOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),

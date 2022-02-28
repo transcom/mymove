@@ -2,6 +2,8 @@ import React from 'react';
 
 import ShipmentCard from './ShipmentCard';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 export default {
   title: 'Office Components/BillableWeightShipmentCard',
   component: ShipmentCard,
@@ -26,10 +28,18 @@ const props = {
   reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
   maxBillableWeight: 1200,
   totalBillableWeight: 1500,
+  shipmentType: 'HHG',
 };
 
-export const Card = () => (
+export const HHG = () => (
   <div style={{ margin: '0 auto', height: '100%', width: 336 }}>
     <ShipmentCard {...props} />
   </div>
 );
+
+export const NTSrelease = () => (
+  <div style={{ margin: '0 auto', height: '100%', width: 336 }}>
+    <ShipmentCard {...props} shipmentType={SHIPMENT_OPTIONS.NTSR} />
+  </div>
+);
+NTSrelease.storyName = 'NTS-release';

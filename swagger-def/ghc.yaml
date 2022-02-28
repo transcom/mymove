@@ -2475,7 +2475,7 @@ definitions:
     enum:
       - DRAFT
       - NEEDS SERVICE COUNSELING
-      - SEVICE COUNSELING COMPLETED
+      - SERVICE COUNSELING COMPLETED
       - SUBMITTED
       - APPROVALS REQUESTED
       - APPROVED
@@ -2556,9 +2556,9 @@ definitions:
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
-        $ref: 'definitions/DutyStation.yaml'
+        $ref: 'definitions/DutyLocation.yaml'
       originDutyStation:
-        $ref: 'definitions/DutyStation.yaml'
+        $ref: 'definitions/DutyLocation.yaml'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -3158,16 +3158,8 @@ definitions:
         allOf:
           - $ref: 'definitions/Address.yaml'
         x-nullable: true
-      destinationAddressType:
-        type: string
-        title: Destination Address Type
-        example: Other than authorized
-        enum:
-          - HOME_OF_RECORD
-          - HOME_OF_SELECTION
-          - PLACE_ENTERED_ACTIVE_DUTY
-          - OTHER_THAN_AUTHORIZED
-        x-nullable: true
+      destinationType:
+        $ref: 'definitions/DestinationType.yaml'
       agents:
         $ref: 'definitions/MTOAgents.yaml'
         x-nullable: true
@@ -3255,16 +3247,8 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
-      destinationAddressType:
-        type: string
-        title: Destination Address Type
-        example: Other than authorized
-        x-nullable: true
-        enum:
-          - HOME_OF_RECORD
-          - HOME_OF_SELECTION
-          - PLACE_ENTERED_ACTIVE_DUTY
-          - OTHER_THAN_AUTHORIZED
+      destinationType:
+        $ref: 'definitions/DestinationType.yaml'
       shipmentType:
         $ref: 'definitions/MTOShipmentType.yaml'
       tacType:
@@ -3465,7 +3449,7 @@ definitions:
       customer:
         $ref: '#/definitions/Customer'
       status:
-        $ref: '#/definitions/QueueMoveStatus'
+        $ref: '#/definitions/MoveStatus'
       locator:
         type: string
       submittedAt:
@@ -3497,12 +3481,6 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
-  QueueMoveStatus:
-    type: string
-    enum:
-      - New move
-      - Move approved
-      - Approvals requested
   QueuePaymentRequest:
     type: object
     properties:
@@ -3518,7 +3496,7 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       age:
         type: number
-        format: integer
+        format: double
         description: Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.
       submittedAt:
         type: string

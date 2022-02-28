@@ -67,7 +67,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 		weightBilledIndex := 3
 		if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
-			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
+			suite.FailNow("failed", "Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
 		}
 		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
@@ -116,7 +116,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 		weightBilledIndex := 3
 		if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
-			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
+			suite.FailNow("failed", "Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
 		}
 		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
@@ -150,7 +150,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 		weightBilledIndex := 3
 		if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
-			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
+			suite.FailNow("failed", "Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
 		}
 		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 

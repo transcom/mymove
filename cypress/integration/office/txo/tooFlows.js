@@ -39,7 +39,7 @@ describe('TOO user', () => {
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('#approved-shipments').should('not.exist');
     cy.get('#requested-shipments');
-    cy.contains('Approve selected shipments').should('be.disabled');
+    cy.contains('Approve selected').should('be.disabled');
     cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
 
     // Select & approve items
@@ -53,7 +53,7 @@ describe('TOO user', () => {
       cy.get('label[for="shipmentManagementFee"]').click();
       cy.get('label[for="counselingFee"]').click();
       // Open modal
-      const button = cy.contains('Approve selected shipments');
+      const button = cy.contains('Approve selected');
       button.should('be.enabled');
       button.click();
       cy.get('#approvalConfirmationModal [data-testid="modal"]').then(($modal) => {
@@ -86,7 +86,7 @@ describe('TOO user', () => {
     cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
     cy.get('#approved-shipments');
     cy.get('#requested-shipments').should('not.exist');
-    cy.contains('Approve selected shipments').should('not.exist');
+    cy.contains('Approve selected').should('not.exist');
   });
 
   it('is able to flag a move for financial review', () => {
@@ -439,21 +439,5 @@ describe('TOO user', () => {
     cy.contains('Serious illness of the member');
     cy.contains('The customer requested an extension.');
     cy.contains('The service member is unable to move into their new home at the expected time');
-  });
-
-  it('is able to edit shipment destination type', () => {
-    const moveLocator = 'PCCIV1';
-
-    // TOO Moves queue
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
-    // Edit the shipment
-    cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
-    // Select destination type for retiree
-    cy.get('select[name="destinationAddressType"]').select('Home of selection (HOS)');
-    cy.get('[data-testid="submitForm"]').click();
-    // the shipment should be saved with the type
-    cy.wait('@patchShipment');
   });
 });

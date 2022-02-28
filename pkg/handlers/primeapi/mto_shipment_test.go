@@ -298,13 +298,13 @@ func ClearNonUpdateFields(mtoShipment *models.MTOShipment) *primemessages.MTOShi
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	// Create an available shipment in DB
-	now := time.Now()
+	now := testdatagen.CurrentDateWithoutTime()
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
 			Status:       models.MTOShipmentStatusApproved,
-			ApprovedDate: &now,
+			ApprovedDate: now,
 		},
 		SecondaryPickupAddress:   testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{}),
 		SecondaryDeliveryAddress: testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{}),
@@ -421,10 +421,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             data.
 
 		// Create an update with just diversion and actualPickupDate
-		now := time.Now()
+		now := testdatagen.CurrentDateWithoutTime()
 		minimalUpdate := primemessages.UpdateMTOShipment{
 			Diversion:        true,
-			ActualPickupDate: handlers.FmtDatePtr(&now),
+			ActualPickupDate: handlers.FmtDatePtr(now),
 		}
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
@@ -458,6 +458,58 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Confirm new values
 		suite.Equal(params.Body.Diversion, okPayload.Diversion)
 		suite.Equal(params.Body.ActualPickupDate.String(), okPayload.ActualPickupDate.String())
+
+		// Refresh local copy of shipment from DB for etag regeneration in future tests
+		shipment = suite.refreshFromDB(shipment.ID)
+
+	})
+
+	suite.T().Run("PATCH success 200 update destination type", func(t *testing.T) {
+		// Under test: updateMTOShipmentHandler.Handle
+		// Mocked:     Planner
+		// Set up:     We use the normal (non-minimal) shipment we created earlier
+		//             We provide an update with minimal changes
+		// Expected:   Handler returns OK
+		//             Minimal updates are completed, old values retained for rest of
+		//             shipment. This tests that PATCH is not accidentally clearing any existing
+		//             data.
+
+		// Create an update with just destinationAddressType
+		destinationType := primemessages.DestinationTypeHOMEOFRECORD
+		minimalUpdate := primemessages.UpdateMTOShipment{
+			DestinationType: &destinationType,
+		}
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          &minimalUpdate,
+			IfMatch:       eTag,
+		}
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESPONSE
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		okPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+		suite.Equal(shipment.ID.String(), okPayload.ID.String())
+
+		// Confirm PATCH working as expected; non-updated values still exist
+		suite.EqualDatePtr(shipment.ApprovedDate, okPayload.ApprovedDate)
+		suite.EqualDatePtr(shipment.FirstAvailableDeliveryDate, okPayload.FirstAvailableDeliveryDate)
+		suite.EqualDatePtr(shipment.RequestedPickupDate, okPayload.RequestedPickupDate)
+		suite.EqualDatePtr(shipment.RequiredDeliveryDate, okPayload.RequiredDeliveryDate)
+		suite.EqualDatePtr(shipment.ScheduledPickupDate, okPayload.ScheduledPickupDate)
+
+		suite.EqualAddress(*shipment.PickupAddress, &okPayload.PickupAddress.Address, true)
+		suite.EqualAddress(*shipment.DestinationAddress, &okPayload.DestinationAddress.Address, true)
+		suite.EqualAddress(*shipment.SecondaryDeliveryAddress, &okPayload.SecondaryDeliveryAddress.Address, true)
+		suite.EqualAddress(*shipment.SecondaryPickupAddress, &okPayload.SecondaryPickupAddress.Address, true)
+
+		// Confirm new value
+		suite.Equal(params.Body.DestinationType, okPayload.DestinationType)
 
 		// Refresh local copy of shipment from DB for etag regeneration in future tests
 		shipment = suite.refreshFromDB(shipment.ID)

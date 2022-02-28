@@ -34,7 +34,7 @@ export const shipmentStatuses = {
   DIVERSION_REQUESTED: 'DIVERSION_REQUESTED',
 };
 
-export const shipmentDestinationAddressTypes = {
+export const shipmentDestinationTypes = {
   HOME_OF_RECORD: 'Home of record (HOR)',
   HOME_OF_SELECTION: 'Home of selection (HOS)',
   PLACE_ENTERED_ACTIVE_DUTY: 'Place entered active duty (PLEAD)',

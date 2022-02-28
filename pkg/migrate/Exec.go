@@ -9,6 +9,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 var (
@@ -17,7 +18,7 @@ var (
 )
 
 // Exec executes a query
-func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
+func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration, logger *zap.Logger) error {
 
 	scanner := bufio.NewScanner(inputReader)
 	lines := make(chan string, 1000)
@@ -47,7 +48,7 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 	}()
 
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements, wait)
+	go SplitStatements(lines, statements, wait, logger)
 
 	var match []string
 	var preparedStmt *sql.Stmt

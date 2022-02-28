@@ -62,7 +62,7 @@ type ServiceMember struct {
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
-	DutyStation            DutyStation               `belongs_to:"duty_stations" fk_id:"duty_station_id"`
+	DutyStation            DutyLocation              `belongs_to:"duty_stations" fk_id:"duty_station_id"`
 	RequiresAccessCode     bool                      `json:"requires_access_code" db:"requires_access_code"`
 }
 
@@ -100,8 +100,8 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 		"DutyStation.Address",
 		"DutyStation.TransportationOffice",
 		"DutyStation.TransportationOffice.PhoneLines",
-		"Orders.NewDutyStation.TransportationOffice",
-		"Orders.OriginDutyStation",
+		"Orders.NewDutyLocation.TransportationOffice",
+		"Orders.OriginDutyLocation",
 		"Orders.UploadedOrders.UserUploads.Upload",
 		"Orders.Moves",
 		"ResidentialAddress").Find(&serviceMember, id)
@@ -217,12 +217,12 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	ordersType internalmessages.OrdersType,
 	hasDependents bool,
 	spouseHasProGear bool,
-	newDutyStation DutyStation,
+	newDutyStation DutyLocation,
 	ordersNumber *string,
 	tac *string,
 	sac *string,
 	departmentIndicator *string,
-	originDutyStation *DutyStation,
+	originDutyStation *DutyLocation,
 	grade *string,
 	entitlement *Entitlement) (Order, *validate.Errors, error) {
 
@@ -251,8 +251,8 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			OrdersType:          ordersType,
 			HasDependents:       hasDependents,
 			SpouseHasProGear:    spouseHasProGear,
-			NewDutyStationID:    newDutyStation.ID,
-			NewDutyStation:      newDutyStation,
+			NewDutyLocationID:   newDutyStation.ID,
+			NewDutyLocation:     newDutyStation,
 			UploadedOrders:      uploadedOrders,
 			UploadedOrdersID:    uploadedOrders.ID,
 			Status:              OrderStatusDRAFT,
@@ -261,7 +261,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			SAC:                 sac,
 			DepartmentIndicator: departmentIndicator,
 			Grade:               grade,
-			OriginDutyStation:   originDutyStation,
+			OriginDutyLocation:  originDutyStation,
 			Entitlement:         entitlement,
 		}
 
@@ -331,9 +331,9 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 	var order Order
 	query := db.Where("orders.service_member_id = $1", s.ID).Order("created_at desc")
 	err := query.EagerPreload("ServiceMember.User",
-		"OriginDutyStation.Address",
-		"OriginDutyStation.TransportationOffice",
-		"NewDutyStation.Address",
+		"OriginDutyLocation.Address",
+		"OriginDutyLocation.TransportationOffice",
+		"NewDutyLocation.Address",
 		"UploadedOrders",
 		"UploadedAmendedOrders",
 		"Moves.PersonallyProcuredMoves",

@@ -208,7 +208,12 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginSITPickupServiceItem(
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(distance)),
+			},
+			{
+				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
 				Value:   dopsitTestRequestedPickupDate.Format(DateParamFormat),
 			},
@@ -223,24 +228,9 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginSITPickupServiceItem(
 				Value:   fmt.Sprintf("%d", dopsitTestSchedule),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightOriginal,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   fmt.Sprintf("%d", int(dopsitTestWeight)),
-			},
-			{
 				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dopsitTestWeight)),
-			},
-			{
-				Key:     models.ServiceItemParamNameWeightEstimated,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "2400",
-			},
-			{
-				Key:     models.ServiceItemParamNameZipSITOriginHHGOriginalAddress,
-				KeyType: models.ServiceItemParamTypeString,
-				Value:   zipOriginal,
 			},
 			{
 				Key:     models.ServiceItemParamNameZipSITOriginHHGActualAddress,
@@ -248,9 +238,9 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginSITPickupServiceItem(
 				Value:   zipActual,
 			},
 			{
-				Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   fmt.Sprintf("%d", int(distance)),
+				Key:     models.ServiceItemParamNameZipSITOriginHHGOriginalAddress,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   zipOriginal,
 			},
 		},
 	)

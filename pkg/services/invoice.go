@@ -36,7 +36,7 @@ type GHCPaymentRequestInvoiceGenerator interface {
 // SyncadaSFTPSender is the exported interface for sending an EDI to Syncada
 //go:generate mockery --name SyncadaSFTPSender --disable-version-string
 type SyncadaSFTPSender interface {
-	SendToSyncadaViaSFTP(localDataReader io.Reader, syncadaFileName string) (int64, error)
+	SendToSyncadaViaSFTP(appCtx appcontext.AppContext, localDataReader io.Reader, syncadaFileName string) (int64, error)
 }
 
 // SFTPFiler is the exported interface for an SFTP client file

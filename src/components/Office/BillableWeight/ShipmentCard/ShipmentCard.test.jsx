@@ -5,6 +5,7 @@ import ShipmentCard from './ShipmentCard';
 
 import { formatAddressShort, formatDateFromIso } from 'shared/formatters';
 import { formatWeight } from 'utils/formatters';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const tomorrow = new Date();
 tomorrow.setDate(tomorrow.getDate() + 1);
@@ -30,6 +31,7 @@ const defaultShipmentCardProps = {
   adjustedWeight: null,
   reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
   editEntity: () => {},
+  shipmentType: SHIPMENT_OPTIONS.HHG,
 };
 
 describe('ShipmentCard', () => {
@@ -53,6 +55,7 @@ describe('ShipmentCard', () => {
       originalWeight: 4300,
       reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
       editEntity: () => {},
+      shipmentType: SHIPMENT_OPTIONS.HHG,
     };
 
     render(<ShipmentCard {...defaultProps} />);
@@ -79,6 +82,9 @@ describe('ShipmentCard', () => {
     // addresses
     expect(screen.getByText(formatAddressShort(defaultProps.pickupAddress))).toBeInTheDocument();
     expect(screen.getByText(formatAddressShort(defaultProps.destinationAddress))).toBeInTheDocument();
+
+    // doesn't show NTS-release row
+    expect(screen.queryByTestId('shipmentWeight')).not.toBeInTheDocument();
   });
 
   describe('warning indicator', () => {
@@ -192,10 +198,40 @@ describe('ShipmentCard', () => {
       estimatedWeight: 5000,
       originalWeight: 4300,
       editEntity: () => {},
+      shipmentType: SHIPMENT_OPTIONS.HHG,
     };
 
     render(<ShipmentCard {...defaultProps} />);
     // labels
     expect(screen.queryByText('Reweigh remarks')).not.toBeInTheDocument();
+  });
+
+  it('renders the card as NTS-release', () => {
+    const props = {
+      billableWeight: 4014,
+      maxBillableWeight: 0,
+      dateReweighRequested: new Date().toISOString(),
+      departedDate: tomorrow.toISOString(),
+      pickupAddress: {
+        city: 'Rancho Santa Margarita',
+        state: 'CA',
+        postalCode: '92688',
+      },
+      destinationAddress: {
+        city: 'West Springfield Town',
+        state: 'MA',
+        postalCode: '01089',
+      },
+      estimatedWeight: 5000,
+      originalWeight: 4300,
+      reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
+      editEntity: () => {},
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+    };
+
+    render(<ShipmentCard {...props} />);
+
+    expect(screen.getByTestId('shipmentWeight')).toHaveTextContent('4,300 lbs');
+    expect(screen.queryByTestId('estimatedWeight')).not.toBeInTheDocument();
   });
 });

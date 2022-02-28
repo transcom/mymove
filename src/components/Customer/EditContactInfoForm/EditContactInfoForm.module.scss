@@ -17,5 +17,9 @@
     > :global(.usa-fieldset > .usa-form-group:first-of-type .usa-label) {
       @include u-margin-top(3);
     }
+
+    > :global(.usa-fieldset > .usa-form-group.usa-form-group--error:first-of-type .usa-label) {
+      @include u-margin-top(0);
+    }
   }
 }

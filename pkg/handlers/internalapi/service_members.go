@@ -83,13 +83,13 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 			backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
 
 			var stationID *uuid.UUID
-			var station models.DutyStation
+			var station models.DutyLocation
 			if params.CreateServiceMemberPayload.CurrentStationID != nil {
 				id, err := uuid.FromString(params.CreateServiceMemberPayload.CurrentStationID.String())
 				if err != nil {
 					return handlers.ResponseForError(appCtx.Logger(), err)
 				}
-				s, err := models.FetchDutyStation(appCtx.DB(), id)
+				s, err := models.FetchDutyLocation(appCtx.DB(), id)
 				if err != nil {
 					return handlers.ResponseForError(appCtx.Logger(), err)
 				}
@@ -221,9 +221,9 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 					order.Grade = serviceMemberRank
 				}
 
-				if serviceMember.DutyStation.ID != order.OriginDutyStation.ID {
-					order.OriginDutyStation = &serviceMember.DutyStation
-					order.OriginDutyStationID = &serviceMember.DutyStation.ID
+				if serviceMember.DutyStation.ID != order.OriginDutyLocation.ID {
+					order.OriginDutyLocation = &serviceMember.DutyStation
+					order.OriginDutyLocationID = &serviceMember.DutyStation.ID
 				}
 
 				verrs, err = appCtx.DB().ValidateAndSave(&order)
@@ -246,7 +246,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(appCtx appconte
 				return validate.NewErrors(), err
 			}
 			// Fetch the model partially as a validation on the ID
-			station, err := models.FetchDutyStation(appCtx.DB(), stationID)
+			station, err := models.FetchDutyLocation(appCtx.DB(), stationID)
 			if err != nil {
 				return validate.NewErrors(), err
 			}

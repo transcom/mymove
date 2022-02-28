@@ -39,7 +39,7 @@ func (suite *RateEngineSuite) TestPricersTestCases() {
 	for i, testCase := range pricersTestCases {
 		result := testCase.pricer.price(testCase.rate, testCase.quantity, testCase.discount)
 		if !suite.Equal(result, testCase.expected) {
-			fmt.Printf("Failure on test case %d (0 indexed)\n", i)
+			suite.Fail(fmt.Sprintf("Failure on test case %d (0 indexed)\n", i))
 		}
 	}
 }

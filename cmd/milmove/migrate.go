@@ -314,7 +314,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 			return errors.Errorf("Error parsing migration filename %q", uri)
 		}
 		b := &migrate.Builder{Match: m, Path: uri}
-		migration, errCompile := b.Compile(s3Client, wait)
+		migration, errCompile := b.Compile(s3Client, wait, logger)
 		if errCompile != nil {
 			return errors.Wrap(errCompile, "Error compiling migration")
 		}

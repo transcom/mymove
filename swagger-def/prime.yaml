@@ -1699,6 +1699,8 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      destinationType:
+        $ref: 'definitions/DestinationType.yaml'
       secondaryPickupAddress:
         description: A second pickup address for this shipment, if the customer entered one. An optional field.
         allOf:
@@ -2157,6 +2159,8 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      destinationType:
+        $ref: 'definitions/DestinationType.yaml'
       secondaryPickupAddress:
         description: A second pickup address for this shipment, if the customer entered one. An optional field.
         allOf:

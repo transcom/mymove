@@ -23,7 +23,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateOrder() {
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
-	station := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	station := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
 	testdatagen.MakeDefaultContractor(suite.DB())
 
 	req := httptest.NewRequest("POST", "/orders", nil)
@@ -73,21 +73,21 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
-	suite.Equal(sm.DutyStationID, createdOrder.OriginDutyStationID)
+	suite.Equal(sm.DutyStationID, createdOrder.OriginDutyLocationID)
 	suite.Equal((*string)(sm.Rank), createdOrder.Grade)
 	suite.Assertions.Equal(*swag.Int64(8000), *okResponse.Payload.AuthorizedWeight)
 	suite.NotNil(&createdOrder.Entitlement)
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
-	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
 		},
 	})
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			OriginDutyStation: &dutyStation,
+			OriginDutyLocation: &dutyLocation,
 		},
 	})
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -122,8 +122,8 @@ func (suite *HandlerSuite) TestShowOrder() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrder() {
-	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
 		},
 	})
@@ -131,7 +131,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			OriginDutyStation: &dutyStation,
+			OriginDutyLocation: &dutyLocation,
 		},
 		Move: mto,
 	})
@@ -183,7 +183,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 		ReportByDate:        handlers.FmtDate(order.ReportByDate),
 		OrdersType:          newOrdersType,
 		OrdersTypeDetail:    &newOrdersTypeDetail,
-		NewDutyStationID:    handlers.FmtUUID(order.NewDutyStationID),
+		NewDutyStationID:    handlers.FmtUUID(order.NewDutyLocationID),
 		Tac:                 order.TAC,
 		Sac:                 handlers.FmtString("N3TEST"),
 		DepartmentIndicator: &departmentIndicator,

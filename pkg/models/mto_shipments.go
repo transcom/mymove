@@ -86,63 +86,64 @@ const (
 	LOATypeNTS LOAType = "NTS"
 )
 
-type DestinationAddressType string
+type DestinationType string
 
 const (
-	DestinationAddressTypeHomeOfRecord           DestinationAddressType = "HOME_OF_RECORD"
-	DestinationAddressTypeHomeOfSelection        DestinationAddressType = "HOME_OF_SELECTION"
-	DestinationAddressTypePlaceEnteredActiveDuty DestinationAddressType = "PLACE_ENTERED_ACTIVE_DUTY"
-	DestinationAddressTypeOtherThanAuthorized    DestinationAddressType = "OTHER_THAN_AUTHORIZED"
+	DestinationTypeHomeOfRecord           DestinationType = "HOME_OF_RECORD"
+	DestinationTypeHomeOfSelection        DestinationType = "HOME_OF_SELECTION"
+	DestinationTypePlaceEnteredActiveDuty DestinationType = "PLACE_ENTERED_ACTIVE_DUTY"
+	DestinationTypeOtherThanAuthorized    DestinationType = "OTHER_THAN_AUTHORIZED"
 )
 
 // MTOShipment is an object representing data for a move task order shipment
 type MTOShipment struct {
-	ID                               uuid.UUID               `db:"id"`
-	MoveTaskOrder                    Move                    `belongs_to:"moves" fk_id:"move_id"`
-	MoveTaskOrderID                  uuid.UUID               `db:"move_id"`
-	ScheduledPickupDate              *time.Time              `db:"scheduled_pickup_date"`
-	RequestedPickupDate              *time.Time              `db:"requested_pickup_date"`
-	RequestedDeliveryDate            *time.Time              `db:"requested_delivery_date"`
-	ApprovedDate                     *time.Time              `db:"approved_date"`
-	FirstAvailableDeliveryDate       *time.Time              `db:"first_available_delivery_date"`
-	ActualPickupDate                 *time.Time              `db:"actual_pickup_date"`
-	RequiredDeliveryDate             *time.Time              `db:"required_delivery_date"`
-	CustomerRemarks                  *string                 `db:"customer_remarks"`
-	CounselorRemarks                 *string                 `db:"counselor_remarks"`
-	PickupAddress                    *Address                `belongs_to:"addresses" fk_id:"pickup_address_id"`
-	PickupAddressID                  *uuid.UUID              `db:"pickup_address_id"`
-	DestinationAddress               *Address                `belongs_to:"addresses" fk_id:"destination_address_id"`
-	DestinationAddressID             *uuid.UUID              `db:"destination_address_id"`
-	DestinationAddressType           *DestinationAddressType `db:"destination_address_type"`
-	MTOAgents                        MTOAgents               `has_many:"mto_agents" fk_id:"mto_shipment_id"`
-	MTOServiceItems                  MTOServiceItems         `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
-	SecondaryPickupAddress           *Address                `belongs_to:"addresses" fk_id:"secondary_pickup_address_id"`
-	SecondaryPickupAddressID         *uuid.UUID              `db:"secondary_pickup_address_id"`
-	SecondaryDeliveryAddress         *Address                `belongs_to:"addresses" fk_id:"secondary_delivery_address_id"`
-	SecondaryDeliveryAddressID       *uuid.UUID              `db:"secondary_delivery_address_id"`
-	SITDaysAllowance                 *int                    `db:"sit_days_allowance"`
-	SITExtensions                    SITExtensions           `has_many:"sit_extensions" fk_id:"mto_shipment_id"`
-	PrimeEstimatedWeight             *unit.Pound             `db:"prime_estimated_weight"`
-	PrimeEstimatedWeightRecordedDate *time.Time              `db:"prime_estimated_weight_recorded_date"`
-	PrimeActualWeight                *unit.Pound             `db:"prime_actual_weight"`
-	BillableWeightCap                *unit.Pound             `db:"billable_weight_cap"`
-	BillableWeightJustification      *string                 `db:"billable_weight_justification"`
-	NTSRecordedWeight                *unit.Pound             `db:"nts_recorded_weight"`
-	ShipmentType                     MTOShipmentType         `db:"shipment_type"`
-	Status                           MTOShipmentStatus       `db:"status"`
-	Diversion                        bool                    `db:"diversion"`
-	RejectionReason                  *string                 `db:"rejection_reason"`
-	Distance                         *unit.Miles             `db:"distance"`
-	Reweigh                          *Reweigh                `has_one:"reweighs" fk_id:"shipment_id"`
-	UsesExternalVendor               bool                    `db:"uses_external_vendor"`
-	StorageFacility                  *StorageFacility        `belongs_to:"storage_facilities" fk:"storage_facility_id"`
-	StorageFacilityID                *uuid.UUID              `db:"storage_facility_id"`
-	ServiceOrderNumber               *string                 `db:"service_order_number"`
-	TACType                          *LOAType                `db:"tac_type"`
-	SACType                          *LOAType                `db:"sac_type"`
-	CreatedAt                        time.Time               `db:"created_at"`
-	UpdatedAt                        time.Time               `db:"updated_at"`
-	DeletedAt                        *time.Time              `db:"deleted_at"`
+	ID                               uuid.UUID         `db:"id"`
+	MoveTaskOrder                    Move              `belongs_to:"moves" fk_id:"move_id"`
+	MoveTaskOrderID                  uuid.UUID         `db:"move_id"`
+	ScheduledPickupDate              *time.Time        `db:"scheduled_pickup_date"`
+	RequestedPickupDate              *time.Time        `db:"requested_pickup_date"`
+	RequestedDeliveryDate            *time.Time        `db:"requested_delivery_date"`
+	ApprovedDate                     *time.Time        `db:"approved_date"`
+	FirstAvailableDeliveryDate       *time.Time        `db:"first_available_delivery_date"`
+	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`
+	RequiredDeliveryDate             *time.Time        `db:"required_delivery_date"`
+	CustomerRemarks                  *string           `db:"customer_remarks"`
+	CounselorRemarks                 *string           `db:"counselor_remarks"`
+	PickupAddress                    *Address          `belongs_to:"addresses" fk_id:"pickup_address_id"`
+	PickupAddressID                  *uuid.UUID        `db:"pickup_address_id"`
+	DestinationAddress               *Address          `belongs_to:"addresses" fk_id:"destination_address_id"`
+	DestinationAddressID             *uuid.UUID        `db:"destination_address_id"`
+	DestinationType                  *DestinationType  `db:"destination_address_type"`
+	MTOAgents                        MTOAgents         `has_many:"mto_agents" fk_id:"mto_shipment_id"`
+	MTOServiceItems                  MTOServiceItems   `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
+	SecondaryPickupAddress           *Address          `belongs_to:"addresses" fk_id:"secondary_pickup_address_id"`
+	SecondaryPickupAddressID         *uuid.UUID        `db:"secondary_pickup_address_id"`
+	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses" fk_id:"secondary_delivery_address_id"`
+	SecondaryDeliveryAddressID       *uuid.UUID        `db:"secondary_delivery_address_id"`
+	SITDaysAllowance                 *int              `db:"sit_days_allowance"`
+	SITExtensions                    SITExtensions     `has_many:"sit_extensions" fk_id:"mto_shipment_id"`
+	PrimeEstimatedWeight             *unit.Pound       `db:"prime_estimated_weight"`
+	PrimeEstimatedWeightRecordedDate *time.Time        `db:"prime_estimated_weight_recorded_date"`
+	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
+	BillableWeightCap                *unit.Pound       `db:"billable_weight_cap"`
+	BillableWeightJustification      *string           `db:"billable_weight_justification"`
+	NTSRecordedWeight                *unit.Pound       `db:"nts_recorded_weight"`
+	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
+	Status                           MTOShipmentStatus `db:"status"`
+	Diversion                        bool              `db:"diversion"`
+	RejectionReason                  *string           `db:"rejection_reason"`
+	Distance                         *unit.Miles       `db:"distance"`
+	Reweigh                          *Reweigh          `has_one:"reweighs" fk_id:"shipment_id"`
+	UsesExternalVendor               bool              `db:"uses_external_vendor"`
+	StorageFacility                  *StorageFacility  `belongs_to:"storage_facilities" fk:"storage_facility_id"`
+	StorageFacilityID                *uuid.UUID        `db:"storage_facility_id"`
+	ServiceOrderNumber               *string           `db:"service_order_number"`
+	TACType                          *LOAType          `db:"tac_type"`
+	SACType                          *LOAType          `db:"sac_type"`
+	PPMShipment                      *PPMShipment      `has_one:"ppm_shipment" fk_id:"shipment_id"`
+	CreatedAt                        time.Time         `db:"created_at"`
+	UpdatedAt                        time.Time         `db:"updated_at"`
+	DeletedAt                        *time.Time        `db:"deleted_at"`
 }
 
 // MTOShipments is a list of mto shipments
@@ -205,16 +206,16 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(LOATypeNTS),
 	}})
 
-	var destinationAddressType *string
-	if m.DestinationAddressType != nil {
-		valDestinationAddressType := string(*m.DestinationAddressType)
-		destinationAddressType = &valDestinationAddressType
+	var destinationType *string
+	if m.DestinationType != nil {
+		valDestinationType := string(*m.DestinationType)
+		destinationType = &valDestinationType
 	}
-	vs = append(vs, &OptionalStringInclusion{Field: destinationAddressType, Name: "DestinationAddressType", List: []string{
-		string(DestinationAddressTypeHomeOfRecord),
-		string(DestinationAddressTypeHomeOfSelection),
-		string(DestinationAddressTypePlaceEnteredActiveDuty),
-		string(DestinationAddressTypeOtherThanAuthorized),
+	vs = append(vs, &OptionalStringInclusion{Field: destinationType, Name: "DestinationType", List: []string{
+		string(DestinationTypeHomeOfRecord),
+		string(DestinationTypeHomeOfSelection),
+		string(DestinationTypePlaceEnteredActiveDuty),
+		string(DestinationTypeOtherThanAuthorized),
 	}})
 
 	return validate.Validate(vs...), nil

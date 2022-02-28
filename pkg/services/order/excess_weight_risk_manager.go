@@ -75,7 +75,7 @@ func (f *excessWeightRiskManager) AcknowledgeExcessWeightRisk(appCtx appcontext.
 
 func (f *excessWeightRiskManager) findOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
-	err := appCtx.DB().Q().EagerPreload("Moves", "ServiceMember", "Entitlement", "OriginDutyStation").Find(&order, orderID)
+	err := appCtx.DB().Q().EagerPreload("Moves", "ServiceMember", "Entitlement", "OriginDutyLocation").Find(&order, orderID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

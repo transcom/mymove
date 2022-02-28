@@ -18,8 +18,8 @@ func NewDomesticDestinationAdditionalDaysSITPricer() services.DomesticDestinatio
 }
 
 // Price determines the price for domestic destination additional days SIT
-func (p domesticDestinationAdditionalDaysSITPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticAdditionalDaysSIT(appCtx, models.ReServiceCodeDDASIT, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
+func (p domesticDestinationAdditionalDaysSITPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticAdditionalDaysSIT(appCtx, models.ReServiceCodeDDASIT, contractCode, referenceDate, weight, serviceArea, numberOfDaysInSIT)
 }
 
 // PriceUsingParams determines the price for domestic destination first day SIT given PaymentServiceItemParams
@@ -29,12 +29,12 @@ func (p domesticDestinationAdditionalDaysSITPricer) PriceUsingParams(appCtx appc
 		return unit.Cents(0), nil, err
 	}
 
-	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
+	numberOfDaysInSIT, err := getParamInt(params, models.ServiceItemParamNameNumberDaysSIT)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
 
-	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
+	referenceDate, err := getParamTime(params, models.ServiceItemParamNameReferenceDate)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -44,10 +44,10 @@ func (p domesticDestinationAdditionalDaysSITPricer) PriceUsingParams(appCtx appc
 		return unit.Cents(0), nil, err
 	}
 
-	numberOfDaysInSIT, err := getParamInt(params, models.ServiceItemParamNameNumberDaysSIT)
+	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilled), serviceAreaDest, numberOfDaysInSIT)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaDest, numberOfDaysInSIT)
 }

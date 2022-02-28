@@ -2578,7 +2578,7 @@ definitions:
     enum:
       - DRAFT
       - NEEDS SERVICE COUNSELING
-      - SEVICE COUNSELING COMPLETED
+      - SERVICE COUNSELING COMPLETED
       - SUBMITTED
       - APPROVALS REQUESTED
       - APPROVED
@@ -2659,9 +2659,9 @@ definitions:
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
+        $ref: '#/definitions/DutyLocation'
       originDutyStation:
-        $ref: '#/definitions/DutyStation'
+        $ref: '#/definitions/DutyLocation'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -3269,16 +3269,8 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
         x-nullable: true
-      destinationAddressType:
-        type: string
-        title: Destination Address Type
-        example: Other than authorized
-        enum:
-          - HOME_OF_RECORD
-          - HOME_OF_SELECTION
-          - PLACE_ENTERED_ACTIVE_DUTY
-          - OTHER_THAN_AUTHORIZED
-        x-nullable: true
+      destinationType:
+        $ref: '#/definitions/DestinationType'
       agents:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
@@ -3375,16 +3367,8 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
-      destinationAddressType:
-        type: string
-        title: Destination Address Type
-        example: Other than authorized
-        x-nullable: true
-        enum:
-          - HOME_OF_RECORD
-          - HOME_OF_SELECTION
-          - PLACE_ENTERED_ACTIVE_DUTY
-          - OTHER_THAN_AUTHORIZED
+      destinationType:
+        $ref: '#/definitions/DestinationType'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       tacType:
@@ -3592,7 +3576,7 @@ definitions:
       customer:
         $ref: '#/definitions/Customer'
       status:
-        $ref: '#/definitions/QueueMoveStatus'
+        $ref: '#/definitions/MoveStatus'
       locator:
         type: string
       submittedAt:
@@ -3624,12 +3608,6 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
-  QueueMoveStatus:
-    type: string
-    enum:
-      - New move
-      - Move approved
-      - Approvals requested
   QueuePaymentRequest:
     type: object
     properties:
@@ -3645,7 +3623,7 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       age:
         type: number
-        format: integer
+        format: double
         description: >-
           Days since the payment request has been requested.  Decimal
           representation will allow more accurate sorting.
@@ -3853,7 +3831,7 @@ definitions:
       - city
       - state
       - postalCode
-  DutyStation:
+  DutyLocation:
     type: object
     properties:
       id:
@@ -4101,6 +4079,16 @@ definitions:
     items:
       $ref: '#/definitions/MTOAgent'
     type: array
+  DestinationType:
+    type: string
+    title: Destination Type
+    example: OTHER_THAN_AUTHORIZED
+    x-nullable: true
+    enum:
+      - HOME_OF_RECORD
+      - HOME_OF_SELECTION
+      - PLACE_ENTERED_ACTIVE_DUTY
+      - OTHER_THAN_AUTHORIZED
   MTOShipmentType:
     type: string
     title: Shipment Type
@@ -4368,16 +4356,8 @@ definitions:
       destinationAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
-      destinationAddressType:
-        type: string
-        title: Destination Address Type
-        example: Other than authorized
-        enum:
-          - HOME_OF_RECORD
-          - HOME_OF_SELECTION
-          - PLACE_ENTERED_ACTIVE_DUTY
-          - OTHER_THAN_AUTHORIZED
-        x-nullable: true
+      destinationType:
+        $ref: '#/definitions/DestinationType'
       secondaryPickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -4537,24 +4517,6 @@ definitions:
       - SYSTEM
       - PRICER
       - PAYMENT_REQUEST
-  DutyLocation:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      address_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      address:
-        $ref: '#/definitions/Address'
-      eTag:
-        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid

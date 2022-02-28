@@ -11,6 +11,8 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
 import { MOVES } from 'constants/queryKeys';
+import { ORDERS_TYPE } from 'constants/orders';
+import { shipmentDestinationTypes } from 'constants/shipments';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
@@ -52,6 +54,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   }; // add any additional fields that we also want to always show
   const neverShow = { HHG_INTO_NTS_DOMESTIC: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility'] };
   const warnIfMissing = {
+    HHG: ['counselorRemarks'],
     HHG_INTO_NTS_DOMESTIC: ['counselorRemarks', 'tacType', 'sacType'],
     HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
   };
@@ -59,6 +62,18 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
 
   let shipmentsInfo = [];
   let disableSubmit = false;
+
+  // for now we are only showing dest type on retiree and separatee orders
+  const isRetirementOrSeparation =
+    order.order_type === ORDERS_TYPE.RETIREMENT || order.order_type === ORDERS_TYPE.SEPARATION;
+
+  if (isRetirementOrSeparation) {
+    // destination type must be set for for HHG, NTSR shipments only
+    errorIfMissing.HHG = ['destinationType'];
+    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push('destinationType');
+    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
+    errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
+  }
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
@@ -71,12 +86,16 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
           })
         : '';
 
+      const destType = isRetirementOrSeparation ? shipmentDestinationTypes[shipment.destinationType] : null;
+
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
           postalCode: order.destinationDutyStation.address.postalCode,
         },
         ...shipment,
+        destinationType: destType,
+        displayDestinationType: isRetirementOrSeparation,
       };
 
       if (!disableSubmit && errorIfMissing[shipment.shipmentType]) {

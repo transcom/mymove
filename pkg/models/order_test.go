@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"issue_date":                     {"IssueDate can not be blank."},
 		"report_by_date":                 {"ReportByDate can not be blank."},
 		"service_member_id":              {"ServiceMemberID can not be blank."},
-		"new_duty_station_id":            {"NewDutyStationID can not be blank."},
+		"new_duty_location_id":           {"NewDutyLocationID can not be blank."},
 		"status":                         {"Status can not be blank."},
 		"uploaded_orders_id":             {"UploadedOrdersID can not be blank."},
 		"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters.", "TransportationAccountingCode can not be blank."},
@@ -112,8 +112,8 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	dutyStation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -131,25 +131,25 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	ordersNumber := "FD4534JFJ"
 
 	order := Order{
-		ServiceMemberID:     serviceMember1.ID,
-		ServiceMember:       serviceMember1,
-		IssueDate:           issueDate,
-		ReportByDate:        reportByDate,
-		OrdersType:          ordersType,
-		HasDependents:       hasDependents,
-		SpouseHasProGear:    spouseHasProGear,
-		OriginDutyStationID: &dutyStation.ID,
-		OriginDutyStation:   &dutyStation,
-		NewDutyStationID:    dutyStation2.ID,
-		NewDutyStation:      dutyStation2,
-		UploadedOrdersID:    uploadedOrder.ID,
-		UploadedOrders:      uploadedOrder,
-		Status:              OrderStatusSUBMITTED,
-		OrdersNumber:        &ordersNumber,
-		TAC:                 &TAC,
-		SAC:                 &SAC,
-		DepartmentIndicator: &deptIndicator,
-		Grade:               swag.String("E-3"),
+		ServiceMemberID:      serviceMember1.ID,
+		ServiceMember:        serviceMember1,
+		IssueDate:            issueDate,
+		ReportByDate:         reportByDate,
+		OrdersType:           ordersType,
+		HasDependents:        hasDependents,
+		SpouseHasProGear:     spouseHasProGear,
+		OriginDutyLocationID: &dutyLocation.ID,
+		OriginDutyLocation:   &dutyLocation,
+		NewDutyLocationID:    dutyLocation2.ID,
+		NewDutyLocation:      dutyLocation2,
+		UploadedOrdersID:     uploadedOrder.ID,
+		UploadedOrders:       uploadedOrder,
+		Status:               OrderStatusSUBMITTED,
+		OrdersNumber:         &ordersNumber,
+		TAC:                  &TAC,
+		SAC:                  &SAC,
+		DepartmentIndicator:  &deptIndicator,
+		Grade:                swag.String("E-3"),
 	}
 	suite.MustSave(&order)
 
@@ -167,8 +167,8 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		suite.Equal(order.OrdersType, goodOrder.OrdersType)
 		suite.Equal(order.HasDependents, goodOrder.HasDependents)
 		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
-		suite.Equal(order.OriginDutyStation.ID, goodOrder.OriginDutyStation.ID)
-		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
+		suite.Equal(order.OriginDutyLocation.ID, goodOrder.OriginDutyLocation.ID)
+		suite.Equal(order.NewDutyLocation.ID, goodOrder.NewDutyLocation.ID)
 		suite.Equal(order.Grade, goodOrder.Grade)
 		suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
 	}
@@ -191,7 +191,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -212,8 +212,8 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 		OrdersType:          ordersType,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
-		NewDutyStationID:    dutyStation.ID,
-		NewDutyStation:      dutyStation,
+		NewDutyLocationID:   dutyLocation.ID,
+		NewDutyLocation:     dutyLocation,
 		UploadedOrdersID:    uploadedOrder.ID,
 		UploadedOrders:      uploadedOrder,
 		Status:              OrderStatusSUBMITTED,
@@ -230,14 +230,14 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 		suite.Equal(order.OrdersType, goodOrder.OrdersType)
 		suite.Equal(order.HasDependents, goodOrder.HasDependents)
 		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
-		suite.Equal(order.NewDutyStationID, goodOrder.NewDutyStationID)
+		suite.Equal(order.NewDutyLocationID, goodOrder.NewDutyLocationID)
 	}
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -258,8 +258,8 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 		OrdersType:          ordersType,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
-		NewDutyStationID:    dutyStation.ID,
-		NewDutyStation:      dutyStation,
+		NewDutyLocationID:   dutyLocation.ID,
+		NewDutyLocation:     dutyLocation,
 		UploadedOrdersID:    uploadedOrder.ID,
 		UploadedOrders:      uploadedOrder,
 		Status:              OrderStatusDRAFT,
@@ -307,29 +307,29 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.MustSave(&address)
 
 	stationName := "New Duty Station"
-	station := DutyStation{
+	location := DutyLocation{
 		Name:      stationName,
 		AddressID: address.ID,
 		Address:   address,
 	}
-	suite.MustSave(&station)
+	suite.MustSave(&location)
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 	_, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, swag.String("55555"), nil, nil, nil, true, &advance)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	suite.Equal(postalCode, order.NewDutyStation.Address.PostalCode, "Wrong orig postal code")
-	order.NewDutyStationID = station.ID
-	order.NewDutyStation = station
+	suite.Equal(postalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
+	order.NewDutyLocationID = location.ID
+	order.NewDutyLocation = location
 	verrs, err = SaveOrder(suite.DB(), &order)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	orderUpdated, err := FetchOrder(suite.DB(), orderID)
 	suite.NoError(err)
-	suite.Equal(station.ID, orderUpdated.NewDutyStationID, "Wrong order new_duty_station_id")
-	suite.Equal(newPostalCode, order.NewDutyStation.Address.PostalCode, "Wrong orig postal code")
+	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_station_id")
+	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 
 	ppm, err := FetchPersonallyProcuredMoveByOrderID(suite.DB(), orderUpdated.ID)
 	suite.NoError(err)
@@ -365,17 +365,17 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	suite.MustSave(&address)
 
 	stationName := "New Duty Station"
-	station := DutyStation{
+	location := DutyLocation{
 		Name:      stationName,
 		AddressID: address.ID,
 		Address:   address,
 	}
-	suite.MustSave(&station)
+	suite.MustSave(&location)
 
-	suite.Equal(postalCode, order.NewDutyStation.Address.PostalCode, "Wrong orig postal code")
+	suite.Equal(postalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 
-	order.NewDutyStationID = station.ID
-	order.NewDutyStation = station
+	order.NewDutyLocationID = location.ID
+	order.NewDutyLocation = location
 
 	verrs, err := SaveOrder(suite.DB(), &order)
 	suite.NoError(err)
@@ -383,6 +383,6 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 
 	orderUpdated, err := FetchOrder(suite.DB(), orderID)
 	suite.NoError(err)
-	suite.Equal(station.ID, orderUpdated.NewDutyStationID, "Wrong order new_duty_station_id")
-	suite.Equal(newPostalCode, order.NewDutyStation.Address.PostalCode, "Wrong orig postal code")
+	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_station_id")
+	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 }
