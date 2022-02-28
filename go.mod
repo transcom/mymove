@@ -95,7 +95,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.26.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.26.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.4.1
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.4.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.4.1
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.26.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.4.1
 	go.opentelemetry.io/otel/metric v0.27.0
