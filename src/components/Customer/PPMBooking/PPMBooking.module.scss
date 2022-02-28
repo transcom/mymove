@@ -63,24 +63,24 @@
   .hint {
     @include u-margin-top(2);
   }
+}
 
-  .buttonContainer {
-    @include u-display(flex);
-    flex-wrap: wrap;
+.buttonContainer {
+  @include u-display(flex);
+  flex-wrap: wrap;
 
-    button {
-      @include u-margin-top(2);
-      @include u-margin-bottom(0);
+  button {
+    @include u-margin-top(2);
+    @include u-margin-bottom(0);
+  }
+
+  @include at-media-max(mobile-lg) {
+    .backButton {
+      order: 2;
     }
 
-    @include at-media-max($mobile) {
-      .backButton {
-        order: 2;
-      }
-
-      .saveButton {
-        order: 1;
-      }
+    .saveButton {
+      order: 1;
     }
   }
 }

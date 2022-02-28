@@ -1,5 +1,4 @@
 import React from 'react';
-import classnames from 'classnames';
 
 import styles from './EstimatedIncentiveDetails.module.scss';
 
@@ -18,28 +17,30 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
   } = shipment?.ppmShipment || {};
 
   return (
-    <div className={classnames(styles.EstimatedIncentiveDetails, 'container', 'container--popout')}>
-      <h2>${formatCentsTruncateWhole(estimatedIncentive)} is your estimated incentive</h2>
-      <div className={styles.shipmentDetails}>
-        <p>That&apos;s about how much you could earn for moving your PPM, based on what you&apos;ve entered:</p>
-        <ul>
-          <li>{formatWeight(estimatedWeight)} estimated weight</li>
-          <li>Starting from {pickupPostalCode}</li>
-          {secondaryPickupPostalCode && <li>Picking up things in {secondaryPickupPostalCode}</li>}
-          {secondaryDestinationPostalCode && <li>Dropping off things in {secondaryDestinationPostalCode}</li>}
-          <li>Ending in {destinationPostalCode}</li>
-          <li>Starting your PPM on {formatCustomerDate(expectedDepartureDate)}</li>
-        </ul>
+    <div className={styles.EstimatedIncentiveDetails}>
+      <div className="container container--popout">
+        <h2>${formatCentsTruncateWhole(estimatedIncentive)} is your estimated incentive</h2>
+        <div className={styles.shipmentDetails}>
+          <p>That&apos;s about how much you could earn for moving your PPM, based on what you&apos;ve entered:</p>
+          <ul>
+            <li>{formatWeight(estimatedWeight)} estimated weight</li>
+            <li>Starting from {pickupPostalCode}</li>
+            {secondaryPickupPostalCode && <li>Picking up things in {secondaryPickupPostalCode}</li>}
+            {secondaryDestinationPostalCode && <li>Dropping off things in {secondaryDestinationPostalCode}</li>}
+            <li>Ending in {destinationPostalCode}</li>
+            <li>Starting your PPM on {formatCustomerDate(expectedDepartureDate)}</li>
+          </ul>
+        </div>
+        <h3>Your actual incentive amount will vary</h3>
+        <p>
+          Finance will determine your final incentive based on the total weight you move and the actual date you start
+          moving your PPM.
+        </p>
+        <p>
+          You must get certified weight tickets to document the weight you move. You are responsible for uploading them
+          to MilMove.
+        </p>
       </div>
-      <h3>Your actual incentive amount will vary</h3>
-      <p>
-        Finance will determine your final incentive based on the total weight you move and the actual date you start
-        moving your PPM.
-      </p>
-      <p>
-        You must get certified weight tickets to document the weight you move. You are responsible for uploading them to
-        MilMove.
-      </p>
     </div>
   );
 };
