@@ -6471,33 +6471,41 @@ func init() {
       "properties": {
         "actualMoveDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "approvedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
         },
         "estimatedIncentive": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "estimatedWeight": {
           "type": "integer",
+          "x-nullable": true,
           "example": 4200
         },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -6507,6 +6515,7 @@ func init() {
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
           "type": "integer",
+          "x-nullable": true,
           "example": 4300
         },
         "pickupPostalCode": {
@@ -6514,36 +6523,47 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
         },
         "proGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "reviewedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
         },
         "sitExpected": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "spouseProGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "submittedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },
@@ -13433,33 +13453,41 @@ func init() {
       "properties": {
         "actualMoveDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "approvedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
         },
         "estimatedIncentive": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "estimatedWeight": {
           "type": "integer",
+          "x-nullable": true,
           "example": 4200
         },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -13469,6 +13497,7 @@ func init() {
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
           "type": "integer",
+          "x-nullable": true,
           "example": 4300
         },
         "pickupPostalCode": {
@@ -13476,36 +13505,47 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
         },
         "proGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "reviewedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
         },
         "sitExpected": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "spouseProGearWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "submittedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },

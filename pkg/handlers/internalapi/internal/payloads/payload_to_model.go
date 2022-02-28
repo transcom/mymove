@@ -105,25 +105,39 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	// Temporarily hard code this value, until we determine this
 	estimatedIncentive := int32(10000)
 
-	return &models.PPMShipment{
+	ppmModel := &models.PPMShipment{
 		ID:                             uuid.FromStringOrNil(ppmShipment.ID.String()),
-		ExpectedDepartureDate:          *handlers.FmtDatePtrToPopPtr(&ppmShipment.ExpectedDepartureDate),
-		ActualMoveDate:                 (*time.Time)(&ppmShipment.ActualMoveDate),
-		SubmittedAt:                    (*time.Time)(&ppmShipment.SubmittedAt),
-		ReviewedAt:                     (*time.Time)(&ppmShipment.ReviewedAt),
-		ApprovedAt:                     (*time.Time)(&ppmShipment.ApprovedAt),
-		PickupPostalCode:               ppmShipment.PickupPostalCode,
-		SecondaryPickupPostalCode:      &ppmShipment.SecondaryPickupPostalCode,
-		DestinationPostalCode:          ppmShipment.DestinationPostalCode,
-		SecondaryDestinationPostalCode: &ppmShipment.SecondaryDestinationPostalCode,
-		SitExpected:                    ppmShipment.SitExpected,
-		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(&ppmShipment.EstimatedWeight),
-		NetWeight:                      handlers.PoundPtrFromInt64Ptr(&ppmShipment.NetWeight),
-		HasProGear:                     &ppmShipment.HasProGear,
-		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(&ppmShipment.ProGearWeight),
-		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(&ppmShipment.SpouseProGearWeight),
+		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
+		SubmittedAt:                    (*time.Time)(ppmShipment.SubmittedAt),
+		ReviewedAt:                     (*time.Time)(ppmShipment.ReviewedAt),
+		ApprovedAt:                     (*time.Time)(ppmShipment.ApprovedAt),
+		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
+		NetWeight:                      handlers.PoundPtrFromInt64Ptr(ppmShipment.NetWeight),
+		HasProGear:                     ppmShipment.HasProGear,
+		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 		EstimatedIncentive:             &estimatedIncentive,
 	}
+
+	if ppmShipment.ExpectedDepartureDate != nil {
+		ppmModel.ExpectedDepartureDate = *handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
+	}
+
+	if ppmShipment.DestinationPostalCode != nil {
+		ppmModel.DestinationPostalCode = *ppmShipment.DestinationPostalCode
+	}
+
+	if ppmShipment.PickupPostalCode != nil {
+		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
+	}
+
+	if ppmShipment.SitExpected != nil {
+		ppmModel.SitExpected = *ppmShipment.SitExpected
+	}
+
+	return ppmModel
 }
 
 // MTOShipmentModelFromUpdate model

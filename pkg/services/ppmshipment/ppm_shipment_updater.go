@@ -80,11 +80,12 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 	// oldPPMCopy now has the new combined values
 	updatedPPMShipment := &oldPPMCopy
 
+	err = validatePPMShipment(appCtx, *updatedPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
+	if err != nil {
+		return nil, err
+	}
+
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		err = validatePPMShipment(appCtx, *updatedPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
-		if err != nil {
-			return err
-		}
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
 
 		if verrs != nil && verrs.HasAny() {

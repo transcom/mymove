@@ -530,7 +530,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		params := suite.getUpdateMTOShipmentParamsForHHGAndPPM(existingPPMShipment.Shipment)
 		updatedPPM := &internalmessages.UpdatePPMShipment{
 			ID:          handlers.FmtUUID(existingPPMShipment.ID),
-			SitExpected: true,
+			SitExpected: models.BoolPointer(true),
 		}
 		params.Body.PpmShipment = updatedPPM
 
@@ -543,11 +543,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(existingPPMShipment.Shipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
 
-		suite.Equal(params.Body.PpmShipment.SitExpected, *updatedShipment.PpmShipment.SitExpected)
+		suite.Equal(*params.Body.PpmShipment.SitExpected, *updatedShipment.PpmShipment.SitExpected)
 		suite.True(*updatedShipment.PpmShipment.HasProGear)
-		suite.Equal(*handlers.FmtPoundPtr(existingPPMShipment.ProGearWeight), *updatedShipment.PpmShipment.ProGearWeight)
-		suite.Equal(*handlers.FmtPoundPtr(existingPPMShipment.SpouseProGearWeight), *updatedShipment.PpmShipment.SpouseProGearWeight)
+		suite.EqualDate(existingPPMShipment.ExpectedDepartureDate, *updatedShipment.PpmShipment.ExpectedDepartureDate)
+		suite.Equal(existingPPMShipment.PickupPostalCode, *updatedShipment.PpmShipment.PickupPostalCode)
+		suite.Equal(existingPPMShipment.DestinationPostalCode, *updatedShipment.PpmShipment.DestinationPostalCode)
+		suite.EqualPoundPointers(existingPPMShipment.ProGearWeight, updatedShipment.PpmShipment.ProGearWeight)
+		suite.EqualPoundPointers(existingPPMShipment.SpouseProGearWeight, updatedShipment.PpmShipment.SpouseProGearWeight)
 		suite.Equal(int64(10000), *updatedShipment.PpmShipment.EstimatedIncentive)
+
+		suite.NoError(updatedShipment.Validate(strfmt.Default))
 	})
 
 	suite.Run("Successful PATCH - Can update shipment status", func() {

@@ -21,31 +21,32 @@ type UpdatePPMShipment struct {
 
 	// actual move date
 	// Format: date
-	ActualMoveDate strfmt.Date `json:"actualMoveDate,omitempty"`
+	ActualMoveDate *strfmt.Date `json:"actualMoveDate,omitempty"`
 
 	// approved at
 	// Format: date-time
-	ApprovedAt strfmt.DateTime `json:"approvedAt,omitempty"`
+	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
 
 	// ZIP
-	// Example: '90210' or 'N15 3NL'
-	DestinationPostalCode string `json:"destinationPostalCode,omitempty"`
+	// Example: 90210
+	// Pattern: ^(\d{5})$
+	DestinationPostalCode *string `json:"destinationPostalCode,omitempty"`
 
 	// estimated incentive
-	EstimatedIncentive int64 `json:"estimatedIncentive,omitempty"`
+	EstimatedIncentive *int64 `json:"estimatedIncentive,omitempty"`
 
 	// estimated weight
 	// Example: 4200
-	EstimatedWeight int64 `json:"estimatedWeight,omitempty"`
+	EstimatedWeight *int64 `json:"estimatedWeight,omitempty"`
 
 	// Date the customer expects to move.
 	//
 	// Format: date
-	ExpectedDepartureDate strfmt.Date `json:"expectedDepartureDate,omitempty"`
+	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate,omitempty"`
 
 	// Indicates whether PPM shipment has pro gear.
 	//
-	HasProGear bool `json:"hasProGear,omitempty"`
+	HasProGear *bool `json:"hasProGear,omitempty"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -56,38 +57,41 @@ type UpdatePPMShipment struct {
 	// The net weight of the shipment once it has been weight
 	//
 	// Example: 4300
-	NetWeight int64 `json:"netWeight,omitempty"`
+	NetWeight *int64 `json:"netWeight,omitempty"`
 
 	// ZIP
 	//
 	// zip code, international allowed
-	// Example: '90210' or 'N15 3NL'
-	PickupPostalCode string `json:"pickupPostalCode,omitempty"`
+	// Example: 90210
+	// Pattern: ^(\d{5})$
+	PickupPostalCode *string `json:"pickupPostalCode,omitempty"`
 
 	// pro gear weight
-	ProGearWeight int64 `json:"proGearWeight,omitempty"`
+	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
 
 	// reviewed at
 	// Format: date-time
-	ReviewedAt strfmt.DateTime `json:"reviewedAt,omitempty"`
+	ReviewedAt *strfmt.DateTime `json:"reviewedAt,omitempty"`
 
 	// ZIP
-	// Example: '90210' or 'N15 3NL'
-	SecondaryDestinationPostalCode string `json:"secondaryDestinationPostalCode,omitempty"`
+	// Example: 90210
+	// Pattern: ^(\d{5})$
+	SecondaryDestinationPostalCode *string `json:"secondaryDestinationPostalCode,omitempty"`
 
 	// ZIP
-	// Example: '90210' or 'N15 3NL'
-	SecondaryPickupPostalCode string `json:"secondaryPickupPostalCode,omitempty"`
+	// Example: 90210
+	// Pattern: ^(\d{5})$
+	SecondaryPickupPostalCode *string `json:"secondaryPickupPostalCode,omitempty"`
 
 	// sit expected
-	SitExpected bool `json:"sitExpected,omitempty"`
+	SitExpected *bool `json:"sitExpected,omitempty"`
 
 	// spouse pro gear weight
-	SpouseProGearWeight int64 `json:"spouseProGearWeight,omitempty"`
+	SpouseProGearWeight *int64 `json:"spouseProGearWeight,omitempty"`
 
 	// submitted at
 	// Format: date-time
-	SubmittedAt strfmt.DateTime `json:"submittedAt,omitempty"`
+	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 }
 
 // Validate validates this update p p m shipment
@@ -102,6 +106,10 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateExpectedDepartureDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -110,7 +118,19 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePickupPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateReviewedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryDestinationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -148,6 +168,18 @@ func (m *UpdatePPMShipment) validateApprovedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdatePPMShipment) validateDestinationPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("destinationPostalCode", "body", *m.DestinationPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdatePPMShipment) validateExpectedDepartureDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ExpectedDepartureDate) { // not required
 		return nil
@@ -173,12 +205,48 @@ func (m *UpdatePPMShipment) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdatePPMShipment) validatePickupPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.PickupPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("pickupPostalCode", "body", *m.PickupPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdatePPMShipment) validateReviewedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.ReviewedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("reviewedAt", "body", "date-time", m.ReviewedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) validateSecondaryDestinationPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("secondaryDestinationPostalCode", "body", *m.SecondaryDestinationPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) validateSecondaryPickupPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryPickupPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("secondaryPickupPostalCode", "body", *m.SecondaryPickupPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 
