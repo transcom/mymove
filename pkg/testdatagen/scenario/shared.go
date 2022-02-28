@@ -690,9 +690,18 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 		},
 	})
 
+	mtoShipment := testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:           uuid.Must(uuid.FromString("933d1c2b-5b90-4dfd-b363-5ff9a7e2b43a")),
+			ShipmentType: models.MTOShipmentTypePPM,
+		},
+		Move: move,
+	})
+
 	testdatagen.MakePPMShipment(db, testdatagen.Assertions{
 		Move:         move,
 		UserUploader: userUploader,
+		MTOShipment:  mtoShipment,
 		PPMShipment: models.PPMShipment{
 			ID: uuid.Must(uuid.FromString("0914dfa2-6988-4a12-82b1-2586fb4aa8c7")),
 		},
