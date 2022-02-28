@@ -60,6 +60,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   }; // add any additional fields that we also want to always show
   const neverShow = { HHG_INTO_NTS_DOMESTIC: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility'] };
   const warnIfMissing = {
+    HHG: ['counselorRemarks'],
     HHG_INTO_NTS_DOMESTIC: ['counselorRemarks', 'tacType', 'sacType'],
     HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
   };

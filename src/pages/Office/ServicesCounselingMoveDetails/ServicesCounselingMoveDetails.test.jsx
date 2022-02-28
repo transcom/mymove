@@ -647,6 +647,19 @@ describe('MoveDetails page', () => {
         expect(counselorRemarks1).toBeInTheDocument();
         expect(counselorRemarks2).toBeInTheDocument();
       });
+
+      it('shows a warning if counselor remarks are empty', async () => {
+        const moveDetailsQuery = {
+          ...newMoveDetailsQuery,
+          mtoShipments: [{ ...mtoShipments[0], counselorRemarks: '' }],
+        };
+        useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
+
+        render(mockedComponent);
+
+        const counselorRemarksElement = screen.getByTestId('counselorRemarks');
+        expect(counselorRemarksElement.parentElement).toHaveClass('warning');
+      });
     });
 
     describe('service counseling completed', () => {
