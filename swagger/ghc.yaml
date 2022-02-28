@@ -4341,6 +4341,7 @@ definitions:
       - PSI_ShippingLinehaulIntlOOPrice
       - RateAreaNonStdDest
       - RateAreaNonStdOrigin
+      - ReferenceDate
       - RequestedPickupDate
       - ServiceAreaDest
       - ServiceAreaOrigin
