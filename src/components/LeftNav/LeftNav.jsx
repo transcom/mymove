@@ -1,4 +1,4 @@
-import React, { useState, cloneElement } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
@@ -33,7 +33,16 @@ const LeftNav = ({ className, children, sections }) => {
           >
             {sectionLabels[`${s}`]}
             {React.Children.map(arrayChildren, (child) => {
-              return cloneElement(child, { showTag: s === child.props.associatedSectionName && child.props.showTag });
+              return (
+                <child.type
+                  className={child.props.className}
+                  background={child.props.background}
+                  testID={child.props.testID}
+                  showTag={s === child.props.associatedSectionName && child.props.showTag}
+                >
+                  {child.props.children}
+                </child.type>
+              );
             })}
           </LeftNavSection>
         );
