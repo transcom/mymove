@@ -51,6 +51,7 @@ const ntsReleaseShipmentCounselorSchema = Yup.object().shape({
 
 const ntsReleaseShipmentTOOSchema = Yup.object().shape({
   delivery: RequiredPlaceSchema,
+  ntsRecordedWeight: Yup.string().required('Required'),
   secondaryDelivery: AdditionalAddressSchema,
   serviceOrderNumber: Yup.string()
     .required('Required')

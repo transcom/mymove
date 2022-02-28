@@ -286,7 +286,7 @@ const ShipmentForm = ({
               <Form className={formStyles.form}>
                 {isTOO && !isHHG && <ShipmentVendor />}
 
-                {isNTSR && <ShipmentWeightInput />}
+                {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
