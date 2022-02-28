@@ -107,7 +107,7 @@ const DateAndLocationForm = ({
         return (
           <div className={ppmBookingStyles.formContainer}>
             <Form className={(formStyles.form, ppmBookingStyles.form)}>
-              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection, 'origin')}>
                 <h2>Origin</h2>
                 <TextField
                   label="ZIP"
