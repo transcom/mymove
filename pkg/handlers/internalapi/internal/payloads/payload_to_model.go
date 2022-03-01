@@ -95,6 +95,7 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 
 	if mtoShipment.PpmShipment != nil {
 		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
+		model.PPMShipment.Shipment = *model
 	}
 
 	return model
