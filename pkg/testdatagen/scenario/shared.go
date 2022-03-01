@@ -597,6 +597,56 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	}
 }
 
+func createUnsubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
+	 */
+	email := "dates_and_locations@ppm.unsubmitted"
+	uuidStr := "bbb469f3-f4bc-420d-9755-b9569f81715e"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smIDPPM := "635e4c37-63b8-4860-9239-0e743ec383b0"
+	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.FromString(smIDPPM)),
+			UserID:        uuid.Must(uuid.FromString(uuidStr)),
+			FirstName:     models.StringPointer("Minimal"),
+			LastName:      models.StringPointer("PPM"),
+			Edipi:         models.StringPointer("8937816489"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.Must(uuid.FromString(smIDPPM)),
+			ServiceMember:   smWithPPM,
+		},
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.Must(uuid.FromString("16cb4b73-cc0e-48c5-8cc7-b2a2ac52c342")),
+			Locator:          "PPMMIN",
+			SelectedMoveType: &ppmMoveType,
+		},
+	})
+
+	testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		PPMShipment: models.PPMShipment{
+			ID: uuid.Must(uuid.FromString("ffc95935-6781-4f95-9f35-16a5994cab56")),
+		},
+	})
+}
+
 func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	/*
@@ -2911,7 +2961,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	})
 }
 
-func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -2953,7 +3003,7 @@ func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, userUploa
 	}
 }
 
-func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -5162,7 +5212,7 @@ func createHHGMoveWithRiskOfExcess(appCtx appcontext.AppContext, userUploader *u
 	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
-func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createMoveWithDivertedShipments(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
