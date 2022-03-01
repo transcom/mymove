@@ -66,7 +66,7 @@ const EstimatedWeightsProGear = ({ orders, serviceMember, mtoShipment }) => {
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
-            <h1>PPM date & location</h1>
+            <h1>Estimated weight</h1>
             {errorMessage && (
               <Alert slim type="error">
                 {errorMessage}
