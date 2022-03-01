@@ -525,11 +525,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ppmUpdater,
 		}
 
-		existingPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
-
+		existingPPMShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParamsForHHGAndPPM(existingPPMShipment.Shipment)
+
+		estimatedWeight := int64(6000)
+		proGearWeight := int64(1000)
+		spouseProGearWeight := int64(250)
 		updatedPPM := &internalmessages.UpdatePPMShipment{
-			ID: handlers.FmtUUID(existingPPMShipment.ID),
+			ID:                  handlers.FmtUUID(existingPPMShipment.ID),
+			EstimatedWeight:     &estimatedWeight,
+			HasProGear:          models.BoolPointer(true),
+			ProGearWeight:       &proGearWeight,
+			SpouseProGearWeight: &spouseProGearWeight,
 		}
 		params.Body.PpmShipment = updatedPPM
 
@@ -539,15 +546,21 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
 
+		// Check if existing fields are not updated
 		suite.Equal(existingPPMShipment.Shipment.ID.String(), updatedShipment.ID.String())
-		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
-
-		suite.True(*updatedShipment.PpmShipment.HasProGear)
 		suite.EqualDate(existingPPMShipment.ExpectedDepartureDate, *updatedShipment.PpmShipment.ExpectedDepartureDate)
 		suite.Equal(existingPPMShipment.PickupPostalCode, *updatedShipment.PpmShipment.PickupPostalCode)
 		suite.Equal(existingPPMShipment.DestinationPostalCode, *updatedShipment.PpmShipment.DestinationPostalCode)
-		suite.EqualPoundPointers(existingPPMShipment.ProGearWeight, updatedShipment.PpmShipment.ProGearWeight)
-		suite.EqualPoundPointers(existingPPMShipment.SpouseProGearWeight, updatedShipment.PpmShipment.SpouseProGearWeight)
+		suite.Equal(existingPPMShipment.SitExpected, *updatedShipment.PpmShipment.SitExpected)
+
+		// Check if mto_shipment fields are updated
+		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
+
+		// Check if ppm_shipment fields are updated
+		suite.Equal(*params.Body.PpmShipment.EstimatedWeight, *updatedShipment.PpmShipment.EstimatedWeight)
+		suite.Equal(*params.Body.PpmShipment.HasProGear, *updatedShipment.PpmShipment.HasProGear)
+		suite.Equal(*params.Body.PpmShipment.ProGearWeight, *updatedShipment.PpmShipment.ProGearWeight)
+		suite.Equal(*params.Body.PpmShipment.SpouseProGearWeight, *updatedShipment.PpmShipment.SpouseProGearWeight)
 		suite.Equal(int64(10000), *updatedShipment.PpmShipment.EstimatedIncentive)
 
 		suite.NoError(updatedShipment.Validate(strfmt.Default))
