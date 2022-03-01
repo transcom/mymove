@@ -17,8 +17,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
 
 	newPPM := models.PPMShipment{
-		ID:          oldPPMShipment.ID,
-		SitExpected: true,
+		ID:               oldPPMShipment.ID,
+		PickupPostalCode: "20636",
+		// SitExpected: true,
 	}
 
 	// eTag := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
@@ -26,7 +27,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM)
 
 		suite.NilOrNoVerrs(err)
-		suite.True(updatedPPMShipment.SitExpected)
+		suite.Equal(newPPM.PickupPostalCode, updatedPPMShipment.PickupPostalCode)
+		// suite.True(updatedPPMShipment.SitExpected)
 		suite.Equal(unit.Pound(1150), *updatedPPMShipment.ProGearWeight)
 	})
 
