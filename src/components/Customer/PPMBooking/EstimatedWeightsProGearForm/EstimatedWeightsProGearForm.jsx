@@ -101,8 +101,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   <a
                     href="https://www.ustranscom.mil/dp3/weightestimator.cfm"
                     target="_blank"
-                    noopener
-                    rel="noreferrer"
+                    rel="noreferrer noopener"
                   >
                     weight estimation calculator
                   </a>{' '}
