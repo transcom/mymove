@@ -24,9 +24,14 @@ const Menu = (props) => {
         leftIcon={<ExitIcon />}
         onClick={(e) => {
           e.preventDefault();
-          LogoutUser().then(() => {
-            window.localStorage.setItem('hasLoggedOut', true);
-            window.location.href = '/';
+          LogoutUser().then((r) => {
+            const redirectURL = r.body;
+            if (redirectURL) {
+              window.location.href = redirectURL;
+            } else {
+              window.localStorage.setItem('hasLoggedOut', true);
+              window.location.href = '/';
+            }
           });
         }}
       />
