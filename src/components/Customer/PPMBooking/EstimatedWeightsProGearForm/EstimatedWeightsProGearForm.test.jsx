@@ -11,8 +11,12 @@ const defaultProps = {
     has_dependents: true,
   },
   serviceMember: {
+    id: '10',
     weight_allotment: {
+      total_weight_self: 5000,
       total_weight_self_plus_dependents: 7000,
+      pro_gear_weight: 2000,
+      pro_gear_weight_spouse: 500,
     },
   },
 };
