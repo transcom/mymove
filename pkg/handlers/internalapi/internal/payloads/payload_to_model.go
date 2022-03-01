@@ -106,7 +106,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	estimatedIncentive := int32(10000)
 
 	ppmModel := &models.PPMShipment{
-		ID:                             uuid.FromStringOrNil(ppmShipment.ID.String()),
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SubmittedAt:                    (*time.Time)(ppmShipment.SubmittedAt),
 		ReviewedAt:                     (*time.Time)(ppmShipment.ReviewedAt),

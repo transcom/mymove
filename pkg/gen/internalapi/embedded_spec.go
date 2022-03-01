@@ -6465,9 +6465,6 @@ func init() {
     },
     "UpdatePPMShipment": {
       "type": "object",
-      "required": [
-        "id"
-      ],
       "properties": {
         "actualMoveDate": {
           "type": "string",
@@ -6506,11 +6503,6 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
           "x-nullable": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
@@ -13447,9 +13439,6 @@ func init() {
     },
     "UpdatePPMShipment": {
       "type": "object",
-      "required": [
-        "id"
-      ],
       "properties": {
         "actualMoveDate": {
           "type": "string",
@@ -13488,11 +13477,6 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
           "x-nullable": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",

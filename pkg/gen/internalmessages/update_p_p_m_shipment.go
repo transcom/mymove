@@ -48,12 +48,6 @@ type UpdatePPMShipment struct {
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
 
-	// id
-	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-	// Required: true
-	// Format: uuid
-	ID *strfmt.UUID `json:"id"`
-
 	// The net weight of the shipment once it has been weight
 	//
 	// Example: 4300
@@ -111,10 +105,6 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateExpectedDepartureDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -186,19 +176,6 @@ func (m *UpdatePPMShipment) validateExpectedDepartureDate(formats strfmt.Registr
 	}
 
 	if err := validate.FormatOf("expectedDepartureDate", "body", "date", m.ExpectedDepartureDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdatePPMShipment) validateID(formats strfmt.Registry) error {
-
-	if err := validate.Required("id", "body", m.ID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
 	}
 

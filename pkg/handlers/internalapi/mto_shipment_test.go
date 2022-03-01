@@ -532,7 +532,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		proGearWeight := int64(1000)
 		spouseProGearWeight := int64(250)
 		updatedPPM := &internalmessages.UpdatePPMShipment{
-			ID:                  handlers.FmtUUID(existingPPMShipment.ID),
 			EstimatedWeight:     &estimatedWeight,
 			HasProGear:          models.BoolPointer(true),
 			ProGearWeight:       &proGearWeight,

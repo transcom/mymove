@@ -2573,10 +2573,6 @@ definitions:
     type:
       object
     properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
       expectedDepartureDate:
         description: >
           Date the customer expects to move.
@@ -2655,8 +2651,6 @@ definitions:
       estimatedIncentive:
         type: integer
         x-nullable: true
-    required:
-      - id
   UpdateShipment:
     type: object
     properties:

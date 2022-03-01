@@ -1,7 +1,7 @@
 package ppmshipment
 
 import (
-	"database/sql"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -23,48 +23,26 @@ func NewPPMShipmentUpdater() services.PPMShipmentUpdater {
 	}
 }
 
-func (f *ppmShipmentUpdater) UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*models.PPMShipment, error) {
-	return f.updatePPMShipment(appCtx, ppmShipment, f.checks...)
+func (f *ppmShipmentUpdater) UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, mtoShipmentID uuid.UUID) (*models.PPMShipment, error) {
+	return f.updatePPMShipment(appCtx, ppmShipment, mtoShipmentID, f.checks...)
 }
 
-func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*models.PPMShipment, error) {
+func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, mtoShipmentID uuid.UUID, checks ...ppmShipmentValidator) (*models.PPMShipment, error) {
 	if ppmShipment == nil {
 		return nil, nil
 	}
 
-	oldPPMShipment := models.PPMShipment{}
-
-	// Find the previous ppmShipment, return an error if not found
-	err := appCtx.DB().Find(&oldPPMShipment, ppmShipment.ID)
+	oldPPMShipment, err := models.FetchPPMShipmentFromMTOShipmentID(appCtx.DB(), mtoShipmentID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(ppmShipment.ID, "while looking for PPMShipment")
-		default:
-			return nil, apperror.NewQueryError("PPMShipment", err, "")
-		}
+		return nil, err
 	}
-
 	// if etag.GenerateEtag(oldPPMShipment.UpdatedAt) != eTag {
 	// 	return nil, apperror.NewPreconditionFailedError(ppmShipment.ID, nil)
 	// }
 
-	mtoShipment := models.MTOShipment{}
-	// Find the associated mtoShipment, return an error if not found
-	err = appCtx.DB().Find(&mtoShipment, oldPPMShipment.ShipmentID)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(oldPPMShipment.ShipmentID, "while looking for MTOShipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-	oldPPMShipment.Shipment = mtoShipment
+	updatedPPMShipment := mergePPMShipment(*ppmShipment, oldPPMShipment)
 
-	updatedPPMShipment := mergePPMShipment(*ppmShipment, &oldPPMShipment)
-
-	err = validatePPMShipment(appCtx, *updatedPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
+	err = validatePPMShipment(appCtx, *updatedPPMShipment, oldPPMShipment, &oldPPMShipment.Shipment, checks...)
 	if err != nil {
 		return nil, err
 	}

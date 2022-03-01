@@ -1,10 +1,13 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -63,4 +66,22 @@ type PPMShipments []PPMShipment
 // TableName overrides the table name used by Pop. By default it tries using the name `ppmshipments`.
 func (p PPMShipment) TableName() string {
 	return "ppm_shipments"
+}
+
+func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UUID) (*PPMShipment, error) {
+	var ppmShipment PPMShipment
+
+	err := db.EagerPreload("Shipment").
+		Where("ppm_shipments.shipment_id = ?", mtoShipmentID).
+		First(&ppmShipment)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, "while looking for PPMShipment")
+		default:
+			return nil, apperror.NewQueryError("PPMShipment", err, "")
+		}
+	}
+	return &ppmShipment, nil
 }
