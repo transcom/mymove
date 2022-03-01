@@ -9,7 +9,7 @@ describe('the PPM flow', function () {
 
   it('can submit a PPM move', () => {
     // profile@comple.te
-    const userId = 'a5cc1277-37dd-4588-a982-df3c9fa7fc20';
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
     cy.apiSignInAsUser(userId);
     customerChoosesAPPMMove();
     submitsDateAndLocation();
@@ -17,7 +17,7 @@ describe('the PPM flow', function () {
 
   it('doesn’t allow SM to progress if an invalid postal code is provided"', () => {
     // profile@co.mple.te
-    const userId = 'a5cc1277-37dd-4588-a982-df3c9fa7fc20';
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
     cy.apiSignInAsUser(userId);
     resumePPM();
     inputsInvalidPostalCodes();
@@ -25,7 +25,7 @@ describe('the PPM flow', function () {
 
   it('doesn’t allow SM to progress if required date field is not filled out"', () => {
     // profile@co.mple.te
-    const userId = 'a5cc1277-37dd-4588-a982-df3c9fa7fc20';
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
     cy.apiSignInAsUser(userId);
     resumePPM();
     requiredDateFieldMissing();
@@ -33,7 +33,7 @@ describe('the PPM flow', function () {
 
   it('doesn’t allow SM to progress if date field is invalid"', () => {
     // profile@co.mple.te
-    const userId = 'a5cc1277-37dd-4588-a982-df3c9fa7fc20';
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
     cy.apiSignInAsUser(userId);
     resumePPM();
     invalidDate();
@@ -41,7 +41,7 @@ describe('the PPM flow', function () {
 
   it('doesn’t allow SM to progress if having a secondary zip is indicated but not provided"', () => {
     // profile@co.mple.te
-    const userId = 'a5cc1277-37dd-4588-a982-df3c9fa7fc20';
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
     cy.apiSignInAsUser(userId);
     resumePPM();
     missingSecondaryZip();
