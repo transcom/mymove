@@ -114,15 +114,15 @@ type Assertions struct {
 	Zip3Distance                             models.Zip3Distance
 }
 
-func stringPointer(s string) *string {
+func StringPointer(s string) *string {
 	return &s
 }
 
-func poundPointer(p unit.Pound) *unit.Pound {
+func PoundPointer(p unit.Pound) *unit.Pound {
 	return &p
 }
 
-func timePointer(t time.Time) *time.Time {
+func TimePointer(t time.Time) *time.Time {
 	return &t
 }
 
