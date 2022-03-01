@@ -162,7 +162,7 @@ describe('Services counselor user', () => {
     cy.get('a[href*="#allowances"]').contains('Allowances');
     cy.get('a[href*="#customer-info"]').contains('Customer info');
 
-    cy.get('[data-testid="requestedShipmentsTag"]').contains('1');
+    cy.get('[data-testid="requestedShipmentsTag"]').contains('3');
 
     // Assert that the window has scrolled after clicking a left nav item
     cy.get('#customer-info').click().window().its('scrollY').should('not.equal', 0);
@@ -200,7 +200,7 @@ describe('Services counselor user', () => {
     cy.get('.usa-alert__text').contains('Your changes were saved.');
   });
 
-  it('is able to see that the tag next to shipment is gone', () => {
+  it('is able to see that the tag next to shipment is updated', () => {
     const moveLocator = 'RET1RE';
 
     /**
@@ -216,7 +216,7 @@ describe('Services counselor user', () => {
     cy.get('a[href*="#shipments"]').contains('Shipments');
 
     // Verify that there's a tag on the left nav that flags missing information
-    cy.get('[data-testid="requestedShipmentsTag"]').contains('1');
+    cy.get('[data-testid="requestedShipmentsTag"]').contains('3');
 
     // Edit the shipment so that the tag disappears
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
@@ -226,7 +226,7 @@ describe('Services counselor user', () => {
     cy.wait('@patchShipment');
     cy.get('.usa-alert__text').contains('Your changes were saved.');
 
-    // Verify that the tag is no longer visible
-    cy.get('[data-testid="requestedShipmentsTag"]').should('not.exist');
+    // Verify that the tag after the update is a 2 since missing information was filled
+    cy.get('[data-testid="requestedShipmentsTag"]').contains('2');
   });
 });
