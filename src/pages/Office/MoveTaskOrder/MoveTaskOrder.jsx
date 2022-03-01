@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
@@ -99,6 +99,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
+  const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
 
   const nonShipmentSections = useMemo(() => {
     return ['move-weights'];
@@ -474,6 +475,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         ? mtoShipments.filter((shipment) => shipment.status === shipmentStatuses.SUBMITTED).length
         : 0;
       setUnapprovedShipmentCount(shipmentCount);
+
+      const externalVendorShipments = mtoShipments?.length
+        ? mtoShipments.filter((shipment) => shipment.usesExternalVendor).length
+        : 0;
+      setExternalVendorShipmentCount(externalVendorShipments);
     }
   }, [mtoShipments, setUnapprovedShipmentCount]);
 
@@ -707,6 +713,16 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
             <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
+              {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) &&
+                externalVendorShipmentCount > 0 && <br />}
+              {externalVendorShipmentCount > 0 && (
+                <small>
+                  {externalVendorShipmentCount} shipment not moved by GHC prime.{' '}
+                  <Link className="usa-link" to={`/moves/${moveCode}`}>
+                    View move details
+                  </Link>
+                </small>
+              )}
             </WeightDisplay>
             <WeightDisplay
               heading="Max billable weight"
