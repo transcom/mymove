@@ -65,3 +65,33 @@ func SetOptionalPoundField(newWeight *unit.Pound, oldWeight *unit.Pound) *unit.P
 
 	return newWeight // return the new intended value
 }
+
+// SetNoNilOptionalPoundField sets the correct new value for the updated weight field.
+func SetNoNilOptionalPoundField(newWeight *unit.Pound, oldWeight *unit.Pound) *unit.Pound {
+	// check if the user wanted to keep this field the same:
+	if newWeight == nil {
+		return oldWeight
+	}
+
+	return newWeight // return the new intended value
+}
+
+// SetNoNNilOptionalInt32Field sets the correct new value for the updated int32 field.
+func SetNoNNilOptionalInt32Field(newInt *int32, oldInt *int32) *int32 {
+	// check if the user wanted to keep this field the same:
+	if newInt == nil {
+		return oldInt
+	}
+
+	return newInt // return the new intended value
+}
+
+// SetNoNilOptionalBoolField sets the correct new value for the updated bool field.
+func SetNoNilOptionalBoolField(newBool *bool, oldBool *bool) *bool {
+	// check if the user wanted to keep this field the same:
+	if newBool == nil {
+		return oldBool
+	}
+
+	return newBool // return the new intended value
+}

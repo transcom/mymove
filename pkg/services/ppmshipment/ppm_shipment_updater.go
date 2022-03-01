@@ -2,15 +2,11 @@ package ppmshipment
 
 import (
 	"database/sql"
-	"fmt"
-
-	"github.com/getlantern/deepcopy"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type ppmShipmentUpdater struct {
@@ -66,19 +62,7 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 	}
 	oldPPMShipment.Shipment = mtoShipment
 
-	var oldPPMCopy, newPPMCopy models.PPMShipment
-	err = deepcopy.Copy(&oldPPMCopy, oldPPMShipment)
-	if err != nil {
-		return nil, fmt.Errorf("error copying PPMShipment data %w", err)
-	}
-	err = deepcopy.Copy(&newPPMCopy, *ppmShipment)
-	if err != nil {
-		return nil, fmt.Errorf("error copying PPMShipment data %w", err)
-	}
-	// TODO: Write merge function + validation tests
-	testdatagen.MergeModels(&oldPPMCopy, newPPMCopy)
-	// oldPPMCopy now has the new combined values
-	updatedPPMShipment := &oldPPMCopy
+	updatedPPMShipment := mergePPMShipment(*ppmShipment, &oldPPMShipment)
 
 	err = validatePPMShipment(appCtx, *updatedPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
 	if err != nil {

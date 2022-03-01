@@ -529,8 +529,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		params := suite.getUpdateMTOShipmentParamsForHHGAndPPM(existingPPMShipment.Shipment)
 		updatedPPM := &internalmessages.UpdatePPMShipment{
-			ID:          handlers.FmtUUID(existingPPMShipment.ID),
-			SitExpected: models.BoolPointer(true),
+			ID: handlers.FmtUUID(existingPPMShipment.ID),
 		}
 		params.Body.PpmShipment = updatedPPM
 
@@ -543,7 +542,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(existingPPMShipment.Shipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
 
-		suite.Equal(*params.Body.PpmShipment.SitExpected, *updatedShipment.PpmShipment.SitExpected)
 		suite.True(*updatedShipment.PpmShipment.HasProGear)
 		suite.EqualDate(existingPPMShipment.ExpectedDepartureDate, *updatedShipment.PpmShipment.ExpectedDepartureDate)
 		suite.Equal(existingPPMShipment.PickupPostalCode, *updatedShipment.PpmShipment.PickupPostalCode)
