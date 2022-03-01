@@ -210,17 +210,20 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		})
 
 		//Retiree, HOS, NTS
+		ntsMoveType := models.SelectedMoveTypeNTS
 		createMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    nts,
-				DestinationType: &hor,
+				ShipmentType:       nts,
+				DestinationType:    &hor,
+				UsesExternalVendor: false,
 			},
 			Move: models.Move{
-				Locator: "R3TNTS",
-				Status:  models.MoveStatusSUBMITTED,
+				Locator:          "R3TNTS",
+				Status:           models.MoveStatusSUBMITTED,
+				SelectedMoveType: &ntsMoveType,
 			},
 			DutyLocation: models.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -228,17 +231,20 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		})
 
 		//Retiree, HOS, NTSR
+		ntsrMoveType := models.SelectedMoveTypeNTSR
 		createMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType:    ntsR,
-				DestinationType: &hos,
+				ShipmentType:       ntsR,
+				DestinationType:    &hos,
+				UsesExternalVendor: false,
 			},
 			Move: models.Move{
-				Locator: "R3TNTR",
-				Status:  models.MoveStatusSUBMITTED,
+				Locator:          "R3TNTR",
+				Status:           models.MoveStatusSUBMITTED,
+				SelectedMoveType: &ntsrMoveType,
 			},
 			DutyLocation: models.DutyLocation{
 				ProvidesServicesCounseling: true,

@@ -1805,6 +1805,8 @@ func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 	locator := assertions.Move.Locator
 	status := assertions.Move.Status
 	servicesCounseling := assertions.DutyLocation.ProvidesServicesCounseling
+	usesExternalVendor := assertions.MTOShipment.UsesExternalVendor
+	selectedMoveType := assertions.Move.SelectedMoveType
 
 	db := appCtx.DB()
 	submittedAt := time.Now()
@@ -1818,9 +1820,10 @@ func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 	})
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Locator:     locator,
-			Status:      status,
-			SubmittedAt: &submittedAt,
+			Locator:          locator,
+			Status:           status,
+			SubmittedAt:      &submittedAt,
+			SelectedMoveType: selectedMoveType,
 		},
 		Order: orders,
 	})
@@ -1837,6 +1840,7 @@ func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 			RequestedDeliveryDate: &requestedDeliveryDate,
 			DestinationAddressID:  &destinationAddress.ID,
 			DestinationType:       destinationType,
+			UsesExternalVendor:    usesExternalVendor,
 		},
 	})
 
