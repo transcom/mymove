@@ -182,6 +182,8 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		SpouseHasProGear:     spouseHasProGear,
 		OriginDutyLocationID: &dutyLocation.ID,
 		OriginDutyLocation:   &dutyLocation,
+		NewDutyStationID:     dutyLocation2.ID,
+		NewDutyStation:       dutyLocation2,
 		NewDutyLocationID:    dutyLocation2.ID,
 		NewDutyLocation:      dutyLocation2,
 		UploadedOrdersID:     uploadedOrder.ID,
