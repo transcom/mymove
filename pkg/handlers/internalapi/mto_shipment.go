@@ -47,10 +47,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 			"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
-
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
-	mtoShipment.Status = models.MTOShipmentStatusSubmitted
 	var err error
 	if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
 		var ppmShipment *models.PPMShipment
@@ -59,14 +56,12 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		// Return an mtoShipment that has a ppmShipment
 		mtoShipment = &ppmShipment.Shipment
 	} else {
-
+		// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
+		mtoShipment.Status = models.MTOShipmentStatusSubmitted
 		serviceItemsList := make(models.MTOServiceItems, 0)
 		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
-
 	}
 
-	//mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	//ppmShipment := payloads.PPMShipmentModelFromCreate(payload.ShipmentType)
 	// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
 	//mtoShipment.Status = models.MTOShipmentStatusSubmitted
 	//serviceItemsList := make(models.MTOServiceItems, 0)
