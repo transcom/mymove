@@ -430,9 +430,9 @@ export const usePrimeSimulatorGetMove = (moveCode) => {
 };
 
 export const useGHCGetMoveHistory = (moveCode) => {
-  const { data: moveHistory, ...getGCHMoveHistoryQuery } = useQuery([MOVE_HISTORY, moveCode], getMoveHistory);
+  const { data: moveHistory, ...getGHCMoveHistoryQuery } = useQuery([MOVE_HISTORY, moveCode], getMoveHistory);
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([getGCHMoveHistoryQuery]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([getGHCMoveHistoryQuery]);
 
   return {
     moveHistory,
