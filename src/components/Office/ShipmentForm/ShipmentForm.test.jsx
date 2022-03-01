@@ -419,7 +419,7 @@ describe('ShipmentForm component', () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
-      expect(screen.getByText(/Shipment weight \(lbs\)/)).toBeInTheDocument();
+      expect(screen.getByText(/Previously recorded weight \(lbs\)/)).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility info' })).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility address' })).toBeInTheDocument();
     });
