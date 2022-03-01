@@ -18,7 +18,7 @@
 
   h1:first-child,
   .pageHeader:first-child,
-  .sidebar,
+  nav,
   .emptyMessage p {
     @include u-margin-top(0);
   }
@@ -67,13 +67,6 @@
     color: $base;
     text-align: right;
   }
-}
-
-.sidebar {
-  position: sticky;
-  align-self: flex-start;
-  margin-top: 26px;
-  top: 26px;
 }
 
 .section {

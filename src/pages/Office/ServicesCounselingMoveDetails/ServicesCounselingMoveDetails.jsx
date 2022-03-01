@@ -255,7 +255,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        <LeftNav className={styles.sidebar} sections={sections}>
+        <LeftNav sections={sections}>
           <LeftNavTag
             associatedSectionName="shipments"
             showTag={numberOfErrorIfMissingForAllShipments !== 0 || numberOfWarnIfMissingForAllShipments !== 0}

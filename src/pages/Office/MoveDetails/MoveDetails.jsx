@@ -246,7 +246,7 @@ const MoveDetails = ({
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        <LeftNav className={styles.sidebar} sections={sections}>
+        <LeftNav sections={sections}>
           <LeftNavTag
             className="usa-tag usa-tag--alert"
             associatedSectionName="orders"

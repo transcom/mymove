@@ -205,7 +205,7 @@ const MovePaymentRequests = ({
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
-        <LeftNav className={txoStyles.sidebar} sections={sections}>
+        <LeftNav sections={sections}>
           <LeftNavTag
             associatedSectionName="payment-requests"
             showTag={paymentRequests?.length > 0}
