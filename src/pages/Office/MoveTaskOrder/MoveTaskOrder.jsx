@@ -43,8 +43,6 @@ import {
   updateFinancialFlag,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
-import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
-import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
@@ -55,6 +53,8 @@ import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import leftNavStyles from 'components/LeftNav/LeftNav.module.scss';
+import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
