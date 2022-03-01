@@ -28,10 +28,6 @@ export default {
   ],
 };
 
-const warnIfMissing = ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
-const errorIfMissingTACType = ['tacType'];
-const errorIfMissingStorageFacility = ['storageFacility'];
-
 const showWhenCollapsed = ['counselorRemarks'];
 
 export const HHGShipment = () => (
@@ -95,8 +91,8 @@ export const NTSShipmentMissingInfo = () => (
       shipmentId={ntsMissingInfo.shipmentId}
       ordersLOA={ordersLOA}
       isSubmitted
-      warnIfMissing={warnIfMissing}
-      errorIfMissing={errorIfMissingTACType}
+      warnIfMissing={['counselorRemarks']}
+      errorIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
       showWhenCollapsed={showWhenCollapsed}
       editURL="/"
     />
@@ -151,8 +147,8 @@ export const NTSReleaseShipmentMissingInfo = () => (
       shipmentId={ntsReleaseMissingInfo.shipmentId}
       ordersLOA={ordersLOA}
       isSubmitted
-      warnIfMissing={warnIfMissing}
-      errorIfMissing={errorIfMissingStorageFacility}
+      warnIfMissing={['counselorRemarks']}
+      errorIfMissing={['storageFacility', 'ntsRecordedWeight', 'serviceOrderNumber', 'tacType']}
       showWhenCollapsed={showWhenCollapsed}
       editURL="/"
     />
