@@ -469,18 +469,18 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the left nav with shipments', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
+      expect(wrapper.find('nav').exists()).toBe(true);
 
-      const navLinks = wrapper.find('LeftNav a');
+      const navLinks = wrapper.find('nav a');
       expect(navLinks.length).toBe(2);
       expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(1).prop('href')).toBe('#s-3');
     });
 
     it('renders the left nav with move weights', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
+      expect(wrapper.find('nav').exists()).toBe(true);
 
-      const navLinks = wrapper.find('LeftNav a');
+      const navLinks = wrapper.find('nav a');
       expect(navLinks.length).toBe(2);
       expect(navLinks.at(0).contains('Move weights')).toBe(true);
       expect(navLinks.at(0).prop('href')).toBe('#move-weights');
@@ -546,9 +546,9 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the left nav with shipments', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
+      expect(wrapper.find('nav').exists()).toBe(true);
 
-      const navLinks = wrapper.find('LeftNav a');
+      const navLinks = wrapper.find('nav a');
       expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(1).contains('1'));
       expect(navLinks.at(1).prop('href')).toBe('#s-3');
@@ -626,9 +626,9 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the left nav with shipments', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
+      expect(wrapper.find('nav').exists()).toBe(true);
 
-      const navLinks = wrapper.find('LeftNav a');
+      const navLinks = wrapper.find('nav a');
       expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(1).contains('1'));
       expect(navLinks.at(1).prop('href')).toBe('#s-3');
@@ -691,8 +691,8 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the left nav with tag for SIT extension request', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
-      const navLinks = wrapper.find('LeftNav a');
+      expect(wrapper.find('nav').exists()).toBe(true);
+      const navLinks = wrapper.find('nav a');
       expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(1).contains('1'));
     });
@@ -716,8 +716,8 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the left nav with tag for SIT extension request without a number tag', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
-      const navLinks = wrapper.find('LeftNav a');
+      expect(wrapper.find('nav').exists()).toBe(true);
+      const navLinks = wrapper.find('nav a');
       // We should get just the shipment text in the nav link
       expect(navLinks.at(1).text()).toEqual('HHG shipment ');
     });
