@@ -172,6 +172,53 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(createdShipment.Agents[0].ID)
 	})
 
+	suite.Run("Successful POST - Integration Test - PPM", func() {
+		subtestData := suite.makeCreateSubtestData()
+		params := subtestData.params
+		ppmShipmentType := internalmessages.MTOShipmentTypePPM
+		// pointers
+		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
+		pickupPostal := "11111"
+		destinationPostalCode := "41414"
+		sitExpected := false
+		// Reset Shipment Type to PPM from default (HHG)
+		params.Body.ShipmentType = &ppmShipmentType
+		// reset Body params to have PPM fields
+		params.Body = &internalmessages.CreateShipment{
+			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
+			PpmShipment: &internalmessages.CreatePPMShipment{
+				ExpectedDepartureDate: &expectedDepartureDate,
+				PickupPostalCode:      &pickupPostal,
+				DestinationPostalCode: &destinationPostalCode,
+				SitExpected:           &sitExpected,
+			},
+			ShipmentType: &ppmShipmentType,
+		}
+
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			creator,
+			ppmShipmentCreator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		createdShipment := response.(*mtoshipmentops.CreateMTOShipmentOK).Payload
+
+		suite.NotEmpty(createdShipment.ID.String())
+
+		suite.Equal(internalmessages.MTOShipmentTypePPM, createdShipment.ShipmentType)
+		suite.Equal(*params.Body.MoveTaskOrderID, createdShipment.MoveTaskOrderID)
+		suite.Equal(*params.Body.PpmShipment.ExpectedDepartureDate, *createdShipment.PpmShipment.ExpectedDepartureDate)
+		suite.Equal(*params.Body.PpmShipment.PickupPostalCode, *createdShipment.PpmShipment.PickupPostalCode)
+		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
+		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
+	})
+
 	suite.Run("Successful POST - Integration Test - NTS-Release", func() {
 		subtestData := suite.makeCreateSubtestData()
 		params := subtestData.params
