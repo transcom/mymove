@@ -899,25 +899,25 @@ describe('MoveDetails page', () => {
   });
 
   describe('approved shipment', () => {
-    useMoveDetailsQueries.mockReturnValue(approvedMoveDetailsQuery);
+    it.each([['Approved shipments'], ['Orders'], ['Allowances'], ['Customer info']])(
+      'renders side navigation for section %s',
+      async (sectionName) => {
+        useMoveDetailsQueries.mockReturnValue(approvedMoveDetailsQuery);
 
-    const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-        <MoveDetails
-          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-          setExcessWeightRiskCount={setExcessWeightRiskCount}
-          setUnapprovedSITExtensionCount={setUnapprovedServiceItemCount}
-        />
-      </MockProviders>,
+        render(
+          <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+            <MoveDetails
+              setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+              setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+              setExcessWeightRiskCount={setExcessWeightRiskCount}
+              setUnapprovedSITExtensionCount={setUnapprovedServiceItemCount}
+            />
+          </MockProviders>,
+        );
+
+        expect(await screen.findByRole('link', { name: sectionName })).toBeInTheDocument();
+      },
     );
-
-    it('renders side navigation for each section', () => {
-      expect(wrapper.containsMatchingElement(<a href="#approved-shipments">Approved shipments</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#orders">Orders</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#allowances">Allowances</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#customer-info">Customer info</a>)).toBe(true);
-    });
   });
 
   describe('When required Orders information (like TAC) is missing', () => {

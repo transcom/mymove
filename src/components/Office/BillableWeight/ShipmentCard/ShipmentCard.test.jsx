@@ -82,6 +82,9 @@ describe('ShipmentCard', () => {
     // addresses
     expect(screen.getByText(formatAddressShort(defaultProps.pickupAddress))).toBeInTheDocument();
     expect(screen.getByText(formatAddressShort(defaultProps.destinationAddress))).toBeInTheDocument();
+
+    // doesn't show NTS-release row
+    expect(screen.queryByTestId('shipmentWeight')).not.toBeInTheDocument();
   });
 
   describe('warning indicator', () => {
@@ -201,5 +204,80 @@ describe('ShipmentCard', () => {
     render(<ShipmentCard {...defaultProps} />);
     // labels
     expect(screen.queryByText('Reweigh remarks')).not.toBeInTheDocument();
+  });
+
+  it('renders the card as NTS-release', () => {
+    const props = {
+      billableWeight: 4014,
+      maxBillableWeight: 0,
+      dateReweighRequested: new Date().toISOString(),
+      departedDate: tomorrow.toISOString(),
+      pickupAddress: {
+        city: 'Rancho Santa Margarita',
+        state: 'CA',
+        postalCode: '92688',
+      },
+      destinationAddress: {
+        city: 'West Springfield Town',
+        state: 'MA',
+        postalCode: '01089',
+      },
+      storageFacilityAddress: {
+        city: 'Atco',
+        state: 'NJ',
+        postalCode: '08004',
+      },
+      estimatedWeight: 5000,
+      originalWeight: 4300,
+      reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
+      editEntity: () => {},
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+    };
+
+    render(<ShipmentCard {...props} />);
+
+    expect(screen.getByTestId('shipmentWeight')).toHaveTextContent('4,300 lbs');
+    expect(screen.queryByTestId('estimatedWeight')).not.toBeInTheDocument();
+
+    // addresses
+    expect(screen.queryByText(formatAddressShort(props.pickupAddress))).not.toBeInTheDocument();
+    expect(screen.getByText(formatAddressShort(props.storageFacilityAddress))).toBeInTheDocument();
+  });
+
+  it('renders the card as NTS', () => {
+    const props = {
+      billableWeight: 4014,
+      maxBillableWeight: 0,
+      dateReweighRequested: new Date().toISOString(),
+      departedDate: tomorrow.toISOString(),
+      pickupAddress: {
+        city: 'Rancho Santa Margarita',
+        state: 'CA',
+        postalCode: '92688',
+      },
+      destinationAddress: {
+        city: 'West Springfield Town',
+        state: 'MA',
+        postalCode: '01089',
+      },
+      storageFacilityAddress: {
+        city: 'Atco',
+        state: 'NJ',
+        postalCode: '08004',
+      },
+      estimatedWeight: 5000,
+      originalWeight: 4300,
+      reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
+      editEntity: () => {},
+      shipmentType: SHIPMENT_OPTIONS.NTS,
+    };
+
+    render(<ShipmentCard {...props} />);
+
+    expect(screen.queryByTestId('shipmentWeight')).not.toBeInTheDocument();
+
+    // addresses
+    expect(screen.queryByText(formatAddressShort(props.destinationAddress))).not.toBeInTheDocument();
+    expect(screen.getByText(formatAddressShort(props.storageFacilityAddress))).toBeInTheDocument();
   });
 });

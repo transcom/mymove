@@ -43,7 +43,8 @@ function customerReviewsNTSRMoveDetails() {
   cy.get('[data-testid="ntsr-summary"]').last().contains('02 Jan 2020');
 
   // Destination
-  cy.get('[data-testid="ntsr-summary"]').last().contains('30813');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('412 Avenue M');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('91111');
 
   // Receiving agent
   cy.get('[data-testid="ntsr-summary"]').last().contains('James Bond');

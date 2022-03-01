@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -96,6 +95,7 @@ func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *upload
 		createTXOUSMC(appCtx)
 
 		// Onboarding
+		createUnsubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
 	}
 }
@@ -155,7 +155,7 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 	}
 }
 
-func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, logger *zap.Logger) func() {
+func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createTOO(appCtx)
 		createTIO(appCtx)
@@ -305,7 +305,7 @@ func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *up
 		createTXOUSMC(appCtx)
 
 		// Create diverted shipments that need TOO approval
-		createMoveWithDivertedShipments(appCtx, userUploader)
+		createMoveWithDivertedShipments(appCtx)
 
 		// Create diverted shipments that are approved and appear on the Move Task Order page
 		createRandomMove(appCtx, nil, allDutyLocations, originDutyLocationsInGBLOC, true, testdatagen.Assertions{
@@ -346,14 +346,14 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) func() {
+func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
 		createTXO(appCtx)
 		createTXOServicesCounselor(appCtx)
 
 		// Create some submitted Moves for TXO users
-		createMoveWithHHGAndNTSRMissingInfo(appCtx, userUploader, moveRouter)
-		createMoveWithHHGAndNTSMissingInfo(appCtx, userUploader, moveRouter)
+		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter)
+		createMoveWithHHGAndNTSMissingInfo(appCtx, moveRouter)
 		createMoveWithNTSAndNTSR(
 			appCtx,
 			userUploader,

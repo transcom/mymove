@@ -101,6 +101,7 @@ const ShipmentForm = ({
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
   const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, userRole);
 
+  const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const showAccountingCodes = isNTS || isNTSR;
@@ -110,7 +111,7 @@ const ShipmentForm = ({
 
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
-  const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
+  const shipmentNumber = isHHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
     isCreatePage
       ? { userRole, shipmentType }
@@ -141,7 +142,7 @@ const ShipmentForm = ({
     destinationType,
   }) => {
     const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'no') {
+    if (hasDeliveryAddress === 'no' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
       delete deliveryDetails.address;
     }
 
@@ -246,6 +247,12 @@ const ShipmentForm = ({
                 {errorMessage}
               </Alert>
             )}
+            {isTOO && mtoShipment.usesExternalVendor && (
+              <Alert type="warning">
+                The GHC prime contractor is not handling the shipment. Information will not be automatically shared with
+                the movers handling it.
+              </Alert>
+            )}
 
             <div className={styles.ShipmentForm}>
               <div className={styles.headerWrapper}>
@@ -275,9 +282,9 @@ const ShipmentForm = ({
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && <ShipmentVendor />}
+                {isTOO && !isHHG && <ShipmentVendor />}
 
-                {isNTSR && <ShipmentWeightInput />}
+                {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
