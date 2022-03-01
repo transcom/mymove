@@ -11,7 +11,6 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
-import leftNavStyles from 'components/LeftNav/LeftNav.module.scss';
 import EditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
@@ -55,6 +54,7 @@ import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } f
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import leftNavStyles from 'components/LeftNav/LeftNav.module.scss';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
