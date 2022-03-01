@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import EstimatedWeightsProGearForm from 'components/Customer/PPMBooking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
@@ -21,15 +21,10 @@ const EstimatedWeightsProGear = ({ orders, serviceMember, mtoShipment }) => {
   const history = useHistory();
   const { moveId, shipmentNumber } = useParams();
 
-  const isFirstPass = mtoShipment.ppmShipment.estimatedWeight === null;
   const mtoShipmentId = mtoShipment.id;
 
   const handleBack = () => {
-    if (isFirstPass) {
-      history.push(generatePath(customerRoutes.SHIPMENT_EDIT_PATH, { moveId, mtoShipmentId }));
-    }
-
-    history.push(generalRoutes.HOME_PATH);
+    history.push(generatePath(customerRoutes.SHIPMENT_EDIT_PATH, { moveId, mtoShipmentId }));
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
