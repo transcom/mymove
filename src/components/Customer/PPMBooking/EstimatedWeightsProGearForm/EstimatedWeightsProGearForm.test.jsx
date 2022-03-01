@@ -65,7 +65,10 @@ describe('EstimatedWeightsProGearForm component', () => {
   describe('pull values from the ppm shipment when available', () => {
     it('renders blank form on load', async () => {
       render(<EstimatedWeightsProGearForm {...mtoShipmentProps} />);
-      expect(await screen.getByLabelText('Estimated weight of this PPM shipment').value).toBe('4,000');
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Estimated weight of this PPM shipment').value).toBe('4,000');
+      });
       expect(screen.getByLabelText('Yes').value).toBe('true');
       expect(screen.getByLabelText('Estimated weight of your pro-gear').value).toBe('1,000');
       expect(screen.getByLabelText('Estimated weight of your spouse’s pro-gear').value).toBe('100');
