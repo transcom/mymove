@@ -62,11 +62,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
 	}
 
-	// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
-	//mtoShipment.Status = models.MTOShipmentStatusSubmitted
-	//serviceItemsList := make(models.MTOServiceItems, 0)
-	//mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
-
 	if err != nil {
 		appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
 		switch e := err.(type) {
