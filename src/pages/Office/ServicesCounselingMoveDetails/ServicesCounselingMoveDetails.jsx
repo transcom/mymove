@@ -12,7 +12,6 @@ import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
 import { MOVES } from 'constants/queryKeys';
 import { ORDERS_TYPE } from 'constants/orders';
-import { shipmentDestinationTypes } from 'constants/shipments';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
@@ -94,15 +93,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
           })
         : '';
 
-      const destType = isRetirementOrSeparation ? shipmentDestinationTypes[shipment.destinationType] : null;
-
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
           postalCode: order.destinationDutyStation.address.postalCode,
         },
         ...shipment,
-        destinationType: destType,
         displayDestinationType: isRetirementOrSeparation,
       };
 
