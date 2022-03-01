@@ -409,6 +409,135 @@ export const allApprovedMTOQuery = {
   isSuccess: true,
 };
 
+export const allApprovedExternalVendorMTOQuery = {
+  orders: {
+    1: {
+      id: '1',
+      originDutyStation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postalCode: '40121',
+        },
+      },
+      destinationDutyStation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postalCode: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
+      },
+    },
+  },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVALS_REQUESTED,
+    availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+  },
+  mtoShipments: [
+    {
+      id: '3',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        streetAddress1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postalCode: '60601',
+      },
+      destinationAddress: {
+        streetAddress1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postalCode: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
+      sitExtensions: [],
+      sitStatus: SITStatusOrigin,
+    },
+    {
+      id: '5',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      ntsRecordedWeight: 2000,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        streetAddress1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postalCode: '60601',
+      },
+      destinationAddress: {
+        streetAddress1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postalCode: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
+      sitExtensions: [],
+      sitStatus: SITStatusOrigin,
+      isDiversion: false,
+      storageFacility: {
+        address: {
+          city: 'Anytown',
+          country: 'USA',
+          postalCode: '90210',
+          state: 'OK',
+          streetAddress1: '555 Main Ave',
+          streetAddress2: 'Apartment 900',
+        },
+        facilityName: 'my storage',
+        lotNumber: '2222',
+      },
+      serviceOrderNumber: '12341234',
+      requestedDeliveryDate: '26 Mar 2020',
+      tacType: 'HHG',
+      sacType: 'NTS',
+      usesExternalVendor: true,
+    },
+  ],
+  mtoServiceItems: [
+    {
+      id: '8',
+      mtoShipmentID: '3',
+      reServiceName: 'Domestic origin 1st day SIT',
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOFSIT',
+    },
+    {
+      id: '9',
+      mtoShipmentID: '4',
+      reServiceName: "Domestic origin add'l SIT",
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOASIT',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
 // weights returned are all null
 export const missingWeightQuery = {
   ...allApprovedMTOQuery,
@@ -950,6 +1079,109 @@ export const riskOfExcessWeightQuery = {
       primeActualWeight: 40,
       sitExtensions: [],
       sitStatus: SITStatusOrigin,
+    },
+  ],
+};
+
+export const riskOfExcessWeightQueryExternalShipment = {
+  ...allApprovedExternalVendorMTOQuery,
+  orders: {
+    1: {
+      id: '1',
+      originDutyStation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postalCode: '40121',
+        },
+      },
+      destinationDutyStation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postalCode: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 100,
+        totalWeight: 100,
+      },
+    },
+  },
+  mtoShipments: [
+    {
+      id: '3',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        streetAddress1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postalCode: '60601',
+      },
+      destinationAddress: {
+        streetAddress1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postalCode: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 50,
+      primeActualWeight: 50,
+      sitExtensions: [],
+      sitStatus: SITStatusOrigin,
+    },
+    {
+      id: '5',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      ntsRecordedWeight: 2000,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        streetAddress1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postalCode: '60601',
+      },
+      destinationAddress: {
+        streetAddress1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postalCode: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
+      sitExtensions: [],
+      sitStatus: SITStatusOrigin,
+      isDiversion: false,
+      storageFacility: {
+        address: {
+          city: 'Anytown',
+          country: 'USA',
+          postalCode: '90210',
+          state: 'OK',
+          streetAddress1: '555 Main Ave',
+          streetAddress2: 'Apartment 900',
+        },
+        facilityName: 'my storage',
+        lotNumber: '2222',
+      },
+      serviceOrderNumber: '12341234',
+      requestedDeliveryDate: '26 Mar 2020',
+      tacType: 'HHG',
+      sacType: 'NTS',
+      usesExternalVendor: true,
     },
   ],
 };

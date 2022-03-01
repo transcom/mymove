@@ -612,6 +612,7 @@ describe('MovePaymentRequests', () => {
     });
 
     it('navigates the user to the reivew billable weight page', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
       renderMovePaymentRequests(testProps);
 
       const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
