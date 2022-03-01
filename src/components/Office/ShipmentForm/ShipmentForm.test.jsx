@@ -104,6 +104,7 @@ describe('ShipmentForm component', () => {
       });
     });
   });
+
   describe('when creating a new HHG shipment', () => {
     it('renders the HHG shipment form', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
@@ -418,13 +419,27 @@ describe('ShipmentForm component', () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
-      expect(screen.getByText(/Shipment weight \(lbs\)/)).toBeInTheDocument();
+      expect(screen.getByText(/Previously recorded weight \(lbs\)/)).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility info' })).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility address' })).toBeInTheDocument();
     });
   });
 
   describe('as a TOO', () => {
+    it('renders the HHG shipment form', async () => {
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />);
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+
+      expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
+      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
+      expect(screen.getByText('Pickup location')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
+      expect(screen.getByText(/Receiving agent/).parentElement).toBeInTheDocument();
+      expect(screen.getByText('Customer remarks')).toBeInTheDocument();
+      expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
+    });
+
     it('renders the NTS shipment form', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />);
 
