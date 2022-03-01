@@ -256,7 +256,6 @@ const MoveDetails = ({
             <FontAwesomeIcon icon="exclamation" />
           </LeftNavTag>
           <LeftNavTag
-            className={styles.tag}
             associatedSectionName="orders"
             showTag={Boolean(!hasMissingOrdersRequiredInfo && hasAmendedOrders)}
             testID="newOrdersNavTag"
@@ -264,7 +263,6 @@ const MoveDetails = ({
             NEW
           </LeftNavTag>
           <LeftNavTag
-            className={styles.tag}
             associatedSectionName="requested-shipments"
             showTag={!shipmentMissingRequiredInformation}
             testID="requestedShipmentsTag"

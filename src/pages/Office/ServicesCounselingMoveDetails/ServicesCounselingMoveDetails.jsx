@@ -257,7 +257,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
       <div className={styles.container}>
         <LeftNav className={styles.sidebar} sections={sections}>
           <LeftNavTag
-            className={styles.tag}
             associatedSectionName="shipments"
             showTag={numberOfErrorIfMissingForAllShipments !== 0 || numberOfWarnIfMissingForAllShipments !== 0}
             testID="requestedShipmentsTag"

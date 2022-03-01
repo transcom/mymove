@@ -207,7 +207,6 @@ const MovePaymentRequests = ({
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
         <LeftNav className={txoStyles.sidebar} sections={sections}>
           <LeftNavTag
-            className={txoStyles.tag}
             associatedSectionName="payment-requests"
             showTag={paymentRequests?.length > 0}
             testID="numOfPaymentRequestsTag"
