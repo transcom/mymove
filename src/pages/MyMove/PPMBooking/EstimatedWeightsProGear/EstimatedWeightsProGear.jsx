@@ -35,13 +35,15 @@ const EstimatedWeightsProGear = ({ orders, serviceMember, mtoShipment }) => {
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
 
+    const hasProGear = values.hasProGear === 'true';
+
     const payload = {
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
         estimatedWeight: values.estimatedWeight,
-        hasProGear: values.hasProGear,
-        proGearWeight: values.proGearWeight ? values.hasProGear : null,
-        spouseProGearWeight: values.spouseProGearWeight ? values.hasProGear : null,
+        hasProGear,
+        proGearWeight: hasProGear ? values.proGearWeight : null,
+        spouseProGearWeight: hasProGear ? values.spouseProGearWeight : null,
       },
     };
 
