@@ -46,7 +46,7 @@ const EstimatedWeightsProGear = ({ orders, serviceMember, mtoShipment }) => {
       .then((response) => {
         setSubmitting(false);
         updateMTOShipment(response);
-        history.push(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId });
+        history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
       })
       .catch((err) => {
         setSubmitting(false);
