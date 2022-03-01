@@ -19,14 +19,24 @@ const defaultProps = {
       pro_gear_weight_spouse: 500,
     },
   },
+  mtoShipment: {
+    id: '123',
+    ppmShipment: {
+      id: '123',
+      pickupPostalCode: '20002',
+      destinationPostalCode: '20004',
+      sitExpected: false,
+      expectedDepartureDate: '2022-12-31',
+    },
+  },
 };
 
 const mtoShipmentProps = {
   ...defaultProps,
   mtoShipment: {
-    id: '123',
+    ...defaultProps.mtoShipment,
     ppmShipment: {
-      id: '123',
+      ...defaultProps.mtoShipment.ppmShipment,
       hasProGear: true,
       proGearWeight: 1000,
       spouseProGearWeight: 100,
