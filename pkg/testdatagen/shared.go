@@ -118,8 +118,16 @@ func StringPointer(s string) *string {
 	return &s
 }
 
+func BoolPointer(b bool) *bool {
+	return &b
+}
+
 func PoundPointer(p unit.Pound) *unit.Pound {
 	return &p
+}
+
+func Int32Pointer(i int32) *int32 {
+	return &i
 }
 
 func TimePointer(t time.Time) *time.Time {
