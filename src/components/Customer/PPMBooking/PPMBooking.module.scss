@@ -69,7 +69,7 @@
   @include u-display(flex);
   flex-wrap: wrap;
 
-  button {
+  button:global(.usa-button) {
     @include u-margin-top(2);
     @include u-margin-bottom(0);
   }
