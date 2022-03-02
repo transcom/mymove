@@ -150,7 +150,7 @@ executors:
           POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: test_db
 
-  mymove_integration_tester:
+  milmove_integration_tester:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
@@ -915,7 +915,7 @@ jobs:
   # test, we only have to re-run part of the integration tests
   integration_tests_admin:
     parallelism: 2
-    executor: mymove_integration_tester
+    executor: milmove_integration_tester
     steps:
       - attach_workspace:
           at: .
@@ -936,7 +936,7 @@ jobs:
 
   integration_tests_office:
     parallelism: 4
-    executor: mymove_integration_tester
+    executor: milmove_integration_tester
     steps:
       - attach_workspace:
           at: .
@@ -956,7 +956,7 @@ jobs:
       - announce_failure
 
   integration_tests_prime:
-    executor: mymove_integration_tester
+    executor: milmove_integration_tester
     steps:
       - attach_workspace:
           at: .
@@ -975,14 +975,36 @@ jobs:
           path: cypress/results
       - announce_failure
 
-  integration_tests_milmove:
+  # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
+  integration_tests_mymove:
     parallelism: 4
-    executor: mymove_integration_tester
+    executor: milmove_integration_tester
     steps:
       - attach_workspace:
           at: .
       - e2e_tests_cypress:
           spec_glob: cypress/integration/mymove/**/*.js
+      - store_artifacts:
+          path: cypress/reports
+          destination: reports
+      - store_artifacts:
+          path: cypress/videos
+          destination: videos
+      - store_artifacts:
+          path: cypress/screenshots
+          destination: screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+
+  integration_tests_milmove:
+    parallelism: 4
+    executor: milmove_integration_tester
+    steps:
+      - attach_workspace:
+          at: .
+      - e2e_tests_cypress:
+          spec_glob: cypress/integration/milmove/**/*.js
       - store_artifacts:
           path: cypress/reports
           destination: reports
@@ -1946,6 +1968,16 @@ workflows:
             branches:
               ignore: *integration-ignore-branch
 
+      - integration_tests_mymove:
+          requires:
+            - compile_app_server
+            - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
+
       - integration_tests_milmove:
           requires:
             - compile_app_server
@@ -1961,6 +1993,7 @@ workflows:
             - integration_tests_admin
             - integration_tests_office
             - integration_tests_prime
+            - integration_tests_mymove
             - integration_tests_milmove
           # See comments at the top of this file for configuring/using
           # this branch config

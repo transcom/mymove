@@ -18,7 +18,7 @@
 
   h1:first-child,
   .pageHeader:first-child,
-  .sidebar,
+  nav,
   .emptyMessage p {
     @include u-margin-top(0);
   }
@@ -95,13 +95,6 @@
   }
 }
 
-.sidebar {
-  position: sticky;
-  align-self: flex-start;
-  margin-top: 26px;
-  top: 26px;
-}
-
 .section {
   background: $bg-white;
   border-radius: 3px;
@@ -118,19 +111,10 @@
   margin-bottom: 135px;
 }
 
-.tag {
-  max-height: 18px;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  margin: auto 0;
-}
-
 .movePaymentRequests {
   table-layout: fixed;
   border: 5px solid red;
 }
 .PaymentRequestDetails_PaymentRequestDetails .table--stacked {
   table-layout: fixed;
-
 }

@@ -138,9 +138,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 		response := handler.Handle(subtestData.params)
 
@@ -168,6 +170,53 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(createdShipment.Agents[0].ID)
 	})
 
+	suite.Run("Successful POST - Integration Test - PPM", func() {
+		subtestData := suite.makeCreateSubtestData()
+		params := subtestData.params
+		ppmShipmentType := internalmessages.MTOShipmentTypePPM
+		// pointers
+		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
+		pickupPostal := "11111"
+		destinationPostalCode := "41414"
+		sitExpected := false
+		// Reset Shipment Type to PPM from default (HHG)
+		params.Body.ShipmentType = &ppmShipmentType
+		// reset Body params to have PPM fields
+		params.Body = &internalmessages.CreateShipment{
+			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
+			PpmShipment: &internalmessages.CreatePPMShipment{
+				ExpectedDepartureDate: &expectedDepartureDate,
+				PickupPostalCode:      &pickupPostal,
+				DestinationPostalCode: &destinationPostalCode,
+				SitExpected:           &sitExpected,
+			},
+			ShipmentType: &ppmShipmentType,
+		}
+
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			creator,
+			ppmShipmentCreator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		createdShipment := response.(*mtoshipmentops.CreateMTOShipmentOK).Payload
+
+		suite.NotEmpty(createdShipment.ID.String())
+
+		suite.Equal(internalmessages.MTOShipmentTypePPM, createdShipment.ShipmentType)
+		suite.Equal(*params.Body.MoveTaskOrderID, createdShipment.MoveTaskOrderID)
+		suite.Equal(*params.Body.PpmShipment.ExpectedDepartureDate, *createdShipment.PpmShipment.ExpectedDepartureDate)
+		suite.Equal(*params.Body.PpmShipment.PickupPostalCode, *createdShipment.PpmShipment.PickupPostalCode)
+		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
+		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
+	})
+
 	suite.Run("Successful POST - Integration Test - NTS-Release", func() {
 		subtestData := suite.makeCreateSubtestData()
 		params := subtestData.params
@@ -179,9 +228,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 		response := handler.Handle(subtestData.params)
 
@@ -213,10 +264,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 
 		badParams := subtestData.params
@@ -231,6 +284,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
 		shipmentType := internalmessages.MTOShipmentTypeHHG
@@ -258,6 +312,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 
 		response := handler.Handle(unauthorizedParams)
@@ -274,10 +329,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
 		unauthorizedParams := subtestData.params
 		unauthorizedParams.HTTPRequest = unauthorizedReq
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 
 		response := handler.Handle(unauthorizedParams)
@@ -290,10 +347,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 
 		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
@@ -309,10 +368,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
+			ppmShipmentCreator,
 		}
 
 		otherParams := mtoshipmentops.CreateMTOShipmentParams{
@@ -323,13 +384,62 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
 	})
 
-	suite.Run("POST failure - 500", func() {
+	suite.Run("POST failure - 400 -- missing required field to Create PPM", func() {
 		subtestData := suite.makeCreateSubtestData()
-		mockCreator := mocks.MTOShipmentCreator{}
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			creator,
+			ppmShipmentCreator,
+		}
+
+		//otherParams := mtoshipmentops.CreateMTOShipmentParams{
+		//	HTTPRequest: subtestData.params.HTTPRequest,
+		//}
+
+		params := subtestData.params
+		ppmShipmentType := internalmessages.MTOShipmentTypePPM
+		// pointers
+		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
+		pickupPostal := "11111"
+		destinationPostalCode := "41414"
+		sitExpected := false
+		badID, _ := uuid.NewV4()
+		//reason := "invalid memory address or nil pointer dereference"
+		params.Body.ShipmentType = &ppmShipmentType
+		// reset Body params to have PPM fields
+		params.Body = &internalmessages.CreateShipment{
+			//MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
+			MoveTaskOrderID: handlers.FmtUUID(badID),
+			PpmShipment: &internalmessages.CreatePPMShipment{
+				ExpectedDepartureDate: &expectedDepartureDate,
+				PickupPostalCode:      &pickupPostal,
+				DestinationPostalCode: &destinationPostalCode,
+				SitExpected:           &sitExpected,
+			},
+			ShipmentType: &ppmShipmentType,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
+		errResponse := response.(*mtoshipmentops.CreateMTOShipmentNotFound).Payload
+		suite.Equal(handlers.NotFoundMessage, *errResponse.Title)
+
+		// Check Error details
+		suite.Contains(*errResponse.Detail, "not found for move")
+	})
+
+	suite.Run("POST failure - 500", func() {
+		subtestData := suite.makeCreateSubtestData()
+		mockCreator := mocks.MTOShipmentCreator{}
+		mockPPMShipmentCreator := mocks.PPMShipmentCreator{}
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			&mockCreator,
+			&mockPPMShipmentCreator,
 		}
 
 		err := errors.New("ServerError")

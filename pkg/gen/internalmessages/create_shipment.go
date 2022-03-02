@@ -39,7 +39,7 @@ type CreateShipment struct {
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 	// ppm shipment
-	PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
+	PpmShipment *CreatePPMShipment `json:"ppmShipment,omitempty"`
 
 	// requested delivery date
 	// Format: date

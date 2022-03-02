@@ -8,6 +8,7 @@ import (
 )
 
 // PPMShipmentCreator creates a PPM shipment
+//go:generate mockery --name PPMShipmentCreator --disable-version-string
 type PPMShipmentCreator interface {
 	CreatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment) (*models.PPMShipment, error)
 }

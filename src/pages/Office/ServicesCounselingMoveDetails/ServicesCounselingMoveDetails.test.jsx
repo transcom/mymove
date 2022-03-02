@@ -302,6 +302,30 @@ describe('MoveDetails page', () => {
       expect(await screen.findByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
     });
 
+    it.each([['Shipments'], ['Orders'], ['Allowances'], ['Customer info']])(
+      'renders side navigation for section %s',
+      async (sectionName) => {
+        useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('link', { name: sectionName })).toBeInTheDocument();
+      },
+    );
+
+    it('renders the number of missing information for all shipments in a section', async () => {
+      const moveDetailsQuery = {
+        ...newMoveDetailsQuery,
+        mtoShipments: [ntsrShipmentMissingRequiredInfo],
+      };
+
+      useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
+
+      render(mockedComponent);
+
+      expect(await screen.findByTestId('requestedShipmentsTag')).toBeInTheDocument();
+    });
+
     /* eslint-disable camelcase */
     it('renders shipments info', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);

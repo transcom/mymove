@@ -3,6 +3,8 @@ package internalapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -29,6 +31,7 @@ import (
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerContext
 	mtoShipmentCreator services.MTOShipmentCreator
+	ppmShipmentCreator services.PPMShipmentCreator
 }
 
 // Handle creates the mto shipment
@@ -45,12 +48,18 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 			"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
-
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
-	mtoShipment.Status = models.MTOShipmentStatusSubmitted
-	serviceItemsList := make(models.MTOServiceItems, 0)
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
+	var err error
+	var ppmShipment *models.PPMShipment
+	if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
+		// Return a PPM Shipment with an MTO Shipment inside
+		ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
+	} else {
+		// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
+		mtoShipment.Status = models.MTOShipmentStatusSubmitted
+		serviceItemsList := make(models.MTOServiceItems, 0)
+		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
+	}
 
 	if err != nil {
 		appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
@@ -68,6 +77,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		default:
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
+	}
+
+	if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
+		// Return an mtoShipment that has a ppmShipment
+		mtoShipment = &ppmShipment.Shipment
 	}
 	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
