@@ -19,3 +19,7 @@ WHERE new_duty_location_id IS NULL;
 -- more carefully.
 ALTER TABLE orders
 	ALTER COLUMN new_duty_location_id SET NOT NULL;
+
+COMMENT ON COLUMN orders.origin_duty_location_id IS 'Unique identifier for the duty location the customer is moving from. Not the same as the text version of the name.';
+COMMENT ON COLUMN orders.new_duty_location_id IS 'Unique identifier for the duty location the customer is being assigned to. Not the same as the text version of the name.';
+COMMENT ON COLUMN service_members.duty_location_id IS 'A foreign key that points to the duty location table - containing the customer''s current duty location';
