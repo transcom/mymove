@@ -49,12 +49,10 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 	var err error
+	var ppmShipment *models.PPMShipment
 	if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
-		var ppmShipment *models.PPMShipment
 		// Return a PPM Shipment with an MTO Shipment inside
 		ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
-		// Return an mtoShipment that has a ppmShipment
-		mtoShipment = &ppmShipment.Shipment
 	} else {
 		// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
 		mtoShipment.Status = models.MTOShipmentStatusSubmitted
@@ -78,6 +76,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		default:
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
+	}
+
+	if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
+		// Return an mtoShipment that has a ppmShipment
+		mtoShipment = &ppmShipment.Shipment
 	}
 	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
