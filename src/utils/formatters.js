@@ -125,6 +125,8 @@ export function formatCents(cents, minimumFractionDigits = 2, maximumFractionDig
   return (cents / 100).toLocaleString(undefined, { minimumFractionDigits, maximumFractionDigits });
 }
 
+// Formats a numeric value amount in the default locale with configurable options
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString
 export function formatAmount(amount, options = { minimumFractionDigits: 2, maximumFractionDigits: 2 }) {
   if (!Number.isFinite(amount)) {
     return '';
