@@ -386,6 +386,64 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
 	})
 
+	suite.Run("POST failure - 400 -- missing required field to Create PPM", func() {
+		subtestData := suite.makeCreateSubtestData()
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			creator,
+			ppmShipmentCreator,
+		}
+
+		//otherParams := mtoshipmentops.CreateMTOShipmentParams{
+		//	HTTPRequest: subtestData.params.HTTPRequest,
+		//}
+
+		params := subtestData.params
+		ppmShipmentType := internalmessages.MTOShipmentTypePPM
+		// pointers
+		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
+		pickupPostal := "11111"
+		destinationPostalCode := "41414"
+		sitExpected := false
+		badID, _ := uuid.NewV4()
+		reason := "invalid memory address or nil pointer dereference"
+		params.Body.ShipmentType = &ppmShipmentType
+		// reset Body params to have PPM fields
+		params.Body = &internalmessages.CreateShipment{
+			//MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
+			MoveTaskOrderID: handlers.FmtUUID(badID),
+			PpmShipment: &internalmessages.CreatePPMShipment{
+				ExpectedDepartureDate: &expectedDepartureDate,
+				PickupPostalCode:      &pickupPostal,
+				DestinationPostalCode: &destinationPostalCode,
+				SitExpected:           &sitExpected,
+			},
+			ShipmentType: &ppmShipmentType,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		createdShipment := response.(*mtoshipmentops.CreateMTOShipmentOK).Payload
+
+		suite.NotEmpty(createdShipment.ID.String())
+
+		// Run swagger validations
+
+		err := params.Body.Validate(strfmt.Default)
+		suite.Equal(reason, err.Error())
+
+		suite.NotEqual(*params.Body.MoveTaskOrderID, createdShipment.MoveTaskOrderID)
+
+		//suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
+		// Check response type
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+	})
+
 	suite.Run("POST failure - 500", func() {
 		subtestData := suite.makeCreateSubtestData()
 		mockCreator := mocks.MTOShipmentCreator{}
