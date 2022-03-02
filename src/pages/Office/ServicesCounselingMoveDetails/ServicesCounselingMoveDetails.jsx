@@ -372,6 +372,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
                 counselorCanEdit && (
                   <Link
                     className="usa-button usa-button--secondary"
+                    data-testid="edit-allowances"
                     to={generatePath(servicesCounselingRoutes.ALLOWANCES_EDIT_PATH, { moveCode })}
                   >
                     Edit allowances
