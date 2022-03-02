@@ -16,6 +16,7 @@ type ppmShipmentUpdater struct {
 func NewPPMShipmentUpdater() services.PPMShipmentUpdater {
 	return &ppmShipmentUpdater{
 		checks: []ppmShipmentValidator{
+			checkShipmentType(),
 			checkShipmentID(),
 			checkPPMShipmentID(),
 			checkRequiredFields(),

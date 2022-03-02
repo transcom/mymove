@@ -11,6 +11,24 @@ import (
 )
 
 func (suite *PPMShipmentSuite) TestValidationRules() {
+	suite.Run("checkShipmentType", func() {
+		suite.Run("success", func() {
+			err := checkShipmentType().Validate(suite.AppContextForTest(), models.PPMShipment{}, nil, &models.MTOShipment{ShipmentType: models.MTOShipmentTypePPM})
+			suite.NilOrNoVerrs(err)
+		})
+
+		suite.Run("failure", func() {
+			err := checkShipmentType().Validate(suite.AppContextForTest(), models.PPMShipment{}, nil, &models.MTOShipment{ShipmentType: models.MTOShipmentTypeHHG})
+			switch verr := err.(type) {
+			case *validate.Errors:
+				suite.True(verr.HasAny())
+				suite.Contains(verr.Keys(), "ShipmentType")
+			default:
+				suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+			}
+		})
+	})
+
 	suite.Run("checkMTOShipmentID", func() {
 		suite.Run("success", func() {
 			newPPMShipment := models.PPMShipment{ShipmentID: uuid.Must(uuid.NewV4())}
