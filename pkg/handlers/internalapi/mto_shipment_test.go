@@ -410,7 +410,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		destinationPostalCode := "41414"
 		sitExpected := false
 		badID, _ := uuid.NewV4()
-		reason := "invalid memory address or nil pointer dereference"
+		//reason := "invalid memory address or nil pointer dereference"
 		params.Body.ShipmentType = &ppmShipmentType
 		// reset Body params to have PPM fields
 		params.Body = &internalmessages.CreateShipment{
@@ -426,22 +426,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
+		errResponse := response.(*mtoshipmentops.CreateMTOShipmentNotFound).Payload
+		suite.Equal(handlers.NotFoundMessage, *errResponse.Title)
 
-		createdShipment := response.(*mtoshipmentops.CreateMTOShipmentOK).Payload
-
-		suite.NotEmpty(createdShipment.ID.String())
-
-		// Run swagger validations
-
-		err := params.Body.Validate(strfmt.Default)
-		suite.Equal(reason, err.Error())
-
-		suite.NotEqual(*params.Body.MoveTaskOrderID, createdShipment.MoveTaskOrderID)
-
-		//suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
-		// Check response type
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		// Check Error details
+		suite.Contains(*errResponse.Detail, "not found for move")
 	})
 
 	suite.Run("POST failure - 500", func() {
