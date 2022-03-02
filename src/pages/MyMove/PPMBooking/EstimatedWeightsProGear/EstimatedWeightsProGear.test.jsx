@@ -9,6 +9,7 @@ import EstimatedWeightsProGear from './EstimatedWeightsProGear';
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
+import { selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
 
 const mockPush = jest.fn();
@@ -63,6 +64,18 @@ const mockPreExistingShipment = {
   eTag: btoa(new Date()),
 };
 
+const mockPreExistingShipmentWithProGear = {
+  ...mockPreExistingShipment,
+  ppmShipment: {
+    ...mockPreExistingShipment.ppmShipment,
+    hasProGear: true,
+    proGearWeight: 1000,
+    spouseProGearWeight: 100,
+    eTag: btoa(new Date()),
+  },
+  eTag: btoa(new Date()),
+};
+
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useHistory: () => ({
@@ -98,184 +111,223 @@ beforeEach(() => {
 });
 
 describe('EstimatedWeightsProGear page', () => {
-  describe('working with a new PPM Shipment...', () => {
-    it('renders the heading and empty form', () => {
+  it('renders the heading and empty form when weight info has not been entered', () => {
+    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toMatchInlineSnapshot(`"Estimated weight"`);
+
+    const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
+    expect(estimatedWeightInput).toBeInTheDocument(HTMLInputElement);
+    expect(estimatedWeightInput.value).toBe('');
+
+    const hasProGearYesInput = screen.getByRole('radio', { name: /yes/i });
+    expect(hasProGearYesInput).toBeInstanceOf(HTMLInputElement);
+    expect(hasProGearYesInput.checked).toBe(false);
+
+    const hasProGearNoInput = screen.getByRole('radio', { name: /no/i });
+    expect(hasProGearNoInput).toBeInstanceOf(HTMLInputElement);
+    expect(hasProGearNoInput.checked).toBe(true);
+
+    expect(screen.queryByLabelText(/estimated weight of your pro-gear/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/estimated weight of your spouse’s pro-gear/i)).not.toBeInTheDocument();
+
+    const backButton = screen.getByRole('button', { name: /back/i });
+    expect(backButton).toBeInTheDocument();
+    expect(backButton).not.toBeDisabled();
+
+    const saveButton = screen.getByRole('button', { name: /save & continue/i });
+    expect(saveButton).toBeInTheDocument();
+    expect(saveButton).not.toBeDisabled();
+  });
+
+  it.each([[mockPreExistingShipment], [mockPreExistingShipmentWithProGear]])(
+    'renders the form pre-filled when weight info has been entered previously',
+    async (preExistingShipment) => {
+      selectMTOShipmentById.mockImplementationOnce(() => preExistingShipment);
+
       render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
 
-      expect(screen.getByRole('heading', { level: 1 }).textContent).toMatchInlineSnapshot(`"Estimated weight"`);
-
-      const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-      expect(estimatedWeightInput).toBeInTheDocument(HTMLInputElement);
-      expect(estimatedWeightInput.value).toBe('');
+      await waitFor(() => {
+        expect(screen.getByLabelText(/estimated weight of this ppm shipment/i).value).toBe('4,000');
+      });
 
       const hasProGearYesInput = screen.getByRole('radio', { name: /yes/i });
-      expect(hasProGearYesInput).toBeInstanceOf(HTMLInputElement);
-      expect(hasProGearYesInput.checked).toBe(false);
-
       const hasProGearNoInput = screen.getByRole('radio', { name: /no/i });
-      expect(hasProGearNoInput).toBeInstanceOf(HTMLInputElement);
-      expect(hasProGearNoInput.checked).toBe(true);
 
+      if (preExistingShipment.ppmShipment.hasProGear) {
+        expect(hasProGearYesInput.checked).toBe(true);
+        expect(hasProGearNoInput.checked).toBe(false);
+
+        const proGearWeightInput = screen.getByLabelText(/estimated weight of your pro-gear/i);
+        expect(proGearWeightInput.value).toBe('1,000');
+
+        const spouseProGearWeightInput = screen.getByLabelText(/estimated weight of your spouse’s pro-gear/i);
+        expect(spouseProGearWeightInput.value).toBe('100');
+      } else {
+        expect(hasProGearYesInput.checked).toBe(false);
+        expect(hasProGearNoInput.checked).toBe(true);
+        expect(screen.queryByLabelText(/estimated weight of your pro-gear/i)).not.toBeInTheDocument();
+        expect(screen.queryByLabelText(/estimated weight of your spouse’s pro-gear/i)).not.toBeInTheDocument();
+      }
+    },
+  );
+
+  it('can toggle optional fields', async () => {
+    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+
+    const hasProGearYesInput = screen.getByRole('radio', { name: /yes/i });
+    userEvent.click(hasProGearYesInput);
+
+    const proGearWeightInput = await screen.findByLabelText(/estimated weight of your pro-gear/i);
+    expect(proGearWeightInput).toBeInstanceOf(HTMLInputElement);
+
+    const spouseProGearWeightInput = screen.getByLabelText(/estimated weight of your spouse’s pro-gear/i);
+    expect(spouseProGearWeightInput).toBeInstanceOf(HTMLInputElement);
+
+    const hasProGearNoInput = screen.getByRole('radio', { name: /no/i });
+    userEvent.click(hasProGearNoInput);
+
+    await waitFor(() => {
       expect(screen.queryByLabelText(/estimated weight of your pro-gear/i)).not.toBeInTheDocument();
-      expect(screen.queryByLabelText(/estimated weight of your spouse’s pro-gear/i)).not.toBeInTheDocument();
-
-      const backButton = screen.getByRole('button', { name: /back/i });
-      expect(backButton).toBeInTheDocument();
-      expect(backButton).not.toBeDisabled();
-
-      const saveButton = screen.getByRole('button', { name: /save & continue/i });
-      expect(saveButton).toBeInTheDocument();
-      expect(saveButton).not.toBeDisabled();
     });
 
-    it('can toggle optional fields', async () => {
-      render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    expect(screen.queryByLabelText(/estimated weight of your spouse’s pro-gear/i)).not.toBeInTheDocument();
+  });
 
-      const hasProGearYesInput = screen.getByRole('radio', { name: /yes/i });
-      userEvent.click(hasProGearYesInput);
+  it('routes back to the previous page when the back button is clicked', () => {
+    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
 
-      const proGearWeightInput = await screen.findByLabelText(/estimated weight of your pro-gear/i);
-      expect(proGearWeightInput).toBeInstanceOf(HTMLInputElement);
+    const backButton = screen.getByRole('button', { name: /back/i });
 
-      const spouseProGearWeightInput = screen.getByLabelText(/estimated weight of your spouse’s pro-gear/i);
-      expect(spouseProGearWeightInput).toBeInstanceOf(HTMLInputElement);
+    userEvent.click(backButton);
+
+    expect(mockGoBack).toHaveBeenCalled();
+  });
+
+  it('calls the patch shipment endpoint when save & continue is clicked', async () => {
+    patchMTOShipment.mockResolvedValue();
+
+    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+
+    const estimatedWeight = 4000;
+
+    const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
+    userEvent.type(estimatedWeightInput, String(estimatedWeight));
+
+    const saveButton = screen.getByRole('button', { name: /save & continue/i });
+    expect(saveButton).not.toBeDisabled();
+    userEvent.click(saveButton);
+
+    const expectedPayload = {
+      ppmShipment: {
+        id: mockMTOShipment.ppmShipment.id,
+        estimatedWeight,
+        hasProGear: false,
+        proGearWeight: null,
+        spouseProGearWeight: null,
+      },
+    };
+
+    await waitFor(() =>
+      expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, mockMTOShipment.eTag),
+    );
+  });
+
+  it('calls the patch shipment endpoint with optional values when save & continue is clicked', async () => {
+    patchMTOShipment.mockResolvedValue();
+
+    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+
+    const estimatedWeight = 4000;
+
+    const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
+    userEvent.type(estimatedWeightInput, String(estimatedWeight));
+
+    const hasProGearYesInput = screen.getByRole('radio', { name: /yes/i });
+    userEvent.click(hasProGearYesInput);
+
+    const proGearWeight = 1000;
+
+    const proGearWeightInput = await screen.findByLabelText(/estimated weight of your pro-gear/i);
+    expect(proGearWeightInput).toBeInstanceOf(HTMLInputElement);
+
+    await waitFor(() => {
+      userEvent.type(proGearWeightInput, String(proGearWeight));
     });
 
-    it('routes back to the previous page when the back button is clicked', () => {
-      render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    const spouseProGearWeight = 100;
 
-      const backButton = screen.getByRole('button', { name: /back/i });
+    const spouseProGearWeightInput = screen.getByLabelText(/estimated weight of your spouse’s pro-gear/i);
+    expect(spouseProGearWeightInput).toBeInstanceOf(HTMLInputElement);
 
-      userEvent.click(backButton);
-
-      expect(mockGoBack).toHaveBeenCalled();
+    await waitFor(() => {
+      userEvent.type(spouseProGearWeightInput, String(spouseProGearWeight));
     });
 
-    it('calls the patch shipment endpoint when save & continue is clicked', async () => {
-      patchMTOShipment.mockResolvedValue();
+    const saveButton = screen.getByRole('button', { name: /save & continue/i });
+    expect(saveButton).not.toBeDisabled();
+    userEvent.click(saveButton);
 
-      render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    const expectedPayload = {
+      ppmShipment: {
+        id: mockMTOShipment.ppmShipment.id,
+        estimatedWeight,
+        hasProGear: true,
+        proGearWeight,
+        spouseProGearWeight,
+      },
+    };
 
-      const estimatedWeight = 4000;
-
-      const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-      userEvent.type(estimatedWeightInput, String(estimatedWeight));
-
-      const saveButton = screen.getByRole('button', { name: /save & continue/i });
-      expect(saveButton).not.toBeDisabled();
-      userEvent.click(saveButton);
-
-      const expectedPayload = {
-        ppmShipment: {
-          id: mockMTOShipment.ppmShipment.id,
-          estimatedWeight,
-          hasProGear: false,
-          proGearWeight: null,
-          spouseProGearWeight: null,
-        },
-      };
-
-      await waitFor(() =>
-        expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, mockMTOShipment.eTag),
-      );
+    await waitFor(() => {
+      // screen.debug();
+      expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, mockMTOShipment.eTag);
     });
+  });
 
-    it('calls the patch shipment endpoint with optional values when save & continue is clicked', async () => {
-      patchMTOShipment.mockResolvedValue();
+  it('updates the state if shipment patch is successful', async () => {
+    patchMTOShipment.mockResolvedValue(mockPreExistingShipment);
 
-      render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
 
-      const estimatedWeight = 4000;
+    const estimatedWeight = 4000;
 
-      const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-      userEvent.type(estimatedWeightInput, String(estimatedWeight));
+    const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
+    userEvent.type(estimatedWeightInput, String(estimatedWeight));
 
-      const hasProGearYesInput = screen.getByRole('radio', { name: /yes/i });
-      userEvent.click(hasProGearYesInput);
+    const saveButton = screen.getByRole('button', { name: /save & continue/i });
+    userEvent.click(saveButton);
 
-      const proGearWeight = 1000;
+    await waitFor(() => expect(updateMTOShipment).toHaveBeenCalledWith(mockPreExistingShipment));
+  });
 
-      const proGearWeightInput = await screen.findByLabelText(/estimated weight of your pro-gear/i);
-      expect(proGearWeightInput).toBeInstanceOf(HTMLInputElement);
+  it('routes to the estimated incentive page when the user clicks save & continue', async () => {
+    patchMTOShipment.mockResolvedValue({});
 
-      await waitFor(() => {
-        userEvent.type(proGearWeightInput, String(proGearWeight));
-      });
+    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
 
-      const spouseProGearWeight = 100;
+    const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
+    userEvent.type(estimatedWeightInput, '4000');
 
-      const spouseProGearWeightInput = screen.getByLabelText(/estimated weight of your spouse’s pro-gear/i);
-      expect(spouseProGearWeightInput).toBeInstanceOf(HTMLInputElement);
+    const saveButton = screen.getByRole('button', { name: /save & continue/i });
+    userEvent.click(saveButton);
 
-      await waitFor(() => {
-        userEvent.type(spouseProGearWeightInput, String(spouseProGearWeight));
-      });
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith(estimatedIncentivePath));
+  });
 
-      const saveButton = screen.getByRole('button', { name: /save & continue/i });
-      expect(saveButton).not.toBeDisabled();
-      userEvent.click(saveButton);
+  it('displays an error message if the update fails', async () => {
+    const mockErrorMsg = 'Invalid shipment ID';
 
-      const expectedPayload = {
-        ppmShipment: {
-          id: mockMTOShipment.ppmShipment.id,
-          estimatedWeight,
-          hasProGear: true,
-          proGearWeight,
-          spouseProGearWeight,
-        },
-      };
+    patchMTOShipment.mockRejectedValue({});
+    getResponseError.mockReturnValue(mockErrorMsg);
 
-      await waitFor(() => {
-        // screen.debug();
-        expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, mockMTOShipment.eTag);
-      });
-    });
+    render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
 
-    it('updates the state if shipment patch is successful', async () => {
-      patchMTOShipment.mockResolvedValue(mockPreExistingShipment);
+    const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
+    userEvent.type(estimatedWeightInput, '4000');
 
-      render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
+    const saveButton = screen.getByRole('button', { name: /save & continue/i });
+    userEvent.click(saveButton);
 
-      const estimatedWeight = 4000;
-
-      const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-      userEvent.type(estimatedWeightInput, String(estimatedWeight));
-
-      const saveButton = screen.getByRole('button', { name: /save & continue/i });
-      userEvent.click(saveButton);
-
-      await waitFor(() => expect(updateMTOShipment).toHaveBeenCalledWith(mockPreExistingShipment));
-    });
-
-    it('routes to the estimated incentive page when the user clicks save & continue', async () => {
-      patchMTOShipment.mockResolvedValue({});
-
-      render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
-
-      const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-      userEvent.type(estimatedWeightInput, '4000');
-
-      const saveButton = screen.getByRole('button', { name: /save & continue/i });
-      userEvent.click(saveButton);
-
-      await waitFor(() => expect(mockPush).toHaveBeenCalledWith(estimatedIncentivePath));
-    });
-
-    it('displays an error message if the update fails', async () => {
-      const mockErrorMsg = 'Invalid shipment ID';
-
-      patchMTOShipment.mockRejectedValue({});
-      getResponseError.mockReturnValue(mockErrorMsg);
-
-      render(<EstimatedWeightsProGear />, { wrapper: MockProviders });
-
-      const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
-      userEvent.type(estimatedWeightInput, '4000');
-
-      const saveButton = screen.getByRole('button', { name: /save & continue/i });
-      userEvent.click(saveButton);
-
-      expect(await screen.findByText(mockErrorMsg)).toBeInTheDocument();
-    });
+    expect(await screen.findByText(mockErrorMsg)).toBeInTheDocument();
   });
 });
