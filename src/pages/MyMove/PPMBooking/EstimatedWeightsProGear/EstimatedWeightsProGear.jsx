@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
@@ -9,19 +9,20 @@ import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
-import { MtoShipmentShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import {
   selectCurrentOrders,
   selectMTOShipmentById,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
 
-const EstimatedWeightsProGear = ({ orders, serviceMember, mtoShipment }) => {
+const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState();
   const history = useHistory();
-  const { moveId, shipmentNumber } = useParams();
+  const { moveId, mtoShipmentId, shipmentNumber } = useParams();
 
-  const mtoShipmentId = mtoShipment.id;
+  const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
+  const orders = useSelector((state) => selectCurrentOrders(state));
+  const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const handleBack = () => {
     history.push(generatePath(customerRoutes.SHIPMENT_EDIT_PATH, { moveId, mtoShipmentId }));
@@ -35,7 +36,7 @@ const EstimatedWeightsProGear = ({ orders, serviceMember, mtoShipment }) => {
     const payload = {
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
-        estimatedWeight: values.estimatedWeight,
+        estimatedWeight: Number(values.estimatedWeight),
         hasProGear,
         proGearWeight: hasProGear ? values.proGearWeight : null,
         spouseProGearWeight: hasProGear ? values.spouseProGearWeight : null,
@@ -81,18 +82,4 @@ const EstimatedWeightsProGear = ({ orders, serviceMember, mtoShipment }) => {
   );
 };
 
-EstimatedWeightsProGear.propTypes = {
-  orders: OrdersShape.isRequired,
-  serviceMember: ServiceMemberShape.isRequired,
-  mtoShipment: MtoShipmentShape.isRequired,
-};
-
-function mapStateToProps(state, ownProps) {
-  return {
-    orders: selectCurrentOrders(state) || {},
-    serviceMember: selectServiceMemberFromLoggedInUser(state),
-    mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId) || {},
-  };
-}
-
-export default connect(mapStateToProps)(EstimatedWeightsProGear);
+export default EstimatedWeightsProGear;
