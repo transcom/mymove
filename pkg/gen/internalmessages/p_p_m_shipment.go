@@ -90,7 +90,7 @@ type PPMShipment struct {
 
 	// ZIP
 	//
-	// zip code, international allowed
+	// zip code
 	// Example: 90210
 	// Required: true
 	// Pattern: ^(\d{5})$

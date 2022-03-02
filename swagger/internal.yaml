@@ -2482,7 +2482,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       pickupPostalCode:
-        description: zip code, international allowed
+        description: zip code
         format: zip
         type: string
         title: ZIP
@@ -2588,26 +2588,30 @@ definitions:
         format: date
         type: string
       pickupPostalCode:
-        description: zip code, international allowed
+        description: zip code
         format: zip
         type: string
         title: ZIP
-        example: '''90210'' or ''N15 3NL'''
+        example: '90210'
+        pattern: ^(\d{5})$
       secondaryPickupPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: '''90210'' or ''N15 3NL'''
+        example: '90210'
+        pattern: ^(\d{5})$
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: '''90210'' or ''N15 3NL'''
+        example: '90210'
+        pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: '''90210'' or ''N15 3NL'''
+        example: '90210'
+        pattern: ^(\d{5})$
       sitExpected:
         type: boolean
     required:
@@ -2628,20 +2632,8 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      submittedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-      reviewedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-      approvedAt:
-        format: date-time
-        type: string
-        x-nullable: true
       pickupPostalCode:
-        description: zip code, international allowed
+        description: zip code
         format: zip
         type: string
         title: ZIP

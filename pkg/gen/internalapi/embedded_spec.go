@@ -3574,7 +3574,8 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
@@ -3582,23 +3583,26 @@ func init() {
           "format": "date"
         },
         "pickupPostalCode": {
-          "description": "zip code, international allowed",
+          "description": "zip code",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "secondaryDestinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean"
@@ -5405,7 +5409,7 @@ func init() {
           "example": 4300
         },
         "pickupPostalCode": {
-          "description": "zip code, international allowed",
+          "description": "zip code",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -6515,11 +6519,6 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "approvedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -6555,7 +6554,7 @@ func init() {
           "example": 4300
         },
         "pickupPostalCode": {
-          "description": "zip code, international allowed",
+          "description": "zip code",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -6565,11 +6564,6 @@ func init() {
         },
         "proGearWeight": {
           "type": "integer",
-          "x-nullable": true
-        },
-        "reviewedAt": {
-          "type": "string",
-          "format": "date-time",
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
@@ -6594,11 +6588,6 @@ func init() {
         },
         "spouseProGearWeight": {
           "type": "integer",
-          "x-nullable": true
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date-time",
           "x-nullable": true
         }
       }
@@ -10571,7 +10560,8 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
@@ -10579,23 +10569,26 @@ func init() {
           "format": "date"
         },
         "pickupPostalCode": {
-          "description": "zip code, international allowed",
+          "description": "zip code",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "secondaryDestinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "example": "'90210' or 'N15 3NL'"
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean"
@@ -12419,7 +12412,7 @@ func init() {
           "example": 4300
         },
         "pickupPostalCode": {
-          "description": "zip code, international allowed",
+          "description": "zip code",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -13533,11 +13526,6 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "approvedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -13573,7 +13561,7 @@ func init() {
           "example": 4300
         },
         "pickupPostalCode": {
-          "description": "zip code, international allowed",
+          "description": "zip code",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -13583,11 +13571,6 @@ func init() {
         },
         "proGearWeight": {
           "type": "integer",
-          "x-nullable": true
-        },
-        "reviewedAt": {
-          "type": "string",
-          "format": "date-time",
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
@@ -13612,11 +13595,6 @@ func init() {
         },
         "spouseProGearWeight": {
           "type": "integer",
-          "x-nullable": true
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date-time",
           "x-nullable": true
         }
       }
