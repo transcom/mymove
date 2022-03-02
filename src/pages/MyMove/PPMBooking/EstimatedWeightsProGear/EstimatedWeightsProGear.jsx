@@ -38,8 +38,8 @@ const EstimatedWeightsProGear = () => {
         id: mtoShipment.ppmShipment.id,
         estimatedWeight: Number(values.estimatedWeight),
         hasProGear,
-        proGearWeight: hasProGear ? values.proGearWeight : null,
-        spouseProGearWeight: hasProGear ? values.spouseProGearWeight : null,
+        proGearWeight: hasProGear ? Number(values.proGearWeight) : null,
+        spouseProGearWeight: hasProGear ? Number(values.spouseProGearWeight) : null,
       },
     };
 
