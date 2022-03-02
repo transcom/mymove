@@ -7,44 +7,18 @@ describe('the PPM flow', function () {
     cy.logout();
   });
 
+  // profile@comple.te
+  const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
   it('can submit a PPM move', () => {
-    // profile@comple.te
-    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
     cy.apiSignInAsUser(userId);
     customerChoosesAPPMMove();
     submitsDateAndLocation();
   });
 
-  it('doesn’t allow SM to progress if an invalid postal code is provided"', () => {
-    // profile@co.mple.te
-    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
+  it('doesn’t allow SM to progress if form is in an invalid state', () => {
     cy.apiSignInAsUser(userId);
     resumePPM();
-    inputsInvalidPostalCodes();
-  });
-
-  it('doesn’t allow SM to progress if required date field is not filled out"', () => {
-    // profile@co.mple.te
-    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
-    cy.apiSignInAsUser(userId);
-    resumePPM();
-    requiredDateFieldMissing();
-  });
-
-  it('doesn’t allow SM to progress if date field is invalid"', () => {
-    // profile@co.mple.te
-    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
-    cy.apiSignInAsUser(userId);
-    resumePPM();
-    invalidDate();
-  });
-
-  it('doesn’t allow SM to progress if having a secondary zip is indicated but not provided"', () => {
-    // profile@co.mple.te
-    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
-    cy.apiSignInAsUser(userId);
-    resumePPM();
-    missingSecondaryZip();
+    invalidInputs();
   });
 });
 
@@ -52,7 +26,7 @@ function customerChoosesAPPMMove() {
   cy.get('button[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
 
-  cy.get('input[type="radio"]').eq(1).check({ force: true });
+  cy.get('input[value="PPM"]').check({ force: true });
   cy.nextPage();
 }
 
@@ -74,44 +48,39 @@ function submitsDateAndLocation() {
   });
 }
 
-function inputsInvalidPostalCodes() {
-  cy.get('[class="usa-error-message"]').should('not.exist');
-  cy.get('input[name="pickupPostalCode"]').clear().type('00000').blur();
-  cy.get('[class="usa-error-message"]').should('exist');
-
-  // Fill in otherwise required fields
-  cy.get('input[name="destinationPostalCode"]').clear().type('76127');
-  cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
-
-  cy.get('button').contains('Save & Continue').should('be.disabled');
-}
-
-function requiredDateFieldMissing() {
-  // Fill in required fields other than the departure date field
-  cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
-  cy.get('input[name="destinationPostalCode"]').clear().type('76127');
-
-  cy.get('button').contains('Save & Continue').should('be.disabled');
-}
-
-function invalidDate() {
-  cy.contains('PPM date & location');
-  cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
-
-  cy.get('input[name="destinationPostalCode"]').clear().type('76127');
+function invalidInputs() {
+  // invalid date
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 ZZZ 20222').blur();
-  cy.get('[class="usa-error-message"]').should('exist');
-
-  cy.get('button').contains('Save & Continue').should('be.disabled');
-}
-
-function missingSecondaryZip() {
-  cy.contains('PPM date & location');
-  cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
-  cy.get('input[name="hasSecondaryPickupPostalCode"]').eq(0).check({ force: true });
-
-  cy.get('input[name="destinationPostalCode"]').clear().type('76127');
+  cy.get('[class="usa-error-message"]').contains('Enter a complete date in DD MMM YYYY format (day, month, year).');
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
+  cy.get('[class="usa-error-message"]').should('not.exist');
 
-  cy.get('button').contains('Save & Continue').should('be.disabled');
+  // invalid postal codes
+  cy.get('input[name="pickupPostalCode"]').clear().type('00000').blur();
+  cy.get('[class="usa-error-message"]').contains(
+    "We don't have rates for this ZIP code. Please verify that you have entered the correct one. Contact support if this problem persists.",
+  );
+  cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
+  cy.get('[class="usa-error-message"]').should('not.exist');
+  cy.get('input[name="pickupPostalCode"]').clear().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
+  cy.get('[class="usa-error-message"]').next('input').should('have.id', 'pickupPostalCode');
+  cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  // missing secondary pickup postal code
+  cy.get('input[name="hasSecondaryPickupPostalCode"]').eq(0).check({ force: true });
+  cy.get('input[name="secondaryPickupPostalCode"]').clear().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
+  cy.get('[class="usa-error-message"]').next('input').should('have.id', 'secondaryPickupPostalCode');
+  cy.get('input[name="secondaryPickupPostalCode"]').clear().type('90210').blur();
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  // missing secondary destination postal code
+  cy.get('input[name="hasSecondaryDestinationPostalCode"]').eq(0).check({ force: true });
+  cy.get('input[name="secondaryDestinationPostalCode"]').clear().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
+  cy.get('[class="usa-error-message"]').next('input').should('have.id', 'secondaryDestinationPostalCode');
+  cy.get('input[name="secondaryDestinationPostalCode"]').clear().type('90210').blur();
+  cy.get('[class="usa-error-message"]').should('not.exist');
 }
