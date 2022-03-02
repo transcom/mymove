@@ -251,6 +251,7 @@ const requestedMoveDetailsQueryRetiree = {
         streetAddress2: 'P.O. Box 9876',
         streetAddress3: 'c/o Some Person',
       },
+      destinationType: 'HOME_OF_RECORD',
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
       id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
       moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -283,6 +284,7 @@ const requestedMoveDetailsQueryRetiree = {
         streetAddress2: 'P.O. Box 9876',
         streetAddress3: 'c/o Some Person',
       },
+      destinationType: 'HOME_OF_RECORD',
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
       id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
       moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -833,6 +835,7 @@ describe('MoveDetails page', () => {
       expect(wrapper.find('#orders h2').text()).toEqual('Orders');
       expect(wrapper.find('[data-testid="newDutyLocationLabel"]').text()).toEqual('HOR, HOS, or PLEAD');
       expect(wrapper.find('[data-testid="reportByDateLabel"]').text()).toEqual('Date of retirement');
+      expect(wrapper.find('[data-testid="destinationType"]').text()).toEqual('Home of record (HOR)');
     });
   });
 
@@ -879,7 +882,6 @@ describe('MoveDetails page', () => {
       const navLinks = wrapper.find('LeftNav a');
 
       expect(navLinks.at(0).contains('Requested shipments')).toBe(true);
-      expect(navLinks.at(0).contains(1)).toBe(true);
       expect(navLinks.at(0).prop('href')).toBe('#requested-shipments');
 
       expect(navLinks.at(1).contains('Approved shipments')).toBe(true);
@@ -897,25 +899,25 @@ describe('MoveDetails page', () => {
   });
 
   describe('approved shipment', () => {
-    useMoveDetailsQueries.mockReturnValue(approvedMoveDetailsQuery);
+    it.each([['Approved shipments'], ['Orders'], ['Allowances'], ['Customer info']])(
+      'renders side navigation for section %s',
+      async (sectionName) => {
+        useMoveDetailsQueries.mockReturnValue(approvedMoveDetailsQuery);
 
-    const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-        <MoveDetails
-          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-          setExcessWeightRiskCount={setExcessWeightRiskCount}
-          setUnapprovedSITExtensionCount={setUnapprovedServiceItemCount}
-        />
-      </MockProviders>,
+        render(
+          <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+            <MoveDetails
+              setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+              setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+              setExcessWeightRiskCount={setExcessWeightRiskCount}
+              setUnapprovedSITExtensionCount={setUnapprovedServiceItemCount}
+            />
+          </MockProviders>,
+        );
+
+        expect(await screen.findByRole('link', { name: sectionName })).toBeInTheDocument();
+      },
     );
-
-    it('renders side navigation for each section', () => {
-      expect(wrapper.containsMatchingElement(<a href="#approved-shipments">Approved shipments</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#orders">Orders</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#allowances">Allowances</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#customer-info">Customer info</a>)).toBe(true);
-    });
   });
 
   describe('When required Orders information (like TAC) is missing', () => {
