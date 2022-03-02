@@ -4,6 +4,8 @@ import (
 	"io"
 	"log"
 
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/order"
@@ -139,10 +141,11 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeClaimer()}
 
 	// GHC Endpoint
-
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter),
+		mtoShipmentCreator,
+		ppmshipment.NewPPMShipmentCreator(mtoShipmentCreator),
 	}
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
