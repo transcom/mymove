@@ -120,7 +120,7 @@ export const formatLabelReportByDate = (orderType) => {
   }
 };
 
-// Format a number of cents into a string, e.g. $12,345.67
+// Format a number of cents into a string, e.g. 12,345.67
 export function formatCents(cents, minimumFractionDigits = 2, maximumFractionDigits = 2) {
   return (cents / 100).toLocaleString(undefined, { minimumFractionDigits, maximumFractionDigits });
 }
@@ -132,6 +132,7 @@ export function formatAmount(amount, options = { minimumFractionDigits: 2, maxim
   return amount.toLocaleString(undefined, options);
 }
 
+// Converts a cents value into whole dollars, dropping the decimal precision without rounding e.g. 1234599 -> 12,345
 export function formatCentsTruncateWhole(cents) {
   return formatAmount(Math.floor(cents / 100), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
