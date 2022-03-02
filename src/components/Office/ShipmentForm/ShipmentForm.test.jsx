@@ -80,16 +80,21 @@ const mockMtoShipment = {
 
 const mockShipmentWithDestinationType = {
   ...mockMtoShipment,
-  destinationType: 'HOME_OF_SELECTION',
+  displayDestinationType: true,
+  destinationType: 'PLACE_ENTERED_ACTIVE_DUTY',
 };
 
 const defaultPropsRetirement = {
   ...defaultProps,
+  displayDestinationType: true,
+  desintationType: 'HOME_OF_RECORD',
   orderType: ORDERS_TYPE.RETIREMENT,
 };
 
 const defaultPropsSeparation = {
   ...defaultProps,
+  displayDestinationType: true,
+  destinationType: 'HOME_OF_SELECTION',
   orderType: ORDERS_TYPE.SEPARATION,
 };
 
@@ -232,6 +237,7 @@ describe('ShipmentForm component', () => {
           isCreatePage={false}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
+          displayDestinationType
         />,
       );
 
@@ -271,6 +277,7 @@ describe('ShipmentForm component', () => {
           isCreatePage={false}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockShipmentWithDestinationType}
+          displayDestinationType
         />,
       );
 
@@ -299,7 +306,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText('Customer remarks')).toBeTruthy();
       expect(screen.getByText('mock customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
-      expect(screen.getByLabelText('Destination type')).toHaveValue('HOME_OF_SELECTION');
+      expect(screen.getByLabelText('Destination type')).toHaveValue('PLACE_ENTERED_ACTIVE_DUTY');
     });
   });
 

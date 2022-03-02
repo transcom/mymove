@@ -3158,4 +3158,22 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createMoveWithSinceParamater(appCtx, userUploader)
 	createMoveWithTaskOrderServices(appCtx, userUploader)
 	createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx, userUploader)
+
+	//Retiree, HOR, HHG
+	createMoveWithOptions(appCtx, testdatagen.Assertions{
+		Order: models.Order{
+			OrdersType: retirement,
+		},
+		MTOShipment: models.MTOShipment{
+			ShipmentType:    hhg,
+			DestinationType: &hor,
+		},
+		Move: models.Move{
+			Locator: "R3T1R3",
+			Status:  models.MoveStatusSUBMITTED,
+		},
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: false,
+		},
+	})
 }

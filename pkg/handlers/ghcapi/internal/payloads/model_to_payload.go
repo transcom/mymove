@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -64,6 +65,71 @@ func Move(move *models.Move) *ghcmessages.Move {
 		FinancialReviewRemarks:       move.FinancialReviewRemarks,
 	}
 
+	return payload
+}
+
+// MoveHistory payload
+func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
+	payload := &ghcmessages.MoveHistory{
+		HistoryRecords: moveHistoryRecords(moveHistory.AuditHistories),
+		ID:             strfmt.UUID(moveHistory.ID.String()),
+		Locator:        moveHistory.Locator,
+		ReferenceID:    moveHistory.ReferenceID,
+	}
+
+	return payload
+}
+
+// MoveAuditHistory payload
+func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
+	payload := &ghcmessages.MoveAuditHistory{
+		Action:          auditHistory.Action,
+		ActionTstampClk: strfmt.DateTime(auditHistory.ActionTstampClk),
+		ActionTstampStm: strfmt.DateTime(auditHistory.ActionTstampStm),
+		ActionTstampTx:  strfmt.DateTime(auditHistory.ActionTstampTx),
+		ChangedValues:   moveHistoryValues(auditHistory.ChangedData, "changed_data"),
+		OldValues:       moveHistoryValues(auditHistory.OldData, "old_values"),
+		ClientQuery:     auditHistory.ClientQuery,
+		EventName:       auditHistory.EventName,
+		ID:              strfmt.UUID(auditHistory.ID.String()),
+		ObjectID:        handlers.FmtUUIDPtr(auditHistory.ObjectID),
+		RelID:           auditHistory.RelID,
+		SessionUserID:   handlers.FmtUUIDPtr(auditHistory.SessionUserID),
+		StatementOnly:   auditHistory.StatementOnly,
+		TableName:       auditHistory.TableName,
+		SchemaName:      auditHistory.SchemaName,
+		TransactionID:   auditHistory.TransactionID,
+	}
+
+	return payload
+}
+
+func moveHistoryValues(data *models.JSONMap, fieldName string) ghcmessages.MoveAuditHistoryItems {
+	if data == nil {
+		return ghcmessages.MoveAuditHistoryItems{}
+	}
+
+	payload := ghcmessages.MoveAuditHistoryItems{}
+
+	for k, v := range *data {
+		if v != nil {
+			item := ghcmessages.MoveAuditHistoryItem{
+				ColumnName:  k,
+				ColumnValue: fmt.Sprint(v),
+			}
+			payload = append(payload, &item)
+		}
+	}
+
+	return payload
+}
+
+func moveHistoryRecords(auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
+	payload := make(ghcmessages.MoveAuditHistories, len(auditHistories))
+
+	for i, a := range auditHistories {
+		payload[i] = MoveAuditHistory(a)
+	}
 	return payload
 }
 

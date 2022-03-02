@@ -1805,6 +1805,67 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	logger.Info(fmt.Sprintf("New payment request with service item params created with locator %s", move.Locator))
 }
 
+// A generic method
+func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.Assertions) {
+
+	ordersType := assertions.Order.OrdersType
+	shipmentType := assertions.MTOShipment.ShipmentType
+	destinationType := assertions.MTOShipment.DestinationType
+	locator := assertions.Move.Locator
+	status := assertions.Move.Status
+	servicesCounseling := assertions.DutyLocation.ProvidesServicesCounseling
+	usesExternalVendor := assertions.MTOShipment.UsesExternalVendor
+	selectedMoveType := assertions.Move.SelectedMoveType
+
+	db := appCtx.DB()
+	submittedAt := time.Now()
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: servicesCounseling,
+		},
+		Order: models.Order{
+			OrdersType: ordersType,
+		},
+	})
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:          locator,
+			Status:           status,
+			SubmittedAt:      &submittedAt,
+			SelectedMoveType: selectedMoveType,
+		},
+		Order: orders,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          shipmentType,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+			DestinationType:       destinationType,
+			UsesExternalVendor:    usesExternalVendor,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          shipmentType,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
 func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
 	db := appCtx.DB()
 	logger := appCtx.Logger()
