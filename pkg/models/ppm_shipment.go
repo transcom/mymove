@@ -78,7 +78,7 @@ func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UU
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(ppmShipment.ID, "while looking for PPMShipment")
+			return nil, apperror.NewNotFoundError(mtoShipmentID, "while looking for PPMShipment")
 		default:
 			return nil, apperror.NewQueryError("PPMShipment", err, "")
 		}

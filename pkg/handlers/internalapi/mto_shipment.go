@@ -119,6 +119,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	var updatedMTOShipment *models.MTOShipment
 	var updatedPPMShipment *models.PPMShipment
 	var err error
+	// We should move this logic out of the handler and into a composable service object
 	err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		updatedMTOShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(txnAppCtx, mtoShipment, params.IfMatch)
 		if err != nil {
