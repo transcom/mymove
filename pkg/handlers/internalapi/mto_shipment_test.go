@@ -478,7 +478,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 
-	// TODO: Confirm if we need to have a new handler objects, instructions seem to advice to put into a helper function and call per test
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)

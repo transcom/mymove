@@ -75,7 +75,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 
 		mergedPPMShipment := mergePPMShipment(newPPMShipment, &oldPPMShipment)
 
-		// Check if new fields is updated
+		// Check if new fields are updated
 		suite.Equal(*newPPMShipment.ProGearWeight, *mergedPPMShipment.ProGearWeight)
 	})
 

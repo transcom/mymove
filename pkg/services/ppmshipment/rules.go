@@ -47,9 +47,6 @@ func checkRequiredFields() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
-		// TODO: We'll need to add logic for when a shipment is being updated, otherwise the code below could break.
-		// Look at pkg/services/reweigh/rules.go  checkRequiredFields() for an example.
-
 		// Check that we have something in the expectedDepartureDate field:
 		if newPPMShipment.ExpectedDepartureDate.IsZero() {
 			verrs.Add("expectedDepartureDate", "cannot be a zero value")
