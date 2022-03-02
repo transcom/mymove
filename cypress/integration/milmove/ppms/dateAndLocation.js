@@ -9,16 +9,16 @@ describe('the PPM flow', function () {
 
   // profile@comple.te
   const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
+  it('doesn’t allow SM to progress if form is in an invalid state', () => {
+    cy.apiSignInAsUser(userId);
+    customerChoosesAPPMMove();
+    invalidInputs();
+  });
+
   it('can submit a PPM move', () => {
     cy.apiSignInAsUser(userId);
     customerChoosesAPPMMove();
     submitsDateAndLocation();
-  });
-
-  it('doesn’t allow SM to progress if form is in an invalid state', () => {
-    cy.apiSignInAsUser(userId);
-    resumePPM();
-    invalidInputs();
   });
 });
 
@@ -30,12 +30,7 @@ function customerChoosesAPPMMove() {
   cy.nextPage();
 }
 
-function resumePPM() {
-  cy.get('[data-testid="shipment-list-item-container').click();
-}
-
 function submitsDateAndLocation() {
-  cy.contains('PPM date & location');
   cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
 
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
@@ -49,6 +44,9 @@ function submitsDateAndLocation() {
 }
 
 function invalidInputs() {
+  cy.contains('PPM date & location');
+  cy.url().should('include', '/new-shipment');
+
   // invalid date
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 ZZZ 20222').blur();
   cy.get('[class="usa-error-message"]').contains('Enter a complete date in DD MMM YYYY format (day, month, year).');
