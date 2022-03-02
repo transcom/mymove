@@ -1,5 +1,5 @@
 UPDATE service_members
-SET duty_station_id = duty_location_id
+SET duty_location_id = duty_station_id
 WHERE duty_location_id IS NULL
   AND duty_station_id IS NOT NULL;
 
