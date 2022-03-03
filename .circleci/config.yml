@@ -633,7 +633,7 @@ commands:
           command: |
             SPECS=$(circleci tests glob "<< parameters.spec_glob >>" | circleci tests split --split-by=filesize | paste -s -d, -)
             if [ -z "${SPECS}" ]; then
-              echo "CircleCI Parallelism greater than number of files in glob"
+              echo "CircleCI Parallelism greater than number of files in glob. Please adjust the number parallelism value to a lower number."
               exit 1
             fi
             echo $SPECS
