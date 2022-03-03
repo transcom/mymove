@@ -25,7 +25,7 @@ const EstimatedWeightsProGear = () => {
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const handleBack = () => {
-    history.goBack();
+    history.push(generatePath(customerRoutes.SHIPMENT_EDIT_PATH, { moveId, mtoShipmentId }));
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
