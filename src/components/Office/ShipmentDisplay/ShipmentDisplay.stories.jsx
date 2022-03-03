@@ -28,12 +28,6 @@ export default {
   ],
 };
 
-const warnIfMissing = ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
-const errorIfMissingTACType = ['tacType'];
-const errorIfMissingStorageFacility = ['storageFacility'];
-
-const showWhenCollapsed = ['counselorRemarks'];
-
 export const HHGShipment = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay displayInfo={hhgInfo} ordersLOA={ordersLOA} shipmentType={SHIPMENT_OPTIONS.HHG} isSubmitted />
@@ -87,7 +81,7 @@ export const NTSShipment = () => (
   </div>
 );
 
-export const NTSShipmentMissingInfo = () => (
+export const NTSShipmentMissingInfoAsTOO = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
       displayInfo={ntsMissingInfo}
@@ -95,9 +89,25 @@ export const NTSShipmentMissingInfo = () => (
       shipmentId={ntsMissingInfo.shipmentId}
       ordersLOA={ordersLOA}
       isSubmitted
-      warnIfMissing={warnIfMissing}
-      errorIfMissing={errorIfMissingTACType}
-      showWhenCollapsed={showWhenCollapsed}
+      warnIfMissing={[]}
+      errorIfMissing={['storageFacility', 'serviceOrderNumber', 'tacType']}
+      showWhenCollapsed={['tacType']}
+      editURL="/"
+    />
+  </div>
+);
+
+export const NTSShipmentMissingInfoAsSC = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={ntsMissingInfo}
+      shipmentType={SHIPMENT_OPTIONS.NTS}
+      shipmentId={ntsMissingInfo.shipmentId}
+      ordersLOA={ordersLOA}
+      isSubmitted
+      warnIfMissing={['counselorRemarks', 'tacType', 'sacType']}
+      errorIfMissing={[]}
+      showWhenCollapsed={['counselorRemarks']}
       editURL="/"
     />
   </div>
@@ -122,7 +132,7 @@ export const NTSReleaseShipment = () => (
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       shipmentId={ntsReleaseInfo.shipmentId}
       ordersLOA={ordersLOA}
-      showWhenCollapsed={showWhenCollapsed}
+      showWhenCollapsed={['counselorRemarks']}
       isSubmitted
       editURL="/"
     />
@@ -136,14 +146,14 @@ export const NTSReleaseShipmentExternalVendor = () => (
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       shipmentId={ntsReleaseInfo.shipmentId}
       ordersLOA={ordersLOA}
-      showWhenCollapsed={showWhenCollapsed}
+      showWhenCollapsed={['counselorRemarks']}
       isSubmitted
       editURL="/"
     />
   </div>
 );
 
-export const NTSReleaseShipmentMissingInfo = () => (
+export const NTSReleaseShipmentMissingInfoAsTOO = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
       displayInfo={ntsReleaseMissingInfo}
@@ -151,9 +161,25 @@ export const NTSReleaseShipmentMissingInfo = () => (
       shipmentId={ntsReleaseMissingInfo.shipmentId}
       ordersLOA={ordersLOA}
       isSubmitted
-      warnIfMissing={warnIfMissing}
-      errorIfMissing={errorIfMissingStorageFacility}
-      showWhenCollapsed={showWhenCollapsed}
+      warnIfMissing={[]}
+      errorIfMissing={['storageFacility', 'ntsRecordedWeight', 'serviceOrderNumber', 'tacType']}
+      showWhenCollapsed={['tacType', 'ntsRecordedWeight', 'serviceOrderNumber']}
+      editURL="/"
+    />
+  </div>
+);
+
+export const NTSReleaseShipmentMissingInfoAsSC = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={ntsReleaseMissingInfo}
+      shipmentType={SHIPMENT_OPTIONS.NTSR}
+      shipmentId={ntsReleaseMissingInfo.shipmentId}
+      ordersLOA={ordersLOA}
+      isSubmitted
+      warnIfMissing={['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType']}
+      errorIfMissing={['storageFacility']}
+      showWhenCollapsed={['counselorRemarks']}
       editURL="/"
     />
   </div>
