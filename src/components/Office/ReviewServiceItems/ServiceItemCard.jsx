@@ -74,6 +74,7 @@ const ServiceItemCard = ({
               serviceItemParams={paymentServiceItemParams}
               additionalServiceItemData={additionalServiceItemData}
               itemCode={mtoServiceItemCode}
+              shipmentType={mtoShipmentType}
               tableSize="small"
             />
           </div>
