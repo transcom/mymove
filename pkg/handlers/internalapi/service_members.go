@@ -116,7 +116,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				BackupMailingAddress: backupMailingAddress,
 				DutyLocation:         station,
 				RequiresAccessCode:   h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
-				DutyStationID:        stationID,
+				DutyLocationID:       stationID,
 			}
 			smVerrs, err := models.SaveServiceMember(appCtx, &newServiceMember)
 			if smVerrs.HasAny() || err != nil {
@@ -251,7 +251,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(appCtx appconte
 				return validate.NewErrors(), err
 			}
 			serviceMember.DutyLocation = station
-			serviceMember.DutyStationID = &stationID
+			serviceMember.DutyLocationID = &stationID
 		}
 
 		if payload.Affiliation != nil {

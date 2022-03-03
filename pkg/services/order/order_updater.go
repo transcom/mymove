@@ -152,7 +152,7 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 	if payload.OriginDutyLocationID != nil {
 		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
 		order.OriginDutyLocationID = &originDutyStationID
-		order.ServiceMember.DutyStationID = &originDutyStationID
+		order.ServiceMember.DutyLocationID = &originDutyStationID
 	}
 
 	if payload.NewDutyLocationID != nil {
@@ -279,7 +279,7 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	if payload.OriginDutyLocationID != nil {
 		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
 		order.OriginDutyLocationID = &originDutyStationID
-		order.ServiceMember.DutyStationID = &originDutyStationID
+		order.ServiceMember.DutyLocationID = &originDutyStationID
 	}
 
 	if payload.NewDutyLocationID != nil {
@@ -530,7 +530,7 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		order.OriginDutyLocationID = &originDutyLocation.ID
 		order.OriginDutyLocation = &originDutyLocation
 
-		order.ServiceMember.DutyStationID = &originDutyLocation.ID
+		order.ServiceMember.DutyLocationID = &originDutyLocation.ID
 		order.ServiceMember.DutyLocation = originDutyLocation
 	}
 

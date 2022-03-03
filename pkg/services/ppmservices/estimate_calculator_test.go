@@ -400,8 +400,8 @@ func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, origi
 			NewDutyLocationID: newLocation.ID,
 			NewDutyLocation:   newLocation,
 			ServiceMember: models.ServiceMember{
-				DutyLocation:  originLocation,
-				DutyStationID: &originLocation.ID,
+				DutyLocation:   originLocation,
+				DutyLocationID: &originLocation.ID,
 			},
 		},
 	})

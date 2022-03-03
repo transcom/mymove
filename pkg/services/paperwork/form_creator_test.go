@@ -51,9 +51,9 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
-			ID:            serviceMemberID,
-			DutyStationID: &yuma.ID,
-			Rank:          &rank,
+			ID:             serviceMemberID,
+			DutyLocationID: &yuma.ID,
+			Rank:           &rank,
 		},
 	})
 

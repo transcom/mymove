@@ -116,7 +116,7 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 		Affiliation:            affiliation,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
-		DutyStationID:          &station.ID,
+		DutyLocationID:         &station.ID,
 		DutyLocation:           station,
 		EmailIsPreferred:       swag.Bool(true),
 		Telephone:              swag.String("555-555-5555"),

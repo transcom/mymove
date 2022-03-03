@@ -63,7 +63,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 		PersonalEmail:          &email,
 		ResidentialAddressID:   &fakeAddress.ID,
 		BackupMailingAddressID: &fakeBackupAddress.ID,
-		DutyStationID:          &location.ID,
+		DutyLocationID:         &location.ID,
 	}
 
 	suite.Equal(false, serviceMember.IsProfileComplete())

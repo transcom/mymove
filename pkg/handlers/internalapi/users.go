@@ -69,16 +69,16 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 
 	// Load duty station and transportation office association
-	if serviceMember.DutyStationID != nil {
+	if serviceMember.DutyLocationID != nil {
 		// Fetch associations on duty station
-		dutyStation, dutyStationErr := models.FetchDutyLocation(appCtx.DB(), *serviceMember.DutyStationID)
+		dutyStation, dutyStationErr := models.FetchDutyLocation(appCtx.DB(), *serviceMember.DutyLocationID)
 		if dutyStationErr != nil {
 			return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
 		}
 		serviceMember.DutyLocation = dutyStation
 
 		// Fetch duty station transportation office
-		transportationOffice, tspErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), *serviceMember.DutyStationID)
+		transportationOffice, tspErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), *serviceMember.DutyLocationID)
 		if tspErr != nil {
 			if errors.Cause(tspErr) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404

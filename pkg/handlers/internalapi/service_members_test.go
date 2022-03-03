@@ -216,7 +216,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	newServiceMember := models.ServiceMember{
 		UserID:             user.ID,
 		Edipi:              &origEdipi,
-		DutyStationID:      &dutyLocation.ID,
+		DutyLocationID:     &dutyLocation.ID,
 		DutyLocation:       dutyLocation,
 		Rank:               &origRank,
 		Affiliation:        &origAffiliation,
@@ -353,7 +353,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		Edipi:              &edipi,
 		Rank:               &origRank,
 		Affiliation:        &origAffiliation,
-		DutyStationID:      &origDutyLocation.ID,
+		DutyLocationID:     &origDutyLocation.ID,
 		DutyLocation:       origDutyLocation,
 		FirstName:          origFirstName,
 		MiddleName:         origMiddleName,
