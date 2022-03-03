@@ -15,6 +15,7 @@ import { formatDateFromIso } from 'shared/formatters';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { tooRoutes } from 'constants/routes';
+import { shipmentDestinationTypes } from 'constants/shipments';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -27,11 +28,6 @@ const showWhenCollapsedWithExternalVendor = {
 const showWhenCollapsedWithGHCPrime = {
   HHG_INTO_NTS_DOMESTIC: ['tacType'],
   HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
-};
-
-const errorIfMissing = {
-  HHG_INTO_NTS_DOMESTIC: ['storageFacility', 'serviceOrderNumber', 'tacType'],
-  HHG_OUTOF_NTS_DOMESTIC: ['storageFacility', 'ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
 };
 
 const RequestedShipments = ({
@@ -47,6 +43,8 @@ const RequestedShipments = ({
   handleAfterSuccess,
   missingRequiredOrdersInfo,
   moveCode,
+  errorIfMissing,
+  displayDestinationType,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -65,12 +63,16 @@ const RequestedShipments = ({
   };
 
   const shipmentDisplayInfo = (shipment, dutyStationPostal) => {
+    const destType = displayDestinationType ? shipmentDestinationTypes[shipment.destinationType] : null;
+
     return {
       ...shipment,
       heading: shipmentTypeLabels[shipment.shipmentType],
       isDiversion: shipment.diversion,
       shipmentStatus: shipment.status,
       destinationAddress: shipment.destinationAddress || dutyStationPostal,
+      destinationType: destType,
+      displayDestinationType,
     };
   };
 
@@ -362,6 +364,8 @@ RequestedShipments.propTypes = {
   missingRequiredOrdersInfo: PropTypes.bool,
   handleAfterSuccess: PropTypes.func,
   moveCode: PropTypes.string.isRequired,
+  errorIfMissing: PropTypes.shape({}),
+  displayDestinationType: PropTypes.bool,
 };
 
 RequestedShipments.defaultProps = {
@@ -371,6 +375,8 @@ RequestedShipments.defaultProps = {
   approveMTOShipment: () => Promise.resolve(),
   missingRequiredOrdersInfo: false,
   handleAfterSuccess: () => {},
+  errorIfMissing: {},
+  displayDestinationType: false,
 };
 
 export default RequestedShipments;

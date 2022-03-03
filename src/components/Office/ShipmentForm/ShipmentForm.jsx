@@ -25,7 +25,6 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import { dropdownInputOptions } from 'shared/formatters';
 import { formatWeight } from 'utils/formatters';
-import { ORDERS_TYPE } from 'constants/orders';
 import { shipmentDestinationTypes } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -55,7 +54,7 @@ const ShipmentForm = ({
   TACs,
   SACs,
   userRole,
-  orderType,
+  displayDestinationType,
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
@@ -102,6 +101,7 @@ const ShipmentForm = ({
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
   const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, userRole);
 
+  const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const showAccountingCodes = isNTS || isNTSR;
@@ -109,10 +109,9 @@ const ShipmentForm = ({
   const isTOO = userRole === roleTypes.TOO;
   const isServiceCounselor = userRole === roleTypes.SERVICES_COUNSELOR;
 
-  const isRetirementOrSeparation = orderType === ORDERS_TYPE.RETIREMENT || orderType === ORDERS_TYPE.SEPARATION;
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
-  const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
+  const shipmentNumber = isHHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
     isCreatePage
       ? { userRole, shipmentType }
@@ -283,9 +282,9 @@ const ShipmentForm = ({
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && <ShipmentVendor />}
+                {isTOO && !isHHG && <ShipmentVendor />}
 
-                {isNTSR && <ShipmentWeightInput />}
+                {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
@@ -360,7 +359,7 @@ const ShipmentForm = ({
                             return fields;
                           }}
                         />
-                        {isRetirementOrSeparation && (
+                        {displayDestinationType && (
                           <DropdownInput
                             label="Destination type"
                             name="destinationType"
@@ -402,7 +401,7 @@ const ShipmentForm = ({
                                 return fields;
                               }}
                             />
-                            {isRetirementOrSeparation && (
+                            {displayDestinationType && (
                               <DropdownInput
                                 label="Destination type"
                                 name="destinationType"
@@ -414,7 +413,7 @@ const ShipmentForm = ({
                         ) : (
                           <p>
                             We can use the zip of their{' '}
-                            {isRetirementOrSeparation ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
+                            {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
                             <br />
                             <strong>
                               {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
@@ -500,7 +499,7 @@ ShipmentForm.propTypes = {
   TACs: AccountingCodesShape,
   SACs: AccountingCodesShape,
   userRole: oneOf(officeRoles).isRequired,
-  orderType: oneOf(Object.values(ORDERS_TYPE)).isRequired,
+  displayDestinationType: bool,
 };
 
 ShipmentForm.defaultProps = {
@@ -528,6 +527,7 @@ ShipmentForm.defaultProps = {
   },
   TACs: {},
   SACs: {},
+  displayDestinationType: false,
 };
 
 export default ShipmentForm;
