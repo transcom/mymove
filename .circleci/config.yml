@@ -997,7 +997,7 @@ jobs:
           path: cypress/results
       - announce_failure
 
-  integration_tests_shipment_types:
+  integration_tests_milmove:
     parallelism: 4
     executor: milmove_integration_tester
     steps:
