@@ -997,14 +997,14 @@ jobs:
           path: cypress/results
       - announce_failure
 
-  integration_tests_shipment_types:
+  integration_tests_milmove:
     parallelism: 4
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
           at: .
       - e2e_tests_cypress:
-          spec_glob: cypress/integration/shipment_types/**/*.js
+          spec_glob: cypress/integration/milmove/ppms/**/*.js
       - store_artifacts:
           path: cypress/reports
           destination: reports
