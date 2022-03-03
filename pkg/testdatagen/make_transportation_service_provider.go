@@ -70,37 +70,37 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 
 	name := assertions.TransportationServiceProvider.Name
 	if name == nil {
-		name = StringPointer(defaultTspName)
+		name = models.StringPointer(defaultTspName)
 	}
 
 	pocGeneralName := assertions.TransportationServiceProvider.PocGeneralName
 	if pocGeneralName == nil {
-		pocGeneralName = StringPointer(defaultPocGeneralName)
+		pocGeneralName = models.StringPointer(defaultPocGeneralName)
 	}
 
 	pocGeneralEmail := assertions.TransportationServiceProvider.PocGeneralEmail
 	if pocGeneralEmail == nil {
-		pocGeneralEmail = StringPointer(defaultPocGeneralEmail)
+		pocGeneralEmail = models.StringPointer(defaultPocGeneralEmail)
 	}
 
 	pocGeneralPhone := assertions.TransportationServiceProvider.PocGeneralPhone
 	if pocGeneralPhone == nil {
-		pocGeneralPhone = StringPointer(defaultPocGeneralPhone)
+		pocGeneralPhone = models.StringPointer(defaultPocGeneralPhone)
 	}
 
 	pocClaimsName := assertions.TransportationServiceProvider.PocClaimsName
 	if pocClaimsName == nil {
-		pocClaimsName = StringPointer(defaultPocClaimsName)
+		pocClaimsName = models.StringPointer(defaultPocClaimsName)
 	}
 
 	pocClaimsEmail := assertions.TransportationServiceProvider.PocClaimsEmail
 	if pocClaimsEmail == nil {
-		pocClaimsEmail = StringPointer(defaultPocClaimsEmail)
+		pocClaimsEmail = models.StringPointer(defaultPocClaimsEmail)
 	}
 
 	pocClaimsPhone := assertions.TransportationServiceProvider.PocClaimsPhone
 	if pocClaimsPhone == nil {
-		pocClaimsPhone = StringPointer(defaultPocClaimsPhone)
+		pocClaimsPhone = models.StringPointer(defaultPocClaimsPhone)
 	}
 
 	tsp := models.TransportationServiceProvider{
