@@ -21,6 +21,7 @@ import (
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services/move"
+	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
@@ -46,6 +47,11 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
 		HandlerContext: ctx,
 		MoveFetcher:    move.NewMoveFetcher(),
+	}
+
+	ghcAPI.MoveGetMoveHistoryHandler = GetMoveHistoryHandler{
+		HandlerContext:     ctx,
+		MoveHistoryFetcher: movehistory.NewMoveHistoryFetcher(),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{

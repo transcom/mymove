@@ -31,6 +31,8 @@ export const UnsupportedZipCodeErrorMsg =
 export const UnsupportedZipCodePPMErrorMsg =
   "We don't have rates for this ZIP code. Please verify that you have entered the correct one.  Contact support if this problem persists.";
 
+export const InvalidZIPTypeError = 'Enter a 5-digit ZIP code';
+
 export const validatePostalCode = async (value, postalCodeType, errMsg = UnsupportedZipCodeErrorMsg) => {
   if (!value || (value.length !== 5 && value.length !== 10)) {
     return undefined;

@@ -7,6 +7,7 @@ import {
   getMTOServiceItems,
   getOrder,
   getMove,
+  getMoveHistory,
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
@@ -23,6 +24,7 @@ import {
   MTO_SHIPMENTS,
   MTO_SERVICE_ITEMS,
   MOVES,
+  MOVE_HISTORY,
   ORDERS,
   MOVE_PAYMENT_REQUESTS,
   ORDERS_DOCUMENTS,
@@ -421,6 +423,19 @@ export const usePrimeSimulatorGetMove = (moveCode) => {
 
   return {
     moveTaskOrder,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useGHCGetMoveHistory = (moveCode) => {
+  const { data: moveHistory, ...getGHCMoveHistoryQuery } = useQuery([MOVE_HISTORY, moveCode], getMoveHistory);
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([getGHCMoveHistoryQuery]);
+
+  return {
+    moveHistory,
     isLoading,
     isError,
     isSuccess,
