@@ -1,8 +1,9 @@
 import React from 'react';
-import { Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import LeftNav from './index';
+import LeftNav from './LeftNav';
+
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 // Left Nav
 export default {
@@ -17,27 +18,18 @@ export default {
 
 export const Basic = () => (
   <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
-    <LeftNav>
-      <a href="#">Default</a>
+    <LeftNav sections={['allowances', 'requested-shipments', 'orders', 'customer-info']}>
+      <LeftNavTag associatedSectionName="requested-shipments" showTag className="usa-tag usa-tag--alert">
+        <FontAwesomeIcon icon="exclamation" />
+      </LeftNavTag>
 
-      <a href="#" className="active">
-        Allowances
-      </a>
-      <a href="#">
-        Requested Shipments
-        <Tag className="usa-tag usa-tag--alert">
-          <FontAwesomeIcon icon="exclamation" />
-        </Tag>
-      </a>
-      <a href="#orders-anchor">
-        Orders
-        <Tag className="usa-tag--teal">INTL</Tag>
-      </a>
+      <LeftNavTag associatedSectionName="orders" showTag className="usa-tag--teal">
+        INTL
+      </LeftNavTag>
 
-      <a href="#">
-        Customer Info
-        <Tag>3</Tag>
-      </a>
+      <LeftNavTag associatedSectionName="customer-info" showTag>
+        3
+      </LeftNavTag>
     </LeftNav>
   </div>
 );

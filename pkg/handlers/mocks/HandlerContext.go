@@ -14,6 +14,8 @@ import (
 
 	iws "github.com/transcom/mymove/pkg/iws"
 
+	middleware "github.com/go-openapi/runtime/middleware"
+
 	mock "github.com/stretchr/testify/mock"
 
 	notifications "github.com/transcom/mymove/pkg/notifications"
@@ -36,13 +38,13 @@ type HandlerContext struct {
 	mock.Mock
 }
 
-// AppContextFromRequest provides a mock function with given fields: r
-func (_m *HandlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
-	ret := _m.Called(r)
+// AppContextFromRequest provides a mock function with given fields: _a0
+func (_m *HandlerContext) AppContextFromRequest(_a0 *http.Request) appcontext.AppContext {
+	ret := _m.Called(_a0)
 
 	var r0 appcontext.AppContext
 	if rf, ok := ret.Get(0).(func(*http.Request) appcontext.AppContext); ok {
-		r0 = rf(r)
+		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(appcontext.AppContext)
@@ -61,6 +63,22 @@ func (_m *HandlerContext) AppNames() auth.ApplicationServername {
 		r0 = rf()
 	} else {
 		r0 = ret.Get(0).(auth.ApplicationServername)
+	}
+
+	return r0
+}
+
+// AuditableAppContextFromRequest provides a mock function with given fields: _a0, _a1
+func (_m *HandlerContext) AuditableAppContextFromRequest(_a0 *http.Request, _a1 func(appcontext.AppContext) middleware.Responder) middleware.Responder {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 middleware.Responder
+	if rf, ok := ret.Get(0).(func(*http.Request, func(appcontext.AppContext) middleware.Responder) middleware.Responder); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(middleware.Responder)
+		}
 	}
 
 	return r0
