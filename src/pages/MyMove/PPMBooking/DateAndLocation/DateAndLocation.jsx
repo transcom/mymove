@@ -59,7 +59,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
           setSubmitting(false);
           updateMTOShipment(response);
           history.push(
-            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, {
+            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
               moveId,
               mtoShipmentId: response.id,
             }),
@@ -78,7 +78,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
           setSubmitting(false);
           updateMTOShipment(response);
           history.push(
-            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, {
+            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
               moveId,
               mtoShipmentId: response.id,
             }),
