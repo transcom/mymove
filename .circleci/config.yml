@@ -632,6 +632,10 @@ commands:
           # reasonable proxy for test time
           command: |
             SPECS=$(circleci tests glob "<< parameters.spec_glob >>" | circleci tests split --split-by=filesize | paste -s -d, -)
+            if [ -z "${SPECS}" ]; then
+              echo "CircleCI Parallelism greater than number of files in glob"
+              exit 1
+            fi
             echo $SPECS
             docker build -t cypress:local -f cypress/Dockerfile.cypress cypress
             docker run --name cypress --network e2e_cypress -e CYPRESS_baseUrl="http://milmovelocal:4000" cypress:local run --spec "${SPECS}"
