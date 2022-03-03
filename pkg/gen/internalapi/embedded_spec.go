@@ -3561,6 +3561,50 @@ func init() {
         }
       }
     },
+    "CreatePPMShipment": {
+      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "required": [
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected"
+      ],
+      "properties": {
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "pickupPostalCode": {
+          "description": "zip code, international allowed",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "sitExpected": {
+          "type": "boolean"
+        }
+      }
+    },
     "CreatePersonallyProcuredMovePayload": {
       "type": "object",
       "properties": {
@@ -3838,6 +3882,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/CreatePPMShipment"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -10373,6 +10420,50 @@ func init() {
         }
       }
     },
+    "CreatePPMShipment": {
+      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "required": [
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected"
+      ],
+      "properties": {
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "pickupPostalCode": {
+          "description": "zip code, international allowed",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "example": "'90210' or 'N15 3NL'"
+        },
+        "sitExpected": {
+          "type": "boolean"
+        }
+      }
+    },
     "CreatePersonallyProcuredMovePayload": {
       "type": "object",
       "properties": {
@@ -10652,6 +10743,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/CreatePPMShipment"
         },
         "requestedDeliveryDate": {
           "type": "string",

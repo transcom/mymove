@@ -17,7 +17,7 @@ const ShipmentWeightInput = ({ userRole }) => {
           <Grid col={6}>
             <FormGroup>
               <TextField
-                label="Shipment weight (lbs)"
+                label="Previously recorded weight (lbs)"
                 name="ntsRecordedWeight"
                 id="ntsRecordedWeight"
                 optional={userRole !== roleTypes.TOO}

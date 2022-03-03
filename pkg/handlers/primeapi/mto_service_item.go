@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
@@ -41,73 +42,75 @@ type CreateMTOServiceItemHandler struct {
 
 // Handle handler that creates a mto service item
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOServiceItemParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	// restrict creation to a list
-	if _, ok := CreateableServiceItemMap[params.Body.ModelType()]; !ok {
-		// throw error if modelType() not on the list
-		mapKeys := GetMapKeys(CreateableServiceItemMap)
-		detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", params.Body.ModelType())
-		verrs := validate.NewErrors()
-		verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
+			// restrict creation to a list
+			if _, ok := CreateableServiceItemMap[params.Body.ModelType()]; !ok {
+				// throw error if modelType() not on the list
+				mapKeys := GetMapKeys(CreateableServiceItemMap)
+				detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", params.Body.ModelType())
+				verrs := validate.NewErrors()
+				verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
 
-		appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(verrs))
-		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			detailErr, h.GetTraceIDFromRequest(params.HTTPRequest), verrs))
-	}
-
-	// validation errors passed back if any
-	mtoServiceItem, verrs := payloads.MTOServiceItemModel(params.Body)
-
-	if verrs != nil && verrs.HasAny() {
-		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"Invalid input found in service item", h.GetTraceIDFromRequest(params.HTTPRequest), verrs))
-	} else if mtoServiceItem == nil {
-		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(
-			payloads.ValidationError("Unable to process service item", h.GetTraceIDFromRequest(params.HTTPRequest), nil))
-	}
-
-	moveTaskOrderID := uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID.String())
-	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
-	var mtoServiceItems *models.MTOServiceItems
-
-	if mtoAvailableToPrime {
-		mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
-		mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem)
-	} else if err == nil {
-		appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
-		return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(
-			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceIDFromRequest(params.HTTPRequest)))
-	}
-
-	if verrs != nil && verrs.HasAny() {
-		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs))
-	}
-
-	// Could be the error from MTOAvailableToPrime or CreateMTOServiceItem:
-	if err != nil {
-		appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
-		case apperror.InvalidInputError:
-			return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
-		case apperror.ConflictError:
-			return mtoserviceitemops.NewCreateMTOServiceItemConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
-		case apperror.QueryError:
-			if e.Unwrap() != nil {
-				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler query error", zap.Error(e.Unwrap()))
+				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(verrs))
+				return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+					detailErr, h.GetTraceIDFromRequest(params.HTTPRequest), verrs))
 			}
-			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
-		default:
-			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
-		}
-	}
 
-	mtoServiceItemsPayload := *payloads.MTOServiceItems(mtoServiceItems)
-	return mtoserviceitemops.NewCreateMTOServiceItemOK().WithPayload(mtoServiceItemsPayload)
+			// validation errors passed back if any
+			mtoServiceItem, verrs := payloads.MTOServiceItemModel(params.Body)
+
+			if verrs != nil && verrs.HasAny() {
+				return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Invalid input found in service item", h.GetTraceIDFromRequest(params.HTTPRequest), verrs))
+			} else if mtoServiceItem == nil {
+				return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(
+					payloads.ValidationError("Unable to process service item", h.GetTraceIDFromRequest(params.HTTPRequest), nil))
+			}
+
+			moveTaskOrderID := uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID.String())
+			mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
+			var mtoServiceItems *models.MTOServiceItems
+
+			if mtoAvailableToPrime {
+				mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
+				mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem)
+			} else if err == nil {
+				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
+				return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(
+					handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceIDFromRequest(params.HTTPRequest)))
+			}
+
+			if verrs != nil && verrs.HasAny() {
+				return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+					verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs))
+			}
+
+			// Could be the error from MTOAvailableToPrime or CreateMTOServiceItem:
+			if err != nil {
+				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
+				case apperror.InvalidInputError:
+					return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
+				case apperror.ConflictError:
+					return mtoserviceitemops.NewCreateMTOServiceItemConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the internal error (usually a pq error) for better debugging
+						appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler query error", zap.Error(e.Unwrap()))
+					}
+					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
+				default:
+					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
+				}
+			}
+
+			mtoServiceItemsPayload := *payloads.MTOServiceItems(mtoServiceItems)
+			return mtoserviceitemops.NewCreateMTOServiceItemOK().WithPayload(mtoServiceItemsPayload)
+		})
 }
 
 // UpdateMTOServiceItemHandler is the handler to update MTO service items

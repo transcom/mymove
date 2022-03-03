@@ -36,5 +36,8 @@
 
   .details {
     @include u-font-size('base', 3);
+    small {
+      color: $base;
+    }
   }
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/uploader"
@@ -69,10 +70,10 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	if order.Entitlement != nil {
 		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
 	}
-	var originDutyStation models.DutyLocation
-	originDutyStation = models.DutyLocation{}
+	var originDutyLocation models.DutyLocation
+	originDutyLocation = models.DutyLocation{}
 	if order.OriginDutyLocation != nil {
-		originDutyStation = *order.OriginDutyLocation
+		originDutyLocation = *order.OriginDutyLocation
 	}
 
 	ordersType := order.OrdersType
@@ -85,7 +86,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		ReportByDate:          handlers.FmtDate(order.ReportByDate),
 		OrdersType:            &ordersType,
 		OrdersTypeDetail:      order.OrdersTypeDetail,
-		OriginDutyLocation:    payloadForDutyLocationModel(originDutyStation),
+		OriginDutyLocation:    payloadForDutyLocationModel(originDutyLocation),
 		Grade:                 order.Grade,
 		NewDutyLocation:       payloadForDutyLocationModel(order.NewDutyLocation),
 		HasDependents:         handlers.FmtBool(order.HasDependents),
@@ -111,93 +112,95 @@ type CreateOrdersHandler struct {
 
 // Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	payload := params.CreateOrders
+			payload := params.CreateOrders
 
-	serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	stationID, err := uuid.FromString(payload.NewDutyLocationID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	originDutyLocation := serviceMember.DutyLocation
-	grade := (*string)(serviceMember.Rank)
+			stationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			originDutyLocation := serviceMember.DutyLocation
+			grade := (*string)(serviceMember.Rank)
 
-	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
-	if entitlementErr != nil {
-		return handlers.ResponseForError(appCtx.Logger(), entitlementErr)
-	}
+			weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
+			if entitlementErr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), entitlementErr)
+			}
 
-	// Assign default SIT allowance based on customer type.
-	// We only have service members right now, but once we introduce more, this logic will have to change.
-	sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
+			// Assign default SIT allowance based on customer type.
+			// We only have service members right now, but once we introduce more, this logic will have to change.
+			sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
 
-	entitlement := models.Entitlement{
-		DependentsAuthorized: payload.HasDependents,
-		DBAuthorizedWeight:   models.IntPointer(weight),
-		StorageInTransit:     models.IntPointer(sitDaysAllowance),
-	}
+			entitlement := models.Entitlement{
+				DependentsAuthorized: payload.HasDependents,
+				DBAuthorizedWeight:   models.IntPointer(weight),
+				StorageInTransit:     models.IntPointer(sitDaysAllowance),
+			}
 
-	if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
-		return handlers.ResponseForError(appCtx.Logger(), saveEntitlementErr)
-	}
+			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), saveEntitlementErr)
+			}
 
-	var deptIndicator *string
-	if payload.DepartmentIndicator != nil {
-		converted := string(*payload.DepartmentIndicator)
-		deptIndicator = &converted
-	}
+			var deptIndicator *string
+			if payload.DepartmentIndicator != nil {
+				converted := string(*payload.DepartmentIndicator)
+				deptIndicator = &converted
+			}
 
-	if payload.OrdersType == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: OrdersType"))
-	}
-	newOrder, verrs, err := serviceMember.CreateOrder(
-		appCtx.DB(),
-		time.Time(*payload.IssueDate),
-		time.Time(*payload.ReportByDate),
-		*payload.OrdersType,
-		*payload.HasDependents,
-		*payload.SpouseHasProGear,
-		newDutyLocation,
-		payload.OrdersNumber,
-		payload.Tac,
-		payload.Sac,
-		deptIndicator,
-		&originDutyLocation,
-		grade,
-		&entitlement,
-	)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			if payload.OrdersType == nil {
+				return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: OrdersType"))
+			}
+			newOrder, verrs, err := serviceMember.CreateOrder(
+				appCtx,
+				time.Time(*payload.IssueDate),
+				time.Time(*payload.ReportByDate),
+				*payload.OrdersType,
+				*payload.HasDependents,
+				*payload.SpouseHasProGear,
+				newDutyLocation,
+				payload.OrdersNumber,
+				payload.Tac,
+				payload.Sac,
+				deptIndicator,
+				&originDutyLocation,
+				grade,
+				&entitlement,
+			)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	moveOptions := models.MoveOptions{
-		SelectedType: nil,
-		Show:         swag.Bool(true),
-	}
-	newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
-	newOrder.Moves = append(newOrder.Moves, *newMove)
+			moveOptions := models.MoveOptions{
+				SelectedType: nil,
+				Show:         swag.Bool(true),
+			}
+			newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
+			newOrder.Moves = append(newOrder.Moves, *newMove)
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), newOrder)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ordersop.NewCreateOrdersCreated().WithPayload(orderPayload)
+			orderPayload, err := payloadForOrdersModel(h.FileStorer(), newOrder)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ordersop.NewCreateOrdersCreated().WithPayload(orderPayload)
+		})
 }
 
 // ShowOrdersHandler returns orders for a user and order ID

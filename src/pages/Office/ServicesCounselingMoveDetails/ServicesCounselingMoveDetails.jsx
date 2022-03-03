@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
@@ -12,19 +12,20 @@ import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
 import { MOVES } from 'constants/queryKeys';
 import { ORDERS_TYPE } from 'constants/orders';
-import { shipmentDestinationTypes } from 'constants/shipments';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
-import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
+import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import LeftNav from 'components/LeftNav/LeftNav';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -46,6 +47,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
 
   const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
 
+  const sections = useMemo(() => {
+    return ['shipments', 'orders', 'allowances', 'customer-info'];
+  }, []);
+
   // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
   // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
   const showWhenCollapsed = {
@@ -62,6 +67,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
 
   let shipmentsInfo = [];
   let disableSubmit = false;
+  let numberOfErrorIfMissingForAllShipments = 0;
+  let numberOfWarnIfMissingForAllShipments = 0;
 
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
@@ -86,25 +93,35 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
           })
         : '';
 
-      const destType = isRetirementOrSeparation ? shipmentDestinationTypes[shipment.destinationType] : null;
-
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
           postalCode: order.destinationDutyLocation.address.postalCode,
         },
         ...shipment,
-        destinationType: destType,
         displayDestinationType: isRetirementOrSeparation,
       };
 
-      if (!disableSubmit && errorIfMissing[shipment.shipmentType]) {
-        for (let i = 0; i < errorIfMissing[shipment.shipmentType].length; i += 1) {
-          if (!displayInfo[errorIfMissing[shipment.shipmentType][i]]) {
-            disableSubmit = true;
+      const errorIfMissingList = errorIfMissing[shipment.shipmentType];
+
+      if (errorIfMissingList) {
+        errorIfMissingList.forEach((fieldToCheck) => {
+          if (!displayInfo[fieldToCheck]) {
+            numberOfErrorIfMissingForAllShipments += 1;
           }
-        }
+        });
       }
+
+      const warnIfMissingList = warnIfMissing[shipment.shipmentType];
+      if (warnIfMissingList) {
+        warnIfMissingList.forEach((fieldToCheck) => {
+          if (!displayInfo[fieldToCheck]) {
+            numberOfWarnIfMissingForAllShipments += 1;
+          }
+        });
+      }
+
+      disableSubmit = numberOfErrorIfMissingForAllShipments !== 0;
 
       return {
         id: shipment.id,
@@ -234,6 +251,15 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
+        <LeftNav sections={sections}>
+          <LeftNavTag
+            associatedSectionName="shipments"
+            showTag={numberOfErrorIfMissingForAllShipments !== 0 || numberOfWarnIfMissingForAllShipments !== 0}
+            testID="requestedShipmentsTag"
+          >
+            {numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments}
+          </LeftNavTag>
+        </LeftNav>
         {isSubmitModalVisible && (
           <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
         )}
@@ -346,6 +372,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
                 counselorCanEdit && (
                   <Link
                     className="usa-button usa-button--secondary"
+                    data-testid="edit-allowances"
                     to={generatePath(servicesCounselingRoutes.ALLOWANCES_EDIT_PATH, { moveCode })}
                   >
                     Edit allowances
