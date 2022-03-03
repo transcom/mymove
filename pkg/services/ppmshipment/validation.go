@@ -62,9 +62,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment := *oldPPMShipment
 
 	ppmShipment.ActualMoveDate = services.SetOptionalDateTimeField(newPPMShipment.ActualMoveDate, ppmShipment.ActualMoveDate)
-	ppmShipment.SubmittedAt = services.SetOptionalDateTimeField(newPPMShipment.SubmittedAt, ppmShipment.SubmittedAt)
-	ppmShipment.ReviewedAt = services.SetOptionalDateTimeField(newPPMShipment.ReviewedAt, ppmShipment.ReviewedAt)
-	ppmShipment.ApprovedAt = services.SetOptionalDateTimeField(newPPMShipment.ApprovedAt, ppmShipment.ApprovedAt)
 
 	ppmShipment.SecondaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
 	ppmShipment.SecondaryDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryDestinationPostalCode, ppmShipment.SecondaryDestinationPostalCode)

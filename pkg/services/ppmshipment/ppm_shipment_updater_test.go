@@ -1,8 +1,6 @@
 package ppmshipment
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -11,19 +9,22 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
-	ppmShipmentUpdater := NewPPMShipmentUpdater()
-
-	oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
-
-	newPPM := models.PPMShipment{
+func createDefaultPPMShipment() *models.PPMShipment {
+	ppmShipment := models.PPMShipment{
 		PickupPostalCode: "20636",
 		// SitExpected: true,
 	}
+	return &ppmShipment
+}
 
+func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	// eTag := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
-	suite.T().Run("UpdatePPMShipment - Success", func(t *testing.T) {
-		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM, oldPPMShipment.ShipmentID)
+	suite.Run("UpdatePPMShipment - Success", func() {
+		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		ppmShipmentUpdater := NewPPMShipmentUpdater()
+
+		newPPM := createDefaultPPMShipment()
+		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), newPPM, oldPPMShipment.ShipmentID)
 
 		suite.NilOrNoVerrs(err)
 		suite.Equal(newPPM.PickupPostalCode, updatedPPMShipment.PickupPostalCode)
@@ -31,16 +32,23 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(unit.Pound(1150), *updatedPPMShipment.ProGearWeight)
 	})
 
-	suite.T().Run("Not Found Error", func(t *testing.T) {
-		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM, uuid.Nil)
+	suite.Run("Not Found Error", func() {
+		ppmShipmentUpdater := NewPPMShipmentUpdater()
+
+		newPPM := createDefaultPPMShipment()
+		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), newPPM, uuid.Nil)
 
 		suite.Nil(updatedPPMShipment)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	// suite.T().Run("Precondition Failed", func(t *testing.T) {
-	// 	updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &newPPM, oldPPMShipment.ShipmentID)
+	// suite.Run("Precondition Failed", func() {
+	// 	oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+	// 	ppmShipmentUpdater := NewPPMShipmentUpdater()
+
+	// 	newPPM := createDefaultPPMShipment()
+	// 	updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), newPPM, oldPPMShipment.ShipmentID)
 
 	// 	suite.Nil(updatedPPMShipment)
 	// 	suite.Error(err)

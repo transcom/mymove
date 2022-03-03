@@ -87,18 +87,18 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 
 	suite.Run("checkPPMShipmentID", func() {
 		suite.Run("success", func() {
-			newPPMShipment := models.PPMShipment{ShipmentID: uuid.Must(uuid.NewV4())}
+			id := uuid.Must(uuid.NewV4())
 			testCases := map[string]struct {
 				newPPMShipment models.PPMShipment
 				oldPPMShipment *models.PPMShipment
 			}{
 				"create": {
-					newPPMShipment: newPPMShipment,
+					newPPMShipment: models.PPMShipment{},
 					oldPPMShipment: nil,
 				},
 				"update": {
-					newPPMShipment: newPPMShipment,
-					oldPPMShipment: &models.PPMShipment{ID: newPPMShipment.ID},
+					newPPMShipment: models.PPMShipment{ID: id},
+					oldPPMShipment: &models.PPMShipment{ID: id},
 				},
 			}
 			for name, testCase := range testCases {
@@ -149,6 +149,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		destPostalcode := "99999"
 		sitExpected := false
 		shipmentID := uuid.Must(uuid.NewV4())
+
 		suite.Run("success", func() {
 			newPPMShipment := models.PPMShipment{
 				ShipmentID:            shipmentID,
@@ -163,13 +164,6 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		})
 
 		suite.Run("Failure - New shipment", func() {
-			shipmentID := uuid.Must(uuid.NewV4())
-
-			expectedTime := time.Now()
-			pickupPostal := "99999"
-			destPostalcode := "99999"
-			sitExpected := false
-
 			testCases := []struct {
 				desc     string
 				shipment models.PPMShipment
