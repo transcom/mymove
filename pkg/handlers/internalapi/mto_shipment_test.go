@@ -464,8 +464,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 // UPDATE
 //
 
-func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentParams {
+// getDefaultMTOShipmentAndParams generates a set of default params and an MTOShipment
+func (suite *HandlerSuite) getDefaultMTOShipmentAndParams() (mtoshipmentops.UpdateMTOShipmentParams, *models.MTOShipment) {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
+	originalShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMember:   serviceMember,
+			ServiceMemberID: serviceMember.ID,
+		},
+	})
 
 	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	pickupAddress.StreetAddress1 = "123 Fake Test St NW"
@@ -546,19 +554,26 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MT
 		IfMatch:       eTag,
 	}
 
-	return params
+	return params, &originalShipment
 }
 
-func (suite *HandlerSuite) getUpdateMTOShipmentParamsForHHGAndPPM(originalShipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentParams {
+// getDefaultPPMShipmentAndParams generates a set of default params and a PPMShipment
+func (suite *HandlerSuite) getDefaultPPMShipmentAndParams() (mtoshipmentops.UpdateMTOShipmentParams, *models.PPMShipment) {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
-
-	customerRemarks := "testing"
+	originalPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMember:   serviceMember,
+			ServiceMemberID: serviceMember.ID,
+		},
+	})
+	originalShipment := originalPPMShipment.Shipment
 
 	req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
 
+	customerRemarks := "testing"
 	payload := internalmessages.UpdateShipment{
 		CustomerRemarks: &customerRemarks,
 	}
@@ -570,7 +585,7 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParamsForHHGAndPPM(originalShipme
 		IfMatch:       eTag,
 	}
 
-	return params
+	return params, &originalPPMShipment
 }
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
@@ -600,8 +615,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ppmUpdater,
 		}
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params, oldShipment := suite.getDefaultMTOShipmentAndParams()
 
 		response := handler.Handle(params)
 
@@ -634,8 +648,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ppmUpdater,
 		}
 
-		existingPPMShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
-		params := suite.getUpdateMTOShipmentParamsForHHGAndPPM(existingPPMShipment.Shipment)
+		params, existingPPMShipment := suite.getDefaultPPMShipmentAndParams()
 
 		estimatedWeight := int64(6000)
 		proGearWeight := int64(1000)
@@ -683,8 +696,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		expectedStatus := internalmessages.MTOShipmentStatusSUBMITTED
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params, _ := suite.getDefaultMTOShipmentAndParams()
 		params.Body.Status = expectedStatus
 
 		response := handler.Handle(params)
@@ -703,8 +715,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ppmUpdater,
 		}
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params, _ := suite.getDefaultMTOShipmentAndParams()
 		params.Body = nil
 
 		response := handler.Handle(params)
@@ -719,8 +730,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ppmUpdater,
 		}
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params, _ := suite.getDefaultMTOShipmentAndParams()
 		params.Body.Status = internalmessages.MTOShipmentStatusREJECTED
 
 		response := handler.Handle(params)
@@ -735,8 +745,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ppmUpdater,
 		}
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params, oldShipment := suite.getDefaultMTOShipmentAndParams()
 		updateURI := "/mto-shipments/" + oldShipment.ID.String()
 
 		unauthorizedReq := httptest.NewRequest("PATCH", updateURI, nil)
@@ -756,8 +765,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ppmUpdater,
 		}
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params, oldShipment := suite.getDefaultMTOShipmentAndParams()
 		updateURI := "/mto-shipments/" + oldShipment.ID.String()
 
 		unauthorizedReq := httptest.NewRequest("PATCH", updateURI, nil)
@@ -777,8 +785,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params, _ := suite.getDefaultMTOShipmentAndParams()
 		params.MtoShipmentID = *uuidString
 
 		response := handler.Handle(params)
@@ -793,8 +800,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ppmUpdater,
 		}
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params, _ := suite.getDefaultMTOShipmentAndParams()
 		params.IfMatch = "intentionally-bad-if-match-header-value"
 
 		response := handler.Handle(params)
@@ -864,8 +870,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.Anything,
 		).Return(nil, err)
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params, _ := suite.getDefaultMTOShipmentAndParams()
 
 		response := handler.Handle(params)
 
