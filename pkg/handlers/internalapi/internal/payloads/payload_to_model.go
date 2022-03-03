@@ -93,6 +93,39 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
+	if mtoShipment.PpmShipment != nil {
+		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
+		model.PPMShipment.Shipment = *model
+	}
+
+	return model
+}
+
+// PPMShipmentModelFromCreate model
+func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment) *models.PPMShipment {
+	if ppmShipment == nil {
+		return nil
+	}
+
+	model := &models.PPMShipment{}
+
+	expectedDepartureDate := time.Time(*ppmShipment.ExpectedDepartureDate)
+	if !expectedDepartureDate.IsZero() {
+		model.ExpectedDepartureDate = expectedDepartureDate
+	}
+
+	if ppmShipment.PickupPostalCode != nil {
+		model.PickupPostalCode = *ppmShipment.PickupPostalCode
+	}
+
+	if ppmShipment.DestinationPostalCode != nil {
+		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
+	}
+
+	if ppmShipment.SitExpected != nil {
+		model.SitExpected = *ppmShipment.SitExpected
+	}
+
 	return model
 }
 
