@@ -47,7 +47,7 @@ export class CreateOrEditMtoShipment extends Component {
           <DateAndLocation
             mtoShipment={mtoShipment}
             serviceMember={serviceMember}
-            destinationDutyLocation={orders.new_duty_location} // TODO
+            destinationDutyLocation={orders.new_duty_location}
           />
         );
       }

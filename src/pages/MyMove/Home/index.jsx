@@ -397,7 +397,7 @@ export class Home extends Component {
                 </SectionWrapper>
                 <Contact
                   header="Contacts"
-                  dutyStationName={current_location?.transportation_office?.name} // TODO this doesn't seem right? at least the var names are off
+                  dutyStationName={current_location?.transportation_office?.name}
                   officeType="Origin Transportation Office"
                   telephone={current_location?.transportation_office?.phone_lines[0]}
                 />

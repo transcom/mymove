@@ -91,10 +91,10 @@ const MoveAllowances = () => {
     } = values;
     const body = {
       issueDate: order.date_issued,
-      newDutyStationId: order.destinationDutyLocation.id, // TODO
+      newDutyStationId: order.destinationDutyLocation.id,
       ordersNumber: order.order_number,
       ordersType: order.order_type,
-      originDutyStationId: order.originDutyLocation.id, // TODO
+      originDutyStationId: order.originDutyLocation.id,
       reportByDate: order.report_by_date,
       grade,
       authorizedWeight: Number(authorizedWeight),
