@@ -68,7 +68,7 @@ func (m PaymentReminder) GetEmailInfo(appCtx appcontext.AppContext) (PaymentRemi
 	COALESCE(ppm.incentive_estimate_min, 0) AS incentive_estimate_min,
 	COALESCE(ppm.incentive_estimate_max, 0) AS incentive_estimate_max,
 	ppm.original_move_date as move_date,
-	dsn.name AS new_duty_station_name,
+	dln.name AS new_duty_station_name,
 	tos.name AS transportation_office_name,
 	opl.number AS transportation_office_phone,
 	m.locator
@@ -76,8 +76,8 @@ FROM personally_procured_moves ppm
 	JOIN moves m ON ppm.move_id = m.id
 	JOIN orders o ON m.orders_id = o.id
 	JOIN service_members sm ON o.service_member_id = sm.id
-	JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
-	JOIN transportation_offices tos ON tos.id = dsn.transportation_office_id
+	JOIN duty_locations dln ON o.new_duty_location_id = dln.id
+	JOIN transportation_offices tos ON tos.id = dln.transportation_office_id
 	LEFT JOIN office_phone_lines opl on opl.transportation_office_id = tos.id and opl.id =
 	(
 		SELECT opl2.id FROM office_phone_lines opl2
