@@ -39,18 +39,18 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Current duty location</dt>
-          <dd data-testid="currentDutyLocation">{ordersInfo.currentDutyStation?.name}</dd>
+          <dd data-testid="currentDutyLocation">{ordersInfo.currentDutyLocation?.name}</dd>
         </div>
         <div
           className={classnames(descriptionListStyles.row, {
-            [styles.missingInfoError]: !ordersInfo.newDutyStation?.name,
+            [styles.missingInfoError]: !ordersInfo.newDutyLocation?.name,
           })}
         >
           <dt data-testid="newDutyLocationLabel">
             {isRetiree || isSeparatee ? 'HOR, HOS, or PLEAD' : 'New duty location'}
           </dt>
           <dd data-testid="newDutyLocation">
-            {ordersInfo.newDutyStation?.name ? ordersInfo.newDutyStation?.name : '-'}
+            {ordersInfo.newDutyLocation?.name ? ordersInfo.newDutyLocation?.name : '-'}
           </dd>
         </div>
         <div

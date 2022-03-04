@@ -7,6 +7,8 @@ properties:
   name:
     type: string
     example: Fort Bragg North Station
+  address:
+    $ref: 'Address.yaml'
   address_id:
     type: string
     format: uuid
@@ -18,6 +20,8 @@ properties:
     format: uuid
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
     x-nullable: true
+  transportation_office:
+    $ref: 'TransportationOffice.yaml'
   created_at:
     type: string
     format: date-time
