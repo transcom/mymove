@@ -28,7 +28,7 @@ var parameters = map[string]string{
 	"locator":            "moves.locator",
 	"status":             "payment_requests.status",
 	"age":                "payment_requests.created_at",
-	"originDutyLocation": "duty_stations.name",
+	"originDutyLocation": "duty_locations.name",
 }
 
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
@@ -57,9 +57,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
-		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
+		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_station_id").
 		// Need to use left join because some duty locations do not have transportation offices
-		LeftJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
@@ -100,7 +100,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		params.PerPage = swag.Int64(20)
 	}
 
-	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_stations.id, duty_stations.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -152,9 +152,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("contractors", "contractors.id = moves.contractor_id").
-		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
+		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_station_id").
 		// Need to use left join because some duty locations do not have transportation offices
-		LeftJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
@@ -240,7 +240,7 @@ func dutyLocationFilter(dutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
 		if dutyLocation != nil {
 			locationSearch := fmt.Sprintf("%s%%", *dutyLocation)
-			query.Where("duty_stations.name ILIKE ?", locationSearch)
+			query.Where("duty_locations.name ILIKE ?", locationSearch)
 		}
 	}
 }
@@ -264,7 +264,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
-			query.InnerJoin("duty_stations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
+			query.InnerJoin("duty_locations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
 		}
 	}
 }
