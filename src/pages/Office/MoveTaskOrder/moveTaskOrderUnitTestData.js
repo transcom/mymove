@@ -413,7 +413,7 @@ export const allApprovedExternalVendorMTOQuery = {
   orders: {
     1: {
       id: '1',
-      originDutyStation: {
+      originDutyLocation: {
         address: {
           streetAddress1: '',
           city: 'Fort Knox',
@@ -421,7 +421,7 @@ export const allApprovedExternalVendorMTOQuery = {
           postalCode: '40121',
         },
       },
-      destinationDutyStation: {
+      destinationDutyLocation: {
         address: {
           streetAddress1: '',
           city: 'Fort Irwin',
@@ -1088,7 +1088,7 @@ export const riskOfExcessWeightQueryExternalShipment = {
   orders: {
     1: {
       id: '1',
-      originDutyStation: {
+      originDutyLocation: {
         address: {
           streetAddress1: '',
           city: 'Fort Knox',
@@ -1096,7 +1096,7 @@ export const riskOfExcessWeightQueryExternalShipment = {
           postalCode: '40121',
         },
       },
-      destinationDutyStation: {
+      destinationDutyLocation: {
         address: {
           streetAddress1: '',
           city: 'Fort Irwin',
