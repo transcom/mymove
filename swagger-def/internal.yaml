@@ -2476,7 +2476,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       pickupPostalCode:
-        description: zip code, international allowed
+        description: zip code
         format: zip
         type: string
         title: ZIP
@@ -2578,26 +2578,30 @@ definitions:
         format: date
         type: string
       pickupPostalCode:
-        description: zip code, international allowed
+        description: zip code
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
       secondaryPickupPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
       sitExpected:
         type: boolean
     required:
@@ -2605,6 +2609,76 @@ definitions:
       - pickupPostalCode
       - destinationPostalCode
       - sitExpected
+  UpdatePPMShipment:
+    type:
+      object
+    properties:
+      expectedDepartureDate:
+        description: >
+          Date the customer expects to move.
+        format: date
+        type: string
+        x-nullable: true
+      actualMoveDate:
+        format: date
+        type: string
+        x-nullable: true
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryPickupPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        x-nullable: true
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        x-nullable: true
+      sitExpected:
+        type: boolean
+        x-nullable: true
+      estimatedWeight:
+        type: integer
+        example: 4200
+        x-nullable: true
+      netWeight:
+        description: >
+          The net weight of the shipment once it has been weight
+        type: integer
+        example: 4300
+        x-nullable: true
+      hasProGear:
+        description: >
+          Indicates whether PPM shipment has pro gear.
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        type: integer
+        x-nullable: true
+      spouseProGearWeight:
+        type: integer
+        x-nullable: true
+      estimatedIncentive:
+        type: integer
+        x-nullable: true
   UpdateShipment:
     type: object
     properties:
@@ -2612,6 +2686,8 @@ definitions:
         $ref: '#/definitions/MTOShipmentStatus'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
+      ppmShipment:
+        $ref: '#/definitions/UpdatePPMShipment'
       requestedPickupDate:
         format: date
         type: string
