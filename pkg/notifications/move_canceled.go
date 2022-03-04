@@ -60,7 +60,7 @@ func (m MoveCanceled) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	dsTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyStationID)
+	dsTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyLocationID)
 	if err != nil {
 		return emails, err
 	}

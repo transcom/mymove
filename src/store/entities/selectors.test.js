@@ -228,7 +228,7 @@ describe('selectServiceMemberProfileState', () => {
             phone_is_preferred: true,
             telephone: '555-555-5556',
             email_is_preferred: false,
-            current_station: {
+            current_location: {
               id: 'testDutyStationId',
               address: {
                 city: 'Colorado Springs',
@@ -268,7 +268,7 @@ describe('selectServiceMemberProfileState', () => {
             phone_is_preferred: true,
             telephone: '555-555-5556',
             email_is_preferred: false,
-            current_station: {
+            current_location: {
               id: 'testDutyStationId',
               address: {
                 city: 'Colorado Springs',
@@ -324,7 +324,7 @@ describe('selectServiceMemberProfileState', () => {
             phone_is_preferred: true,
             telephone: '555-555-5556',
             email_is_preferred: false,
-            current_station: {
+            current_location: {
               id: 'testDutyStationId',
               address: {
                 city: 'Colorado Springs',
@@ -373,7 +373,7 @@ describe('selectServiceMemberProfileState', () => {
               streetAddress1: '200 K St',
             },
             created_at: '2018-05-25T15:48:49.918Z',
-            current_station: {
+            current_location: {
               address: {
                 city: 'Colorado Springs',
                 country: 'United States',
@@ -429,7 +429,7 @@ describe('selectCurrentDutyLocation', () => {
         serviceMembers: {
           serviceMemberId456: {
             id: 'serviceMemberId456',
-            current_station: {
+            current_location: {
               id: 'dutyStationId890',
             },
           },
@@ -438,7 +438,7 @@ describe('selectCurrentDutyLocation', () => {
     };
 
     expect(selectCurrentDutyLocation(testState)).toEqual(
-      testState.entities.serviceMembers.serviceMemberId456.current_station,
+      testState.entities.serviceMembers.serviceMemberId456.current_location,
     );
   });
 
@@ -540,7 +540,7 @@ describe('selectIsProfileComplete', () => {
       streetAddress1: '200 K St',
     },
     created_at: '2018-05-25T15:48:49.918Z',
-    current_station: {
+    current_location: {
       address: {
         city: 'Colorado Springs',
         country: 'United States',

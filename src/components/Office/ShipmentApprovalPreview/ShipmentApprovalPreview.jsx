@@ -80,7 +80,7 @@ const ShipmentApprovalPreview = ({
                           ...shipment,
                           destinationAddress: shipment.destinationAddress
                             ? shipment.destinationAddress
-                            : { postalCode: ordersInfo.newDutyStation.address.postalCode },
+                            : { postalCode: ordersInfo.newDutyLocation.address.postalCode },
                           agents: shipment.mtoAgents,
                         }}
                       />

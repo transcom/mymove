@@ -12,7 +12,7 @@
   "personal_email": "john_bob@example.com",
   "phone_is_preferred": true,
   "email_is_preferred": true,
-  "current_station_id": "C6885D29-0CF5-4D91-8534-7C729CBE5A7D",
+  "current_location_id": "C6885D29-0CF5-4D91-8534-7C729CBE5A7D",
   "residential_address": {
     "streetAddress1": "123 Main Ave",
     "streetAddress2": "Apartment 9000",

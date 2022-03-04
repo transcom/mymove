@@ -21,7 +21,7 @@ export const DefaultState = (argTypes) => (
       affiliation: '',
       edipi: '',
       rank: '',
-      current_station: {},
+      current_location: {},
     }}
     onSubmit={argTypes.onSubmit}
     onCancel={argTypes.onCancel}
@@ -38,7 +38,7 @@ export const WithInitialValues = (argTypes) => (
       affiliation: 'ARMY',
       edipi: '9999999999',
       rank: 'E_2',
-      current_station: {
+      current_location: {
         address: {
           city: 'Los Angeles',
           state: 'CA',

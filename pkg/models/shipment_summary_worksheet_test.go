@@ -44,9 +44,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
-			ID:            serviceMemberID,
-			DutyStationID: &yuma.ID,
-			Rank:          &rank,
+			ID:             serviceMemberID,
+			DutyLocationID: &yuma.ID,
+			Rank:           &rank,
 		},
 	})
 
@@ -157,9 +157,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
-			ID:            serviceMemberID,
-			DutyStationID: &yuma.ID,
-			Rank:          &rank,
+			ID:             serviceMemberID,
+			DutyLocationID: &yuma.ID,
+			Rank:           &rank,
 		},
 	})
 
@@ -299,17 +299,17 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	serviceBranch := models.AffiliationAIRFORCE
 	rank := models.ServiceMemberRankE9
 	serviceMember := models.ServiceMember{
-		ID:            serviceMemberID,
-		FirstName:     models.StringPointer("Marcus"),
-		MiddleName:    models.StringPointer("Joseph"),
-		LastName:      models.StringPointer("Jenkins"),
-		Suffix:        models.StringPointer("Jr."),
-		Telephone:     models.StringPointer("444-555-8888"),
-		PersonalEmail: models.StringPointer("michael+ppm-expansion_1@truss.works"),
-		Edipi:         models.StringPointer("1234567890"),
-		Affiliation:   &serviceBranch,
-		Rank:          &rank,
-		DutyStationID: &yuma.ID,
+		ID:             serviceMemberID,
+		FirstName:      models.StringPointer("Marcus"),
+		MiddleName:     models.StringPointer("Joseph"),
+		LastName:       models.StringPointer("Jenkins"),
+		Suffix:         models.StringPointer("Jr."),
+		Telephone:      models.StringPointer("444-555-8888"),
+		PersonalEmail:  models.StringPointer("michael+ppm-expansion_1@truss.works"),
+		Edipi:          models.StringPointer("1234567890"),
+		Affiliation:    &serviceBranch,
+		Rank:           &rank,
+		DutyLocationID: &yuma.ID,
 	}
 
 	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)

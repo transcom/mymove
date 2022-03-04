@@ -156,8 +156,8 @@ export class Home extends Component {
     return (
       <>
         <p>
-          You’re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
-          <strong>{orders.origin_duty_station?.name}.</strong> Report by{' '}
+          You’re moving to <strong>{orders.new_duty_location.name}</strong> from{' '}
+          <strong>{orders.origin_duty_location?.name}.</strong> Report by{' '}
           <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         </p>
 
@@ -255,7 +255,7 @@ export class Home extends Component {
     }
 
     // eslint-disable-next-line camelcase
-    const { current_station } = serviceMember;
+    const { current_location } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
 
     const shipmentSelectionPath =
@@ -397,9 +397,9 @@ export class Home extends Component {
                 </SectionWrapper>
                 <Contact
                   header="Contacts"
-                  dutyStationName={current_station?.transportation_office?.name}
+                  dutyStationName={current_location?.transportation_office?.name}
                   officeType="Origin Transportation Office"
-                  telephone={current_station?.transportation_office?.phone_lines[0]}
+                  telephone={current_location?.transportation_office?.phone_lines[0]}
                 />
               </>
             )}

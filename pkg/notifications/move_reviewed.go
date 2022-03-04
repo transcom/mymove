@@ -59,13 +59,13 @@ type EmailInfo struct {
 // GetEmailInfo retreives email information
 func (m MoveReviewed) GetEmailInfo(appCtx appcontext.AppContext, date time.Time) (EmailInfos, error) {
 	dateString := date.Format("2006-01-02")
-	query := `SELECT sm.id, sm.personal_email, dsn.name AS new_duty_station_name, dso.name AS duty_station_name, m.locator
+	query := `SELECT sm.id, sm.personal_email, dln.name AS new_duty_station_name, dlo.name AS duty_station_name, m.locator
 FROM personally_procured_moves p
          JOIN moves m ON p.move_id = m.id
          JOIN orders o ON m.orders_id = o.id
          JOIN service_members sm ON o.service_member_id = sm.id
-         JOIN duty_stations dso ON sm.duty_station_id = dso.id
-         JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
+         JOIN duty_locations dlo ON sm.duty_location_id = dlo.id
+         JOIN duty_locations dln ON o.new_duty_location_id = dln.id
          LEFT JOIN notifications n ON sm.id = n.service_member_id
 WHERE CAST(reviewed_date AS date) = $1
 --  send email if haven't sent them a MOVE_REVIEWED_EMAIL yet OR we haven't sent them any emails at all
