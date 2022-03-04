@@ -1,3 +1,5 @@
+import { submitsDateAndLocation, customerChoosesAPPMMove } from './shared';
+
 describe('the PPM flow', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -22,24 +24,6 @@ describe('the PPM flow', function () {
     submitsDateAndLocation();
   });
 });
-
-function customerChoosesAPPMMove() {
-  cy.get('button[data-testid="shipment-selection-btn"]').click();
-  cy.nextPage();
-
-  cy.get('input[value="PPM"]').check({ force: true });
-  cy.nextPage();
-}
-
-function submitsDateAndLocation() {
-  cy.get('input[name="estimatedWeight"]').clear().type(900).blur();
-
-  cy.get('button').contains('Save & Continue').click();
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
-  });
-}
 
 function invalidInputs() {
   cy.contains('Estimated Weight');

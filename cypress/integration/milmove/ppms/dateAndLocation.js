@@ -1,3 +1,5 @@
+import { submitsDateAndLocation, customerChoosesAPPMMove } from './shared';
+
 describe('the PPM flow', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -21,27 +23,6 @@ describe('the PPM flow', function () {
     submitsDateAndLocation();
   });
 });
-
-function customerChoosesAPPMMove() {
-  cy.get('button[data-testid="shipment-selection-btn"]').click();
-  cy.nextPage();
-
-  cy.get('input[value="PPM"]').check({ force: true });
-  cy.nextPage();
-}
-
-function submitsDateAndLocation() {
-  cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
-
-  cy.get('input[name="destinationPostalCode"]').clear().type('76127');
-  cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
-
-  cy.get('button').contains('Save & Continue').click();
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
-  });
-}
 
 function invalidInputs() {
   cy.contains('PPM date & location');
