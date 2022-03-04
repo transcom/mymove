@@ -57,7 +57,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
-		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_station_id").
+		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_location_id").
 		// Need to use left join because some duty locations do not have transportation offices
 		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
@@ -152,7 +152,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("contractors", "contractors.id = moves.contractor_id").
-		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_station_id").
+		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_location_id").
 		// Need to use left join because some duty locations do not have transportation offices
 		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
@@ -264,7 +264,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
-			query.InnerJoin("duty_locations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
+			query.InnerJoin("duty_locations as destination_duty_location", "orders.new_duty_location = destination_duty_location.id").Where("destination_duty_location.name ILIKE ?", nameSearch)
 		}
 	}
 }
