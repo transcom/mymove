@@ -103,11 +103,15 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
       };
 
       const errorIfMissingList = errorIfMissing[shipment.shipmentType];
-
       if (errorIfMissingList) {
         errorIfMissingList.forEach((fieldToCheck) => {
           if (!displayInfo[fieldToCheck]) {
             numberOfErrorIfMissingForAllShipments += 1;
+            // Since storage facility gets split into two fields - the name and the address
+            // it needs to be counted twice.
+            if (fieldToCheck === 'storageFacility') {
+              numberOfErrorIfMissingForAllShipments += 1;
+            }
           }
         });
       }
@@ -117,6 +121,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
         warnIfMissingList.forEach((fieldToCheck) => {
           if (!displayInfo[fieldToCheck]) {
             numberOfWarnIfMissingForAllShipments += 1;
+          }
+          // Since storage facility gets split into two fields - the name and the address
+          // it needs to be counted twice.
+          if (fieldToCheck === 'storageFacility') {
+            numberOfErrorIfMissingForAllShipments += 1;
           }
         });
       }

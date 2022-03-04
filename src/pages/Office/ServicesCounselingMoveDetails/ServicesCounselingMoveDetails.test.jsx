@@ -153,7 +153,6 @@ const ntsrShipmentMissingRequiredInfo = {
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ' +
     'Morbi porta nibh nibh, ac malesuada tortor egestas.',
   customerRemarks: 'Ut enim ad minima veniam',
-  tacType: 'HHG',
   sacType: 'NTS',
 };
 
@@ -323,7 +322,9 @@ describe('MoveDetails page', () => {
 
       render(mockedComponent);
 
-      expect(await screen.findByTestId('requestedShipmentsTag')).toBeInTheDocument();
+      // In this case, we would expect 3 since this shipment is missing the storage facility
+      // and tac type.
+      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('3');
     });
 
     /* eslint-disable camelcase */

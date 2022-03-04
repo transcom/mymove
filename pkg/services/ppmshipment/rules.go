@@ -8,6 +8,17 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// checkShipmentType checks if the associated mtoShipment has the appropriate shipmentType
+func checkShipmentType() ppmShipmentValidator {
+	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, _ models.PPMShipment, _ *models.PPMShipment, mtoShipment *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+		if mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
+			verrs.Add("ShipmentType", "ShipmentType must be of type "+string(models.MTOShipmentTypePPM))
+		}
+		return verrs
+	})
+}
+
 // checkShipmentID checks that the user can't change the shipment ID
 func checkShipmentID() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
@@ -46,9 +57,6 @@ func checkPPMShipmentID() ppmShipmentValidator {
 func checkRequiredFields() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
-
-		// TODO: We'll need to add logic for when a shipment is being updated, otherwise the code below could break.
-		// Look at pkg/services/reweigh/rules.go  checkRequiredFields() for an example.
 
 		// Check that we have something in the expectedDepartureDate field:
 		if newPPMShipment.ExpectedDepartureDate.IsZero() {

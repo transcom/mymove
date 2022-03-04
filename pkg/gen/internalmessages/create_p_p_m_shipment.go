@@ -20,8 +20,9 @@ import (
 type CreatePPMShipment struct {
 
 	// ZIP
-	// Example: '90210' or 'N15 3NL'
+	// Example: 90210
 	// Required: true
+	// Pattern: ^(\d{5})$
 	DestinationPostalCode *string `json:"destinationPostalCode"`
 
 	// Date the customer expects to move.
@@ -32,17 +33,20 @@ type CreatePPMShipment struct {
 
 	// ZIP
 	//
-	// zip code, international allowed
-	// Example: '90210' or 'N15 3NL'
+	// zip code
+	// Example: 90210
 	// Required: true
+	// Pattern: ^(\d{5})$
 	PickupPostalCode *string `json:"pickupPostalCode"`
 
 	// ZIP
-	// Example: '90210' or 'N15 3NL'
+	// Example: 90210
+	// Pattern: ^(\d{5})$
 	SecondaryDestinationPostalCode string `json:"secondaryDestinationPostalCode,omitempty"`
 
 	// ZIP
-	// Example: '90210' or 'N15 3NL'
+	// Example: 90210
+	// Pattern: ^(\d{5})$
 	SecondaryPickupPostalCode string `json:"secondaryPickupPostalCode,omitempty"`
 
 	// sit expected
@@ -66,6 +70,14 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSecondaryDestinationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSitExpected(formats); err != nil {
 		res = append(res, err)
 	}
@@ -79,6 +91,10 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 func (m *CreatePPMShipment) validateDestinationPostalCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("destinationPostalCode", "body", m.DestinationPostalCode); err != nil {
+		return err
+	}
+
+	if err := validate.Pattern("destinationPostalCode", "body", *m.DestinationPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 
@@ -101,6 +117,34 @@ func (m *CreatePPMShipment) validateExpectedDepartureDate(formats strfmt.Registr
 func (m *CreatePPMShipment) validatePickupPostalCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("pickupPostalCode", "body", m.PickupPostalCode); err != nil {
+		return err
+	}
+
+	if err := validate.Pattern("pickupPostalCode", "body", *m.PickupPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreatePPMShipment) validateSecondaryDestinationPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("secondaryDestinationPostalCode", "body", m.SecondaryDestinationPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreatePPMShipment) validateSecondaryPickupPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryPickupPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("secondaryPickupPostalCode", "body", m.SecondaryPickupPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 

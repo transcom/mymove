@@ -266,31 +266,33 @@ bin/health-checker: cmd/health-checker
 bin/iws: cmd/iws
 	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
-bin/milmove: cmd/milmove
+PKG_GOSRC := $(wildcard pkg/**/*.go)
+
+bin/milmove: $(wildcard cmd/milmove/**/*.go) $(PKG_GOSRC)
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin/milmove-tasks: cmd/milmove-tasks
+bin/milmove-tasks: $(wildcard cmd/milmove-tasks/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin/prime-api-client: cmd/prime-api-client
+bin/prime-api-client: $(wildcard cmd/prime-api-client/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
-bin/webhook-client: cmd/webhook-client
+bin/webhook-client: $(wildcard cmd/webhook-client/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
 
-bin/read-alb-logs: cmd/read-alb-logs
+bin/read-alb-logs: $(wildcard cmd/read-alb-logs/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/report-ecs: cmd/report-ecs
+bin/report-ecs: $(wildcard cmd/report-ecs/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
-bin/send-to-gex: pkg/gen/ cmd/send-to-gex
+bin/send-to-gex: $(wildcard cmd/send-to-gex/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
-bin/tls-checker: cmd/tls-checker
+bin/tls-checker: $(wildcard cmd/tls-checker/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
-bin/generate-payment-request-edi: cmd/generate-payment-request-edi
+bin/generate-payment-request-edi: $(wildcard cmd/generate-payment-request-edi/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
 pkg/assets/assets.go:

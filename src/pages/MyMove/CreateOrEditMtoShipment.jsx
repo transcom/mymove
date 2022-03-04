@@ -17,7 +17,7 @@ import {
 } from 'store/entities/selectors';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { LocationShape } from 'types/index';
-import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation';
+import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation';
 
 export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
