@@ -5325,26 +5325,11 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "advanceId": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "advanceRequested": {
-          "type": "boolean",
+        "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "advanceWorksheetId": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "approvedAt": {
           "type": "string",
@@ -12240,26 +12225,11 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "advanceId": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "advanceRequested": {
-          "type": "boolean",
+        "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "advanceWorksheetId": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "approvedAt": {
           "type": "string",

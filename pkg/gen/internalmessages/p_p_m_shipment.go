@@ -23,20 +23,9 @@ type PPMShipment struct {
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actualMoveDate"`
 
-	// advance Id
-	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-	// Read Only: true
-	// Format: uuid
-	AdvanceID *strfmt.UUID `json:"advanceId"`
-
-	// advance requested
-	AdvanceRequested *bool `json:"advanceRequested"`
-
-	// advance worksheet Id
-	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-	// Read Only: true
-	// Format: uuid
-	AdvanceWorksheetID *strfmt.UUID `json:"advanceWorksheetId"`
+	// The amount request for an advance, or null if no advance is requested
+	//
+	Advance *int64 `json:"advance"`
 
 	// approved at
 	// Format: date-time
@@ -150,14 +139,6 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateAdvanceID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateAdvanceWorksheetID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateApprovedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -230,30 +211,6 @@ func (m *PPMShipment) validateActualMoveDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("actualMoveDate", "body", "date", m.ActualMoveDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPMShipment) validateAdvanceID(formats strfmt.Registry) error {
-	if swag.IsZero(m.AdvanceID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("advanceId", "body", "uuid", m.AdvanceID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPMShipment) validateAdvanceWorksheetID(formats strfmt.Registry) error {
-	if swag.IsZero(m.AdvanceWorksheetID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("advanceWorksheetId", "body", "uuid", m.AdvanceWorksheetID.String(), formats); err != nil {
 		return err
 	}
 
@@ -451,14 +408,6 @@ func (m *PPMShipment) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateAdvanceID(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateAdvanceWorksheetID(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -486,24 +435,6 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *PPMShipment) contextValidateAdvanceID(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "advanceId", "body", m.AdvanceID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPMShipment) contextValidateAdvanceWorksheetID(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "advanceWorksheetId", "body", m.AdvanceWorksheetID); err != nil {
-		return err
-	}
-
 	return nil
 }
 

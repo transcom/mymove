@@ -50,11 +50,7 @@ type PPMShipment struct {
 	ProGearWeight                  *unit.Pound       `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound       `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
 	EstimatedIncentive             *int32            `json:"estimated_incentive" db:"estimated_incentive"`
-	AdvanceRequested               *bool             `json:"advance_requested" db:"advance_requested"`
-	AdvanceID                      *uuid.UUID        `json:"advance_id" db:"advance_id"`
-	Advance                        *Reimbursement    `belongs_to:"reimbursements" fk_id:"advance_id"`
-	AdvanceWorksheetID             *uuid.UUID        `json:"advance_worksheet_id" db:"advance_worksheet_id"`
-	AdvanceWorksheet               *Document         `belongs_to:"documents" fk_id:"advance_worksheet_id"`
+	Advance                        *unit.Cents       `json:"advance" db:"advance"`
 }
 
 // PPMShipments is a list of PPMs

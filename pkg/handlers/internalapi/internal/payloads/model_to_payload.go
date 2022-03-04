@@ -91,9 +91,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
-		AdvanceRequested:               ppmShipment.AdvanceRequested,
-		AdvanceID:                      handlers.FmtUUIDPtr(ppmShipment.AdvanceID),
-		AdvanceWorksheetID:             handlers.FmtUUIDPtr(ppmShipment.AdvanceWorksheetID),
+		Advance:                        ppmShipment.Advance,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
