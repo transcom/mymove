@@ -18,10 +18,23 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
 import { formatWeight } from 'utils/formatters';
 
+// tryToFixNaN checks if value is NaN. If it is a number, it just returns it, but if not, it tries to get a valid number
+// from the initial value. If that still fails, returns the plain value we got.
+const tryToFixNaN = (value, initialValue) => {
+  if (!Number.isNaN(value)) {
+    return value;
+  }
+
+  const valueWithoutComma = initialValue.replace(',', '');
+
+  return !Number.isNaN(valueWithoutComma) ? parseFloat(valueWithoutComma) : value;
+};
+
 const validationSchema = Yup.object().shape({
-  estimatedWeight: Yup.number().min(1, 'Enter a weight greater than 0 lbs').required('Required'),
+  estimatedWeight: Yup.number().transform(tryToFixNaN).min(1, 'Enter a weight greater than 0 lbs').required('Required'),
   hasProGear: Yup.boolean().required('Required'),
   proGearWeight: Yup.number()
+    .transform(tryToFixNaN)
     .min(0, 'Enter a weight 0lbs or greater')
     .when(['hasProGear', 'spouseProGearWeight'], {
       is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,
@@ -32,6 +45,7 @@ const validationSchema = Yup.object().shape({
       otherwise: Yup.number().min(0, 'Enter a weight 0lbs or greater').max(2000, 'Enter a weight less than 2,000 lbs'),
     }),
   spouseProGearWeight: Yup.number()
+    .transform(tryToFixNaN)
     .min(0, 'Enter a weight 0lbs or greater')
     .max(500, 'Enter a weight less than 500 lbs'),
 });
