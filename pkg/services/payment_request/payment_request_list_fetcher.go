@@ -78,13 +78,13 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
-	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
+	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyStation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 
-	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery}
+	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -260,10 +260,10 @@ func locatorFilter(locator *string) QueryOption {
 		}
 	}
 }
-func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
+func destinationDutyLocationFilter(destinationDutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
-		if destinationDutyStation != nil {
-			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
+		if destinationDutyLocation != nil {
+			nameSearch := fmt.Sprintf("%s%%", *destinationDutyLocation)
 			query.InnerJoin("duty_locations as destination_duty_location", "orders.new_duty_location = destination_duty_location.id").Where("destination_duty_location.name ILIKE ?", nameSearch)
 		}
 	}
