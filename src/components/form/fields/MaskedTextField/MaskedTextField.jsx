@@ -71,8 +71,8 @@ const MaskedTextField = ({
               // setValue is already triggering validation for this field so we should be able to skip it in setTouched
               helpers.setTouched(true, false);
             }}
+            onBlur={field.onBlur}
             {...props}
-            {...field}
           />
           {suffix && <div className="suffix">{suffix}</div>}
         </div>
@@ -92,8 +92,8 @@ const MaskedTextField = ({
             // setValue is already triggering validation for this field so we should be able to skip it in setTouched
             helpers.setTouched(true, false);
           }}
+          onBlur={field.onBlur}
           {...props}
-          {...field}
         />
       )}
       {children}
