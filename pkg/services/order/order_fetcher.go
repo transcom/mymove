@@ -81,7 +81,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
-	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
+	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyLocation)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
