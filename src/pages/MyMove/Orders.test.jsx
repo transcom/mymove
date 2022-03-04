@@ -198,7 +198,7 @@ describe('Orders page', () => {
       });
 
       userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-      userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+      userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
       userEvent.click(screen.getByLabelText('No'));
 
       // Test Duty Station Search Box interaction

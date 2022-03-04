@@ -147,8 +147,8 @@ describe('OrdersInfoForm component', () => {
       expect(getByLabelText('Orders type')).toBeRequired();
       expect(getByLabelText('Orders date')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('Orders date')).toBeRequired();
-      expect(getByLabelText('Report-by date')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Report-by date')).toBeRequired();
+      expect(getByLabelText('Report by date')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('Report by date')).toBeRequired();
       expect(getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('New duty location')).toBeInstanceOf(HTMLInputElement);
@@ -178,7 +178,7 @@ describe('OrdersInfoForm component', () => {
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
@@ -217,7 +217,7 @@ describe('OrdersInfoForm component', () => {
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
@@ -312,7 +312,7 @@ describe('OrdersInfoForm component', () => {
 
         expect(getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
         expect(getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
-        expect(getByLabelText('Report-by date')).toHaveValue('26 Nov 2020');
+        expect(getByLabelText('Report by date')).toHaveValue('26 Nov 2020');
         expect(getByLabelText('Yes')).not.toBeChecked();
         expect(getByLabelText('No')).toBeChecked();
         expect(queryByText('Yuma AFB')).toBeInTheDocument();
