@@ -38,10 +38,10 @@ const validationSchema = Yup.object().shape({
 
 const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSubmit, onBack }) => {
   const initialValues = {
-    estimatedWeight: mtoShipment.ppmShipment.estimatedWeight?.toString() || '',
-    hasProGear: mtoShipment.ppmShipment.hasProGear?.toString() || 'false',
-    proGearWeight: mtoShipment.ppmShipment.proGearWeight?.toString() || '',
-    spouseProGearWeight: mtoShipment.ppmShipment.spouseProGearWeight?.toString() || '',
+    estimatedWeight: mtoShipment?.ppmShipment?.estimatedWeight?.toString() || '',
+    hasProGear: mtoShipment?.ppmShipment?.hasProGear?.toString() || 'false',
+    proGearWeight: mtoShipment?.ppmShipment?.proGearWeight?.toString() || '',
+    spouseProGearWeight: mtoShipment?.ppmShipment?.spouseProGearWeight?.toString() || '',
   };
 
   const authorizedWeight = orders.has_dependents
