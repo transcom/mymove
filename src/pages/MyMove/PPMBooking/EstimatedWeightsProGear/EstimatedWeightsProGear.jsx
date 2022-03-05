@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
+import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { customerRoutes } from 'constants/routes';
 import EstimatedWeightsProGearForm from 'components/Customer/PPMBooking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
 import { shipmentTypes } from 'constants/shipments';
@@ -57,7 +58,7 @@ const EstimatedWeightsProGear = () => {
   };
 
   return (
-    <div>
+    <div className={ppmBookingPageStyles.PPMBookingPage}>
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

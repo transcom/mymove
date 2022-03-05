@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import styles from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation.module.scss';
+import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { DutyStationShape } from 'types';
 import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
@@ -92,7 +92,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
   };
 
   return (
-    <div className={styles.DateAndLocation}>
+    <div className={ppmBookingPageStyles.PPMBookingPage}>
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
