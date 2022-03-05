@@ -144,7 +144,7 @@ describe('Services counselor user', () => {
     cy.wait('@createShipment');
   });
 
-  it.only('is able to edit allowances', () => {
+  it('is able to edit allowances', () => {
     cy.wait(['@getSortedMoves']);
     // It doesn't matter which move we click on in the queue.
     cy.get('td').first().click();
