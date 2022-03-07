@@ -149,14 +149,14 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
-	if payload.OriginDutyStationID != nil {
-		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyStationID.String())
+	if payload.OriginDutyLocationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
 		order.OriginDutyLocationID = &originDutyStationID
-		order.ServiceMember.DutyStationID = &originDutyStationID
+		order.ServiceMember.DutyLocationID = &originDutyStationID
 	}
 
-	if payload.NewDutyStationID != nil {
-		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
+	if payload.NewDutyLocationID != nil {
+		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyLocationID.String())
 		order.NewDutyLocationID = newDutyStationID
 	}
 
@@ -276,14 +276,14 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
-	if payload.OriginDutyStationID != nil {
-		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyStationID.String())
+	if payload.OriginDutyLocationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
 		order.OriginDutyLocationID = &originDutyStationID
-		order.ServiceMember.DutyStationID = &originDutyStationID
+		order.ServiceMember.DutyLocationID = &originDutyStationID
 	}
 
-	if payload.NewDutyStationID != nil {
-		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
+	if payload.NewDutyLocationID != nil {
+		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyLocationID.String())
 		order.NewDutyLocationID = newDutyStationID
 	}
 
@@ -524,14 +524,14 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 			case sql.ErrNoRows:
 				return nil, apperror.NewNotFoundError(*order.OriginDutyLocationID, "while looking for OriginDutyLocation")
 			default:
-				return nil, apperror.NewQueryError("DutyStation", err, "")
+				return nil, apperror.NewQueryError("DutyLocation", err, "")
 			}
 		}
 		order.OriginDutyLocationID = &originDutyLocation.ID
 		order.OriginDutyLocation = &originDutyLocation
 
-		order.ServiceMember.DutyStationID = &originDutyLocation.ID
-		order.ServiceMember.DutyStation = originDutyLocation
+		order.ServiceMember.DutyLocationID = &originDutyLocation.ID
+		order.ServiceMember.DutyLocation = originDutyLocation
 	}
 
 	if order.Grade != nil || order.OriginDutyLocationID != nil {
@@ -558,7 +558,7 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 			case sql.ErrNoRows:
 				return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for NewDutyLocation")
 			default:
-				return nil, apperror.NewQueryError("DutyStation", err, "")
+				return nil, apperror.NewQueryError("DutyLocation", err, "")
 			}
 		}
 		order.NewDutyLocationID = newDutyStation.ID

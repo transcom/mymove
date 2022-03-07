@@ -9,15 +9,13 @@ import ppmBookingStyles from '../PPMBooking.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
-import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX } from 'utils/validation';
+import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { DutyStationShape } from 'types';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
-
-const InvalidZIPTypeError = 'Enter a 5-digit ZIP code';
 
 const validationSchema = Yup.object().shape({
   pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
@@ -109,7 +107,7 @@ const DateAndLocationForm = ({
         return (
           <div className={ppmBookingStyles.formContainer}>
             <Form className={(formStyles.form, ppmBookingStyles.form)}>
-              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection, 'origin')}>
                 <h2>Origin</h2>
                 <TextField
                   label="ZIP"

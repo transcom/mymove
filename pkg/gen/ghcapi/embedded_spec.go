@@ -1042,6 +1042,51 @@ func init() {
         }
       ]
     },
+    "/move/{locator}/history": {
+      "get": {
+        "description": "Returns the history for a given move for a unique alphanumeric locator string",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns the history of an identified move",
+        "operationId": "getMoveHistory",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the individual move history",
+            "schema": {
+              "$ref": "#/definitions/MoveHistory"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "Code used to identify a move in the system",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
       "get": {
         "description": "Gets all line items for a move",
@@ -3272,8 +3317,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "originDutyStationId",
-        "newDutyStationId"
+        "originDutyLocationId",
+        "newDutyLocationId"
       ],
       "properties": {
         "issueDate": {
@@ -3283,7 +3328,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -3303,7 +3348,7 @@ func init() {
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -4436,6 +4481,137 @@ func init() {
         }
       }
     },
+    "MoveAuditHistories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistory"
+      }
+    },
+    "MoveAuditHistory": {
+      "properties": {
+        "action": {
+          "description": "Action type; I = insert, D = delete, U = update, T = truncate",
+          "type": "string"
+        },
+        "actionTstampClk": {
+          "description": "Wall clock time at which audited event's trigger call occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampStm": {
+          "description": "Statement start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampTx": {
+          "description": "Transaction start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "changedValues": {
+          "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "clientQuery": {
+          "description": "Record the text of the client query that triggered the audit event",
+          "type": "string",
+          "x-nullable": true
+        },
+        "eventName": {
+          "description": "API endpoint name that was called to make the change",
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "description": "id from audity_history table",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "objectId": {
+          "description": "id column for the tableName where the data was changed",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "oldValues": {
+          "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "relId": {
+          "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
+          "type": "integer"
+        },
+        "schemaName": {
+          "description": "Database schema audited table for this event is in",
+          "type": "string"
+        },
+        "sessionUserId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "statementOnly": {
+          "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",
+          "type": "boolean",
+          "example": false
+        },
+        "tableName": {
+          "description": "name of database table that was changed",
+          "type": "string"
+        },
+        "transactionId": {
+          "description": "Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
+    "MoveAuditHistoryItem": {
+      "properties": {
+        "columnName": {
+          "type": "string"
+        },
+        "columnValue": {
+          "type": "string"
+        }
+      }
+    },
+    "MoveAuditHistoryItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistoryItem"
+      }
+    },
+    "MoveHistory": {
+      "properties": {
+        "historyRecords": {
+          "description": "A list of MoveAuditHistory's connected to the move.",
+          "$ref": "#/definitions/MoveAuditHistories"
+        },
+        "id": {
+          "description": "move ID",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "locator": {
+          "description": "move locator",
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "referenceId": {
+          "description": "move referenceID",
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        }
+      }
+    },
     "MoveStatus": {
       "type": "string",
       "enum": [
@@ -4565,7 +4741,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
@@ -4630,7 +4806,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
@@ -5295,6 +5471,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -5572,8 +5749,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "newDutyStationId",
-        "originDutyStationId"
+        "newDutyLocationId",
+        "originDutyLocationId"
       ],
       "properties": {
         "departmentIndicator": {
@@ -5587,7 +5764,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -5621,7 +5798,7 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -7233,6 +7410,66 @@ func init() {
             "description": "Successfully retrieved the individual move",
             "schema": {
               "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "Code used to identify a move in the system",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move/{locator}/history": {
+      "get": {
+        "description": "Returns the history for a given move for a unique alphanumeric locator string",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns the history of an identified move",
+        "operationId": "getMoveHistory",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the individual move history",
+            "schema": {
+              "$ref": "#/definitions/MoveHistory"
             }
           },
           "400": {
@@ -9950,8 +10187,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "originDutyStationId",
-        "newDutyStationId"
+        "originDutyLocationId",
+        "newDutyLocationId"
       ],
       "properties": {
         "issueDate": {
@@ -9961,7 +10198,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -9981,7 +10218,7 @@ func init() {
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -11114,6 +11351,137 @@ func init() {
         }
       }
     },
+    "MoveAuditHistories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistory"
+      }
+    },
+    "MoveAuditHistory": {
+      "properties": {
+        "action": {
+          "description": "Action type; I = insert, D = delete, U = update, T = truncate",
+          "type": "string"
+        },
+        "actionTstampClk": {
+          "description": "Wall clock time at which audited event's trigger call occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampStm": {
+          "description": "Statement start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampTx": {
+          "description": "Transaction start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "changedValues": {
+          "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "clientQuery": {
+          "description": "Record the text of the client query that triggered the audit event",
+          "type": "string",
+          "x-nullable": true
+        },
+        "eventName": {
+          "description": "API endpoint name that was called to make the change",
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "description": "id from audity_history table",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "objectId": {
+          "description": "id column for the tableName where the data was changed",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "oldValues": {
+          "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "relId": {
+          "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
+          "type": "integer"
+        },
+        "schemaName": {
+          "description": "Database schema audited table for this event is in",
+          "type": "string"
+        },
+        "sessionUserId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "statementOnly": {
+          "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",
+          "type": "boolean",
+          "example": false
+        },
+        "tableName": {
+          "description": "name of database table that was changed",
+          "type": "string"
+        },
+        "transactionId": {
+          "description": "Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
+    "MoveAuditHistoryItem": {
+      "properties": {
+        "columnName": {
+          "type": "string"
+        },
+        "columnValue": {
+          "type": "string"
+        }
+      }
+    },
+    "MoveAuditHistoryItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistoryItem"
+      }
+    },
+    "MoveHistory": {
+      "properties": {
+        "historyRecords": {
+          "description": "A list of MoveAuditHistory's connected to the move.",
+          "$ref": "#/definitions/MoveAuditHistories"
+        },
+        "id": {
+          "description": "move ID",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "locator": {
+          "description": "move locator",
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "referenceId": {
+          "description": "move referenceID",
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        }
+      }
+    },
     "MoveStatus": {
       "type": "string",
       "enum": [
@@ -11243,7 +11611,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
@@ -11308,7 +11676,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
@@ -11976,6 +12344,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -12257,8 +12626,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "newDutyStationId",
-        "originDutyStationId"
+        "newDutyLocationId",
+        "originDutyLocationId"
       ],
       "properties": {
         "departmentIndicator": {
@@ -12272,7 +12641,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -12306,7 +12675,7 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"

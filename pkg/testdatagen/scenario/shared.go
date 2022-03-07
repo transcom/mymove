@@ -690,9 +690,18 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 		},
 	})
 
+	mtoShipment := testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:           uuid.Must(uuid.FromString("933d1c2b-5b90-4dfd-b363-5ff9a7e2b43a")),
+			ShipmentType: models.MTOShipmentTypePPM,
+		},
+		Move: move,
+	})
+
 	testdatagen.MakePPMShipment(db, testdatagen.Assertions{
 		Move:         move,
 		UserUploader: userUploader,
+		MTOShipment:  mtoShipment,
 		PPMShipment: models.PPMShipment{
 			ID: uuid.Must(uuid.FromString("0914dfa2-6988-4a12-82b1-2586fb4aa8c7")),
 		},
@@ -1446,7 +1455,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		"94535", "94535").Return(348, nil).Once()
+		"94535", "94535").Return(348, nil).Times(2)
 
 	// called for zip 5 domestic linehaul service item
 	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535").Return(348, nil).Once()
@@ -1456,7 +1465,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		"90210", "90211").Return(3, nil).Times(7)
 
 	// called for domestic shorthaul service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(5)
+	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(10)
 
 	// called for domestic origin SIT pickup service item
 	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
@@ -1794,6 +1803,67 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	}
 
 	logger.Info(fmt.Sprintf("New payment request with service item params created with locator %s", move.Locator))
+}
+
+// A generic method
+func createMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.Assertions) {
+
+	ordersType := assertions.Order.OrdersType
+	shipmentType := assertions.MTOShipment.ShipmentType
+	destinationType := assertions.MTOShipment.DestinationType
+	locator := assertions.Move.Locator
+	status := assertions.Move.Status
+	servicesCounseling := assertions.DutyLocation.ProvidesServicesCounseling
+	usesExternalVendor := assertions.MTOShipment.UsesExternalVendor
+	selectedMoveType := assertions.Move.SelectedMoveType
+
+	db := appCtx.DB()
+	submittedAt := time.Now()
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: servicesCounseling,
+		},
+		Order: models.Order{
+			OrdersType: ordersType,
+		},
+	})
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:          locator,
+			Status:           status,
+			SubmittedAt:      &submittedAt,
+			SelectedMoveType: selectedMoveType,
+		},
+		Order: orders,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          shipmentType,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+			DestinationType:       destinationType,
+			UsesExternalVendor:    usesExternalVendor,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          shipmentType,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
 }
 
 func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {

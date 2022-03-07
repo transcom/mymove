@@ -121,7 +121,12 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
       </dl>
       <div className={styles.wrappedCheckbox}>
-        <CheckboxField id="dependentsAuthorizedInput" name="dependentsAuthorized" label="Dependents authorized" />
+        <CheckboxField
+          id="dependentsAuthorizedInput"
+          data-testid="dependentsAuthorizedInput"
+          name="dependentsAuthorized"
+          label="Dependents authorized"
+        />
       </div>
     </div>
   );

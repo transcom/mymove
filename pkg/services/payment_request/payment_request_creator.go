@@ -141,7 +141,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			// Retrieve all of the params needed to price this service item
 			paymentHelper := paymentrequesthelper.RequestPaymentHelper{}
 
-			reServiceParams, err := paymentHelper.FetchServiceParamList(txnAppCtx, paymentServiceItem.MTOServiceItemID)
+			reServiceParams, err := paymentHelper.FetchServiceParamList(txnAppCtx, paymentServiceItem.MTOServiceItem)
 			if err != nil {
 				errMessage := "Failed to retrieve service item param list for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)

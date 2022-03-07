@@ -37,7 +37,7 @@ func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 	suite.Equal(ppms[0].Move.Orders.NewDutyLocation.Name, emailInfo[0].NewDutyStationName)
 	suite.NotNil(emailInfo[0].Email)
 	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
-	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.Name, emailInfo[0].DutyStationName)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyLocation.Name, emailInfo[0].DutyStationName)
 }
 
 func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {

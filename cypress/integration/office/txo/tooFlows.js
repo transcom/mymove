@@ -314,7 +314,7 @@ describe('TOO user', () => {
       cy.get('input[name="authorizedWeight"]').clear().type('11111');
 
       //Edit DependentsAuthorized
-      cy.get('input[name="dependentsAuthorized"]').click({ force: true });
+      cy.get('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
 
       // Edit allowances page | Save
       cy.get('button').contains('Save').click();
@@ -360,6 +360,28 @@ describe('TOO user', () => {
     cy.get('input[name="delivery.address.city"]').clear().type('city');
     cy.get('select[name="delivery.address.state"]').select('OH');
     cy.get('input[name="delivery.address.postalCode"]').clear().type('90210');
+    cy.get('[data-testid="submitForm"]').click();
+    // the shipment should be saved successfully
+    cy.wait('@patchShipment');
+  });
+
+  it('is able to edit shipment for retiree', () => {
+    const moveLocator = 'R3T1R3';
+    const deliveryDate = new Date().toLocaleDateString('en-US');
+
+    // TOO Moves queue
+    cy.wait(['@getSortedOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Edit the shipment
+    cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
+    // fill out some changes on the form
+    cy.get('#requestedDeliveryDate').clear().type(deliveryDate).blur();
+    cy.get('input[name="delivery.address.streetAddress1"]').clear().type('7 q st');
+    cy.get('input[name="delivery.address.city"]').clear().type('city');
+    cy.get('select[name="delivery.address.state"]').select('OH');
+    cy.get('input[name="delivery.address.postalCode"]').clear().type('90210');
+    cy.get('select[name="destinationType"]').select('HOME_OF_SELECTION');
     cy.get('[data-testid="submitForm"]').click();
     // the shipment should be saved successfully
     cy.wait('@patchShipment');

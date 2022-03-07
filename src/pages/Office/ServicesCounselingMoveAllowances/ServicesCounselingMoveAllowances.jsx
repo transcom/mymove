@@ -91,10 +91,10 @@ const ServicesCounselingMoveAllowances = () => {
     } = values;
     const body = {
       issueDate: order.date_issued,
-      newDutyStationId: order.destinationDutyStation.id,
+      newDutyStationId: order.destinationDutyLocation.id,
       ordersNumber: order.order_number,
       ordersType: order.order_type,
-      originDutyStationId: order.originDutyStation.id,
+      originDutyStationId: order.originDutyLocation.id,
       reportByDate: order.report_by_date,
       grade,
       agency,
@@ -164,7 +164,7 @@ const ServicesCounselingMoveAllowances = () => {
               </div>
               <div className={styles.bottom}>
                 <div className={styles.buttonGroup}>
-                  <Button disabled={formik.isSubmitting} type="submit">
+                  <Button disabled={formik.isSubmitting} data-testid="scAllowancesSave" type="submit">
                     Save
                   </Button>
                   <Button type="button" secondary onClick={handleClose}>

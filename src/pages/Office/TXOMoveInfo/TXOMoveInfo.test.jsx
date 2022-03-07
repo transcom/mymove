@@ -27,10 +27,10 @@ const basicUseTXOMoveInfoQueriesValue = {
     uploaded_order_id: '2',
     departmentIndicator: 'Navy',
     grade: 'E-6',
-    originDutyStation: {
+    originDutyLocation: {
       name: 'JBSA Lackland',
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       name: 'JB Lewis-McChord',
     },
     report_by_date: '2018-08-01',

@@ -3,7 +3,7 @@ import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 
-import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation';
+import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'sagas/entities';

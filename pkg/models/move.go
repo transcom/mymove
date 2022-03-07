@@ -604,7 +604,7 @@ func FetchMoveForMoveDates(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
 	err := db.
 		Eager(
-			"Orders.ServiceMember.DutyStation.Address",
+			"Orders.ServiceMember.DutyLocation.Address",
 			"Orders.NewDutyLocation.Address",
 			"Orders.ServiceMember",
 		).

@@ -207,7 +207,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		"Orders",
 		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyStation.Address",
+		"Orders.ServiceMember.DutyLocation.Address",
 		"PersonallyProcuredMoves",
 	).Find(&move, moveID)
 
@@ -265,7 +265,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
-		CurrentDutyStation:      serviceMember.DutyStation,
+		CurrentDutyStation:      serviceMember.DutyLocation,
 		NewDutyStation:          move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,

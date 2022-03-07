@@ -165,10 +165,10 @@ jest.mock('services/ghcApi', () => ({
           uploadedAmendedOrderID: '3',
           departmentIndicator: 'Navy',
           grade: 'E-6',
-          originDutyStation: {
+          originDutyLocation: {
             name: 'JBSA Lackland',
           },
-          destinationDutyStation: {
+          destinationDutyLocation: {
             name: 'JB Lewis-McChord',
           },
           report_by_date: '2018-08-01',
@@ -269,10 +269,10 @@ describe('useTXOMoveInfoQueries', () => {
         uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
-        originDutyStation: {
+        originDutyLocation: {
           name: 'JBSA Lackland',
         },
-        destinationDutyStation: {
+        destinationDutyLocation: {
           name: 'JB Lewis-McChord',
         },
         report_by_date: '2018-08-01',
@@ -381,10 +381,10 @@ describe('useMoveDetailsQueries', () => {
         uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
-        originDutyStation: {
+        originDutyLocation: {
           name: 'JBSA Lackland',
         },
-        destinationDutyStation: {
+        destinationDutyLocation: {
           name: 'JB Lewis-McChord',
         },
         report_by_date: '2018-08-01',
@@ -412,10 +412,10 @@ describe('useMoveDetailsQueries', () => {
         uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
-        originDutyStation: {
+        originDutyLocation: {
           name: 'JBSA Lackland',
         },
-        destinationDutyStation: {
+        destinationDutyLocation: {
           name: 'JB Lewis-McChord',
         },
         report_by_date: '2018-08-01',
@@ -498,10 +498,10 @@ describe('useMoveTaskOrderQueries', () => {
           uploadedAmendedOrderID: '3',
           departmentIndicator: 'Navy',
           grade: 'E-6',
-          originDutyStation: {
+          originDutyLocation: {
             name: 'JBSA Lackland',
           },
-          destinationDutyStation: {
+          destinationDutyLocation: {
             name: 'JB Lewis-McChord',
           },
           report_by_date: '2018-08-01',
@@ -594,10 +594,10 @@ describe('useEditShipmentQueries', () => {
         uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
-        originDutyStation: {
+        originDutyLocation: {
           name: 'JBSA Lackland',
         },
-        destinationDutyStation: {
+        destinationDutyLocation: {
           name: 'JB Lewis-McChord',
         },
         report_by_date: '2018-08-01',
@@ -672,10 +672,10 @@ describe('useOrdersDocumentQueries', () => {
           uploadedAmendedOrderID: '3',
           departmentIndicator: 'Navy',
           grade: 'E-6',
-          originDutyStation: {
+          originDutyLocation: {
             name: 'JBSA Lackland',
           },
-          destinationDutyStation: {
+          destinationDutyLocation: {
             name: 'JB Lewis-McChord',
           },
           report_by_date: '2018-08-01',

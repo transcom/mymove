@@ -54,7 +54,7 @@ const defaultProps = {
     },
   },
   orders: {
-    new_duty_station: {
+    new_duty_location: {
       address: {
         postalCode: '20050',
       },

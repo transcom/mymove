@@ -106,21 +106,21 @@ func Order(order *models.Order) *supportmessages.Order {
 	reportByDate := strfmt.Date(order.ReportByDate)
 	issueDate := strfmt.Date(order.IssueDate)
 	payload := supportmessages.Order{
-		DestinationDutyStation:   destinationDutyStation,
-		DestinationDutyStationID: handlers.FmtUUID(order.NewDutyLocationID),
-		Entitlement:              Entitlement(order.Entitlement),
-		Customer:                 Customer(&order.ServiceMember),
-		OrderNumber:              order.OrdersNumber,
-		OrdersType:               supportmessages.NewOrdersType(supportmessages.OrdersType(order.OrdersType)),
-		ID:                       strfmt.UUID(order.ID.String()),
-		OriginDutyStation:        originDutyLocation,
-		ETag:                     etag.GenerateEtag(order.UpdatedAt),
-		Status:                   supportmessages.NewOrdersStatus(supportmessages.OrdersStatus(order.Status)),
-		UploadedOrders:           uploadedOrders,
-		UploadedOrdersID:         handlers.FmtUUID(order.UploadedOrdersID),
-		ReportByDate:             &reportByDate,
-		IssueDate:                &issueDate,
-		Tac:                      order.TAC,
+		DestinationDutyLocation:   destinationDutyStation,
+		DestinationDutyLocationID: handlers.FmtUUID(order.NewDutyLocationID),
+		Entitlement:               Entitlement(order.Entitlement),
+		Customer:                  Customer(&order.ServiceMember),
+		OrderNumber:               order.OrdersNumber,
+		OrdersType:                supportmessages.NewOrdersType(supportmessages.OrdersType(order.OrdersType)),
+		ID:                        strfmt.UUID(order.ID.String()),
+		OriginDutyLocation:        originDutyLocation,
+		ETag:                      etag.GenerateEtag(order.UpdatedAt),
+		Status:                    supportmessages.NewOrdersStatus(supportmessages.OrdersStatus(order.Status)),
+		UploadedOrders:            uploadedOrders,
+		UploadedOrdersID:          handlers.FmtUUID(order.UploadedOrdersID),
+		ReportByDate:              &reportByDate,
+		IssueDate:                 &issueDate,
+		Tac:                       order.TAC,
 	}
 
 	if order.Grade != nil {
@@ -128,7 +128,7 @@ func Order(order *models.Order) *supportmessages.Order {
 		payload.Rank = &rank
 	}
 	if order.OriginDutyLocationID != nil {
-		payload.OriginDutyStationID = handlers.FmtUUID(*order.OriginDutyLocationID)
+		payload.OriginDutyLocationID = handlers.FmtUUID(*order.OriginDutyLocationID)
 	}
 	if order.DepartmentIndicator != nil {
 		payload.DepartmentIndicator = (*supportmessages.DeptIndicator)(order.DepartmentIndicator)
@@ -181,11 +181,11 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 // DutyStation converts Dutystation model to payload
 // Only includes ID and duty station name
 // TODO rename
-func DutyStation(dutyStation *models.DutyLocation) *supportmessages.DutyStation {
+func DutyStation(dutyStation *models.DutyLocation) *supportmessages.DutyLocation {
 	if dutyStation == nil {
 		return nil
 	}
-	payload := supportmessages.DutyStation{
+	payload := supportmessages.DutyLocation{
 		ID:   strfmt.UUID(dutyStation.ID.String()),
 		Name: dutyStation.Name,
 	}

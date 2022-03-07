@@ -74,27 +74,34 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 	shipment := checkOrCreateMTOShipment(db, assertions, false)
 
 	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
+	estimatedWeight := unit.Pound(4000)
 	hasProGear := true
 	proGearWeight := unit.Pound(1150)
 	spouseProGearWeight := unit.Pound(450)
+	estimatedIncentive := int32(567890)
 
 	ppmShipment := models.PPMShipment{
 		ShipmentID:            shipment.ID,
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusSubmitted,
+		SubmittedAt:           timePointer(time.Now()),
 		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
 		PickupPostalCode:      requiredFields.pickupPostalCode,
 		DestinationPostalCode: requiredFields.destinationPostalCode,
+		EstimatedWeight:       &estimatedWeight,
 		SitExpected:           requiredFields.sitExpected,
 		HasProGear:            &hasProGear,
 		ProGearWeight:         &proGearWeight,
 		SpouseProGearWeight:   &spouseProGearWeight,
+		EstimatedIncentive:    &estimatedIncentive,
 	}
 
 	// Overwrite values with those from assertions
 	mergeModels(&ppmShipment, assertions.PPMShipment)
 
 	mustCreate(db, &ppmShipment, assertions.Stub)
+
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
 
 	return ppmShipment
 }
@@ -139,6 +146,8 @@ func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PP
 
 	mustCreate(db, &newPPMShipment, assertions.Stub)
 
+	newPPMShipment.Shipment.PPMShipment = &newPPMShipment
+
 	return newPPMShipment
 }
 
@@ -155,4 +164,22 @@ func MakeMinimalStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
 		},
 		Stub: true,
 	})
+}
+
+// MakeApprovedPPMShipment creates a single approved PPMShipment and associated relationships
+func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	approvedTime := time.Now()
+	reviewedTime := approvedTime.AddDate(0, 0, -1)
+	submittedDate := reviewedTime.AddDate(0, 0, -3)
+
+	approvedPPMShipment := models.PPMShipment{
+		Status:      models.PPMShipmentStatusPaymentApproved,
+		ApprovedAt:  &approvedTime,
+		ReviewedAt:  &reviewedTime,
+		SubmittedAt: &submittedDate,
+	}
+
+	mergeModels(&assertions.PPMShipment, approvedPPMShipment)
+
+	return MakePPMShipment(db, assertions)
 }

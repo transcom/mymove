@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
@@ -60,8 +61,8 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
-	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
-	DutyStation            DutyLocation              `belongs_to:"duty_stations" fk_id:"duty_station_id"`
+	DutyLocationID         *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
+	DutyLocation           DutyLocation              `belongs_to:"duty_stations" fk_id:"duty_station_id"`
 	RequiresAccessCode     bool                      `json:"requires_access_code" db:"requires_access_code"`
 }
 
@@ -96,9 +97,9 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
 		"BackupContacts",
-		"DutyStation.Address",
-		"DutyStation.TransportationOffice",
-		"DutyStation.TransportationOffice.PhoneLines",
+		"DutyLocation.Address",
+		"DutyLocation.TransportationOffice",
+		"DutyLocation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.OriginDutyLocation",
 		"Orders.UploadedOrders.UserUploads.Upload",
@@ -146,18 +147,18 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 }
 
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
-func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMember) (*validate.Errors, error) {
 
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
 	// If the passed in function returns an error, the transaction is rolled back
-	transactionErr := dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 
 		transactionError := errors.New("Rollback The transaction")
 
 		if serviceMember.ResidentialAddress != nil {
-			if verrs, err := dbConnection.ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
+			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
 				return transactionError
@@ -166,7 +167,7 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 		}
 
 		if serviceMember.BackupMailingAddress != nil {
-			if verrs, err := dbConnection.ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
+			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
 				return transactionError
@@ -174,7 +175,7 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 			serviceMember.BackupMailingAddressID = &serviceMember.BackupMailingAddress.ID
 		}
 
-		if verrs, err := dbConnection.ValidateAndSave(serviceMember); verrs.HasAny() || err != nil {
+		if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = err
 			return transactionError
@@ -210,7 +211,7 @@ func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, emai
 }
 
 // CreateOrder creates an order model tied to the service member
-func (s ServiceMember) CreateOrder(db *pop.Connection,
+func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	issueDate time.Time,
 	reportByDate time.Time,
 	ordersType internalmessages.OrdersType,
@@ -229,13 +230,13 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		transactionError := errors.New("Rollback The transaction")
 		uploadedOrders := Document{
 			ServiceMemberID: s.ID,
 			ServiceMember:   s,
 		}
-		verrs, err := db.ValidateAndCreate(&uploadedOrders)
+		verrs, err := txnAppCtx.DB().ValidateAndCreate(&uploadedOrders)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
 			responseError = err
@@ -250,6 +251,8 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 			OrdersType:          ordersType,
 			HasDependents:       hasDependents,
 			SpouseHasProGear:    spouseHasProGear,
+			NewDutyStationID:    newDutyStation.ID,
+			NewDutyStation:      newDutyStation,
 			NewDutyLocationID:   newDutyStation.ID,
 			NewDutyLocation:     newDutyStation,
 			UploadedOrders:      uploadedOrders,
@@ -264,7 +267,7 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 			Entitlement:         entitlement,
 		}
 
-		verrs, err = db.ValidateAndCreate(&newOrders)
+		verrs, err = txnAppCtx.DB().ValidateAndCreate(&newOrders)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
 			responseError = err
@@ -315,7 +318,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.BackupMailingAddressID == nil {
 		return false
 	}
-	if s.DutyStationID == nil {
+	if s.DutyLocationID == nil {
 		return false
 	}
 	if len(s.BackupContacts) == 0 {

@@ -67,7 +67,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
                 isCreatePage={false}
                 isForServicesCounseling
                 currentResidence={customer.current_address}
-                newDutyStationAddress={order.destinationDutyStation?.address}
+                newDutyStationAddress={order.destinationDutyLocation?.address}
                 selectedMoveType={matchingShipment.shipmentType}
                 mtoShipment={matchingShipment}
                 serviceMember={{ weightAllotment }}
@@ -76,7 +76,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
                 TACs={TACs}
                 SACs={SACs}
                 userRole={roleTypes.SERVICES_COUNSELOR}
-                orderType={order.order_type}
+                displayDestinationType
               />
             </Grid>
           </Grid>

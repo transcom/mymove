@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
@@ -8,10 +8,10 @@ import { func } from 'prop-types';
 import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
-import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
+import EditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
@@ -22,7 +22,6 @@ import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
-import LeftNav from 'components/LeftNav';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
@@ -53,6 +52,9 @@ import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } f
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import leftNavStyles from 'components/LeftNav/LeftNav.module.scss';
+import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -97,6 +99,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
+  const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
 
   const nonShipmentSections = useMemo(() => {
     return ['move-weights'];
@@ -472,6 +475,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         ? mtoShipments.filter((shipment) => shipment.status === shipmentStatuses.SUBMITTED).length
         : 0;
       setUnapprovedShipmentCount(shipmentCount);
+
+      const externalVendorShipments = mtoShipments?.length
+        ? mtoShipments.filter((shipment) => shipment.usesExternalVendor).length
+        : 0;
+      setExternalVendorShipmentCount(externalVendorShipments);
     }
   }, [mtoShipments, setUnapprovedShipmentCount]);
 
@@ -587,39 +595,41 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        <LeftNav className={styles.sidebar}>
+        {/* nav is being used here instead of LeftNav since there are two separate sections that need to be interated through */}
+        <nav className={classnames(leftNavStyles.LeftNav)}>
           {nonShipmentSections.map((s) => {
             return (
-              <a
+              <LeftNavSection
                 key={`sidenav_${s}`}
-                href={`#${s}`}
-                className={classnames({ active: `#${s}` === activeSection })}
-                onClick={() => setActiveSection(`#${s}`)}
+                sectionName={s}
+                isActive={`${s}` === activeSection}
+                onClickHandler={() => setActiveSection(`${s}`)}
               >
                 {nonShipmentSectionLabels[`${s}`]}
-              </a>
+              </LeftNavSection>
             );
           })}
           {sections.map((s) => {
-            const classes = classnames({ active: `#s-${s.id}` === activeSection });
             return (
-              <a
+              <LeftNavSection
                 key={`sidenav_${s.id}`}
-                href={`#s-${s.id}`}
-                className={classes}
-                onClick={() => setActiveSection(`#s-${s.id}`)}
+                sectionName={`s-${s.id}`}
+                isActive={`s-${s.id}` === activeSection}
+                onClickHandler={() => setActiveSection(`s-${s.id}`)}
               >
                 {s.label}{' '}
-                {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
-                  <Tag>
-                    {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
-                      (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
-                  </Tag>
-                )}
-              </a>
+                <LeftNavTag
+                  showTag={Boolean(
+                    unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`],
+                  )}
+                >
+                  {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
+                    (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
+                </LeftNavTag>
+              </LeftNavSection>
             );
           })}
-        </LeftNav>
+        </nav>
         <FlashGridContainer className={styles.gridContainer} data-testid="too-shipment-container">
           <Grid row className={styles.pageHeader}>
             {alertMessage && (
@@ -703,6 +713,16 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
             <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
+              {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) &&
+                externalVendorShipmentCount > 0 && <br />}
+              {externalVendorShipmentCount > 0 && (
+                <small>
+                  {externalVendorShipmentCount} shipment not moved by GHC prime.{' '}
+                  <Link className="usa-link" to={`/moves/${moveCode}`}>
+                    View move details
+                  </Link>
+                </small>
+              )}
             </WeightDisplay>
             <WeightDisplay
               heading="Max billable weight"
@@ -731,7 +751,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             const rejectedServiceItems = serviceItemsForShipment?.filter(
               (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
             );
-            const dutyStationPostal = { postalCode: order.destinationDutyStation.address.postalCode };
+            const dutyStationPostal = { postalCode: order.destinationDutyLocation.address.postalCode };
             const { pickupAddress, destinationAddress } = mtoShipment;
             const formattedScheduledPickup = formatShipmentDate(mtoShipment.scheduledPickupDate);
 

@@ -1237,7 +1237,7 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  DutyStation:
+  DutyLocation:
     type: object
     properties:
       id:
@@ -2078,10 +2078,10 @@ definitions:
         type: string
       entitlement:
         $ref: '#/definitions/Entitlements'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
       rank:
         type: string
         example: E_5
@@ -2766,6 +2766,7 @@ definitions:
       - PSI_ShippingLinehaulIntlOOPrice
       - RateAreaNonStdDest
       - RateAreaNonStdOrigin
+      - ReferenceDate
       - RequestedPickupDate
       - ServiceAreaDest
       - ServiceAreaOrigin

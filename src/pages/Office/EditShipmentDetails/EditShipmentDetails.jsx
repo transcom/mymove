@@ -60,7 +60,7 @@ const EditShipmentDetails = ({ match }) => {
                   submitHandler={mutateMTOShipment}
                   isCreatePage={false}
                   currentResidence={customer.current_address}
-                  newDutyStationAddress={order.destinationDutyStation?.address}
+                  newDutyStationAddress={order.destinationDutyLocation?.address}
                   selectedMoveType={matchingShipment.shipmentType}
                   mtoShipment={matchingShipment}
                   serviceMember={{ weightAllotment }}
@@ -69,7 +69,7 @@ const EditShipmentDetails = ({ match }) => {
                   TACs={TACs}
                   SACs={SACs}
                   userRole={roleTypes.TOO}
-                  orderType={order.order_type}
+                  displayDestinationType
                 />
               </Grid>
             </Grid>

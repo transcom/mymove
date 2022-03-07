@@ -3,6 +3,8 @@ import React from 'react';
 import ServiceItemCalculations from './ServiceItemCalculations';
 import testParams from './serviceItemTestParams';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 export default {
   title: 'Office Components/ServiceItemCalculations',
   decorators: [
@@ -51,6 +53,17 @@ export const DLH = (data) => (
     tableSize={data.tableSize}
   />
 );
+
+export const DLHNTSrelease = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticLongHaul}
+    totalAmountRequested={642}
+    itemCode="DLH"
+    tableSize={data.tableSize}
+    shipmentType={SHIPMENT_OPTIONS.NTSR}
+  />
+);
+DLHNTSrelease.storyName = 'DLH (NTS-release)';
 
 export const DOASIT = (data) => (
   <ServiceItemCalculations

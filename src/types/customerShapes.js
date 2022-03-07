@@ -46,7 +46,7 @@ export const OrdersShape = shape({
   id: string,
   issue_date: string,
   moves: arrayOf(string),
-  new_duty_station: DutyStationShape,
+  new_duty_location: DutyStationShape,
   orders_type: string,
   report_by_date: string,
   service_member_id: string,
@@ -96,6 +96,7 @@ export const PPMShipmentShape = shape({
   proGearWeight: number,
   spouseProGearWeight: number,
   estimatedWeight: number,
+  estimatedIncentive: number,
 });
 
 export const MtoShipmentShape = shape({

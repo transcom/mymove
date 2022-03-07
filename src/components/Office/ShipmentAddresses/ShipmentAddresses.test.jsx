@@ -25,7 +25,7 @@ const testProps = {
     streetAddress3: '',
     country: 'USA',
   },
-  destinationDutyStation: {
+  destinationDutyLocation: {
     streetAddress1: '',
     city: 'Fort Irwin',
     state: 'CA',
@@ -59,7 +59,7 @@ const cancelledShipment = {
     streetAddress3: '',
     country: 'USA',
   },
-  destinationDutyStation: {
+  destinationDutyLocation: {
     streetAddress1: '',
     city: 'Fort Irwin',
     state: 'CA',

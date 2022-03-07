@@ -18,6 +18,7 @@ const ServiceItemCalculations = ({
   serviceItemParams,
   additionalServiceItemData,
   tableSize,
+  shipmentType,
 }) => {
   if (!allowedServiceItemCalculations.includes(itemCode) || serviceItemParams.length === 0) {
     return null;
@@ -39,7 +40,13 @@ const ServiceItemCalculations = ({
     return null;
   };
 
-  const calculations = makeCalculations(itemCode, totalAmountRequested, serviceItemParams, additionalServiceItemData);
+  const calculations = makeCalculations(
+    itemCode,
+    totalAmountRequested,
+    serviceItemParams,
+    additionalServiceItemData,
+    shipmentType,
+  );
 
   return (
     <div
@@ -98,12 +105,14 @@ ServiceItemCalculations.propTypes = {
   additionalServiceItemData: MTOServiceItemShape,
   // apply small or large styling
   tableSize: PropTypes.oneOf(['small', 'large']),
+  shipmentType: PropTypes.string,
 };
 
 ServiceItemCalculations.defaultProps = {
   tableSize: 'large',
   serviceItemParams: [],
   additionalServiceItemData: {},
+  shipmentType: '',
 };
 
 export default ServiceItemCalculations;

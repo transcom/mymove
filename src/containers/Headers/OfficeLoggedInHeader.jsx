@@ -15,11 +15,16 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   const history = useHistory();
   const handleLogout = () => {
     logOut();
-    LogoutUser().then(() => {
-      history.push({
-        pathname: '/sign-in',
-        state: { hasLoggedOut: true },
-      });
+    LogoutUser().then((r) => {
+      const redirectURL = r.body;
+      if (redirectURL) {
+        window.location.href = redirectURL;
+      } else {
+        history.push({
+          pathname: '/sign-in',
+          state: { hasLoggedOut: true },
+        });
+      }
     });
   };
 

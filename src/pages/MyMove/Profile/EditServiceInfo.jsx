@@ -43,7 +43,7 @@ export const EditServiceInfo = ({
     affiliation: serviceMember?.affiliation || '',
     edipi: serviceMember?.edipi || '',
     rank: currentOrders?.grade || '',
-    current_station: currentOrders?.origin_duty_station || {},
+    current_location: currentOrders?.origin_duty_location || {},
   };
 
   const handleSubmit = (values) => {
@@ -58,7 +58,7 @@ export const EditServiceInfo = ({
       affiliation: values.affiliation,
       edipi: values.edipi,
       rank: values.rank,
-      current_station_id: values.current_station.id,
+      current_location_id: values.current_location.id,
     };
 
     return patchServiceMember(payload)
@@ -103,7 +103,7 @@ export const EditServiceInfo = ({
       )}
       <ServiceInfoForm
         initialValues={initialValues}
-        newDutyStation={currentOrders?.new_duty_station}
+        newDutyLocation={currentOrders?.new_duty_location}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
       />
