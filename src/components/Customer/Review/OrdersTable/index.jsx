@@ -15,7 +15,9 @@ const OrdersTable = ({
   reportByDate,
   uploads,
 }) => {
+  const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(orderType);
   const editPath = `/moves/${moveId}/review/edit-orders`;
+
   return (
     <div className={reviewStyles['review-container']}>
       <div className={reviewStyles['review-header']}>
@@ -43,7 +45,7 @@ const OrdersTable = ({
             <td>{reportByDate}</td>
           </tr>
           <tr>
-            <th scope="row">New duty location</th>
+            <th scope="row">{isRetirementOrSeparation ? 'HOR, PLEAD or HOS' : 'New duty location'}</th>
             <td>{newDutyStationName}</td>
           </tr>
           <tr>
