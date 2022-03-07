@@ -13,7 +13,7 @@ if [ -n "${LOCAL_SWAGGER+x}" ]; then
   echo "Using local swagger"
 else
   # Locally we need to download the docker image to get the binary
-  image=milmove/circleci-docker:milmove-app-a944f0e14ba45fa65207b897b969e77840ed927b
+  image=milmove/circleci-docker:milmove-app-03964d7db55c2692d8a9ae89f81ee76c520b33c1
   docker pull -q "${image}"
 fi
 
