@@ -26,7 +26,7 @@ describe('Orders Upload page', () => {
     issue_date: '2020-11-08',
     report_by_date: '2020-11-26',
     has_dependents: false,
-    new_duty_station: {
+    new_duty_location: {
       address: {
         city: 'Des Moines',
         country: 'US',

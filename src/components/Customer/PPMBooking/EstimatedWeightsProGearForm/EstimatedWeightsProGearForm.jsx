@@ -38,10 +38,10 @@ const validationSchema = Yup.object().shape({
 
 const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSubmit, onBack }) => {
   const initialValues = {
-    estimatedWeight: mtoShipment?.ppmShipment?.estimatedWeight?.toString() || '',
-    hasProGear: mtoShipment?.ppmShipment?.hasProGear?.toString() || 'false',
-    proGearWeight: mtoShipment?.ppmShipment?.proGearWeight?.toString() || '',
-    spouseProGearWeight: mtoShipment?.ppmShipment?.spouseProGearWeight?.toString() || '',
+    estimatedWeight: mtoShipment.ppmShipment.estimatedWeight?.toString() || '',
+    hasProGear: mtoShipment.ppmShipment.hasProGear?.toString() || 'false',
+    proGearWeight: mtoShipment.ppmShipment.proGearWeight?.toString() || '',
+    spouseProGearWeight: mtoShipment.ppmShipment.spouseProGearWeight?.toString() || '',
   };
 
   const authorizedWeight = orders.has_dependents
@@ -101,8 +101,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   <a
                     href="https://www.ustranscom.mil/dp3/weightestimator.cfm"
                     target="_blank"
-                    noopener
-                    rel="noreferrer"
+                    rel="noreferrer noopener"
                   >
                     weight estimation calculator
                   </a>{' '}
@@ -198,13 +197,9 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
 EstimatedWeightsProGearForm.propTypes = {
   orders: OrdersShape.isRequired,
   serviceMember: ServiceMemberShape.isRequired,
-  mtoShipment: MtoShipmentShape,
+  mtoShipment: MtoShipmentShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-};
-
-EstimatedWeightsProGearForm.defaultProps = {
-  mtoShipment: undefined,
 };
 
 export default EstimatedWeightsProGearForm;

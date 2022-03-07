@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		IssueDate:           handlers.FmtDate(issueDate),
 		ReportByDate:        handlers.FmtDate(reportByDate),
 		OrdersType:          internalmessages.NewOrdersType(ordersType),
-		NewDutyStationID:    handlers.FmtUUID(station.ID),
+		NewDutyLocationID:   handlers.FmtUUID(station.ID),
 		ServiceMemberID:     handlers.FmtUUID(sm.ID),
 		OrdersNumber:        handlers.FmtString("123456"),
 		Tac:                 handlers.FmtString("E19A"),
@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
-	suite.Equal(sm.DutyStationID, createdOrder.OriginDutyLocationID)
+	suite.Equal(sm.DutyLocationID, createdOrder.OriginDutyLocationID)
 	suite.Equal((*string)(sm.Rank), createdOrder.Grade)
 	suite.Assertions.Equal(*swag.Int64(8000), *okResponse.Payload.AuthorizedWeight)
 	suite.NotNil(&createdOrder.Entitlement)
