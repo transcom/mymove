@@ -100,8 +100,8 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	suite.Equal(ppms[0].WeightEstimate, emailInfo[0].WeightEstimate)
 	suite.Equal(ppms[0].IncentiveEstimateMin, emailInfo[0].IncentiveEstimateMin)
 	suite.Equal(ppms[0].IncentiveEstimateMax, emailInfo[0].IncentiveEstimateMax)
-	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.Name, *emailInfo[0].TOName)
-	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, *emailInfo[0].TOPhone)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyLocation.TransportationOffice.Name, *emailInfo[0].TOName)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyLocation.TransportationOffice.PhoneLines[0].Number, *emailInfo[0].TOPhone)
 	suite.Equal(ppms[0].Move.Locator, emailInfo[0].Locator)
 }
 

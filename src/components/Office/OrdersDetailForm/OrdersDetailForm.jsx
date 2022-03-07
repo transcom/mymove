@@ -37,8 +37,8 @@ const OrdersDetailForm = ({
 
   return (
     <div className={styles.OrdersDetailForm}>
-      <DutyStationInput name="originDutyStation" label="Current duty location" displayAddress={false} />
-      <DutyStationInput name="newDutyStation" label={newDutyStationLabel} displayAddress={false} />
+      <DutyStationInput name="originDutyLocation" label="Current duty location" displayAddress={false} />
+      <DutyStationInput name="newDutyLocation" label={newDutyStationLabel} displayAddress={false} />
       <DatePickerInput name="issueDate" label="Date issued" />
       <DatePickerInput name="reportByDate" label={reportDateRowLabel} />
       {showDepartmentIndicator && (

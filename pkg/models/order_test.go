@@ -140,6 +140,8 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		SpouseHasProGear:     spouseHasProGear,
 		OriginDutyLocationID: &dutyLocation.ID,
 		OriginDutyLocation:   &dutyLocation,
+		NewDutyStationID:     dutyLocation2.ID,
+		NewDutyStation:       dutyLocation2,
 		NewDutyLocationID:    dutyLocation2.ID,
 		NewDutyLocation:      dutyLocation2,
 		UploadedOrdersID:     uploadedOrder.ID,
@@ -212,6 +214,8 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 		OrdersType:          ordersType,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
+		NewDutyStationID:    dutyLocation.ID,
+		NewDutyStation:      dutyLocation,
 		NewDutyLocationID:   dutyLocation.ID,
 		NewDutyLocation:     dutyLocation,
 		UploadedOrdersID:    uploadedOrder.ID,
@@ -258,6 +262,8 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 		OrdersType:          ordersType,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
+		NewDutyStationID:    dutyLocation.ID,
+		NewDutyStation:      dutyLocation,
 		NewDutyLocationID:   dutyLocation.ID,
 		NewDutyLocation:     dutyLocation,
 		UploadedOrdersID:    uploadedOrder.ID,
@@ -294,6 +300,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 			OrdersID: orderID,
 			Orders:   order,
 		},
+		Order: order,
 	})
 
 	postalCode := "30813"

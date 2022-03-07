@@ -16,10 +16,10 @@ const props = {
   order: {
     agency: 'MARINES',
     grade: 'E_6',
-    originDutyStation: {
+    originDutyLocation: {
       name: 'JBSA Lackland',
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       name: 'JB Lewis-McChord',
     },
     report_by_date: '2018-08-01',

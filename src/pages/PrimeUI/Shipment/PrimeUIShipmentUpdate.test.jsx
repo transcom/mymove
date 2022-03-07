@@ -129,7 +129,7 @@ const approvedMoveTaskOrder = {
         userID: 'ae204f8a-6222-45a1-9b79-e2d52441b4f2',
       },
       customerID: 'e2de409b-edb9-42af-b50f-564458e08ada',
-      destinationDutyStation: {
+      destinationDutyLocation: {
         address: {
           city: 'Augusta',
           country: 'United States',
@@ -162,7 +162,7 @@ const approvedMoveTaskOrder = {
       id: '8cda4825-283c-4910-89f4-1741e2fd9cb7',
       linesOfAccounting: 'F8E1',
       orderNumber: 'ORDER3',
-      originDutyStation: {
+      originDutyLocation: {
         address: {
           city: 'Des Moines',
           country: 'US',

@@ -88,8 +88,8 @@ const OrdersDisplay = (props) => {
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
         <PanelSwaggerField fieldName="orders_type_detail" required {...fieldProps} />
         <PanelField title="Report by" value={formatDate(orders.report_by_date)} />
-        <PanelField title="Current Duty Location">{get(serviceMember, 'current_station.name', '')}</PanelField>
-        <PanelField title="New Duty Location">{get(orders, 'new_duty_station.name', '')}</PanelField>
+        <PanelField title="Current Duty Location">{get(serviceMember, 'current_location.name', '')}</PanelField>
+        <PanelField title="New Duty Location">{get(orders, 'new_duty_location.name', '')}</PanelField>
       </div>
       <div className="editable-panel-column">
         {renderEntitlements(entitlements, orders)}
@@ -117,13 +117,17 @@ const OrdersEdit = (props) => {
 
         <FormSection name="serviceMember">
           <div className="duty-station">
-            <Field name="current_station" component={DutyStationSearchBox} props={{ title: 'Current Duty Location' }} />
+            <Field
+              name="current_location"
+              component={DutyStationSearchBox}
+              props={{ title: 'Current Duty Location' }}
+            />
           </div>
         </FormSection>
 
         <FormSection name="orders">
           <div className="duty-station">
-            <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Location' }} />
+            <Field name="new_duty_location" component={DutyStationSearchBox} props={{ title: 'New Duty Location' }} />
           </div>
         </FormSection>
       </div>
@@ -182,13 +186,13 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch) {
   const update = (ordersId, orders, serviceMemberId, serviceMember) => {
-    serviceMember.current_station_id = serviceMember.current_station.id;
+    serviceMember.current_location_id = serviceMember.current_location.id;
     return dispatch(updateServiceMember(serviceMemberId, serviceMember)).then(() => {
       if (!orders.has_dependents) {
         orders.spouse_has_pro_gear = false;
       }
 
-      orders.new_duty_station_id = orders.new_duty_station.id;
+      orders.new_duty_location_id = orders.new_duty_location.id;
       dispatch(updateOrders(ordersId, orders));
     });
   };

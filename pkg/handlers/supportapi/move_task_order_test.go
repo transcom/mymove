@@ -225,8 +225,8 @@ func (suite *HandlerSuite) moveTaskOrderPopulated(response *movetaskorderops.Cre
 	suite.NotNil(responsePayload.MoveCode)
 	suite.NotNil(responsePayload.Order.Customer.FirstName)
 
-	suite.Equal(destinationDutyStation.Name, responsePayload.Order.DestinationDutyStation.Name)
-	suite.Equal(originDutyStation.Name, responsePayload.Order.OriginDutyStation.Name)
+	suite.Equal(destinationDutyStation.Name, responsePayload.Order.DestinationDutyLocation.Name)
+	suite.Equal(originDutyStation.Name, responsePayload.Order.OriginDutyLocation.Name)
 
 }
 
@@ -252,10 +252,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		SelectedMoveType: &selectedMoveType,
 		ContractorID:     handlers.FmtUUID(contractor.ID),
 		Order: &supportmessages.Order{
-			Rank:                     &rank,
-			OrderNumber:              swag.String("4554"),
-			DestinationDutyStationID: handlers.FmtUUID(destinationDutyLocation.ID),
-			OriginDutyStationID:      handlers.FmtUUID(originDutyLocation.ID),
+			Rank:                      &rank,
+			OrderNumber:               swag.String("4554"),
+			DestinationDutyLocationID: handlers.FmtUUID(destinationDutyLocation.ID),
+			OriginDutyLocationID:      handlers.FmtUUID(originDutyLocation.ID),
 			Entitlement: &supportmessages.Entitlement{
 				DependentsAuthorized: swag.Bool(true),
 				TotalDependents:      5,
@@ -567,7 +567,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		mtoPayload.Order.CustomerID = handlers.FmtUUID(dbCustomer.ID)
 
 		// Using a randomID as a dutyStationID should cause a query error
-		mtoPayload.Order.OriginDutyStationID = handlers.FmtUUID(uuid.Must(uuid.NewV4()))
+		mtoPayload.Order.OriginDutyLocationID = handlers.FmtUUID(uuid.Must(uuid.NewV4()))
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
