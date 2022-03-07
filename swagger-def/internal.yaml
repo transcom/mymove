@@ -1120,8 +1120,8 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station:
-        $ref: 'definitions/DutyStationPayload.yaml'
+      current_location:
+        $ref: 'definitions/DutyLocationPayload.yaml'
       residential_address:
         $ref: 'definitions/Address.yaml'
         title: Residential Address
@@ -1219,7 +1219,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station_id:
+      current_location_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1297,7 +1297,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station_id:
+      current_location_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1840,11 +1840,11 @@ definitions:
       spouse_has_pro_gear:
         type: boolean
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
-      origin_duty_station:
-        $ref: 'definitions/DutyStationPayload.yaml'
+      origin_duty_location:
+        $ref: 'definitions/DutyLocationPayload.yaml'
         x-nullable: true
-      new_duty_station:
-        $ref: 'definitions/DutyStationPayload.yaml'
+      new_duty_location:
+        $ref: 'definitions/DutyLocationPayload.yaml'
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
       uploaded_amended_orders:
@@ -1890,7 +1890,7 @@ definitions:
       - orders_type
       - has_dependents
       - spouse_has_pro_gear
-      - new_duty_station
+      - new_duty_location
       - uploaded_orders
       - created_at
       - updated_at
@@ -1923,7 +1923,7 @@ definitions:
       spouse_has_pro_gear:
         type: boolean
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
-      new_duty_station_id:
+      new_duty_location_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1951,7 +1951,7 @@ definitions:
       - orders_type
       - has_dependents
       - spouse_has_pro_gear
-      - new_duty_station_id
+      - new_duty_location_id
   InvalidRequestResponsePayload:
     type: object
     properties:
@@ -2476,7 +2476,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       pickupPostalCode:
-        description: zip code, international allowed
+        description: zip code
         format: zip
         type: string
         title: ZIP
@@ -2578,26 +2578,30 @@ definitions:
         format: date
         type: string
       pickupPostalCode:
-        description: zip code, international allowed
+        description: zip code
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
       secondaryPickupPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: "90210"
+        pattern: ^(\d{5})$
       sitExpected:
         type: boolean
     required:
@@ -2605,6 +2609,76 @@ definitions:
       - pickupPostalCode
       - destinationPostalCode
       - sitExpected
+  UpdatePPMShipment:
+    type:
+      object
+    properties:
+      expectedDepartureDate:
+        description: >
+          Date the customer expects to move.
+        format: date
+        type: string
+        x-nullable: true
+      actualMoveDate:
+        format: date
+        type: string
+        x-nullable: true
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryPickupPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        x-nullable: true
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        x-nullable: true
+      sitExpected:
+        type: boolean
+        x-nullable: true
+      estimatedWeight:
+        type: integer
+        example: 4200
+        x-nullable: true
+      netWeight:
+        description: >
+          The net weight of the shipment once it has been weight
+        type: integer
+        example: 4300
+        x-nullable: true
+      hasProGear:
+        description: >
+          Indicates whether PPM shipment has pro gear.
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        type: integer
+        x-nullable: true
+      spouseProGearWeight:
+        type: integer
+        x-nullable: true
+      estimatedIncentive:
+        type: integer
+        x-nullable: true
   UpdateShipment:
     type: object
     properties:
@@ -2612,6 +2686,8 @@ definitions:
         $ref: '#/definitions/MTOShipmentStatus'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
+      ppmShipment:
+        $ref: '#/definitions/UpdatePPMShipment'
       requestedPickupDate:
         format: date
         type: string

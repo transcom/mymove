@@ -199,7 +199,7 @@ describe('updateOrders', () => {
           updated_at: '2020-12-17T15:54:48.873Z',
         },
       ],
-      new_duty_station: {
+      new_duty_location: {
         address: {
           city: 'Glendale Luke AFB',
           country: 'United States',

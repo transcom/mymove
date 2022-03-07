@@ -26,8 +26,8 @@ const dutyStation = {
 };
 
 const initialValues = {
-  currentDutyStation: dutyStation,
-  newDutyStation: dutyStation,
+  currentDutyLocation: dutyStation,
+  newDutyLocation: dutyStation,
   dateIssued: '2020-03-08',
   reportByDate: '2020-04-01',
   departmentIndicator: 'NAVY_AND_MARINES',

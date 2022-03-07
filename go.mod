@@ -68,15 +68,15 @@ require (
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx/v3 v3.2.4
 	github.com/tiaguinho/gosoap v1.4.4
-	github.com/vektra/mockery/v2 v2.9.4
+	github.com/vektra/mockery/v2 v2.10.0
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/zap v1.21.0
-	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
-	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd
+	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	golang.org/x/sys v0.0.0-20220307203707-22a9840ba4d7 // indirect
 	golang.org/x/text v0.3.7
-	golang.org/x/tools v0.1.8
+	golang.org/x/tools v0.1.9
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
@@ -85,23 +85,22 @@ require (
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.3.0
-	github.com/rickar/cal/v2 v2.1.2
+	github.com/rickar/cal/v2 v2.1.3
 	github.com/trussworks/otelhttp v0.0.0-20211201183707-a6d8db57ed9b
-	go.opentelemetry.io/contrib/detectors/aws/ecs v1.3.0
+	go.opentelemetry.io/contrib/detectors/aws/ecs v1.4.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.29.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.27.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.29.0
 	go.opentelemetry.io/contrib/propagators/aws v1.4.0
 	go.opentelemetry.io/otel v1.4.1
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.26.0
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.26.0
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.27.0
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.27.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.4.1
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.4.1
-	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.26.0
+	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.27.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.4.1
 	go.opentelemetry.io/otel/metric v0.27.0
 	go.opentelemetry.io/otel/sdk v1.4.1
-	go.opentelemetry.io/otel/sdk/export/metric v0.26.0
-	go.opentelemetry.io/otel/sdk/metric v0.26.0
+	go.opentelemetry.io/otel/sdk/metric v0.27.0
 	go.opentelemetry.io/otel/trace v1.4.1
 	gotest.tools/gotestsum v1.7.0
 )
@@ -193,7 +192,7 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/fastuuid v1.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
-	github.com/rs/zerolog v1.18.0 // indirect
+	github.com/rs/zerolog v1.26.1 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shabbyrobe/xmlwriter v0.0.0-20200208144257-9fca06d00ffa // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
@@ -215,10 +214,10 @@ require (
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
+	google.golang.org/genproto v0.0.0-20220307174427-659dce7fcb03 // indirect
 	google.golang.org/grpc v1.44.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
-	gopkg.in/ini.v1 v1.66.2 // indirect
+	gopkg.in/ini.v1 v1.66.3 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	pault.ag/go/fasc v0.0.0-20190505145209-c337c3c0bbf0 // indirect

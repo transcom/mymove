@@ -135,7 +135,7 @@ const testProps = {
     issue_date: '',
     report_by_date: '',
     has_dependents: '',
-    new_duty_station: {},
+    new_duty_location: {},
     uploaded_orders: [],
   },
   onCancel: jest.fn(),
@@ -156,7 +156,7 @@ const initialValues = {
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: 'No',
-  new_duty_station: {
+  new_duty_location: {
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -265,7 +265,7 @@ describe('EditOrdersForm component', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
-        new_duty_station: 'Luke AFB',
+        new_duty_location: 'Luke AFB',
       });
     });
 
@@ -329,7 +329,7 @@ describe('EditOrdersForm component', () => {
 
     await waitFor(() =>
       expect(screen.getByRole('form')).toHaveFormValues({
-        new_duty_station: 'Luke AFB',
+        new_duty_location: 'Luke AFB',
       }),
     );
 
@@ -344,7 +344,7 @@ describe('EditOrdersForm component', () => {
           has_dependents: 'no',
           issue_date: '08 Nov 2020',
           report_by_date: '26 Nov 2020',
-          new_duty_station: {
+          new_duty_location: {
             address: {
               city: 'Glendale Luke AFB',
               country: 'United States',
@@ -383,7 +383,7 @@ describe('EditOrdersForm component', () => {
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: 'no',
-      new_duty_station: {
+      new_duty_location: {
         address: {
           city: 'Des Moines',
           country: 'US',
@@ -416,7 +416,7 @@ describe('EditOrdersForm component', () => {
       render(<EditOrdersForm {...testProps} initialValues={testInitialValues} />);
 
       expect(await screen.findByRole('form')).toHaveFormValues({
-        new_duty_station: 'Yuma AFB',
+        new_duty_location: 'Yuma AFB',
       });
 
       expect(screen.getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
@@ -441,7 +441,7 @@ describe('EditOrdersForm component', () => {
       ['Orders Type', 'orders_type', ''],
       ['Orders Date', 'issue_date', ''],
       ['Report By Date', 'report_by_date', ''],
-      ['Duty Location', 'new_duty_station', null],
+      ['Duty Location', 'new_duty_location', null],
       ['Uploaded Orders', 'uploaded_orders', []],
     ])('when there is no %s', async (attributeNamePrettyPrint, attributeName, valueToReplaceIt) => {
       const modifiedProps = {
@@ -451,7 +451,7 @@ describe('EditOrdersForm component', () => {
           issue_date: '2020-11-08',
           report_by_date: '2020-11-26',
           has_dependents: 'no',
-          new_duty_station: {
+          new_duty_location: {
             address: {
               city: 'Des Moines',
               country: 'US',

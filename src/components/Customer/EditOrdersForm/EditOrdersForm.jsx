@@ -40,7 +40,7 @@ const EditOrdersForm = ({
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    new_duty_station: Yup.object()
+    new_duty_location: Yup.object()
       .shape({
         name: Yup.string().notOneOf(
           [currentStation?.name],
@@ -118,7 +118,7 @@ const EditOrdersForm = ({
                   />
                 </div>
               </FormGroup>
-              <DutyStationInput name="new_duty_station" label="New duty location" displayAddress={false} />
+              <DutyStationInput name="new_duty_location" label="New duty location" displayAddress={false} />
               <p>Uploads:</p>
               <UploadsTable uploads={initialValues.uploaded_orders} onDelete={onDelete} />
               <div>
@@ -161,7 +161,7 @@ EditOrdersForm.propTypes = {
     issue_date: PropTypes.string,
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
-    new_duty_station: PropTypes.shape({
+    new_duty_location: PropTypes.shape({
       name: PropTypes.string,
     }),
     uploaded_orders: ExistingUploadsShape,

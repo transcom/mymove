@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 type ppmShipmentValidator interface {
@@ -51,4 +52,41 @@ type ppmShipmentValidatorFunc func(appcontext.AppContext, models.PPMShipment, *m
 // Validate fulfills the ppmShipmentValidator interface
 func (fn ppmShipmentValidatorFunc) Validate(appCtx appcontext.AppContext, newer models.PPMShipment, older *models.PPMShipment, ship *models.MTOShipment) error {
 	return fn(appCtx, newer, older, ship)
+}
+
+func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment) *models.PPMShipment {
+	if oldPPMShipment == nil {
+		return &newPPMShipment
+	}
+
+	ppmShipment := *oldPPMShipment
+
+	ppmShipment.ActualMoveDate = services.SetOptionalDateTimeField(newPPMShipment.ActualMoveDate, ppmShipment.ActualMoveDate)
+
+	ppmShipment.SecondaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
+	ppmShipment.SecondaryDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryDestinationPostalCode, ppmShipment.SecondaryDestinationPostalCode)
+
+	ppmShipment.HasProGear = services.SetNoNilOptionalBoolField(newPPMShipment.HasProGear, ppmShipment.HasProGear)
+
+	ppmShipment.EstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.EstimatedWeight, ppmShipment.EstimatedWeight)
+	ppmShipment.NetWeight = services.SetNoNilOptionalPoundField(newPPMShipment.NetWeight, ppmShipment.NetWeight)
+	ppmShipment.ProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.ProGearWeight, ppmShipment.ProGearWeight)
+	ppmShipment.SpouseProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SpouseProGearWeight, ppmShipment.SpouseProGearWeight)
+
+	ppmShipment.EstimatedIncentive = services.SetNoNNilOptionalInt32Field(newPPMShipment.EstimatedIncentive, ppmShipment.EstimatedIncentive)
+
+	if !newPPMShipment.ExpectedDepartureDate.IsZero() {
+		ppmShipment.ExpectedDepartureDate = newPPMShipment.ExpectedDepartureDate
+	}
+
+	if newPPMShipment.PickupPostalCode != "" {
+		ppmShipment.PickupPostalCode = newPPMShipment.PickupPostalCode
+	}
+	if newPPMShipment.DestinationPostalCode != "" {
+		ppmShipment.DestinationPostalCode = newPPMShipment.DestinationPostalCode
+	}
+
+	// TODO: handle sitExpected
+
+	return &ppmShipment
 }

@@ -11,7 +11,7 @@ describe('PpmSummaryComponent', () => {
   const editMoveFn = jest.fn();
   const resumeMoveFn = jest.fn();
   const entitlementObj = { sum: '10000' };
-  const serviceMember = { current_station: { name: 'Ft Carson' } };
+  const serviceMember = { current_location: { name: 'Ft Carson' } };
   const ordersObj = {};
   const getMoveDocumentsForMove = jest.fn(() => ({ then: () => {} }));
   const getShallowRender = (entitlementObj, serviceMember, ordersObj, moveObj, ppmObj, editMoveFn, resumeMoveFn) => {

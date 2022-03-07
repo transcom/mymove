@@ -14,7 +14,7 @@ jest.mock('services/internalApi', () => ({
 const testProps = {
   serviceMember: {
     id: '666',
-    current_station: {
+    current_location: {
       name: 'Test Duty Station',
     },
     residential_address: {
@@ -37,13 +37,13 @@ const testProps = {
     issue_date: '2020-08-11',
     grade: 'RANK',
     moves: ['123'],
-    origin_duty_station: {
+    origin_duty_location: {
       name: 'Test Duty Station',
       address: {
         postalCode: '123456',
       },
     },
-    new_duty_station: {
+    new_duty_location: {
       name: 'New Test Duty Station',
       address: {
         postalCode: '123456',

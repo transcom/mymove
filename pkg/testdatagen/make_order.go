@@ -22,6 +22,9 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyLocationID) {
 		station = FetchOrMakeDefaultNewOrdersDutyLocation(db)
+	} else {
+		// This can be removed once models.Order.NewDutyStation has been phased out
+		station.ID = assertions.Order.NewDutyLocationID
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -85,6 +88,8 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	order := models.Order{
 		ServiceMember:           sm,
 		ServiceMemberID:         sm.ID,
+		NewDutyStation:          station,
+		NewDutyStationID:        station.ID,
 		NewDutyLocation:         station,
 		NewDutyLocationID:       station.ID,
 		UploadedOrders:          document,
@@ -189,6 +194,8 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 	order := models.Order{
 		ServiceMember:        sm,
 		ServiceMemberID:      sm.ID,
+		NewDutyStation:       station,
+		NewDutyStationID:     station.ID,
 		NewDutyLocation:      station,
 		NewDutyLocationID:    station.ID,
 		UploadedOrders:       document,

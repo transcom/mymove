@@ -21,7 +21,7 @@ const DraftMoveSummary = (props) => {
                   <div className="title">Next Step: Finish setting up your move</div>
                   <div>
                     Questions or need help? Contact your local Transportation Office (PPPO) at{' '}
-                    {profile.current_station.name}.
+                    {profile.current_location.name}.
                   </div>
                 </div>
               </div>
