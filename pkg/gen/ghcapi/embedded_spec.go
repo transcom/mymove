@@ -3165,6 +3165,28 @@ func init() {
         }
       }
     },
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -3205,26 +3227,6 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
-      }
-    },
-    "Branch": {
-      "type": "string",
-      "title": "branch",
-      "enum": [
-        "ARMY",
-        "NAVY",
-        "MARINES",
-        "AIR_FORCE",
-        "COAST_GUARD",
-        "OTHER"
-      ],
-      "x-display-value": {
-        "AIR_FORCE": "Air Force",
-        "ARMY": "Army",
-        "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
-        "NAVY": "Navy",
-        "OTHER": "OTHER"
       }
     },
     "ClientError": {
@@ -3268,8 +3270,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
@@ -4716,8 +4717,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "type": "string",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "amendedOrdersAcknowledgedAt": {
           "type": "string",
@@ -5613,8 +5613,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "authorizedWeight": {
           "description": "unit is in lbs",
@@ -10030,6 +10029,28 @@ func init() {
         }
       }
     },
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -10070,26 +10091,6 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
-      }
-    },
-    "Branch": {
-      "type": "string",
-      "title": "branch",
-      "enum": [
-        "ARMY",
-        "NAVY",
-        "MARINES",
-        "AIR_FORCE",
-        "COAST_GUARD",
-        "OTHER"
-      ],
-      "x-display-value": {
-        "AIR_FORCE": "Air Force",
-        "ARMY": "Army",
-        "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
-        "NAVY": "Navy",
-        "OTHER": "OTHER"
       }
     },
     "ClientError": {
@@ -10133,8 +10134,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
@@ -11585,8 +11585,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "type": "string",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "amendedOrdersAcknowledgedAt": {
           "type": "string",
@@ -12485,8 +12484,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "authorizedWeight": {
           "description": "unit is in lbs",

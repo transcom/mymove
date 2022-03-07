@@ -16,6 +16,8 @@ import (
 
 // Affiliation Branch of service
 //
+// Military branch of service
+//
 // swagger:model Affiliation
 type Affiliation string
 

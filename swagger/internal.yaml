@@ -2840,6 +2840,7 @@ definitions:
     type: string
     x-nullable: true
     title: Branch of service
+    description: Military branch of service
     enum:
       - ARMY
       - NAVY

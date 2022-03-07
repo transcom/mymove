@@ -496,23 +496,6 @@ definitions:
       - hasDependents
       - losingUnit
       - gainingUnit
-  Affiliation:
-    type: string
-    description: Military branch of service
-    enum:
-      - air-force
-      - army
-      - civilian-agency
-      - coast-guard
-      - marine-corps
-      - navy
-    x-display-value:
-      air-force: Air Force
-      army: Army
-      civilian-agency: Civilian Agency
-      coast-guard: Coast Guard
-      marine-corps: Marine Corps
-      navy: Navy
   Member:
     type: object
     properties:
@@ -814,3 +797,22 @@ definitions:
         type: string
         description: In the USA, this is the ZIP Code.
         x-nullable: true
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      OTHER: OTHER

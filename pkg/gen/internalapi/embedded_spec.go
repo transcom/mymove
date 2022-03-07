@@ -3330,6 +3330,7 @@ func init() {
       }
     },
     "Affiliation": {
+      "description": "Military branch of service",
       "type": "string",
       "title": "Branch of service",
       "enum": [
@@ -10230,6 +10231,7 @@ func init() {
       }
     },
     "Affiliation": {
+      "description": "Military branch of service",
       "type": "string",
       "title": "Branch of service",
       "enum": [

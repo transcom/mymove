@@ -348,9 +348,8 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 	}
 
 	// branch for service member
-	if payload.Agency != "" {
-		serviceMemberAffiliation := models.ServiceMemberAffiliation(payload.Agency)
-		order.ServiceMember.Affiliation = &serviceMemberAffiliation
+	if payload.Agency != nil {
+		order.ServiceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Agency)
 	}
 
 	// rank
@@ -396,9 +395,8 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 	}
 
 	// branch for service member
-	if payload.Agency != "" {
-		serviceMemberAffiliation := models.ServiceMemberAffiliation(payload.Agency)
-		order.ServiceMember.Affiliation = &serviceMemberAffiliation
+	if payload.Agency != nil {
+		order.ServiceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Agency)
 	}
 
 	// rank
