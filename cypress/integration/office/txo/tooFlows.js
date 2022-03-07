@@ -232,7 +232,8 @@ describe('TOO user', () => {
         .first()
         .click(0, 0)
         .type('Fort Irwin')
-        .get('[class*="-menu"]')
+        .get('[class*="-menu"]', { timeout: 6000 })
+        .should('contain', 'Fort Irwin')
         .find('[class*="-option"]')
         .first()
         .click(0, 0);
@@ -241,7 +242,8 @@ describe('TOO user', () => {
         .eq(1)
         .click(0, 0)
         .type('JB McGuire-Dix-Lakehurst')
-        .get('[class*="-menu"]')
+        .get('[class*="-menu"]', { timeout: 6000 })
+        .should('contain', 'JB McGuire-Dix-Lakehurst')
         .find('[class*="-option"]')
         .eq(5)
         .click(0, 0);
@@ -321,6 +323,7 @@ describe('TOO user', () => {
       // Edit allowances page | Save
       cy.get('button')
         .contains('Save')
+        .should('be.enabled')
         .click()
         .then(() => cy.get('button').should('be.disabled'));
     });
