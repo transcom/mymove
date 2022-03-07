@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
-import { Radio, FormGroup, Label } from '@trussworks/react-uswds';
+import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
+
+import styles from './OrdersInfoForm.module.scss';
 
 import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
@@ -12,6 +14,7 @@ import formStyles from 'styles/form.module.scss';
 import { DutyStationShape } from 'types/dutyStation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import Callout from 'components/Callout';
 
 const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
@@ -38,9 +41,11 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit }) => {
+      {({ isValid, isSubmitting, handleSubmit, values }) => {
+        const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
+
         return (
-          <Form className={formStyles.form}>
+          <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
             <h1>Tell us about your move orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
@@ -82,7 +87,34 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                   />
                 </div>
               </FormGroup>
-              <DutyStationInput name="new_duty_station" label="New duty location" displayAddress={false} />
+              {isRetirementOrSeparation ? (
+                <>
+                  <h3>Where are you entitled to move?</h3>
+                  <Callout>
+                    <span>The government will pay for your move to:</span>
+                    <ul>
+                      <li>Home of record (HOR)</li>
+                      <li>Place entered active duty (PLEAD)</li>
+                    </ul>
+                    <p>
+                      It might pay for a move to your Home of selection (HOS), anywhere in CONUS. Check your orders.
+                    </p>
+                    <p>
+                      Read more about where you are entitled to move when leaving the military on{' '}
+                      <USWDSLink
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href="https://www.militaryonesource.mil/military-life-cycle/separation-transition/military-separation-retirement/deciding-where-to-live-when-you-leave-the-military/"
+                      >
+                        Military OneSource
+                      </USWDSLink>
+                    </p>
+                  </Callout>
+                  <DutyStationInput name="new_duty_station" label="HOR, PLEAD or HOS" displayAddress={false} />
+                </>
+              ) : (
+                <DutyStationInput name="new_duty_station" label="New duty location" displayAddress={false} />
+              )}
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

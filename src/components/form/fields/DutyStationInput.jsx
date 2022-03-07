@@ -6,7 +6,7 @@ import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSea
 
 // TODO: refactor component when we can to make it more user friendly with Formik
 export const DutyStationInput = (props) => {
-  const { label, name, displayAddress } = props;
+  const { label, name, displayAddress, hint } = props;
   const [field, meta, helpers] = useField(props);
 
   const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
@@ -22,6 +22,7 @@ export const DutyStationInput = (props) => {
       }}
       errorMsg={errorString}
       displayAddress={displayAddress}
+      hint={hint}
     />
   );
 };
@@ -32,10 +33,12 @@ DutyStationInput.propTypes = {
   // name is for the input
   name: PropTypes.string.isRequired,
   displayAddress: PropTypes.bool,
+  hint: PropTypes.node,
 };
 
 DutyStationInput.defaultProps = {
   displayAddress: true,
+  hint: '',
 };
 
 export default DutyStationInput;
