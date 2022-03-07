@@ -10,8 +10,8 @@ describe('CurrentDutyStationForm component', () => {
       <CurrentDutyStationForm
         onSubmit={jest.fn()}
         onBack={jest.fn()}
-        initialValues={{ current_station: {} }}
-        newDutyStation={{}}
+        initialValues={{ current_location: {} }}
+        newDutyLocation={{}}
       />,
     );
     await waitFor(() => {
@@ -24,8 +24,8 @@ describe('CurrentDutyStationForm component', () => {
       <CurrentDutyStationForm
         onSubmit={jest.fn()}
         onBack={jest.fn()}
-        initialValues={{ current_station: {} }}
-        newDutyStation={{}}
+        initialValues={{ current_location: {} }}
+        newDutyLocation={{}}
       />,
     );
     const submitBtn = getByRole('button', { name: 'Next' });
@@ -42,7 +42,7 @@ describe('CurrentDutyStationForm component', () => {
         onSubmit={onSubmit}
         onBack={jest.fn()}
         initialValues={{
-          current_station: {
+          current_location: {
             address: {
               city: 'Los Angeles',
               state: 'CA',
@@ -52,7 +52,7 @@ describe('CurrentDutyStationForm component', () => {
             id: 'testId',
           },
         }}
-        newDutyStation={{
+        newDutyLocation={{
           id: 'testId',
         }}
       />,
@@ -75,7 +75,7 @@ describe('CurrentDutyStationForm component', () => {
         onSubmit={onSubmit}
         onBack={jest.fn()}
         initialValues={{
-          current_station: {
+          current_location: {
             address: {
               city: 'San Diego',
               state: 'CA',
@@ -84,7 +84,7 @@ describe('CurrentDutyStationForm component', () => {
             id: 'testId',
           },
         }}
-        newDutyStation={{ id: 'test' }}
+        newDutyLocation={{ id: 'test' }}
       />,
     );
     const submitBtn = getByRole('button', { name: 'Next' });
@@ -103,7 +103,7 @@ describe('CurrentDutyStationForm component', () => {
         onSubmit={jest.fn()}
         onBack={onBack}
         initialValues={{
-          current_station: {},
+          current_location: {},
         }}
       />,
     );

@@ -78,8 +78,8 @@ class QueueTable extends Component {
       let origDutyStationDataSet = new Set(this.getOriginDutyStations());
       let destDutyStationDataSet = new Set(this.getDestinationDutyStations());
       body.forEach((value) => {
-        if (value.origin_duty_station_name !== undefined && value.origin_duty_station_name !== '') {
-          origDutyStationDataSet.add(value.origin_duty_station_name);
+        if (value.origin_duty_location_name !== undefined && value.origin_duty_location_name !== '') {
+          origDutyStationDataSet.add(value.origin_duty_location_name);
         }
         if (value.destination_duty_station_name !== undefined && value.destination_duty_station_name !== '') {
           destDutyStationDataSet.add(value.destination_duty_station_name);

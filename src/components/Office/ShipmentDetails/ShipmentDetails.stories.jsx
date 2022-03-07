@@ -105,7 +105,7 @@ const shipment = {
 };
 
 const order = {
-  originDutyStation: {
+  originDutyLocation: {
     address: {
       streetAddress1: '444 S 131st St',
       city: 'San Antonio',
@@ -113,7 +113,7 @@ const order = {
       postalCode: '78234',
     },
   },
-  destinationDutyStation: {
+  destinationDutyLocation: {
     address: {
       streetAddress1: '17 8th St',
       city: 'Austin',

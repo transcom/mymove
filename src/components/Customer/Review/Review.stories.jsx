@@ -27,13 +27,13 @@ const defaultProps = {
     issue_date: '2020-08-11',
     grade: 'E-1',
     moves: [mtoUuid],
-    origin_duty_station: {
+    origin_duty_location: {
       name: 'Fort Drum',
       address: {
         postalCode: '13643',
       },
     },
-    new_duty_station: {
+    new_duty_location: {
       name: 'Naval Base San Diego',
       address: {
         postalCode: '91945',
@@ -61,7 +61,7 @@ const defaultProps = {
   mtoShipments: [],
   serviceMember: {
     id: customerUuid,
-    current_station: {
+    current_location: {
       name: 'Fort Drum',
     },
     residential_address: {

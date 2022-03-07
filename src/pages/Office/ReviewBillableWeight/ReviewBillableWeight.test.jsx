@@ -31,7 +31,7 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-const mockOriginDutyStation = {
+const mockOriginDutyLocation = {
   address: {
     city: 'Des Moines',
     country: 'US',
@@ -49,7 +49,7 @@ const mockOriginDutyStation = {
   name: 'XBc1KNi3pA',
 };
 
-const mockDestinationDutyStation = {
+const mockDestinationDutyLocation = {
   address: {
     city: 'Augusta',
     country: 'United States',
@@ -71,7 +71,7 @@ const mockOrders = {
     customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
     date_issued: '2018-03-15',
     department_indicator: 'AIR_FORCE',
-    destinationDutyStation: mockDestinationDutyStation,
+    destinationDutyLocation: mockDestinationDutyLocation,
     eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
     entitlement: {
       authorizedWeight: 5000,
@@ -96,7 +96,7 @@ const mockOrders = {
     order_number: 'ORDER3',
     order_type: 'PERMANENT_CHANGE_OF_STATION',
     order_type_detail: 'HHG_PERMITTED',
-    originDutyStation: mockOriginDutyStation,
+    originDutyLocation: mockOriginDutyLocation,
     report_by_date: '2018-08-01',
     tac: 'F8E1',
     sac: 'E2P3',

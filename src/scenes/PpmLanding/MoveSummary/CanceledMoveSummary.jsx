@@ -4,7 +4,7 @@ import truck from 'shared/icon/truck-gray.svg';
 
 const CanceledMoveSummary = (props) => {
   const { profile, reviewProfile } = props;
-  const currentStation = get(profile, 'current_station');
+  const currentStation = get(profile, 'current_location');
   const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
     <div>
