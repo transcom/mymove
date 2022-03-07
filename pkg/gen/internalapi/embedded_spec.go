@@ -3337,14 +3337,16 @@ func init() {
         "NAVY",
         "MARINES",
         "AIR_FORCE",
-        "COAST_GUARD"
+        "COAST_GUARD",
+        "OTHER"
       ],
       "x-display-value": {
         "AIR_FORCE": "Air Force",
         "ARMY": "Army",
         "COAST_GUARD": "Coast Guard",
         "MARINES": "Marine Corps",
-        "NAVY": "Navy"
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
       },
       "x-nullable": true
     },
@@ -10235,14 +10237,16 @@ func init() {
         "NAVY",
         "MARINES",
         "AIR_FORCE",
-        "COAST_GUARD"
+        "COAST_GUARD",
+        "OTHER"
       ],
       "x-display-value": {
         "AIR_FORCE": "Air Force",
         "ARMY": "Army",
         "COAST_GUARD": "Coast Guard",
         "MARINES": "Marine Corps",
-        "NAVY": "Navy"
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
       },
       "x-nullable": true
     },

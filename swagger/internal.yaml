@@ -2846,12 +2846,14 @@ definitions:
       - MARINES
       - AIR_FORCE
       - COAST_GUARD
+      - OTHER
     x-display-value:
       ARMY: Army
       NAVY: Navy
       MARINES: Marine Corps
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
+      OTHER: OTHER
   TransportationOffice:
     type: object
     properties:
