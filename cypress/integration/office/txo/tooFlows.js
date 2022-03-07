@@ -314,7 +314,7 @@ describe('TOO user', () => {
       cy.get('input[name="authorizedWeight"]').clear().type('11111');
 
       //Edit DependentsAuthorized
-      cy.get('input[name="dependentsAuthorized"]').click({ force: true });
+      cy.get('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
 
       // Edit allowances page | Save
       cy.get('button').contains('Save').click();
