@@ -61,8 +61,8 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
-	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
-	DutyStation            DutyLocation              `belongs_to:"duty_stations" fk_id:"duty_station_id"`
+	DutyLocationID         *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
+	DutyLocation           DutyLocation              `belongs_to:"duty_stations" fk_id:"duty_station_id"`
 	RequiresAccessCode     bool                      `json:"requires_access_code" db:"requires_access_code"`
 }
 
@@ -97,9 +97,9 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
 		"BackupContacts",
-		"DutyStation.Address",
-		"DutyStation.TransportationOffice",
-		"DutyStation.TransportationOffice.PhoneLines",
+		"DutyLocation.Address",
+		"DutyLocation.TransportationOffice",
+		"DutyLocation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.OriginDutyLocation",
 		"Orders.UploadedOrders.UserUploads.Upload",
@@ -251,6 +251,8 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			OrdersType:          ordersType,
 			HasDependents:       hasDependents,
 			SpouseHasProGear:    spouseHasProGear,
+			NewDutyStationID:    newDutyStation.ID,
+			NewDutyStation:      newDutyStation,
 			NewDutyLocationID:   newDutyStation.ID,
 			NewDutyLocation:     newDutyStation,
 			UploadedOrders:      uploadedOrders,
@@ -316,7 +318,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.BackupMailingAddressID == nil {
 		return false
 	}
-	if s.DutyStationID == nil {
+	if s.DutyLocationID == nil {
 		return false
 	}
 	if len(s.BackupContacts) == 0 {

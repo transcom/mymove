@@ -7,7 +7,7 @@ const testInitialValues = {
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: 'no',
-  new_duty_station: {
+  new_duty_location: {
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -54,7 +54,7 @@ const testProps = {
     issue_date: '',
     report_by_date: '',
     has_dependents: '',
-    new_duty_station: {},
+    new_duty_location: {},
     uploaded_orders: [
       {
         id: '100',

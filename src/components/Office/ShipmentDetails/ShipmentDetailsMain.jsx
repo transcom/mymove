@@ -135,8 +135,8 @@ const ShipmentDetailsMain = ({
       <ShipmentAddresses
         pickupAddress={displayedPickupAddress}
         destinationAddress={displayedDeliveryAddress}
-        originDutyStation={originDutyStationAddress}
-        destinationDutyStation={destinationDutyStationAddress}
+        originDutyLocation={originDutyStationAddress}
+        destinationDutyLocation={destinationDutyStationAddress}
         shipmentInfo={{
           id: shipment.id,
           eTag: shipment.eTag,

@@ -63,7 +63,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 		PersonalEmail:          &email,
 		ResidentialAddressID:   &fakeAddress.ID,
 		BackupMailingAddressID: &fakeBackupAddress.ID,
-		DutyStationID:          &location.ID,
+		DutyLocationID:         &location.ID,
 	}
 
 	suite.Equal(false, serviceMember.IsProfileComplete())
@@ -182,6 +182,8 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		SpouseHasProGear:     spouseHasProGear,
 		OriginDutyLocationID: &dutyLocation.ID,
 		OriginDutyLocation:   &dutyLocation,
+		NewDutyStationID:     dutyLocation2.ID,
+		NewDutyStation:       dutyLocation2,
 		NewDutyLocationID:    dutyLocation2.ID,
 		NewDutyLocation:      dutyLocation2,
 		UploadedOrdersID:     uploadedOrder.ID,

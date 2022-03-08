@@ -15,6 +15,7 @@ import { DutyStationShape } from 'types/dutyStation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
+import { formatLabelReportByDate } from 'utils/formatters';
 
 const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
@@ -28,7 +29,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    new_duty_station: Yup.object()
+    new_duty_location: Yup.object()
       .shape({
         name: Yup.string().notOneOf(
           [currentStation?.name],
@@ -63,7 +64,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                   </>
                 )}
               />
-              <DatePickerInput name="report_by_date" label="Report-by date" required />
+              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
               <FormGroup>
                 <Label>Are dependents included in your orders?</Label>
                 <div>
@@ -138,7 +139,7 @@ OrdersInfoForm.propTypes = {
     issue_date: PropTypes.string,
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
-    new_duty_station: PropTypes.shape({}),
+    new_duty_location: PropTypes.shape({}),
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,

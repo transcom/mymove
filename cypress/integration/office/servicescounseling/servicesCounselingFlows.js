@@ -144,32 +144,32 @@ describe('Services counselor user', () => {
     cy.wait('@createShipment');
   });
 
-  //  it('is able to edit allowances', () => {
-  // cy.wait(['@getSortedMoves']);
+  it('is able to edit allowances', () => {
+    cy.wait(['@getSortedMoves']);
     // It doesn't matter which move we click on in the queue.
-  // cy.get('td').first().click();
-  // cy.url().should('include', `details`);
-  // cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-  // cy.get('[data-testid="edit-allowances"]').click();
+    cy.get('td').first().click();
+    cy.url().should('include', `details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.get('[data-testid="edit-allowances"]').click();
 
     // the form
-  //    cy.get('[data-testid="proGearWeightInput"]').clear().type('1999');
-  // cy.get('[data-testid="sitInput"]').clear().type('199');
+    cy.get('[data-testid="proGearWeightInput"]').focus().clear().type('1999').blur();
+    cy.get('[data-testid="sitInput"]').focus().clear().type('199').blur();
 
     // Edit allowances page | Save
-  //    cy.get('[data-testid="scAllowancesSave"]').click();
+    cy.get('[data-testid="scAllowancesSave"]').click();
 
-  //    cy.wait('@patchAllowances');
+    cy.wait('@patchAllowances');
 
-  //    cy.location().should((loc) => {
-  //   expect(loc.pathname).to.include('/details');
-  // });
+    cy.location().should((loc) => {
+      expect(loc.pathname).to.include('/details');
+    });
 
     // things should save and then load afterward with new data
-  //    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-  // cy.get('[data-testid="progear"]').contains('1,999');
-  // cy.get('[data-testid="storageInTransit"]').contains('199');
-  //});
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.get('[data-testid="progear"]').contains('1,999');
+    cy.get('[data-testid="storageInTransit"]').contains('199');
+  });
 
   it('is able to see and use the left navigation', () => {
     const moveLocator = 'RET1RE';

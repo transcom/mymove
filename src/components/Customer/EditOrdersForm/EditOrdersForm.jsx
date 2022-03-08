@@ -18,6 +18,7 @@ import { DutyStationShape } from 'types/dutyStation';
 import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
+import { formatLabelReportByDate } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 
 const EditOrdersForm = ({
@@ -42,7 +43,7 @@ const EditOrdersForm = ({
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    new_duty_station: Yup.object()
+    new_duty_location: Yup.object()
       .shape({
         name: Yup.string().notOneOf(
           [currentStation?.name],
@@ -98,7 +99,7 @@ const EditOrdersForm = ({
                   </>
                 )}
               />
-              <DatePickerInput name="report_by_date" label="Report-by date" required />
+              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
               <FormGroup>
                 <Label>Are dependents included in your orders?</Label>
                 <div>
@@ -197,7 +198,7 @@ EditOrdersForm.propTypes = {
     issue_date: PropTypes.string,
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
-    new_duty_station: PropTypes.shape({
+    new_duty_location: PropTypes.shape({
       name: PropTypes.string,
     }),
     uploaded_orders: ExistingUploadsShape,

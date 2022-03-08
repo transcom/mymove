@@ -4,12 +4,8 @@ import (
 	"context"
 	"time"
 
-	"go.opentelemetry.io/otel/sdk/resource"
-	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
-
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
-
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
@@ -20,12 +16,14 @@ import (
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/propagation"
-	exportmetric "go.opentelemetry.io/otel/sdk/export/metric"
-	"go.opentelemetry.io/otel/sdk/export/metric/aggregation"
 	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
+	"go.opentelemetry.io/otel/sdk/metric/export"
+	"go.opentelemetry.io/otel/sdk/metric/export/aggregation"
 	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
 	"go.opentelemetry.io/otel/sdk/metric/selector/simple"
+	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
@@ -62,7 +60,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	}
 
 	var spanExporter sdktrace.SpanExporter
-	var metricExporter exportmetric.Exporter
+	var metricExporter export.Exporter
 
 	var err error
 

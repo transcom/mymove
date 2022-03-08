@@ -12,8 +12,8 @@ export const Basic = () => (
   <div className="officeApp">
     <OrdersList
       ordersInfo={{
-        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
-        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        currentDutyLocation: object('ordersInfo.currentDutyLocation', { name: 'JBSA Lackland' }),
+        newDutyLocation: object('ordersInfo.newDutyLocation', { name: 'JB Lewis-McChord' }),
         issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
         reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
         departmentIndicator: text('ordersInfo.departmentIndicator', 'NAVY_AND_MARINES'),
@@ -34,8 +34,8 @@ export const AsServiceCounselor = () => (
     <OrdersList
       showMissingWarnings={false}
       ordersInfo={{
-        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
-        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        currentDutyLocation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+        newDutyLocation: object('ordersInfo.newDutyLocation', { name: 'JB Lewis-McChord' }),
         issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
         reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
         departmentIndicator: '',
@@ -56,8 +56,8 @@ export const AsServiceCounselorProcessingRetirement = () => (
     <OrdersList
       showMissingWarnings={false}
       ordersInfo={{
-        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
-        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        currentDutyLocation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+        newDutyLocation: object('ordersInfo.newDutyLocation', { name: 'JB Lewis-McChord' }),
         issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
         reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
         departmentIndicator: '',
@@ -78,8 +78,8 @@ export const AsServiceCounselorProcessingSeparation = () => (
     <OrdersList
       showMissingWarnings={false}
       ordersInfo={{
-        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
-        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        currentDutyLocation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+        newDutyLocation: object('ordersInfo.newDutyLocation', { name: 'JB Lewis-McChord' }),
         issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
         reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
         departmentIndicator: '',
@@ -100,8 +100,8 @@ export const AsTOO = () => (
     <OrdersList
       showMissingWarnings
       ordersInfo={{
-        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
-        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        currentDutyLocation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+        newDutyLocation: object('ordersInfo.newDutyLocation', { name: 'JB Lewis-McChord' }),
         issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
         reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
         departmentIndicator: '',
@@ -122,8 +122,8 @@ export const AsTOOProcessingRetirement = () => (
     <OrdersList
       showMissingWarnings
       ordersInfo={{
-        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
-        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        currentDutyLocation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+        newDutyLocation: object('ordersInfo.newDutyLocation', { name: 'JB Lewis-McChord' }),
         issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
         reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
         departmentIndicator: '',
@@ -144,8 +144,8 @@ export const AsTOOProcessingSeparation = () => (
     <OrdersList
       showMissingWarnings
       ordersInfo={{
-        currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
-        newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+        currentDutyLocation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+        newDutyLocation: object('ordersInfo.newDutyLocation', { name: 'JB Lewis-McChord' }),
         issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
         reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
         departmentIndicator: '',

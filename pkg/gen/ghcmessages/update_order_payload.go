@@ -31,11 +31,11 @@ type UpdateOrderPayload struct {
 	// Format: date
 	IssueDate *strfmt.Date `json:"issueDate"`
 
-	// new duty station Id
+	// new duty location Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
-	NewDutyStationID *strfmt.UUID `json:"newDutyStationId"`
+	NewDutyLocationID *strfmt.UUID `json:"newDutyLocationId"`
 
 	// NTS SAC
 	// Example: N002214CSW32Y9
@@ -59,11 +59,11 @@ type UpdateOrderPayload struct {
 	// orders type detail
 	OrdersTypeDetail *OrdersTypeDetail `json:"ordersTypeDetail,omitempty"`
 
-	// origin duty station Id
+	// origin duty location Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
-	OriginDutyStationID *strfmt.UUID `json:"originDutyStationId"`
+	OriginDutyLocationID *strfmt.UUID `json:"originDutyLocationId"`
 
 	// Report-by date
 	//
@@ -96,7 +96,7 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateNewDutyStationID(formats); err != nil {
+	if err := m.validateNewDutyLocationID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -116,7 +116,7 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateOriginDutyStationID(formats); err != nil {
+	if err := m.validateOriginDutyLocationID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -170,13 +170,13 @@ func (m *UpdateOrderPayload) validateIssueDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateOrderPayload) validateNewDutyStationID(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateNewDutyLocationID(formats strfmt.Registry) error {
 
-	if err := validate.Required("newDutyStationId", "body", m.NewDutyStationID); err != nil {
+	if err := validate.Required("newDutyLocationId", "body", m.NewDutyLocationID); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("newDutyStationId", "body", "uuid", m.NewDutyStationID.String(), formats); err != nil {
+	if err := validate.FormatOf("newDutyLocationId", "body", "uuid", m.NewDutyLocationID.String(), formats); err != nil {
 		return err
 	}
 
@@ -260,13 +260,13 @@ func (m *UpdateOrderPayload) validateOrdersTypeDetail(formats strfmt.Registry) e
 	return nil
 }
 
-func (m *UpdateOrderPayload) validateOriginDutyStationID(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateOriginDutyLocationID(formats strfmt.Registry) error {
 
-	if err := validate.Required("originDutyStationId", "body", m.OriginDutyStationID); err != nil {
+	if err := validate.Required("originDutyLocationId", "body", m.OriginDutyLocationID); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("originDutyStationId", "body", "uuid", m.OriginDutyStationID.String(), formats); err != nil {
+	if err := validate.FormatOf("originDutyLocationId", "body", "uuid", m.OriginDutyLocationID.String(), formats); err != nil {
 		return err
 	}
 
