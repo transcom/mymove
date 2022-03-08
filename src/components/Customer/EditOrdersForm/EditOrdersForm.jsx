@@ -147,14 +147,14 @@ const EditOrdersForm = ({
                     </p>
                   </Callout>
                   <DutyStationInput
-                    name="new_duty_station"
+                    name="new_duty_location"
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                   />
                 </>
               ) : (
-                <DutyStationInput name="new_duty_station" label="New duty location" displayAddress={false} />
+                <DutyStationInput name="new_duty_location" label="New duty location" displayAddress={false} />
               )}
               <p>Uploads:</p>
               <UploadsTable uploads={initialValues.uploaded_orders} onDelete={onDelete} />

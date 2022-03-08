@@ -111,10 +111,10 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                       </USWDSLink>
                     </p>
                   </Callout>
-                  <DutyStationInput name="new_duty_station" label="HOR, PLEAD or HOS" displayAddress={false} />
+                  <DutyStationInput name="new_duty_location" label="HOR, PLEAD or HOS" displayAddress={false} />
                 </>
               ) : (
-                <DutyStationInput name="new_duty_station" label="New duty location" displayAddress={false} />
+                <DutyStationInput name="new_duty_location" label="New duty location" displayAddress={false} />
               )}
             </SectionWrapper>
 
