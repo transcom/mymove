@@ -1,5 +1,3 @@
-import { submitsDateAndLocation, customerChoosesAPPMMove, submitsEstimatedWeights } from './shared';
-
 describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -9,18 +7,17 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
     cy.logout();
   });
 
-  // estimated_weights@ppm.unsubmitted
-  const userId = '13f3949d-0d53-4be4-b1b1-ae4314793f34';
+  // dates_and_locations@ppm.unsubmitted
+  const userId = 'bbb469f3-f4bc-420d-9755-b9569f81715e';
   it('doesn’t allow SM to progress if form is in an invalid state', () => {
     cy.apiSignInAsUser(userId);
-    customerChoosesAPPMMove();
-    submitsDateAndLocation();
+    cy.get('[data-testid="shipment-list-item-container"]').click();
+    cy.get('button').contains('Save & Continue').click();
     invalidInputs();
   });
 
   it('can continue to next page', () => {
     cy.apiSignInAsUser(userId);
-    // submitsDateAndLocation();
     submitsEstimatedWeights();
   });
 });
@@ -28,7 +25,7 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
 function invalidInputs() {
   cy.contains('Estimated weight');
   cy.url().should('include', '/estimated-weight');
-  cy.get('p[class="usa-alert__text"]').contains('Total weight allowance for your move: 8,000 lbs');
+  cy.get('p[class="usa-alert__text"]').contains('Total weight allowance for your move: 5,000 lbs');
 
   // missing required weight
   cy.get('input[name="estimatedWeight"]').clear().blur();
@@ -73,4 +70,21 @@ function invalidInputs() {
   cy.get('@errorMessage').contains('Enter a weight less than 500 lbs');
   cy.get('input[name="spouseProGearWeight"]').clear().type(100).blur();
   cy.get('@errorMessage').should('not.exist');
+}
+
+function submitsEstimatedWeights() {
+  cy.get('[data-testid="shipment-list-item-container"]').click();
+  cy.get('button').contains('Save & Continue').click();
+
+  cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
+  cy.get('input[name="hasProGear"][value="true"]').check({ force: true });
+  cy.get('input[name="proGearWeight"]').type(500).blur();
+  cy.get('button').contains('Save & Continue').should('be.enabled');
+
+  // TODO: once the Estimated Weights Page is updated to be able to navigate to the next page
+  // uncomment out the lines below
+  //   cy.get('button').contains('Save & Continue').click();
+  //   cy.location().should((loc) => {
+  //     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
+  //   });
 }
