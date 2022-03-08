@@ -86,9 +86,11 @@ const PrimeUIShipmentUpdateAddress = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values, { setSubmitting }) => {
-    // There has to be something in either pickupAddress or destinationAddress due to the validation
-    // on the form before submission.
+    // Choose pickupAddress or destinationAddress by the presence of the object
+    // by the same name. It's possible that these values are blank and set to
+    // `undefined` or an empty string `""`.
     const address = values.pickupAddress ? values.pickupAddress.address : values.destinationAddress.address;
+
     const body = {
       id: values.addressID,
       streetAddress1: address.streetAddress1,
@@ -98,6 +100,15 @@ const PrimeUIShipmentUpdateAddress = () => {
       state: address.state,
       postalCode: address.postalCode,
     };
+
+    // Check if the address payload contains any blank properties and remove
+    // them. This will allow the backend to send the proper error messages
+    // since the properties won't exist in the payload that is sent.
+    Object.keys(body).forEach((k) => {
+      if (!body[k]) {
+        delete body[k];
+      }
+    });
 
     mutateMTOShipment({
       mtoShipmentID: shipmentId,
