@@ -1,6 +1,6 @@
 import { submitsDateAndLocation, customerChoosesAPPMMove } from './shared';
 
-describe('the PPM flow', function () {
+describe('PPM Onboarding - Add dates and location flow', function () {
   before(() => {
     cy.prepareCustomerApp();
   });
@@ -17,7 +17,7 @@ describe('the PPM flow', function () {
     invalidInputs();
   });
 
-  it('can submit a PPM move', () => {
+  it('can continue to next page', () => {
     cy.apiSignInAsUser(userId);
     customerChoosesAPPMMove();
     submitsDateAndLocation();
