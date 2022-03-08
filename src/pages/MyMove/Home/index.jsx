@@ -168,10 +168,8 @@ export class Home extends Component {
     return (
       <>
         <p>
-          {'You’re moving to '}
-          <strong>{orders.new_duty_station.name}</strong>
-          {' from '}
-          <strong>{orders.origin_duty_station?.name}.</strong>
+          You’re moving to <strong>{orders.new_duty_location.name}</strong> from{' '}
+          <strong>{orders.origin_duty_location?.name}.</strong>
           {` ${this.reportByLabel} `}
           <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         </p>
