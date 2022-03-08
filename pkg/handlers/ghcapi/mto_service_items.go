@@ -126,49 +126,50 @@ type ListMTOServiceItemsHandler struct {
 
 // Handle handler that lists mto service items for the move task order
 func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServiceItemsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
+			// return any parsing error
+			if err != nil {
+				parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
+				appCtx.Logger().Error(parsingError)
+				payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 
-	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
-	// return any parsing error
-	if err != nil {
-		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
-		appCtx.Logger().Error(parsingError)
-		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+				return mtoserviceitemop.NewListMTOServiceItemsUnprocessableEntity().WithPayload(payload)
+			}
 
-		return mtoserviceitemop.NewListMTOServiceItemsUnprocessableEntity().WithPayload(payload)
-	}
+			// check if move task order exists first
+			queryFilters := []services.QueryFilter{
+				query.NewQueryFilter("id", "=", moveTaskOrderID.String()),
+			}
 
-	// check if move task order exists first
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveTaskOrderID.String()),
-	}
+			moveTaskOrder := &models.Move{}
+			err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
 
-	moveTaskOrder := &models.Move{}
-	err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
-	if err != nil {
-		appCtx.Logger().Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
+				return mtoserviceitemop.NewListMTOServiceItemsNotFound()
+			}
 
-		return mtoserviceitemop.NewListMTOServiceItemsNotFound()
-	}
+			queryFilters = []services.QueryFilter{
+				query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
+			}
+			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
+				query.NewQueryAssociation("ReService"),
+				query.NewQueryAssociation("CustomerContacts"),
+				query.NewQueryAssociation("Dimensions"),
+			})
 
-	queryFilters = []services.QueryFilter{
-		query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
-	}
-	queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
-		query.NewQueryAssociation("ReService"),
-		query.NewQueryAssociation("CustomerContacts"),
-		query.NewQueryAssociation("Dimensions"),
-	})
+			var serviceItems models.MTOServiceItems
+			err = h.ListFetcher.FetchRecordList(appCtx, &serviceItems, queryFilters, queryAssociations, nil, nil)
+			// return any errors
+			if err != nil {
+				appCtx.Logger().Error("Error fetching mto service items: ", zap.Error(err))
 
-	var serviceItems models.MTOServiceItems
-	err = h.ListFetcher.FetchRecordList(appCtx, &serviceItems, queryFilters, queryAssociations, nil, nil)
-	// return any errors
-	if err != nil {
-		appCtx.Logger().Error("Error fetching mto service items: ", zap.Error(err))
+				return mtoserviceitemop.NewListMTOServiceItemsInternalServerError()
+			}
 
-		return mtoserviceitemop.NewListMTOServiceItemsInternalServerError()
-	}
-
-	returnPayload := payloads.MTOServiceItemModels(serviceItems)
-	return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload)
+			returnPayload := payloads.MTOServiceItemModels(serviceItems)
+			return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload)
+		})
 }
