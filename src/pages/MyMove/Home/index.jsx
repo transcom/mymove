@@ -121,6 +121,18 @@ export class Home extends Component {
     return 'Set up your shipments';
   }
 
+  get reportByLabel() {
+    const { orders } = this.props;
+    switch (orders.orders_type) {
+      case 'RETIREMENT':
+        return 'Retirement date';
+      case 'SEPARATION':
+        return 'Separation date';
+      default:
+        return 'Report by';
+    }
+  }
+
   renderAlert = () => {
     if (this.hasUnapprovedAmendedOrders) {
       return (
@@ -157,7 +169,8 @@ export class Home extends Component {
       <>
         <p>
           You’re moving to <strong>{orders.new_duty_location.name}</strong> from{' '}
-          <strong>{orders.origin_duty_location?.name}.</strong> Report by{' '}
+          <strong>{orders.origin_duty_location?.name}.</strong>
+          {` ${this.reportByLabel} `}
           <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         </p>
 
