@@ -18,7 +18,6 @@ import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove } from 'shared/Entities/modules/moves';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { formatOrderType } from 'utils/formatters';
 import Alert from 'shared/Alert';
 import ProfileTable from 'components/Customer/Review/ProfileTable';
 import OrdersTable from 'components/Customer/Review/OrdersTable';
@@ -268,7 +267,7 @@ export class Summary extends Component {
             moveId={moveId}
             newDutyStationName={currentOrders.new_duty_location.name}
             onEditClick={this.handleEditClick}
-            orderType={formatOrderType(currentOrders.orders_type)}
+            orderType={currentOrders.orders_type}
             reportByDate={currentOrders.report_by_date}
             uploads={currentOrders.uploaded_orders.uploads}
           />
