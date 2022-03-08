@@ -138,7 +138,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 		WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
-		CurrentDutyStation:      currentDutyLocation,
+		CurrentDutyLocation:     currentDutyLocation,
 		Order:                   order,
 	}
 	suite.Run("TestComputeObligations", func() {
@@ -231,7 +231,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		shipmentSummaryFormParams := models.ShipmentSummaryFormData{
 			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
-			CurrentDutyStation:      currentDutyLocation,
+			CurrentDutyLocation:     currentDutyLocation,
 			Order:                   order,
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
