@@ -7,7 +7,7 @@
 set -eu -o pipefail
 
 # Location of the reserved docker disk space
-DOCKER_RAW=~/Library/Containers/com.docker.docker/Data/vms/0/Docker.raw
+DOCKER_RAW=$(find ~/Library/Containers/com.docker.docker/Data -name Docker.raw)
 
 # Listing the actual used size by docker requires du
 SIZE_ACTUAL=$(/usr/bin/du "${DOCKER_RAW}" | cut -f1)
