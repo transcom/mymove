@@ -232,8 +232,7 @@ describe('TOO user', () => {
         .first()
         .click(0, 0)
         .type('Fort Irwin')
-        .get('[class*="-menu"]', { timeout: 6000 })
-        .should('contain', 'Fort Irwin')
+        .get('[class*="-menu"]')
         .find('[class*="-option"]')
         .first()
         .click(0, 0);
@@ -242,8 +241,7 @@ describe('TOO user', () => {
         .eq(1)
         .click(0, 0)
         .type('JB McGuire-Dix-Lakehurst')
-        .get('[class*="-menu"]', { timeout: 6000 })
-        .should('contain', 'JB McGuire-Dix-Lakehurst')
+        .get('[class*="-menu"]')
         .find('[class*="-option"]')
         .eq(5)
         .click(0, 0);
