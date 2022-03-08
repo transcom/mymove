@@ -61,8 +61,8 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
-	DutyLocationID         *uuid.UUID                `json:"duty_location_id" db:"duty_location_id"`
-	DutyLocation           DutyLocation              `belongs_to:"duty_locations" fk_id:"duty_location_id"`
+	DutyLocationID         *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
+	DutyLocation           DutyLocation              `belongs_to:"duty_stations" fk_id:"duty_station_id"`
 	RequiresAccessCode     bool                      `json:"requires_access_code" db:"requires_access_code"`
 }
 
