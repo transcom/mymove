@@ -118,6 +118,13 @@ export const EditNTSShipment = () =>
     mtoShipment: mockMtoShipment,
   });
 
+export const EditShipmentAsRetireeSeparatee = () =>
+  renderStory({
+    selectedMoveType: SHIPMENT_OPTIONS.NTSR,
+    isCreatePage: false,
+    mtoShipment: mockMtoShipment,
+  });
+
 export const EditHHGShipmentWithSecondaryAddresses = () => {
   const extendedShipment = {
     ...mockMtoShipment,
