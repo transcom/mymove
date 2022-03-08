@@ -80,6 +80,13 @@ const mockPreExistingShipmentWithProGear = {
   eTag: btoa(new Date()),
 };
 
+const mockDispatch = jest.fn();
+
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  useDispatch: jest.fn().mockImplementation(() => mockDispatch),
+}));
+
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useHistory: () => ({
@@ -96,11 +103,6 @@ jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   getResponseError: jest.fn(),
   patchMTOShipment: jest.fn(),
-}));
-
-jest.mock('store/entities/actions', () => ({
-  ...jest.requireActual('store/entities/actions'),
-  updateMTOShipment: jest.fn(),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -301,7 +303,7 @@ describe('EstimatedWeightsProGear page', () => {
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     userEvent.click(saveButton);
 
-    await waitFor(() => expect(updateMTOShipment).toHaveBeenCalledWith(mockPreExistingShipment));
+    await waitFor(() => expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment(mockPreExistingShipment)));
   });
 
   it('routes to the estimated incentive page when the user clicks save & continue', async () => {

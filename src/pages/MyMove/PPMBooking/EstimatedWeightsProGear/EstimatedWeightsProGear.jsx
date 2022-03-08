@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
+import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { customerRoutes } from 'constants/routes';
 import EstimatedWeightsProGearForm from 'components/Customer/PPMBooking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
 import { shipmentTypes } from 'constants/shipments';
@@ -19,6 +20,7 @@ const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState();
   const history = useHistory();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
+  const dispatch = useDispatch();
 
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const orders = useSelector((state) => selectCurrentOrders(state));
@@ -46,7 +48,7 @@ const EstimatedWeightsProGear = () => {
     patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
       .then((response) => {
         setSubmitting(false);
-        updateMTOShipment(response);
+        dispatch(updateMTOShipment(response));
         history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
       })
       .catch((err) => {
@@ -57,7 +59,7 @@ const EstimatedWeightsProGear = () => {
   };
 
   return (
-    <div>
+    <div className={ppmBookingPageStyles.PPMBookingPage}>
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

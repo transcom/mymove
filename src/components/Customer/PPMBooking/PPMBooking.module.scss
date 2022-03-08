@@ -11,6 +11,14 @@
       width: unset;
     }
 
+    :global(.usa-form-group--error) {
+      @include u-margin-top(2);
+    }
+
+    :global(.usa-form-group.warning) {
+      @include u-margin-left('neg-205')
+    }
+
     // last section wrapper on mobile shouldn't render divider
     @include at-media-max('tablet') {
       .sectionWrapper:nth-last-child(2) {
