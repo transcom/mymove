@@ -190,7 +190,7 @@ describe('EditOrdersForm component', () => {
     it.each([
       ['Orders type', true, HTMLSelectElement],
       ['Orders date', true, HTMLInputElement],
-      ['Report-by date', true, HTMLInputElement],
+      ['Report by date', true, HTMLInputElement],
       ['Yes', false, HTMLInputElement],
       ['No', false, HTMLInputElement],
       ['New duty location', false, HTMLInputElement],
@@ -255,7 +255,7 @@ describe('EditOrdersForm component', () => {
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     userEvent.click(screen.getByLabelText('No'));
 
     // Test duty station Search Box interaction
@@ -319,7 +319,7 @@ describe('EditOrdersForm component', () => {
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
@@ -421,7 +421,7 @@ describe('EditOrdersForm component', () => {
 
       expect(screen.getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
       expect(screen.getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
-      expect(screen.getByLabelText('Report-by date')).toHaveValue('26 Nov 2020');
+      expect(screen.getByLabelText('Report by date')).toHaveValue('26 Nov 2020');
       expect(screen.getByLabelText('Yes')).not.toBeChecked();
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();

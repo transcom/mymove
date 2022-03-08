@@ -130,4 +130,16 @@ describe('formatters', () => {
       expect(formatters.formatDelimitedNumber('1,234.56')).toEqual(1234.56);
     });
   });
+
+  describe('formatLabelReportByDate', () => {
+    it('returns the correct label for RETIREMENT', () => {
+      expect(formatters.formatLabelReportByDate('RETIREMENT')).toEqual('Date of retirement');
+    });
+    it('returns the correct label for SEPARATION', () => {
+      expect(formatters.formatLabelReportByDate('SEPARATION')).toEqual('Date of separation');
+    });
+    it('returns a default label for all other values', () => {
+      expect(formatters.formatLabelReportByDate('test')).toEqual('Report by date');
+    });
+  });
 });

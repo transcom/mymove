@@ -15,6 +15,7 @@ import { DropdownArrayOf, ExistingUploadsShape } from 'types';
 import { DutyStationShape } from 'types/dutyStation';
 import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import { formatLabelReportByDate } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 
 const EditOrdersForm = ({
@@ -63,7 +64,7 @@ const EditOrdersForm = ({
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-      {({ isValid, isSubmitting, handleSubmit }) => {
+      {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
           <Form className={formStyles.form}>
             <img src={profileImage} alt="" />
@@ -93,7 +94,7 @@ const EditOrdersForm = ({
                   </>
                 )}
               />
-              <DatePickerInput name="report_by_date" label="Report-by date" required />
+              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
               <FormGroup>
                 <Label>Are dependents included in your orders?</Label>
                 <div>
