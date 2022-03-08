@@ -43,7 +43,7 @@ type Order struct {
 	OrdersTypeDetail            *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents               bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear            bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
-	OriginDutyLocation          *DutyLocation                      `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
+	OriginDutyLocation          *DutyLocation                      `belongs_to:"duty_locations" fk_id:"origin_duty_station_id"`
 	OriginDutyLocationID        *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 	NewDutyStationID            uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
 	NewDutyStation              DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_station_id"`
