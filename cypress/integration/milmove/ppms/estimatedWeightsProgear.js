@@ -10,7 +10,7 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   });
 
   // estimated_weights@ppm.unsubmitted
-  const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
+  const userId = '1dc93d47-0f3e-4686-9dcf-5d940d0d3ed9';
   it('doesn’t allow SM to progress if form is in an invalid state', () => {
     cy.apiSignInAsUser(userId);
     customerChoosesAPPMMove();
