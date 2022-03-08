@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
@@ -50,68 +51,70 @@ type UpdateMTOServiceItemStatusHandler struct {
 
 // Handle handler that handles the handling for updating service item status
 func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.UpdateMTOServiceItemStatusParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	existingMTOServiceItem := models.MTOServiceItem{}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			existingMTOServiceItem := models.MTOServiceItem{}
 
-	mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
-	// return parsing errors
-	if err != nil {
-		parsingError := fmt.Errorf("UUID parsing failed for mtoServiceItem: %w", err).Error()
-		appCtx.Logger().Error(parsingError)
-		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+			mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
+			// return parsing errors
+			if err != nil {
+				parsingError := fmt.Errorf("UUID parsing failed for mtoServiceItem: %w", err).Error()
+				appCtx.Logger().Error(parsingError)
+				payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 
-		return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
-	}
+				return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
+			}
 
-	// Fetch the existing service item
-	filter := []services.QueryFilter{query.NewQueryFilter("id", "=", mtoServiceItemID)}
-	err = h.Fetcher.FetchRecord(appCtx, &existingMTOServiceItem, filter)
+			// Fetch the existing service item
+			filter := []services.QueryFilter{query.NewQueryFilter("id", "=", mtoServiceItemID)}
+			err = h.Fetcher.FetchRecord(appCtx, &existingMTOServiceItem, filter)
 
-	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error finding MTOServiceItem for status update with ID: %s", mtoServiceItemID), zap.Error(err))
-		return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound()
-	}
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("Error finding MTOServiceItem for status update with ID: %s", mtoServiceItemID), zap.Error(err))
+				return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound()
+			}
 
-	// Capture update attempt in audit log
-	_, err = audit.Capture(appCtx, &existingMTOServiceItem, nil, params.HTTPRequest)
-	if err != nil {
-		appCtx.Logger().Error("Auditing service error for service item update.", zap.Error(err))
-		return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
-	}
+			// Capture update attempt in audit log
+			_, err = audit.Capture(appCtx, &existingMTOServiceItem, nil, params.HTTPRequest)
+			if err != nil {
+				appCtx.Logger().Error("Auditing service error for service item update.", zap.Error(err))
+				return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
+			}
 
-	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.ApproveOrRejectServiceItem(appCtx, mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
+			updatedMTOServiceItem, err := h.MTOServiceItemUpdater.ApproveOrRejectServiceItem(appCtx, mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
 
-	if err != nil {
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.PreconditionFailedError:
-			return mtoserviceitemop.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
-		default:
-			appCtx.Logger().Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", mtoServiceItemID, err))
-			return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
-		}
-	}
+			if err != nil {
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.PreconditionFailedError:
+					return mtoserviceitemop.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
+				default:
+					appCtx.Logger().Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", mtoServiceItemID, err))
+					return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
+				}
+			}
 
-	// trigger webhook event for Prime
-	_, err = event.TriggerEvent(event.Event{
-		EventKey:        event.MTOServiceItemUpdateEventKey,
-		MtoID:           existingMTOServiceItem.MoveTaskOrder.ID,
-		UpdatedObjectID: existingMTOServiceItem.ID,
-		EndpointKey:     event.GhcUpdateMTOServiceItemStatusEndpointKey,
-		AppContext:      appCtx,
-		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
-	})
+			// trigger webhook event for Prime
+			_, err = event.TriggerEvent(event.Event{
+				EventKey:        event.MTOServiceItemUpdateEventKey,
+				MtoID:           existingMTOServiceItem.MoveTaskOrder.ID,
+				UpdatedObjectID: existingMTOServiceItem.ID,
+				EndpointKey:     event.GhcUpdateMTOServiceItemStatusEndpointKey,
+				AppContext:      appCtx,
+				TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
+			})
 
-	if err != nil {
-		appCtx.Logger().Error("ghcapi.UpdateMTOServiceItemStatusHandler could not generate the event")
-	}
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.UpdateMTOServiceItemStatusHandler could not generate the event")
+			}
 
-	payload := payloads.MTOServiceItemModel(updatedMTOServiceItem)
-	return mtoserviceitemop.NewUpdateMTOServiceItemStatusOK().WithPayload(payload)
+			payload := payloads.MTOServiceItemModel(updatedMTOServiceItem)
+			return mtoserviceitemop.NewUpdateMTOServiceItemStatusOK().WithPayload(payload)
+		})
 }
 
 // ListMTOServiceItemsHandler struct that describes listing service items for the move task order
