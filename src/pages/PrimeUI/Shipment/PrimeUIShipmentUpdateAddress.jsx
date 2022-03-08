@@ -12,7 +12,7 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from 'constants/routes';
-import { addressSchema, requiredAddressSchema } from 'utils/validation';
+import { addressSchema } from 'utils/validation';
 import scrollToTop from 'shared/scrollToTop';
 import { updatePrimeMTOShipmentAddress } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
@@ -23,7 +23,7 @@ import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
 const updatePickupAddressSchema = Yup.object().shape({
   addressID: Yup.string(),
   pickupAddress: Yup.object().shape({
-    address: requiredAddressSchema,
+    address: addressSchema,
   }),
   eTag: Yup.string(),
 });
