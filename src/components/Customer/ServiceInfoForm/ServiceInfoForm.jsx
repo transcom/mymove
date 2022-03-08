@@ -16,7 +16,7 @@ import { dropdownInputOptions } from 'shared/formatters';
 import formStyles from 'styles/form.module.scss';
 import { DutyStationShape } from 'types/dutyStation';
 
-const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyStation }) => {
+const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const rankOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -30,12 +30,12 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyStation }) 
       .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
       .required('Required'),
     rank: Yup.mixed().oneOf(Object.keys(ORDERS_RANK_OPTIONS)).required('Required'),
-    current_station: Yup.object()
+    current_location: Yup.object()
       .required('Required')
       .test(
         'existing and new duty location should not match',
         'You entered the same duty location for your origin and destination. Please change one of them.',
-        (value) => value?.id !== newDutyStation?.id,
+        (value) => value?.id !== newDutyLocation?.id,
       ),
   });
 
@@ -96,7 +96,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyStation }) 
                 </Grid>
               </Grid>
 
-              <DutyStationInput label="Current duty location" name="current_station" id="current_station" required />
+              <DutyStationInput label="Current duty location" name="current_location" id="current_location" required />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -116,15 +116,15 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyStation }) 
 
 ServiceInfoForm.propTypes = {
   initialValues: PropTypes.shape({
-    current_station: DutyStationShape,
+    current_location: DutyStationShape,
   }).isRequired,
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  newDutyStation: DutyStationShape,
+  newDutyLocation: DutyStationShape,
 };
 
 ServiceInfoForm.defaultProps = {
-  newDutyStation: {},
+  newDutyLocation: {},
 };
 
 export default ServiceInfoForm;

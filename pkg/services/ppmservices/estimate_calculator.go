@@ -43,7 +43,7 @@ func (e *estimateCalculator) CalculateEstimates(appCtx appcontext.AppContext, pp
 		daysInSIT = int(*ppm.DaysInStorage)
 	}
 
-	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
+	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyLocation.Address.PostalCode
 	destinationDutyStationZip := ppm.Move.Orders.NewDutyLocation.Address.PostalCode
 
 	distanceMilesFromOriginPickupZip, err := e.planner.Zip5TransitDistanceLineHaul(appCtx, *ppm.PickupPostalCode, destinationDutyStationZip)

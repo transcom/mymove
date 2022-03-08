@@ -40,15 +40,15 @@ export const OrderShape = PropTypes.shape({
   order_type_detail: PropTypes.string,
   tac: PropTypes.string,
   sac: PropTypes.string,
-  destinationDutyStation: DestinationDutyStationShape,
-  originDutyStation: OriginDutyStationShape,
+  destinationDutyLocation: DestinationDutyStationShape,
+  originDutyLocation: OriginDutyStationShape,
   entitlement: EntitlementShape,
 });
 
 export const OrdersInfoShape = PropTypes.shape({
   id: PropTypes.string,
-  currentDutyStation: OriginDutyStationShape,
-  newDutyStation: DestinationDutyStationShape,
+  currentDutyLocation: OriginDutyStationShape,
+  newDutyLocation: DestinationDutyStationShape,
   issuedDate: PropTypes.string,
   reportByDate: PropTypes.string,
   departmentIndicator: PropTypes.string,

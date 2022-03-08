@@ -9,10 +9,10 @@ const props = {
   order: {
     agency: 'NAVY',
     grade: 'E_6',
-    originDutyStation: {
+    originDutyLocation: {
       name: 'JBSA Lackland',
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       name: 'JB Lewis-McChord',
     },
     report_by_date: '2018-08-01',
@@ -26,10 +26,10 @@ const propsRetiree = {
     agency: 'NAVY',
     grade: 'E_6',
     order_type: 'RETIREMENT',
-    originDutyStation: {
+    originDutyLocation: {
       name: 'JBSA Lackland',
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       name: 'JB Lewis-McChord',
     },
     report_by_date: '2018-08-01',

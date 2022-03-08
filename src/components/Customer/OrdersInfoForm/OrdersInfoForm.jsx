@@ -12,6 +12,7 @@ import formStyles from 'styles/form.module.scss';
 import { DutyStationShape } from 'types/dutyStation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import { formatLabelReportByDate } from 'utils/formatters';
 
 const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
@@ -25,7 +26,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    new_duty_station: Yup.object()
+    new_duty_location: Yup.object()
       .shape({
         name: Yup.string().notOneOf(
           [currentStation?.name],
@@ -38,7 +39,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit }) => {
+      {({ isValid, values, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Tell us about your move orders</h1>
@@ -58,7 +59,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                   </>
                 )}
               />
-              <DatePickerInput name="report_by_date" label="Report-by date" required />
+              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
               <FormGroup>
                 <Label>Are dependents included in your orders?</Label>
                 <div>
@@ -82,7 +83,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                   />
                 </div>
               </FormGroup>
-              <DutyStationInput name="new_duty_station" label="New duty location" displayAddress={false} />
+              <DutyStationInput name="new_duty_location" label="New duty location" displayAddress={false} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -106,7 +107,7 @@ OrdersInfoForm.propTypes = {
     issue_date: PropTypes.string,
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
-    new_duty_station: PropTypes.shape({}),
+    new_duty_location: PropTypes.shape({}),
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,

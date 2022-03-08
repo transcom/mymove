@@ -92,6 +92,7 @@ const ExpandableServiceItemRow = ({
               totalAmountRequested={serviceItem.priceCents}
               serviceItemParams={serviceItem.paymentServiceItemParams}
               additionalServiceItemData={additionalServiceItemData}
+              shipmentType={serviceItem.mtoShipmentType}
             />
           </td>
         </tr>

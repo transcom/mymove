@@ -60,7 +60,7 @@ describe('EditServiceInfo page', () => {
       affiliation: 'NAVY',
       edipi: '1234567890',
       rank: 'E_5',
-      current_station: {
+      current_location: {
         address: {
           city: 'Test City',
           id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
@@ -87,7 +87,7 @@ describe('EditServiceInfo page', () => {
         currentOrders={{
           has_dependents: false,
           grade: testServiceMemberValues.rank,
-          origin_duty_station: testServiceMemberValues.current_station,
+          origin_duty_location: testServiceMemberValues.current_location,
         }}
       />,
     );
@@ -119,7 +119,7 @@ describe('EditServiceInfo page', () => {
       affiliation: 'NAVY',
       edipi: '1234567890',
       rank: 'E_5',
-      current_station: {
+      current_location: {
         address: {
           city: 'Test City',
           id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
@@ -147,7 +147,7 @@ describe('EditServiceInfo page', () => {
       affiliation: 'NAVY',
       edipi: '1234567890',
       rank: 'E_2',
-      current_station: {
+      current_location: {
         address: {
           city: 'Test City',
           id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
@@ -178,7 +178,7 @@ describe('EditServiceInfo page', () => {
         currentOrders={{
           grade: testServiceMemberValues.rank,
           has_dependents: true,
-          origin_duty_station: testServiceMemberValues.current_station,
+          origin_duty_location: testServiceMemberValues.current_location,
         }}
       />,
     );
@@ -213,7 +213,7 @@ describe('EditServiceInfo page', () => {
       affiliation: 'NAVY',
       edipi: '1234567890',
       rank: 'E_5',
-      current_station: {
+      current_location: {
         address: {
           city: 'Test City',
           id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
@@ -254,7 +254,7 @@ describe('EditServiceInfo page', () => {
         serviceMember={testServiceMemberValues}
         currentOrders={{
           grade: testServiceMemberValues.rank,
-          origin_duty_station: testServiceMemberValues.current_station,
+          origin_duty_location: testServiceMemberValues.current_location,
         }}
       />,
     );

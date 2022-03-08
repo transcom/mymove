@@ -1,0 +1,18 @@
+@import 'shared/styles/_basics';
+
+.EstimatedIncentive {
+  @include u-margin-top(2.5);
+
+  :global(.container) {
+    @include u-margin-x(0);
+    @include u-margin-top(5);
+  }
+
+  @include at-media-max(mobile-lg) {
+    @include u-margin-top(.5);
+
+    h2 {
+      @include u-margin-top(3);
+    }
+  }
+}

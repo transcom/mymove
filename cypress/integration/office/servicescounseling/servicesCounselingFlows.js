@@ -153,8 +153,8 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="edit-allowances"]').click();
 
     // the form
-    cy.get('[data-testid="proGearWeightInput"]').clear().type('1999');
-    cy.get('[data-testid="sitInput"]').clear().type('199');
+    cy.get('[data-testid="proGearWeightInput"]').focus().clear().type('1999').blur();
+    cy.get('[data-testid="sitInput"]').focus().clear().type('199').blur();
 
     // Edit allowances page | Save
     cy.get('[data-testid="scAllowancesSave"]').click();

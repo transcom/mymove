@@ -17,7 +17,7 @@ import {
 } from 'store/entities/selectors';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { LocationShape } from 'types/index';
-import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation';
+import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation';
 
 export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
@@ -47,7 +47,7 @@ export class CreateOrEditMtoShipment extends Component {
           <DateAndLocation
             mtoShipment={mtoShipment}
             serviceMember={serviceMember}
-            destinationDutyLocation={orders.new_duty_station}
+            destinationDutyLocation={orders.new_duty_location}
           />
         );
       }
@@ -121,7 +121,7 @@ function mapStateToProps(state, ownProps) {
     orders: selectCurrentOrders(state) || {},
     mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
-    newDutyStationAddress: selectCurrentOrders(state)?.new_duty_station?.address || {},
+    newDutyStationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
   };
 
   return props;

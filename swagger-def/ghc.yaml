@@ -2537,9 +2537,9 @@ definitions:
         $ref: 'definitions/Affiliation.yaml'
       entitlement:
         $ref: '#/definitions/Entitlements'
-      destinationDutyStation:
+      destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
-      originDutyStation:
+      originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2626,11 +2626,11 @@ definitions:
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
-      originDutyStationId:
+      originDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      newDutyStationId:
+      newDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2659,8 +2659,8 @@ definitions:
       - issueDate
       - reportByDate
       - ordersType
-      - originDutyStationId
-      - newDutyStationId
+      - originDutyLocationId
+      - newDutyLocationId
   UpdateOrderPayload:
     type: object
     properties:
@@ -2680,11 +2680,11 @@ definitions:
         $ref: '#/definitions/OrdersType'
       ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
-      originDutyStationId:
+      originDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      newDutyStationId:
+      newDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2725,8 +2725,8 @@ definitions:
       - issueDate
       - reportByDate
       - ordersType
-      - newDutyStationId
-      - originDutyStationId
+      - newDutyLocationId
+      - originDutyLocationId
   UpdateAllowancePayload:
     type: object
     properties:

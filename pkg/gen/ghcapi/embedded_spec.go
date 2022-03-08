@@ -3318,8 +3318,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "originDutyStationId",
-        "newDutyStationId"
+        "originDutyLocationId",
+        "newDutyLocationId"
       ],
       "properties": {
         "issueDate": {
@@ -3329,7 +3329,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -3349,7 +3349,7 @@ func init() {
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -4741,7 +4741,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
@@ -4806,7 +4806,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
@@ -5471,6 +5471,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -5747,8 +5748,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "newDutyStationId",
-        "originDutyStationId"
+        "newDutyLocationId",
+        "originDutyLocationId"
       ],
       "properties": {
         "departmentIndicator": {
@@ -5762,7 +5763,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -5796,7 +5797,7 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -10186,8 +10187,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "originDutyStationId",
-        "newDutyStationId"
+        "originDutyLocationId",
+        "newDutyLocationId"
       ],
       "properties": {
         "issueDate": {
@@ -10197,7 +10198,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -10217,7 +10218,7 @@ func init() {
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -11609,7 +11610,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
@@ -11674,7 +11675,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
@@ -12342,6 +12343,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -12622,8 +12624,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "newDutyStationId",
-        "originDutyStationId"
+        "newDutyLocationId",
+        "originDutyLocationId"
       ],
       "properties": {
         "departmentIndicator": {
@@ -12637,7 +12639,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -12671,7 +12673,7 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"

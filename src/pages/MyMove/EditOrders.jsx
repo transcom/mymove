@@ -47,7 +47,7 @@ export const EditOrders = ({
     issue_date: currentOrders?.issue_date || '',
     report_by_date: currentOrders?.report_by_date || '',
     has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
-    new_duty_station: currentOrders?.new_duty_station || null,
+    new_duty_location: currentOrders?.new_duty_location || null,
     uploaded_orders: existingUploads || [],
   };
 
@@ -89,14 +89,14 @@ export const EditOrders = ({
   const submitOrders = (fieldValues) => {
     const hasDependents = fieldValues.has_dependents === 'yes';
     const entitlementCouldChange = hasDependents !== currentOrders.has_dependents;
-    const newDutyStationId = fieldValues.new_duty_station.id;
+    const newDutyStationId = fieldValues.new_duty_location.id;
 
     return patchOrders({
       ...fieldValues,
       id: currentOrders.id,
       service_member_id: serviceMember.id,
       has_dependents: hasDependents,
-      new_duty_station_id: newDutyStationId,
+      new_duty_location_id: newDutyStationId,
       // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the
       // ppm office edit orders
       spouse_has_pro_gear: currentOrders.spouse_has_pro_gear,
@@ -160,7 +160,7 @@ export const EditOrders = ({
                 onUploadComplete={handleUploadComplete}
                 onDelete={handleDeleteFile}
                 ordersTypeOptions={ordersTypeOptions}
-                currentStation={serviceMember.current_station}
+                currentStation={serviceMember.current_location}
                 onCancel={handleCancel}
               />
             </div>

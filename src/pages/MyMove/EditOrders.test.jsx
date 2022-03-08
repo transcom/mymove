@@ -31,7 +31,7 @@ describe('EditOrders Page', () => {
     moveIsApproved: false,
     serviceMember: {
       id: 'id123',
-      current_station: {
+      current_location: {
         address: {
           city: 'Fort Bragg',
           country: 'United States',
@@ -63,7 +63,7 @@ describe('EditOrders Page', () => {
       has_dependents: false,
       spouse_has_pro_gear: false,
       grade: 'E_2',
-      new_duty_station: {
+      new_duty_location: {
         address: {
           city: 'Des Moines',
           country: 'US',
