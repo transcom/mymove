@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import MoveHistory from './MoveHistory';
 
@@ -98,37 +98,26 @@ jest.mock('hooks/queries', () => ({
 }));
 
 describe('MoveHistory', () => {
-  const wrapper = mount(
+  render(
     <MockProviders initialEntries={[`/moves/${testMoveLocator}/history`]}>
       <MoveHistory moveCode={testMoveLocator} />,
     </MockProviders>,
   );
 
-  it('should render the h1', () => {
-    expect(wrapper.find('h1').text()).toBe('Move history (2)');
-  });
+  it('renders the different elements of the Move history tab', () => {
+    expect(screen.getByText('Move history (2)')).toBeInTheDocument();
+    expect(screen.getByRole('table')).toBeInTheDocument();
 
-  it('should render the table', () => {
-    expect(wrapper.find('Table').exists()).toBe(true);
-  });
+    expect(screen.getByTestId('Date & Time-0')).toHaveTextContent('09 Mar 22 15:33');
+    expect(screen.getByTestId('eventName-0')).toBeInTheDocument();
+    expect(screen.getByTestId('Details-0')).toBeInTheDocument();
+    expect(screen.getByTestId('user.name-0')).toBeInTheDocument();
 
-  it('should format the column data', () => {
-    const historyRecords = wrapper.find('tbody tr');
+    expect(screen.getByTestId('Date & Time-1')).toHaveTextContent('08 Mar 22 18:28');
+    expect(screen.getByTestId('eventName-1')).toBeInTheDocument();
+    expect(screen.getByTestId('Details-1')).toBeInTheDocument();
+    expect(screen.getByTestId('user.name-1')).toBeInTheDocument();
 
-    const firstRecord = historyRecords.at(0);
-    expect(firstRecord.find({ 'data-testid': 'Date & Time-0' }).text()).toBe('09 Mar 22 15:33');
-    expect(firstRecord.find({ 'data-testid': 'eventName-0' }).exists()).toBe(true);
-    expect(firstRecord.find({ 'data-testid': 'Details-0' }).exists()).toBe(true);
-    expect(firstRecord.find({ 'data-testid': 'user.name-0' }).exists()).toBe(true);
-
-    const secondRecord = historyRecords.at(1);
-    expect(secondRecord.find({ 'data-testid': 'Date & Time-1' }).text()).toBe('08 Mar 22 18:28');
-    expect(secondRecord.find({ 'data-testid': 'eventName-1' }).exists()).toBe(true);
-    expect(secondRecord.find({ 'data-testid': 'Details-1' }).exists()).toBe(true);
-    expect(secondRecord.find({ 'data-testid': 'user.name-1' }).exists()).toBe(true);
-  });
-
-  it('applies the sort to the datetime column in descending direction', () => {
-    expect(wrapper.find({ 'data-testid': 'Date & Time' }).at(0).hasClass('sortDescending')).toBe(true);
+    expect(screen.getByTestId('Date & Time')).toHaveClass('sortDescending');
   });
 });
