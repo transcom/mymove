@@ -2405,6 +2405,23 @@ definitions:
         format: uuid
         type: string
         x-nullable: true
+      sessionUserFirstName:
+        example: foo
+        type: string
+        x-nullable: true
+      sessionUserLastName:
+        example: bar
+        type: string
+        x-nullable: true
+      sessionUserEmail:
+        example: foobar@example.com
+        type: string
+        x-nullable: true
+      sessionUserPhone:
+        format: telephone
+        type: string
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
       eventName:
         description: API endpoint name that was called to make the change
         type: string

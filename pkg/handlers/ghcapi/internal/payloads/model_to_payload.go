@@ -82,6 +82,7 @@ func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 
 // MoveAuditHistory payload
 func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
+
 	payload := &ghcmessages.MoveAuditHistory{
 		Action:          auditHistory.Action,
 		ActionTstampClk: strfmt.DateTime(auditHistory.ActionTstampClk),

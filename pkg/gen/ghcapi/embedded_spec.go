@@ -4550,11 +4550,32 @@ func init() {
           "description": "Database schema audited table for this event is in",
           "type": "string"
         },
+        "sessionUserEmail": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foobar@example.com"
+        },
+        "sessionUserFirstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foo"
+        },
         "sessionUserId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sessionUserLastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "bar"
+        },
+        "sessionUserPhone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         },
         "statementOnly": {
           "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",
@@ -11419,11 +11440,32 @@ func init() {
           "description": "Database schema audited table for this event is in",
           "type": "string"
         },
+        "sessionUserEmail": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foobar@example.com"
+        },
+        "sessionUserFirstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foo"
+        },
         "sessionUserId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sessionUserLastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "bar"
+        },
+        "sessionUserPhone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         },
         "statementOnly": {
           "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",

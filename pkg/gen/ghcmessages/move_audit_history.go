@@ -62,10 +62,26 @@ type MoveAuditHistory struct {
 	// Database schema audited table for this event is in
 	SchemaName string `json:"schemaName,omitempty"`
 
+	// session user email
+	// Example: foobar@example.com
+	SessionUserEmail *string `json:"sessionUserEmail,omitempty"`
+
+	// session user first name
+	// Example: foo
+	SessionUserFirstName *string `json:"sessionUserFirstName,omitempty"`
+
 	// session user Id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	SessionUserID *strfmt.UUID `json:"sessionUserId,omitempty"`
+
+	// session user last name
+	// Example: bar
+	SessionUserLastName *string `json:"sessionUserLastName,omitempty"`
+
+	// session user phone
+	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+	SessionUserPhone *string `json:"sessionUserPhone,omitempty"`
 
 	// true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'
 	// Example: false
@@ -111,6 +127,10 @@ func (m *MoveAuditHistory) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSessionUserID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSessionUserPhone(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -220,6 +240,18 @@ func (m *MoveAuditHistory) validateSessionUserID(formats strfmt.Registry) error 
 	}
 
 	if err := validate.FormatOf("sessionUserId", "body", "uuid", m.SessionUserID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveAuditHistory) validateSessionUserPhone(formats strfmt.Registry) error {
+	if swag.IsZero(m.SessionUserPhone) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("sessionUserPhone", "body", *m.SessionUserPhone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
