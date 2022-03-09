@@ -20,6 +20,11 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
     cy.apiSignInAsUser(userId);
     submitsEstimatedWeights();
   });
+
+  it('can continue to next page with progear added', () => {
+    cy.apiSignInAsUser(userId);
+    submitsEstimatedWeightsAndProgear();
+  });
 });
 
 function invalidInputs() {
@@ -72,7 +77,7 @@ function invalidInputs() {
   cy.get('@errorMessage').should('not.exist');
 }
 
-function submitsEstimatedWeights() {
+function submitsEstimatedWeightsAndProgear() {
   cy.get('[data-testid="shipment-list-item-container"]').click();
   cy.get('button').contains('Save & Continue').click();
 
@@ -81,10 +86,21 @@ function submitsEstimatedWeights() {
   cy.get('input[name="proGearWeight"]').type(500).blur();
   cy.get('button').contains('Save & Continue').should('be.enabled');
 
-  // TODO: once the Estimated Weights Page is updated to be able to navigate to the next page
-  // uncomment out the lines below
-  //   cy.get('button').contains('Save & Continue').click();
-  //   cy.location().should((loc) => {
-  //     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
-  //   });
+  cy.get('button').contains('Save & Continue').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
+  });
+}
+
+function submitsEstimatedWeights() {
+  cy.get('[data-testid="shipment-list-item-container"]').click();
+  cy.get('button').contains('Save & Continue').click();
+
+  cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
+  cy.get('button').contains('Save & Continue').should('be.enabled');
+
+  cy.get('button').contains('Save & Continue').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
+  });
 }
