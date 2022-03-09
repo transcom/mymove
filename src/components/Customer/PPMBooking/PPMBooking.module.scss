@@ -11,12 +11,9 @@
       width: unset;
     }
 
-    :global(.usa-form-group--error) {
-      @include u-margin-top(2);
-    }
-
+    :global(.usa-form-group--error),
     :global(.usa-form-group.warning) {
-      @include u-margin-left('neg-205')
+      @include u-margin-top(2);
     }
 
     // last section wrapper on mobile shouldn't render divider
