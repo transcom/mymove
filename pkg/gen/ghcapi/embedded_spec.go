@@ -4571,7 +4571,7 @@ func init() {
           "x-nullable": true,
           "example": "bar"
         },
-        "sessionUserPhone": {
+        "sessionUserTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -11461,7 +11461,7 @@ func init() {
           "x-nullable": true,
           "example": "bar"
         },
-        "sessionUserPhone": {
+        "sessionUserTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",

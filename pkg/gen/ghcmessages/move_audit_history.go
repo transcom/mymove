@@ -79,9 +79,9 @@ type MoveAuditHistory struct {
 	// Example: bar
 	SessionUserLastName *string `json:"sessionUserLastName,omitempty"`
 
-	// session user phone
+	// session user telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-	SessionUserPhone *string `json:"sessionUserPhone,omitempty"`
+	SessionUserTelephone *string `json:"sessionUserTelephone,omitempty"`
 
 	// true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'
 	// Example: false
@@ -130,7 +130,7 @@ func (m *MoveAuditHistory) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSessionUserPhone(formats); err != nil {
+	if err := m.validateSessionUserTelephone(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -246,12 +246,12 @@ func (m *MoveAuditHistory) validateSessionUserID(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *MoveAuditHistory) validateSessionUserPhone(formats strfmt.Registry) error {
-	if swag.IsZero(m.SessionUserPhone) { // not required
+func (m *MoveAuditHistory) validateSessionUserTelephone(formats strfmt.Registry) error {
+	if swag.IsZero(m.SessionUserTelephone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("sessionUserPhone", "body", *m.SessionUserPhone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("sessionUserTelephone", "body", *m.SessionUserTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 

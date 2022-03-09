@@ -2516,7 +2516,7 @@ definitions:
         example: foobar@example.com
         type: string
         x-nullable: true
-      sessionUserPhone:
+      sessionUserTelephone:
         format: telephone
         type: string
         pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
