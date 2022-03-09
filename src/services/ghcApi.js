@@ -17,8 +17,6 @@ export async function getGHCClient() {
 }
 
 export async function makeGHCRequest(operationPath, params = {}, options = {}) {
-  // eslint-disable-next-line no-console
-  console.log('params: ', params);
   const client = await getGHCClient();
   return makeSwaggerRequest(client, operationPath, params, options);
 }
@@ -32,10 +30,6 @@ export async function getMove(key, locator) {
 }
 
 export async function getMoveHistory(key, { moveCode, sort, order, currentPage = 1, currentPageSize = 20 }) {
-  // const paramFilters = {};
-  // filters.forEach((filter) => {
-  //   paramFilters[`${filter.id}`] = filter.value;
-  // });
   return makeGHCRequest(
     'move.getMoveHistory',
     { locator: moveCode, sort, order, page: currentPage, perPage: currentPageSize },

@@ -1,48 +1,44 @@
 import React from 'react';
 import { string } from 'prop-types';
 
+import styles from './MoveHistory.module.scss';
+
 import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
 import { useGHCGetMoveHistory } from 'hooks/queries';
+import { formatDateFromIso } from 'shared/formatters';
 
-const formatDetails = (changedValue) => {
-  return `${changedValue.columnName}: ${changedValue.columnValue}`;
+const formatChangedValues = (changedValues) => {
+  return changedValues
+    ? changedValues.map((changedValue) => `${changedValue.columnName}: ${changedValue.columnValue}`).join(', ')
+    : '';
 };
 
 const columns = [
-  createHeader('Date & Time', 'actionTstampClk'),
+  createHeader('Date & Time', (row) => formatDateFromIso(`${row.actionTstampClk}`, 'DD MMM YY HH:mm')),
   createHeader('Event', 'eventName'),
-  // createHeader('Details', (row) => `${row.changedValues.map((changedValue) => changedValue.columnName)}`),
-  createHeader('Details', (row) => `${row.changedValues.map((changedValue) => formatDetails(changedValue))}`),
+  createHeader('Details', (row) => formatChangedValues(row.changedValues)),
   createHeader('User', 'user.name'),
 ];
 
-const handleClick = () => {};
-
 const MoveHistory = ({ moveCode }) => {
-  // const { moveHistory, isLoading, isError } = useGHCGetMoveHistory(moveCode);
-
-  // if (isLoading) return <LoadingPlaceholder />;
-  // if (isError) return <SomethingWentWrong />;
-
   const useGetMoveHistoryQuery = ({ sort, order, currentPage, currentPageSize }) => {
     return useGHCGetMoveHistory({ moveCode, sort, order, currentPage, currentPageSize });
   };
 
   return (
-    <TableQueue
-      showFilters={false}
-      showPagination
-      manualSortBy
-      defaultCanSort
-      defaultSortedColumns={[{ id: 'actionTstampClk', desc: true }]}
-      disableMultiSort
-      disableSortBy={false}
-      columns={columns}
-      title="Move history"
-      handleClick={handleClick}
-      useQueries={useGetMoveHistoryQuery}
-    />
+    <div className={styles.MoveHistory}>
+      <TableQueue
+        showFilters={false}
+        showPagination={false}
+        defaultSortedColumns={[{ id: 'Date & Time', desc: true }]}
+        disableSortBy
+        columns={columns}
+        title="Move history"
+        handleClick={() => {}}
+        useQueries={useGetMoveHistoryQuery}
+      />
+    </div>
   );
 };
 
