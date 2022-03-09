@@ -1,8 +1,6 @@
 import React from 'react';
 import { string } from 'prop-types';
 
-import styles from './MoveHistory.module.scss';
-
 import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
 import { useGHCGetMoveHistory } from 'hooks/queries';
@@ -27,18 +25,16 @@ const MoveHistory = ({ moveCode }) => {
   };
 
   return (
-    <div className={styles.MoveHistory}>
-      <TableQueue
-        showFilters={false}
-        showPagination={false}
-        defaultSortedColumns={[{ id: 'Date & Time', desc: true }]}
-        disableSortBy
-        columns={columns}
-        title="Move history"
-        handleClick={() => {}}
-        useQueries={useGetMoveHistoryQuery}
-      />
-    </div>
+    <TableQueue
+      showFilters={false}
+      showPagination={false}
+      defaultSortedColumns={[{ id: 'Date & Time', desc: true }]}
+      disableSortBy
+      columns={columns}
+      title="Move history"
+      handleClick={() => {}}
+      useQueries={useGetMoveHistoryQuery}
+    />
   );
 };
 
