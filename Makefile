@@ -753,15 +753,15 @@ e2e_test_docker: ## Run e2e (end-to-end) integration tests with docker
 
 .PHONY: e2e_test_docker_mymove
 e2e_test_docker_mymove: ## Run e2e (end-to-end) Service Member integration tests with docker
-	$(AWS_VAULT) SPEC=cypress/integration/mymove/**/* ./scripts/run-e2e-test-docker
+	$(AWS_VAULT) SPECS=cypress/integration/mymove/**/* ./scripts/run-e2e-test-docker
 
 .PHONY: e2e_test_docker_office
 e2e_test_docker_office: ## Run e2e (end-to-end) Office integration tests with docker
-	$(AWS_VAULT) SPEC=cypress/integration/office/**/* ./scripts/run-e2e-test-docker
+	$(AWS_VAULT) SPECS=cypress/integration/office/**/* ./scripts/run-e2e-test-docker
 
 .PHONY: e2e_test_docker_api
 e2e_test_docker_api: ## Run e2e (end-to-end) API integration tests with docker
-	$(AWS_VAULT) SPEC=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
+	$(AWS_VAULT) SPECS=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
 
 .PHONY: e2e_clean
 e2e_clean: ## Clean e2e (end-to-end) files and docker images
