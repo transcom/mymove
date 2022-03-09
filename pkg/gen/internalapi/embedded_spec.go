@@ -5328,6 +5328,7 @@ func init() {
         "advance": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
+          "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -12228,6 +12229,7 @@ func init() {
         "advance": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
+          "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },

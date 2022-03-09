@@ -2546,6 +2546,7 @@ definitions:
         description: |
           The amount request for an advance, or null if no advance is requested
         type: integer
+        format: cents
         x-nullable: true
         x-omitempty: false
       eTag:
