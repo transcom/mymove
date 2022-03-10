@@ -57,41 +57,44 @@ type UpdateOrderHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewUpdateOrderNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
-		case apperror.ConflictError:
-			return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.PreconditionFailedError:
-			return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewUpdateOrderInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || (!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
-		return handleError(apperror.NewForbiddenError("is not a TXO"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error updating order", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewUpdateOrderNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
+				case apperror.ConflictError:
+					return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.PreconditionFailedError:
+					return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewUpdateOrderInternalServerError()
+				}
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || (!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
+				return handleError(apperror.NewForbiddenError("is not a TXO"))
+			}
 
-	h.triggerUpdateOrderEvent(appCtx, orderID, moveID, params)
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	orderPayload := payloads.Order(updatedOrder)
+			h.triggerUpdateOrderEvent(appCtx, orderID, moveID, params)
 
-	return orderop.NewUpdateOrderOK().WithPayload(orderPayload)
+			orderPayload := payloads.Order(updatedOrder)
+
+			return orderop.NewUpdateOrderOK().WithPayload(orderPayload)
+		})
 }
 
 // CounselingUpdateOrderHandler updates an order via PATCH /counseling/orders/{orderId}
