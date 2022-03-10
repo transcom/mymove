@@ -69,40 +69,42 @@ type GetPaymentRequestHandler struct {
 
 // Handle gets payment requests
 func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-		appCtx.Logger().Error("user is not authenticated with TIO office role")
-		return paymentrequestop.NewGetPaymentRequestForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+				appCtx.Logger().Error("user is not authenticated with TIO office role")
+				return paymentrequestop.NewGetPaymentRequestForbidden()
+			}
 
-	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
+			paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 
-	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
-		return paymentrequestop.NewGetPaymentRequestInternalServerError()
-	}
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
+				return paymentrequestop.NewGetPaymentRequestInternalServerError()
+			}
 
-	paymentRequest, err := h.FetchPaymentRequest(appCtx, paymentRequestID)
+			paymentRequest, err := h.FetchPaymentRequest(appCtx, paymentRequestID)
 
-	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error fetching Payment Request with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
-		return paymentrequestop.NewGetPaymentRequestNotFound()
-	}
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("Error fetching Payment Request with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
+				return paymentrequestop.NewGetPaymentRequestNotFound()
+			}
 
-	if reflect.DeepEqual(paymentRequest, models.PaymentRequest{}) {
-		appCtx.Logger().Info(fmt.Sprintf("Could not find a Payment Request with ID: %s", params.PaymentRequestID.String()))
-		return paymentrequestop.NewGetPaymentRequestNotFound()
-	}
+			if reflect.DeepEqual(paymentRequest, models.PaymentRequest{}) {
+				appCtx.Logger().Info(fmt.Sprintf("Could not find a Payment Request with ID: %s", params.PaymentRequestID.String()))
+				return paymentrequestop.NewGetPaymentRequestNotFound()
+			}
 
-	returnPayload, err := payloads.PaymentRequest(&paymentRequest, h.FileStorer())
-	if err != nil {
-		return paymentrequestop.NewGetPaymentRequestInternalServerError()
-	}
+			returnPayload, err := payloads.PaymentRequest(&paymentRequest, h.FileStorer())
+			if err != nil {
+				return paymentrequestop.NewGetPaymentRequestInternalServerError()
+			}
 
-	response := paymentrequestop.NewGetPaymentRequestOK().WithPayload(returnPayload)
+			response := paymentrequestop.NewGetPaymentRequestOK().WithPayload(returnPayload)
 
-	return response
+			return response
+		})
 }
 
 // UpdatePaymentRequestStatusHandler updates payment requests status
