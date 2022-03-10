@@ -105,40 +105,42 @@ type CounselingUpdateOrderHandler struct {
 
 // Handle ... updates an order as requested by a services counselor
 func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrderParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewCounselingUpdateOrderNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return orderop.NewCounselingUpdateOrderUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return orderop.NewCounselingUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewCounselingUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewCounselingUpdateOrderInternalServerError()
-		}
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error updating order", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewCounselingUpdateOrderNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return orderop.NewCounselingUpdateOrderUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return orderop.NewCounselingUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewCounselingUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewCounselingUpdateOrderInternalServerError()
+				}
+			}
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsCounselor(appCtx, orderID, *params.Body, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsCounselor(appCtx, orderID, *params.Body, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	h.triggerCounselingUpdateOrderEvent(appCtx, orderID, moveID, params)
+			h.triggerCounselingUpdateOrderEvent(appCtx, orderID, moveID, params)
 
-	orderPayload := payloads.Order(updatedOrder)
+			orderPayload := payloads.Order(updatedOrder)
 
-	return orderop.NewCounselingUpdateOrderOK().WithPayload(orderPayload)
+			return orderop.NewCounselingUpdateOrderOK().WithPayload(orderPayload)
+		})
 }
 
 // UpdateAllowanceHandler updates an order and entitlements via PATCH /orders/{orderId}/allowances
