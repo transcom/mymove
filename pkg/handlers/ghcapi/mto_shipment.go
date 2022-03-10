@@ -35,40 +35,41 @@ type ListMTOShipmentsHandler struct {
 
 // Handle listing mto shipments for the move task order
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("ListMTOShipmentsHandler error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewListMTOShipmentsNotFound().WithPayload(payload)
+				case apperror.ForbiddenError:
+					return mtoshipmentops.NewListMTOShipmentsForbidden().WithPayload(payload)
+				case apperror.QueryError:
+					return mtoshipmentops.NewListMTOShipmentsInternalServerError()
+				default:
+					return mtoshipmentops.NewListMTOShipmentsInternalServerError()
+				}
+			}
 
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("ListMTOShipmentsHandler error", zap.Error(err))
-		payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return mtoshipmentops.NewListMTOShipmentsNotFound().WithPayload(payload)
-		case apperror.ForbiddenError:
-			return mtoshipmentops.NewListMTOShipmentsForbidden().WithPayload(payload)
-		case apperror.QueryError:
-			return mtoshipmentops.NewListMTOShipmentsInternalServerError()
-		default:
-			return mtoshipmentops.NewListMTOShipmentsInternalServerError()
-		}
-	}
+			if !appCtx.Session().IsOfficeUser() || (!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
+				handleError(apperror.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
+			}
 
-	if !appCtx.Session().IsOfficeUser() || (!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
-		handleError(apperror.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
-	}
+			moveID := uuid.FromStringOrNil(params.MoveTaskOrderID.String())
 
-	moveID := uuid.FromStringOrNil(params.MoveTaskOrderID.String())
+			shipments, err := h.ListMTOShipments(appCtx, moveID)
+			if err != nil {
+				return handleError(err)
+			}
+			mtoShipments := models.MTOShipments(shipments)
 
-	shipments, err := h.ListMTOShipments(appCtx, moveID)
-	if err != nil {
-		return handleError(err)
-	}
-	mtoShipments := models.MTOShipments(shipments)
+			shipmentSITStatuses := h.CalculateShipmentsSITStatuses(appCtx, shipments)
 
-	shipmentSITStatuses := h.CalculateShipmentsSITStatuses(appCtx, shipments)
-
-	sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses)
-	payload := payloads.MTOShipments(&mtoShipments, sitStatusPayload)
-	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
+			sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses)
+			payload := payloads.MTOShipments(&mtoShipments, sitStatusPayload)
+			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
+		})
 }
 
 // CreateMTOShipmentHandler is the handler to create MTO shipments
