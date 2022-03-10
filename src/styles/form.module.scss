@@ -116,12 +116,15 @@
     @include u-margin-top('105');
   }
 
+  > :global(p + .usa-form-group:first-of-type .usa-label) {
+    @include u-margin-top(2)
+  }
+
   > :global(.usa-form-group:first-child .usa-label),
   > :global(.usa-form-group--error :first-child),
   > :global(.usa-form-group.warning :first-child),
   > :global(.usa-form-group.warning:first-of-type .usa-label),
-  > :global(.usa-form-group.usa-form-group--error:first-of-type .usa-label),
-  > :global(p + .usa-form-group:first-of-type .usa-label) {
+  > :global(.usa-form-group.usa-form-group--error:first-of-type .usa-label) {
     @include u-margin-top(0);
   }
 
@@ -167,4 +170,8 @@ p + .radioGroup {
 .remarks {
   height: 100px;
   resize: vertical;
+}
+
+.pBeforeFormGroup {
+  @include u-margin-bottom(0)
 }
