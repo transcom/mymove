@@ -117,7 +117,5 @@ describe('MoveHistory', () => {
     expect(screen.getByTestId('eventName-1')).toBeInTheDocument();
     expect(screen.getByTestId('Details-1')).toBeInTheDocument();
     expect(screen.getByTestId('user.name-1')).toBeInTheDocument();
-
-    expect(screen.getByTestId('Date & Time')).toHaveClass('sortDescending');
   });
 });

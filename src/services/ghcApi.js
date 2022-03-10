@@ -29,12 +29,8 @@ export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
 
-export async function getMoveHistory(key, { moveCode, sort, order, currentPage = 1, currentPageSize = 20 }) {
-  return makeGHCRequest(
-    'move.getMoveHistory',
-    { locator: moveCode, sort, order, page: currentPage, perPage: currentPageSize },
-    { normalize: false },
-  );
+export async function getMoveHistory(key, moveCode) {
+  return makeGHCRequest('move.getMoveHistory', { locator: moveCode }, { normalize: false });
 }
 
 export async function getOrder(key, orderID) {

@@ -20,15 +20,14 @@ const columns = [
 ];
 
 const MoveHistory = ({ moveCode }) => {
-  const useGetMoveHistoryQuery = ({ sort, order, currentPage, currentPageSize }) => {
-    return useGHCGetMoveHistory({ moveCode, sort, order, currentPage, currentPageSize });
+  const useGetMoveHistoryQuery = () => {
+    return useGHCGetMoveHistory(moveCode);
   };
 
   return (
     <TableQueue
       showFilters={false}
       showPagination={false}
-      defaultSortedColumns={[{ id: 'Date & Time', desc: true }]}
       disableSortBy
       columns={columns}
       title="Move history"
