@@ -348,49 +348,51 @@ type ApproveShipmentHandler struct {
 
 // Handle approves a shipment
 func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		appCtx.Logger().Error("Only TOO role can approve shipments")
-		return shipmentops.NewApproveShipmentForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				appCtx.Logger().Error("Only TOO role can approve shipments")
+				return shipmentops.NewApproveShipmentForbidden()
+			}
 
-	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	eTag := params.IfMatch
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+			eTag := params.IfMatch
 
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("ghcapi.ApproveShipmentHandler", zap.Error(err))
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("ghcapi.ApproveShipmentHandler", zap.Error(err))
 
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return shipmentops.NewApproveShipmentNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "ApproveShipment", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return shipmentops.NewApproveShipmentUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return shipmentops.NewApproveShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ConflictError, mtoshipment.ConflictStatusError:
-			return shipmentops.NewApproveShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return shipmentops.NewApproveShipmentInternalServerError()
-		}
-	}
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewApproveShipmentNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Validation errors", "ApproveShipment", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return shipmentops.NewApproveShipmentUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewApproveShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ConflictError, mtoshipment.ConflictStatusError:
+					return shipmentops.NewApproveShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return shipmentops.NewApproveShipmentInternalServerError()
+				}
+			}
 
-	shipment, err := h.ApproveShipment(appCtx, shipmentID, eTag)
-	if err != nil {
-		return handleError(err)
-	}
+			shipment, err := h.ApproveShipment(appCtx, shipmentID, eTag)
+			if err != nil {
+				return handleError(err)
+			}
 
-	h.triggerShipmentApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
+			h.triggerShipmentApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
-	if err != nil {
-		return handleError(err)
-	}
-	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			if err != nil {
+				return handleError(err)
+			}
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
-	payload := payloads.MTOShipment(shipment, sitStatusPayload)
-	return shipmentops.NewApproveShipmentOK().WithPayload(payload)
+			payload := payloads.MTOShipment(shipment, sitStatusPayload)
+			return shipmentops.NewApproveShipmentOK().WithPayload(payload)
+		})
 }
 
 func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentParams) {
