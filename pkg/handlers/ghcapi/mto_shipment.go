@@ -569,40 +569,42 @@ type RejectShipmentHandler struct {
 
 // Handle rejects a shipment
 func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		appCtx.Logger().Error("Only TOO role can reject shipments")
-		return shipmentops.NewRejectShipmentForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				appCtx.Logger().Error("Only TOO role can reject shipments")
+				return shipmentops.NewRejectShipmentForbidden()
+			}
 
-	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	eTag := params.IfMatch
-	rejectionReason := params.Body.RejectionReason
-	shipment, err := h.RejectShipment(appCtx, shipmentID, eTag, rejectionReason)
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+			eTag := params.IfMatch
+			rejectionReason := params.Body.RejectionReason
+			shipment, err := h.RejectShipment(appCtx, shipmentID, eTag, rejectionReason)
 
-	if err != nil {
-		appCtx.Logger().Error("ghcapi.RejectShipmentHandler", zap.Error(err))
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.RejectShipmentHandler", zap.Error(err))
 
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return shipmentops.NewRejectShipmentNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "RejectShipment", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return shipmentops.NewRejectShipmentUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return shipmentops.NewRejectShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case mtoshipment.ConflictStatusError:
-			return shipmentops.NewRejectShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return shipmentops.NewRejectShipmentInternalServerError()
-		}
-	}
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewRejectShipmentNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Validation errors", "RejectShipment", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return shipmentops.NewRejectShipmentUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewRejectShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case mtoshipment.ConflictStatusError:
+					return shipmentops.NewRejectShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return shipmentops.NewRejectShipmentInternalServerError()
+				}
+			}
 
-	h.triggerShipmentRejectionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
+			h.triggerShipmentRejectionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-	payload := payloads.MTOShipment(shipment, nil)
-	return shipmentops.NewRejectShipmentOK().WithPayload(payload)
+			payload := payloads.MTOShipment(shipment, nil)
+			return shipmentops.NewRejectShipmentOK().WithPayload(payload)
+		})
 }
 
 func (h RejectShipmentHandler) triggerShipmentRejectionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RejectShipmentParams) {
