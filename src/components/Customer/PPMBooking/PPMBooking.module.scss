@@ -65,6 +65,10 @@
     @include u-margin-top(0);
   }
 
+  .innerHint {
+    @include u-margin-top(1);
+  }
+
   .hint {
     @include u-margin-top(2);
   }

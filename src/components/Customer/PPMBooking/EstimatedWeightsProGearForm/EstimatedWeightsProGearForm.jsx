@@ -81,6 +81,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                       ? 'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.'
                       : ''
                   }
+                  hintClassName={ppmBookingStyles.innerHint}
                 />
 
                 <p>
