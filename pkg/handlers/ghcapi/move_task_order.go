@@ -188,52 +188,54 @@ type UpdateMTOReviewedBillableWeightsAtHandlerFunc struct {
 
 // Handle updates the timestamp for a Move's (MoveTaskOrder's) ReviewedBillableWeightsAt field
 func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskorderops.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	eTag := params.IfMatch
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			eTag := params.IfMatch
 
-	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	mto, err := h.moveTaskOrderStatusUpdater.UpdateReviewedBillableWeightsAt(appCtx, moveTaskOrderID, eTag)
+			mto, err := h.moveTaskOrderStatusUpdater.UpdateReviewedBillableWeightsAt(appCtx, moveTaskOrderID, eTag)
 
-	if err != nil {
-		appCtx.Logger().Error("ghcapi.UpdateMTOReviewedBillableWeightsAtHandlerFunc error", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ConflictError:
-			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError()
-		}
-	}
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.UpdateMTOReviewedBillableWeightsAtHandlerFunc error", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ConflictError:
+					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError()
+				}
+			}
 
-	moveTaskOrderPayload := payloads.Move(mto)
+			moveTaskOrderPayload := payloads.Move(mto)
 
-	// Audit
-	_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
-	if err != nil {
-		appCtx.Logger().Error("Auditing service error updating the move's billableWeightsReviewedAt field.", zap.Error(err))
-		return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError()
-	}
+			// Audit
+			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
+			if err != nil {
+				appCtx.Logger().Error("Auditing service error updating the move's billableWeightsReviewedAt field.", zap.Error(err))
+				return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError()
+			}
 
-	_, err = event.TriggerEvent(event.Event{
-		EventKey:        event.MoveTaskOrderUpdateEventKey,
-		MtoID:           mto.ID,
-		UpdatedObjectID: mto.ID,
-		EndpointKey:     event.GhcUpdateMTOReviewedBillableWeightsEndpointKey,
-		AppContext:      appCtx,
-		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
-	})
-	if err != nil {
-		appCtx.Logger().Error("ghcapi.UpdateMTOReviewedBillableWeightsAtHandlerFunc could not generate the event")
-	}
+			_, err = event.TriggerEvent(event.Event{
+				EventKey:        event.MoveTaskOrderUpdateEventKey,
+				MtoID:           mto.ID,
+				UpdatedObjectID: mto.ID,
+				EndpointKey:     event.GhcUpdateMTOReviewedBillableWeightsEndpointKey,
+				AppContext:      appCtx,
+				TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
+			})
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.UpdateMTOReviewedBillableWeightsAtHandlerFunc could not generate the event")
+			}
 
-	return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtOK().WithPayload(moveTaskOrderPayload)
+			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtOK().WithPayload(moveTaskOrderPayload)
+		})
 }
 
 // UpdateMoveTIORemarksHandlerFunc updates a Move's (MoveTaskOrder's) TIORemarks field
