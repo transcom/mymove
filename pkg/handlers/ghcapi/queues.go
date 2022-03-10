@@ -156,63 +156,65 @@ type GetServicesCounselingQueueHandler struct {
 
 // Handle returns the paginated list of moves for the services counselor
 func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		appCtx.Logger().Error("user is not authenticated with an office role")
-		return queues.NewGetServicesCounselingQueueForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				appCtx.Logger().Error("user is not authenticated with an office role")
+				return queues.NewGetServicesCounselingQueueForbidden()
+			}
 
-	ListOrderParams := services.ListOrderParams{
-		Branch:             params.Branch,
-		Locator:            params.Locator,
-		DodID:              params.DodID,
-		LastName:           params.LastName,
-		OriginDutyLocation: params.OriginDutyLocation,
-		OriginGBLOC:        params.OriginGBLOC,
-		SubmittedAt:        handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
-		RequestedMoveDate:  params.RequestedMoveDate,
-		Page:               params.Page,
-		PerPage:            params.PerPage,
-		Sort:               params.Sort,
-		Order:              params.Order,
-	}
+			ListOrderParams := services.ListOrderParams{
+				Branch:             params.Branch,
+				Locator:            params.Locator,
+				DodID:              params.DodID,
+				LastName:           params.LastName,
+				OriginDutyLocation: params.OriginDutyLocation,
+				OriginGBLOC:        params.OriginGBLOC,
+				SubmittedAt:        handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
+				RequestedMoveDate:  params.RequestedMoveDate,
+				Page:               params.Page,
+				PerPage:            params.PerPage,
+				Sort:               params.Sort,
+				Order:              params.Order,
+			}
 
-	if len(params.Status) == 0 {
-		ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
-	} else {
-		ListOrderParams.Status = params.Status
-	}
+			if len(params.Status) == 0 {
+				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
+			} else {
+				ListOrderParams.Status = params.Status
+			}
 
-	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
-	// for perPage.
-	if params.Page == nil {
-		ListOrderParams.Page = swag.Int64(1)
-	}
-	// Same for perPage
-	if params.PerPage == nil {
-		ListOrderParams.PerPage = swag.Int64(20)
-	}
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+			// for perPage.
+			if params.Page == nil {
+				ListOrderParams.Page = swag.Int64(1)
+			}
+			// Same for perPage
+			if params.PerPage == nil {
+				ListOrderParams.PerPage = swag.Int64(20)
+			}
 
-	moves, count, err := h.OrderFetcher.ListOrders(
-		appCtx,
-		appCtx.Session().OfficeUserID,
-		&ListOrderParams,
-	)
+			moves, count, err := h.OrderFetcher.ListOrders(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				&ListOrderParams,
+			)
 
-	if err != nil {
-		appCtx.Logger().Error("error fetching list of moves for office user", zap.Error(err))
-		return queues.NewGetServicesCounselingQueueInternalServerError()
-	}
+			if err != nil {
+				appCtx.Logger().Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError()
+			}
 
-	queueMoves := payloads.QueueMoves(moves)
+			queueMoves := payloads.QueueMoves(moves)
 
-	result := &ghcmessages.QueueMovesResult{
-		Page:       *ListOrderParams.Page,
-		PerPage:    *ListOrderParams.PerPage,
-		TotalCount: int64(count),
-		QueueMoves: *queueMoves,
-	}
+			result := &ghcmessages.QueueMovesResult{
+				Page:       *ListOrderParams.Page,
+				PerPage:    *ListOrderParams.PerPage,
+				TotalCount: int64(count),
+				QueueMoves: *queueMoves,
+			}
 
-	return queues.NewGetServicesCounselingQueueOK().WithPayload(result)
+			return queues.NewGetServicesCounselingQueueOK().WithPayload(result)
+		})
 }
