@@ -71,8 +71,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 		})
 		suite.NoError(err)
 
-		fmt.Printf("zip5 distance %s\n", distance)
-
 		planner := suite.planner.(*mocks.Planner)
 		planner.AssertCalled(suite.T(), "Zip5TransitDistance", mock.Anything, ppmShipment.PickupPostalCode, ppmShipment.DestinationPostalCode)
 
