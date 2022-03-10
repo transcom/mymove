@@ -805,47 +805,50 @@ type ApproveSITExtensionHandler struct {
 
 // Handle ... approves the SIT extension
 func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensionParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error approving SIT extension", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return shipmentops.NewApproveSITExtensionNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return shipmentops.NewApproveSITExtensionUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return shipmentops.NewApproveSITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return shipmentops.NewApproveSITExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return shipmentops.NewApproveSITExtensionInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(apperror.NewForbiddenError("is not a TOO"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error approving SIT extension", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewApproveSITExtensionNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return shipmentops.NewApproveSITExtensionUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewApproveSITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return shipmentops.NewApproveSITExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return shipmentops.NewApproveSITExtensionInternalServerError()
+				}
+			}
 
-	shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
-	sitExtensionID := uuid.FromStringOrNil(string(params.SitExtensionID))
-	approvedDays := int(*params.Body.ApprovedDays)
-	officeRemarks := params.Body.OfficeRemarks
-	updatedShipment, err := h.SITExtensionApprover.ApproveSITExtension(appCtx, shipmentID, sitExtensionID, approvedDays, officeRemarks, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				return handleError(apperror.NewForbiddenError("is not a TOO"))
+			}
 
-	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
-	if err != nil {
-		return handleError(err)
-	}
-	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
+			sitExtensionID := uuid.FromStringOrNil(string(params.SitExtensionID))
+			approvedDays := int(*params.Body.ApprovedDays)
+			officeRemarks := params.Body.OfficeRemarks
+			updatedShipment, err := h.SITExtensionApprover.ApproveSITExtension(appCtx, shipmentID, sitExtensionID, approvedDays, officeRemarks, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
+			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+			if err != nil {
+				return handleError(err)
+			}
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
-	h.triggerApproveSITExtensionEvent(appCtx, shipmentID, updatedShipment.MoveTaskOrderID, params)
-	return shipmentops.NewApproveSITExtensionOK().WithPayload(shipmentPayload)
+			shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
+
+			h.triggerApproveSITExtensionEvent(appCtx, shipmentID, updatedShipment.MoveTaskOrderID, params)
+			return shipmentops.NewApproveSITExtensionOK().WithPayload(shipmentPayload)
+		})
 }
 
 func (h ApproveSITExtensionHandler) triggerApproveSITExtensionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveSITExtensionParams) {
