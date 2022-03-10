@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -29,58 +30,60 @@ type FilterOption func(*pop.Query)
 
 // Handle returns the paginated list of moves for the TOO user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		appCtx.Logger().Error("user is not authenticated with TOO office role")
-		return queues.NewGetMovesQueueForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				appCtx.Logger().Error("user is not authenticated with TOO office role")
+				return queues.NewGetMovesQueueForbidden()
+			}
 
-	ListOrderParams := services.ListOrderParams{
-		Branch:                 params.Branch,
-		Locator:                params.Locator,
-		DodID:                  params.DodID,
-		LastName:               params.LastName,
-		DestinationDutyStation: params.DestinationDutyLocation,
-		OriginDutyLocation:     params.OriginDutyLocation,
-		Status:                 params.Status,
-		Page:                   params.Page,
-		PerPage:                params.PerPage,
-		Sort:                   params.Sort,
-		Order:                  params.Order,
-	}
+			ListOrderParams := services.ListOrderParams{
+				Branch:                 params.Branch,
+				Locator:                params.Locator,
+				DodID:                  params.DodID,
+				LastName:               params.LastName,
+				DestinationDutyStation: params.DestinationDutyLocation,
+				OriginDutyLocation:     params.OriginDutyLocation,
+				Status:                 params.Status,
+				Page:                   params.Page,
+				PerPage:                params.PerPage,
+				Sort:                   params.Sort,
+				Order:                  params.Order,
+			}
 
-	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
-	// for perPage.
-	if params.Page == nil {
-		ListOrderParams.Page = swag.Int64(1)
-	}
-	// Same for perPage
-	if params.PerPage == nil {
-		ListOrderParams.PerPage = swag.Int64(20)
-	}
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+			// for perPage.
+			if params.Page == nil {
+				ListOrderParams.Page = swag.Int64(1)
+			}
+			// Same for perPage
+			if params.PerPage == nil {
+				ListOrderParams.PerPage = swag.Int64(20)
+			}
 
-	moves, count, err := h.OrderFetcher.ListOrders(
-		appCtx,
-		appCtx.Session().OfficeUserID,
-		&ListOrderParams,
-	)
+			moves, count, err := h.OrderFetcher.ListOrders(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				&ListOrderParams,
+			)
 
-	if err != nil {
-		appCtx.Logger().Error("error fetching list of moves for office user", zap.Error(err))
-		return queues.NewGetMovesQueueInternalServerError()
-	}
+			if err != nil {
+				appCtx.Logger().Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetMovesQueueInternalServerError()
+			}
 
-	queueMoves := payloads.QueueMoves(moves)
+			queueMoves := payloads.QueueMoves(moves)
 
-	result := &ghcmessages.QueueMovesResult{
-		Page:       *ListOrderParams.Page,
-		PerPage:    *ListOrderParams.PerPage,
-		TotalCount: int64(count),
-		QueueMoves: *queueMoves,
-	}
+			result := &ghcmessages.QueueMovesResult{
+				Page:       *ListOrderParams.Page,
+				PerPage:    *ListOrderParams.PerPage,
+				TotalCount: int64(count),
+				QueueMoves: *queueMoves,
+			}
 
-	return queues.NewGetMovesQueueOK().WithPayload(result)
+			return queues.NewGetMovesQueueOK().WithPayload(result)
+		})
 }
 
 // GetPaymentRequestsQueueHandler returns the payment requests for the TIO queue user via GET /queues/payment-requests
