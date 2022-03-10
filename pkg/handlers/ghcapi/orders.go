@@ -290,41 +290,44 @@ type UpdateMaxBillableWeightAsTIOHandler struct {
 
 // Handle ... updates the authorized weight
 func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBillableWeightAsTIOParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewUpdateMaxBillableWeightAsTIONotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewUpdateMaxBillableWeightAsTIOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-		return handleError(apperror.NewForbiddenError("is not a TIO"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewUpdateMaxBillableWeightAsTIONotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewUpdateMaxBillableWeightAsTIOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError()
+				}
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
-	remarks := params.Body.TioRemarks
-	updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(appCtx, orderID, dbAuthorizedWeight, remarks, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+				return handleError(apperror.NewForbiddenError("is not a TIO"))
+			}
 
-	h.triggerUpdatedMaxBillableWeightAsTIOEvent(appCtx, orderID, moveID, params)
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+			remarks := params.Body.TioRemarks
+			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(appCtx, orderID, dbAuthorizedWeight, remarks, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	orderPayload := payloads.Order(updatedOrder)
+			h.triggerUpdatedMaxBillableWeightAsTIOEvent(appCtx, orderID, moveID, params)
 
-	return orderop.NewUpdateMaxBillableWeightAsTIOOK().WithPayload(orderPayload)
+			orderPayload := payloads.Order(updatedOrder)
+
+			return orderop.NewUpdateMaxBillableWeightAsTIOOK().WithPayload(orderPayload)
+		})
 }
 
 // AcknowledgeExcessWeightRiskHandler is called when a TOO dismissed the alert to acknowledge the excess weight risk via POST /orders/{orderId}/acknowledge-excess-weight-risk
