@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -34,28 +35,30 @@ type GetPaymentRequestForMoveHandler struct {
 
 // Handle handles the HTTP handling for GetPaymentRequestForMoveHandler
 func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPaymentRequestsForMoveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-		appCtx.Logger().Error("user is not authenticated with TIO office role")
-		return paymentrequestop.NewGetPaymentRequestsForMoveForbidden()
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+				appCtx.Logger().Error("user is not authenticated with TIO office role")
+				return paymentrequestop.NewGetPaymentRequestsForMoveForbidden()
+			}
 
-	locator := params.Locator
+			locator := params.Locator
 
-	paymentRequests, err := h.FetchPaymentRequestListByMove(appCtx, appCtx.Session().OfficeUserID, locator)
-	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
-		return paymentrequestop.NewGetPaymentRequestNotFound()
-	}
+			paymentRequests, err := h.FetchPaymentRequestListByMove(appCtx, appCtx.Session().OfficeUserID, locator)
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
+				return paymentrequestop.NewGetPaymentRequestNotFound()
+			}
 
-	returnPayload, err := payloads.PaymentRequests(paymentRequests, h.FileStorer())
+			returnPayload, err := payloads.PaymentRequests(paymentRequests, h.FileStorer())
 
-	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("Error building payment requests payload for locator: %s", locator), zap.Error(err))
-		return paymentrequestop.NewGetPaymentRequestsForMoveInternalServerError()
-	}
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("Error building payment requests payload for locator: %s", locator), zap.Error(err))
+				return paymentrequestop.NewGetPaymentRequestsForMoveInternalServerError()
+			}
 
-	return paymentrequestop.NewGetPaymentRequestsForMoveOK().WithPayload(*returnPayload)
+			return paymentrequestop.NewGetPaymentRequestsForMoveOK().WithPayload(*returnPayload)
+		})
 }
 
 // GetPaymentRequestHandler gets payment requests
