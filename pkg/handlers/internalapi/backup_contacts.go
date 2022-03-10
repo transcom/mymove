@@ -97,17 +97,18 @@ type ShowBackupContactHandler struct {
 
 // Handle retrieves a backup contact in the system belonging to the logged in user given backup contact ID
 func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackupContactParams) middleware.Responder {
-	// User should always be populated by middleware
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	contactID, _ := uuid.FromString(params.BackupContactID.String())
-	contact, err := models.FetchBackupContact(appCtx.DB(), appCtx.Session(), contactID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			contactID, _ := uuid.FromString(params.BackupContactID.String())
+			contact, err := models.FetchBackupContact(appCtx.DB(), appCtx.Session(), contactID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	contactPayload := payloadForBackupContactModel(contact)
-	return backupop.NewShowServiceMemberBackupContactOK().WithPayload(&contactPayload)
+			contactPayload := payloadForBackupContactModel(contact)
+			return backupop.NewShowServiceMemberBackupContactOK().WithPayload(&contactPayload)
+		})
 }
 
 // UpdateBackupContactHandler updates a backup contact with a new one
