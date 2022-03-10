@@ -87,22 +87,24 @@ type ShowDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	documentID, err := uuid.FromString(params.DocumentID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			documentID, err := uuid.FromString(params.DocumentID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	document, err := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, false)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			document, err := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, false)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	return documentop.NewShowDocumentOK().WithPayload(documentPayload)
+			return documentop.NewShowDocumentOK().WithPayload(documentPayload)
+		})
 }
