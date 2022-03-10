@@ -210,35 +210,37 @@ type ShipmentsSITBalanceHandler struct {
 
 // Handle handles the getShipmentsPaymentSITBalance request
 func (h ShipmentsSITBalanceHandler) Handle(params paymentrequestop.GetShipmentsPaymentSITBalanceParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
+			paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
 
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("GetShipmentsPaymentSITBalance error", zap.Error(err))
-		payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return paymentrequestop.NewGetShipmentsPaymentSITBalanceNotFound().WithPayload(payload)
-		case apperror.ForbiddenError:
-			return paymentrequestop.NewGetShipmentsPaymentSITBalanceForbidden().WithPayload(payload)
-		case apperror.QueryError:
-			return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError()
-		default:
-			return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError()
-		}
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("GetShipmentsPaymentSITBalance error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return paymentrequestop.NewGetShipmentsPaymentSITBalanceNotFound().WithPayload(payload)
+				case apperror.ForbiddenError:
+					return paymentrequestop.NewGetShipmentsPaymentSITBalanceForbidden().WithPayload(payload)
+				case apperror.QueryError:
+					return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError()
+				default:
+					return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError()
+				}
+			}
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-		return handleError(apperror.NewForbiddenError("user is not authorized with the TIO role"))
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+				return handleError(apperror.NewForbiddenError("user is not authorized with the TIO role"))
+			}
 
-	shipmentSITBalances, err := h.ListShipmentPaymentSITBalance(appCtx, paymentRequestID)
-	if err != nil {
-		return handleError(err)
-	}
+			shipmentSITBalances, err := h.ListShipmentPaymentSITBalance(appCtx, paymentRequestID)
+			if err != nil {
+				return handleError(err)
+			}
 
-	payload := payloads.ShipmentsPaymentSITBalance(shipmentSITBalances)
+			payload := payloads.ShipmentsPaymentSITBalance(shipmentSITBalances)
 
-	return paymentrequestop.NewGetShipmentsPaymentSITBalanceOK().WithPayload(payload)
+			return paymentrequestop.NewGetShipmentsPaymentSITBalanceOK().WithPayload(payload)
+		})
 }
