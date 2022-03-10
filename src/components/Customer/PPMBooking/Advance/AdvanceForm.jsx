@@ -15,6 +15,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
 import { CheckboxField } from 'components/form/fields';
 import { maxAdvance } from 'utils/incentives';
+import { formatCentsTruncateWhole } from 'utils/formatters';
 
 const validationSchema = Yup.object().shape({
   advanceRequested: Yup.boolean().required('Required'),
@@ -41,6 +42,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
   };
 
   const maxAdvanceToRequest = maxAdvance(mtoShipment?.ppmShipment?.estimatedIncentive);
+  const formatedIncentive = formatCentsTruncateWhole(mtoShipment?.ppmShipment?.estimatedIncentive);
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -50,7 +52,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
             <Form className={(formStyles.form, ppmBookingStyles.form)}>
               <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>{`You can ask for up to $${maxAdvanceToRequest} as an advance`}</h2>
-                <p>{`That's 60% of $${mtoShipment?.ppmShipment?.estimatedIncentive}, the estimated incentive for your PPM.`}</p>
+                <p>{`That's 60% of $${formatedIncentive}, the estimated incentive for your PPM.`}</p>
                 <p>
                   You can use an advance to pay for up-front moving expenses. Your service will award and distribute any
                   advance. Different services handle advances differently. Talk to your counselor for specifics.
