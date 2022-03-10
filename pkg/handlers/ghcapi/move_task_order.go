@@ -62,60 +62,62 @@ type UpdateMoveTaskOrderStatusHandlerFunc struct {
 
 // Handle updates the status of a MoveTaskOrder
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	eTag := params.IfMatch
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			eTag := params.IfMatch
 
-	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
-	// TODO to revisit?
-	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+			// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
+			// TODO to revisit?
+			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	serviceItemCodes := ghcmessages.MTOApprovalServiceItemCodes{}
-	if params.ServiceItemCodes != nil {
-		serviceItemCodes = *params.ServiceItemCodes
-	}
+			serviceItemCodes := ghcmessages.MTOApprovalServiceItemCodes{}
+			if params.ServiceItemCodes != nil {
+				serviceItemCodes = *params.ServiceItemCodes
+			}
 
-	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(appCtx, moveTaskOrderID, eTag,
-		serviceItemCodes.ServiceCodeMS, serviceItemCodes.ServiceCodeCS)
+			mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(appCtx, moveTaskOrderID, eTag,
+				serviceItemCodes.ServiceCodeMS, serviceItemCodes.ServiceCodeCS)
 
-	if err != nil {
-		appCtx.Logger().Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc error", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ConflictError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
-		}
-	}
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc error", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ConflictError:
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
+				}
+			}
 
-	moveTaskOrderPayload := payloads.Move(mto)
+			moveTaskOrderPayload := payloads.Move(mto)
 
-	// Audit attempt to make MTO available to prime
-	_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
-	if err != nil {
-		appCtx.Logger().Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
-		return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
-	}
+			// Audit attempt to make MTO available to prime
+			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
+			if err != nil {
+				appCtx.Logger().Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
+				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
+			}
 
-	_, err = event.TriggerEvent(event.Event{
-		EventKey:        event.MoveTaskOrderUpdateEventKey,
-		MtoID:           mto.ID,
-		UpdatedObjectID: mto.ID,
-		EndpointKey:     event.GhcUpdateMoveTaskOrderStatusEndpointKey,
-		AppContext:      appCtx,
-		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
-	})
-	if err != nil {
-		appCtx.Logger().Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc could not generate the event")
-	}
+			_, err = event.TriggerEvent(event.Event{
+				EventKey:        event.MoveTaskOrderUpdateEventKey,
+				MtoID:           mto.ID,
+				UpdatedObjectID: mto.ID,
+				EndpointKey:     event.GhcUpdateMoveTaskOrderStatusEndpointKey,
+				AppContext:      appCtx,
+				TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
+			})
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc could not generate the event")
+			}
 
-	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
+		})
 }
 
 // UpdateMTOStatusServiceCounselingCompletedHandlerFunc updates the status of a Move (MoveTaskOrder) to MoveStatusServiceCounselingCompleted
