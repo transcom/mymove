@@ -284,32 +284,32 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	suite.Assertions.IsType(&officeop.ApprovePPMForbidden{}, response)
 }
 
-func (suite *HandlerSuite) TestApproveReimbursementHandler() {
-	// Given: a set of orders, a move, user and servicemember
-	reimbursement := testdatagen.MakeDefaultRequestedReimbursement(suite.DB())
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-
-	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
-	params := officeop.ApproveReimbursementParams{
-		HTTPRequest:     req,
-		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
-	}
-
-	// And: a reimbursement is approved
-	handler := ApproveReimbursementHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
-	response := handler.Handle(params)
-
-	// Then: expect a 200 status code
-	suite.Assertions.IsType(&officeop.ApproveReimbursementOK{}, response)
-	okResponse := response.(*officeop.ApproveReimbursementOK)
-
-	// And: Returned query to have an approved status
-	suite.Equal(internalmessages.ReimbursementStatusAPPROVED, *okResponse.Payload.Status)
-}
-
 // TODO: Determine whether we need to complete remove reimbursements handler from Office handlers
+//func (suite *HandlerSuite) TestApproveReimbursementHandler() {
+//	// Given: a set of orders, a move, user and servicemember
+//	reimbursement := testdatagen.MakeDefaultRequestedReimbursement(suite.DB())
+//	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+//
+//	// And: the context contains the auth values
+//	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
+//	req = suite.AuthenticateOfficeRequest(req, officeUser)
+//	params := officeop.ApproveReimbursementParams{
+//		HTTPRequest:     req,
+//		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
+//	}
+//
+//	// And: a reimbursement is approved
+//	handler := ApproveReimbursementHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+//	response := handler.Handle(params)
+//
+//	// Then: expect a 200 status code
+//	suite.Assertions.IsType(&officeop.ApproveReimbursementOK{}, response)
+//	okResponse := response.(*officeop.ApproveReimbursementOK)
+//
+//	// And: Returned query to have an approved status
+//	suite.Equal(internalmessages.ReimbursementStatusAPPROVED, *okResponse.Payload.Status)
+//}
+
 //func (suite *HandlerSuite) TestApproveReimbursementHandlerForbidden() {
 //	// Given: a set of orders, a move, user and servicemember
 //	reimbursement := testdatagen.MakeDefaultRequestedReimbursement(suite.DB())
