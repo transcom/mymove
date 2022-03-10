@@ -94,58 +94,58 @@ type GetPaymentRequestsQueueHandler struct {
 
 // Handle returns the paginated list of payment requests for the TIO user
 func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			if !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+				return queues.NewGetPaymentRequestsQueueForbidden()
+			}
 
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+			listPaymentRequestParams := services.FetchPaymentRequestListParams{
+				Branch:                 params.Branch,
+				Locator:                params.Locator,
+				DodID:                  params.DodID,
+				LastName:               params.LastName,
+				DestinationDutyStation: params.DestinationDutyLocation,
+				Status:                 params.Status,
+				Page:                   params.Page,
+				PerPage:                params.PerPage,
+				SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
+				Sort:                   params.Sort,
+				Order:                  params.Order,
+				OriginDutyLocation:     params.OriginDutyLocation,
+			}
 
-	if !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-		return queues.NewGetPaymentRequestsQueueForbidden()
-	}
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+			// for perPage.
+			if params.Page == nil {
+				listPaymentRequestParams.Page = swag.Int64(1)
+			}
+			// Same for perPage
+			if params.PerPage == nil {
+				listPaymentRequestParams.PerPage = swag.Int64(20)
+			}
 
-	listPaymentRequestParams := services.FetchPaymentRequestListParams{
-		Branch:                 params.Branch,
-		Locator:                params.Locator,
-		DodID:                  params.DodID,
-		LastName:               params.LastName,
-		DestinationDutyStation: params.DestinationDutyLocation,
-		Status:                 params.Status,
-		Page:                   params.Page,
-		PerPage:                params.PerPage,
-		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
-		Sort:                   params.Sort,
-		Order:                  params.Order,
-		OriginDutyLocation:     params.OriginDutyLocation,
-	}
+			paymentRequests, count, err := h.FetchPaymentRequestList(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				&listPaymentRequestParams,
+			)
+			if err != nil {
+				appCtx.Logger().Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
+				return queues.NewGetPaymentRequestsQueueInternalServerError()
+			}
 
-	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
-	// for perPage.
-	if params.Page == nil {
-		listPaymentRequestParams.Page = swag.Int64(1)
-	}
-	// Same for perPage
-	if params.PerPage == nil {
-		listPaymentRequestParams.PerPage = swag.Int64(20)
-	}
+			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
 
-	paymentRequests, count, err := h.FetchPaymentRequestList(
-		appCtx,
-		appCtx.Session().OfficeUserID,
-		&listPaymentRequestParams,
-	)
-	if err != nil {
-		appCtx.Logger().Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
-		return queues.NewGetPaymentRequestsQueueInternalServerError()
-	}
+			result := &ghcmessages.QueuePaymentRequestsResult{
+				TotalCount:           int64(count),
+				Page:                 int64(*listPaymentRequestParams.Page),
+				PerPage:              int64(*listPaymentRequestParams.PerPage),
+				QueuePaymentRequests: *queuePaymentRequests,
+			}
 
-	queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
-
-	result := &ghcmessages.QueuePaymentRequestsResult{
-		TotalCount:           int64(count),
-		Page:                 int64(*listPaymentRequestParams.Page),
-		PerPage:              int64(*listPaymentRequestParams.PerPage),
-		QueuePaymentRequests: *queuePaymentRequests,
-	}
-
-	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+			return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+		})
 }
 
 // GetServicesCounselingQueueHandler returns the moves for the Service Counselor queue user via GET /queues/counselor
