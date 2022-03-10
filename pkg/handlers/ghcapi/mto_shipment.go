@@ -709,71 +709,73 @@ type RequestShipmentReweighHandler struct {
 
 // Handle Requests a shipment reweigh
 func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipmentReweighParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		appCtx.Logger().Error("Only TOO role can Request a shipment reweigh")
-		return shipmentops.NewRequestShipmentReweighForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				appCtx.Logger().Error("Only TOO role can Request a shipment reweigh")
+				return shipmentops.NewRequestShipmentReweighForbidden()
+			}
 
-	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	reweigh, err := h.RequestShipmentReweigh(appCtx, shipmentID, models.ReweighRequesterTOO)
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+			reweigh, err := h.RequestShipmentReweigh(appCtx, shipmentID, models.ReweighRequesterTOO)
 
-	if err != nil {
-		appCtx.Logger().Error("ghcapi.RequestShipmentReweighHandler", zap.Error(err))
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.RequestShipmentReweighHandler", zap.Error(err))
 
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return shipmentops.NewRequestShipmentReweighNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "RequestShipmentReweigh", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return shipmentops.NewRequestShipmentReweighUnprocessableEntity().WithPayload(payload)
-		case apperror.ConflictError:
-			return shipmentops.NewRequestShipmentReweighConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return shipmentops.NewRequestShipmentReweighInternalServerError()
-		}
-	}
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewRequestShipmentReweighNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Validation errors", "RequestShipmentReweigh", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return shipmentops.NewRequestShipmentReweighUnprocessableEntity().WithPayload(payload)
+				case apperror.ConflictError:
+					return shipmentops.NewRequestShipmentReweighConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return shipmentops.NewRequestShipmentReweighInternalServerError()
+				}
+			}
 
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
-		default:
-			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+				default:
+					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
 
-			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
-				&ghcmessages.Error{Message: &msg},
+					return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+						&ghcmessages.Error{Message: &msg},
+					)
+				}
+			}
+
+			shipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
+			if err != nil {
+				return handleError(err)
+			}
+
+			moveID := shipment.MoveTaskOrderID
+			h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
+
+			err = h.NotificationSender().SendNotification(appCtx,
+				notifications.NewReweighRequested(moveID, *shipment),
 			)
-		}
-	}
+			if err != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	shipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
-	if err != nil {
-		return handleError(err)
-	}
+			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
+			if err != nil {
+				return handleError(err)
+			}
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
-	moveID := shipment.MoveTaskOrderID
-	h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
-
-	err = h.NotificationSender().SendNotification(appCtx,
-		notifications.NewReweighRequested(moveID, *shipment),
-	)
-	if err != nil {
-		appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-
-	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
-	if err != nil {
-		return handleError(err)
-	}
-	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
-
-	payload := payloads.Reweigh(reweigh, sitStatusPayload)
-	return shipmentops.NewRequestShipmentReweighOK().WithPayload(payload)
+			payload := payloads.Reweigh(reweigh, sitStatusPayload)
+			return shipmentops.NewRequestShipmentReweighOK().WithPayload(payload)
+		})
 }
 
 func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentReweighParams) {
