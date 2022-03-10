@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	backupop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -34,31 +35,31 @@ type CreateBackupContactHandler struct {
 
 // Handle ... creates a new BackupContact from a request payload
 func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBackupContactParams) middleware.Responder {
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	// User should always be populated by middleware
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			if params.CreateBackupContactPayload.Permission == nil {
+				return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: Permission"))
+			}
 
-	if params.CreateBackupContactPayload.Permission == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: Permission"))
-	}
+			newContact, verrs, err := serviceMember.CreateBackupContact(appCtx.DB(),
+				*params.CreateBackupContactPayload.Name,
+				*params.CreateBackupContactPayload.Email,
+				params.CreateBackupContactPayload.Telephone,
+				models.BackupContactPermission(*params.CreateBackupContactPayload.Permission))
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	newContact, verrs, err := serviceMember.CreateBackupContact(appCtx.DB(),
-		*params.CreateBackupContactPayload.Name,
-		*params.CreateBackupContactPayload.Email,
-		params.CreateBackupContactPayload.Telephone,
-		models.BackupContactPermission(*params.CreateBackupContactPayload.Permission))
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
-
-	contactPayload := payloadForBackupContactModel(newContact)
-	return backupop.NewCreateServiceMemberBackupContactCreated().WithPayload(&contactPayload)
+			contactPayload := payloadForBackupContactModel(newContact)
+			return backupop.NewCreateServiceMemberBackupContactCreated().WithPayload(&contactPayload)
+		})
 }
 
 // IndexBackupContactsHandler returns a list of all backup contacts for a service member
