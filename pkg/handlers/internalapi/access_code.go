@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	accesscodeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -47,24 +48,26 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 		return accesscodeop.NewFetchAccessCodeOK().WithPayload(&internalmessages.AccessCode{})
 	}
 
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if appCtx.Session() == nil {
-		return accesscodeop.NewFetchAccessCodeUnauthorized()
-	}
+			if appCtx.Session() == nil {
+				return accesscodeop.NewFetchAccessCodeUnauthorized()
+			}
 
-	// Fetch access code
-	accessCode, err := h.accessCodeFetcher.FetchAccessCode(appCtx, appCtx.Session().ServiceMemberID)
-	var fetchAccessCodePayload *internalmessages.AccessCode
+			// Fetch access code
+			accessCode, err := h.accessCodeFetcher.FetchAccessCode(appCtx, appCtx.Session().ServiceMemberID)
+			var fetchAccessCodePayload *internalmessages.AccessCode
 
-	if err != nil {
-		appCtx.Logger().Error("Error retrieving access_code for service member", zap.Error(err))
-		return accesscodeop.NewFetchAccessCodeNotFound()
-	}
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving access_code for service member", zap.Error(err))
+				return accesscodeop.NewFetchAccessCodeNotFound()
+			}
 
-	fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
+			fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
-	return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
+			return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
+		})
 }
 
 // ValidateAccessCodeHandler validates an access code to allow access to the MilMove platform as a service member
