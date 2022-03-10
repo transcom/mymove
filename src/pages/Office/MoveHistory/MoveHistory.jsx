@@ -16,7 +16,7 @@ const columns = [
   createHeader('Date & Time', (row) => formatDateFromIso(`${row.actionTstampClk}`, 'DD MMM YY HH:mm')),
   createHeader('Event', 'eventName'),
   createHeader('Details', (row) => formatChangedValues(row.changedValues)),
-  createHeader('User', 'user.name'),
+  createHeader('Modified By', 'user.name'),
 ];
 
 const MoveHistory = ({ moveCode }) => {
