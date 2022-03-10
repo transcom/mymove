@@ -952,7 +952,11 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.ProGearWeight, returnedShipment.PpmShipment.ProGearWeight)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.SpouseProGearWeight, returnedShipment.PpmShipment.SpouseProGearWeight)
 				suite.EqualInt32Int64Pointers(expectedShipment.PPMShipment.EstimatedIncentive, returnedShipment.PpmShipment.EstimatedIncentive)
-				suite.Equal(expectedShipment.PPMShipment.Advance, returnedShipment.PpmShipment.Advance)
+				if expectedShipment.PPMShipment.Advance != nil {
+					suite.Equal(expectedShipment.PPMShipment.Advance.Int64(), returnedShipment.PpmShipment.Advance)
+				} else {
+					suite.Nil(returnedShipment.PpmShipment.Advance)
+				}
 
 				continue // PPM Shipments won't have the rest of the fields below.
 			}
