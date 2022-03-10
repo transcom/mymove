@@ -118,25 +118,26 @@ type UpdateBackupContactHandler struct {
 
 // Handle ... updates a BackupContact from a request payload
 func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBackupContactParams) middleware.Responder {
-	// User should always be populated by middleware
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	contactID, _ := uuid.FromString(params.BackupContactID.String())
-	contact, err := models.FetchBackupContact(appCtx.DB(), appCtx.Session(), contactID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			contactID, _ := uuid.FromString(params.BackupContactID.String())
+			contact, err := models.FetchBackupContact(appCtx.DB(), appCtx.Session(), contactID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
-	contact.Email = *params.UpdateServiceMemberBackupContactPayload.Email
-	contact.Phone = params.UpdateServiceMemberBackupContactPayload.Telephone
-	if params.UpdateServiceMemberBackupContactPayload.Permission != nil {
-		contact.Permission = models.BackupContactPermission(*params.UpdateServiceMemberBackupContactPayload.Permission)
-	}
+			contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
+			contact.Email = *params.UpdateServiceMemberBackupContactPayload.Email
+			contact.Phone = params.UpdateServiceMemberBackupContactPayload.Telephone
+			if params.UpdateServiceMemberBackupContactPayload.Permission != nil {
+				contact.Permission = models.BackupContactPermission(*params.UpdateServiceMemberBackupContactPayload.Permission)
+			}
 
-	if verrs, err := appCtx.DB().ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			if verrs, err := appCtx.DB().ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	contactPayload := payloadForBackupContactModel(contact)
-	return backupop.NewUpdateServiceMemberBackupContactCreated().WithPayload(&contactPayload)
+			contactPayload := payloadForBackupContactModel(contact)
+			return backupop.NewUpdateServiceMemberBackupContactCreated().WithPayload(&contactPayload)
+		})
 }
