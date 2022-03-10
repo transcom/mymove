@@ -26,26 +26,24 @@ func (r DistanceZip5Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 
 	// Get the MTOServiceItem and associated MTOShipment and addresses
 	mtoServiceItemID := keyData.MTOServiceItemID
-	var mtoServiceItem models.MTOServiceItem
-	err := db.
-		Eager("MTOShipment", "MTOShipment.PickupAddress", "MTOShipment.DestinationAddress").
-		Find(&mtoServiceItem, mtoServiceItemID)
+
+	// Make sure there's an MTOShipment since that's nullable
+	mtoShipmentID := keyData.mtoShipmentID
+	if mtoShipmentID == nil {
+		return "", apperror.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
+	}
+
+	var mtoShipment models.MTOShipment
+	err := db.Find(&mtoShipment, keyData.mtoShipmentID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+			return "", apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOShipmentID")
 		default:
 			return "", apperror.NewQueryError("MTOServiceItem", err, "")
 		}
 	}
 
-	// Make sure there's an MTOShipment since that's nullable
-	mtoShipmentID := mtoServiceItem.MTOShipmentID
-	if mtoShipmentID == nil {
-		return "", apperror.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
-	}
-
-	mtoShipment := mtoServiceItem.MTOShipment
 	if mtoShipment.Distance != nil {
 		return strconv.Itoa(mtoShipment.Distance.Int()), nil
 	}
@@ -59,10 +57,10 @@ func (r DistanceZip5Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 	}
 
 	if len(pickupZip) < 5 {
-		return "", apperror.NewInvalidInputError(*mtoServiceItem.MTOShipmentID, fmt.Errorf("Shipment must have valid pickup zipcode. Received: %s", pickupZip), nil, fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip))
+		return "", apperror.NewInvalidInputError(*mtoShipmentID, fmt.Errorf("Shipment must have valid pickup zipcode. Received: %s", pickupZip), nil, fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip))
 	}
 	if len(destinationZip) < 5 {
-		return "", apperror.NewInvalidInputError(*mtoServiceItem.MTOShipmentID, fmt.Errorf("Shipment must have valid destination zipcode. Received: %s", destinationZip), nil, fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip))
+		return "", apperror.NewInvalidInputError(*mtoShipmentID, fmt.Errorf("Shipment must have valid destination zipcode. Received: %s", destinationZip), nil, fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip))
 	}
 
 	pickupZip3 := pickupZip[:3]
