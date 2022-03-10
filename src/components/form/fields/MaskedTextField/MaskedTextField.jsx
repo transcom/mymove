@@ -17,6 +17,7 @@ const MaskedTextField = ({
   formGroupClassName,
   inputClassName,
   errorClassName,
+  hintClassName,
   id,
   name,
   labelHint,
@@ -52,7 +53,11 @@ const MaskedTextField = ({
           {metaProps.error ? metaProps.error : errorMessage}
         </ErrorMessage>
       )}
-      {showWarning && <Hint data-testid="textInputWarning">{warning}</Hint>}
+      {showWarning && (
+        <Hint className={hintClassName} data-testid="textInputWarning">
+          {warning}
+        </Hint>
+      )}
       {/* eslint-disable react/jsx-props-no-spreading */}
       {suffix ? (
         <div className={suffix && styles.hasSuffix}>
@@ -107,6 +112,7 @@ MaskedTextField.propTypes = {
   children: PropTypes.node,
   defaultValue: PropTypes.string,
   errorClassName: PropTypes.string,
+  hintClassName: PropTypes.string,
   formGroupClassName: PropTypes.string,
   id: PropTypes.string.isRequired,
   inputClassName: PropTypes.string,
@@ -131,6 +137,7 @@ MaskedTextField.defaultProps = {
   children: null,
   defaultValue: '',
   errorClassName: '',
+  hintClassName: '',
   formGroupClassName: '',
   suffix: '',
   inputClassName: '',
