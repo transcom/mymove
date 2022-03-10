@@ -69,23 +69,25 @@ type IndexBackupContactsHandler struct {
 
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBackupContactsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	contacts := serviceMember.BackupContacts
+			contacts := serviceMember.BackupContacts
 
-	contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, len(contacts))
-	for i, contact := range contacts {
-		contactPayload := payloadForBackupContactModel(contact)
-		contactPayloads[i] = &contactPayload
-	}
+			contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, len(contacts))
+			for i, contact := range contacts {
+				contactPayload := payloadForBackupContactModel(contact)
+				contactPayloads[i] = &contactPayload
+			}
 
-	return backupop.NewIndexServiceMemberBackupContactsOK().WithPayload(contactPayloads)
+			return backupop.NewIndexServiceMemberBackupContactsOK().WithPayload(contactPayloads)
+		})
 }
 
 // ShowBackupContactHandler returns a backup contact for a user and backup contact ID
