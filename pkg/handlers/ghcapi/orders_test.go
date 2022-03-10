@@ -895,14 +895,14 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 
 	newAuthorizedWeight := int64(10000)
 	grade := ghcmessages.GradeO5
-	affiliation := ghcmessages.BranchAIRFORCE
+	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
 	proGearWeight := swag.Int64(100)
 	proGearWeightSpouse := swag.Int64(10)
 	rmeWeight := swag.Int64(10000)
 
 	subtestData.body = &ghcmessages.UpdateAllowancePayload{
-		Agency:               affiliation,
+		Agency:               &affiliation,
 		AuthorizedWeight:     &newAuthorizedWeight,
 		DependentsAuthorized: swag.Bool(true),
 		Grade:                &grade,
@@ -1164,14 +1164,14 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 
 func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	grade := ghcmessages.GradeO5
-	affiliation := ghcmessages.BranchAIRFORCE
+	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
 	proGearWeight := swag.Int64(100)
 	proGearWeightSpouse := swag.Int64(10)
 	rmeWeight := swag.Int64(10000)
 
 	body := &ghcmessages.CounselingUpdateAllowancePayload{
-		Agency:               affiliation,
+		Agency:               &affiliation,
 		DependentsAuthorized: swag.Bool(true),
 		Grade:                &grade,
 		OrganizationalClothingAndIndividualEquipment: &ocie,

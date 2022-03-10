@@ -82,6 +82,6 @@ generate_client swagger/prime.yaml primemessages primeclient
 generate_client swagger/support.yaml supportmessages supportclient
 
 # Wait for all processes to finish
-for pid in ${pids[*]}; do
+for pid in "${pids[@]}"; do
   wait "${pid}"
 done
