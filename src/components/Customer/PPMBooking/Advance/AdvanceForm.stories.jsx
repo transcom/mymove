@@ -38,7 +38,7 @@ BlankAdvanceForm.args = {
       secondaryDestinationPostalCode: '90210',
       sitExpected: 'true',
       expectedDepartureDate: '2022-09-23',
-      estimatedIncentive: 10000,
+      estimatedIncentive: 1000000,
     },
   },
 };

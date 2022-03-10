@@ -1,3 +1,5 @@
+import { formatCentsTruncateWhole } from './formatters';
+
 import { formatCentsRange } from 'shared/formatters';
 
 export const hasShortHaulError = (error) => error?.statusCode === 409;
@@ -10,6 +12,10 @@ export const getIncentiveRange = (ppm, estimate) => {
   return range || '';
 };
 
+// returns 60% of the incentive in dollars, rounded down to nearest whole number
 export const maxAdvance = (incentive) => {
-  return Math.floor(incentive * 0.6);
+  // incentive is in cents, convert to dollars rounded down to nearest whole number
+  const incentiveInDollars = formatCentsTruncateWhole(incentive);
+  // max advance is equal to 60% of the incentive, rounded down to the nearest whole number
+  return Math.floor(incentiveInDollars * 0.6);
 };
