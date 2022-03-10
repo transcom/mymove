@@ -151,39 +151,42 @@ type UpdateAllowanceHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order allowance", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewUpdateAllowanceNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewUpdateAllowanceInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(apperror.NewForbiddenError("is not a TOO"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error updating order allowance", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewUpdateAllowanceNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewUpdateAllowanceInternalServerError()
+				}
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				return handleError(apperror.NewForbiddenError("is not a TOO"))
+			}
 
-	h.triggerUpdatedAllowanceEvent(appCtx, orderID, moveID, params)
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	orderPayload := payloads.Order(updatedOrder)
+			h.triggerUpdatedAllowanceEvent(appCtx, orderID, moveID, params)
 
-	return orderop.NewUpdateAllowanceOK().WithPayload(orderPayload)
+			orderPayload := payloads.Order(updatedOrder)
+
+			return orderop.NewUpdateAllowanceOK().WithPayload(orderPayload)
+		})
 }
 
 // CounselingUpdateAllowanceHandler updates an order and entitlements via PATCH /counseling/orders/{orderId}/allowances
