@@ -2,24 +2,24 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { queryCache, useMutation } from 'react-query';
 import { useParams, useHistory } from 'react-router-dom';
 import { generatePath } from 'react-router';
-import { Alert, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
+import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import txoStyles from '../TXOMoveInfo/TXOTab.module.scss';
-import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
 import styles from './MovePaymentRequests.module.scss';
 
-import { MOVES } from 'constants/queryKeys';
+import paymentRequestStatus from 'constants/paymentRequestStatus';
+import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { tioRoutes } from 'constants/routes';
-import LeftNav from 'components/LeftNav';
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
 import BillableWeightCard from 'components/Office/BillableWeight/BillableWeightCard/BillableWeightCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SHIPMENT_OPTIONS, LOA_TYPE } from 'shared/constants';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
@@ -29,15 +29,12 @@ import {
   useCalculatedTotalBillableWeight,
   useCalculatedWeightRequested,
 } from 'hooks/custom';
-import { updateFinancialFlag, updateMTOReviewedBillableWeights } from 'services/ghcApi';
+import { updateFinancialFlag, updateMTOReviewedBillableWeights, updateMTOShipment } from 'services/ghcApi';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
-
-const sectionLabels = {
-  'billable-weights': 'Billable weights',
-  'payment-requests': 'Payment requests',
-};
+import LeftNav from 'components/LeftNav/LeftNav';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 const MovePaymentRequests = ({
   setUnapprovedShipmentCount,
@@ -48,7 +45,6 @@ const MovePaymentRequests = ({
   const history = useHistory();
 
   const { move, paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
-  const [activeSection, setActiveSection] = useState('');
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const sections = useMemo(() => {
@@ -89,6 +85,13 @@ const MovePaymentRequests = ({
     },
   });
 
+  const [mutateMTOhipment] = useMutation(updateMTOShipment, {
+    onSuccess(_, variables) {
+      queryCache.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+    },
+  });
+
   const handleShowFinancialReviewModal = () => {
     setIsFinancialModalVisible(true);
   };
@@ -119,8 +122,8 @@ const MovePaymentRequests = ({
     let serviceItemCount = 0;
     if (mtoShipments) {
       mtoShipments.forEach((shipment) => {
-        if (shipment.status === shipmentStatuses.APPROVED) {
-          serviceItemCount += shipment.mtoServiceItems?.filter(
+        if (shipment.status === shipmentStatuses.APPROVED && shipment.mtoServiceItems) {
+          serviceItemCount += shipment.mtoServiceItems.filter(
             (serviceItem) => serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED,
           ).length;
         }
@@ -146,12 +149,17 @@ const MovePaymentRequests = ({
 
   if (paymentRequests.length) {
     mtoShipments.forEach((shipment) => {
+      const tacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.tacType;
+      const sacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.sacType;
+
       shipmentsInfo.push({
         mtoShipmentID: shipment.id,
         address: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
         departureDate: shipment.actualPickupDate,
         modificationType: getShipmentModificationType(shipment),
         mtoServiceItems: shipment.mtoServiceItems,
+        tacType,
+        sacType,
       });
     });
   }
@@ -163,6 +171,19 @@ const MovePaymentRequests = ({
       ifMatchETag: move?.eTag,
     };
     mutateMoves(payload);
+  };
+
+  const handleEditAccountingCodes = (shipmentID, body) => {
+    const shipment = mtoShipments.find((s) => s.id === shipmentID);
+
+    if (shipment) {
+      mutateMTOhipment({
+        shipmentID,
+        moveTaskOrderID: shipment.moveTaskOrderID,
+        ifMatchETag: shipment.eTag,
+        body,
+      });
+    }
   };
 
   const anyShipmentOverweight = (shipments) => {
@@ -184,43 +205,36 @@ const MovePaymentRequests = ({
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
-        <LeftNav className={txoStyles.sidebar}>
-          {sections?.map((s) => {
-            return (
-              <a
-                key={`sidenav_${s}`}
-                href={`#${s}`}
-                className={classnames({ active: s === activeSection })}
-                onClick={() => setActiveSection(s)}
-              >
-                {sectionLabels[`${s}`]}
-                {s === 'payment-requests' && paymentRequests?.length > 0 && (
-                  <Tag className={txoStyles.tag} data-testid="numOfPaymentRequestsTag">
-                    {paymentRequests.length}
-                  </Tag>
-                )}
-                {s === 'billable-weights' && maxBillableWeightExceeded && filteredShipments?.length > 0 && (
-                  <Tag
-                    className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
-                    data-testid="maxBillableWeightErrorTag"
-                  >
-                    <FontAwesomeIcon icon="exclamation" />
-                  </Tag>
-                )}
-                {s === 'billable-weights' &&
-                  !maxBillableWeightExceeded &&
-                  filteredShipments?.length > 0 &&
-                  !billableWeightsReviewed &&
-                  (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments)) && (
-                    <FontAwesomeIcon
-                      icon="exclamation-triangle"
-                      data-testid="maxBillableWeightWarningTag"
-                      className={classnames(styles.warning, styles.errorTag)}
-                    />
-                  )}
-              </a>
-            );
-          })}
+        <LeftNav sections={sections}>
+          <LeftNavTag
+            associatedSectionName="payment-requests"
+            showTag={paymentRequests?.length > 0}
+            testID="numOfPaymentRequestsTag"
+          >
+            {paymentRequests.length}
+          </LeftNavTag>
+          <LeftNavTag
+            className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
+            associatedSectionName="billable-weights"
+            showTag={maxBillableWeightExceeded && filteredShipments?.length > 0}
+            testID="maxBillableWeightErrorTag"
+          >
+            <FontAwesomeIcon icon="exclamation" />
+          </LeftNavTag>
+          <LeftNavTag
+            className={styles.warningTag}
+            background="none"
+            associatedSectionName="billable-weights"
+            showTag={
+              !maxBillableWeightExceeded &&
+              filteredShipments?.length > 0 &&
+              !billableWeightsReviewed &&
+              (anyShipmentOverweight(filteredShipments) || anyShipmentMissingWeight(filteredShipments))
+            }
+            testID="maxBillableWeightWarningTag"
+          >
+            <FontAwesomeIcon icon="exclamation-triangle" className={classnames(styles.warning, styles.errorTag)} />
+          </LeftNavTag>
         </LeftNav>
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <Grid row className={txoStyles.pageHeader}>
@@ -268,6 +282,7 @@ const MovePaymentRequests = ({
                   hasBillableWeightIssues={!noBillableWeightIssues}
                   shipmentsInfo={shipmentsInfo}
                   key={paymentRequest.id}
+                  onEditAccountingCodes={handleEditAccountingCodes}
                 />
               ))
             ) : (

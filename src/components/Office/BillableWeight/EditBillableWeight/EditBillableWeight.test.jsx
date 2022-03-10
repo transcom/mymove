@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import EditBillableWeight from './EditBillableWeight';
 
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 
 jest.mock('formik', () => ({
   ...jest.requireActual('formik'),
@@ -150,6 +150,25 @@ describe('EditBillableWeight', () => {
           billableWeight: 14000,
           totalBillableWeight: 11000,
           editEntity: () => {},
+        };
+
+        render(<EditBillableWeight {...defaultProps} />);
+        userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+        await waitFor(() => {
+          expect(screen.queryByText(formatWeight(defaultProps.estimatedWeight * 1.1))).not.toBeInTheDocument();
+        });
+        expect(screen.queryByText('| 110% of total estimated weight')).not.toBeInTheDocument();
+      });
+      it('should not show if this is an NTS-release shipment', async () => {
+        const defaultProps = {
+          title: 'Billable weight',
+          originalWeight: 10000,
+          estimatedWeight: 13000,
+          maxBillableWeight: 6000,
+          billableWeight: 14600,
+          totalBillableWeight: 11000,
+          editEntity: () => {},
+          isNTSRShipment: true,
         };
 
         render(<EditBillableWeight {...defaultProps} />);

@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './ShipmentList.module.scss';
 
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentTypes } from 'constants/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
@@ -113,11 +113,17 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
         if (showShipmentWeight) {
           canEdit = false;
           showNumber = false;
-          if (shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.calculatedBillableWeight)) {
-            isOverweight = true;
-          }
-          if ((shipment.reweigh?.id && !shipment.reweigh?.weight) || !shipment.primeEstimatedWeight) {
-            isMissingWeight = true;
+          switch (shipmentType) {
+            case SHIPMENT_OPTIONS.NTSR:
+              // don't want “Over weight” or “Missing weight” warnings for NTSR
+              break;
+            default:
+              if (shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.calculatedBillableWeight)) {
+                isOverweight = true;
+              }
+              if ((shipment.reweigh?.id && !shipment.reweigh?.weight) || !shipment.primeEstimatedWeight) {
+                isMissingWeight = true;
+              }
           }
         }
         return (

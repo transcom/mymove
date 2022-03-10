@@ -69,16 +69,16 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		suite.Contains(err.Error(), "Not found looking for move.OrdersID")
 	})
 
-	suite.Run("returns error when OriginDutyStation is missing", func() {
+	suite.Run("returns error when OriginDutyLocation is missing", func() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		order := move.Orders
-		order.OriginDutyStation = nil
-		order.OriginDutyStationID = nil
+		order.OriginDutyLocation = nil
+		order.OriginDutyLocationID = nil
 		suite.NoError(suite.DB().Update(&order))
 
 		err := moveRouter.Submit(suite.AppContextForTest(), &move)
 		suite.Error(err)
-		suite.Contains(err.Error(), "orders missing OriginDutyStation")
+		suite.Contains(err.Error(), "orders missing OriginDutyLocation")
 	})
 
 	suite.Run("moves with amended orders are set to APPROVALSREQUESTED status", func() {
@@ -174,14 +174,14 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 
 	suite.Run("moves going to the services counselor return errors if the move doesn't have DRAFT/NEEDS SERVICE COUNSELING status", func() {
-		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-			DutyStation: models.DutyStation{
+		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+			DutyLocation: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 		})
 		assertions := testdatagen.Assertions{
 			Order: models.Order{
-				OriginDutyStation: &dutyStation,
+				OriginDutyLocation: &dutyLocation,
 			},
 		}
 		move := testdatagen.MakeMove(suite.DB(), assertions)

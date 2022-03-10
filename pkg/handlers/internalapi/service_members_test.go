@@ -115,14 +115,13 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	suite.Assertions.NotEqual(*serviceMemberPayload.UserID, uuid.Nil)
 	suite.Assertions.Equal(*serviceMemberPayload.IsProfileComplete, false)
 	suite.Assertions.Equal(len((*serviceMemberPayload).Orders), 0)
-	fmt.Println((*serviceMemberPayload).CurrentStation)
 
 	// These shouldn't return any value or Swagger clients will complain during validation
 	// because the payloads for these objects are defined to require non-null values for most fields
 	// which can't be handled in OpenAPI Spec 2.0. Therefore we don't return them at all.
 	suite.Assertions.Equal((*serviceMemberPayload).Rank, (*internalmessages.ServiceMemberRank)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).Affiliation, (*internalmessages.Affiliation)(nil))
-	suite.Assertions.Equal((*serviceMemberPayload).CurrentStation, (*internalmessages.DutyStationPayload)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).CurrentLocation, (*internalmessages.DutyLocationPayload)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).ResidentialAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupMailingAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupContacts, internalmessages.IndexServiceMemberBackupContactsPayload{})
@@ -212,13 +211,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	origEmailIsPreferred := swag.Bool(true)
 	newEmailIsPreferred := swag.Bool(false)
 
-	dutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	dutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 
 	newServiceMember := models.ServiceMember{
 		UserID:             user.ID,
 		Edipi:              &origEdipi,
-		DutyStationID:      &dutyStation.ID,
-		DutyStation:        dutyStation,
+		DutyLocationID:     &dutyLocation.ID,
+		DutyLocation:       dutyLocation,
 		Rank:               &origRank,
 		Affiliation:        &origAffiliation,
 		FirstName:          origFirstName,
@@ -233,15 +232,15 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 	suite.MustSave(&newServiceMember)
 
-	orderDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	orderDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 	orderGrade := (string)(models.ServiceMemberRankE5)
 	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMember:       newServiceMember,
-			ServiceMemberID:     newServiceMember.ID,
-			OriginDutyStation:   &orderDutyStation,
-			OriginDutyStationID: &orderDutyStation.ID,
-			Grade:               &orderGrade,
+			ServiceMember:        newServiceMember,
+			ServiceMemberID:      newServiceMember.ID,
+			OriginDutyLocation:   &orderDutyLocation,
+			OriginDutyLocationID: &orderDutyLocation.ID,
+			Grade:                &orderGrade,
 		},
 	})
 
@@ -298,8 +297,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
-	// Editing SM info DutyStation and Rank fields should edit Orders OriginDutyStation and Grade fields
-	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyStation.Name, newServiceMember.DutyStation.Name)
+	// Editing SM info DutyLocation and Rank fields should edit Orders OriginDutyLocation and Grade fields
+	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newServiceMember.DutyLocation.Name)
 	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
 	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
 }
@@ -318,9 +317,9 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
 
-	origDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	newDutyStation := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
-	newDutyStationID := strfmt.UUID(newDutyStation.ID.String())
+	origDutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	newDutyLocation := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
+	newDutyLocationID := strfmt.UUID(newDutyLocation.ID.String())
 
 	origFirstName := swag.String("random string bla")
 	newFirstName := swag.String("John")
@@ -354,8 +353,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		Edipi:              &edipi,
 		Rank:               &origRank,
 		Affiliation:        &origAffiliation,
-		DutyStationID:      &origDutyStation.ID,
-		DutyStation:        origDutyStation,
+		DutyLocationID:     &origDutyLocation.ID,
+		DutyLocation:       origDutyLocation,
 		FirstName:          origFirstName,
 		MiddleName:         origMiddleName,
 		LastName:           origLastName,
@@ -406,7 +405,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		SecondaryTelephone:   newSecondaryTelephone,
 		Suffix:               newSuffix,
 		Telephone:            newTelephone,
-		CurrentStationID:     &newDutyStationID,
+		CurrentLocationID:    &newDutyLocationID,
 	}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
@@ -433,7 +432,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// values) after the move has been submitted.
 	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
 	suite.Equal(origRank, models.ServiceMemberRank(*serviceMemberPayload.Rank))
-	suite.Equal(origDutyStation.ID.String(), string(*serviceMemberPayload.CurrentStation.ID))
+	suite.Equal(origDutyLocation.ID.String(), string(*serviceMemberPayload.CurrentLocation.ID))
 
 	// These fields should change even if the move is submitted.
 	suite.Equal(*newFirstName, *serviceMemberPayload.FirstName)

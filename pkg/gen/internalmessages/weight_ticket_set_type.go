@@ -20,8 +20,12 @@ import (
 type WeightTicketSetType string
 
 func NewWeightTicketSetType(value WeightTicketSetType) *WeightTicketSetType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated WeightTicketSetType.
+func (m WeightTicketSetType) Pointer() *WeightTicketSetType {
+	return &m
 }
 
 const (

@@ -16,6 +16,8 @@ import {
   riskOfExcessWeightQuery,
   lowerActualsMTOQuery,
   sitExtensionApproved,
+  allApprovedExternalVendorMTOQuery,
+  riskOfExcessWeightQueryExternalShipment,
 } from './moveTaskOrderUnitTestData';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
@@ -25,6 +27,17 @@ import SERVICE_ITEM_STATUS from 'constants/serviceItems';
 
 jest.mock('hooks/queries', () => ({
   useMoveTaskOrderQueries: jest.fn(),
+}));
+
+const mockPush = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: mockPush,
+  }),
+  useParams: () => ({
+    moveCode: 'TestCode',
+  }),
 }));
 
 const setUnapprovedShipmentCount = jest.fn();
@@ -74,6 +87,9 @@ describe('MoveTaskOrder', () => {
 
       const riskOfExcessTag = await screen.queryByText(/Risk of excess/);
       expect(riskOfExcessTag).toBeFalsy();
+
+      const externalVendorShipmentCount = await screen.queryByText(/1 shipment not moved by GHC prime./);
+      expect(externalVendorShipmentCount).toBeFalsy();
     });
 
     it('displays the max billable weight', async () => {
@@ -360,6 +376,46 @@ describe('MoveTaskOrder', () => {
       const moveWeightTotal = await screen.getByText(/250 lbs/);
       expect(moveWeightTotal).toBeInTheDocument();
     });
+
+    it('displays the external vendor shipment count and link to move details when there are external vendor shipments', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(allApprovedExternalVendorMTOQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const externalVendorShipmentCount = await screen.getByText(/1 shipment not moved by GHC prime./);
+      expect(externalVendorShipmentCount).toBeInTheDocument();
+    });
+
+    it('displays risk of excess tag and external vendor shipment count', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQueryExternalShipment);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const riskOfExcessTag = await screen.getByText(/Risk of excess/);
+      expect(riskOfExcessTag).toBeInTheDocument();
+      const externalVendorShipmentCount = await screen.getByText(/1 shipment not moved by GHC prime./);
+      expect(externalVendorShipmentCount).toBeInTheDocument();
+    });
   });
 
   describe('check loading and error component states', () => {
@@ -458,18 +514,18 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the left nav with shipments', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
+      expect(wrapper.find('nav').exists()).toBe(true);
 
-      const navLinks = wrapper.find('LeftNav a');
+      const navLinks = wrapper.find('nav a');
       expect(navLinks.length).toBe(2);
       expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(1).prop('href')).toBe('#s-3');
     });
 
     it('renders the left nav with move weights', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
+      expect(wrapper.find('nav').exists()).toBe(true);
 
-      const navLinks = wrapper.find('LeftNav a');
+      const navLinks = wrapper.find('nav a');
       expect(navLinks.length).toBe(2);
       expect(navLinks.at(0).contains('Move weights')).toBe(true);
       expect(navLinks.at(0).prop('href')).toBe('#move-weights');
@@ -535,9 +591,9 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the left nav with shipments', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
+      expect(wrapper.find('nav').exists()).toBe(true);
 
-      const navLinks = wrapper.find('LeftNav a');
+      const navLinks = wrapper.find('nav a');
       expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(1).contains('1'));
       expect(navLinks.at(1).prop('href')).toBe('#s-3');
@@ -615,9 +671,9 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the left nav with shipments', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
+      expect(wrapper.find('nav').exists()).toBe(true);
 
-      const navLinks = wrapper.find('LeftNav a');
+      const navLinks = wrapper.find('nav a');
       expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(1).contains('1'));
       expect(navLinks.at(1).prop('href')).toBe('#s-3');
@@ -680,8 +736,8 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the left nav with tag for SIT extension request', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
-      const navLinks = wrapper.find('LeftNav a');
+      expect(wrapper.find('nav').exists()).toBe(true);
+      const navLinks = wrapper.find('nav a');
       expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(1).contains('1'));
     });
@@ -705,8 +761,8 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the left nav with tag for SIT extension request without a number tag', () => {
-      expect(wrapper.find('LeftNav').exists()).toBe(true);
-      const navLinks = wrapper.find('LeftNav a');
+      expect(wrapper.find('nav').exists()).toBe(true);
+      const navLinks = wrapper.find('nav a');
       // We should get just the shipment text in the nav link
       expect(navLinks.at(1).text()).toEqual('HHG shipment ');
     });

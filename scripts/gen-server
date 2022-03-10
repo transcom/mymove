@@ -2,13 +2,18 @@
 
 set -eu -o pipefail
 
+if [ "${CIRCLECI+x}" ]; then
+  LOCAL_SWAGGER="/usr/local/bin/swagger"
+elif swagger version 2>/dev/null | grep -F -q -E 'version: v?0.29.0'; then
+  LOCAL_SWAGGER=$(which swagger)
+fi
+
 # Ensure the latest image is being used
-if [ -n "${CIRCLECI+x}" ]; then
-  # In CircleCI the docker image has the binary installed
-  echo "CircleCI has swagger built in"
+if [ -n "${LOCAL_SWAGGER+x}" ]; then
+  echo "Using local swagger"
 else
   # Locally we need to download the docker image to get the binary
-  image=milmove/circleci-docker:milmove-app-3739e422811794dd0ebe5ab1f0244764520a18c4
+  image=milmove/circleci-docker:milmove-app-03964d7db55c2692d8a9ae89f81ee76c520b33c1
   docker pull -q "${image}"
 fi
 
@@ -21,10 +26,9 @@ mkdir -p $gendir
 
 # Depending on environment use the built-in swagger (docker) or use the docker image directly
 swagger_func() {
-  if [ -n "${CIRCLECI+x}" ]; then
-    # In CircleCI the docker image has the binary installed
-    echo "RUNNING IN CIRCLECI"
-    /usr/local/bin/swagger "$@"
+  if [ -n "${LOCAL_SWAGGER+x}" ]; then
+    echo "Using local swagger"
+    ${LOCAL_SWAGGER} "$@"
   else
     docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger "$@"
   fi

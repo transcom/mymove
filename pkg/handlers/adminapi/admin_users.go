@@ -167,8 +167,7 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 	updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(appCtx, adminUserID, payload)
 
 	if err != nil || verrs != nil {
-		fmt.Printf("%#v", verrs)
-		appCtx.Logger().Error("Error saving user", zap.Error(err))
+		appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
 		return adminuserop.NewUpdateAdminUserInternalServerError()
 	}
 

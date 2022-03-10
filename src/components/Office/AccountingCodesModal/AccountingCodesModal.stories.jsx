@@ -11,13 +11,14 @@ export default {
 
 export const minimal = () => (
   <div className="officeApp">
-    <AccountingCodesModal shipmentType={SHIPMENT_OPTIONS.NTS} />
+    <AccountingCodesModal isOpen shipmentType={SHIPMENT_OPTIONS.NTS} />
   </div>
 );
 
 export const withCodes = () => (
   <div className="officeApp">
     <AccountingCodesModal
+      isOpen
       shipmentType={SHIPMENT_OPTIONS.NTSR}
       TACs={{ HHG: '1234', NTS: '2345' }}
       SACs={{ HHG: 'CF13', NTS: 'E8A1' }}
@@ -28,6 +29,7 @@ export const withCodes = () => (
 export const withCodesAndValues = () => (
   <div className="officeApp">
     <AccountingCodesModal
+      isOpen
       shipmentType={SHIPMENT_OPTIONS.HHG}
       TACs={{ HHG: '1234', NTS: '2345' }}
       SACs={{ HHG: 'CF13', NTS: 'E8A1' }}

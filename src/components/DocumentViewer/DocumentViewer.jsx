@@ -27,11 +27,7 @@ const DocumentViewer = ({ files }) => {
   const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
 
   if (!selectedFile) {
-    return (
-      <>
-        <h2>File Not Found</h2>
-      </>
-    );
+    return <h2>File Not Found</h2>;
   }
 
   let fileType = selectedFile.contentType;

@@ -1,0 +1,33 @@
+@import 'shared/styles/_basics';
+
+.EstimatedIncentiveDetails {
+  :global(.container) {
+    @include u-padding-x(5);
+    @include u-padding-top(2);
+    @include u-padding-bottom(3);
+    @include u-border('base-lighter');
+    @include u-border-width(2px);
+    border-radius: 2px;
+
+  }
+
+  @include at-media-max(mobile-lg) {
+    :global(.container) {
+      @include u-border(0);
+      @include u-padding-x(0);
+      @include u-padding-y(0);
+      @include u-margin-top(4);
+      @include u-margin-bottom(3);
+    }
+  }
+
+  .shipmentDetails {
+    p {
+      @include u-margin-bottom(0);
+    }
+    ul {
+      @include u-margin-top(0);
+      list-style-position: inside;
+    }
+  }
+}

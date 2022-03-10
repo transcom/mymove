@@ -93,6 +93,11 @@ func checkPrimeAvailability(checker services.MoveTaskOrderChecker) reweighValida
 			return apperror.NewNotFoundError(newReweigh.ID, "while looking for Prime-available Shipment")
 		}
 
+		if shipment.UsesExternalVendor {
+			return apperror.NewNotFoundError(
+				newReweigh.ID, fmt.Sprintf("while looking for Prime-available Shipment with id: %s", shipment.ID))
+		}
+
 		isAvailable, err := checker.MTOAvailableToPrime(appCtx, shipment.MoveTaskOrderID)
 		if !isAvailable || err != nil {
 			return apperror.NewNotFoundError(

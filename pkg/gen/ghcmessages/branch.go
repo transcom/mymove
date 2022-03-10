@@ -20,8 +20,12 @@ import (
 type Branch string
 
 func NewBranch(value Branch) *Branch {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Branch.
+func (m Branch) Pointer() *Branch {
+	return &m
 }
 
 const (

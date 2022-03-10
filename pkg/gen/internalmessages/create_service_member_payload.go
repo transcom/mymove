@@ -25,10 +25,10 @@ type CreateServiceMemberPayload struct {
 	// backup mailing address
 	BackupMailingAddress *Address `json:"backup_mailing_address,omitempty"`
 
-	// current station id
+	// current location id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
-	CurrentStationID *strfmt.UUID `json:"current_station_id,omitempty"`
+	CurrentLocationID *strfmt.UUID `json:"current_location_id,omitempty"`
 
 	// DoD ID number
 	// Example: 5789345789
@@ -98,7 +98,7 @@ func (m *CreateServiceMemberPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateCurrentStationID(formats); err != nil {
+	if err := m.validateCurrentLocationID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -174,12 +174,12 @@ func (m *CreateServiceMemberPayload) validateBackupMailingAddress(formats strfmt
 	return nil
 }
 
-func (m *CreateServiceMemberPayload) validateCurrentStationID(formats strfmt.Registry) error {
-	if swag.IsZero(m.CurrentStationID) { // not required
+func (m *CreateServiceMemberPayload) validateCurrentLocationID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CurrentLocationID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("current_station_id", "body", "uuid", m.CurrentStationID.String(), formats); err != nil {
+	if err := validate.FormatOf("current_location_id", "body", "uuid", m.CurrentLocationID.String(), formats); err != nil {
 		return err
 	}
 

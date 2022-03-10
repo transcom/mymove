@@ -451,12 +451,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
 		customerRemarks := "I have a grandfather clock"
 		counselorRemarks := "Counselor approved"
-		destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+		destinationType := models.DestinationTypeHomeOfRecord
 		updatedShipment := models.MTOShipment{
 			ID:                       oldShipment.ID,
 			DestinationAddress:       &newDestinationAddress,
 			DestinationAddressID:     &newDestinationAddress.ID,
-			DestinationAddressType:   &destinationAddressType,
+			DestinationType:          &destinationType,
 			PickupAddress:            &newPickupAddress,
 			PickupAddressID:          &newPickupAddress.ID,
 			SecondaryPickupAddress:   &secondaryPickupAddress,
@@ -470,7 +470,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
-		suite.Equal(destinationAddressType, *newShipment.DestinationAddressType)
+		suite.Equal(destinationType, *newShipment.DestinationType)
 	})
 
 	suite.Run("Successfully update MTO Agents", func() {
@@ -1058,12 +1058,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+	var TransitDistancePickupArg *models.Address
+	var TransitDistanceDestinationArg *models.Address
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(500, nil)
+		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("*models.Address"),
+	).Return(500, nil).Run(func(args mock.Arguments) {
+		TransitDistancePickupArg = args.Get(1).(*models.Address)
+		TransitDistanceDestinationArg = args.Get(2).(*models.Address)
+	})
+
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 
 	suite.Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func() {
@@ -1181,6 +1187,111 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.NoError(err)
 		// We also should have a required delivery date
 		suite.NotNil(fetchedShipment.RequiredDeliveryDate)
+	})
+
+	suite.Run("Test that correct addresses are being used to calculate required delivery date", func() {
+		setupTestData()
+		appCtx := suite.AppContextForTest()
+
+		ghcDomesticTransitTime0LbsUpper := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     10001,
+			WeightLbsUpper:     0,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime0LbsUpper)
+		suite.Assert().False(verrs.HasAny())
+		suite.NoError(err)
+
+		testdatagen.FetchOrMakeReService(appCtx.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDNPK,
+			},
+		})
+
+		// This is testing that the Required Delivery Date is calculated correctly.
+		// In order for the Required Delivery Date to be calculated, the following conditions must be true:
+		// 1. The shipment is moving to the APPROVED status
+		// 2. The shipment must already have the following fields present:
+		// MTOShipmentTypeHHG: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, DestinationAddress
+		// MTOShipmentTypeHHGIntoNTSDom: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, StorageFacility
+		// MTOShipmentTypeHHGOutOfNTSDom: ScheduledPickupDate, NTSRecordedWeight, StorageFacility, DestinationAddress
+		// 3. The shipment must not already have a Required Delivery Date
+		// Note that MakeMTOShipment will automatically add a Required Delivery Date if the ScheduledPickupDate
+		// is present, therefore we need to use MakeMTOShipmentMinimal and add the Pickup and Destination addresses
+		estimatedWeight := unit.Pound(11000)
+
+		destinationAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
+		pickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
+		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{})
+
+		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+				PrimeEstimatedWeight: &estimatedWeight,
+				Status:               models.MTOShipmentStatusSubmitted,
+				DestinationAddress:   &destinationAddress,
+				DestinationAddressID: &destinationAddress.ID,
+				PickupAddress:        &pickupAddress,
+				PickupAddressID:      &pickupAddress.ID,
+			},
+		})
+
+		ntsShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+				PrimeEstimatedWeight: &estimatedWeight,
+				Status:               models.MTOShipmentStatusSubmitted,
+				StorageFacility:      &storageFacility,
+				StorageFacilityID:    &storageFacility.ID,
+				PickupAddress:        &pickupAddress,
+				PickupAddressID:      &pickupAddress.ID,
+			},
+		})
+
+		ntsrShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+				NTSRecordedWeight:    &estimatedWeight,
+				Status:               models.MTOShipmentStatusSubmitted,
+				StorageFacility:      &storageFacility,
+				StorageFacilityID:    &storageFacility.ID,
+				DestinationAddress:   &destinationAddress,
+				DestinationAddressID: &destinationAddress.ID,
+			},
+		})
+
+		testCases := []struct {
+			shipment            models.MTOShipment
+			pickupLocation      *models.Address
+			destinationLocation *models.Address
+		}{
+			{hhgShipment, hhgShipment.PickupAddress, hhgShipment.DestinationAddress},
+			{ntsShipment, ntsShipment.PickupAddress, &ntsShipment.StorageFacility.Address},
+			{ntsrShipment, &ntsrShipment.StorageFacility.Address, ntsrShipment.DestinationAddress},
+		}
+
+		for _, testCase := range testCases {
+			shipmentEtag := etag.GenerateEtag(testCase.shipment.UpdatedAt)
+			_, err = updater.UpdateMTOShipmentStatus(appCtx, testCase.shipment.ID, status, nil, shipmentEtag)
+			suite.NoError(err)
+
+			fetchedShipment := models.MTOShipment{}
+			err = suite.DB().Find(&fetchedShipment, testCase.shipment.ID)
+			suite.NoError(err)
+			// We also should have a required delivery date
+			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
+			// Check that TransitDistance was called with the correct addresses
+			suite.Equal(testCase.pickupLocation.PostalCode, TransitDistancePickupArg.PostalCode)
+			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg.PostalCode)
+		}
 	})
 
 	suite.Run("Cannot set SUBMITTED status on shipment via UpdateMTOShipmentStatus", func() {

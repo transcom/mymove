@@ -19,7 +19,7 @@ func (suite *MigrateSuite) TestExecWithDeleteUsersSQL() {
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
-		err := Exec(f, tx, wait)
+		err := Exec(f, tx, wait, suite.Logger())
 		suite.NoError(err)
 		return err
 	})
@@ -48,7 +48,7 @@ func (suite *MigrateSuite) TestExecWithCopyFromStdinSQL() {
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
-		err := Exec(f, tx, wait)
+		err := Exec(f, tx, wait, suite.Logger())
 		suite.NoError(err)
 		return err
 	})
@@ -63,7 +63,7 @@ func (suite *MigrateSuite) TestExecWithCopyFromStdinMultipleSQL() {
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
-		err := Exec(f, tx, wait)
+		err := Exec(f, tx, wait, suite.Logger())
 		suite.NoError(err)
 		return err
 	})
@@ -78,7 +78,7 @@ func (suite *MigrateSuite) TestExecWithCopyFromStdinTypes() {
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
-		innerErr := Exec(f, tx, wait)
+		innerErr := Exec(f, tx, wait, suite.Logger())
 		suite.NoError(innerErr)
 		return innerErr
 	})
@@ -120,7 +120,7 @@ func (suite *MigrateSuite) TestExecWithLoopSQL() {
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
-		err := Exec(f, tx, wait)
+		err := Exec(f, tx, wait, suite.Logger())
 		suite.NoError(err)
 		return err
 	})
@@ -135,7 +135,7 @@ func (suite *MigrateSuite) TestExecWithUpdateFromSetSQL() {
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
-		err := Exec(f, tx, wait)
+		err := Exec(f, tx, wait, suite.Logger())
 		suite.NoError(err)
 		return err
 	})
@@ -157,7 +157,7 @@ func (suite *MigrateSuite) TestExecWithInsertConflictSQL() {
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
-		err := Exec(f, tx, wait)
+		err := Exec(f, tx, wait, suite.Logger())
 		suite.NoError(err)
 		return err
 	})

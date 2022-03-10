@@ -49,7 +49,7 @@ type QueueMove struct {
 	ShipmentsCount int64 `json:"shipmentsCount,omitempty"`
 
 	// status
-	Status QueueMoveStatus `json:"status,omitempty"`
+	Status MoveStatus `json:"status,omitempty"`
 
 	// submitted at
 	// Format: date-time

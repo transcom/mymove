@@ -1,8 +1,9 @@
 package serviceparamvaluelookups
 
 import (
-	"fmt"
 	"time"
+
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -15,7 +16,6 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 	requestedPickupDate := time.Date(testdatagen.TestYear, time.May, 18, 0, 0, 0, 0, time.UTC)
 
 	var mtoServiceItem models.MTOServiceItem
-	var paymentRequest models.PaymentRequest
 
 	setupTestData := func() {
 		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(),
@@ -25,16 +25,13 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 				},
 			})
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: mtoServiceItem.MoveTaskOrder,
-			})
+		// Don't need a payment request for this test.
 	}
 
 	suite.Run("golden path", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -48,20 +45,14 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 
 		// Set the requested pickup date to nil
 		mtoShipment := mtoServiceItem.MTOShipment
-		oldRequestedPickupDate := mtoShipment.RequestedPickupDate
 		mtoShipment.RequestedPickupDate = nil
 		suite.MustSave(&mtoShipment)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		expected := fmt.Sprintf("could not find a requested pickup date for MTOShipmentID [%s]", mtoShipment.ID)
-		suite.Contains(err.Error(), expected)
+		suite.FatalNoError(err)
 		suite.Equal("", valueStr)
-
-		mtoShipment.RequestedPickupDate = oldRequestedPickupDate
-		suite.MustSave(&mtoShipment)
 	})
 }

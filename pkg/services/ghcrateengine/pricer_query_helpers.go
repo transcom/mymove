@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func fetchTaskOrderFee(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, mtoAvailableToPrimeAt time.Time) (models.ReTaskOrderFee, error) {
+func fetchTaskOrderFee(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, date time.Time) (models.ReTaskOrderFee, error) {
 	var taskOrderFee models.ReTaskOrderFee
 	err := appCtx.DB().Q().
 		Join("re_contract_years cy", "re_task_order_fees.contract_year_id = cy.id").
@@ -17,7 +17,7 @@ func fetchTaskOrderFee(appCtx appcontext.AppContext, contractCode string, servic
 		Join("re_services s", "re_task_order_fees.service_id = s.id").
 		Where("c.code = $1", contractCode).
 		Where("s.code = $2", serviceCode).
-		Where("$3 between cy.start_date and cy.end_date", mtoAvailableToPrimeAt).
+		Where("$3 between cy.start_date and cy.end_date", date).
 		First(&taskOrderFee)
 
 	if err != nil {
@@ -81,10 +81,10 @@ func fetchAccessorialPrice(appCtx appcontext.AppContext, contractCode string, se
 	return domAccessorialPrice, nil
 }
 
-func fetchContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, targetDate time.Time) (models.ReContractYear, error) {
+func fetchContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, date time.Time) (models.ReContractYear, error) {
 	var contractYear models.ReContractYear
 	err := appCtx.DB().Where("contract_id = $1", contractID).
-		Where("$2 between start_date and end_date", targetDate).
+		Where("$2 between start_date and end_date", date).
 		First(&contractYear)
 	if err != nil {
 		return models.ReContractYear{}, err

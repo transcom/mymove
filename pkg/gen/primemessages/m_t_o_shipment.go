@@ -75,6 +75,9 @@ type MTOShipment struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
 
+	// destination type
+	DestinationType *DestinationType `json:"destinationType,omitempty"`
+
 	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
 	//
 	Diversion bool `json:"diversion,omitempty"`
@@ -214,6 +217,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 			Address
 		} `json:"destinationAddress,omitempty"`
 
+		DestinationType *DestinationType `json:"destinationType,omitempty"`
+
 		Diversion bool `json:"diversion,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
@@ -307,6 +312,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 	// destinationAddress
 	result.DestinationAddress = data.DestinationAddress
+
+	// destinationType
+	result.DestinationType = data.DestinationType
 
 	// diversion
 	result.Diversion = data.Diversion
@@ -406,6 +414,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 			Address
 		} `json:"destinationAddress,omitempty"`
 
+		DestinationType *DestinationType `json:"destinationType,omitempty"`
+
 		Diversion bool `json:"diversion,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
@@ -472,6 +482,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		CustomerRemarks: m.CustomerRemarks,
 
 		DestinationAddress: m.DestinationAddress,
+
+		DestinationType: m.DestinationType,
 
 		Diversion: m.Diversion,
 
@@ -556,6 +568,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -689,6 +705,25 @@ func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateDestinationType(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationType) { // not required
+		return nil
+	}
+
+	if m.DestinationType != nil {
+		if err := m.DestinationType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -989,6 +1024,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1114,6 +1153,22 @@ func (m *MTOShipment) contextValidateCustomerRemarks(ctx context.Context, format
 }
 
 func (m *MTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationType != nil {
+		if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
+	}
 
 	return nil
 }

@@ -1,0 +1,6 @@
+type: string
+enum:
+  - CUSTOMER
+  - PRIME
+  - SYSTEM
+  - TOO

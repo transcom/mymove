@@ -76,13 +76,13 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 
 	// third shipment with destination address and type
 	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
-	destinationAddressType := models.DestinationAddressTypeHomeOfRecord
+	destinationType := models.DestinationTypeHomeOfRecord
 	_ = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
-			Status:                 models.MTOShipmentStatusSubmitted,
-			DestinationAddressID:   &destinationAddress.ID,
-			DestinationAddressType: &destinationAddressType,
+			Status:               models.MTOShipmentStatusSubmitted,
+			DestinationAddressID: &destinationAddress.ID,
+			DestinationType:      &destinationType,
 		},
 	})
 
@@ -184,10 +184,10 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Equal(shipments[1].ID.String(), payloadShipment2.ID.String())
 		suite.Nil(payloadShipment2.StorageFacility)
 
-		suite.Equal(int64(90), *payloadShipment.SitDaysAllowance)
+		suite.Equal(int64(190), *payloadShipment.SitDaysAllowance)
 		suite.Equal(mtoshipment.OriginSITLocation, payloadShipment.SitStatus.Location)
 		suite.Equal(int64(7), *payloadShipment.SitStatus.DaysInSIT)
-		suite.Equal(int64(76), *payloadShipment.SitStatus.TotalDaysRemaining)
+		suite.Equal(int64(176), *payloadShipment.SitStatus.TotalDaysRemaining)
 		suite.Equal(int64(14), *payloadShipment.SitStatus.TotalSITDaysUsed) // 7 from the previous SIT and 7 from the current
 		suite.Equal(subtestData.sit.SITEntryDate.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.SitEntryDate.String())
 		suite.Equal(subtestData.sit.SITDepartureDate.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.SitDepartureDate.String())
@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		// This one has a destination shipment type
 		payloadShipment3 := okResponse.Payload[2]
-		suite.Equal(string(models.DestinationAddressTypeHomeOfRecord), *payloadShipment3.DestinationAddressType)
+		suite.Equal(string(models.DestinationTypeHomeOfRecord), string(*payloadShipment3.DestinationType))
 
 	})
 
@@ -216,7 +216,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewQueryError("MTOShipment", errors.New("query error"), ""))
 
-		fmt.Println("failure list fetch test 500")
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)
 	})
@@ -235,7 +234,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewNotFoundError(uuid.FromStringOrNil(params.MoveTaskOrderID.String()), "move not found"))
 
-		fmt.Println("failure list fetch 404")
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
 	})
@@ -1734,12 +1732,32 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 	suite.Run("Returns 200 and updates SIT days allowance when validations pass", func() {
 		sitDaysAllowance := 20
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Entitlement: models.Entitlement{
+				StorageInTransit: &sitDaysAllowance,
+			},
+		})
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				SITDaysAllowance: &sitDaysAllowance,
 			},
 			Move: move,
+		})
+
+		year, month, day := time.Now().Date()
+		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
+		lastMonthDeparture := time.Date(year, month, day-30, 0, 0, 0, 0, time.UTC)
+		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				SITEntryDate:     &lastMonthEntry,
+				SITDepartureDate: &lastMonthDeparture,
+				Status:           models.MTOServiceItemStatusApproved,
+			},
+			Move:        move,
+			MTOShipment: mtoShipment,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
 		})
 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
@@ -1987,9 +2005,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
 			creator,
+			sitStatus,
 		}
 		response := handler.Handle(params)
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
@@ -2011,9 +2031,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		mockCreator := mocks.MTOShipmentCreator{}
 
+		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
 			&mockCreator,
+			sitStatus,
 		}
 
 		err := errors.New("ServerError")
@@ -2039,9 +2061,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
+		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
 			creator,
+			sitStatus,
 		}
 
 		badID := params.Body.MoveTaskOrderID
@@ -2069,10 +2093,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-
+		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
 			creator,
+			sitStatus,
 		}
 
 		badParams := params
@@ -2097,10 +2122,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-
+		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
 			creator,
+			sitStatus,
 		}
 
 		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
@@ -2119,10 +2145,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-
+		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
 			creator,
+			sitStatus,
 		}
 
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)

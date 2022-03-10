@@ -20,8 +20,12 @@ import (
 type PaymentRequestStatus string
 
 func NewPaymentRequestStatus(value PaymentRequestStatus) *PaymentRequestStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated PaymentRequestStatus.
+func (m PaymentRequestStatus) Pointer() *PaymentRequestStatus {
+	return &m
 }
 
 const (

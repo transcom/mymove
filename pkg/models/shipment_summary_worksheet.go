@@ -154,8 +154,8 @@ type ShipmentSummaryWorksheetPage3Values struct {
 type ShipmentSummaryFormData struct {
 	ServiceMember           ServiceMember
 	Order                   Order
-	CurrentDutyStation      DutyStation
-	NewDutyStation          DutyStation
+	CurrentDutyStation      DutyLocation
+	NewDutyStation          DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
 	PersonallyProcuredMoves PersonallyProcuredMoves
 	PreparationDate         time.Time
@@ -205,9 +205,9 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	move := Move{}
 	dbQErr := db.Q().Eager(
 		"Orders",
-		"Orders.NewDutyStation.Address",
+		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyStation.Address",
+		"Orders.ServiceMember.DutyLocation.Address",
 		"PersonallyProcuredMoves",
 	).Find(&move, moveID)
 
@@ -265,8 +265,8 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
-		CurrentDutyStation:      serviceMember.DutyStation,
-		NewDutyStation:          move.Orders.NewDutyStation,
+		CurrentDutyStation:      serviceMember.DutyLocation,
+		NewDutyStation:          move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
 		SignedCertification:     *signedCertification,
@@ -519,7 +519,7 @@ func FormatSignatureDate(signature SignedCertification) string {
 }
 
 //FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
-func FormatLocation(dutyStation DutyStation) string {
+func FormatLocation(dutyStation DutyLocation) string {
 	return fmt.Sprintf("%s, %s %s", dutyStation.Name, dutyStation.Address.State, dutyStation.Address.PostalCode)
 }
 

@@ -132,7 +132,7 @@ repos:
         pass_filenames: false
 
   - repo: git://github.com/trussworks/pre-commit-hooks
-    rev: v1.1.0
+    rev: v1.1.1
     hooks:
       - id: gen-docs
         args: ['docs/adr']

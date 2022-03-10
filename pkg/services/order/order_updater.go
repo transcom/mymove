@@ -149,15 +149,15 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
-	if payload.OriginDutyStationID != nil {
-		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyStationID.String())
-		order.OriginDutyStationID = &originDutyStationID
-		order.ServiceMember.DutyStationID = &originDutyStationID
+	if payload.OriginDutyLocationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
+		order.OriginDutyLocationID = &originDutyStationID
+		order.ServiceMember.DutyLocationID = &originDutyStationID
 	}
 
-	if payload.NewDutyStationID != nil {
-		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
-		order.NewDutyStationID = newDutyStationID
+	if payload.NewDutyLocationID != nil {
+		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyLocationID.String())
+		order.NewDutyLocationID = newDutyStationID
 	}
 
 	if payload.DepartmentIndicator != nil {
@@ -182,8 +182,13 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 		order.ReportByDate = time.Time(*payload.ReportByDate)
 	}
 
-	if payload.Sac != nil {
-		order.SAC = payload.Sac
+	if payload.Sac.Present {
+		if payload.Sac.Value != nil && *payload.Sac.Value == "" {
+			order.SAC = nil
+		} else {
+			order.SAC = payload.Sac.Value
+		}
+
 	}
 
 	if payload.Tac != nil {
@@ -191,13 +196,21 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 		order.TAC = &normalizedTac
 	}
 
-	if payload.NtsSac != nil {
-		order.NtsSAC = payload.NtsSac
+	if payload.NtsSac.Present {
+		if payload.NtsSac.Value != nil && *payload.NtsSac.Value == "" {
+			order.NtsSAC = nil
+		} else {
+			order.NtsSAC = payload.NtsSac.Value
+		}
 	}
 
-	if payload.NtsTac != nil {
-		normalizedNtsTac := strings.ToUpper(*payload.NtsTac)
-		order.NtsTAC = &normalizedNtsTac
+	if payload.NtsTac.Present {
+		if payload.NtsTac.Value != nil && *payload.NtsTac.Value != "" {
+			normalizedNtsTac := strings.ToUpper(*payload.NtsTac.Value)
+			order.NtsTAC = &normalizedNtsTac
+		} else {
+			order.NtsTAC = nil
+		}
 	}
 
 	if payload.OrdersType != nil {
@@ -263,15 +276,15 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
-	if payload.OriginDutyStationID != nil {
-		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyStationID.String())
-		order.OriginDutyStationID = &originDutyStationID
-		order.ServiceMember.DutyStationID = &originDutyStationID
+	if payload.OriginDutyLocationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
+		order.OriginDutyLocationID = &originDutyStationID
+		order.ServiceMember.DutyLocationID = &originDutyStationID
 	}
 
-	if payload.NewDutyStationID != nil {
-		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
-		order.NewDutyStationID = newDutyStationID
+	if payload.NewDutyLocationID != nil {
+		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyLocationID.String())
+		order.NewDutyLocationID = newDutyStationID
 	}
 
 	if payload.IssueDate != nil {
@@ -286,8 +299,12 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
 	}
 
-	if payload.Sac != nil {
-		order.SAC = payload.Sac
+	if payload.Sac.Present {
+		if payload.Sac.Value != nil && *payload.Sac.Value == "" {
+			order.SAC = nil
+		} else {
+			order.SAC = payload.Sac.Value
+		}
 	}
 
 	if payload.Tac != nil {
@@ -295,13 +312,21 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.TAC = &normalizedTac
 	}
 
-	if payload.NtsSac != nil {
-		order.NtsSAC = payload.NtsSac
+	if payload.NtsSac.Present {
+		if payload.NtsSac.Value != nil && *payload.NtsSac.Value == "" {
+			order.NtsSAC = nil
+		} else {
+			order.NtsSAC = payload.NtsSac.Value
+		}
 	}
 
-	if payload.NtsTac != nil {
-		normalizedNtsTac := strings.ToUpper(*payload.NtsTac)
-		order.NtsTAC = &normalizedNtsTac
+	if payload.NtsTac.Present {
+		if payload.NtsTac.Value != nil && *payload.NtsTac.Value != "" {
+			normalizedNtsTac := strings.ToUpper(*payload.NtsTac.Value)
+			order.NtsTAC = &normalizedNtsTac
+		} else {
+			order.NtsTAC = nil
+		}
 	}
 
 	return order
@@ -347,8 +372,8 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
 	}
 
-	if payload.SitAllowance != nil {
-		newSITAllowance := int(*payload.SitAllowance)
+	if payload.StorageInTransit != nil {
+		newSITAllowance := int(*payload.StorageInTransit)
 		order.Entitlement.StorageInTransit = &newSITAllowance
 	}
 
@@ -390,8 +415,8 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
 	}
 
-	if payload.SitAllowance != nil {
-		newSITAllowance := int(*payload.SitAllowance)
+	if payload.StorageInTransit != nil {
+		newSITAllowance := int(*payload.StorageInTransit)
 		order.Entitlement.StorageInTransit = &newSITAllowance
 	}
 
@@ -490,26 +515,26 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		order.ServiceMember.Rank = (*models.ServiceMemberRank)(order.Grade)
 	}
 
-	if order.OriginDutyStationID != nil {
+	if order.OriginDutyLocationID != nil {
 		// TODO refactor to use service objects to fetch duty station
-		var originDutyStation models.DutyStation
-		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *order.OriginDutyStationID)
+		var originDutyLocation models.DutyLocation
+		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *order.OriginDutyLocationID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
+				return nil, apperror.NewNotFoundError(*order.OriginDutyLocationID, "while looking for OriginDutyLocation")
 			default:
-				return nil, apperror.NewQueryError("DutyStation", err, "")
+				return nil, apperror.NewQueryError("DutyLocation", err, "")
 			}
 		}
-		order.OriginDutyStationID = &originDutyStation.ID
-		order.OriginDutyStation = &originDutyStation
+		order.OriginDutyLocationID = &originDutyLocation.ID
+		order.OriginDutyLocation = &originDutyLocation
 
-		order.ServiceMember.DutyStationID = &originDutyStation.ID
-		order.ServiceMember.DutyStation = originDutyStation
+		order.ServiceMember.DutyLocationID = &originDutyLocation.ID
+		order.ServiceMember.DutyLocation = originDutyLocation
 	}
 
-	if order.Grade != nil || order.OriginDutyStationID != nil {
+	if order.Grade != nil || order.OriginDutyLocationID != nil {
 		verrs, err = appCtx.DB().ValidateAndUpdate(&order.ServiceMember)
 		if e := handleError(order.ID, verrs, err); e != nil {
 			return nil, e
@@ -524,20 +549,20 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		}
 	}
 
-	if order.NewDutyStationID != uuid.Nil {
+	if order.NewDutyLocationID != uuid.Nil {
 		// TODO refactor to use service objects to fetch duty station
-		var newDutyStation models.DutyStation
-		newDutyStation, err = models.FetchDutyStation(appCtx.DB(), order.NewDutyStationID)
+		var newDutyStation models.DutyLocation
+		newDutyStation, err = models.FetchDutyLocation(appCtx.DB(), order.NewDutyLocationID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
+				return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for NewDutyLocation")
 			default:
-				return nil, apperror.NewQueryError("DutyStation", err, "")
+				return nil, apperror.NewQueryError("DutyLocation", err, "")
 			}
 		}
-		order.NewDutyStationID = newDutyStation.ID
-		order.NewDutyStation = newDutyStation
+		order.NewDutyLocationID = newDutyStation.ID
+		order.NewDutyLocation = newDutyStation
 	}
 
 	verrs, err = appCtx.DB().ValidateAndUpdate(&order)

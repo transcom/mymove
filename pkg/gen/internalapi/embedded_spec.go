@@ -3069,7 +3069,15 @@ func init() {
           "200": {
             "description": "Currently logged in user",
             "schema": {
-              "type": "boolean"
+              "type": "object",
+              "required": [
+                "isLoggedIn"
+              ],
+              "properties": {
+                "isLoggedIn": {
+                  "type": "boolean"
+                }
+              }
             }
           },
           "400": {
@@ -3553,6 +3561,54 @@ func init() {
         }
       }
     },
+    "CreatePPMShipment": {
+      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "required": [
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected"
+      ],
+      "properties": {
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "sitExpected": {
+          "type": "boolean"
+        }
+      }
+    },
     "CreatePersonallyProcuredMovePayload": {
       "type": "object",
       "properties": {
@@ -3718,7 +3774,7 @@ func init() {
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
         },
-        "current_station_id": {
+        "current_location_id": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -3831,6 +3887,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmShipment": {
+          "$ref": "#/definitions/CreatePPMShipment"
+        },
         "requestedDeliveryDate": {
           "type": "string",
           "format": "date"
@@ -3889,7 +3948,7 @@ func init() {
         "orders_type",
         "has_dependents",
         "spouse_has_pro_gear",
-        "new_duty_station_id"
+        "new_duty_location_id"
       ],
       "properties": {
         "department_indicator": {
@@ -3906,7 +3965,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "new_duty_station_id": {
+        "new_duty_location_id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -4081,7 +4140,6 @@ func init() {
         "id",
         "name",
         "address_id",
-        "address",
         "affiliation",
         "created_at",
         "updated_at"
@@ -4113,6 +4171,12 @@ func init() {
         },
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportation_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updated_at": {
           "type": "string",
@@ -4124,51 +4188,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/DutyLocationPayload"
-      }
-    },
-    "DutyStationPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "name",
-        "address_id",
-        "address",
-        "affiliation",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "address_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "affiliation": {
-          "$ref": "#/definitions/Affiliation"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
-        },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        }
       }
     },
     "Error": {
@@ -4277,7 +4296,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Role"
-          }
+          },
+          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -4385,6 +4405,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmShipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
         "requestedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -4434,12 +4457,14 @@ func init() {
         "HHG_LONGHAUL_DOMESTIC",
         "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC"
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "PPM"
       ],
       "x-display-value": {
         "HHG": "HHG",
         "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "INTERNATIONAL_UB": "International UB",
+        "PPM": "PPM"
       },
       "example": "HHG"
     },
@@ -5048,7 +5073,7 @@ func init() {
         "orders_type",
         "has_dependents",
         "spouse_has_pro_gear",
-        "new_duty_station",
+        "new_duty_location",
         "uploaded_orders",
         "created_at",
         "updated_at"
@@ -5090,8 +5115,8 @@ func init() {
         "moves": {
           "$ref": "#/definitions/IndexMovesPayload"
         },
-        "new_duty_station": {
-          "$ref": "#/definitions/DutyStationPayload"
+        "new_duty_location": {
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "orders_number": {
           "type": "string",
@@ -5105,9 +5130,9 @@ func init() {
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "origin_duty_station": {
+        "origin_duty_location": {
           "x-nullable": true,
-          "$ref": "#/definitions/DutyStationPayload"
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -5243,6 +5268,185 @@ func init() {
           "title": "PPM Incentive @ 95%"
         }
       }
+    },
+    "PPMShipment": {
+      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "updatedAt",
+        "status",
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected",
+        "eTag"
+      ],
+      "properties": {
+        "actualMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "advanceId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "advanceRequested": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "advanceWorksheetId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "estimatedIncentive": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weight\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "shipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sitExpected": {
+          "type": "boolean"
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "status": {
+          "$ref": "#/definitions/PPMShipmentStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "PPMShipmentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "WAITING_ON_CUSTOMER",
+        "NEEDS_ADVANCE_APPROVAL",
+        "NEEDS_PAYMENT_APPROVAL",
+        "PAYMENT_APPROVED"
+      ],
+      "readOnly": true
     },
     "PPMSitEstimate": {
       "type": "object",
@@ -5415,7 +5619,7 @@ func init() {
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
         },
-        "current_station_id": {
+        "current_location_id": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -5926,8 +6130,8 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "current_station": {
-          "$ref": "#/definitions/DutyStationPayload"
+        "current_location": {
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "edipi": {
           "type": "string",
@@ -6268,6 +6472,87 @@ func init() {
         }
       }
     },
+    "UpdatePPMShipment": {
+      "type": "object",
+      "properties": {
+        "actualMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "estimatedIncentive": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weight\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "sitExpected": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdatePersonallyProcuredMovePayload": {
       "type": "object",
       "properties": {
@@ -6431,6 +6716,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/UpdatePPMShipment"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -9728,7 +10016,15 @@ func init() {
           "200": {
             "description": "Currently logged in user",
             "schema": {
-              "type": "boolean"
+              "type": "object",
+              "required": [
+                "isLoggedIn"
+              ],
+              "properties": {
+                "isLoggedIn": {
+                  "type": "boolean"
+                }
+              }
             }
           },
           "400": {
@@ -10212,6 +10508,54 @@ func init() {
         }
       }
     },
+    "CreatePPMShipment": {
+      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "required": [
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected"
+      ],
+      "properties": {
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "sitExpected": {
+          "type": "boolean"
+        }
+      }
+    },
     "CreatePersonallyProcuredMovePayload": {
       "type": "object",
       "properties": {
@@ -10379,7 +10723,7 @@ func init() {
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
         },
-        "current_station_id": {
+        "current_location_id": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -10492,6 +10836,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmShipment": {
+          "$ref": "#/definitions/CreatePPMShipment"
+        },
         "requestedDeliveryDate": {
           "type": "string",
           "format": "date"
@@ -10550,7 +10897,7 @@ func init() {
         "orders_type",
         "has_dependents",
         "spouse_has_pro_gear",
-        "new_duty_station_id"
+        "new_duty_location_id"
       ],
       "properties": {
         "department_indicator": {
@@ -10567,7 +10914,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "new_duty_station_id": {
+        "new_duty_location_id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -10744,7 +11091,6 @@ func init() {
         "id",
         "name",
         "address_id",
-        "address",
         "affiliation",
         "created_at",
         "updated_at"
@@ -10776,6 +11122,12 @@ func init() {
         },
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportation_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updated_at": {
           "type": "string",
@@ -10787,51 +11139,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/DutyLocationPayload"
-      }
-    },
-    "DutyStationPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "name",
-        "address_id",
-        "address",
-        "affiliation",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "address_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "affiliation": {
-          "$ref": "#/definitions/Affiliation"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
-        },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        }
       }
     },
     "Error": {
@@ -10951,7 +11258,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Role"
-          }
+          },
+          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -11059,6 +11367,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmShipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
         "requestedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -11108,12 +11419,14 @@ func init() {
         "HHG_LONGHAUL_DOMESTIC",
         "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC"
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "PPM"
       ],
       "x-display-value": {
         "HHG": "HHG",
         "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "INTERNATIONAL_UB": "International UB",
+        "PPM": "PPM"
       },
       "example": "HHG"
     },
@@ -11724,7 +12037,7 @@ func init() {
         "orders_type",
         "has_dependents",
         "spouse_has_pro_gear",
-        "new_duty_station",
+        "new_duty_location",
         "uploaded_orders",
         "created_at",
         "updated_at"
@@ -11766,8 +12079,8 @@ func init() {
         "moves": {
           "$ref": "#/definitions/IndexMovesPayload"
         },
-        "new_duty_station": {
-          "$ref": "#/definitions/DutyStationPayload"
+        "new_duty_location": {
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "orders_number": {
           "type": "string",
@@ -11781,9 +12094,9 @@ func init() {
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "origin_duty_station": {
+        "origin_duty_location": {
           "x-nullable": true,
-          "$ref": "#/definitions/DutyStationPayload"
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -11919,6 +12232,185 @@ func init() {
           "title": "PPM Incentive @ 95%"
         }
       }
+    },
+    "PPMShipment": {
+      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "updatedAt",
+        "status",
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected",
+        "eTag"
+      ],
+      "properties": {
+        "actualMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "advanceId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "advanceRequested": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "advanceWorksheetId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "estimatedIncentive": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weight\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "shipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sitExpected": {
+          "type": "boolean"
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "status": {
+          "$ref": "#/definitions/PPMShipmentStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "PPMShipmentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "WAITING_ON_CUSTOMER",
+        "NEEDS_ADVANCE_APPROVAL",
+        "NEEDS_PAYMENT_APPROVAL",
+        "PAYMENT_APPROVED"
+      ],
+      "readOnly": true
     },
     "PPMSitEstimate": {
       "type": "object",
@@ -12093,7 +12585,7 @@ func init() {
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
         },
-        "current_station_id": {
+        "current_location_id": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -12606,8 +13098,8 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "current_station": {
-          "$ref": "#/definitions/DutyStationPayload"
+        "current_location": {
+          "$ref": "#/definitions/DutyLocationPayload"
         },
         "edipi": {
           "type": "string",
@@ -12948,6 +13440,87 @@ func init() {
         }
       }
     },
+    "UpdatePPMShipment": {
+      "type": "object",
+      "properties": {
+        "actualMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "estimatedIncentive": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weight\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "sitExpected": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdatePersonallyProcuredMovePayload": {
       "type": "object",
       "properties": {
@@ -13114,6 +13687,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/UpdatePPMShipment"
         },
         "requestedDeliveryDate": {
           "type": "string",

@@ -3,16 +3,16 @@ package dpsauth
 import (
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/pkg/errors"
 )
 
 // GenerateToken generates the DPS auth token passed to the endpoint that sets the cookie
 func GenerateToken(loginGovID string, cookieName string, dpsRedirectURL string, secretKey string) (string, error) {
 	claims := Claims{
-		StandardClaims: jwt.StandardClaims{Subject: loginGovID, ExpiresAt: time.Now().Add(time.Minute).Unix()},
-		CookieName:     cookieName,
-		DPSRedirectURL: dpsRedirectURL,
+		RegisteredClaims: jwt.RegisteredClaims{Subject: loginGovID, ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute))},
+		CookieName:       cookieName,
+		DPSRedirectURL:   dpsRedirectURL,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

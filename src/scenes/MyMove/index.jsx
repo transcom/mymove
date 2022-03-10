@@ -62,6 +62,7 @@ const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
 const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'));
 const AmendOrders = lazy(() => import('pages/MyMove/AmendOrders/AmendOrders'));
 const EditOrders = lazy(() => import('pages/MyMove/EditOrders'));
+const EstimatedIncentive = lazy(() => import('pages/MyMove/PPMBooking/EstimatedIncentive/EstimatedIncentive'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -163,6 +164,11 @@ export class CustomerApp extends Component {
                     exact
                     path={customerRoutes.SHIPMENT_EDIT_PATH}
                     component={ConnectedCreateOrEditMtoShipment}
+                  />
+                  <CustomerPrivateRoute
+                    exact
+                    path={customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH}
+                    component={EstimatedIncentive}
                   />
                   <CustomerPrivateRoute
                     exact

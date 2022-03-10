@@ -40,6 +40,10 @@ const validationSchema = Yup.object({
     .min(0, 'RME weight must be greater than or equal to 0')
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
+  storageInTransit: Yup.number()
+    .min(0, 'Storage in transit (days) must be greater than or equal to 0')
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .notRequired(),
 });
 
 const ServicesCounselingMoveAllowances = () => {
@@ -83,13 +87,14 @@ const ServicesCounselingMoveAllowances = () => {
       proGearWeightSpouse,
       requiredMedicalEquipmentWeight,
       organizationalClothingAndIndividualEquipment,
+      storageInTransit,
     } = values;
     const body = {
       issueDate: order.date_issued,
-      newDutyStationId: order.destinationDutyStation.id,
+      newDutyStationId: order.destinationDutyLocation.id,
       ordersNumber: order.order_number,
       ordersType: order.order_type,
-      originDutyStationId: order.originDutyStation.id,
+      originDutyStationId: order.originDutyLocation.id,
       reportByDate: order.report_by_date,
       grade,
       agency,
@@ -97,6 +102,7 @@ const ServicesCounselingMoveAllowances = () => {
       proGearWeight: Number(proGearWeight),
       proGearWeightSpouse: Number(proGearWeightSpouse),
       requiredMedicalEquipmentWeight: Number(requiredMedicalEquipmentWeight),
+      storageInTransit: Number(storageInTransit),
       organizationalClothingAndIndividualEquipment,
     };
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
@@ -109,6 +115,7 @@ const ServicesCounselingMoveAllowances = () => {
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
+    storageInTransit,
   } = entitlement;
 
   const initialValues = {
@@ -118,6 +125,7 @@ const ServicesCounselingMoveAllowances = () => {
     proGearWeight: `${proGearWeight}`,
     proGearWeightSpouse: `${proGearWeightSpouse}`,
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
+    storageInTransit: `${storageInTransit}`,
     organizationalClothingAndIndividualEquipment,
   };
 
@@ -156,7 +164,7 @@ const ServicesCounselingMoveAllowances = () => {
               </div>
               <div className={styles.bottom}>
                 <div className={styles.buttonGroup}>
-                  <Button disabled={formik.isSubmitting} type="submit">
+                  <Button disabled={formik.isSubmitting} data-testid="scAllowancesSave" type="submit">
                     Save
                   </Button>
                   <Button type="button" secondary onClick={handleClose}>

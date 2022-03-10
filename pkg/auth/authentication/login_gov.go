@@ -11,7 +11,7 @@ import (
 
 	"net/http"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"go.uber.org/zap"
@@ -189,12 +189,12 @@ func (p LoginGovProvider) TokenParams(code string, clientID string, expiry time.
 }
 
 func (p LoginGovProvider) createClientAssertionJWT(clientID string, expiry time.Time) (string, error) {
-	claims := &jwt.StandardClaims{
+	claims := &jwt.RegisteredClaims{
 		Issuer:    clientID,
 		Subject:   clientID,
-		Audience:  p.TokenURL(),
-		Id:        generateNonce(),
-		ExpiresAt: expiry.Unix(),
+		Audience:  jwt.ClaimStrings([]string{p.TokenURL()}),
+		ID:        generateNonce(),
+		ExpiresAt: jwt.NewNumericDate(expiry),
 	}
 
 	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(p.secretKey))

@@ -20,8 +20,12 @@ import (
 type Affiliation string
 
 func NewAffiliation(value Affiliation) *Affiliation {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Affiliation.
+func (m Affiliation) Pointer() *Affiliation {
+	return &m
 }
 
 const (

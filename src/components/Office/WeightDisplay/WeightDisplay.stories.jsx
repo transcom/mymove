@@ -14,6 +14,12 @@ export default {
   },
 };
 
+const ExternalVendorShipmentMessage = () => (
+  <small>
+    1 shipment not moved by GHC prime. <a href="">View move details</a>
+  </small>
+);
+
 const Template = (args) => <WeightDisplay {...args} />;
 
 export const WithNoWeight = Template.bind({});
@@ -36,4 +42,14 @@ WithWeightAndDetailsTag.args = {
 export const WithWeightAndDetailsText = Template.bind({});
 WithWeightAndDetailsText.args = {
   children: '110% of estimated weight',
+};
+
+export const WithWeightAndExternalVendorNTSRShipment = Template.bind({});
+WithWeightAndExternalVendorNTSRShipment.args = {
+  children: <ExternalVendorShipmentMessage />,
+};
+
+export const WithWeightAndExternalVendorNTSRShipmentAndTag = Template.bind({});
+WithWeightAndExternalVendorNTSRShipmentAndTag.args = {
+  children: [<Tag>Risk of excess</Tag>, <br />, <ExternalVendorShipmentMessage />],
 };

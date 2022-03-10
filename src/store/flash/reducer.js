@@ -4,7 +4,7 @@ export const initialState = {
   flashMessage: null,
 };
 
-const flashReducer = (state = initialState, action) => {
+const flashReducer = (state = initialState, action = {}) => {
   switch (action?.type) {
     case SET_FLASH_MESSAGE: {
       const { key, messageType, message, title, slim } = action;

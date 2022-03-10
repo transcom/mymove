@@ -43,10 +43,12 @@ type Order struct {
 	OrdersTypeDetail            *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents               bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear            bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
-	OriginDutyStation           *DutyStation                       `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
-	OriginDutyStationID         *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
+	OriginDutyLocation          *DutyLocation                      `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
+	OriginDutyLocationID        *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 	NewDutyStationID            uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
-	NewDutyStation              DutyStation                        `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
+	NewDutyStation              DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_station_id"`
+	NewDutyLocationID           uuid.UUID                          `json:"new_duty_location_id" db:"new_duty_location_id"`
+	NewDutyLocation             DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
 	UploadedOrders              Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
 	UploadedOrdersID            uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber                *string                            `json:"orders_number" db:"orders_number"`
@@ -75,7 +77,7 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.TimeIsPresent{Field: o.IssueDate, Name: "IssueDate"},
 		&validators.TimeIsPresent{Field: o.ReportByDate, Name: "ReportByDate"},
 		&validators.UUIDIsPresent{Field: o.ServiceMemberID, Name: "ServiceMemberID"},
-		&validators.UUIDIsPresent{Field: o.NewDutyStationID, Name: "NewDutyStationID"},
+		&validators.UUIDIsPresent{Field: o.NewDutyLocationID, Name: "NewDutyLocationID"},
 		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
 		&StringIsNilOrNotBlank{Field: o.TAC, Name: "TransportationAccountingCode"},
 		&StringIsNilOrNotBlank{Field: o.SAC, Name: "SAC"},
@@ -84,7 +86,7 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "DepartmentIndicator"},
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
-		&OptionalUUIDIsPresent{Field: o.OriginDutyStationID, Name: "OriginDutyStationID"},
+		&OptionalUUIDIsPresent{Field: o.OriginDutyLocationID, Name: "OriginDutyLocationID"},
 		&OptionalRegexMatch{Name: "TransportationAccountingCode", Field: o.TAC, Expr: `\A([A-Za-z0-9]){4}\z`, Message: "TAC must be exactly 4 alphanumeric characters."},
 		&validators.UUIDIsPresent{Field: o.UploadedOrdersID, Name: "UploadedOrdersID"},
 		&OptionalUUIDIsPresent{Field: o.UploadedAmendedOrdersID, Name: "UploadedAmendedOrdersID"},
@@ -95,6 +97,10 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
+
+	if order.NewDutyStationID != order.NewDutyLocationID {
+		order.NewDutyStationID = order.NewDutyLocationID
+	}
 
 	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
@@ -108,7 +114,7 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 		if ppm.ID != uuid.Nil {
 			// If we're going to do this, we should check to see if the PMM postal code matches the postal code of the
 			// previous destination duty station.  Otherwise, we may be overwriting a home address postal code.
-			ppm.DestinationPostalCode = &order.NewDutyStation.Address.PostalCode
+			ppm.DestinationPostalCode = &order.NewDutyLocation.Address.PostalCode
 			if verrs, err := dbConnection.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -158,16 +164,16 @@ func (o *Order) Cancel() error {
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().EagerPreload("ServiceMember.User",
-		"OriginDutyStation.Address",
-		"OriginDutyStation.TransportationOffice",
-		"NewDutyStation.Address",
-		"NewDutyStation.TransportationOffice",
+		"OriginDutyLocation.Address",
+		"OriginDutyLocation.TransportationOffice",
+		"NewDutyLocation.Address",
+		"NewDutyLocation.TransportationOffice",
 		"UploadedOrders",
 		"UploadedAmendedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement",
-		"OriginDutyStation").
+		"OriginDutyLocation").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -247,12 +253,11 @@ func (o *Order) IsComplete() bool {
 	if o.DepartmentIndicator == nil {
 		return false
 	}
+	// HHG TAC
 	if o.TAC == nil {
 		return false
 	}
-	if o.SAC == nil {
-		return false
-	}
+
 	return true
 }
 
@@ -262,10 +267,8 @@ func (o *Order) IsCompleteForGBL() bool {
 	if o.DepartmentIndicator == nil {
 		return false
 	}
+	// HHG TAC
 	if o.TAC == nil {
-		return false
-	}
-	if o.SAC == nil {
 		return false
 	}
 	return true

@@ -1042,6 +1042,51 @@ func init() {
         }
       ]
     },
+    "/move/{locator}/history": {
+      "get": {
+        "description": "Returns the history for a given move for a unique alphanumeric locator string",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns the history of an identified move",
+        "operationId": "getMoveHistory",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the individual move history",
+            "schema": {
+              "$ref": "#/definitions/MoveHistory"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "Code used to identify a move in the system",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
       "get": {
         "description": "Gets all line items for a move",
@@ -3260,7 +3305,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
         }
@@ -3272,8 +3317,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "originDutyStationId",
-        "newDutyStationId"
+        "originDutyLocationId",
+        "newDutyLocationId"
       ],
       "properties": {
         "issueDate": {
@@ -3283,29 +3328,27 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -3318,9 +3361,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -3364,17 +3406,8 @@ func init() {
             }
           ]
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -3383,11 +3416,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -3584,6 +3613,18 @@ func init() {
       },
       "x-nullable": true
     },
+    "DestinationType": {
+      "type": "string",
+      "title": "Destination Type",
+      "enum": [
+        "HOME_OF_RECORD",
+        "HOME_OF_SELECTION",
+        "PLACE_ENTERED_ACTIVE_DUTY",
+        "OTHER_THAN_AUTHORIZED"
+      ],
+      "x-nullable": true,
+      "example": "OTHER_THAN_AUTHORIZED"
+    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
       "type": "string",
@@ -3619,31 +3660,6 @@ func init() {
       }
     },
     "DutyLocation": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "address_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
-        }
-      }
-    },
-    "DutyStation": {
       "type": "object",
       "properties": {
         "address": {
@@ -4135,6 +4151,7 @@ func init() {
       ]
     },
     "MTOServiceItems": {
+      "description": "A list of service items connected to this shipment.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
@@ -4194,17 +4211,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "type": "boolean",
@@ -4473,12 +4481,143 @@ func init() {
         }
       }
     },
+    "MoveAuditHistories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistory"
+      }
+    },
+    "MoveAuditHistory": {
+      "properties": {
+        "action": {
+          "description": "Action type; I = insert, D = delete, U = update, T = truncate",
+          "type": "string"
+        },
+        "actionTstampClk": {
+          "description": "Wall clock time at which audited event's trigger call occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampStm": {
+          "description": "Statement start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampTx": {
+          "description": "Transaction start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "changedValues": {
+          "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "clientQuery": {
+          "description": "Record the text of the client query that triggered the audit event",
+          "type": "string",
+          "x-nullable": true
+        },
+        "eventName": {
+          "description": "API endpoint name that was called to make the change",
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "description": "id from audity_history table",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "objectId": {
+          "description": "id column for the tableName where the data was changed",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "oldValues": {
+          "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "relId": {
+          "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
+          "type": "integer"
+        },
+        "schemaName": {
+          "description": "Database schema audited table for this event is in",
+          "type": "string"
+        },
+        "sessionUserId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "statementOnly": {
+          "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",
+          "type": "boolean",
+          "example": false
+        },
+        "tableName": {
+          "description": "name of database table that was changed",
+          "type": "string"
+        },
+        "transactionId": {
+          "description": "Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
+    "MoveAuditHistoryItem": {
+      "properties": {
+        "columnName": {
+          "type": "string"
+        },
+        "columnValue": {
+          "type": "string"
+        }
+      }
+    },
+    "MoveAuditHistoryItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistoryItem"
+      }
+    },
+    "MoveHistory": {
+      "properties": {
+        "historyRecords": {
+          "description": "A list of MoveAuditHistory's connected to the move.",
+          "$ref": "#/definitions/MoveAuditHistories"
+        },
+        "id": {
+          "description": "move ID",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "locator": {
+          "description": "move locator",
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "referenceId": {
+          "description": "move referenceID",
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        }
+      }
+    },
     "MoveStatus": {
       "type": "string",
       "enum": [
         "DRAFT",
         "NEEDS SERVICE COUNSELING",
-        "SEVICE COUNSELING COMPLETED",
+        "SERVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -4564,6 +4703,15 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
+    },
     "Order": {
       "type": "object",
       "properties": {
@@ -4593,8 +4741,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string"
@@ -4658,8 +4806,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
           "type": "string",
@@ -5006,7 +5154,7 @@ func init() {
           "type": "integer"
         },
         "status": {
-          "$ref": "#/definitions/QueueMoveStatus"
+          "$ref": "#/definitions/MoveStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -5014,14 +5162,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "QueueMoveStatus": {
-      "type": "string",
-      "enum": [
-        "New move",
-        "Move approved",
-        "Approvals requested"
-      ]
     },
     "QueueMoves": {
       "type": "array",
@@ -5052,7 +5192,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "integer"
+          "format": "double"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -5121,6 +5261,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -5142,17 +5284,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -5326,6 +5471,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -5513,7 +5659,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
         }
@@ -5603,8 +5749,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "newDutyStationId",
-        "originDutyStationId"
+        "newDutyLocationId",
+        "originDutyLocationId"
       ],
       "properties": {
         "departmentIndicator": {
@@ -5618,23 +5764,21 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersAcknowledgement": {
@@ -5654,7 +5798,7 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -5667,9 +5811,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -5735,17 +5878,8 @@ func init() {
           ],
           "x-nullable": true
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -7276,6 +7410,66 @@ func init() {
             "description": "Successfully retrieved the individual move",
             "schema": {
               "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "Code used to identify a move in the system",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move/{locator}/history": {
+      "get": {
+        "description": "Returns the history for a given move for a unique alphanumeric locator string",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns the history of an identified move",
+        "operationId": "getMoveHistory",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the individual move history",
+            "schema": {
+              "$ref": "#/definitions/MoveHistory"
             }
           },
           "400": {
@@ -9980,7 +10174,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
@@ -9993,8 +10187,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "originDutyStationId",
-        "newDutyStationId"
+        "originDutyLocationId",
+        "newDutyLocationId"
       ],
       "properties": {
         "issueDate": {
@@ -10004,29 +10198,27 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -10039,9 +10231,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -10085,17 +10276,8 @@ func init() {
             }
           ]
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -10104,11 +10286,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -10305,6 +10483,18 @@ func init() {
       },
       "x-nullable": true
     },
+    "DestinationType": {
+      "type": "string",
+      "title": "Destination Type",
+      "enum": [
+        "HOME_OF_RECORD",
+        "HOME_OF_SELECTION",
+        "PLACE_ENTERED_ACTIVE_DUTY",
+        "OTHER_THAN_AUTHORIZED"
+      ],
+      "x-nullable": true,
+      "example": "OTHER_THAN_AUTHORIZED"
+    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
       "type": "string",
@@ -10340,31 +10530,6 @@ func init() {
       }
     },
     "DutyLocation": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "address_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
-        }
-      }
-    },
-    "DutyStation": {
       "type": "object",
       "properties": {
         "address": {
@@ -10856,6 +11021,7 @@ func init() {
       ]
     },
     "MTOServiceItems": {
+      "description": "A list of service items connected to this shipment.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
@@ -10915,17 +11081,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "type": "boolean",
@@ -11194,12 +11351,143 @@ func init() {
         }
       }
     },
+    "MoveAuditHistories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistory"
+      }
+    },
+    "MoveAuditHistory": {
+      "properties": {
+        "action": {
+          "description": "Action type; I = insert, D = delete, U = update, T = truncate",
+          "type": "string"
+        },
+        "actionTstampClk": {
+          "description": "Wall clock time at which audited event's trigger call occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampStm": {
+          "description": "Statement start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampTx": {
+          "description": "Transaction start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "changedValues": {
+          "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "clientQuery": {
+          "description": "Record the text of the client query that triggered the audit event",
+          "type": "string",
+          "x-nullable": true
+        },
+        "eventName": {
+          "description": "API endpoint name that was called to make the change",
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "description": "id from audity_history table",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "objectId": {
+          "description": "id column for the tableName where the data was changed",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "oldValues": {
+          "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "relId": {
+          "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
+          "type": "integer"
+        },
+        "schemaName": {
+          "description": "Database schema audited table for this event is in",
+          "type": "string"
+        },
+        "sessionUserId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "statementOnly": {
+          "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",
+          "type": "boolean",
+          "example": false
+        },
+        "tableName": {
+          "description": "name of database table that was changed",
+          "type": "string"
+        },
+        "transactionId": {
+          "description": "Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
+    "MoveAuditHistoryItem": {
+      "properties": {
+        "columnName": {
+          "type": "string"
+        },
+        "columnValue": {
+          "type": "string"
+        }
+      }
+    },
+    "MoveAuditHistoryItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistoryItem"
+      }
+    },
+    "MoveHistory": {
+      "properties": {
+        "historyRecords": {
+          "description": "A list of MoveAuditHistory's connected to the move.",
+          "$ref": "#/definitions/MoveAuditHistories"
+        },
+        "id": {
+          "description": "move ID",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "locator": {
+          "description": "move locator",
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "referenceId": {
+          "description": "move referenceID",
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        }
+      }
+    },
     "MoveStatus": {
       "type": "string",
       "enum": [
         "DRAFT",
         "NEEDS SERVICE COUNSELING",
-        "SEVICE COUNSELING COMPLETED",
+        "SERVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -11285,6 +11573,15 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
+    },
     "Order": {
       "type": "object",
       "properties": {
@@ -11314,8 +11611,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string"
@@ -11379,8 +11676,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
           "type": "string",
@@ -11727,7 +12024,7 @@ func init() {
           "type": "integer"
         },
         "status": {
-          "$ref": "#/definitions/QueueMoveStatus"
+          "$ref": "#/definitions/MoveStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -11735,14 +12032,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "QueueMoveStatus": {
-      "type": "string",
-      "enum": [
-        "New move",
-        "Move approved",
-        "Approvals requested"
-      ]
     },
     "QueueMoves": {
       "type": "array",
@@ -11773,7 +12062,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "integer"
+          "format": "double"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -11842,6 +12131,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -11863,17 +12154,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -12050,6 +12344,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -12240,7 +12535,7 @@ func init() {
           "x-formatting": "weight",
           "example": 2000
         },
-        "sitAllowance": {
+        "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
@@ -12331,8 +12626,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "newDutyStationId",
-        "originDutyStationId"
+        "newDutyLocationId",
+        "originDutyLocationId"
       ],
       "properties": {
         "departmentIndicator": {
@@ -12346,23 +12641,21 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersAcknowledgement": {
@@ -12382,7 +12675,7 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -12395,9 +12688,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -12463,17 +12755,8 @@ func init() {
           ],
           "x-nullable": true
         },
-        "destinationAddressType": {
-          "type": "string",
-          "title": "Destination Address Type",
-          "enum": [
-            "HOME_OF_RECORD",
-            "HOME_OF_SELECTION",
-            "PLACE_ENTERED_ACTIVE_DUTY",
-            "OTHER_THAN_AUTHORIZED"
-          ],
-          "x-nullable": true,
-          "example": "Other than authorized"
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
