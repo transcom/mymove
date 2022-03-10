@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -28,20 +29,22 @@ type GetCustomerHandler struct {
 
 // Handle getting the information of a specific customer
 func (h GetCustomerHandler) Handle(params customercodeop.GetCustomerParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	customerID, _ := uuid.FromString(params.CustomerID.String())
-	customer, err := h.FetchCustomer(appCtx, customerID)
-	if err != nil {
-		appCtx.Logger().Error("Loading Customer Info", zap.Error(err))
-		switch err {
-		case sql.ErrNoRows:
-			return customercodeop.NewGetCustomerNotFound()
-		default:
-			return customercodeop.NewGetCustomerInternalServerError()
-		}
-	}
-	customerInfoPayload := payloads.Customer(customer)
-	return customercodeop.NewGetCustomerOK().WithPayload(customerInfoPayload)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			customerID, _ := uuid.FromString(params.CustomerID.String())
+			customer, err := h.FetchCustomer(appCtx, customerID)
+			if err != nil {
+				appCtx.Logger().Error("Loading Customer Info", zap.Error(err))
+				switch err {
+				case sql.ErrNoRows:
+					return customercodeop.NewGetCustomerNotFound()
+				default:
+					return customercodeop.NewGetCustomerInternalServerError()
+				}
+			}
+			customerInfoPayload := payloads.Customer(customer)
+			return customercodeop.NewGetCustomerOK().WithPayload(customerInfoPayload)
+		})
 }
 
 // UpdateCustomerHandler updates a customer via PATCH /customer/{customerId}
