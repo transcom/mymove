@@ -81,57 +81,59 @@ type CreateMTOShipmentHandler struct {
 
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	payload := params.Body
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			payload := params.Body
 
-	if payload == nil {
-		appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
-		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
-	}
-
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			payload := ghcmessages.Error{
-				Message: handlers.FmtString(err.Error()),
+			if payload == nil {
+				appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
+				return mtoshipmentops.NewCreateMTOShipmentBadRequest()
 			}
-			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(&payload)
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "CreateMTOShipment", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload)
-		case apperror.QueryError:
-			if e.Unwrap() != nil {
-				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				appCtx.Logger().Error("ghcapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
+
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					payload := ghcmessages.Error{
+						Message: handlers.FmtString(err.Error()),
+					}
+					return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(&payload)
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Validation errors", "CreateMTOShipment", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload)
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the internal error (usually a pq error) for better debugging
+						appCtx.Logger().Error("ghcapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
+					}
+					return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+				default:
+					return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+				}
 			}
-			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
-		default:
-			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
-		}
-	}
 
-	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
+			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+			mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
 
-	if err != nil {
-		return handleError(err)
-	}
+			if err != nil {
+				return handleError(err)
+			}
 
-	if mtoShipment == nil {
-		appCtx.Logger().Error("Unexpected nil shipment from CreateMTOShipment")
-		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
-	}
+			if mtoShipment == nil {
+				appCtx.Logger().Error("Unexpected nil shipment from CreateMTOShipment")
+				return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+			}
 
-	sitAllowance, err := h.shipmentStatus.CalculateShipmentSITAllowance(appCtx, *mtoShipment)
-	if err != nil {
-		return handleError(err)
-	}
+			sitAllowance, err := h.shipmentStatus.CalculateShipmentSITAllowance(appCtx, *mtoShipment)
+			if err != nil {
+				return handleError(err)
+			}
 
-	mtoShipment.SITDaysAllowance = &sitAllowance
+			mtoShipment.SITDaysAllowance = &sitAllowance
 
-	returnPayload := payloads.MTOShipment(mtoShipment, nil)
-	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+			returnPayload := payloads.MTOShipment(mtoShipment, nil)
+			return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+		})
 }
 
 // UpdateShipmentHandler updates shipments
