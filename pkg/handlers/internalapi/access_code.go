@@ -111,19 +111,21 @@ type ClaimAccessCodeHandler struct {
 
 // Handle accepts the code - updates the access code
 func (h ClaimAccessCodeHandler) Handle(params accesscodeop.ClaimAccessCodeParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if appCtx.Session() == nil || appCtx.Session().ServiceMemberID == uuid.Nil {
-		return accesscodeop.NewClaimAccessCodeUnauthorized()
-	}
+			if appCtx.Session() == nil || appCtx.Session().ServiceMemberID == uuid.Nil {
+				return accesscodeop.NewClaimAccessCodeUnauthorized()
+			}
 
-	accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(appCtx, *params.AccessCode.Code, appCtx.Session().ServiceMemberID)
+			accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(appCtx, *params.AccessCode.Code, appCtx.Session().ServiceMemberID)
 
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	accessCodePayload := payloadForAccessCodeModel(*accessCode)
+			accessCodePayload := payloadForAccessCodeModel(*accessCode)
 
-	return accesscodeop.NewClaimAccessCodeOK().WithPayload(accessCodePayload)
+			return accesscodeop.NewClaimAccessCodeOK().WithPayload(accessCodePayload)
+		})
 }
