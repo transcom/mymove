@@ -634,49 +634,51 @@ type RequestShipmentCancellationHandler struct {
 
 // Handle Requests a shipment diversion
 func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShipmentCancellationParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		appCtx.Logger().Error("Only TOO role can Request shipment diversions")
-		return shipmentops.NewRequestShipmentCancellationForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				appCtx.Logger().Error("Only TOO role can Request shipment diversions")
+				return shipmentops.NewRequestShipmentCancellationForbidden()
+			}
 
-	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	eTag := params.IfMatch
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+			eTag := params.IfMatch
 
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("ghcapi.RequestShipmentCancellationHandler", zap.Error(err))
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("ghcapi.RequestShipmentCancellationHandler", zap.Error(err))
 
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return shipmentops.NewRequestShipmentCancellationNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "RequestShipmentCancellation", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return shipmentops.NewRequestShipmentCancellationUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return shipmentops.NewRequestShipmentCancellationPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case mtoshipment.ConflictStatusError:
-			return shipmentops.NewRequestShipmentCancellationConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return shipmentops.NewRequestShipmentCancellationInternalServerError()
-		}
-	}
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewRequestShipmentCancellationNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Validation errors", "RequestShipmentCancellation", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return shipmentops.NewRequestShipmentCancellationUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewRequestShipmentCancellationPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case mtoshipment.ConflictStatusError:
+					return shipmentops.NewRequestShipmentCancellationConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return shipmentops.NewRequestShipmentCancellationInternalServerError()
+				}
+			}
 
-	shipment, err := h.RequestShipmentCancellation(appCtx, shipmentID, eTag)
-	if err != nil {
-		return handleError(err)
-	}
+			shipment, err := h.RequestShipmentCancellation(appCtx, shipmentID, eTag)
+			if err != nil {
+				return handleError(err)
+			}
 
-	h.triggerRequestShipmentCancellationEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
+			h.triggerRequestShipmentCancellationEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
-	if err != nil {
-		return handleError(err)
-	}
-	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			if err != nil {
+				return handleError(err)
+			}
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
-	payload := payloads.MTOShipment(shipment, sitStatusPayload)
-	return shipmentops.NewRequestShipmentCancellationOK().WithPayload(payload)
+			payload := payloads.MTOShipment(shipment, sitStatusPayload)
+			return shipmentops.NewRequestShipmentCancellationOK().WithPayload(payload)
+		})
 }
 
 func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentCancellationParams) {
