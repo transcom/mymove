@@ -48,7 +48,7 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
     cy.waitFor(['@getMTOServiceItems']);
     // click to trigger confirmation modal
-    cy.get('button').contains('Delete shipment').click();
+    cy.get('[data-testid="grid"] button').contains('Delete shipment').click();
 
     cy.get('[data-testid="modal"]').should('be.visible');
 
@@ -64,7 +64,7 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
     cy.waitFor(['@getMTOServiceItems']);
 
-    cy.get('button').contains('Add or edit codes').click();
+    cy.get('[data-testid="grid"] button').contains('Add or edit codes').click();
 
     cy.get('form').within(($form) => {
       cy.get('input[name="tac"]').click().clear().type('E15A');
@@ -85,10 +85,10 @@ describe('Services counselor user', () => {
     navigateToMove('NTS001');
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.waitFor(['@getMTOServiceItems']);
+    cy.waitFor(['@getMTOServiceItems, @getMoves']);
 
-    cy.get('[for="tacType-NTS"]').click();
-    cy.get('[for="sacType-HHG"]').click();
+    cy.get('[data-testid="radio"] [for="tacType-NTS"]').click();
+    cy.get('[data-testid="radio"] [for="sacType-HHG"]').click();
 
     cy.get('[data-testid="submitForm"]').click();
 
