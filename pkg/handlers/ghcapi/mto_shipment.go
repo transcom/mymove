@@ -878,47 +878,50 @@ type DenySITExtensionHandler struct {
 
 // Handle ... denies the SIT extension
 func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error denying SIT extension", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return shipmentops.NewDenySITExtensionNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return shipmentops.NewDenySITExtensionUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return shipmentops.NewDenySITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return shipmentops.NewDenySITExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return shipmentops.NewDenySITExtensionInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(apperror.NewForbiddenError("is not a TOO"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error denying SIT extension", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewDenySITExtensionNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return shipmentops.NewDenySITExtensionUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewDenySITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return shipmentops.NewDenySITExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return shipmentops.NewDenySITExtensionInternalServerError()
+				}
+			}
 
-	shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
-	sitExtensionID := uuid.FromStringOrNil(string(params.SitExtensionID))
-	officeRemarks := params.Body.OfficeRemarks
-	updatedShipment, err := h.SITExtensionDenier.DenySITExtension(appCtx, shipmentID, sitExtensionID, officeRemarks, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				return handleError(apperror.NewForbiddenError("is not a TOO"))
+			}
 
-	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
-	if err != nil {
-		return handleError(err)
-	}
+			shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
+			sitExtensionID := uuid.FromStringOrNil(string(params.SitExtensionID))
+			officeRemarks := params.Body.OfficeRemarks
+			updatedShipment, err := h.SITExtensionDenier.DenySITExtension(appCtx, shipmentID, sitExtensionID, officeRemarks, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
-	shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
+			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+			if err != nil {
+				return handleError(err)
+			}
 
-	h.triggerDenySITExtensionEvent(appCtx, shipmentID, updatedShipment.MoveTaskOrderID, params)
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			shipmentPayload := payloads.MTOShipment(updatedShipment, sitStatusPayload)
 
-	return shipmentops.NewDenySITExtensionOK().WithPayload(shipmentPayload)
+			h.triggerDenySITExtensionEvent(appCtx, shipmentID, updatedShipment.MoveTaskOrderID, params)
+
+			return shipmentops.NewDenySITExtensionOK().WithPayload(shipmentPayload)
+		})
 }
 
 func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DenySITExtensionParams) {
