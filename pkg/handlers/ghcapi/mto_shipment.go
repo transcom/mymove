@@ -285,38 +285,40 @@ type DeleteShipmentHandler struct {
 
 // Handle soft deletes a shipment
 func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		appCtx.Logger().Error("user is not authenticated with service counselor office role")
-		return shipmentops.NewDeleteShipmentForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				appCtx.Logger().Error("user is not authenticated with service counselor office role")
+				return shipmentops.NewDeleteShipmentForbidden()
+			}
 
-	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	moveID, err := h.DeleteShipment(appCtx, shipmentID)
-	if err != nil {
-		appCtx.Logger().Error("ghcapi.DeleteShipmentHandler", zap.Error(err))
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+			moveID, err := h.DeleteShipment(appCtx, shipmentID)
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.DeleteShipmentHandler", zap.Error(err))
 
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return shipmentops.NewDeleteShipmentNotFound()
-		case apperror.ForbiddenError:
-			return shipmentops.NewDeleteShipmentForbidden()
-		default:
-			return shipmentops.NewDeleteShipmentInternalServerError()
-		}
-	}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewDeleteShipmentNotFound()
+				case apperror.ForbiddenError:
+					return shipmentops.NewDeleteShipmentForbidden()
+				default:
+					return shipmentops.NewDeleteShipmentInternalServerError()
+				}
+			}
 
-	// Note that this is currently not sending any notifications because
-	// the move isn't available to the Prime yet. See the objectEventHandler
-	// function in pkg/services/event/notification.go.
-	// We added this now because eventually, we will want to save events in
-	// the DB for auditing purposes. When that happens, this code in the handler
-	// will not change. However, we should make sure to add a test in
-	// mto_shipment_test.go that verifies the audit got saved.
-	h.triggerShipmentDeletionEvent(appCtx, shipmentID, moveID, params)
+			// Note that this is currently not sending any notifications because
+			// the move isn't available to the Prime yet. See the objectEventHandler
+			// function in pkg/services/event/notification.go.
+			// We added this now because eventually, we will want to save events in
+			// the DB for auditing purposes. When that happens, this code in the handler
+			// will not change. However, we should make sure to add a test in
+			// mto_shipment_test.go that verifies the audit got saved.
+			h.triggerShipmentDeletionEvent(appCtx, shipmentID, moveID, params)
 
-	return shipmentops.NewDeleteShipmentNoContent()
+			return shipmentops.NewDeleteShipmentNoContent()
+		})
 }
 
 func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DeleteShipmentParams) {
