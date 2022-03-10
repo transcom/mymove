@@ -4,6 +4,7 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   });
 
   beforeEach(() => {
+    cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
     cy.logout();
   });
 
@@ -80,6 +81,7 @@ function invalidInputs() {
 function submitsEstimatedWeightsAndProgear() {
   cy.get('[data-testid="shipment-list-item-container"]').click();
   cy.get('button').contains('Save & Continue').click();
+  cy.wait('@patchShipment');
 
   cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
   cy.get('input[name="hasProGear"][value="true"]').check({ force: true });
@@ -87,6 +89,8 @@ function submitsEstimatedWeightsAndProgear() {
   cy.get('button').contains('Save & Continue').should('be.enabled');
 
   cy.get('button').contains('Save & Continue').click();
+  cy.wait('@patchShipment');
+
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
   });
@@ -95,11 +99,14 @@ function submitsEstimatedWeightsAndProgear() {
 function submitsEstimatedWeights() {
   cy.get('[data-testid="shipment-list-item-container"]').click();
   cy.get('button').contains('Save & Continue').click();
+  cy.wait('@patchShipment');
 
   cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
   cy.get('button').contains('Save & Continue').should('be.enabled');
 
   cy.get('button').contains('Save & Continue').click();
+  cy.wait('@patchShipment');
+
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
   });

@@ -4,6 +4,7 @@ describe('PPM Onboarding - Add dates and location flow', function () {
   });
 
   beforeEach(() => {
+    cy.intercept('POST', '**/internal/mto_shipments').as('createShipment');
     cy.logout();
   });
 
@@ -78,6 +79,7 @@ function submitsDateAndLocation() {
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
   cy.get('button').contains('Save & Continue').click();
+  cy.wait('@createShipment');
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
