@@ -29,20 +29,23 @@ type GetOrdersHandler struct {
 
 // Handle getting the information of a specific order
 func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	orderID, _ := uuid.FromString(params.OrderID.String())
-	order, err := h.FetchOrder(appCtx, orderID)
-	if err != nil {
-		appCtx.Logger().Error("fetching order", zap.Error(err))
-		switch err {
-		case sql.ErrNoRows:
-			return orderop.NewGetOrderNotFound()
-		default:
-			return orderop.NewGetOrderInternalServerError()
-		}
-	}
-	orderPayload := payloads.Order(order)
-	return orderop.NewGetOrderOK().WithPayload(orderPayload)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+
+			orderID, _ := uuid.FromString(params.OrderID.String())
+			order, err := h.FetchOrder(appCtx, orderID)
+			if err != nil {
+				appCtx.Logger().Error("fetching order", zap.Error(err))
+				switch err {
+				case sql.ErrNoRows:
+					return orderop.NewGetOrderNotFound()
+				default:
+					return orderop.NewGetOrderInternalServerError()
+				}
+			}
+			orderPayload := payloads.Order(order)
+			return orderop.NewGetOrderOK().WithPayload(orderPayload)
+		})
 }
 
 // UpdateOrderHandler updates an order via PATCH /orders/{orderId}
