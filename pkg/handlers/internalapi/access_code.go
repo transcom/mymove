@@ -78,27 +78,29 @@ type ValidateAccessCodeHandler struct {
 
 // Handle accepts the code - validates the access code
 func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCodeParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if appCtx.Session() == nil {
-		return accesscodeop.NewValidateAccessCodeUnauthorized()
-	}
+			if appCtx.Session() == nil {
+				return accesscodeop.NewValidateAccessCodeUnauthorized()
+			}
 
-	splitParams := strings.Split(*params.Code, "-")
-	moveType, code := splitParams[0], splitParams[1]
+			splitParams := strings.Split(*params.Code, "-")
+			moveType, code := splitParams[0], splitParams[1]
 
-	accessCode, valid, _ := h.accessCodeValidator.ValidateAccessCode(appCtx, code, models.SelectedMoveType(moveType))
-	var validateAccessCodePayload *internalmessages.AccessCode
+			accessCode, valid, _ := h.accessCodeValidator.ValidateAccessCode(appCtx, code, models.SelectedMoveType(moveType))
+			var validateAccessCodePayload *internalmessages.AccessCode
 
-	if !valid {
-		appCtx.Logger().Warn("Access code not valid")
-		validateAccessCodePayload = &internalmessages.AccessCode{}
-		return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
-	}
+			if !valid {
+				appCtx.Logger().Warn("Access code not valid")
+				validateAccessCodePayload = &internalmessages.AccessCode{}
+				return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+			}
 
-	validateAccessCodePayload = payloadForAccessCodeModel(*accessCode)
+			validateAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
-	return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+			return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+		})
 }
 
 // ClaimAccessCodeHandler updates an access code to mark it as claimed
