@@ -422,49 +422,51 @@ type RequestShipmentDiversionHandler struct {
 
 // Handle Requests a shipment diversion
 func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipmentDiversionParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		appCtx.Logger().Error("Only TOO role can Request shipment diversions")
-		return shipmentops.NewRequestShipmentDiversionForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				appCtx.Logger().Error("Only TOO role can Request shipment diversions")
+				return shipmentops.NewRequestShipmentDiversionForbidden()
+			}
 
-	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	eTag := params.IfMatch
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+			eTag := params.IfMatch
 
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("ghcapi.RequestShipmentDiversionHandler", zap.Error(err))
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("ghcapi.RequestShipmentDiversionHandler", zap.Error(err))
 
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return shipmentops.NewRequestShipmentDiversionNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "RequestShipmentDiversion", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return shipmentops.NewRequestShipmentDiversionUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return shipmentops.NewRequestShipmentDiversionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case mtoshipment.ConflictStatusError:
-			return shipmentops.NewRequestShipmentDiversionConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return shipmentops.NewRequestShipmentDiversionInternalServerError()
-		}
-	}
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewRequestShipmentDiversionNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Validation errors", "RequestShipmentDiversion", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return shipmentops.NewRequestShipmentDiversionUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewRequestShipmentDiversionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case mtoshipment.ConflictStatusError:
+					return shipmentops.NewRequestShipmentDiversionConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return shipmentops.NewRequestShipmentDiversionInternalServerError()
+				}
+			}
 
-	shipment, err := h.RequestShipmentDiversion(appCtx, shipmentID, eTag)
-	if err != nil {
-		return handleError(err)
-	}
+			shipment, err := h.RequestShipmentDiversion(appCtx, shipmentID, eTag)
+			if err != nil {
+				return handleError(err)
+			}
 
-	h.triggerRequestShipmentDiversionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
+			h.triggerRequestShipmentDiversionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-	shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
-	if err != nil {
-		return handleError(err)
-	}
-	sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			if err != nil {
+				return handleError(err)
+			}
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
-	payload := payloads.MTOShipment(shipment, sitStatusPayload)
-	return shipmentops.NewRequestShipmentDiversionOK().WithPayload(payload)
+			payload := payloads.MTOShipment(shipment, sitStatusPayload)
+			return shipmentops.NewRequestShipmentDiversionOK().WithPayload(payload)
+		})
 }
 
 func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentDiversionParams) {
