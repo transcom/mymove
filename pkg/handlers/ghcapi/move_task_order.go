@@ -29,28 +29,29 @@ type GetMoveTaskOrderHandler struct {
 
 // Handle fetches a single MoveTaskOrder
 func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-
-	searchParams := services.MoveTaskOrderFetcherParams{
-		IncludeHidden:   false,
-		MoveTaskOrderID: moveTaskOrderID,
-	}
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(appCtx, &searchParams)
-	if err != nil {
-		appCtx.Logger().Error("ghcapi.GetMoveTaskOrderHandler error", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return movetaskorderops.NewGetMoveTaskOrderNotFound()
-		case apperror.InvalidInputError:
-			return movetaskorderops.NewGetMoveTaskOrderBadRequest()
-		default:
-			return movetaskorderops.NewGetMoveTaskOrderInternalServerError()
-		}
-	}
-	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
-	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
+			searchParams := services.MoveTaskOrderFetcherParams{
+				IncludeHidden:   false,
+				MoveTaskOrderID: moveTaskOrderID,
+			}
+			mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(appCtx, &searchParams)
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.GetMoveTaskOrderHandler error", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return movetaskorderops.NewGetMoveTaskOrderNotFound()
+				case apperror.InvalidInputError:
+					return movetaskorderops.NewGetMoveTaskOrderBadRequest()
+				default:
+					return movetaskorderops.NewGetMoveTaskOrderInternalServerError()
+				}
+			}
+			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
+		})
 }
 
 // UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order
