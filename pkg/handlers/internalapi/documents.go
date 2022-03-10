@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -43,38 +44,40 @@ type CreateDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	// Fetch to check auth
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			// Fetch to check auth
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	newDocument := models.Document{
-		ServiceMemberID: serviceMember.ID,
-	}
+			newDocument := models.Document{
+				ServiceMemberID: serviceMember.ID,
+			}
 
-	verrs, err := appCtx.DB().ValidateAndCreate(&newDocument)
-	if err != nil {
-		appCtx.Logger().Info("DB Insertion", zap.Error(err))
-		return documentop.NewCreateDocumentInternalServerError()
-	} else if verrs.HasAny() {
-		appCtx.Logger().Error("Could not save document", zap.String("errors", verrs.Error()))
-		return documentop.NewCreateDocumentBadRequest()
-	}
+			verrs, err := appCtx.DB().ValidateAndCreate(&newDocument)
+			if err != nil {
+				appCtx.Logger().Info("DB Insertion", zap.Error(err))
+				return documentop.NewCreateDocumentInternalServerError()
+			} else if verrs.HasAny() {
+				appCtx.Logger().Error("Could not save document", zap.String("errors", verrs.Error()))
+				return documentop.NewCreateDocumentBadRequest()
+			}
 
-	appCtx.Logger().Info("created a document with id", zap.Any("new_document_id", newDocument.ID))
-	documentPayload, err := payloadForDocumentModel(h.FileStorer(), newDocument)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
+			appCtx.Logger().Info("created a document with id", zap.Any("new_document_id", newDocument.ID))
+			documentPayload, err := payloadForDocumentModel(h.FileStorer(), newDocument)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
+		})
 }
 
 // ShowDocumentHandler shows a document via GETT /documents/:document_id
