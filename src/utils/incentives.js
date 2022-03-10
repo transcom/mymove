@@ -9,3 +9,7 @@ export const getIncentiveRange = (ppm, estimate) => {
 
   return range || '';
 };
+
+export const maxAdvance = (incentive) => {
+  return Math.floor(incentive * 0.6);
+};
