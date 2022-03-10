@@ -24,9 +24,6 @@ func (r DistanceZip5Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 	planner := keyData.planner
 	db := appCtx.DB()
 
-	// Get the MTOServiceItem and associated MTOShipment and addresses
-	mtoServiceItemID := keyData.MTOServiceItemID
-
 	// Make sure there's an MTOShipment since that's nullable
 	mtoShipmentID := keyData.mtoShipmentID
 	if mtoShipmentID == nil {
@@ -38,9 +35,9 @@ func (r DistanceZip5Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOShipmentID")
+			return "", apperror.NewNotFoundError(*mtoShipmentID, "looking for MTOShipmentID")
 		default:
-			return "", apperror.NewQueryError("MTOServiceItem", err, "")
+			return "", apperror.NewQueryError("MTOShipment", err, "")
 		}
 	}
 
@@ -69,7 +66,7 @@ func (r DistanceZip5Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 	if pickupZip3 == destinationZip3 {
 		miles := unit.Miles(distanceMiles)
 		mtoShipment.Distance = &miles
-		err := db.Save(&mtoShipment)
+		err = db.Save(&mtoShipment)
 		if err != nil {
 			return "", err
 		}

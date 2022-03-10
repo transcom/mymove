@@ -75,7 +75,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		err = suite.DB().Reload(&ppmShipment.Shipment)
 		suite.NoError(err)
 
-		suite.NoError(err)
 		suite.Equal(fmt.Sprintf("%d", defaultZip3Distance), distance)
 		suite.Equal(unit.Miles(defaultZip3Distance), *ppmShipment.Shipment.Distance)
 	})
