@@ -16,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	var domOtherPriceCode models.ReServiceCode
 	switch packUnpackCode {
@@ -30,8 +30,8 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
 	}
-	if requestedPickupDate.IsZero() {
-		return 0, nil, errors.New("RequestedPickupDate is required")
+	if referenceDate.IsZero() {
+		return 0, nil, errors.New("ReferenceDate is required")
 	}
 	if weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
@@ -40,7 +40,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 		return 0, nil, errors.New("Services schedule is required")
 	}
 
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
+	isPeakPeriod := IsPeakPeriod(referenceDate)
 
 	domOtherPrice, err := fetchDomOtherPrice(appCtx, contractCode, domOtherPriceCode, servicesSchedule, isPeakPeriod)
 	if err != nil {
@@ -49,7 +49,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 
 	var contractYear models.ReContractYear
 	err = appCtx.DB().Where("contract_id = $1", domOtherPrice.ContractID).
-		Where("$2 between start_date and end_date", requestedPickupDate).
+		Where("$2 between start_date and end_date", referenceDate).
 		First(&contractYear)
 	if err != nil {
 		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
@@ -96,7 +96,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	return totalCost, displayParams, nil
 }
 
-func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if firstDaySITCode == models.ReServiceCodeDDFSIT {
 		sitType = "destination"
@@ -110,13 +110,13 @@ func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode mode
 		return 0, nil, fmt.Errorf("weight of %d less than the minimum of %d", weight, minDomesticWeight)
 	}
 
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
+	isPeakPeriod := IsPeakPeriod(referenceDate)
 	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, firstDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s first day SIT rate: %w", sitType, err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
 	}
@@ -136,7 +136,7 @@ func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode mode
 	return totalPriceCents, params, nil
 }
 
-func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDaySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if additionalDaySITCode == models.ReServiceCodeDDASIT {
 		sitType = "destination"
@@ -150,13 +150,13 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 		return 0, nil, fmt.Errorf("weight of %d less than the minimum of %d", weight, minDomesticWeight)
 	}
 
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
+	isPeakPeriod := IsPeakPeriod(referenceDate)
 	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, additionalDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s additional days SIT rate: %w", sitType, err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
 	}
@@ -188,7 +188,7 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 	return totalPriceCents, displayParams, nil
 }
 
-func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType, sitModifier, zipOriginalName, zipActualName string
 	if pickupDeliverySITCode == models.ReServiceCodeDDDSIT {
 		sitType = "destination"
@@ -224,7 +224,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	if zip3Original == zip3Actual {
 		// Do a normal shorthaul calculation
 		shorthaulPricer := NewDomesticShorthaulPricer()
-		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
 		}
@@ -238,7 +238,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	if distance > 50 {
 		// Do a normal linehaul calculation
 		linehaulPricer := NewDomesticLinehaulPricer()
-		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}
@@ -251,12 +251,12 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	// 3) Zip3 to different zip3 and <= 50 miles
 
 	// Rate comes from the domestic other price table based on SIT schedule
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
+	isPeakPeriod := IsPeakPeriod(referenceDate)
 	domOtherPrice, err := fetchDomOtherPrice(appCtx, contractCode, pickupDeliverySITCode, sitSchedule, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s SIT %s rate: %w", sitType, sitModifier, err)
 	}
-	contractYear, err := fetchContractYear(appCtx, domOtherPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domOtherPrice.ContractID, referenceDate)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
 	}
@@ -287,7 +287,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	return totalPriceCents, displayParams, nil
 }
 
-func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
 	if shuttlingCode != models.ReServiceCodeDOSHUT && shuttlingCode != models.ReServiceCodeDDSHUT {
 		return 0, nil, fmt.Errorf("unsupported domestic shuttling code of %s", shuttlingCode)
 	}
@@ -295,8 +295,8 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
 	}
-	if requestedPickupDate.IsZero() {
-		return 0, nil, errors.New("RequestedPickupDate is required")
+	if referenceDate.IsZero() {
+		return 0, nil, errors.New("ReferenceDate is required")
 	}
 	if weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
@@ -311,7 +311,7 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 		return 0, nil, fmt.Errorf("Could not lookup Domestic Accessorial Area Price: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, domAccessorialPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate)
 	if err != nil {
 		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
@@ -337,7 +337,7 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 	return totalCost, params, nil
 }
 
-func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCode, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCode, contractCode string, referenceDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
 	if code != models.ReServiceCodeDCRT && code != models.ReServiceCodeDUCRT {
 		return 0, nil, fmt.Errorf("unsupported domestic crating code of %s", code)
 	}
@@ -351,7 +351,7 @@ func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCod
 	}
 
 	basePrice := domAccessorialPrice.PerUnitCents.Float64() * float64(billedCubicFeet)
-	contractYear, err := fetchContractYear(appCtx, domAccessorialPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not lookup contract year: %w", err)
 	}

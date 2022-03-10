@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -15,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
+func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocations []models.DutyLocation, originDutyLocationsInGBLOC []models.DutyLocation) func() {
 	db := appCtx.DB()
 	return func() {
 		createTXO(appCtx)
@@ -30,7 +29,7 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyStatio
 		ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 		tac := "1234"
 		// make sure to create moves that does not go to US marines affiliation
-		move := createRandomMove(appCtx, validStatuses, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
+		move := createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, true, testdatagen.Assertions{
 			Order: models.Order{
 				DepartmentIndicator: (*string)(&affiliationAirForce),
 				OrdersNumber:        &ordersNumber,
@@ -90,30 +89,73 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
+func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
+	return func() {
+		createTXO(appCtx)
+		createTXOUSMC(appCtx)
+
+		// Onboarding
+		createUnsubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
+		createMoveWithPPM(appCtx, userUploader, moveRouter)
+	}
+}
+
 func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader *uploader.UserUploader,
-	allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
+	allDutyLocations []models.DutyLocation, originDutyLocationsInGBLOC []models.DutyLocation) func() {
 	return func() {
 		createTXOServicesCounselor(appCtx)
 		createTXOServicesUSMCCounselor(appCtx)
 
 		// Services Counseling
-		createHHGNeedsServicesCounseling(appCtx)
+		//Order Types -- PCoS, Retr, Sep
+		pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		retirement := internalmessages.OrdersTypeRETIREMENT
+		separation := internalmessages.OrdersTypeSEPARATION
+
+		//Shipment Types -- HHG, NTS, NTSR
+		hhg := models.MTOShipmentTypeHHG
+		nts := models.MTOShipmentTypeHHGIntoNTSDom
+		ntsR := models.MTOShipmentTypeHHGOutOfNTSDom
+
+		//Destination Types -- PLEAD, HOR, HOS, OTHER
+		plead := models.DestinationTypePlaceEnteredActiveDuty
+		hor := models.DestinationTypeHomeOfRecord
+		hos := models.DestinationTypeHomeOfSelection
+		other := models.DestinationTypeOtherThanAuthorized
+
+		//PCOS - one with nil dest type, 2 others with PLEAD status
+		createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "NODEST")
+		createNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD1")
+		createNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD2")
+
+		//Retirees
+		createNeedsServicesCounseling(appCtx, retirement, hhg, &hor, "RETIR3")
+		createNeedsServicesCounseling(appCtx, retirement, nts, &hos, "RETIR4")
+		createNeedsServicesCounseling(appCtx, retirement, ntsR, &other, "RETIR5")
+		createNeedsServicesCounseling(appCtx, retirement, hhg, &plead, "RETIR6")
+
+		//Separatees
+		createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "SEPAR3")
+		createNeedsServicesCounseling(appCtx, separation, nts, &hos, "SEPAR4")
+		createNeedsServicesCounseling(appCtx, separation, ntsR, &other, "SEPAR5")
+		createNeedsServicesCounseling(appCtx, separation, ntsR, &plead, "SEPAR6")
+
+		//USMC
 		createHHGNeedsServicesCounselingUSMC(appCtx, userUploader)
 		createHHGNeedsServicesCounselingUSMC2(appCtx, userUploader)
 		createHHGServicesCounselingCompleted(appCtx)
 		createHHGNoShipments(appCtx)
-		createHHGNeedsServicesCounselingWithDestinationAddressAndType(appCtx)
 
 		for i := 0; i < 12; i++ {
 			validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
-			createRandomMove(appCtx, validStatuses, allDutyStations, originDutyStationsInGBLOC, false, testdatagen.Assertions{
+			createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, false, testdatagen.Assertions{
 				UserUploader: userUploader,
 			})
 		}
 	}
 }
 
-func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, logger *zap.Logger) func() {
+func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createTOO(appCtx)
 		createTIO(appCtx)
@@ -132,7 +174,100 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		for i := 1; i < 12; i++ {
 			createDefaultHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationAIRFORCE)
 		}
+
+		// Marines
 		createDefaultHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationMARINES)
+
+		//destination type
+		hos := models.DestinationTypeHomeOfSelection
+		hor := models.DestinationTypeHomeOfRecord
+
+		//shipment type
+		hhg := models.MTOShipmentTypeHHG
+		nts := models.MTOShipmentTypeHHGIntoNTSDom
+		ntsR := models.MTOShipmentTypeHHGOutOfNTSDom
+
+		//orders type
+		retirement := internalmessages.OrdersTypeRETIREMENT
+		separation := internalmessages.OrdersTypeSEPARATION
+
+		//Retiree, HOR, HHG
+		createMoveWithOptions(appCtx, testdatagen.Assertions{
+			Order: models.Order{
+				OrdersType: retirement,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    hhg,
+				DestinationType: &hor,
+			},
+			Move: models.Move{
+				Locator: "R3T1R3",
+				Status:  models.MoveStatusSUBMITTED,
+			},
+			DutyLocation: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		})
+
+		//Retiree, HOS, NTS
+		ntsMoveType := models.SelectedMoveTypeNTS
+		createMoveWithOptions(appCtx, testdatagen.Assertions{
+			Order: models.Order{
+				OrdersType: retirement,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       nts,
+				DestinationType:    &hor,
+				UsesExternalVendor: false,
+			},
+			Move: models.Move{
+				Locator:          "R3TNTS",
+				Status:           models.MoveStatusSUBMITTED,
+				SelectedMoveType: &ntsMoveType,
+			},
+			DutyLocation: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		})
+
+		//Retiree, HOS, NTSR
+		ntsrMoveType := models.SelectedMoveTypeNTSR
+		createMoveWithOptions(appCtx, testdatagen.Assertions{
+			Order: models.Order{
+				OrdersType: retirement,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       ntsR,
+				DestinationType:    &hos,
+				UsesExternalVendor: false,
+			},
+			Move: models.Move{
+				Locator:          "R3TNTR",
+				Status:           models.MoveStatusSUBMITTED,
+				SelectedMoveType: &ntsrMoveType,
+			},
+			DutyLocation: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		})
+
+		//Separatee, HOS, hhg
+		createMoveWithOptions(appCtx, testdatagen.Assertions{
+			Order: models.Order{
+				OrdersType: separation,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    hhg,
+				DestinationType: &hos,
+			},
+			Move: models.Move{
+				Locator: "S3P4R3",
+				Status:  models.MoveStatusSUBMITTED,
+			},
+			DutyLocation: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		})
 	}
 }
 
@@ -170,16 +305,16 @@ func subScenarioPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploader.U
 }
 
 func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader,
-	allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
+	allDutyLocations []models.DutyLocation, originDutyLocationsInGBLOC []models.DutyLocation) func() {
 	return func() {
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
 
 		// Create diverted shipments that need TOO approval
-		createMoveWithDivertedShipments(appCtx, userUploader)
+		createMoveWithDivertedShipments(appCtx)
 
 		// Create diverted shipments that are approved and appear on the Move Task Order page
-		createRandomMove(appCtx, nil, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
+		createRandomMove(appCtx, nil, allDutyLocations, originDutyLocationsInGBLOC, true, testdatagen.Assertions{
 			UserUploader: userUploader,
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
@@ -217,14 +352,14 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) func() {
+func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
 		createTXO(appCtx)
 		createTXOServicesCounselor(appCtx)
 
 		// Create some submitted Moves for TXO users
-		createMoveWithHHGAndNTSRMissingInfo(appCtx, userUploader, moveRouter)
-		createMoveWithHHGAndNTSMissingInfo(appCtx, userUploader, moveRouter)
+		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter)
+		createMoveWithHHGAndNTSMissingInfo(appCtx, moveRouter)
 		createMoveWithNTSAndNTSR(
 			appCtx,
 			userUploader,
@@ -232,6 +367,18 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 			sceneOptionsNTS{
 				shipmentMoveCode: "NTSSUB",
 				moveStatus:       models.MoveStatusSUBMITTED,
+			},
+		)
+
+		// uses external vendor
+		createMoveWithNTSAndNTSR(
+			appCtx,
+			userUploader,
+			moveRouter,
+			sceneOptionsNTS{
+				shipmentMoveCode:   "NTSEVR",
+				moveStatus:         models.MoveStatusSUBMITTED,
+				usesExternalVendor: true,
 			},
 		)
 

@@ -24,8 +24,12 @@ import (
 type MTOAgentType string
 
 func NewMTOAgentType(value MTOAgentType) *MTOAgentType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated MTOAgentType.
+func (m MTOAgentType) Pointer() *MTOAgentType {
+	return &m
 }
 
 const (

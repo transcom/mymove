@@ -24,8 +24,12 @@ import (
 type ReServiceCode string
 
 func NewReServiceCode(value ReServiceCode) *ReServiceCode {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ReServiceCode.
+func (m ReServiceCode) Pointer() *ReServiceCode {
+	return &m
 }
 
 const (

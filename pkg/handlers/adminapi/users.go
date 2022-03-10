@@ -157,8 +157,7 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 	sessionStore := h.SessionManager(appCtx.Session()).Store
 	updatedUser, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(appCtx, userID, payload, sessionStore)
 	if revokeErr != nil || validationErrors != nil {
-		fmt.Printf("%#v", validationErrors)
-		appCtx.Logger().Error("Error revoking user session", zap.Error(revokeErr))
+		appCtx.Logger().Error("Error revoking user session", zap.Error(revokeErr), zap.Error(verrs))
 		return userop.NewUpdateUserInternalServerError()
 	}
 

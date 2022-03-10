@@ -89,7 +89,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginShuttlingServiceItem(
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
 				Value:   doshutTestRequestedPickupDate.Format(DateParamFormat),
 			},
@@ -99,19 +99,9 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginShuttlingServiceItem(
 				Value:   strconv.Itoa(doshutTestServiceSchedule),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightOriginal,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "1400",
-			},
-			{
 				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(doshutTestWeight)),
-			},
-			{
-				Key:     models.ServiceItemParamNameWeightEstimated,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "1400",
 			},
 		},
 	)

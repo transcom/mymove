@@ -19,8 +19,8 @@ func NewDomesticUnpackPricer() services.DomesticUnpackPricer {
 }
 
 // Price determines the price for a domestic unpack service
-func (p domesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, requestedPickupDate, weight, servicesScheduleDest)
+func (p domesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, referenceDate, weight, servicesScheduleDest)
 }
 
 // PriceUsingParams determines the price for a domestic unpack service given PaymentServiceItemParams
@@ -30,12 +30,7 @@ func (p domesticUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 		return unit.Cents(0), nil, err
 	}
 
-	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
-
-	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
+	referenceDate, err := getParamTime(params, models.ServiceItemParamNameReferenceDate)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -45,5 +40,10 @@ func (p domesticUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilled), servicesScheduleDest)
+	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
+
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleDest)
 }

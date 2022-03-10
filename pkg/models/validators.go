@@ -11,7 +11,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
-	"github.com/rickar/cal"
+	"github.com/rickar/cal/v2"
 
 	"github.com/gobuffalo/pop/v5"
 
@@ -258,7 +258,7 @@ func (v *AtLeastOneNotNil) IsValid(errors *validate.Errors) {
 type DateIsWorkday struct {
 	Name     string
 	Field    time.Time
-	Calendar *cal.Calendar
+	Calendar *cal.BusinessCalendar
 }
 
 // IsValid adds error if field is not on valid workday
@@ -273,7 +273,7 @@ func (v *DateIsWorkday) IsValid(errors *validate.Errors) {
 type OptionalDateIsWorkday struct {
 	Name     string
 	Field    *time.Time
-	Calendar *cal.Calendar
+	Calendar *cal.BusinessCalendar
 }
 
 // IsValid adds error if field is not on valid workday

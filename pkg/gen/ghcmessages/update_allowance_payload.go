@@ -19,8 +19,8 @@ import (
 // swagger:model UpdateAllowancePayload
 type UpdateAllowancePayload struct {
 
-	// the branch that the service member belongs to
-	Agency Branch `json:"agency,omitempty"`
+	// agency
+	Agency *Affiliation `json:"agency,omitempty"`
 
 	// unit is in lbs
 	// Example: 2000
@@ -55,7 +55,7 @@ type UpdateAllowancePayload struct {
 
 	// the number of storage in transit days that the customer is entitled to for a given shipment on their move
 	// Minimum: 0
-	SitAllowance *int64 `json:"sitAllowance,omitempty"`
+	StorageInTransit *int64 `json:"storageInTransit,omitempty"`
 }
 
 // Validate validates this update allowance payload
@@ -86,7 +86,7 @@ func (m *UpdateAllowancePayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSitAllowance(formats); err != nil {
+	if err := m.validateStorageInTransit(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -101,13 +101,15 @@ func (m *UpdateAllowancePayload) validateAgency(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.Agency.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("agency")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("agency")
+	if m.Agency != nil {
+		if err := m.Agency.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("agency")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("agency")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -188,12 +190,12 @@ func (m *UpdateAllowancePayload) validateRequiredMedicalEquipmentWeight(formats 
 	return nil
 }
 
-func (m *UpdateAllowancePayload) validateSitAllowance(formats strfmt.Registry) error {
-	if swag.IsZero(m.SitAllowance) { // not required
+func (m *UpdateAllowancePayload) validateStorageInTransit(formats strfmt.Registry) error {
+	if swag.IsZero(m.StorageInTransit) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("sitAllowance", "body", *m.SitAllowance, 0, false); err != nil {
+	if err := validate.MinimumInt("storageInTransit", "body", *m.StorageInTransit, 0, false); err != nil {
 		return err
 	}
 
@@ -220,13 +222,15 @@ func (m *UpdateAllowancePayload) ContextValidate(ctx context.Context, formats st
 
 func (m *UpdateAllowancePayload) contextValidateAgency(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.Agency.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("agency")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("agency")
+	if m.Agency != nil {
+		if err := m.Agency.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("agency")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("agency")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

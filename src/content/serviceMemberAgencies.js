@@ -4,6 +4,7 @@ export default {
   COAST_GUARD: 'COAST_GUARD',
   NAVY: 'NAVY',
   MARINES: 'MARINES',
+  OTHER: 'OTHER',
 };
 
 export const SERVICE_MEMBER_AGENCY_LABELS = {
@@ -12,4 +13,5 @@ export const SERVICE_MEMBER_AGENCY_LABELS = {
   COAST_GUARD: 'Coast Guard',
   NAVY: 'Navy',
   MARINES: 'Marine Corps',
+  OTHER: 'Other',
 };

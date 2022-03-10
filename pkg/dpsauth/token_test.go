@@ -26,7 +26,7 @@ func (suite *dpsAuthSuite) TestToken() {
 		return
 	}
 
-	suite.Equal(userID, claims.StandardClaims.Subject)
+	suite.Equal(userID, claims.RegisteredClaims.Subject)
 	suite.Equal(cookieName, claims.CookieName)
 	suite.Equal(redirectURL, claims.DPSRedirectURL)
 }

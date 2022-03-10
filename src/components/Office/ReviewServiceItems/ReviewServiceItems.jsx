@@ -11,7 +11,6 @@ import ReviewDetailsCard from './ReviewDetailsCard';
 import AuthorizePayment from './AuthorizePayment';
 import NeedsReview from './NeedsReview';
 import RejectRequest from './RejectRequest';
-import PaymentReviewed from './PaymentReviewed';
 
 import Alert from 'shared/Alert';
 import { ServiceItemCardsShape } from 'types/serviceItems';
@@ -19,6 +18,7 @@ import { MTOServiceItemShape } from 'types/order';
 import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { toDollarString } from 'shared/formatters';
 import { PaymentRequestShape } from 'types/index';
+import { AccountingCodesShape } from 'types/accountingCodes';
 
 const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
@@ -31,6 +31,8 @@ const ReviewServiceItems = ({
   patchPaymentServiceItem,
   onCompleteReview,
   completeReviewError,
+  TACs,
+  SACs,
 }) => {
   const requestReviewed = paymentRequest?.status !== PAYMENT_REQUEST_STATUS.PENDING;
 
@@ -104,9 +106,7 @@ const ReviewServiceItems = ({
     <AuthorizePayment amount={approvedSum} onClick={() => handleAuthorizePaymentClick(requestReviewed)} />
   );
   if (requestReviewed) {
-    renderCompleteAction = (
-      <PaymentReviewed authorizedAmount={approvedSum} dateAuthorized={paymentRequest?.reviewedAt} />
-    );
+    renderCompleteAction = null;
   } else if (showNeedsReview) {
     renderCompleteAction = (
       <NeedsReview numberOfItems={itemsNeedsReviewLength} onClick={() => setCardIndex(firstItemNeedsReviewIndex)} />
@@ -153,6 +153,11 @@ const ReviewServiceItems = ({
             acceptedAmount={approvedSum}
             rejectedAmount={rejectedSum}
             requestedAmount={requestedSum}
+            authorized={requestReviewed}
+            dateAuthorized={paymentRequest?.reviewedAt}
+            TACs={TACs}
+            SACs={SACs}
+            cards={sortedCards}
           >
             {renderCompleteAction}
           </ReviewDetailsCard>
@@ -257,6 +262,8 @@ ReviewServiceItems.propTypes = {
     title: PropTypes.string,
   }),
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
+  TACs: AccountingCodesShape,
+  SACs: AccountingCodesShape,
 };
 
 ReviewServiceItems.defaultProps = {
@@ -266,6 +273,8 @@ ReviewServiceItems.defaultProps = {
   disableScrollIntoView: false,
   completeReviewError: undefined,
   mtoServiceItems: [],
+  TACs: {},
+  SACs: {},
 };
 
 export default ReviewServiceItems;

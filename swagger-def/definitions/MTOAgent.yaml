@@ -1,0 +1,39 @@
+type: object
+properties:
+  id:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  mtoShipmentID:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  createdAt:
+    format: date-time
+    type: string
+  updatedAt:
+    format: date-time
+    type: string
+  firstName:
+    type: string
+    x-nullable: true
+  lastName:
+    type: string
+    x-nullable: true
+  email:
+    type: string
+    format: x-email
+    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    x-nullable: true
+  phone:
+    type: string
+    format: telephone
+    pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+    x-nullable: true
+  agentType:
+    type: string
+    enum:
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
+  eTag:
+    type: string

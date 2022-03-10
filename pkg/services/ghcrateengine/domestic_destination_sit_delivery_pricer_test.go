@@ -201,7 +201,12 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServi
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				Key:     models.ServiceItemParamNameDistanceZipSITDest,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(distance)),
+			},
+			{
+				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
 				Value:   dddsitTestRequestedPickupDate.Format(DateParamFormat),
 			},
@@ -216,19 +221,9 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServi
 				Value:   fmt.Sprintf("%d", dddsitTestSchedule),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightOriginal,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   fmt.Sprintf("%d", int(dddsitTestWeight)),
-			},
-			{
 				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dddsitTestWeight)),
-			},
-			{
-				Key:     models.ServiceItemParamNameWeightEstimated,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "2400",
 			},
 			{
 				Key:     models.ServiceItemParamNameZipDestAddress,
@@ -239,11 +234,6 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServi
 				Key:     models.ServiceItemParamNameZipSITDestHHGFinalAddress,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   zipSITDest,
-			},
-			{
-				Key:     models.ServiceItemParamNameDistanceZipSITDest,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   fmt.Sprintf("%d", int(distance)),
 			},
 		},
 	)

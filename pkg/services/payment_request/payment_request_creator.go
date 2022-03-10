@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -76,18 +77,25 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		// Service Item Param Cache
 		serviceParamCache := serviceparamlookups.NewServiceParamsCache()
 
+		// Track which shipments have been verified already
+		shipmentIDs := make(map[uuid.UUID]bool)
+
 		// Create a payment service item for each incoming payment service item in the payment request
 		// These incoming payment service items have not been created in the database yet
 		var newPaymentServiceItems models.PaymentServiceItems
 		for _, paymentServiceItem := range paymentRequestArg.PaymentServiceItems {
-			var mtoServiceItem models.MTOServiceItem
+
+			// check if shipment is valid for creating a payment request
+			validShipmentError := p.validShipment(appCtx, paymentServiceItem.MTOServiceItem.MTOShipmentID, shipmentIDs)
+			if validShipmentError != nil {
+				return validShipmentError
+			}
 
 			// Gather message information for logging
-			mtoServiceItemString := " MTO Service item ID <" + paymentServiceItem.MTOServiceItemID.String() + ">"
-			reServiceItem := paymentServiceItem.MTOServiceItem.ReService
-			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
-			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
+			errMessageString := p.serviceItemErrorMessage(paymentServiceItem.MTOServiceItemID, paymentServiceItem.MTOServiceItem, mtoMessageString, prMessageString)
+
 			// Create the payment service item
+			var mtoServiceItem models.MTOServiceItem
 			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(txnAppCtx, paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
 				if _, ok := err.(apperror.InvalidCreateInputError); ok {
@@ -133,7 +141,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			// Retrieve all of the params needed to price this service item
 			paymentHelper := paymentrequesthelper.RequestPaymentHelper{}
 
-			reServiceParams, err := paymentHelper.FetchServiceParamList(txnAppCtx, paymentServiceItem.MTOServiceItemID)
+			reServiceParams, err := paymentHelper.FetchServiceParamList(txnAppCtx, paymentServiceItem.MTOServiceItem)
 			if err != nil {
 				errMessage := "Failed to retrieve service item param list for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)
@@ -202,6 +210,45 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 	return paymentRequestArg, nil
 }
 
+func (p *paymentRequestCreator) serviceItemErrorMessage(
+	mtoServiceItemID uuid.UUID,
+	mtoServiceItem models.MTOServiceItem,
+	mtoMessageString string,
+	prMessageString string,
+) string {
+	mtoServiceItemString := " MTO Service item ID <" + mtoServiceItemID.String() + ">"
+	reServiceItem := mtoServiceItem.ReService
+	serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
+	return mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
+}
+
+func (p *paymentRequestCreator) validShipment(appCtx appcontext.AppContext, shipmentID *uuid.UUID, shipmentIDs map[uuid.UUID]bool) error {
+	if shipmentID != nil {
+		if _, found := shipmentIDs[*shipmentID]; !found {
+			shipmentIDs[*shipmentID] = true
+			var mtoShipment models.MTOShipment
+			err := appCtx.DB().Find(&mtoShipment, *shipmentID)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					appCtx.Logger().Error(fmt.Sprintf("paymentRequestCreator.validShipment:MTOShipmentID %s not found", shipmentID.String()), zap.Error(err))
+					return apperror.NewNotFoundError(*shipmentID, "for MTOShipment")
+				default:
+					appCtx.Logger().Error(fmt.Sprintf("paymentRequestCreator.validShipment: query error MTOShipmentID %s", shipmentID.String()), zap.Error(err))
+					return apperror.NewQueryError("MTOShipment", err, fmt.Sprintf("paymentRequestCreator.validShipment:MTOShipmentID %s", shipmentID.String()))
+				}
+			}
+			if mtoShipment.UsesExternalVendor {
+				appCtx.Logger().Error("paymentRequestCreator.validShipment",
+					zap.Any("mtoShipment.UsesExternalVendor", mtoShipment.UsesExternalVendor),
+					zap.String("MTOShipmentID", shipmentID.String()))
+				return apperror.NewConflictError(*shipmentID, fmt.Sprintf("paymentRequestCreator.validShipment: Shipment uses external vendor for MTOShipmentID %s", shipmentID.String()))
+			}
+		}
+	}
+	return nil
+}
+
 func (p *paymentRequestCreator) createPaymentRequestSaveToDB(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
 	// Verify that the MTO ID exists
 	if paymentRequest.MoveTaskOrderID == uuid.Nil {
@@ -243,9 +290,9 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(appCtx appcontext.A
 	if moveTaskOrder.Orders.TAC == nil || *moveTaskOrder.Orders.TAC == "" {
 		return nil, apperror.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID))
 	}
-	// Verify that the Orders have OriginDutyStation
-	if moveTaskOrder.Orders.OriginDutyStationID == nil {
-		return nil, apperror.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", moveTaskOrder.ID))
+	// Verify that the Orders have OriginDutyLocation
+	if moveTaskOrder.Orders.OriginDutyLocationID == nil {
+		return nil, apperror.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyLocation", moveTaskOrder.ID))
 	}
 	// Verify that ServiceMember is Valid
 	err = appCtx.DB().Load(&moveTaskOrder.Orders, "ServiceMember")

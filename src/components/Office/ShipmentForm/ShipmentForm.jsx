@@ -16,14 +16,16 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
 import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
-import { DatePickerInput } from 'components/form/fields';
+import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFacilityInfo';
 import StorageFacilityAddress from 'components/Office/StorageFacilityAddress/StorageFacilityAddress';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
-import { formatWeight } from 'shared/formatters';
+import { dropdownInputOptions } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
+import { shipmentDestinationTypes } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MtoShipmentShape } from 'types/customerShapes';
@@ -52,6 +54,7 @@ const ShipmentForm = ({
   TACs,
   SACs,
   userRole,
+  displayDestinationType,
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
@@ -98,6 +101,7 @@ const ShipmentForm = ({
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
   const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, userRole);
 
+  const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const showAccountingCodes = isNTS || isNTSR;
@@ -105,9 +109,13 @@ const ShipmentForm = ({
   const isTOO = userRole === roleTypes.TOO;
   const isServiceCounselor = userRole === roleTypes.SERVICES_COUNSELOR;
 
-  const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
+  const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
+
+  const shipmentNumber = isHHG ? getShipmentNumber() : null;
   const initialValues = formatMtoShipmentForDisplay(
-    isCreatePage ? { userRole } : { userRole, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    isCreatePage
+      ? { userRole, shipmentType }
+      : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
   );
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
@@ -131,9 +139,10 @@ const ShipmentForm = ({
     serviceOrderNumber,
     storageFacility,
     usesExternalVendor,
+    destinationType,
   }) => {
     const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'no') {
+    if (hasDeliveryAddress === 'no' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
       delete deliveryDetails.address;
     }
 
@@ -150,6 +159,7 @@ const ShipmentForm = ({
       serviceOrderNumber,
       storageFacility,
       usesExternalVendor,
+      destinationType,
     });
 
     const updateMTOShipmentPayload = {
@@ -237,6 +247,12 @@ const ShipmentForm = ({
                 {errorMessage}
               </Alert>
             )}
+            {isTOO && mtoShipment.usesExternalVendor && (
+              <Alert type="warning">
+                The GHC prime contractor is not handling the shipment. Information will not be automatically shared with
+                the movers handling it.
+              </Alert>
+            )}
 
             <div className={styles.ShipmentForm}>
               <div className={styles.headerWrapper}>
@@ -266,47 +282,47 @@ const ShipmentForm = ({
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && <ShipmentVendor />}
+                {isTOO && !isHHG && <ShipmentVendor />}
 
-                {isNTSR && <ShipmentWeightInput />}
+                {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
                 {showPickupFields && (
-                  <>
-                    <SectionWrapper className={formStyles.formSection}>
-                      <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
-                      <Fieldset>
-                        <DatePickerInput
-                          name="pickup.requestedDate"
-                          label="Requested pickup date"
-                          id="requestedPickupDate"
-                          validate={validateDate}
-                        />
-                      </Fieldset>
-
-                      <AddressFields
-                        name="pickup.address"
-                        legend="Pickup location"
-                        render={(fields) => (
-                          <>
-                            <Checkbox
-                              data-testid="useCurrentResidence"
-                              label="Use current address"
-                              name="useCurrentResidence"
-                              onChange={handleUseCurrentResidenceChange}
-                              id="useCurrentResidenceCheckbox"
-                            />
-                            {fields}
-                          </>
-                        )}
+                  <SectionWrapper className={formStyles.formSection}>
+                    <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
+                    <Fieldset>
+                      <DatePickerInput
+                        name="pickup.requestedDate"
+                        label="Requested pickup date"
+                        id="requestedPickupDate"
+                        validate={validateDate}
                       />
+                    </Fieldset>
 
-                      <ContactInfoFields
-                        name="pickup.agent"
-                        legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
-                        render={(fields) => <>{fields}</>}
-                      />
-                    </SectionWrapper>
-                  </>
+                    <AddressFields
+                      name="pickup.address"
+                      legend="Pickup location"
+                      render={(fields) => (
+                        <>
+                          <Checkbox
+                            data-testid="useCurrentResidence"
+                            label="Use current address"
+                            name="useCurrentResidence"
+                            onChange={handleUseCurrentResidenceChange}
+                            id="useCurrentResidenceCheckbox"
+                          />
+                          {fields}
+                        </>
+                      )}
+                    />
+
+                    <ContactInfoFields
+                      name="pickup.agent"
+                      legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
+                      render={(fields) => {
+                        return fields;
+                      }}
+                    />
+                  </SectionWrapper>
                 )}
 
                 {isTOO && (isNTS || isNTSR) && (
@@ -324,18 +340,35 @@ const ShipmentForm = ({
                 )}
 
                 {showDeliveryFields && (
-                  <>
-                    <SectionWrapper className={formStyles.formSection}>
-                      <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
-                      <Fieldset>
-                        <DatePickerInput
-                          name="delivery.requestedDate"
-                          label="Requested delivery date"
-                          id="requestedDeliveryDate"
-                          validate={validateDate}
-                        />
-                      </Fieldset>
+                  <SectionWrapper className={formStyles.formSection}>
+                    <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
+                    <Fieldset>
+                      <DatePickerInput
+                        name="delivery.requestedDate"
+                        label="Requested delivery date"
+                        id="requestedDeliveryDate"
+                        validate={validateDate}
+                      />
+                    </Fieldset>
 
+                    {isNTSR ? (
+                      <Fieldset legend="Delivery location">
+                        <AddressFields
+                          name="delivery.address"
+                          render={(fields) => {
+                            return fields;
+                          }}
+                        />
+                        {displayDestinationType && (
+                          <DropdownInput
+                            label="Destination type"
+                            name="destinationType"
+                            options={shipmentDestinationAddressOptions}
+                            id="destinationType"
+                          />
+                        )}
+                      </Fieldset>
+                    ) : (
                       <Fieldset legend="Delivery location">
                         <FormGroup>
                           <p>Does the customer know their delivery address yet?</p>
@@ -361,10 +394,26 @@ const ShipmentForm = ({
                           </div>
                         </FormGroup>
                         {hasDeliveryAddress === 'yes' ? (
-                          <AddressFields name="delivery.address" render={(fields) => <>{fields}</>} />
+                          <>
+                            <AddressFields
+                              name="delivery.address"
+                              render={(fields) => {
+                                return fields;
+                              }}
+                            />
+                            {displayDestinationType && (
+                              <DropdownInput
+                                label="Destination type"
+                                name="destinationType"
+                                options={shipmentDestinationAddressOptions}
+                                id="destinationType"
+                              />
+                            )}
+                          </>
                         ) : (
                           <p>
-                            We can use the zip of their new duty location:
+                            We can use the zip of their{' '}
+                            {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
                             <br />
                             <strong>
                               {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
@@ -373,14 +422,16 @@ const ShipmentForm = ({
                           </p>
                         )}
                       </Fieldset>
+                    )}
 
-                      <ContactInfoFields
-                        name="delivery.agent"
-                        legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
-                        render={(fields) => <>{fields}</>}
-                      />
-                    </SectionWrapper>
-                  </>
+                    <ContactInfoFields
+                      name="delivery.agent"
+                      legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                      render={(fields) => {
+                        return fields;
+                      }}
+                    />
+                  </SectionWrapper>
                 )}
 
                 <ShipmentFormRemarks
@@ -399,7 +450,12 @@ const ShipmentForm = ({
                 )}
 
                 <div className={`${formStyles.formActions} ${styles.buttonGroup}`}>
-                  <Button disabled={isSubmitting || !isValid} type="submit" onClick={handleSubmit}>
+                  <Button
+                    data-testid="submitForm"
+                    disabled={isSubmitting || !isValid}
+                    type="submit"
+                    onClick={handleSubmit}
+                  >
                     Save
                   </Button>
                   <Button
@@ -443,6 +499,7 @@ ShipmentForm.propTypes = {
   TACs: AccountingCodesShape,
   SACs: AccountingCodesShape,
   userRole: oneOf(officeRoles).isRequired,
+  displayDestinationType: bool,
 };
 
 ShipmentForm.defaultProps = {
@@ -470,6 +527,7 @@ ShipmentForm.defaultProps = {
   },
   TACs: {},
   SACs: {},
+  displayDestinationType: false,
 };
 
 export default ShipmentForm;

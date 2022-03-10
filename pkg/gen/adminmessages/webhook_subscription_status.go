@@ -20,8 +20,12 @@ import (
 type WebhookSubscriptionStatus string
 
 func NewWebhookSubscriptionStatus(value WebhookSubscriptionStatus) *WebhookSubscriptionStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated WebhookSubscriptionStatus.
+func (m WebhookSubscriptionStatus) Pointer() *WebhookSubscriptionStatus {
+	return &m
 }
 
 const (

@@ -148,10 +148,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCounselingInfo() {
-	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
-	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: expectedOrder,
-	})
+	expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
 
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
@@ -166,7 +163,22 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		PointOfContact:     "user@prime.com",
 	}
 
-	suite.RunWithRollback("MTO post counseling information is updated succesfully", func() {
+	suite.RunWithRollback("MTO post counseling information is updated successfully", func() {
+		// Make a couple of shipments for the move; one prime, one external
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: false,
+			},
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+
 		eTag := base64.StdEncoding.EncodeToString([]byte(expectedMTO.UpdatedAt.Format(time.RFC3339Nano)))
 
 		actualMTO, err := mtoUpdater.UpdatePostCounselingInfo(suite.AppContextForTest(), expectedMTO.ID, body, eTag)
@@ -183,8 +195,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 		suite.NotNil(expectedMTO.Orders.ServiceMember.FirstName)
 		suite.NotNil(expectedMTO.Orders.ServiceMember.LastName)
-		suite.NotNil(expectedMTO.Orders.NewDutyStation.Address.City)
-		suite.NotNil(expectedMTO.Orders.NewDutyStation.Address.State)
+		suite.NotNil(expectedMTO.Orders.NewDutyLocation.Address.City)
+		suite.NotNil(expectedMTO.Orders.NewDutyLocation.Address.State)
+
+		// Should get one shipment back since we filter out external moves.
+		suite.Equal(expectedMTO.ID.String(), actualMTO.ID.String())
+		if suite.Len(actualMTO.MTOShipments, 1) {
+			suite.Equal(primeShipment.ID.String(), actualMTO.MTOShipments[0].ID.String())
+		}
 	})
 
 	suite.RunWithRollback("Etag is stale", func() {

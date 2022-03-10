@@ -21,7 +21,6 @@ export class LogoutOnInactivity extends React.Component {
   constructor(props) {
     super(props);
 
-    this.idleTimer = null;
     this.onActive = this.onActive.bind(this);
     this.onIdle = this.onIdle.bind(this);
 
@@ -69,27 +68,22 @@ export class LogoutOnInactivity extends React.Component {
     const { isIdle, timeLeftInSeconds } = this.state;
 
     return (
-      <>
-        {isLoggedIn && (
-          <IdleTimer
-            ref={(ref) => {
-              this.idleTimer = ref;
-            }}
-            element={document}
-            onActive={this.onActive}
-            onIdle={this.onIdle}
-            timeout={timeToDisplayWarningInMilliseconds}
-            events={['blur', 'focus', 'mousedown', 'touchstart', 'MSPointerDown']}
-          >
-            {isIdle && (
-              <Alert type="warning" heading="Inactive user">
-                You have been inactive and will be logged out in {timeLeftInSeconds} seconds unless you touch or click
-                on the page.
-              </Alert>
-            )}
-          </IdleTimer>
-        )}
-      </>
+      isLoggedIn && (
+        <IdleTimer
+          element={document}
+          onActive={this.onActive}
+          onIdle={this.onIdle}
+          timeout={timeToDisplayWarningInMilliseconds}
+          events={['blur', 'focus', 'mousedown', 'touchstart', 'MSPointerDown']}
+        >
+          {isIdle && (
+            <Alert type="warning" heading="Inactive user">
+              You have been inactive and will be logged out in {timeLeftInSeconds} seconds unless you touch or click on
+              the page.
+            </Alert>
+          )}
+        </IdleTimer>
+      )
     );
   }
 }

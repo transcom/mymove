@@ -12,11 +12,11 @@ describe('orders entry', function () {
 
   it('will accept orders information', function () {
     // needs@orde.rs
-    cy.apiSignInAsPpmUser('feac0e92-66ec-4cab-ad29-538129bf918e');
-    cy.contains('New move (from Yuma AFB)');
-    cy.contains('No details');
-    cy.contains('No documents');
-    cy.contains('Continue Move Setup').click();
+    cy.apiSignInAsUser('feac0e92-66ec-4cab-ad29-538129bf918e');
+    cy.contains('Next step: Add your orders');
+    cy.contains('Profile complete');
+    cy.contains('Upload orders');
+    cy.contains('Add orders').click();
 
     cy.location().should((loc) => {
       expect(loc.pathname).to.eq('/orders/info');
@@ -35,13 +35,13 @@ describe('orders entry', function () {
     cy.get('label[for="hasDependentsNo"]').first().click();
 
     // Choosing same current and destination duty location should block you from progressing and give an error
-    cy.selectDutyStation('Yuma AFB', 'new_duty_station');
+    cy.selectDutyStation('Yuma AFB', 'new_duty_location');
     cy.get('.usa-error-message').contains(
       'You entered the same duty location for your origin and destination. Please change one of them.',
     );
     cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
-    cy.selectDutyStation('NAS Fort Worth JRB', 'new_duty_station');
+    cy.selectDutyStation('NAS Fort Worth JRB', 'new_duty_location');
 
     cy.nextPage();
 

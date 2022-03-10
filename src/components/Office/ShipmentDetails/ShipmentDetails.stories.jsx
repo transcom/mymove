@@ -1,19 +1,21 @@
 import React from 'react';
+import { MemoryRouter, Route } from 'react-router';
 
 import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 import ShipmentDetails from './ShipmentDetails';
 
 import { LOA_TYPE } from 'shared/constants';
-import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components/Shipment Details',
   decorators: [
     (Story) => (
-      <MockProviders>
-        <Story />
-      </MockProviders>
+      <MemoryRouter initialEntries={['/moves/HGNTSR/mto']}>
+        <Route path="/moves/:moveCode/mto">
+          <Story />
+        </Route>
+      </MemoryRouter>
     ),
   ],
 };
@@ -103,7 +105,7 @@ const shipment = {
 };
 
 const order = {
-  originDutyStation: {
+  originDutyLocation: {
     address: {
       streetAddress1: '444 S 131st St',
       city: 'San Antonio',
@@ -111,7 +113,7 @@ const order = {
       postalCode: '78234',
     },
   },
-  destinationDutyStation: {
+  destinationDutyLocation: {
     address: {
       streetAddress1: '17 8th St',
       city: 'Austin',
@@ -125,8 +127,18 @@ const order = {
   ntsSac: '345',
 };
 
-export const Default = () => (
-  <div className="officeApp">
-    <ShipmentDetails shipment={shipment} order={order} />
-  </div>
-);
+export const Default = () => {
+  const [modifiedShipment, setModifiedShipment] = React.useState(shipment);
+  const handleEditSon = (values) => {
+    setModifiedShipment({
+      ...shipment,
+      serviceOrderNumber: values.serviceOrderNumber,
+    });
+  };
+
+  return (
+    <div className="officeApp">
+      <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
+    </div>
+  );
+};

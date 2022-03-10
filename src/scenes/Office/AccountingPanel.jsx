@@ -69,7 +69,7 @@ function mapStateToProps(state, ownProps) {
     // editablePanelify
     getUpdateArgs: function () {
       let values = getFormValues(formName)(state);
-      values.new_duty_station_id = values.new_duty_station.id;
+      values.new_duty_location_id = values.new_duty_location.id;
       return [orders.id, values];
     },
   };

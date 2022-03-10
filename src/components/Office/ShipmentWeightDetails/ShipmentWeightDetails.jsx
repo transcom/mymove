@@ -9,7 +9,7 @@ import DataTable from '../../DataTable/index';
 import styles from './ShipmentWeightDetails.module.scss';
 
 import returnLowestValue from 'utils/returnLowestValue';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 

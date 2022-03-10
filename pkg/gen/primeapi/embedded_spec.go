@@ -1404,7 +1404,19 @@ func init() {
         }
       }
     },
-    "DutyStation": {
+    "DestinationType": {
+      "type": "string",
+      "title": "Destination Type",
+      "enum": [
+        "HOME_OF_RECORD",
+        "HOME_OF_SELECTION",
+        "PLACE_ENTERED_ACTIVE_DUTY",
+        "OTHER_THAN_AUTHORIZED"
+      ],
+      "x-nullable": true,
+      "example": "OTHER_THAN_AUTHORIZED"
+    },
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "address": {
@@ -2079,6 +2091,9 @@ func init() {
             }
           ]
         },
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
+        },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
@@ -2382,8 +2397,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string",
@@ -2403,8 +2418,8 @@ func init() {
         "orderNumber": {
           "type": "string"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "rank": {
           "type": "string",
@@ -2879,6 +2894,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -3065,6 +3081,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
@@ -5057,7 +5076,19 @@ func init() {
         }
       }
     },
-    "DutyStation": {
+    "DestinationType": {
+      "type": "string",
+      "title": "Destination Type",
+      "enum": [
+        "HOME_OF_RECORD",
+        "HOME_OF_SELECTION",
+        "PLACE_ENTERED_ACTIVE_DUTY",
+        "OTHER_THAN_AUTHORIZED"
+      ],
+      "x-nullable": true,
+      "example": "OTHER_THAN_AUTHORIZED"
+    },
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "address": {
@@ -5732,6 +5763,9 @@ func init() {
             }
           ]
         },
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
+        },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
@@ -6035,8 +6069,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string",
@@ -6056,8 +6090,8 @@ func init() {
         "orderNumber": {
           "type": "string"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "rank": {
           "type": "string",
@@ -6522,6 +6556,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -6721,6 +6756,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",

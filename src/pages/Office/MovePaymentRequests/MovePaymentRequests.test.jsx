@@ -49,13 +49,13 @@ const order = {
   issue_date: '2020-08-11',
   grade: 'RANK',
   moves: ['123'],
-  origin_duty_station: {
+  origin_duty_location: {
     name: 'Test Duty Station',
     address: {
       postalCode: '123456',
     },
   },
-  new_duty_station: {
+  new_duty_location: {
     name: 'New Test Duty Station',
     address: {
       postalCode: '123456',
@@ -612,6 +612,7 @@ describe('MovePaymentRequests', () => {
     });
 
     it('navigates the user to the reivew billable weight page', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
       renderMovePaymentRequests(testProps);
 
       const reviewWeights = screen.getByRole('button', { name: 'Review weights' });

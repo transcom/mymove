@@ -284,14 +284,14 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 	suite.Run("Routes to service counseling when feature flag is true", func() {
 		// Given: a set of orders with an origin duty station that provides services counseling,
 		// a move, user and servicemember
-		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-			DutyStation: models.DutyStation{
+		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+			DutyLocation: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 		})
 		assertions := testdatagen.Assertions{
 			Order: models.Order{
-				OriginDutyStation: &dutyStation,
+				OriginDutyLocation: &dutyLocation,
 			},
 		}
 		move := testdatagen.MakeMove(suite.DB(), assertions)
@@ -342,7 +342,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 }
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
-	dutyStationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+	dutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "Fort Gordon",
 			City:           "Augusta",
@@ -352,24 +352,24 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	})
 
-	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name:      "Fort Sam Houston",
-			AddressID: dutyStationAddress.ID,
-			Address:   dutyStationAddress,
+			AddressID: dutyLocationAddress.ID,
+			Address:   dutyLocationAddress,
 		},
 	})
 
 	rank := models.ServiceMemberRankE4
 	serviceMember := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			Rank:          &rank,
-			DutyStationID: &dutyStation.ID,
-			DutyStation:   dutyStation,
+			Rank:           &rank,
+			DutyLocationID: &dutyLocation.ID,
+			DutyLocation:   dutyLocation,
 		},
 	})
 
-	newDutyStationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+	newDutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "n/a",
 			City:           "San Antonio",
@@ -379,23 +379,23 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	})
 
-	newDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	newDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name:      "Fort Gordon",
-			AddressID: newDutyStationAddress.ID,
-			Address:   newDutyStationAddress,
+			AddressID: newDutyLocationAddress.ID,
+			Address:   newDutyLocationAddress,
 		},
 	})
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMemberID:  serviceMember.ID,
-			ServiceMember:    serviceMember,
-			ReportByDate:     time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
-			NewDutyStationID: newDutyStation.ID,
-			NewDutyStation:   newDutyStation,
-			HasDependents:    true,
-			SpouseHasProGear: true,
+			ServiceMemberID:   serviceMember.ID,
+			ServiceMember:     serviceMember,
+			ReportByDate:      time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
+			NewDutyLocationID: newDutyLocation.ID,
+			NewDutyLocation:   newDutyLocation,
+			HasDependents:     true,
+			SpouseHasProGear:  true,
 		},
 	})
 

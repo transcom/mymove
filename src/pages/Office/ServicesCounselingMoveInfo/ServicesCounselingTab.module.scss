@@ -18,7 +18,7 @@
 
   h1:first-child,
   .pageHeader:first-child,
-  .sidebar,
+  nav,
   .emptyMessage p {
     @include u-margin-top(0);
   }
@@ -69,13 +69,6 @@
   }
 }
 
-.sidebar {
-  position: sticky;
-  align-self: flex-start;
-  margin-top: 26px;
-  top: 26px;
-}
-
 .section {
   background: $bg-white;
   border-radius: 3px;
@@ -90,12 +83,4 @@
 .section:last-child,
 .shipmentCard:last-child {
   margin-bottom: 135px;
-}
-
-.tag {
-  max-height: 18px;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  margin: auto 0;
 }

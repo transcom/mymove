@@ -293,6 +293,10 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 		shipment := models.MTOShipment{
 			ID: uuid.Must(uuid.NewV4()),
 		}
+		externalShipment := models.MTOShipment{
+			ID:                 uuid.Must(uuid.NewV4()),
+			UsesExternalVendor: true,
+		}
 		checkHappy := primeFunc(func(appcontext.AppContext, uuid.UUID) (bool, error) {
 			return true, nil
 		})
@@ -317,6 +321,11 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			"misused": {
 				check: checkHappy,
 				ship:  nil,
+				err:   true,
+			},
+			"external-vendor": {
+				check: checkHappy,
+				ship:  &externalShipment,
 				err:   true,
 			},
 		}

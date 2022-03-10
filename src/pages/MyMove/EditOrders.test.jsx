@@ -29,7 +29,30 @@ jest.mock('services/internalApi', () => ({
 describe('EditOrders Page', () => {
   const testProps = {
     moveIsApproved: false,
-    serviceMemberId: 'id123',
+    serviceMember: {
+      id: 'id123',
+      current_location: {
+        address: {
+          city: 'Fort Bragg',
+          country: 'United States',
+          id: 'f1ee4cea-6b23-4971-9947-efb51294ed32',
+          postalCode: '29310',
+          state: 'NC',
+          streetAddress1: '',
+        },
+        address_id: 'f1ee4cea-6b23-4971-9947-efb51294ed32',
+        affiliation: 'ARMY',
+        created_at: '2020-10-19T17:01:16.114Z',
+        id: 'dca78766-e76b-4c6d-ba82-81b50ca824b9"',
+        name: 'Fort Bragg',
+        updated_at: '2020-10-19T17:01:16.114Z',
+      },
+      rank: 'E_2',
+      weight_allotment: {
+        total_weight_self: 5000,
+        total_weight_self_plus_dependents: 8000,
+      },
+    },
     setFlashMessage: jest.fn(),
     updateOrders: jest.fn(),
     currentOrders: {
@@ -38,7 +61,9 @@ describe('EditOrders Page', () => {
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: false,
-      new_duty_station: {
+      spouse_has_pro_gear: false,
+      grade: 'E_2',
+      new_duty_location: {
         address: {
           city: 'Des Moines',
           country: 'US',
@@ -58,20 +83,6 @@ describe('EditOrders Page', () => {
       },
       moves: ['testMove'],
     },
-    entitlement: {
-      authorizedWeight: 5000,
-      dependentsAuthorized: true,
-      eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
-      id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
-      nonTemporaryStorage: true,
-      privatelyOwnedVehicle: true,
-      proGearWeight: 2000,
-      proGearWeightSpouse: 500,
-      storageInTransit: 2,
-      totalDependents: 1,
-      totalWeight: 5000,
-      sum: 300,
-    },
     existingUploads: [
       {
         id: '123',
@@ -81,7 +92,6 @@ describe('EditOrders Page', () => {
         filename: 'Test Upload',
       },
     ],
-    spouseHasProGear: false,
     context: { flags: { allOrdersTypes: true } },
   };
 
@@ -150,6 +160,35 @@ describe('EditOrders Page', () => {
 
     await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockGoBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('displays a flash message with the entitlement when the dependents value is updated', async () => {
+    render(<EditOrders {...testProps} />);
+
+    patchOrders.mockImplementation(() => Promise.resolve(testProps.currentOrders));
+
+    const hasDependentsYes = await screen.findByLabelText('Yes');
+    userEvent.click(hasDependentsYes);
+
+    const submitButton = await screen.findByRole('button', { name: 'Save' });
+    expect(submitButton).not.toBeDisabled();
+
+    userEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(patchOrders).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(testProps.setFlashMessage).toHaveBeenCalledWith(
+        'EDIT_ORDERS_SUCCESS',
+        'info',
+        'Your weight entitlement is now 8,000 lbs.',
+        'Your changes have been saved. Note that the entitlement has also changed.',
+      );
     });
 
     expect(mockGoBack).toHaveBeenCalledTimes(1);

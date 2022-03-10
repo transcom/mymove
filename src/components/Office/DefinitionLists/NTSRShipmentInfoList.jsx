@@ -8,7 +8,8 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent, formatAccountingCode } from 'utils/shipmentDisplay';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
+import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
 const NTSRShipmentInfoList = ({
   className,
@@ -20,6 +21,8 @@ const NTSRShipmentInfoList = ({
 }) => {
   const {
     destinationAddress,
+    destinationType,
+    displayDestinationType,
     secondaryDeliveryAddress,
     agents,
     counselorRemarks,
@@ -34,35 +37,14 @@ const NTSRShipmentInfoList = ({
     sac,
   } = shipment;
 
-  function getFlags(fieldname) {
-    let alwaysShow = false;
-    let classes = styles.row;
+  setFlagStyles({
+    row: styles.row,
+    warning: shipmentDefinitionListsStyles.warning,
+    missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
+  });
+  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
 
-    if (errorIfMissing.includes(fieldname) && !shipment[fieldname]) {
-      alwaysShow = true;
-      classes = classNames(styles.row, shipmentDefinitionListsStyles.missingInfoError);
-      return {
-        alwaysShow,
-        classes,
-      };
-    }
-    if (warnIfMissing.includes(fieldname) && !shipment[fieldname]) {
-      alwaysShow = true;
-      classes = classNames(styles.row, shipmentDefinitionListsStyles.warning);
-      return {
-        alwaysShow,
-        classes,
-      };
-    }
-    if (showWhenCollapsed.includes(fieldname)) {
-      alwaysShow = true;
-    }
-    return {
-      alwaysShow,
-      classes,
-    };
-  }
-  const storageFacilityAddressElementFlags = getFlags('storageFacility');
+  const storageFacilityAddressElementFlags = getDisplayFlags('storageFacility');
   const storageFacilityAddressElement = (
     <div className={storageFacilityAddressElementFlags.classes}>
       <dt>Storage facility address</dt>
@@ -77,15 +59,17 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const ntsRecordedWeightElementFlags = getFlags('ntsRecordedWeight');
+  const ntsRecordedWeightElementFlags = getDisplayFlags('ntsRecordedWeight');
   const ntsRecordedWeightElement = (
     <div className={ntsRecordedWeightElementFlags.classes}>
-      <dt>Shipment weight</dt>
-      <dd data-testid="ntsRecordedWeight">{ntsRecordedWeight ? formatWeight(ntsRecordedWeight) : '—'}</dd>
+      <dt>Previously recorded weight</dt>
+      <dd data-testid="ntsRecordedWeight">
+        {ntsRecordedWeight ? formatWeight(ntsRecordedWeight) : getMissingOrDash('ntsRecordedWeight')}
+      </dd>
     </div>
   );
 
-  const storageFacilityInfoElementFlags = getFlags('storageFacility');
+  const storageFacilityInfoElementFlags = getDisplayFlags('storageFacility');
   const storageFacilityInfoElement = (
     <div className={storageFacilityInfoElementFlags.classes}>
       <dt>Storage facility info</dt>
@@ -95,15 +79,15 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const serviceOrderNumberElementFlags = getFlags('serviceOrderNumber');
+  const serviceOrderNumberElementFlags = getDisplayFlags('serviceOrderNumber');
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
-      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || '—'}</dd>
+      <dd data-testid="serviceOrderNumber">{serviceOrderNumber || getMissingOrDash('serviceOrderNumber')}</dd>
     </div>
   );
 
-  const requestedDeliveryDateElementFlags = getFlags('requestedDeliveryDate');
+  const requestedDeliveryDateElementFlags = getDisplayFlags('requestedDeliveryDate');
   const requestedDeliveryDateElement = (
     <div className={requestedDeliveryDateElementFlags.classes}>
       <dt>Preferred delivery date</dt>
@@ -111,7 +95,7 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const destinationAddressElementFlags = getFlags('destinationAddress');
+  const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
       <dt>Delivery address</dt>
@@ -119,7 +103,15 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const secondaryDeliveryAddressElementFlags = getFlags('secondaryDeliveryAddress');
+  const destinationTypeFlags = getDisplayFlags('destinationType');
+  const destinationTypeElement = (
+    <div className={destinationTypeFlags.classes}>
+      <dt>Destination type</dt>
+      <dd data-testid="destinationType">{destinationType || getMissingOrDash('destinationType')}</dd>
+    </div>
+  );
+
+  const secondaryDeliveryAddressElementFlags = getDisplayFlags('secondaryDeliveryAddress');
   const secondaryDeliveryAddressElement = (
     <div className={secondaryDeliveryAddressElementFlags.classes}>
       <dt>Second delivery address</dt>
@@ -129,15 +121,15 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const tacElementFlags = getFlags('tacType');
+  const tacElementFlags = getDisplayFlags('tacType');
   const tacElement = (
     <div className={tacElementFlags.classes}>
       <dt>TAC</dt>
-      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : '—'}</dd>
+      <dd data-testid="tacType">{tacType && tac ? formatAccountingCode(tac, tacType) : getMissingOrDash('tacType')}</dd>
     </div>
   );
 
-  const sacElementFlags = getFlags('sacType');
+  const sacElementFlags = getDisplayFlags('sacType');
   const sacElement = (
     <div className={sacElementFlags.classes}>
       <dt>SAC</dt>
@@ -154,7 +146,7 @@ const NTSRShipmentInfoList = ({
       ))
     : null;
 
-  const counselorRemarksElementFlags = getFlags('counselorRemarks');
+  const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
       <dt>Counselor remarks</dt>
@@ -185,6 +177,7 @@ const NTSRShipmentInfoList = ({
       {storageFacilityAddressElement}
       {requestedDeliveryDateElement}
       {destinationAddressElement}
+      {displayDestinationType && destinationTypeElement}
       {isExpanded && secondaryDeliveryAddressElement}
       {isExpanded && agentsElement}
       {isExpanded && customerRemarksElement}

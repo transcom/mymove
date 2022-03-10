@@ -127,6 +127,10 @@ export const EditHHGShipmentNoCustRemarks = () => (
   />
 );
 
+export const HHGShipmentAsTOO = () => {
+  return <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />;
+};
+
 export const NTSShipmentWithoutCodes = () => {
   return (
     <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.SERVICES_COUNSELOR} />
@@ -164,6 +168,19 @@ export const NTSShipmentAsTOO = () => {
       selectedMoveType={SHIPMENT_OPTIONS.NTS}
       TACs={{ HHG: '1234', NTS: '5678' }}
       SACs={{ HHG: '000012345' }}
+      userRole={roleTypes.TOO}
+    />
+  );
+};
+
+export const ExternalVendorShipment = () => {
+  return (
+    <ShipmentForm
+      {...defaultProps}
+      selectedMoveType={SHIPMENT_OPTIONS.NTSR}
+      TACs={{ HHG: '1234', NTS: '5678' }}
+      SACs={{ HHG: '000012345', NTS: '6789ABC' }}
+      mtoShipment={{ ...mockMtoShipment, usesExternalVendor: true }}
       userRole={roleTypes.TOO}
     />
   );

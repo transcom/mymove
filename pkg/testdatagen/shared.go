@@ -38,10 +38,9 @@ type Assertions struct {
 	BackupContact                            models.BackupContact
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
-	DestinationDutyStation                   models.DutyStation
+	DestinationDutyStation                   models.DutyLocation
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
-	DutyStation                              models.DutyStation
 	DutyLocation                             models.DutyLocation
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
@@ -63,7 +62,7 @@ type Assertions struct {
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	Organization                             models.Organization
-	OriginDutyStation                        models.DutyStation
+	OriginDutyLocation                       models.DutyLocation
 	PaymentRequest                           models.PaymentRequest
 	PaymentRequestToInterchangeControlNumber models.PaymentRequestToInterchangeControlNumber
 	PaymentServiceItem                       models.PaymentServiceItem
@@ -71,6 +70,7 @@ type Assertions struct {
 	PaymentServiceItemParams                 models.PaymentServiceItemParams
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	PickupAddress                            models.Address
+	PPMShipment                              models.PPMShipment
 	PrimeUpload                              models.PrimeUpload
 	PrimeUploader                            *uploader.PrimeUploader
 	ProofOfServiceDoc                        models.ProofOfServiceDoc
@@ -120,6 +120,10 @@ func stringPointer(s string) *string {
 
 func poundPointer(p unit.Pound) *unit.Pound {
 	return &p
+}
+
+func timePointer(t time.Time) *time.Time {
+	return &t
 }
 
 func mustCreate(db *pop.Connection, model interface{}, stub bool) {
@@ -291,4 +295,14 @@ func (t customTransformer) Transformer(typ reflect.Type) func(dst, src reflect.V
 		}
 	}
 	return nil
+}
+
+// CurrentDateWithoutTime returns a pointer to a time.Time, stripped of any time info (so date only).
+func CurrentDateWithoutTime() *time.Time {
+	currentTime := time.Now()
+	year, month, day := currentTime.Date()
+
+	currentDate := time.Date(year, month, day, 0, 0, 0, 0, currentTime.Location())
+
+	return &currentDate
 }

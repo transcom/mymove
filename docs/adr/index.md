@@ -35,10 +35,10 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0028](0028-config-management.md) - Config Management
 - [ADR-0029](0029-honeycomb-integration.md) - Honeycomb Integration
 - [ADR-0030](0030-rds-iam.md) - IAM Authentication for Database
-- [ADR-0031](0031-css-tooling.md) - *CSS Tooling*
+- [ADR-0031](0031-css-tooling.md) - _CSS Tooling_
 - [ADR-0032](0032-csrf-protection.md) - CSRF Protection for the Application
-- [ADR-0033](0033-service-object-layer.md) - *Service Object Layer*
-- [ADR-0034](0034-working-with-mocks-generation-and-assertion.md) - *Working With Mocks: Generation and Assertion*
+- [ADR-0033](0033-service-object-layer.md) - _Service Object Layer_
+- [ADR-0034](0034-working-with-mocks-generation-and-assertion.md) - _Working With Mocks: Generation and Assertion_
 - [ADR-0035](0035-use-query-builder.md) - Use Query Builder for for Admin Interface
 - [ADR-0036](0036-go-integration.md) - Use Separate Integration Package for Go Integration Tests
 - [ADR-0037](0037-go-path-and-project-layout-revisited.md) - Put mymove outside of standard GOPATH
@@ -47,7 +47,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0040](0040-role-base-authorization.md) - Add Role-Based Authorization
 - [ADR-0041](0041-front-end-form-library.md) - Front End Form Library
 - [ADR-0042](0042-optimistic-locking.md) - Use If-Match / E-tags for optimistic locking
-- [ADR-0043](0043-prime-time.md) - *Handling time in the Prime API*
+- [ADR-0043](0043-prime-time.md) - _Handling time in the Prime API_
 - [ADR-0044](0044-params-styling.md) - Use camelCase for API params
 - [ADR-0045](0045-nesting-swagger-paths.md) - Nesting Swagger paths in the Prime API with multiple IDs
 - [ADR-0046](0046-use-nodenv.md) - Use [nodenv](https://github.com/nodenv/nodenv) to manage Node versions in development
@@ -69,7 +69,9 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0062](0062-run-tests-in-transactions.md) - Run tests within transactions
 - [ADR-0063](0063-use-openapi-to-compile-api-specs.md) - Using `openapi` CLI to compile API specs
 - [ADR-0064](0064-use-stateless-services-with-context.md) - Use stateless services with context
-- [ADR-0065](0065-use-office-app-for-prime-ui.md) - *Use Office application for Prime UI*
+- [ADR-0065](0065-use-office-app-for-prime-ui.md) - _Use Office application for Prime UI_
+- [ADR-0066](0066-use-custom-nullable-types-for-patch-requests.md) - Use custom nullable types for patch requests
+- [ADR-0067](0067-ppm-db-design.md) - Add a child table to mto_shipments for PPMs
 
 <!-- adrlogstop -->
 

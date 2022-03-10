@@ -1,0 +1,5 @@
+description: Describes a dimension type for a MTOServiceItemDimension.
+type: string
+enum:
+  - ITEM
+  - CRATE

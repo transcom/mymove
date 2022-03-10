@@ -3,8 +3,11 @@ package internalapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -28,6 +31,7 @@ import (
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerContext
 	mtoShipmentCreator services.MTOShipmentCreator
+	ppmShipmentCreator services.PPMShipmentCreator
 }
 
 // Handle creates the mto shipment
@@ -44,12 +48,18 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 			"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
-
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
-	mtoShipment.Status = models.MTOShipmentStatusSubmitted
-	serviceItemsList := make(models.MTOServiceItems, 0)
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
+	var err error
+	var ppmShipment *models.PPMShipment
+	if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
+		// Return a PPM Shipment with an MTO Shipment inside
+		ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
+	} else {
+		// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
+		mtoShipment.Status = models.MTOShipmentStatusSubmitted
+		serviceItemsList := make(models.MTOServiceItems, 0)
+		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
+	}
 
 	if err != nil {
 		appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
@@ -68,6 +78,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 		}
 	}
+
+	if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
+		// Return an mtoShipment that has a ppmShipment
+		mtoShipment = &ppmShipment.Shipment
+	}
 	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }
@@ -80,6 +95,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerContext
 	mtoShipmentUpdater services.MTOShipmentUpdater
+	ppmShipmentUpdater services.PPMShipmentUpdater
 }
 
 // Handle updates the mto shipment
@@ -114,7 +130,23 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
 
-	updatedMtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(appCtx, mtoShipment, params.IfMatch)
+	var updatedMTOShipment *models.MTOShipment
+	var updatedPPMShipment *models.PPMShipment
+	var err error
+	// We should move this logic out of the handler and into a composable service object
+	err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		updatedMTOShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(txnAppCtx, mtoShipment, params.IfMatch)
+		if err != nil {
+			return err
+		}
+
+		updatedPPMShipment, err = h.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment, mtoShipment.ID)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 
 	if err != nil {
 		appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
@@ -136,7 +168,8 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		}
 	}
 
-	returnPayload := payloads.MTOShipment(updatedMtoShipment)
+	updatedMTOShipment.PPMShipment = updatedPPMShipment
+	returnPayload := payloads.MTOShipment(updatedMTOShipment)
 
 	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
 }

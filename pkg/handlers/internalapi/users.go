@@ -69,16 +69,16 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 
 	// Load duty station and transportation office association
-	if serviceMember.DutyStationID != nil {
+	if serviceMember.DutyLocationID != nil {
 		// Fetch associations on duty station
-		dutyStation, dutyStationErr := models.FetchDutyStation(appCtx.DB(), *serviceMember.DutyStationID)
+		dutyStation, dutyStationErr := models.FetchDutyLocation(appCtx.DB(), *serviceMember.DutyLocationID)
 		if dutyStationErr != nil {
 			return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
 		}
-		serviceMember.DutyStation = dutyStation
+		serviceMember.DutyLocation = dutyStation
 
 		// Fetch duty station transportation office
-		transportationOffice, tspErr := models.FetchDutyStationTransportationOffice(appCtx.DB(), *serviceMember.DutyStationID)
+		transportationOffice, tspErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), *serviceMember.DutyLocationID)
 		if tspErr != nil {
 			if errors.Cause(tspErr) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
@@ -89,7 +89,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				return handlers.ResponseForError(appCtx.Logger(), tspErr)
 			}
 		}
-		serviceMember.DutyStation.TransportationOffice = transportationOffice
+		serviceMember.DutyLocation.TransportationOffice = transportationOffice
 	}
 
 	// Load the latest orders associations and new duty station transport office
@@ -101,14 +101,14 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 		serviceMember.Orders[0] = orders
 
-		newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyStationTransportationOffice(appCtx.DB(), orders.NewDutyStationID)
+		newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), orders.NewDutyLocationID)
 		if dutyStationErr != nil {
 			if errors.Cause(dutyStationErr) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
 				return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
 			}
 		}
-		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
+		serviceMember.Orders[0].NewDutyLocation.TransportationOffice = newDutyStationTransportationOffice
 
 		// Load associations on PPM if they exist
 		if len(serviceMember.Orders[0].Moves) > 0 {

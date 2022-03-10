@@ -14,7 +14,7 @@ const uploadOrdersProps = {
     id: 'testServiceMemberId',
     first_name: 'John',
     last_name: 'Lee',
-    current_station: {
+    current_location: {
       name: 'Fort Knox',
       transportation_office: {
         name: 'Test Transportation Office Name',
@@ -54,10 +54,10 @@ const shipmentSelectionProps = {
   },
   orders: {
     ...uploadOrdersProps.orders,
-    new_duty_station: {
+    new_duty_location: {
       name: 'NAS Jacksonville',
     },
-    origin_duty_station: {
+    origin_duty_location: {
       name: 'NAS Norfolk',
     },
     report_by_date: '25 December 2020',

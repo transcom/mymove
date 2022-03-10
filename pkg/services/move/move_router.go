@@ -117,23 +117,23 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 		}
 	}
 
-	var originDutyStation models.DutyStation
+	var originDutyLocation models.DutyLocation
 
-	if orders.OriginDutyStationID == nil || *orders.OriginDutyStationID == uuid.Nil {
-		return false, apperror.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyStation")
+	if orders.OriginDutyLocationID == nil || *orders.OriginDutyLocationID == uuid.Nil {
+		return false, apperror.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyLocation")
 	}
 
-	originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *orders.OriginDutyStationID)
+	originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
 	if err != nil {
 		appCtx.Logger().Error("failure finding the origin duty station", zap.Error(err))
-		return false, apperror.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+		return false, apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty station")
 	}
 
 	if move.ServiceCounselingCompletedAt != nil {
 		return false, nil
 	}
 
-	return originDutyStation.ProvidesServicesCounseling, nil
+	return originDutyLocation.ProvidesServicesCounseling, nil
 }
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
@@ -323,7 +323,7 @@ func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, mov
 	// We can cancel any move that isn't already complete.
 	// TODO: What does complete mean? How do we determine when a move is complete?
 	if move.Status == models.MoveStatusCANCELED {
-		return errors.Wrap(models.ErrInvalidTransition, "Cannot cancel a move that is already canceled.")
+		return errors.Wrap(models.ErrInvalidTransition, "cannot cancel a move that is already canceled")
 	}
 
 	move.Status = models.MoveStatusCANCELED

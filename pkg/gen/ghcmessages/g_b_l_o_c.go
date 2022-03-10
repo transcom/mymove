@@ -20,8 +20,12 @@ import (
 type GBLOC string
 
 func NewGBLOC(value GBLOC) *GBLOC {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated GBLOC.
+func (m GBLOC) Pointer() *GBLOC {
+	return &m
 }
 
 const (

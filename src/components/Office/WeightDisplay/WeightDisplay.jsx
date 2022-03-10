@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from 'components/Office/WeightDisplay/WeightDisplay.module.scss';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 
 const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
   return (

@@ -16,12 +16,18 @@ import (
 
 // Affiliation Branch of service
 //
+// Military branch of service
+//
 // swagger:model Affiliation
 type Affiliation string
 
 func NewAffiliation(value Affiliation) *Affiliation {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated Affiliation.
+func (m Affiliation) Pointer() *Affiliation {
+	return &m
 }
 
 const (
@@ -40,6 +46,9 @@ const (
 
 	// AffiliationCOASTGUARD captures enum value "COAST_GUARD"
 	AffiliationCOASTGUARD Affiliation = "COAST_GUARD"
+
+	// AffiliationOTHER captures enum value "OTHER"
+	AffiliationOTHER Affiliation = "OTHER"
 )
 
 // for schema
@@ -47,7 +56,7 @@ var affiliationEnum []interface{}
 
 func init() {
 	var res []Affiliation
-	if err := json.Unmarshal([]byte(`["ARMY","NAVY","MARINES","AIR_FORCE","COAST_GUARD"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ARMY","NAVY","MARINES","AIR_FORCE","COAST_GUARD","OTHER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

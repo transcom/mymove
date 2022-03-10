@@ -215,7 +215,7 @@ describe('requireCustomerState BackupContact', () => {
             telephone: '1234567890',
             personal_email: 'test@example.com',
             email_is_preferred: true,
-            current_station: {
+            current_location: {
               id: 'testDutyStationId',
             },
             residential_address: {
@@ -260,7 +260,7 @@ describe('requireCustomerState BackupContact', () => {
             telephone: '1234567890',
             personal_email: 'test@example.com',
             email_is_preferred: true,
-            current_station: {
+            current_location: {
               id: 'testDutyStationId',
             },
             residential_address: {
@@ -308,7 +308,7 @@ describe('requireCustomerState BackupContact', () => {
             telephone: '1234567890',
             personal_email: 'test@example.com',
             email_is_preferred: true,
-            current_station: {
+            current_location: {
               id: 'testDutyStationId',
             },
             residential_address: {
