@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestPostRevisionToOrders() {
 		Member: &ordersmessages.Member{
 			GivenName:   "First",
 			FamilyName:  "Last",
-			Affiliation: ordersmessages.NewAffiliation(ordersmessages.AffiliationAirDashForce),
+			Affiliation: ordersmessages.NewAffiliation(ordersmessages.AffiliationAIRFORCE),
 			Rank:        ordersmessages.NewRank(ordersmessages.RankWDash1),
 		},
 		Status:        ordersmessages.NewStatus(ordersmessages.StatusAuthorized),

@@ -12,6 +12,7 @@ import formStyles from 'styles/form.module.scss';
 import { DutyStationShape } from 'types/dutyStation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import { formatLabelReportByDate } from 'utils/formatters';
 
 const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
@@ -38,7 +39,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit }) => {
+      {({ isValid, values, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Tell us about your move orders</h1>
@@ -58,7 +59,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                   </>
                 )}
               />
-              <DatePickerInput name="report_by_date" label="Report-by date" required />
+              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
               <FormGroup>
                 <Label>Are dependents included in your orders?</Label>
                 <div>
