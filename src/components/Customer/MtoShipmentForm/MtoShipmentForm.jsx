@@ -20,6 +20,7 @@ import styles from './MtoShipmentForm.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+// import { ORDERS_TYPE } from 'constants/orders';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
@@ -59,6 +60,7 @@ class MtoShipmentForm extends Component {
 
   submitMTOShipment = ({
     shipmentType,
+    // ordersType,
     pickup,
     hasDeliveryAddress,
     delivery,
@@ -69,11 +71,14 @@ class MtoShipmentForm extends Component {
     secondaryDelivery,
   }) => {
     const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
+    // const { history, match, selectedMoveType, selectedOrdersType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
 
     const shipmentTypeToSave = shipmentType || selectedMoveType;
     const isNTSR = shipmentTypeToSave === SHIPMENT_OPTIONS.NTSR;
     const saveDeliveryAddress = hasDeliveryAddress === 'yes' || isNTSR;
+    // const ordersTypeToSave = ordersType || selectedOrdersType;
+    // const isRetireeSeparatee = ordersTypeToSave !== ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
 
     const preformattedMtoShipment = {
       shipmentType: shipmentTypeToSave,
@@ -433,12 +438,7 @@ class MtoShipmentForm extends Component {
                           <Callout>
                             Examples
                             <ul>
-                              {isNTSR && (
-                                <li>
-                                  Details about the facility where your things are now, including the name or address
-                                  (if you know them)
-                                </li>
-                              )}
+                              {isNTSR && <li>The storage facility or address where your items are currently stored</li>}
                               <li>Large, bulky, or fragile items</li>
                               <li>Access info for your origin or destination address</li>
                               <li>You’re shipping weapons or alcohol</li>
