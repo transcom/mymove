@@ -125,6 +125,12 @@
     @include u-margin-top(0);
   }
 
+  > :global(.usa-form-group.warning) {
+    @include at-media("desktop") {
+      @include u-margin-left(-2.5);
+    }
+  }
+
   @include at-media('tablet') {
     @include u-margin-y(3);
 
