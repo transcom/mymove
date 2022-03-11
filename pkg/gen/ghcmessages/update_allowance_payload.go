@@ -19,8 +19,8 @@ import (
 // swagger:model UpdateAllowancePayload
 type UpdateAllowancePayload struct {
 
-	// the branch that the service member belongs to
-	Agency Branch `json:"agency,omitempty"`
+	// agency
+	Agency *Affiliation `json:"agency,omitempty"`
 
 	// unit is in lbs
 	// Example: 2000
@@ -101,13 +101,15 @@ func (m *UpdateAllowancePayload) validateAgency(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.Agency.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("agency")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("agency")
+	if m.Agency != nil {
+		if err := m.Agency.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("agency")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("agency")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -220,13 +222,15 @@ func (m *UpdateAllowancePayload) ContextValidate(ctx context.Context, formats st
 
 func (m *UpdateAllowancePayload) contextValidateAgency(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.Agency.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("agency")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("agency")
+	if m.Agency != nil {
+		if err := m.Agency.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("agency")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("agency")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

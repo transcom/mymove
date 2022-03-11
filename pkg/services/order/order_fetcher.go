@@ -81,7 +81,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
-	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
+	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyLocation)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
@@ -104,14 +104,14 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	).InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
-		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
+		InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 		// Need to use left join because some duty locations do not have transportation offices
-		LeftJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
+		LeftJoin("transportation_offices as origin_to", "origin_dl.transportation_office_id = origin_to.id").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		InnerJoin("origin_duty_location_to_gbloc as o_gbloc", "o_gbloc.move_id = moves.id").
-		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
+		LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 		Where("show = ?", swag.Bool(true)).
 		Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
 	for _, option := range options {
@@ -129,14 +129,14 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	}
 
 	var groupByColumms []string
-	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_ds.id")
+	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_dl.id")
 
 	if params.Sort != nil && *params.Sort == "destinationDutyStation" {
-		groupByColumms = append(groupByColumms, "dest_ds.name")
+		groupByColumms = append(groupByColumms, "dest_dl.name")
 	}
 
 	if params.Sort != nil && *params.Sort == "originDutyLocation" {
-		groupByColumms = append(groupByColumms, "origin_ds.name")
+		groupByColumms = append(groupByColumms, "origin_dl.name")
 	}
 
 	if params.Sort != nil && *params.Sort == "originGBLOC" {
@@ -257,7 +257,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
-			query.Where("dest_ds.name ILIKE ?", nameSearch)
+			query.Where("dest_dl.name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -266,7 +266,7 @@ func originDutyLocationFilter(originDutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
 		if originDutyLocation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *originDutyLocation)
-			query.Where("origin_ds.name ILIKE ?", nameSearch)
+			query.Where("origin_dl.name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -340,8 +340,8 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"locator":                "moves.locator",
 		"status":                 "moves.status",
 		"submittedAt":            "moves.submitted_at",
-		"destinationDutyStation": "dest_ds.name",
-		"originDutyLocation":     "origin_ds.name",
+		"destinationDutyStation": "dest_dl.name",
+		"originDutyLocation":     "origin_dl.name",
 		"requestedMoveDate":      "min(mto_shipments.requested_pickup_date)",
 		"originGBLOC":            "origin_to.gbloc",
 	}

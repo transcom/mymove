@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react';
 import { CreateOrEditMtoShipment } from './CreateOrEditMtoShipment';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -89,7 +90,7 @@ const mockPPMShipment = {
   shipmentType: 'PPM',
 };
 
-const renderComponent = (props) => render(<CreateOrEditMtoShipment {...defaultProps} {...props} />);
+const renderComponent = (props, options) => render(<CreateOrEditMtoShipment {...defaultProps} {...props} />, options);
 
 describe('CreateOrEditMtoShipment component', () => {
   it('fetches customer data on mount', () => {
@@ -101,11 +102,14 @@ describe('CreateOrEditMtoShipment component', () => {
 
   describe('when creating a new shipment', () => {
     it('renders the PPM date and location page if the shipment type is PPM', async () => {
-      renderComponent({
-        location: {
-          search: `?type=${SHIPMENT_OPTIONS.PPM}`,
+      renderComponent(
+        {
+          location: {
+            search: `?type=${SHIPMENT_OPTIONS.PPM}`,
+          },
         },
-      });
+        { wrapper: MockProviders },
+      );
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
     });
@@ -146,10 +150,13 @@ describe('CreateOrEditMtoShipment component', () => {
     });
 
     it('renders the PPM date and location page after a PPM shipment has loaded', async () => {
-      renderComponent({
-        match: getMockMatchProp('/moves/:moveId/shipments/:mtoShipmentId/edit'),
-        mtoShipment: mockPPMShipment,
-      });
+      renderComponent(
+        {
+          match: getMockMatchProp('/moves/:moveId/shipments/:mtoShipmentId/edit'),
+          mtoShipment: mockPPMShipment,
+        },
+        { wrapper: MockProviders },
+      );
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
     });
