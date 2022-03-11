@@ -3,6 +3,7 @@ package internalapi
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -23,49 +24,51 @@ type ApproveMoveHandler struct {
 
 // Handle ... approves a Move from a request payload
 func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() {
-		return officeop.NewApproveMoveForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() {
+				return officeop.NewApproveMoveForbidden()
+			}
 
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			moveID, err := uuid.FromString(params.MoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	// Don't approve Move if orders are incomplete
-	orders, ordersErr := models.FetchOrder(appCtx.DB(), move.OrdersID)
-	if ordersErr != nil {
-		return handlers.ResponseForError(appCtx.Logger(), ordersErr)
-	}
-	if !orders.IsComplete() {
-		return officeop.NewApprovePPMBadRequest()
-	}
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			// Don't approve Move if orders are incomplete
+			orders, ordersErr := models.FetchOrder(appCtx.DB(), move.OrdersID)
+			if ordersErr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), ordersErr)
+			}
+			if !orders.IsComplete() {
+				return officeop.NewApprovePPMBadRequest()
+			}
 
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
-	err = h.MoveRouter.Approve(appCtx, move)
-	if err != nil {
-		logger.Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
-		return handlers.ResponseForError(logger, err)
-	}
+			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+			err = h.MoveRouter.Approve(appCtx, move)
+			if err != nil {
+				logger.Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
+				return handlers.ResponseForError(logger, err)
+			}
 
-	verrs, err := appCtx.DB().ValidateAndUpdate(move)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
-	}
+			verrs, err := appCtx.DB().ValidateAndUpdate(move)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(logger, verrs, err)
+			}
 
-	// TODO: Save and/or update the move association status' (PPM, Reimbursement, Orders) a la Cancel handler
+			// TODO: Save and/or update the move association status' (PPM, Reimbursement, Orders) a la Cancel handler
 
-	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	return officeop.NewApproveMoveOK().WithPayload(movePayload)
+			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+			if err != nil {
+				return handlers.ResponseForError(logger, err)
+			}
+			return officeop.NewApproveMoveOK().WithPayload(movePayload)
+		})
 }
 
 // CancelMoveHandler cancels a move via POST /moves/{moveId}/cancel
