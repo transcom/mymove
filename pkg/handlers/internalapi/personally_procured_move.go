@@ -97,52 +97,54 @@ type CreatePersonallyProcuredMoveHandler struct {
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveID, err := uuid.FromString(params.MoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	payload := params.CreatePersonallyProcuredMovePayload
+			// Validate that this move belongs to the current user
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			payload := params.CreatePersonallyProcuredMovePayload
 
-	var advance *models.Reimbursement
-	if payload.Advance != nil {
-		a := models.BuildDraftReimbursement(unit.Cents(*payload.Advance.RequestedAmount), models.MethodOfReceipt(*payload.Advance.MethodOfReceipt))
-		advance = &a
-	}
+			var advance *models.Reimbursement
+			if payload.Advance != nil {
+				a := models.BuildDraftReimbursement(unit.Cents(*payload.Advance.RequestedAmount), models.MethodOfReceipt(*payload.Advance.MethodOfReceipt))
+				advance = &a
+			}
 
-	destinationZip, err := GetDestinationDutyLocationPostalCode(appCtx, move.OrdersID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			destinationZip, err := GetDestinationDutyLocationPostalCode(appCtx, move.OrdersID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	newPPM, verrs, err := move.CreatePPM(appCtx.DB(),
-		handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate),
-		(*time.Time)(payload.OriginalMoveDate),
-		payload.PickupPostalCode,
-		payload.HasAdditionalPostalCode,
-		payload.AdditionalPickupPostalCode,
-		&destinationZip,
-		payload.HasSit,
-		payload.DaysInStorage,
-		payload.EstimatedStorageReimbursement,
-		payload.HasRequestedAdvance,
-		advance)
+			newPPM, verrs, err := move.CreatePPM(appCtx.DB(),
+				handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate),
+				(*time.Time)(payload.OriginalMoveDate),
+				payload.PickupPostalCode,
+				payload.HasAdditionalPostalCode,
+				payload.AdditionalPickupPostalCode,
+				&destinationZip,
+				payload.HasSit,
+				payload.DaysInStorage,
+				payload.EstimatedStorageReimbursement,
+				payload.HasRequestedAdvance,
+				advance)
 
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *newPPM)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(ppmPayload)
+			ppmPayload, err := payloadForPPMModel(h.FileStorer(), *newPPM)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(ppmPayload)
+		})
 }
 
 // IndexPersonallyProcuredMovesHandler returns a list of all the PPMs associated with this move.
