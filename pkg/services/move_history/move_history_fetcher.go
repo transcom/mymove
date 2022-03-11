@@ -81,25 +81,21 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 	),
 	combined_logs AS (
 		SELECT
-			context,
 			*
 		FROM
 			pickup_address_logs
 		UNION ALL
 		SELECT
-			context,
 			*
 		FROM
 			destination_address_logs
 		UNION ALL
 		SELECT
-			context,
 			*
 		FROM
 			shipment_logs
 		UNION ALL
 		SELECT
-			context,
 			*
 		FROM
 			move_logs
