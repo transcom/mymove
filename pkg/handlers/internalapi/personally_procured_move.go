@@ -154,30 +154,32 @@ type IndexPersonallyProcuredMovesHandler struct {
 
 // Handle handles the request
 func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveID, err := uuid.FromString(params.MoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			// Validate that this move belongs to the current user
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	// The given move does belong to the current user.
-	ppms := move.PersonallyProcuredMoves
-	ppmsPayload := make(internalmessages.IndexPersonallyProcuredMovePayload, len(ppms))
-	for i, ppm := range ppms {
-		ppmPayload, err := payloadForPPMModel(h.FileStorer(), ppm)
-		if err != nil {
-			return handlers.ResponseForError(appCtx.Logger(), err)
-		}
-		ppmsPayload[i] = ppmPayload
-	}
-	response := ppmop.NewIndexPersonallyProcuredMovesOK().WithPayload(ppmsPayload)
-	return response
+			// The given move does belong to the current user.
+			ppms := move.PersonallyProcuredMoves
+			ppmsPayload := make(internalmessages.IndexPersonallyProcuredMovePayload, len(ppms))
+			for i, ppm := range ppms {
+				ppmPayload, err := payloadForPPMModel(h.FileStorer(), ppm)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err)
+				}
+				ppmsPayload[i] = ppmPayload
+			}
+			response := ppmop.NewIndexPersonallyProcuredMovesOK().WithPayload(ppmsPayload)
+			return response
+		})
 }
 
 func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalmessages.PatchPersonallyProcuredMovePayload) {
