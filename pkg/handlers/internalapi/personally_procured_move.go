@@ -346,39 +346,41 @@ type PatchPersonallyProcuredMoveHandler struct {
 
 // Handle is the handler
 func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveID, err := uuid.FromString(params.MoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	if ppm.MoveID != moveID {
-		appCtx.Logger().Info("Move ID for PPM does not match requested PPM Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", ppm.MoveID.String()))
-		return ppmop.NewPatchPersonallyProcuredMoveBadRequest()
-	}
+			if ppm.MoveID != moveID {
+				appCtx.Logger().Info("Move ID for PPM does not match requested PPM Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", ppm.MoveID.String()))
+				return ppmop.NewPatchPersonallyProcuredMoveBadRequest()
+			}
 
-	patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
+			patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
 
-	verrs, err := models.SavePersonallyProcuredMove(appCtx.DB(), ppm)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			verrs, err := models.SavePersonallyProcuredMove(appCtx.DB(), ppm)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ppmop.NewPatchPersonallyProcuredMoveOK().WithPayload(ppmPayload)
+			ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ppmop.NewPatchPersonallyProcuredMoveOK().WithPayload(ppmPayload)
+		})
 }
 
 // SubmitPersonallyProcuredMoveHandler Submits a PPM
