@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/route/mocks"
 
@@ -63,6 +62,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationPostalCode},
 		}
 
+		appContext := suite.AppContextForTest()
 		distance, err := distanceZip3Lookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
 			planner:       suite.planner,
 			mtoShipmentID: &ppmShipment.ShipmentID,
@@ -70,7 +70,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		suite.NoError(err)
 
 		planner := suite.planner.(*mocks.Planner)
-		planner.AssertCalled(suite.T(), "Zip3TransitDistance", mock.Anything, ppmShipment.PickupPostalCode, ppmShipment.DestinationPostalCode)
+		planner.AssertCalled(suite.T(), "Zip3TransitDistance", appContext, ppmShipment.PickupPostalCode, ppmShipment.DestinationPostalCode)
 
 		err = suite.DB().Reload(&ppmShipment.Shipment)
 		suite.NoError(err)

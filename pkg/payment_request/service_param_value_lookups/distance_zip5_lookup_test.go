@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/route/mocks"
 
@@ -65,14 +64,15 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationPostalCode},
 		}
 
-		distance, err := distanceZip5Lookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
+		appContext := suite.AppContextForTest()
+		distance, err := distanceZip5Lookup.lookup(appContext, &ServiceItemParamKeyData{
 			planner:       suite.planner,
 			mtoShipmentID: &ppmShipment.ShipmentID,
 		})
 		suite.NoError(err)
 
 		planner := suite.planner.(*mocks.Planner)
-		planner.AssertCalled(suite.T(), "Zip5TransitDistance", mock.Anything, ppmShipment.PickupPostalCode, ppmShipment.DestinationPostalCode)
+		planner.AssertCalled(suite.T(), "Zip5TransitDistance", appContext, ppmShipment.PickupPostalCode, ppmShipment.DestinationPostalCode)
 
 		err = suite.DB().Reload(&ppmShipment.Shipment)
 		suite.NoError(err)
