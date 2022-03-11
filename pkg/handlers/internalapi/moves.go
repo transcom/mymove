@@ -114,39 +114,42 @@ type PatchMoveHandler struct {
 
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveID, _ := uuid.FromString(params.MoveID.String())
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+			moveID, _ := uuid.FromString(params.MoveID.String())
 
-	// Fetch orders for authorized user
-	orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	payload := params.PatchMovePayload
-	newSelectedMoveType := payload.SelectedMoveType
+			// Validate that this move belongs to the current user
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-	if newSelectedMoveType != nil {
-		stringSelectedMoveType := models.SelectedMoveType(*newSelectedMoveType)
-		move.SelectedMoveType = &stringSelectedMoveType
-	}
+			// Fetch orders for authorized user
+			orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
+			if err != nil {
+				return handlers.ResponseForError(logger, err)
+			}
+			payload := params.PatchMovePayload
+			newSelectedMoveType := payload.SelectedMoveType
 
-	verrs, err := appCtx.DB().ValidateAndUpdate(move)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
-	}
-	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
+			if newSelectedMoveType != nil {
+				stringSelectedMoveType := models.SelectedMoveType(*newSelectedMoveType)
+				move.SelectedMoveType = &stringSelectedMoveType
+			}
 
-	return moveop.NewPatchMoveCreated().WithPayload(movePayload)
+			verrs, err := appCtx.DB().ValidateAndUpdate(move)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(logger, verrs, err)
+			}
+			movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
+			if err != nil {
+				return handlers.ResponseForError(logger, err)
+			}
+
+			return moveop.NewPatchMoveCreated().WithPayload(movePayload)
+		})
 }
 
 // SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
