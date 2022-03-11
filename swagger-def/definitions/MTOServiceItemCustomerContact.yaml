@@ -1,0 +1,18 @@
+description: Customer contact information for a destination SIT service item
+type: object
+properties:
+  id:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  type:
+    $ref: 'CustomerContactType.yaml'
+  timeMilitary:
+    type: string
+    example: 0400Z
+    description: Time of delivery corresponding to `firstAvailableDeliveryDate`.
+  firstAvailableDeliveryDate:
+    format: date
+    type: string
+    example: '2020-12-31'
+    description: First available date that Prime can deliver SIT service item.

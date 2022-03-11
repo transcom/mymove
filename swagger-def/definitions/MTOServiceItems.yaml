@@ -1,0 +1,4 @@
+description: A list of service items connected to this shipment.
+type: array
+items:
+  $ref: 'MTOServiceItem.yaml'

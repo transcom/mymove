@@ -153,7 +153,6 @@ const ntsrShipmentMissingRequiredInfo = {
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ' +
     'Morbi porta nibh nibh, ac malesuada tortor egestas.',
   customerRemarks: 'Ut enim ad minima veniam',
-  tacType: 'HHG',
   sacType: 'NTS',
 };
 
@@ -165,7 +164,7 @@ const newMoveDetailsQuery = {
   },
   order: {
     id: '1',
-    originDutyStation: {
+    originDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Knox',
@@ -173,7 +172,7 @@ const newMoveDetailsQuery = {
         postalCode: '40121',
       },
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Irwin',
@@ -302,6 +301,32 @@ describe('MoveDetails page', () => {
       expect(await screen.findByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
     });
 
+    it.each([['Shipments'], ['Orders'], ['Allowances'], ['Customer info']])(
+      'renders side navigation for section %s',
+      async (sectionName) => {
+        useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('link', { name: sectionName })).toBeInTheDocument();
+      },
+    );
+
+    it('renders the number of missing information for all shipments in a section', async () => {
+      const moveDetailsQuery = {
+        ...newMoveDetailsQuery,
+        mtoShipments: [ntsrShipmentMissingRequiredInfo],
+      };
+
+      useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
+
+      render(mockedComponent);
+
+      // In this case, we would expect 3 since this shipment is missing the storage facility
+      // and tac type.
+      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('3');
+    });
+
     /* eslint-disable camelcase */
     it('renders shipments info', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
@@ -412,7 +437,7 @@ describe('MoveDetails page', () => {
       expect(destinationAddressTerms.length).toBe(2);
 
       expect(destinationAddressTerms[0].nextElementSibling.textContent).toBe(
-        moveDetailsQuery.order.destinationDutyStation.address.postalCode,
+        moveDetailsQuery.order.destinationDutyLocation.address.postalCode,
       );
 
       const { streetAddress1, city, state, postalCode } = moveDetailsQuery.mtoShipments[1].destinationAddress;
@@ -622,6 +647,19 @@ describe('MoveDetails page', () => {
         expect(customerRemarks2).toBeInTheDocument();
         expect(counselorRemarks1).toBeInTheDocument();
         expect(counselorRemarks2).toBeInTheDocument();
+      });
+
+      it('shows a warning if counselor remarks are empty', async () => {
+        const moveDetailsQuery = {
+          ...newMoveDetailsQuery,
+          mtoShipments: [{ ...mtoShipments[0], counselorRemarks: '' }],
+        };
+        useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
+
+        render(mockedComponent);
+
+        const counselorRemarksElement = screen.getByTestId('counselorRemarks');
+        expect(counselorRemarksElement.parentElement).toHaveClass('warning');
       });
     });
 

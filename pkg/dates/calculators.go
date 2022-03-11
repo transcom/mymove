@@ -4,11 +4,11 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/rickar/cal"
+	"github.com/rickar/cal/v2"
 )
 
 // CreateFutureMoveDates generates a list of dates in the future
-func CreateFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
+func CreateFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.BusinessCalendar) []time.Time {
 	dates := make([]time.Time, 0, numDays)
 
 	daysAdded := 0
@@ -23,7 +23,7 @@ func CreateFutureMoveDates(startDate time.Time, numDays int, includeWeekendsAndH
 }
 
 // CreatePastMoveDates generates a list of dates in the past
-func CreatePastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.Calendar) []time.Time {
+func CreatePastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHolidays bool, calendar *cal.BusinessCalendar) []time.Time {
 	dates := make([]time.Time, numDays)
 
 	daysAdded := 0
@@ -39,7 +39,7 @@ func CreatePastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHol
 }
 
 // CreateValidDatesBetweenTwoDates returns date range inclusive of startDate, exclusive of endDate (unless endDate is before or equal to startDate and allowEarlierEndDate)
-func CreateValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, includeWeekendsAndHolidays bool, allowEarlierOrSameEndDate bool, calendar *cal.Calendar) ([]time.Time, error) {
+func CreateValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, includeWeekendsAndHolidays bool, allowEarlierOrSameEndDate bool, calendar *cal.BusinessCalendar) ([]time.Time, error) {
 	var dates []time.Time
 
 	if startDate.After(endDate) || startDate == endDate {
@@ -62,6 +62,6 @@ func CreateValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, inc
 
 // NextValidMoveDate returns next subsequent non-holiday weekday
 // This is mostly used for testing purposes
-func NextValidMoveDate(d time.Time, calendar *cal.Calendar) time.Time {
+func NextValidMoveDate(d time.Time, calendar *cal.BusinessCalendar) time.Time {
 	return NextWorkday(*calendar, d)
 }

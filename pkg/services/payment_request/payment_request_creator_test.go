@@ -4,9 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
@@ -37,6 +40,16 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		},
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedWeight,
+		},
+	})
+	mtoServiceItem3 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrder,
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOP,
+		},
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
+			UsesExternalVendor:   true,
 		},
 	})
 	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
@@ -367,6 +380,38 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 	})
 
+	suite.T().Run("Payment request fails when MTOShipment uses external vendor", func(t *testing.T) {
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID:         mtoServiceItem1.ID,
+					MTOServiceItem:           mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem2.ID,
+					MTOServiceItem:           mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem3.ID,
+					MTOServiceItem:           mtoServiceItem3,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+			},
+		}
+
+		paymentRequestResult, err := creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequest)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "paymentRequestCreator.validShipment: Shipment uses external vendor for MTOShipmentID")
+
+		// Verify some of the data that came back
+		suite.Nil(paymentRequestResult)
+	})
+
 	suite.T().Run("Payment request fails when pricing", func(t *testing.T) {
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
@@ -470,21 +515,21 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				return fmt.Sprintf("ID: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", ordersID, mtoID)
 			},
 		},
-		// Orders with no OriginDutyStation
+		// Orders with no OriginDutyLocation
 		{
-			TestDescription: "Given move with orders no OriginDutyStation, the create should fail",
+			TestDescription: "Given move with orders no OriginDutyLocation, the create should fail",
 			InvalidMove: func() models.Move {
 				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 				orders := mtoInvalid.Orders
-				orders.OriginDutyStation = nil
-				orders.OriginDutyStationID = nil
+				orders.OriginDutyLocation = nil
+				orders.OriginDutyLocationID = nil
 				err := suite.DB().Update(&orders)
 				suite.FatalNoError(err)
 				return mtoInvalid
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(ordersID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("ID: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", ordersID, mtoID)
+				return fmt.Sprintf("ID: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyLocation", ordersID, mtoID)
 			},
 		},
 	}
@@ -1013,5 +1058,152 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			}
 		}
 	})
+}
 
+func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestOnNTSRelease() {
+	testStorageFacilityZip := "30907"
+	testDestinationZip := "78234"
+	testEscalationCompounded := 1.04071
+	testDLHRate := unit.Millicents(6000)
+	testOriginalWeight := unit.Pound(3652)
+	testZip3Distance := 1234
+
+	// ((testOriginalWeight / 100.0) * testZip3Distance * testDLHRate * testEscalationCompounded) / 1000
+	testDLHTotalPrice := unit.Cents(281402)
+
+	//
+	// Test data setup
+	//
+
+	// Make storage facility and destination addresses
+	storageFacilityAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "235 Prospect Valley Road SE",
+			City:           "Augusta",
+			State:          "GA",
+			PostalCode:     testStorageFacilityZip,
+		},
+	})
+	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "17 8th St",
+			City:           "San Antonio",
+			State:          "TX",
+			PostalCode:     testDestinationZip,
+		},
+	})
+
+	// Make a storage facility
+	storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
+		StorageFacility: models.StorageFacility{
+			Address: storageFacilityAddress,
+		},
+	})
+
+	// Contract year, service area, rate area, zip3
+	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			EscalationCompounded: testEscalationCompounded,
+		},
+		ReRateArea: models.ReRateArea{
+			Name: "Georgia",
+		},
+		ReZip3: models.ReZip3{
+			Zip3:          storageFacilityAddress.PostalCode[0:3],
+			BasePointCity: storageFacilityAddress.City,
+			State:         storageFacilityAddress.State,
+		},
+	})
+
+	// DLH price data
+	testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+			ContractID:            contractYear.Contract.ID,
+			Contract:              contractYear.Contract,
+			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceArea:   serviceArea,
+			IsPeakPeriod:          false,
+			PriceMillicents:       testDLHRate,
+		},
+	})
+
+	// Make move and shipment
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.January, 15, 0, 0, 0, 0, time.UTC)
+	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+			PrimeActualWeight:    &testOriginalWeight,
+			StorageFacilityID:    &storageFacility.ID,
+			StorageFacility:      &storageFacility,
+			DestinationAddressID: &destinationAddress.ID,
+			DestinationAddress:   &destinationAddress,
+			ActualPickupDate:     &actualPickupDate,
+		},
+	})
+
+	mtoServiceItemDLH := testdatagen.MakeRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment)
+
+	// Build up a payment request for the DLH.
+	paymentRequestArg := models.PaymentRequest{
+		MoveTaskOrderID: move.ID,
+		IsFinal:         false,
+		PaymentServiceItems: models.PaymentServiceItems{
+			{
+				MTOServiceItemID: mtoServiceItemDLH.ID,
+				MTOServiceItem:   mtoServiceItemDLH,
+			},
+		},
+	}
+
+	//
+	// Create the payment request
+	//
+
+	// Mock out a planner.
+	mockPlanner := &routemocks.Planner{}
+	mockPlanner.On("Zip3TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		testStorageFacilityZip,
+		testDestinationZip,
+	).Return(testZip3Distance, nil)
+
+	// Create an initial payment request.
+	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+	paymentRequest, err := creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequestArg)
+	suite.FatalNoError(err)
+
+	// Make sure we have just the DLH payment service item
+	if suite.Len(paymentRequest.PaymentServiceItems, 1) {
+		psi := paymentRequest.PaymentServiceItems[0]
+		suite.Equal(models.ReServiceCodeDLH, psi.MTOServiceItem.ReService.Code)
+
+		// Validate the calculated price
+		suite.Equal(testDLHTotalPrice, *psi.PriceCents)
+
+		// Check some key payment service item parameters that are different for NTS-Release
+		referenceDateParam := getPaymentServiceItemParam(psi.PaymentServiceItemParams, models.ServiceItemParamNameReferenceDate)
+		actualPickupDateStr := actualPickupDate.Format(ghcrateengine.DateParamFormat)
+		if suite.NotNil(referenceDateParam) {
+			suite.Equal(actualPickupDateStr, referenceDateParam.Value)
+		}
+		actualPickupDateParam := getPaymentServiceItemParam(psi.PaymentServiceItemParams, models.ServiceItemParamNameActualPickupDate)
+		if suite.NotNil(actualPickupDateParam) {
+			suite.Equal(actualPickupDateStr, actualPickupDateParam.Value)
+		}
+
+		requestedPickupDateParam := getPaymentServiceItemParam(psi.PaymentServiceItemParams, models.ServiceItemParamNameRequestedPickupDate)
+		suite.Nil(requestedPickupDateParam)
+	}
+}
+
+func getPaymentServiceItemParam(psiParams models.PaymentServiceItemParams, key models.ServiceItemParamName) *models.PaymentServiceItemParam {
+	for _, param := range psiParams {
+		if param.ServiceItemParamKey.Key == key {
+			return &param
+		}
+	}
+
+	return nil
 }

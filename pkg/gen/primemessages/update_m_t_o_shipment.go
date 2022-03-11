@@ -33,6 +33,9 @@ type UpdateMTOShipment struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
 
+	// destination type
+	DestinationType *DestinationType `json:"destinationType,omitempty"`
+
 	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
 	//
 	Diversion bool `json:"diversion,omitempty"`
@@ -98,6 +101,10 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateFirstAvailableDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -147,6 +154,25 @@ func (m *UpdateMTOShipment) validateActualPickupDate(formats strfmt.Registry) er
 func (m *UpdateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) validateDestinationType(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationType) { // not required
+		return nil
+	}
+
+	if m.DestinationType != nil {
+		if err := m.DestinationType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -244,6 +270,10 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -271,6 +301,22 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (m *UpdateMTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationType != nil {
+		if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
+	}
 
 	return nil
 }

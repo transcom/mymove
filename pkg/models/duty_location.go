@@ -110,7 +110,6 @@ func FindDutyLocations(tx *pop.Connection, search string) (DutyLocations, error)
 		return locations, err
 	}
 
-	// TODO: change this query once duty_station_names.duty_station_id field is renamed
 	sqlQuery := `
 with names as (
 (select id as duty_location_id, name, similarity(name, $1) as sim
@@ -119,8 +118,8 @@ where name % $1
 order by sim desc
 limit 5)
 union
-(select duty_station_id as duty_location_id, name, similarity(name, $1) as sim
-from duty_station_names
+(select duty_location_id, name, similarity(name, $1) as sim
+from duty_location_names
 where name % $1
 order by sim desc
 limit 5)

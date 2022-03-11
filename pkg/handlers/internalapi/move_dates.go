@@ -23,19 +23,19 @@ func calculateMoveDatesFromMove(appCtx appcontext.AppContext, planner route.Plan
 		return summary, err
 	}
 
-	if move.Orders.ServiceMember.DutyStation.Address == (models.Address{}) {
-		return summary, errors.New("DutyStation must have an address")
+	if move.Orders.ServiceMember.DutyLocation.Address == (models.Address{}) {
+		return summary, errors.New("DutyLocation must have an address")
 	}
-	if move.Orders.NewDutyStation.Address == (models.Address{}) {
-		return summary, errors.New("NewDutyStation must have an address")
+	if move.Orders.NewDutyLocation.Address == (models.Address{}) {
+		return summary, errors.New("NewDutyLocation must have an address")
 	}
 	//TODO: fix test TestCreateShipmentHandlerAllValues() so that duty stations differ so that this error check does not cause the test to fail
-	//if move.Orders.NewDutyStation.Address.PostalCode[0:5] == move.Orders.ServiceMember.DutyStation.Address.PostalCode[0:5] {
-	//	return summary, errors.New("NewDutyStation must not have the same zip code as the original DutyStation")
+	//if move.Orders.NewDutyLocation.Address.PostalCode[0:5] == move.Orders.ServiceMember.DutyLocation.Address.PostalCode[0:5] {
+	//	return summary, errors.New("NewDutyLocation must not have the same zip code as the original DutyLocation")
 	//}
 
-	var source = move.Orders.ServiceMember.DutyStation.Address
-	var destination = move.Orders.NewDutyStation.Address
+	var source = move.Orders.ServiceMember.DutyLocation.Address
+	var destination = move.Orders.NewDutyLocation.Address
 
 	transitDistance, err := planner.TransitDistance(appCtx, &source, &destination)
 	if err != nil {

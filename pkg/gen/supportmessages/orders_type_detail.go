@@ -20,8 +20,12 @@ import (
 type OrdersTypeDetail string
 
 func NewOrdersTypeDetail(value OrdersTypeDetail) *OrdersTypeDetail {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated OrdersTypeDetail.
+func (m OrdersTypeDetail) Pointer() *OrdersTypeDetail {
+	return &m
 }
 
 const (

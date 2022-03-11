@@ -20,8 +20,7 @@ import (
 type DutyLocationPayload struct {
 
 	// address
-	// Required: true
-	Address *Address `json:"address"`
+	Address *Address `json:"address,omitempty"`
 
 	// address id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -51,6 +50,11 @@ type DutyLocationPayload struct {
 
 	// transportation office
 	TransportationOffice *TransportationOffice `json:"transportation_office,omitempty"`
+
+	// transportation office id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	TransportationOfficeID *strfmt.UUID `json:"transportation_office_id,omitempty"`
 
 	// updated at
 	// Required: true
@@ -90,6 +94,10 @@ func (m *DutyLocationPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateTransportationOfficeID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -101,9 +109,8 @@ func (m *DutyLocationPayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *DutyLocationPayload) validateAddress(formats strfmt.Registry) error {
-
-	if err := validate.Required("address", "body", m.Address); err != nil {
-		return err
+	if swag.IsZero(m.Address) { // not required
+		return nil
 	}
 
 	if m.Address != nil {
@@ -206,6 +213,18 @@ func (m *DutyLocationPayload) validateTransportationOffice(formats strfmt.Regist
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *DutyLocationPayload) validateTransportationOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.TransportationOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("transportation_office_id", "body", "uuid", m.TransportationOfficeID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

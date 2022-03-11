@@ -121,7 +121,7 @@ const pages = {
 
     // api for duty station always returns an object, even when duty station is not set
     // if there is no duty station, that object will have a null uuid
-    isComplete: ({ sm }) => sm.is_profile_complete || get(sm, 'current_station.id', NULL_UUID) !== NULL_UUID,
+    isComplete: ({ sm }) => sm.is_profile_complete || get(sm, 'current_location.id', NULL_UUID) !== NULL_UUID,
     render:
       () =>
       ({ history }) =>
@@ -181,7 +181,7 @@ const pages = {
         orders.orders_type,
         orders.issue_date,
         orders.report_by_date,
-        get(orders, 'new_duty_station.id', NULL_UUID) !== NULL_UUID,
+        get(orders, 'new_duty_location.id', NULL_UUID) !== NULL_UUID,
       ]),
     render:
       (key, pages) =>

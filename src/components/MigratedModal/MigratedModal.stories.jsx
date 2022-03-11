@@ -117,28 +117,28 @@ export const withOverlay = () => (
   </div>
 );
 
+const TestModal = (closeModal) => (
+  <Modal
+    title={<h2>Test Modal</h2>}
+    actions={
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button type="button" secondary onClick={closeModal}>
+          Cancel
+        </Button>
+        <Button type="button" onClick={closeModal}>
+          Close
+        </Button>
+      </div>
+    }
+  >
+    <p>This is a test modal!</p>
+  </Modal>
+);
+
 export const FullExample = () => {
   const { isOpen, openModal, closeModal } = useModal();
 
-  const TestModal = () => (
-    <Modal
-      title={<h2>Test Modal</h2>}
-      actions={
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button type="button" secondary onClick={closeModal}>
-            Cancel
-          </Button>
-          <Button type="button" onClick={closeModal}>
-            Close
-          </Button>
-        </div>
-      }
-    >
-      <p>This is a test modal!</p>
-    </Modal>
-  );
-
-  const ConnectedTestModal = connectModal(TestModal);
+  const ConnectedTestModal = connectModal(TestModal(closeModal));
 
   return (
     <div>

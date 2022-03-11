@@ -1396,6 +1396,27 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Error(err)
 	})
 
+	suite.Run("Requests for SIT additional days past the original allowance should be accepted if they are covered by extensions", func() {
+		setupTestData()
+
+		// End date is a year in the future in order to make sure we exceed the allowance.
+		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2021-07-30")
+
+		approvedDays := 400
+		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+			MTOShipment: serviceItemDOASIT.MTOShipment,
+			SITExtension: models.SITExtension{
+				ApprovedDays: &approvedDays,
+			},
+		})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
+		suite.FatalNoError(err)
+
+		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+	})
+
 	suite.Run("SIT days remaining calculation should account for first day in SIT", func() {
 		setupTestData()
 

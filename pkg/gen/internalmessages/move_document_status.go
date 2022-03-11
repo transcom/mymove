@@ -20,8 +20,12 @@ import (
 type MoveDocumentStatus string
 
 func NewMoveDocumentStatus(value MoveDocumentStatus) *MoveDocumentStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated MoveDocumentStatus.
+func (m MoveDocumentStatus) Pointer() *MoveDocumentStatus {
+	return &m
 }
 
 const (

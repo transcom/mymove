@@ -5,6 +5,8 @@ package mocks
 import (
 	io "io"
 
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -13,20 +15,20 @@ type SyncadaSFTPSender struct {
 	mock.Mock
 }
 
-// SendToSyncadaViaSFTP provides a mock function with given fields: localDataReader, syncadaFileName
-func (_m *SyncadaSFTPSender) SendToSyncadaViaSFTP(localDataReader io.Reader, syncadaFileName string) (int64, error) {
-	ret := _m.Called(localDataReader, syncadaFileName)
+// SendToSyncadaViaSFTP provides a mock function with given fields: appCtx, localDataReader, syncadaFileName
+func (_m *SyncadaSFTPSender) SendToSyncadaViaSFTP(appCtx appcontext.AppContext, localDataReader io.Reader, syncadaFileName string) (int64, error) {
+	ret := _m.Called(appCtx, localDataReader, syncadaFileName)
 
 	var r0 int64
-	if rf, ok := ret.Get(0).(func(io.Reader, string) int64); ok {
-		r0 = rf(localDataReader, syncadaFileName)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.Reader, string) int64); ok {
+		r0 = rf(appCtx, localDataReader, syncadaFileName)
 	} else {
 		r0 = ret.Get(0).(int64)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(io.Reader, string) error); ok {
-		r1 = rf(localDataReader, syncadaFileName)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, io.Reader, string) error); ok {
+		r1 = rf(appCtx, localDataReader, syncadaFileName)
 	} else {
 		r1 = ret.Error(1)
 	}

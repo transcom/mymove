@@ -20,8 +20,12 @@ import (
 type BackupContactPermission string
 
 func NewBackupContactPermission(value BackupContactPermission) *BackupContactPermission {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated BackupContactPermission.
+func (m BackupContactPermission) Pointer() *BackupContactPermission {
+	return &m
 }
 
 const (

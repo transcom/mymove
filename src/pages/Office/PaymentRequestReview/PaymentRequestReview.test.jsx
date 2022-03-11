@@ -162,6 +162,7 @@ const usePaymentRequestQueriesReturnValue = {
 const requiredProps = {
   match: { params: { paymentRequestId: testPaymentRequestId } },
   history: { push: jest.fn() },
+  order: { tac: '1234', sac: '5678', ntsTac: 'AB12', ntsSac: 'CD34' },
 };
 
 const loadingReturnValue = {
@@ -222,6 +223,8 @@ describe('PaymentRequestReview', () => {
           id: '1',
           mtoShipmentID: 'a1',
           mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentTacType: 'HHG',
+          mtoShipmentSacType: 'HHG',
           mtoServiceItemName: 'Test Service Item',
           mtoShipmentModificationType: 'CANCELED',
           mtoShipmentDepartureDate: '2021-05-04',
@@ -246,6 +249,8 @@ describe('PaymentRequestReview', () => {
           id: '3',
           mtoShipmentID: 'a1',
           mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentTacType: 'HHG',
+          mtoShipmentSacType: 'HHG',
           mtoServiceItemName: 'Test Service Item 3',
           mtoShipmentModificationType: 'CANCELED',
           mtoShipmentDepartureDate: '2021-05-04',

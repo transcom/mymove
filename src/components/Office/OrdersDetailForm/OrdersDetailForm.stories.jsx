@@ -7,7 +7,7 @@ import { dropdownInputOptions } from 'shared/formatters';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 
-const originDutyStation = {
+const originDutyLocation = {
   address: {
     city: 'Dover AFB',
     id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
@@ -22,7 +22,7 @@ const originDutyStation = {
   name: 'Dover AFB',
   updated_at: '2018-10-04T22:54:46.589Z',
 };
-const newDutyStation = {
+const newDutyLocation = {
   address: {
     city: 'Scott Air Force Base',
     id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
@@ -73,6 +73,8 @@ export const EmptyValues = () => (
           deptIndicatorOptions={deptIndicatorOptions}
           ordersTypeOptions={ordersTypeOptions}
           ordersTypeDetailOptions={ordersTypeDetailOptions}
+          ordersType={ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION}
+          setFieldValue={Formik.setFieldValue}
         />
       </form>
     </Formik>
@@ -84,8 +86,8 @@ export const InitialValues = () => {
     <div style={{ width: '400px' }}>
       <Formik
         initialValues={{
-          originDutyStation,
-          newDutyStation,
+          originDutyLocation,
+          newDutyLocation,
           issueDate: '2020-03-08',
           reportByDate: '2020-04-01',
           departmentIndicator: 'NAVY_AND_MARINES',
@@ -99,8 +101,8 @@ export const InitialValues = () => {
           ordersAcknowledgement: true,
         }}
         validationSchema={Yup.object({
-          originDutyStation: Yup.object().defined('Required'),
-          newDutyStation: Yup.object().required('Required'),
+          originDutyLocation: Yup.object().defined('Required'),
+          newDutyLocation: Yup.object().required('Required'),
           issueDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
           reportByDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
           departmentIndicator: Yup.string().required('Required'),
@@ -113,14 +115,19 @@ export const InitialValues = () => {
           ntsSac: Yup.string().required('Required'),
         })}
       >
-        <form>
-          <OrdersDetailForm
-            deptIndicatorOptions={deptIndicatorOptions}
-            ordersTypeOptions={ordersTypeOptions}
-            ordersTypeDetailOptions={ordersTypeDetailOptions}
-            showOrdersAcknowledgement
-          />
-        </form>
+        {(formik) => {
+          return (
+            <form>
+              <OrdersDetailForm
+                deptIndicatorOptions={deptIndicatorOptions}
+                ordersTypeOptions={ordersTypeOptions}
+                ordersTypeDetailOptions={ordersTypeDetailOptions}
+                showOrdersAcknowledgement
+                setFieldValue={formik.setFieldValue}
+              />
+            </form>
+          );
+        }}
       </Formik>
     </div>
   );
@@ -131,8 +138,8 @@ export const FieldsHidden = (args) => {
     <div style={{ width: '400px' }}>
       <Formik
         initialValues={{
-          originDutyStation,
-          newDutyStation,
+          originDutyLocation,
+          newDutyLocation,
           issueDate: '2020-03-08',
           reportByDate: '2020-04-01',
           departmentIndicator: 'NAVY_AND_MARINES',
@@ -145,8 +152,8 @@ export const FieldsHidden = (args) => {
           ntsSac: 'Sac',
         }}
         validationSchema={Yup.object({
-          originDutyStation: Yup.object().defined('Required'),
-          newDutyStation: Yup.object().required('Required'),
+          originDutyLocation: Yup.object().defined('Required'),
+          newDutyLocation: Yup.object().required('Required'),
           issueDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
           reportByDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
           departmentIndicator: Yup.string().required('Required'),
@@ -159,15 +166,92 @@ export const FieldsHidden = (args) => {
           ntsSac: Yup.string().required('Required'),
         })}
       >
-        <form>
-          <OrdersDetailForm
-            deptIndicatorOptions={deptIndicatorOptions}
-            ordersTypeOptions={ordersTypeOptions}
-            ordersTypeDetailOptions={ordersTypeDetailOptions}
-            {...args}
-          />
-        </form>
+        {(formik) => {
+          return (
+            <form>
+              <OrdersDetailForm
+                deptIndicatorOptions={deptIndicatorOptions}
+                ordersTypeOptions={ordersTypeOptions}
+                ordersTypeDetailOptions={ordersTypeDetailOptions}
+                setFieldValue={formik.setFieldValue}
+                {...args}
+              />
+            </form>
+          );
+        }}
       </Formik>
     </div>
   );
 };
+
+export const Retiree = () => (
+  <div style={{ width: '400px' }}>
+    <Formik
+      initialValues={{
+        originDutyLocation,
+        newDutyLocation,
+        issueDate: '2020-03-08',
+        reportByDate: '2020-04-01',
+        departmentIndicator: 'NAVY_AND_MARINES',
+        ordersNumber: '999999999',
+        ordersType: 'RETIREMENT',
+        ordersTypeDetail: 'HHG_PERMITTED',
+        tac: 'Tac',
+        sac: 'Sac',
+        ntsTac: 'Tac',
+        ntsSac: 'Sac',
+        ordersAcknowledgement: true,
+      }}
+    >
+      {(formik) => {
+        return (
+          <form>
+            <OrdersDetailForm
+              deptIndicatorOptions={deptIndicatorOptions}
+              ordersTypeOptions={ordersTypeOptions}
+              ordersTypeDetailOptions={ordersTypeDetailOptions}
+              ordersType="RETIREMENT"
+              setFieldValue={formik.setFieldValue}
+            />
+          </form>
+        );
+      }}
+    </Formik>
+  </div>
+);
+
+export const Separatee = () => (
+  <div style={{ width: '400px' }}>
+    <Formik
+      initialValues={{
+        originDutyLocation,
+        newDutyLocation,
+        issueDate: '2020-03-08',
+        reportByDate: '2020-04-01',
+        departmentIndicator: 'NAVY_AND_MARINES',
+        ordersNumber: '999999999',
+        ordersType: 'SEPARATION',
+        ordersTypeDetail: 'HHG_PERMITTED',
+        tac: 'Tac',
+        sac: 'Sac',
+        ntsTac: 'Tac',
+        ntsSac: 'Sac',
+        ordersAcknowledgement: true,
+      }}
+    >
+      {(formik) => {
+        return (
+          <form>
+            <OrdersDetailForm
+              deptIndicatorOptions={deptIndicatorOptions}
+              ordersTypeOptions={ordersTypeOptions}
+              ordersTypeDetailOptions={ordersTypeDetailOptions}
+              ordersType="SEPARATION"
+              setFieldValue={formik.setFieldValue}
+            />
+          </form>
+        );
+      }}
+    </Formik>
+  </div>
+);

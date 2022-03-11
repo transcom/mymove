@@ -20,9 +20,8 @@ if [ "$PWD" -ef "$goodpath" ]; then
   exit 1
 fi
 
-# shellcheck disable=SC2154
 if [[ "$gpath" == *"$HOME" ]]; then
-  if [[ ! ":$PATH:" == *":$gpath/bin:"* ]] && [[ ! ":$PATH:" == *":~${gpath#$HOME}/bin:"* ]]; then
+  if [[ ! ":$PATH:" == *":$gpath/bin:"* ]] && [[ ! ":$PATH:" == *":~${gpath#"$HOME"}/bin:"* ]]; then
     echo "In order for go dependencies to be runnable, \$GOPATH/bin must be in your \$PATH"
     echo "Please run 'make prereqs' to set your PATH."
     echo "Expected: $gpath/bin"

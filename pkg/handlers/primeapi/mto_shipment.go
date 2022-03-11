@@ -112,13 +112,17 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(params.Body, params.MtoShipmentID)
 
-	// Get the associated shipment from the database
+	// Get the associated shipment from the database.  Make sure it doesn't use an external vendor.
 	var dbShipment models.MTOShipment
 	err := appCtx.DB().EagerPreload("PickupAddress",
 		"DestinationAddress",
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
-		"MTOAgents").Find(&dbShipment, params.MtoShipmentID)
+		"MTOAgents",
+		"StorageFacility").
+		Where("uses_external_vendor = FALSE").
+		Find(&dbShipment, params.MtoShipmentID)
+
 	if err != nil {
 		return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
 	}
@@ -210,14 +214,36 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(appCtx appcontext
 
 	// Prime can create a new address, but cannot update it.
 	// So if address exists, return an error. But also set the local pointer to nil, so we don't recalculate requiredDeliveryDate
+	var latestPickupAddress *models.Address
+	var latestDestinationAddress *models.Address
+
+	switch dbShipment.ShipmentType {
+	case models.MTOShipmentTypeHHGIntoNTSDom:
+		if dbShipment.StorageFacility == nil {
+			// latestDestinationAddress is only used for calculating RDD.
+			// We don't want to block an update because we're missing info to calculate RDD
+			break
+		}
+		latestPickupAddress = dbShipment.PickupAddress
+		latestDestinationAddress = &dbShipment.StorageFacility.Address
+	case models.MTOShipmentTypeHHGOutOfNTSDom:
+		if dbShipment.StorageFacility == nil {
+			// latestPickupAddress is only used for calculating RDD.
+			// We don't want to block an update because we're missing info to calculate RDD
+			break
+		}
+		latestPickupAddress = &dbShipment.StorageFacility.Address
+		latestDestinationAddress = dbShipment.DestinationAddress
+	default:
+		latestPickupAddress = dbShipment.PickupAddress
+		latestDestinationAddress = dbShipment.DestinationAddress
+	}
 	// We also track the latestPickupAddress for the RDD calculation
-	latestPickupAddress := dbShipment.PickupAddress
 	if dbShipment.PickupAddress != nil && mtoShipment.PickupAddress != nil { // If both are populated, return error
 		verrs.Add("pickupAddress", "the pickup address already exists and cannot be updated with this endpoint")
 	} else if mtoShipment.PickupAddress != nil { // If only the update has an address, that's the latest address
 		latestPickupAddress = mtoShipment.PickupAddress
 	}
-	latestDestinationAddress := dbShipment.DestinationAddress
 	if dbShipment.DestinationAddress != nil && mtoShipment.DestinationAddress != nil {
 		verrs.Add("destinationAddress", "the destination address already exists and cannot be updated with this endpoint")
 	} else if mtoShipment.DestinationAddress != nil {
@@ -233,9 +259,14 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(appCtx appcontext
 	}
 
 	// If we have all the data, calculate RDD
-	if latestSchedPickupDate != nil && latestEstimatedWeight != nil && latestPickupAddress != nil && latestDestinationAddress != nil {
+	if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || (dbShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
+		dbShipment.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil {
+		weight := latestEstimatedWeight
+		if dbShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && dbShipment.NTSRecordedWeight != nil {
+			weight = dbShipment.NTSRecordedWeight
+		}
 		requiredDeliveryDate, err := mtoshipment.CalculateRequiredDeliveryDate(appCtx, h.Planner(), *latestPickupAddress,
-			*latestDestinationAddress, *latestSchedPickupDate, latestEstimatedWeight.Int())
+			*latestDestinationAddress, *latestSchedPickupDate, weight.Int())
 		if err != nil {
 			verrs.Add("requiredDeliveryDate", err.Error())
 		}

@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *OrderServiceSuite) TestOrderFetcher() {
+func (suite *OrderServiceSuite) TestFetchOrder() {
 	expectedMove := testdatagen.MakeDefaultMove(suite.DB())
 	expectedOrder := expectedMove.Orders
 	orderFetcher := NewOrderFetcher()
@@ -23,26 +23,26 @@ func (suite *OrderServiceSuite) TestOrderFetcher() {
 
 	suite.Equal(expectedOrder.ID, order.ID)
 	suite.Equal(expectedOrder.ServiceMemberID, order.ServiceMemberID)
-	suite.NotNil(order.NewDutyStation)
-	suite.Equal(expectedOrder.NewDutyStationID, order.NewDutyStation.ID)
-	suite.Equal(expectedOrder.NewDutyStation.AddressID, order.NewDutyStation.AddressID)
-	suite.Equal(expectedOrder.NewDutyStation.Address.StreetAddress1, order.NewDutyStation.Address.StreetAddress1)
+	suite.NotNil(order.NewDutyLocation)
+	suite.Equal(expectedOrder.NewDutyLocationID, order.NewDutyLocation.ID)
+	suite.Equal(expectedOrder.NewDutyLocation.AddressID, order.NewDutyLocation.AddressID)
+	suite.Equal(expectedOrder.NewDutyLocation.Address.StreetAddress1, order.NewDutyLocation.Address.StreetAddress1)
 	suite.NotNil(order.Entitlement)
 	suite.Equal(*expectedOrder.EntitlementID, order.Entitlement.ID)
-	suite.Equal(expectedOrder.OriginDutyStation.ID, order.OriginDutyStation.ID)
-	suite.Equal(expectedOrder.OriginDutyStation.AddressID, order.OriginDutyStation.AddressID)
-	suite.Equal(expectedOrder.OriginDutyStation.Address.StreetAddress1, order.OriginDutyStation.Address.StreetAddress1)
-	suite.NotZero(order.OriginDutyStation)
+	suite.Equal(expectedOrder.OriginDutyLocation.ID, order.OriginDutyLocation.ID)
+	suite.Equal(expectedOrder.OriginDutyLocation.AddressID, order.OriginDutyLocation.AddressID)
+	suite.Equal(expectedOrder.OriginDutyLocation.Address.StreetAddress1, order.OriginDutyLocation.Address.StreetAddress1)
+	suite.NotZero(order.OriginDutyLocation)
 	suite.Equal(expectedMove.Locator, order.Moves[0].Locator)
 }
 
-func (suite *OrderServiceSuite) TestOrderFetcherWithEmptyFields() {
-	// When move_orders and orders were consolidated, we moved the OriginDutyStation
+func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
+	// When move_orders and orders were consolidated, we moved the OriginDutyLocation
 	// field that used to only exist on the move_orders table into the orders table.
 	// This means that existing orders in production won't have any values in the
-	// OriginDutyStation column. To mimic that and to surface any issues, we didn't
+	// OriginDutyLocation column. To mimic that and to surface any issues, we didn't
 	// update the testdatagen MakeOrder function so that new orders would have
-	// an empty OriginDutyStation. During local testing in the office app, we
+	// an empty OriginDutyLocation. During local testing in the office app, we
 	// noticed an exception due to trying to load empty OriginDutyStations.
 	// This was not caught by any tests, so we're adding one now.
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
@@ -50,8 +50,8 @@ func (suite *OrderServiceSuite) TestOrderFetcherWithEmptyFields() {
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
 	expectedOrder.Grade = nil
-	expectedOrder.OriginDutyStation = nil
-	expectedOrder.OriginDutyStationID = nil
+	expectedOrder.OriginDutyLocation = nil
+	expectedOrder.OriginDutyLocationID = nil
 	suite.MustSave(&expectedOrder)
 
 	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -62,11 +62,11 @@ func (suite *OrderServiceSuite) TestOrderFetcherWithEmptyFields() {
 
 	suite.FatalNoError(err)
 	suite.Nil(order.Entitlement)
-	suite.Nil(order.OriginDutyStation)
+	suite.Nil(order.OriginDutyLocation)
 	suite.Nil(order.Grade)
 }
 
-func (suite *OrderServiceSuite) TestListMoves() {
+func (suite *OrderServiceSuite) TestListOrders() {
 	// Create a Move without a shipment to test that only Orders with shipments
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
@@ -75,7 +75,7 @@ func (suite *OrderServiceSuite) TestListMoves() {
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	//"30813"
-	// May have to create postalcodetogbolc for office user
+	// May have to create postalcodetogbloc for office user
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
 		expectedMove.MTOShipments[0].PickupAddress.PostalCode,
 		officeUser.TransportationOffice.Gbloc)
@@ -100,14 +100,14 @@ func (suite *OrderServiceSuite) TestListMoves() {
 		suite.Equal(expectedMove.Orders.ServiceMember.LastName, move.Orders.ServiceMember.LastName)
 		suite.Equal(expectedMove.Orders.ID, move.Orders.ID)
 		suite.Equal(expectedMove.Orders.ServiceMemberID, move.Orders.ServiceMemberID)
-		suite.NotNil(move.Orders.NewDutyStation)
-		suite.Equal(expectedMove.Orders.NewDutyStationID, move.Orders.NewDutyStation.ID)
+		suite.NotNil(move.Orders.NewDutyLocation)
+		suite.Equal(expectedMove.Orders.NewDutyLocationID, move.Orders.NewDutyLocation.ID)
 		suite.NotNil(move.Orders.Entitlement)
 		suite.Equal(*expectedMove.Orders.EntitlementID, move.Orders.Entitlement.ID)
-		suite.Equal(expectedMove.Orders.OriginDutyStation.ID, move.Orders.OriginDutyStation.ID)
-		suite.NotNil(move.Orders.OriginDutyStation)
-		suite.Equal(expectedMove.Orders.OriginDutyStation.AddressID, move.Orders.OriginDutyStation.AddressID)
-		suite.Equal(expectedMove.Orders.OriginDutyStation.Address.StreetAddress1, move.Orders.OriginDutyStation.Address.StreetAddress1)
+		suite.Equal(expectedMove.Orders.OriginDutyLocation.ID, move.Orders.OriginDutyLocation.ID)
+		suite.NotNil(move.Orders.OriginDutyLocation)
+		suite.Equal(expectedMove.Orders.OriginDutyLocation.AddressID, move.Orders.OriginDutyLocation.AddressID)
+		suite.Equal(expectedMove.Orders.OriginDutyLocation.Address.StreetAddress1, move.Orders.OriginDutyLocation.Address.StreetAddress1)
 	})
 
 	suite.T().Run("returns moves filtered by GBLOC", func(t *testing.T) {
@@ -215,7 +215,7 @@ func (suite *OrderServiceSuite) TestListMoves() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
+func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	orderFetcher := NewOrderFetcher()
 
 	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
@@ -253,7 +253,7 @@ func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListMovesMarines() {
+func (suite *OrderServiceSuite) TestListOrdersMarines() {
 	suite.T().Run("does not return moves where the service member affiliation is Marines for non-USMC office user", func(t *testing.T) {
 		orderFetcher := NewOrderFetcher()
 		marines := models.AffiliationMARINES
@@ -273,14 +273,14 @@ func (suite *OrderServiceSuite) TestListMovesMarines() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListMovesWithEmptyFields() {
+func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
 	expectedOrder.Grade = nil
-	expectedOrder.OriginDutyStation = nil
-	expectedOrder.OriginDutyStationID = nil
+	expectedOrder.OriginDutyLocation = nil
+	expectedOrder.OriginDutyLocationID = nil
 	suite.MustSave(&expectedOrder)
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -312,7 +312,7 @@ func (suite *OrderServiceSuite) TestListMovesWithEmptyFields() {
 
 }
 
-func (suite *OrderServiceSuite) TestListMovesWithPagination() {
+func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Map default shipment postal code to office user's GBLOC
@@ -333,7 +333,7 @@ func (suite *OrderServiceSuite) TestListMovesWithPagination() {
 
 }
 
-func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
+func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	// SET UP: Dates for sorting by Requested Move Date
 	// - We want dates 2 and 3 to sandwich requestedMoveDate1 so we can test that the min() query is working
 	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 02, 20, 0, 0, 0, 0, time.UTC)
@@ -347,11 +347,11 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 	affiliation := models.AffiliationNAVY
 	edipi := "9999999999"
 
-	// SET UP: New Duty Station for sorting by destination duty station
-	newDutyStationName := "Ze Duty Station"
-	newDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			Name: newDutyStationName,
+	// SET UP: New Duty Location for sorting by destination duty location
+	newDutyLocationName := "Ze Duty Location"
+	newDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			Name: newDutyLocationName,
 		},
 	})
 
@@ -373,8 +373,8 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 		// Lea Spacemen
 		ServiceMember: models.ServiceMember{Affiliation: &affiliation, FirstName: &serviceMemberFirstName, Edipi: &edipi},
 		Order: models.Order{
-			NewDutyStation:   newDutyStation2,
-			NewDutyStationID: newDutyStation2.ID,
+			NewDutyLocation:   newDutyLocation2,
+			NewDutyLocationID: newDutyLocation2.ID,
 		},
 		MTOShipment: models.MTOShipment{
 			RequestedPickupDate: &requestedMoveDate2,
@@ -445,15 +445,15 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
-		suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
+		suite.Equal(expectedMove1.Orders.NewDutyLocation.Name, moves[0].Orders.NewDutyLocation.Name)
+		suite.Equal(expectedMove2.Orders.NewDutyLocation.Name, moves[1].Orders.NewDutyLocation.Name)
 
 		params = services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("desc")}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
-		suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
+		suite.Equal(expectedMove2.Orders.NewDutyLocation.Name, moves[0].Orders.NewDutyLocation.Name)
+		suite.Equal(expectedMove1.Orders.NewDutyLocation.Name, moves[1].Orders.NewDutyLocation.Name)
 	})
 
 	suite.T().Run("Sort by request move date", func(t *testing.T) {
@@ -503,7 +503,7 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCSortFilter() {
+func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOCSortFilter() {
 
 	// TESTCASE SCENARIO
 	// Under test: OrderFetcher.ListOrders function
@@ -528,7 +528,7 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
 	// Create a dutystation with ZANY GBLOC
-	dutyStationAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+	dutyLocationAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "Anchor 1212",
 			City:           "Augusta",
@@ -538,15 +538,15 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 		},
 	})
 
-	originDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
+	originDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
 			Name:      "Fort Sam Snap",
-			AddressID: dutyStationAddress2.ID,
-			Address:   dutyStationAddress2,
+			AddressID: dutyLocationAddress2.ID,
+			Address:   dutyLocationAddress2,
 		},
 	})
 
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyStationAddress2.PostalCode, "ZANY")
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocationAddress2.PostalCode, "ZANY")
 
 	// Create a second move from the ZANY gbloc
 	testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -555,8 +555,8 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 			Locator: "ZZ1234",
 		},
 		Order: models.Order{
-			OriginDutyStation:   &originDutyStation2,
-			OriginDutyStationID: &originDutyStation2.ID,
+			OriginDutyLocation:   &originDutyLocation2,
+			OriginDutyLocationID: &originDutyLocation2.ID,
 		},
 	})
 
@@ -582,4 +582,19 @@ func (suite *OrderServiceSuite) TestListMovesNeedingServicesCounselingWithGBLOCS
 		suite.Equal(1, len(moves))
 		suite.Equal(lknqMove.ID, moves[0].ID)
 	})
+}
+func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
+	// Make an NTS-Release shipment (and a move).  Should not have a pickup address.
+	move := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+	// Make a TOO user and the postal code to GBLOC link.
+	tooOfficeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, tooOfficeUser.TransportationOffice.Gbloc)
+
+	orderFetcher := NewOrderFetcher()
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), tooOfficeUser.ID, &services.ListOrderParams{})
+
+	suite.FatalNoError(err)
+	suite.Equal(1, moveCount)
+	suite.Len(moves, 1)
 }

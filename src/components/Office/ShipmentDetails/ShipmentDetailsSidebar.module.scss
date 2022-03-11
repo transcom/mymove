@@ -1,0 +1,8 @@
+@import 'shared/styles/basics';
+
+.ShipmentDetailsSidebar {
+  button {
+    @include u-font-size('body', '3xs');
+    padding-right: 0;
+  }
+}

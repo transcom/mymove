@@ -7,7 +7,7 @@ const testInitialValues = {
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: 'no',
-  new_duty_station: {
+  new_duty_location: {
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -25,6 +25,15 @@ const testInitialValues = {
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
   },
+  uploaded_orders: [
+    {
+      id: '100',
+      created_at: '2020-10-19T17:01:16.114Z',
+      bytes: 1024,
+      url: '',
+      filename: 'orders.pdf',
+    },
+  ],
 };
 
 export default {
@@ -40,7 +49,22 @@ export default {
 };
 
 const testProps = {
-  initialValues: { orders_type: '', issue_date: '', report_by_date: '', has_dependents: '', new_duty_station: {} },
+  initialValues: {
+    orders_type: '',
+    issue_date: '',
+    report_by_date: '',
+    has_dependents: '',
+    new_duty_location: {},
+    uploaded_orders: [
+      {
+        id: '100',
+        created_at: '2020-10-19T17:01:16.114Z',
+        bytes: 1024,
+        url: '',
+        filename: 'orders.pdf',
+      },
+    ],
+  },
   ordersTypeOptions: [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
     { key: 'RETIREMENT', value: 'Retirement' },

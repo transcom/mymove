@@ -104,8 +104,8 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.DestinationAddress = requestedUpdatedShipment.DestinationAddress
 	}
 
-	if requestedUpdatedShipment.DestinationAddressType != nil {
-		dbShipment.DestinationAddressType = requestedUpdatedShipment.DestinationAddressType
+	if requestedUpdatedShipment.DestinationType != nil {
+		dbShipment.DestinationType = requestedUpdatedShipment.DestinationType
 	}
 
 	if requestedUpdatedShipment.SecondaryPickupAddress != nil {
@@ -714,8 +714,40 @@ func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.
 func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
-		shipment.PrimeEstimatedWeight != nil {
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+		(shipment.PrimeEstimatedWeight != nil || shipment.NTSRecordedWeight != nil) {
+
+		var pickupLocation *models.Address
+		var deliveryLocation *models.Address
+		weight := shipment.PrimeEstimatedWeight
+
+		switch shipment.ShipmentType {
+		case models.MTOShipmentTypeHHGIntoNTSDom:
+			if shipment.StorageFacility == nil || shipment.StorageFacility.AddressID == uuid.Nil {
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTSDom)
+			}
+			err := appCtx.DB().Load(shipment.StorageFacility, "Address")
+			if err != nil {
+				return apperror.NewNotFoundError(shipment.StorageFacility.AddressID, "looking for MTOShipment.StorageFacility.Address")
+			}
+
+			pickupLocation = shipment.PickupAddress
+			deliveryLocation = &shipment.StorageFacility.Address
+		case models.MTOShipmentTypeHHGOutOfNTSDom:
+			if shipment.StorageFacility == nil || shipment.StorageFacility.AddressID == uuid.Nil {
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTSDom)
+			}
+			err := appCtx.DB().Load(shipment.StorageFacility, "Address")
+			if err != nil {
+				return apperror.NewNotFoundError(shipment.StorageFacility.AddressID, "looking for MTOShipment.StorageFacility.Address")
+			}
+			pickupLocation = &shipment.StorageFacility.Address
+			deliveryLocation = shipment.DestinationAddress
+			weight = shipment.NTSRecordedWeight
+		default:
+			pickupLocation = shipment.PickupAddress
+			deliveryLocation = shipment.DestinationAddress
+		}
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight.Int())
 		if calcErr != nil {
 			return calcErr
 		}

@@ -12,7 +12,7 @@ import ScrollToTop from 'components/ScrollToTop';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import { selectCurrentOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { RouteProps } from 'types/router';
 
@@ -54,14 +54,12 @@ export class MovingInfo extends Component {
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <h1 className={styles.ShipmentsHeader}>Things to know about selecting shipments</h1>
             <SectionWrapper className={styles.Wrapper}>
-              {entitlementWeight !== 0 && (
-                <IconSection
-                  icon="weight-hanging"
-                  headline={`You can move ${formatWeight(entitlementWeight)} in this move.`}
-                >
-                  <p>You&apos;ll have to pay for any excess weight the government moves.</p>
-                </IconSection>
-              )}
+              <IconSection
+                icon="weight-hanging"
+                headline={`You can move ${formatWeight(entitlementWeight)} in this move.`}
+              >
+                <p>You&apos;ll have to pay for any excess weight the government moves.</p>
+              </IconSection>
               <IconSection icon="pencil-alt" headline="You don't need to get the details perfect.">
                 <p>
                   After you submit this information, you&apos;ll talk to a move counselor. They will verify your choices
@@ -126,8 +124,10 @@ MovingInfo.defaultProps = {
 
 function mapStateToProps(state) {
   const orders = selectCurrentOrders(state);
-  const entitlementWeight = orders.authorizedWeight;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const entitlementWeight = orders.has_dependents
+    ? serviceMember?.weight_allotment?.total_weight_self_plus_dependents
+    : serviceMember?.weight_allotment?.total_weight_self;
   const serviceMemberId = serviceMember?.id;
 
   return {

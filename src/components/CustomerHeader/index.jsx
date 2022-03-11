@@ -4,7 +4,7 @@ import { string } from 'prop-types';
 import styles from './index.module.scss';
 
 import { OrderShape, CustomerShape } from 'types/order';
-import { formatCustomerDate } from 'utils/formatters';
+import { formatCustomerDate, formatLabelReportByDate } from 'utils/formatters';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders.js';
 
 const CustomerHeader = ({ customer, order, moveCode }) => {
@@ -19,16 +19,7 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
    * Date of retirement (RETIREMENT)
    * Date of separation (SEPARATION)
    */
-  const reportDateLabel = ((type) => {
-    switch (type) {
-      case 'RETIREMENT':
-        return 'Date of retirement';
-      case 'SEPARATION':
-        return 'Date of separation';
-      default:
-        return 'Report by date';
-    }
-  })(order_type);
+  const reportDateLabel = formatLabelReportByDate(order_type);
 
   return (
     <div className={styles.custHeader}>
@@ -54,14 +45,14 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
       <div data-testid="infoBlock" className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>
-          <h4>{order.originDutyStation.name}</h4>
+          <h4>{order.originDutyLocation.name}</h4>
         </div>
-        {order.destinationDutyStation.name && (
+        {order.destinationDutyLocation.name && (
           <div>
             <p data-testid="destinationLabel">
               {isRetireeOrSeparatee ? 'HOR, HOS or PLEAD' : 'Authorized destination'}
             </p>
-            <h4>{order.destinationDutyStation.name}</h4>
+            <h4>{order.destinationDutyLocation.name}</h4>
           </div>
         )}
         <div>

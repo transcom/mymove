@@ -378,20 +378,20 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(appCtx appcontext.A
 func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
 
 	var err error
-	var originDutyStation models.DutyStation
+	var originDutyLocation models.DutyLocation
 
-	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
-		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *orders.OriginDutyStationID)
+	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
+		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
 		if err != nil {
-			return apperror.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+			return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
 		}
 	} else {
-		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
+		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyLocation")
 	}
 
-	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(appCtx.DB(), originDutyStation.ID)
+	originTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
 	if err != nil {
-		return apperror.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find origin duty station")
+		return apperror.NewInvalidInputError(originDutyLocation.ID, err, nil, "unable to find origin duty station")
 	}
 
 	// buyer organization name
@@ -415,48 +415,48 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 
 func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
 	var err error
-	var destinationDutyStation models.DutyStation
-	if orders.NewDutyStationID != uuid.Nil {
-		destinationDutyStation, err = models.FetchDutyStation(appCtx.DB(), orders.NewDutyStationID)
+	var destinationDutyLocation models.DutyLocation
+	if orders.NewDutyLocationID != uuid.Nil {
+		destinationDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), orders.NewDutyLocationID)
 		if err != nil {
-			return apperror.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
+			return apperror.NewInvalidInputError(orders.NewDutyLocationID, err, nil, "unable to find new duty station")
 		}
 	} else {
-		return apperror.NewConflictError(orders.ID, "Invalid Order, must have NewDutyStation")
+		return apperror.NewConflictError(orders.ID, "Invalid Order, must have NewDutyLocation")
 	}
 
-	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(appCtx.DB(), destinationDutyStation.ID)
+	destTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), destinationDutyLocation.ID)
 	if err != nil {
-		return apperror.NewInvalidInputError(destinationDutyStation.ID, err, nil, "unable to find destination duty station")
+		return apperror.NewInvalidInputError(destinationDutyLocation.ID, err, nil, "unable to find destination duty station")
 	}
 
 	// destination name
 	header.DestinationName = edisegment.N1{
 		EntityIdentifierCode:        "ST",
-		Name:                        destinationDutyStation.Name,
+		Name:                        destinationDutyLocation.Name,
 		IdentificationCodeQualifier: "10",
 		IdentificationCode:          destTransportationOffice.Gbloc,
 	}
 
 	// destination address
-	if len(destinationDutyStation.Address.StreetAddress1) > 0 {
+	if len(destinationDutyLocation.Address.StreetAddress1) > 0 {
 		destinationStreetAddress := edisegment.N3{
-			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+			AddressInformation1: destinationDutyLocation.Address.StreetAddress1,
 		}
-		if destinationDutyStation.Address.StreetAddress2 != nil {
-			destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
+		if destinationDutyLocation.Address.StreetAddress2 != nil {
+			destinationStreetAddress.AddressInformation2 = *destinationDutyLocation.Address.StreetAddress2
 		}
 		header.DestinationStreetAddress = &destinationStreetAddress
 	}
 
 	// destination city/state/postal
 	header.DestinationPostalDetails = edisegment.N4{
-		CityName:            truncateStr(destinationDutyStation.Address.City, maxCityLength),
-		StateOrProvinceCode: destinationDutyStation.Address.State,
-		PostalCode:          destinationDutyStation.Address.PostalCode,
+		CityName:            truncateStr(destinationDutyLocation.Address.City, maxCityLength),
+		StateOrProvinceCode: destinationDutyLocation.Address.State,
+		PostalCode:          destinationDutyLocation.Address.PostalCode,
 	}
-	if destinationDutyStation.Address.Country != nil {
-		countryCode, ccErr := destinationDutyStation.Address.CountryCode()
+	if destinationDutyLocation.Address.Country != nil {
+		countryCode, ccErr := destinationDutyLocation.Address.CountryCode()
 		if ccErr != nil {
 			return ccErr
 		}
@@ -475,7 +475,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	if len(destPhoneLines) > 0 {
 		digits, digitsErr := g.getPhoneNumberDigitsOnly(destPhoneLines[0])
 		if digitsErr != nil {
-			return apperror.NewInvalidInputError(destinationDutyStation.ID, digitsErr, nil, "unable to get destination duty station phone number")
+			return apperror.NewInvalidInputError(destinationDutyLocation.ID, digitsErr, nil, "unable to get destination duty station phone number")
 		}
 		destinationPhone := edisegment.PER{
 			ContactFunctionCode:          "CN",
@@ -487,48 +487,48 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 
 	// ========  ORIGIN ========= //
 	// origin station name
-	var originDutyStation models.DutyStation
+	var originDutyLocation models.DutyLocation
 
-	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
-		originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *orders.OriginDutyStationID)
+	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
+		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
 		if err != nil {
-			return apperror.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+			return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
 		}
 	} else {
-		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
+		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyLocation")
 	}
 
-	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(appCtx.DB(), originDutyStation.ID)
+	originTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
 	if err != nil {
-		return apperror.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find transportation office of origin duty station")
+		return apperror.NewInvalidInputError(originDutyLocation.ID, err, nil, "unable to find transportation office of origin duty station")
 	}
 
 	header.OriginName = edisegment.N1{
 		EntityIdentifierCode:        "SF",
-		Name:                        originDutyStation.Name,
+		Name:                        originDutyLocation.Name,
 		IdentificationCodeQualifier: "10",
 		IdentificationCode:          originTransportationOffice.Gbloc,
 	}
 
 	// origin address
-	if len(originDutyStation.Address.StreetAddress1) > 0 {
+	if len(originDutyLocation.Address.StreetAddress1) > 0 {
 		originStreetAddress := edisegment.N3{
-			AddressInformation1: originDutyStation.Address.StreetAddress1,
+			AddressInformation1: originDutyLocation.Address.StreetAddress1,
 		}
-		if originDutyStation.Address.StreetAddress2 != nil {
-			originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
+		if originDutyLocation.Address.StreetAddress2 != nil {
+			originStreetAddress.AddressInformation2 = *originDutyLocation.Address.StreetAddress2
 		}
 		header.OriginStreetAddress = &originStreetAddress
 	}
 
 	// origin city/state/postal
 	header.OriginPostalDetails = edisegment.N4{
-		CityName:            truncateStr(originDutyStation.Address.City, maxCityLength),
-		StateOrProvinceCode: originDutyStation.Address.State,
-		PostalCode:          originDutyStation.Address.PostalCode,
+		CityName:            truncateStr(originDutyLocation.Address.City, maxCityLength),
+		StateOrProvinceCode: originDutyLocation.Address.State,
+		PostalCode:          originDutyLocation.Address.PostalCode,
 	}
-	if originDutyStation.Address.Country != nil {
-		countryCode, ccErr := originDutyStation.Address.CountryCode()
+	if originDutyLocation.Address.Country != nil {
+		countryCode, ccErr := originDutyLocation.Address.CountryCode()
 		if ccErr != nil {
 			return ccErr
 		}
@@ -547,7 +547,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	if len(originPhoneLines) > 0 {
 		digits, digitsErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
 		if digitsErr != nil {
-			return apperror.NewInvalidInputError(originDutyStation.ID, digitsErr, nil, "unable to get origin duty station phone number")
+			return apperror.NewInvalidInputError(originDutyLocation.ID, digitsErr, nil, "unable to get origin duty station phone number")
 		}
 		originPhone := edisegment.PER{
 			ContactFunctionCode:          "CN",

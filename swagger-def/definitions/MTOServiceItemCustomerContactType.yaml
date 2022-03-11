@@ -1,0 +1,5 @@
+description: Describes a customer contact type for a MTOServiceItem of type domestic destination SIT.
+type: string
+enum:
+  - FIRST
+  - SECOND

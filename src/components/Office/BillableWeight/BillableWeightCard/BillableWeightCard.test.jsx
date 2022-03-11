@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 
 import BillableWeightCard from './BillableWeightCard';
 
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
+import { MockProviders } from 'testUtils';
 
 describe('BillableWeightCard', () => {
   const defaultProps = {
@@ -174,5 +175,79 @@ describe('BillableWeightCard', () => {
 
     const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
     expect(reviewWeights).not.toHaveClass('usa-button--secondary');
+  });
+
+  it('renders external vendor weight summary with one NTSR external vendor shipment', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        calculatedBillableWeight: 1000,
+        estimatedWeight: 5600,
+        ntsRecordedWeight: 1234,
+        usesExternalVendor: true,
+      },
+      {
+        id: '0002',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3200,
+        estimatedWeight: 5000,
+        primeEstimatedWeight: 1000,
+        reweigh: { id: '1234', weight: 300 },
+      },
+      {
+        id: '0003',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3400,
+        estimatedWeight: 5000,
+        primeEstimatedWeight: 200,
+        reweigh: { id: '1234', weight: 500 },
+      },
+    ];
+    render(
+      <MockProviders>
+        <BillableWeightCard {...defaultProps} shipments={shipments} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('1 other shipment:')).toBeInTheDocument();
+    expect(screen.getByText('1,234 lbs')).toBeInTheDocument();
+  });
+
+  it('renders external vendor weight summary with multiple external vendor NTSR shipments', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        calculatedBillableWeight: 1000,
+        estimatedWeight: 5600,
+        ntsRecordedWeight: 4000,
+        usesExternalVendor: true,
+      },
+      {
+        id: '0002',
+        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        calculatedBillableWeight: 3200,
+        estimatedWeight: 5000,
+        ntsRecordedWeight: 500,
+        usesExternalVendor: true,
+      },
+      {
+        id: '0003',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3400,
+        estimatedWeight: 5000,
+        primeEstimatedWeight: 200,
+        reweigh: { id: '1234', weight: 500 },
+      },
+    ];
+    render(
+      <MockProviders>
+        <BillableWeightCard {...defaultProps} shipments={shipments} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('2 other shipments:')).toBeInTheDocument();
+    expect(screen.getByText('4,500 lbs')).toBeInTheDocument();
   });
 });

@@ -2,14 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { ResidentialAddressShape } from 'types/address';
-import { formatDate, formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
+import { dropdownInputOptions, formatDate } from 'shared/formatters';
 import { formatAddress } from 'utils/shipmentDisplay';
-import { CheckboxField, DatePickerInput } from 'components/form/fields';
+import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
+import { shipmentDestinationTypes } from 'constants/shipments';
 
 const emptyAddressShape = {
   streetAddress1: '',
@@ -18,6 +20,8 @@ const emptyAddressShape = {
   state: '',
   postalCode: '',
 };
+
+const shipmentDestinationTypeOptions = dropdownInputOptions(shipmentDestinationTypes);
 
 const PrimeUIShipmentUpdateForm = ({
   editableWeightEstimateField,
@@ -91,6 +95,12 @@ const PrimeUIShipmentUpdateForm = ({
       <h5 className={styles.sectionHeader}>Destination Address</h5>
       {editableDestinationAddress && <AddressFields name="destinationAddress" />}
       {!editableDestinationAddress && formatAddress(destinationAddress)}
+      <DropdownInput
+        label="Destination type"
+        name="destinationType"
+        options={shipmentDestinationTypeOptions}
+        id="destinationType"
+      />
     </SectionWrapper>
   );
 };

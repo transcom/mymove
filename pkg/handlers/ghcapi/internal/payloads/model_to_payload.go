@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -67,6 +68,71 @@ func Move(move *models.Move) *ghcmessages.Move {
 	return payload
 }
 
+// MoveHistory payload
+func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
+	payload := &ghcmessages.MoveHistory{
+		HistoryRecords: moveHistoryRecords(moveHistory.AuditHistories),
+		ID:             strfmt.UUID(moveHistory.ID.String()),
+		Locator:        moveHistory.Locator,
+		ReferenceID:    moveHistory.ReferenceID,
+	}
+
+	return payload
+}
+
+// MoveAuditHistory payload
+func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
+	payload := &ghcmessages.MoveAuditHistory{
+		Action:          auditHistory.Action,
+		ActionTstampClk: strfmt.DateTime(auditHistory.ActionTstampClk),
+		ActionTstampStm: strfmt.DateTime(auditHistory.ActionTstampStm),
+		ActionTstampTx:  strfmt.DateTime(auditHistory.ActionTstampTx),
+		ChangedValues:   moveHistoryValues(auditHistory.ChangedData, "changed_data"),
+		OldValues:       moveHistoryValues(auditHistory.OldData, "old_values"),
+		ClientQuery:     auditHistory.ClientQuery,
+		EventName:       auditHistory.EventName,
+		ID:              strfmt.UUID(auditHistory.ID.String()),
+		ObjectID:        handlers.FmtUUIDPtr(auditHistory.ObjectID),
+		RelID:           auditHistory.RelID,
+		SessionUserID:   handlers.FmtUUIDPtr(auditHistory.SessionUserID),
+		StatementOnly:   auditHistory.StatementOnly,
+		TableName:       auditHistory.TableName,
+		SchemaName:      auditHistory.SchemaName,
+		TransactionID:   auditHistory.TransactionID,
+	}
+
+	return payload
+}
+
+func moveHistoryValues(data *models.JSONMap, fieldName string) ghcmessages.MoveAuditHistoryItems {
+	if data == nil {
+		return ghcmessages.MoveAuditHistoryItems{}
+	}
+
+	payload := ghcmessages.MoveAuditHistoryItems{}
+
+	for k, v := range *data {
+		if v != nil {
+			item := ghcmessages.MoveAuditHistoryItem{
+				ColumnName:  k,
+				ColumnValue: fmt.Sprint(v),
+			}
+			payload = append(payload, &item)
+		}
+	}
+
+	return payload
+}
+
+func moveHistoryRecords(auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
+	payload := make(ghcmessages.MoveAuditHistories, len(auditHistories))
+
+	for i, a := range auditHistories {
+		payload[i] = MoveAuditHistory(a)
+	}
+	return payload
+}
+
 // MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.Move) *ghcmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
@@ -119,8 +185,8 @@ func Order(order *models.Order) *ghcmessages.Order {
 		return nil
 	}
 
-	destinationDutyStation := DutyStation(&order.NewDutyStation)
-	originDutyStation := DutyStation(order.OriginDutyStation)
+	destinationDutyStation := DutyLocation(&order.NewDutyLocation)
+	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
@@ -141,9 +207,9 @@ func Order(order *models.Order) *ghcmessages.Order {
 		grade = ghcmessages.Grade(*order.Grade)
 	}
 	//
-	var branch ghcmessages.Branch
+	var affiliation ghcmessages.Affiliation
 	if order.ServiceMember.Affiliation != nil {
-		branch = ghcmessages.Branch(*order.ServiceMember.Affiliation)
+		affiliation = ghcmessages.Affiliation(*order.ServiceMember.Affiliation)
 	}
 
 	var moveCode string
@@ -154,15 +220,15 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	payload := ghcmessages.Order{
-		DestinationDutyStation:      destinationDutyStation,
+		DestinationDutyLocation:     destinationDutyStation,
 		Entitlement:                 entitlements,
 		Grade:                       &grade,
 		OrderNumber:                 order.OrdersNumber,
 		OrderTypeDetail:             &ordersTypeDetail,
 		ID:                          strfmt.UUID(order.ID.String()),
-		OriginDutyStation:           originDutyStation,
+		OriginDutyLocation:          originDutyLocation,
 		ETag:                        etag.GenerateEtag(order.UpdatedAt),
-		Agency:                      branch,
+		Agency:                      &affiliation,
 		CustomerID:                  strfmt.UUID(order.ServiceMemberID.String()),
 		Customer:                    Customer(&order.ServiceMember),
 		FirstName:                   swag.StringValue(order.ServiceMember.FirstName),
@@ -206,9 +272,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		aw := int64(*entitlement.AuthorizedWeight())
 		authorizedWeight = &aw
 	}
-	var sit int64
+	var sit *int64
 	if entitlement.StorageInTransit != nil {
-		sit = int64(*entitlement.StorageInTransit)
+		sitValue := int64(*entitlement.StorageInTransit)
+		sit = &sitValue
 	}
 	var totalDependents int64
 	if entitlement.TotalDependents != nil {
@@ -223,7 +290,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
-		StorageInTransit:               &sit,
+		StorageInTransit:               sit,
 		TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
@@ -232,34 +299,18 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 }
 
-// TODO: Temporary workaround for transforming duty stations into location model, once changes to dutyStation are fully complete we can change this to just DutyLocation
-func DutyStationToLocation(dutyStation *models.DutyStation) *ghcmessages.DutyLocation {
-	if dutyStation == nil {
+// DutyLocation payload
+func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
+	if dutyLocation == nil {
 		return nil
 	}
-	address := Address(&dutyStation.Address)
+	address := Address(&dutyLocation.Address)
 	payload := ghcmessages.DutyLocation{
 		Address:   address,
 		AddressID: address.ID,
-		ID:        strfmt.UUID(dutyStation.ID.String()),
-		Name:      dutyStation.Name,
-		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
-	}
-	return &payload
-}
-
-// DutyStation payload
-func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
-	if dutyStation == nil {
-		return nil
-	}
-	address := Address(&dutyStation.Address)
-	payload := ghcmessages.DutyStation{
-		Address:   address,
-		AddressID: address.ID,
-		ID:        strfmt.UUID(dutyStation.ID.String()),
-		Name:      dutyStation.Name,
-		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
+		ID:        strfmt.UUID(dutyLocation.ID.String()),
+		Name:      dutyLocation.Name,
+		ETag:      etag.GenerateEtag(dutyLocation.UpdatedAt),
 	}
 	return &payload
 }
@@ -303,6 +354,9 @@ func StorageFacility(storageFacility *models.StorageFacility) *ghcmessages.Stora
 
 // BackupContact payload
 func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
+	if len(contacts) == 0 {
+		return nil
+	}
 	var name, email, phone string
 
 	if len(contacts) != 0 {
@@ -428,6 +482,18 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 	}
 
+	if sitStatusPayload != nil {
+		// If we have a sitStatusPayload, overwrite SitDaysAllowance from the shipment model.
+		totalSITAllowance := 0
+		if sitStatusPayload.TotalDaysRemaining != nil {
+			totalSITAllowance += int(*sitStatusPayload.TotalDaysRemaining)
+		}
+		if sitStatusPayload.TotalSITDaysUsed != nil {
+			totalSITAllowance += int(*sitStatusPayload.TotalSITDaysUsed)
+		}
+		payload.SitDaysAllowance = handlers.FmtIntPtrToInt64(&totalSITAllowance)
+	}
+
 	if mtoShipment.SITExtensions != nil && len(mtoShipment.SITExtensions) > 0 {
 		payload.SitExtensions = *SITExtensions(&mtoShipment.SITExtensions)
 	}
@@ -448,9 +514,9 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
-	if mtoShipment.DestinationAddressType != nil {
-		destinationAddressType := string(*mtoShipment.DestinationAddressType)
-		payload.DestinationAddressType = &destinationAddressType
+	if mtoShipment.DestinationType != nil {
+		destinationType := ghcmessages.DestinationType(*mtoShipment.DestinationType)
+		payload.DestinationType = &destinationType
 	}
 
 	if sitStatusPayload != nil {
@@ -790,21 +856,23 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// though there can never be more than one GBLOC for a move.
 			gbloc = ghcmessages.GBLOC(move.ShipmentGBLOC[0].GBLOC)
 		} else {
-			// If the move doesn't have any shipments, we cannot assign it a GBLOC
-			gbloc = ""
+			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
+			// we need to fall back to the origin duty location GBLOC.  If that's not available for
+			// some reason, then we should get the empty string (no GBLOC).
+			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
 		}
 
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
-			Status:                  ghcmessages.QueueMoveStatus(move.Status),
+			Status:                  ghcmessages.MoveStatus(move.Status),
 			ID:                      *handlers.FmtUUID(move.ID),
 			Locator:                 move.Locator,
 			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
 			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
-			OriginDutyLocation:      DutyStationToLocation(move.Orders.OriginDutyStation),
-			DestinationDutyLocation: DutyStationToLocation(&move.Orders.NewDutyStation),
+			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
+			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
 			OriginGBLOC:             gbloc,
 		}
 	}
@@ -856,11 +924,11 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			MoveID:             *handlers.FmtUUID(moveTaskOrder.ID),
 			Customer:           Customer(&orders.ServiceMember),
 			Status:             ghcmessages.PaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
-			Age:                int64(math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0)),
+			Age:                math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        ghcmessages.GBLOC(moveTaskOrder.ShipmentGBLOC[0].GBLOC),
-			OriginDutyLocation: DutyStationToLocation(orders.OriginDutyStation),
+			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
 		}
 
 		if orders.DepartmentIndicator != nil {

@@ -38,7 +38,7 @@ function formatAgentForAPI(agent) {
   return agentCopy;
 }
 
-function formatStorageFacilityForAPI(storageFacility) {
+export function formatStorageFacilityForAPI(storageFacility) {
   const storageFacilityCopy = { ...storageFacility };
   Object.keys(storageFacilityCopy).forEach((key) => {
     const sanitizedKey = `${key}`;
@@ -54,7 +54,12 @@ function formatStorageFacilityForAPI(storageFacility) {
   return storageFacilityCopy;
 }
 
-function formatAddressForAPI(address) {
+export function removeEtag(obj) {
+  const { eTag, ...rest } = obj;
+  return rest;
+}
+
+export function formatAddressForAPI(address) {
   const formattedAddress = address;
 
   if (formattedAddress.state) {
@@ -104,6 +109,7 @@ export function formatMtoShipmentForDisplay({
   storageFacility,
   usesExternalVendor,
   userRole,
+  destinationType,
 }) {
   const displayValues = {
     shipmentType,
@@ -172,6 +178,10 @@ export function formatMtoShipmentForDisplay({
     displayValues.hasDeliveryAddress = 'yes';
   }
 
+  if (destinationType) {
+    displayValues.destinationType = destinationType;
+  }
+
   if (secondaryDeliveryAddress) {
     displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
     displayValues.hasSecondaryDelivery = 'yes';
@@ -218,6 +228,7 @@ export function formatMtoShipmentForAPI({
   serviceOrderNumber,
   storageFacility,
   usesExternalVendor,
+  destinationType,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -225,6 +236,7 @@ export function formatMtoShipmentForAPI({
     customerRemarks,
     counselorRemarks,
     agents: [],
+    destinationType,
   };
 
   if (pickup?.requestedDate && pickup.requestedDate !== '') {
@@ -244,6 +256,10 @@ export function formatMtoShipmentForAPI({
 
     if (delivery.address) {
       formattedMtoShipment.destinationAddress = formatAddressForAPI(delivery.address);
+    }
+
+    if (destinationType) {
+      formattedMtoShipment.destinationType = destinationType;
     }
 
     if (delivery.agent) {
@@ -286,7 +302,7 @@ export function formatMtoShipmentForAPI({
     const sanitizedStorageFacility = formatStorageFacilityForAPI(storageFacility);
     formattedMtoShipment.storageFacility = {
       ...sanitizedStorageFacility,
-      address: formatAddressForAPI(storageFacility.address),
+      address: removeEtag(formatAddressForAPI(sanitizedStorageFacility.address)),
     };
   }
 
@@ -297,4 +313,10 @@ export function formatMtoShipmentForAPI({
   return formattedMtoShipment;
 }
 
-export default { formatMtoShipmentForAPI, formatMtoShipmentForDisplay };
+export default {
+  formatMtoShipmentForAPI,
+  formatMtoShipmentForDisplay,
+  formatAddressForAPI,
+  formatStorageFacilityForAPI,
+  removeEtag,
+};

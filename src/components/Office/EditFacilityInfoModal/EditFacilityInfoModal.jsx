@@ -27,7 +27,7 @@ export const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, serv
   return (
     <Modal className={styles.EditFacilityInfoModal}>
       <ShipmentTag shipmentType={shipmentType} />
-      <ModalClose handleClick={() => onClose()} />
+      <ModalClose handleClick={onClose} />
       <ModalTitle>
         <h2 className={styles.ModalTitle}>Edit facility info and address</h2>
       </ModalTitle>

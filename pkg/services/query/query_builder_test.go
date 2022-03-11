@@ -14,7 +14,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
@@ -167,9 +166,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		}
 		var actualUsers models.OfficeUsers
 
-		pop.Debug = true
 		err := builder.FetchMany(suite.AppContextForTest(), &actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
-		pop.Debug = false
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
@@ -183,9 +180,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		}
 		var actualUsers models.OfficeUsers
 
-		pop.Debug = true
 		err := builder.FetchMany(suite.AppContextForTest(), &actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
-		pop.Debug = false
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 4)
@@ -201,9 +196,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 
 		var actualUsers models.OfficeUsers
 
-		pop.Debug = true
 		err := builder.FetchMany(suite.AppContextForTest(), &actualUsers, filters, defaultAssociations(), defaultPagination(), ordering)
-		pop.Debug = false
 
 		suite.NoError(err)
 		// check if we have at least two users
@@ -221,9 +214,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 
 		var actualUsers models.OfficeUsers
 
-		pop.Debug = true
 		err := builder.FetchMany(suite.AppContextForTest(), &actualUsers, filters, defaultAssociations(), defaultPagination(), ordering)
-		pop.Debug = false
 
 		suite.NoError(err)
 		// check if we have at least two users
@@ -288,70 +279,70 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 }
 
 func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
-	// Create two default duty stations (with address and transportation office)
-	testdatagen.MakeDefaultDutyStation(suite.DB())
-	testdatagen.MakeDefaultDutyStation(suite.DB())
+	// Create two default duty locations (with address and transportation office)
+	testdatagen.MakeDefaultDutyLocation(suite.DB())
+	testdatagen.MakeDefaultDutyLocation(suite.DB())
 	builder := NewQueryBuilder()
 
 	suite.T().Run("fetches many with default associations", func(t *testing.T) {
-		var dutyStations models.DutyStations
-		err := builder.FetchMany(suite.AppContextForTest(), &dutyStations, nil, defaultAssociations(), nil, nil)
+		var dutyLocations models.DutyLocations
+		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, defaultAssociations(), nil, nil)
 		suite.NoError(err)
-		suite.Len(dutyStations, 2)
+		suite.Len(dutyLocations, 2)
 
 		// Make sure every record has an address and transportation office loaded
-		for _, dutyStation := range dutyStations {
-			suite.NotEqual(uuid.Nil, dutyStation.Address.ID)
-			suite.NotEqual(uuid.Nil, dutyStation.TransportationOffice.ID)
+		for _, dutyLocation := range dutyLocations {
+			suite.NotEqual(uuid.Nil, dutyLocation.Address.ID)
+			suite.NotEqual(uuid.Nil, dutyLocation.TransportationOffice.ID)
 		}
 	})
 
 	suite.T().Run("fetches many with no associations", func(t *testing.T) {
-		var dutyStations models.DutyStations
-		err := builder.FetchMany(suite.AppContextForTest(), &dutyStations, nil, nil, nil, nil)
+		var dutyLocations models.DutyLocations
+		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, nil, nil, nil)
 		suite.NoError(err)
-		suite.Len(dutyStations, 2)
+		suite.Len(dutyLocations, 2)
 
 		// Make sure every record has no address or transportation office loaded
-		for _, dutyStation := range dutyStations {
+		for _, dutyStation := range dutyLocations {
 			suite.Equal(uuid.Nil, dutyStation.Address.ID)
 			suite.Equal(uuid.Nil, dutyStation.TransportationOffice.ID)
 		}
 	})
 
 	suite.T().Run("fetches many with one explicit non-preloaded association", func(t *testing.T) {
-		var dutyStations models.DutyStations
+		var dutyLocations models.DutyLocations
 		associations := NewQueryAssociations([]services.QueryAssociation{
 			NewQueryAssociation("Address"),
 		})
 
-		err := builder.FetchMany(suite.AppContextForTest(), &dutyStations, nil, associations, nil, nil)
+		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, associations, nil, nil)
 		suite.NoError(err)
-		suite.Len(dutyStations, 2)
+		suite.Len(dutyLocations, 2)
 
 		// Make sure every record has an address loaded but not a transportation office
-		for _, dutyStation := range dutyStations {
-			suite.NotEqual(uuid.Nil, dutyStation.Address.ID)
-			suite.Equal(uuid.Nil, dutyStation.TransportationOffice.ID)
+		for _, dutyLocation := range dutyLocations {
+			suite.NotEqual(uuid.Nil, dutyLocation.Address.ID)
+			suite.Equal(uuid.Nil, dutyLocation.TransportationOffice.ID)
 		}
 	})
 
 	suite.T().Run("fetches many with one explicit preloaded two-level association", func(t *testing.T) {
-		var dutyStations models.DutyStations
+		var dutyLocations models.DutyLocations
 		associations := NewQueryAssociationsPreload([]services.QueryAssociation{
 			NewQueryAssociation("TransportationOffice.Address"),
 		})
 
-		err := builder.FetchMany(suite.AppContextForTest(), &dutyStations, nil, associations, nil, nil)
+		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, associations, nil, nil)
 		suite.NoError(err)
-		suite.Len(dutyStations, 2)
+		suite.Len(dutyLocations, 2)
 
 		// Make sure every record does not have an address loaded but does have a transportation office and
 		// its address loaded
-		for _, dutyStation := range dutyStations {
-			suite.Equal(uuid.Nil, dutyStation.Address.ID)
-			suite.NotEqual(uuid.Nil, dutyStation.TransportationOffice.ID)
-			suite.NotEqual(uuid.Nil, dutyStation.TransportationOffice.Address.ID)
+		for _, dutyLocation := range dutyLocations {
+			suite.Equal(uuid.Nil, dutyLocation.Address.ID)
+			suite.NotEqual(uuid.Nil, dutyLocation.TransportationOffice.ID)
+			suite.NotEqual(uuid.Nil, dutyLocation.TransportationOffice.Address.ID)
 		}
 	})
 }
@@ -389,9 +380,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
 		}
 
-		pop.Debug = true
 		count, err := builder.Count(suite.AppContextForTest(), &models.OfficeUsers{}, filters)
-		pop.Debug = false
 		suite.NoError(err)
 		suite.Equal(1, count)
 	})

@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import ShipmentForm from './ShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 
 const mockPush = jest.fn();
@@ -37,6 +38,7 @@ const defaultProps = {
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
   userRole: roleTypes.SERVICES_COUNSELOR,
+  orderType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
 };
 
 const mockMtoShipment = {
@@ -76,6 +78,26 @@ const mockMtoShipment = {
   ],
 };
 
+const mockShipmentWithDestinationType = {
+  ...mockMtoShipment,
+  displayDestinationType: true,
+  destinationType: 'PLACE_ENTERED_ACTIVE_DUTY',
+};
+
+const defaultPropsRetirement = {
+  ...defaultProps,
+  displayDestinationType: true,
+  desintationType: 'HOME_OF_RECORD',
+  orderType: ORDERS_TYPE.RETIREMENT,
+};
+
+const defaultPropsSeparation = {
+  ...defaultProps,
+  displayDestinationType: true,
+  destinationType: 'HOME_OF_SELECTION',
+  orderType: ORDERS_TYPE.SEPARATION,
+};
+
 describe('ShipmentForm component', () => {
   describe('when creating a new shipment', () => {
     it('does not show the delete shipment button', async () => {
@@ -87,6 +109,7 @@ describe('ShipmentForm component', () => {
       });
     });
   });
+
   describe('when creating a new HHG shipment', () => {
     it('renders the HHG shipment form', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
@@ -165,6 +188,30 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postalCode');
     });
 
+    it('renders a delivery address type for retirement orders type', async () => {
+      render(<ShipmentForm {...defaultPropsRetirement} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      userEvent.click(screen.getByLabelText('Yes'));
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
+    });
+
+    it('does not render delivery address type for PCS order type', async () => {
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      userEvent.click(screen.getByLabelText('Yes'));
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      expect(screen.queryByLabelText('Destination type')).toBeNull();
+    });
+
+    it('renders a delivery address type for separation orders type', async () => {
+      render(<ShipmentForm {...defaultPropsSeparation} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      userEvent.click(screen.getByLabelText('Yes'));
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
+    });
+
     it('does not render an Accounting Codes section', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
@@ -190,6 +237,7 @@ describe('ShipmentForm component', () => {
           isCreatePage={false}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
+          displayDestinationType
         />,
       );
 
@@ -218,6 +266,47 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText('Customer remarks')).toBeTruthy();
       expect(screen.getByText('mock customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
+    });
+  });
+
+  describe('editing an already existing HHG shipment for retiree/separatee', () => {
+    it('renders the HHG shipment form with pre-filled values', async () => {
+      render(
+        <ShipmentForm
+          {...defaultPropsRetirement}
+          isCreatePage={false}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockShipmentWithDestinationType}
+          displayDestinationType
+        />,
+      );
+
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
+      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
+      expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
+      expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
+      expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
+      expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
+      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
+      expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
+      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
+      expect(screen.getAllByLabelText('First name')[1]).toHaveValue('Riley');
+      expect(screen.getAllByLabelText('Last name')[1]).toHaveValue('Baker');
+      expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('863-555-9664');
+      expect(screen.getAllByLabelText('Email')[1]).toHaveValue('rbaker@email.com');
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
+      expect(screen.getByText('mock customer remarks')).toBeTruthy();
+      expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
+      expect(screen.getByLabelText('Destination type')).toHaveValue('PLACE_ENTERED_ACTIVE_DUTY');
     });
   });
 
@@ -310,12 +399,12 @@ describe('ShipmentForm component', () => {
 
       expect(screen.queryByText('Pickup location')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Yes')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('No')).not.toBeInTheDocument();
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
@@ -337,13 +426,27 @@ describe('ShipmentForm component', () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
-      expect(screen.getByText(/Shipment weight \(lbs\)/)).toBeInTheDocument();
+      expect(screen.getByText(/Previously recorded weight \(lbs\)/)).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility info' })).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility address' })).toBeInTheDocument();
     });
   });
 
   describe('as a TOO', () => {
+    it('renders the HHG shipment form', async () => {
+      render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />);
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+
+      expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
+      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
+      expect(screen.getByText('Pickup location')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
+      expect(screen.getByText(/Receiving agent/).parentElement).toBeInTheDocument();
+      expect(screen.getByText('Customer remarks')).toBeInTheDocument();
+      expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
+    });
+
     it('renders the NTS shipment form', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />);
 
@@ -480,6 +583,46 @@ describe('ShipmentForm component', () => {
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(expectedPayload);
+      });
+    });
+  });
+
+  describe('external vendor shipment', () => {
+    it('shows the TOO an alert', async () => {
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.NTSR}
+          mtoShipment={{ ...mockMtoShipment, usesExternalVendor: true }}
+          isCreatePage={false}
+          userRole={roleTypes.TOO}
+        />,
+      );
+
+      expect(
+        await screen.findByText(
+          'The GHC prime contractor is not handling the shipment. Information will not be automatically shared with the movers handling it.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show the SC an alert', async () => {
+      render(
+        <ShipmentForm
+          // SC is default role from test props
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.NTSR}
+          mtoShipment={{ ...mockMtoShipment, usesExternalVendor: true }}
+          isCreatePage={false}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(
+            'The GHC prime contractor is not handling the shipment. Information will not be automatically shared with the movers handling it.',
+          ),
+        ).not.toBeInTheDocument();
       });
     });
   });

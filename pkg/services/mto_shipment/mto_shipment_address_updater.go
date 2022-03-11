@@ -45,16 +45,22 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 
 // UpdateMTOShipmentAddress updates an address on an MTO shipment.
 // Since address records have no parent id, caller must supply the mtoShipmentID associated with this address.
-// Function will check that the etag matches before making the update
-// If mustBeAvailableToPrime is set, update will not happen unless the mto with which the address + shipment is associated, is also availableToPrime
+// Function will check that the etag matches before making the update.
+// If mustBeAvailableToPrime is set, update will not happen unless the mto with which the address + shipment is associated
+// is also availableToPrime and not an external vendor shipment.
 func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.AppContext, newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error) {
 
 	// Find the mtoShipment based on id, so we can pull the uuid for the move
 	mtoShipment := models.MTOShipment{}
 	oldAddress := models.Address{}
 
-	// Find the shipment, return error if not found
-	err := appCtx.DB().Find(&mtoShipment, mtoShipmentID)
+	// Find the shipment, return error if not found.  If this shipment must be available to the prime,
+	// do not include any shipments assigned to an external vendor.
+	query := appCtx.DB().Q()
+	if mustBeAvailableToPrime {
+		query.Where("uses_external_vendor = FALSE")
+	}
+	err := query.Find(&mtoShipment, mtoShipmentID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

@@ -27,6 +27,7 @@ import {
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default function ReviewBillableWeight() {
   const [selectedShipmentIndex, setSelectedShipmentIndex] = React.useState(0);
@@ -53,7 +54,7 @@ export default function ReviewBillableWeight() {
   const { order, mtoShipments, move } = useMovePaymentRequestsQueries(moveCode);
   /* Only show shipments in statuses of approved, diversion requested, or cancellation requested */
   const filteredShipments = mtoShipments?.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status));
-  const isLastShipment = selectedShipmentIndex === filteredShipments?.length - 1;
+  const isLastShipment = filteredShipments && selectedShipmentIndex === filteredShipments.length - 1;
 
   const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments);
   const weightRequested = useCalculatedWeightRequested(filteredShipments);
@@ -196,6 +197,7 @@ export default function ReviewBillableWeight() {
                 weightAllowance={weightAllowance}
                 editEntity={editEntity}
                 billableWeightJustification={move.tioRemarks}
+                isNTSRShipment={selectedShipment.shipmentType === SHIPMENT_OPTIONS.NTSR}
               />
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer>
@@ -231,11 +233,12 @@ export default function ReviewBillableWeight() {
                 {shipmentIsOverweight(
                   selectedShipment.primeEstimatedWeight,
                   selectedShipment.calculatedBillableWeight,
-                ) && (
-                  <Alert slim type="warning" data-testid="shipmentBillableWeightExceeds110OfEstimated">
-                    Shipment exceeds 110% of estimated weight.
-                  </Alert>
-                )}
+                ) &&
+                  selectedShipment.shipmentType !== SHIPMENT_OPTIONS.NTSR && (
+                    <Alert slim type="warning" data-testid="shipmentBillableWeightExceeds110OfEstimated">
+                      Shipment exceeds 110% of estimated weight.
+                    </Alert>
+                  )}
                 <div className={reviewBillableWeightStyles.weightSummary}>
                   <WeightSummary
                     maxBillableWeight={maxBillableWeight}
@@ -262,6 +265,8 @@ export default function ReviewBillableWeight() {
                   reweighWeight={selectedShipment?.reweigh?.weight}
                   maxBillableWeight={maxBillableWeight}
                   totalBillableWeight={totalBillableWeight}
+                  shipmentType={selectedShipment.shipmentType}
+                  storageFacilityAddress={selectedShipment.storageFacility?.address}
                 />
               </div>
             </DocumentViewerSidebar.Content>

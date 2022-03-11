@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
+import { LOA_TYPE, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape, PaymentServiceItemParam } from 'types/order';
 
@@ -8,6 +8,8 @@ export const ServiceItemCardShape = PropTypes.shape({
   id: PropTypes.string, // service item id
   mtoShipmentID: PropTypes.string,
   mtoShipmentType: ShipmentOptionsOneOf,
+  mtoShipmentTacType: PropTypes.oneOf(Object.values(LOA_TYPE)),
+  mtoShipmentSacType: PropTypes.oneOf(Object.values(LOA_TYPE)),
   mtoServiceItemCode: PropTypes.string,
   mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number,

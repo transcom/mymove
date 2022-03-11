@@ -330,22 +330,24 @@ func init() {
     "Affiliation": {
       "description": "Military branch of service",
       "type": "string",
+      "title": "Branch of service",
       "enum": [
-        "air-force",
-        "army",
-        "civilian-agency",
-        "coast-guard",
-        "marine-corps",
-        "navy"
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
       ],
       "x-display-value": {
-        "air-force": "Air Force",
-        "army": "Army",
-        "civilian-agency": "Civilian Agency",
-        "coast-guard": "Coast Guard",
-        "marine-corps": "Marine Corps",
-        "navy": "Navy"
-      }
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
     },
     "Issuer": {
       "description": "Organization that issues orders. If more organizations, especially civilian ones, become clients of this API in the future, this enumeration may need to be expanded.",
@@ -1007,22 +1009,24 @@ func init() {
     "Affiliation": {
       "description": "Military branch of service",
       "type": "string",
+      "title": "Branch of service",
       "enum": [
-        "air-force",
-        "army",
-        "civilian-agency",
-        "coast-guard",
-        "marine-corps",
-        "navy"
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
       ],
       "x-display-value": {
-        "air-force": "Air Force",
-        "army": "Army",
-        "civilian-agency": "Civilian Agency",
-        "coast-guard": "Coast Guard",
-        "marine-corps": "Marine Corps",
-        "navy": "Navy"
-      }
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
     },
     "Issuer": {
       "description": "Organization that issues orders. If more organizations, especially civilian ones, become clients of this API in the future, this enumeration may need to be expanded.",

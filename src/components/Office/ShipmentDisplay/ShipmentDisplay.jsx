@@ -23,18 +23,21 @@ const ShipmentDisplay = ({
   onChange,
   shipmentId,
   isSubmitted,
-  showIcon,
+  allowApproval,
   editURL,
   ordersLOA,
   warnIfMissing,
   errorIfMissing,
   showWhenCollapsed,
+  neverShow,
 }) => {
   const history = useHistory();
-  const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
+  const containerClasses = classnames(styles.container, { [styles.noIcon]: !allowApproval });
   const [isExpanded, setIsExpanded] = useState(false);
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
+
+  const disableApproval = errorIfMissing.some((requiredInfo) => !displayInfo[requiredInfo]);
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
@@ -48,7 +51,7 @@ const ShipmentDisplay = ({
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={containerClasses} shipmentType={shipmentType}>
         <div className={styles.heading}>
-          {showIcon && isSubmitted && (
+          {allowApproval && isSubmitted && !displayInfo.usesExternalVendor && (
             <Checkbox
               id={`shipment-display-checkbox-${shipmentId}`}
               data-testid="shipment-display-checkbox"
@@ -57,10 +60,13 @@ const ShipmentDisplay = ({
               label=""
               value={shipmentId}
               aria-labelledby={`shipment-display-label-${shipmentId}`}
+              disabled={disableApproval}
             />
           )}
 
-          {showIcon && !isSubmitted && <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />}
+          {allowApproval && !isSubmitted && (
+            <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />
+          )}
           <div className={styles.headingTagWrapper}>
             <h3>
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
@@ -71,6 +77,7 @@ const ShipmentDisplay = ({
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
               <Tag>cancellation requested</Tag>
             )}
+            {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
           </div>
 
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
@@ -83,6 +90,7 @@ const ShipmentDisplay = ({
           warnIfMissing={warnIfMissing}
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
+          neverShow={neverShow}
         />
         {editURL && (
           <EditButton
@@ -119,6 +127,8 @@ ShipmentDisplay.propTypes = {
     pickupAddress: AddressShape,
     secondaryPickupAddress: AddressShape,
     destinationAddress: AddressShape,
+    destinationType: PropTypes.string,
+    displayDestinationType: PropTypes.bool,
     secondaryDeliveryAddress: AddressShape,
     counselorRemarks: PropTypes.string,
     shipmentId: PropTypes.string,
@@ -138,18 +148,19 @@ ShipmentDisplay.propTypes = {
     sacType: PropTypes.string,
     ntsRecordedWeight: PropTypes.number,
   }).isRequired,
-  showIcon: PropTypes.bool,
+  allowApproval: PropTypes.bool,
   editURL: PropTypes.string,
   ordersLOA: OrdersLOAShape,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  neverShow: PropTypes.arrayOf(PropTypes.string),
 };
 
 ShipmentDisplay.defaultProps = {
   onChange: () => {},
   shipmentType: SHIPMENT_OPTIONS.HHG,
-  showIcon: true,
+  allowApproval: true,
   editURL: '',
   ordersLOA: {
     tac: '',
@@ -160,6 +171,7 @@ ShipmentDisplay.defaultProps = {
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  neverShow: [],
 };
 
 export default ShipmentDisplay;

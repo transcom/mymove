@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import { Alert, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
+import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
-import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -13,31 +12,25 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { shipmentStatuses } from 'constants/shipments';
-import LeftNav from 'components/LeftNav';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
-import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
+import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from 'services/ghcApi';
+import LeftNav from 'components/LeftNav/LeftNav';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
-
-const sectionLabels = {
-  'requested-shipments': 'Requested shipments',
-  'approved-shipments': 'Approved shipments',
-  orders: 'Orders',
-  allowances: 'Allowances',
-  'customer-info': 'Customer info',
-};
+import { ORDERS_TYPE } from 'constants/orders';
 
 const errorIfMissing = {
-  HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
-  HHG_INTO_NTS_DOMESTIC: ['tacType'],
+  HHG_INTO_NTS_DOMESTIC: ['storageFacility', 'serviceOrderNumber', 'tacType'],
+  HHG_OUTOF_NTS_DOMESTIC: ['storageFacility', 'ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
 };
 
 const MoveDetails = ({
@@ -53,9 +46,21 @@ const MoveDetails = ({
   const [alertType, setAlertType] = useState('success');
   const history = useHistory();
 
-  const [activeSection, setActiveSection] = useState('');
-
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
+
+  // for now we are only showing dest type on retiree and separatee orders
+  let isRetirementOrSeparation = false;
+
+  isRetirementOrSeparation =
+    order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION;
+
+  if (isRetirementOrSeparation) {
+    // destination type must be set for for HHG, NTSR shipments only
+    errorIfMissing.HHG = ['destinationType'];
+    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push('destinationType');
+    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
+    errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
+  }
 
   let sections = useMemo(() => {
     return ['orders', 'allowances', 'customer-info'];
@@ -207,8 +212,8 @@ const MoveDetails = ({
   }
 
   const ordersInfo = {
-    newDutyStation: order.destinationDutyStation,
-    currentDutyStation: order.originDutyStation,
+    newDutyLocation: order.destinationDutyLocation,
+    currentDutyLocation: order.originDutyLocation,
     issuedDate: order.date_issued,
     reportByDate: order.report_by_date,
     departmentIndicator: order.department_indicator,
@@ -256,39 +261,37 @@ const MoveDetails = ({
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        <LeftNav className={styles.sidebar}>
-          {sections.map((s) => {
-            return (
-              <a
-                key={`sidenav_${s}`}
-                href={`#${s}`}
-                className={classnames({ active: s === activeSection })}
-                onClick={() => setActiveSection(s)}
-              >
-                {sectionLabels[`${s}`]}
-                {s === 'orders' && hasMissingOrdersRequiredInfo && (
-                  <Tag className="usa-tag usa-tag--alert">
-                    <FontAwesomeIcon icon="exclamation" />
-                  </Tag>
-                )}
-                {s === 'orders' && !hasMissingOrdersRequiredInfo && hasAmendedOrders && (
-                  <Tag className={styles.tag} data-testid="newOrdersNavTag">
-                    NEW
-                  </Tag>
-                )}
-                {s === 'requested-shipments' && !shipmentMissingRequiredInformation && (
-                  <Tag className={styles.tag} data-testid="requestedShipmentsTag">
-                    {submittedShipments?.length}
-                  </Tag>
-                )}
-                {s === 'requested-shipments' && shipmentMissingRequiredInformation && (
-                  <Tag className="usa-tag usa-tag--alert" data-testid="shipment-missing-info-alert">
-                    <FontAwesomeIcon icon="exclamation" />
-                  </Tag>
-                )}
-              </a>
-            );
-          })}
+        <LeftNav sections={sections}>
+          <LeftNavTag
+            className="usa-tag usa-tag--alert"
+            associatedSectionName="orders"
+            showTag={hasMissingOrdersRequiredInfo}
+            testID="tag"
+          >
+            <FontAwesomeIcon icon="exclamation" />
+          </LeftNavTag>
+          <LeftNavTag
+            associatedSectionName="orders"
+            showTag={Boolean(!hasMissingOrdersRequiredInfo && hasAmendedOrders)}
+            testID="newOrdersNavTag"
+          >
+            NEW
+          </LeftNavTag>
+          <LeftNavTag
+            associatedSectionName="requested-shipments"
+            showTag={!shipmentMissingRequiredInformation}
+            testID="requestedShipmentsTag"
+          >
+            {submittedShipments?.length}
+          </LeftNavTag>
+          <LeftNavTag
+            className="usa-tag usa-tag--alert"
+            associatedSectionName="requested-shipments"
+            showTag={shipmentMissingRequiredInformation}
+            testID="shipment-missing-info-alert"
+          >
+            <FontAwesomeIcon icon="exclamation" />
+          </LeftNavTag>
         </LeftNav>
 
         <GridContainer className={styles.gridContainer} data-testid="too-move-details">
@@ -334,6 +337,8 @@ const MoveDetails = ({
                 missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
                 handleAfterSuccess={history.push}
                 moveCode={moveCode}
+                errorIfMissing={errorIfMissing}
+                displayDestinationType={isRetirementOrSeparation}
               />
             </div>
           )}
@@ -348,6 +353,8 @@ const MoveDetails = ({
                 mtoServiceItems={mtoServiceItems}
                 shipmentsStatus={shipmentStatuses.APPROVED}
                 moveCode={moveCode}
+                errorIfMissing={errorIfMissing}
+                displayDestinationType={isRetirementOrSeparation}
               />
             </div>
           )}

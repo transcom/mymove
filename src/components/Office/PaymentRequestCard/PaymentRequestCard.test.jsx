@@ -155,8 +155,6 @@ describe('PaymentRequestCard', () => {
 
     it('displays the payment request details ', () => {
       const prDetails = wrapper.find('.footer dd');
-      expect(prDetails.contains(order.sac)).toBe(true);
-      expect(prDetails.contains(order.tac)).toBe(true);
       expect(prDetails.contains(contractor.contractNumber)).toBe(true);
     });
 
@@ -338,8 +336,6 @@ describe('PaymentRequestCard', () => {
 
     it('displays the payment request details ', () => {
       const prDetails = wrapper.find('.footer dd');
-      expect(prDetails.contains(order.sac)).toBe(true);
-      expect(prDetails.contains(order.tac)).toBe(true);
       expect(prDetails.contains(contractor.contractNumber)).toBe(true);
     });
 

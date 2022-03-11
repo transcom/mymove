@@ -74,7 +74,7 @@ const mapStateToProps = (state, ownProps) => {
   const ppmEstimate = {
     hasEstimateError: !!ppmEstimateError,
     rateEngineError: ppmEstimateError,
-    originDutyStationZip: serviceMember?.current_station?.address?.postalCode,
+    originDutyStationZip: serviceMember?.current_location?.address?.postalCode,
   };
 
   return {

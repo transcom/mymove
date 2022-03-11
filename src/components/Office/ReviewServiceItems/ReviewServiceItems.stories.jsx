@@ -10,6 +10,7 @@ import {
   SERVICE_ITEM_STATUS,
   PAYMENT_SERVICE_ITEM_STATUS,
   PAYMENT_REQUEST_STATUS,
+  LOA_TYPE,
 } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
 
@@ -38,6 +39,8 @@ export const Basic = () => (
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
+    TACs={{ HHG: '1234', NTS: '5678' }}
+    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
   />
 );
 
@@ -63,6 +66,8 @@ export const BasicWithTwoItems = () => {
       handleClose={action('clicked')}
       onCompleteReview={action('clicked')}
       patchPaymentServiceItem={action('patchPaymentServiceItem')}
+      TACs={{ HHG: '1234', NTS: '5678' }}
+      SACs={{ HHG: 'AB12', NTS: 'CD34' }}
     />
   );
 };
@@ -78,6 +83,8 @@ export const HHG = () => (
         mtoShipmentPickupAddress: 'Fairfield, CA 94535',
         mtoShipmentDestinationAddress: 'Beverly Hills, CA 90210',
         mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoShipmentTacType: LOA_TYPE.HHG,
+        mtoShipmentSacType: LOA_TYPE.HHG,
         mtoServiceItemName: serviceItemCodes.DLH,
         mtoServiceItemCode: 'DLH',
         paymentServiceItemParams: testParams.DomesticLongHaul,
@@ -88,6 +95,8 @@ export const HHG = () => (
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
+    TACs={{ HHG: '1234', NTS: '5678' }}
+    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
   />
 );
 
@@ -99,6 +108,8 @@ export const NonTemporaryStorage = () => (
         id: '1',
         mtoShipmentID: '10',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
+        mtoShipmentTacType: LOA_TYPE.NTS,
+        mtoShipmentSacType: LOA_TYPE.NTS,
         mtoServiceItemName: serviceItemCodes.DLH,
         mtoServiceItemCode: 'DLH',
         paymentServiceItemParams: testParams.DomesticLongHaul,
@@ -109,6 +120,8 @@ export const NonTemporaryStorage = () => (
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
+    TACs={{ HHG: '1234', NTS: '5678' }}
+    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
   />
 );
 
@@ -159,6 +172,8 @@ export const MultipleShipmentsGroups = () => (
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
+    TACs={{ HHG: '1234', NTS: '5678' }}
+    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
   />
 );
 
@@ -188,6 +203,8 @@ export const WithStatusAndReason = () => (
         mtoShipmentPickupAddress: 'Fairfield, CA 94535',
         mtoShipmentDestinationAddress: 'Beverly Hills, CA 90210',
         mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoShipmentTacType: LOA_TYPE.HHG,
+        mtoShipmentSacType: LOA_TYPE.HHG,
         mtoServiceItemName: serviceItemCodes.DLH,
         mtoServiceItemCode: 'DLH',
         paymentServiceItemParams: testParams.DomesticLongHaul,
@@ -198,7 +215,9 @@ export const WithStatusAndReason = () => (
       {
         id: '4',
         mtoShipmentID: '30',
-        mtoShipmentType: SHIPMENT_OPTIONS.NTS,
+        mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
+        mtoShipmentTacType: LOA_TYPE.NTS,
+        mtoShipmentSacType: LOA_TYPE.NTS,
         mtoServiceItemName: serviceItemCodes.DLH,
         mtoServiceItemCode: 'DLH',
         paymentServiceItemParams: testParams.DomesticLongHaul,
@@ -209,7 +228,9 @@ export const WithStatusAndReason = () => (
       {
         id: '5',
         mtoShipmentID: '30',
-        mtoShipmentType: SHIPMENT_OPTIONS.NTS,
+        mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
+        mtoShipmentTacType: LOA_TYPE.NTS,
+        mtoShipmentSacType: LOA_TYPE.NTS,
         mtoServiceItemName: serviceItemCodes.FSC,
         mtoServiceItemCode: 'FSC',
         paymentServiceItemParams: testParams.FuelSurchage,
@@ -220,6 +241,8 @@ export const WithStatusAndReason = () => (
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
+    TACs={{ HHG: '1234', NTS: '5678' }}
+    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
   />
 );
 
@@ -239,6 +262,8 @@ export const WithNeedsReview = () => (
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
+    TACs={{ HHG: '1234', NTS: '5678' }}
+    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
   />
 );
 
@@ -258,6 +283,8 @@ export const WithRejectRequest = () => (
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
+    TACs={{ HHG: '1234', NTS: '5678' }}
+    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
   />
 );
 
@@ -277,6 +304,8 @@ export const WithAuthorizePayment = () => (
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
+    TACs={{ HHG: '1234', NTS: '5678' }}
+    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
   />
 );
 
@@ -290,15 +319,26 @@ export const WithPaymentReviewedApproved = () => (
     serviceItemCards={[
       {
         id: '1',
-        mtoServiceItemName: serviceItemCodes.CS,
         status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
-        amount: 0.01,
-        createdAt: '2020-01-01T00:09:00.999Z',
+        mtoShipmentID: '10',
+        mtoShipmentDepartureDate: '2020-04-29',
+        mtoShipmentPickupAddress: 'Fairfield, CA 94535',
+        mtoShipmentDestinationAddress: 'Beverly Hills, CA 90210',
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoShipmentTacType: LOA_TYPE.HHG,
+        mtoShipmentSacType: LOA_TYPE.HHG,
+        mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
+        amount: 5678.05,
+        createdAt: '2020-01-01T00:08:00.999Z',
       },
     ]}
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
+    TACs={{ HHG: '1234', NTS: '5678' }}
+    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
   />
 );
 
@@ -321,5 +361,7 @@ export const WithPaymentReviewedRejected = () => (
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
+    TACs={{ HHG: '1234', NTS: '5678' }}
+    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
   />
 );

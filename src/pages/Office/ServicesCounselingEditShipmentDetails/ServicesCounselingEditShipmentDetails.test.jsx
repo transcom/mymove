@@ -38,7 +38,7 @@ const useEditShipmentQueriesReturnValue = {
   },
   order: {
     id: '1',
-    originDutyStation: {
+    originDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Knox',
@@ -46,7 +46,7 @@ const useEditShipmentQueriesReturnValue = {
         postalCode: '40121',
       },
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Irwin',
@@ -214,7 +214,9 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
   });
 
   it('calls props.onUpdate with error and routes to move details when the save button is clicked and the shipment update is unsuccessful', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     updateMTOShipment.mockImplementation(() => Promise.reject(new Error('something went wrong')));
+    useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
     const onUpdateMock = jest.fn();
 
     render(<ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />);

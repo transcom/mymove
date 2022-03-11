@@ -10,7 +10,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
-import { formatWeight } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 
 const maxBillableWeightSchema = Yup.object().shape({
   maxBillableWeight: Yup.number().min(1, 'Max billable weight must be greater than or equal to 1').required('Required'),

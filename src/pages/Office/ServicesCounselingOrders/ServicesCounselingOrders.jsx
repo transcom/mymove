@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { generatePath } from 'react-router';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
@@ -15,16 +15,18 @@ import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { counselingUpdateOrder } from 'services/ghcApi';
+import { getTacValid, counselingUpdateOrder } from 'services/ghcApi';
 import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { TAC_VALIDATION_ACTIONS, reducer, initialState } from 'reducers/tacValidation';
+import { LOA_TYPE } from 'shared/constants';
 
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 
 const validationSchema = Yup.object({
-  originDutyStation: Yup.object().defined('Required'),
-  newDutyStation: Yup.object().required('Required'),
+  originDutyLocation: Yup.object().defined('Required'),
+  newDutyLocation: Yup.object().required('Required'),
   issueDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
@@ -37,6 +39,7 @@ const validationSchema = Yup.object({
 const ServicesCounselingOrders = () => {
   const history = useHistory();
   const { moveCode } = useParams();
+  const [tacValidationState, tacValidationDispatch] = useReducer(reducer, null, initialState);
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
@@ -61,7 +64,64 @@ const ServicesCounselingOrders = () => {
     },
   });
 
+  const handleHHGTacValidation = async (value) => {
+    if (value && value.length === 4 && value !== tacValidationState[LOA_TYPE.HHG].tac) {
+      const response = await getTacValid({ tac: value });
+      tacValidationDispatch({
+        type: TAC_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
+        loaType: LOA_TYPE.HHG,
+        isValid: response.isValid,
+        tac: value,
+      });
+    }
+  };
+
+  const handleNTSTacValidation = async (value) => {
+    if (value && value.length === 4 && value !== tacValidationState[LOA_TYPE.NTS].tac) {
+      const response = await getTacValid({ tac: value });
+      tacValidationDispatch({
+        type: TAC_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
+        loaType: LOA_TYPE.NTS,
+        isValid: response.isValid,
+        tac: value,
+      });
+    }
+  };
+
   const order = Object.values(orders)?.[0];
+
+  useEffect(() => {
+    if (isLoading || isError) {
+      return;
+    }
+
+    const checkHHGTac = async () => {
+      const response = await getTacValid({ tac: order.tac });
+      tacValidationDispatch({
+        type: TAC_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
+        loaType: LOA_TYPE.HHG,
+        isValid: response.isValid,
+        tac: order.tac,
+      });
+    };
+
+    const checkNTSTac = async () => {
+      const response = await getTacValid({ tac: order.ntsTac });
+      tacValidationDispatch({
+        type: TAC_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
+        loaType: LOA_TYPE.NTS,
+        isValid: response.isValid,
+        tac: order.ntsTac,
+      });
+    };
+
+    if (order?.tac && order.tac.length === 4) {
+      checkHHGTac();
+    }
+    if (order?.ntsTac && order.ntsTac.length === 4) {
+      checkNTSTac();
+    }
+  }, [order?.tac, order?.ntsTac, isLoading, isError]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -69,8 +129,8 @@ const ServicesCounselingOrders = () => {
   const onSubmit = (values) => {
     const body = {
       ...values,
-      originDutyStationId: values.originDutyStation.id,
-      newDutyStationId: values.newDutyStation.id,
+      originDutyLocationId: values.originDutyLocation.id,
+      newDutyLocationId: values.newDutyLocation.id,
       issueDate: formatSwaggerDate(values.issueDate),
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
@@ -79,8 +139,8 @@ const ServicesCounselingOrders = () => {
   };
 
   const initialValues = {
-    originDutyStation: order?.originDutyStation,
-    newDutyStation: order?.destinationDutyStation,
+    originDutyLocation: order?.originDutyLocation,
+    newDutyLocation: order?.destinationDutyLocation,
     issueDate: order?.date_issued,
     reportByDate: order?.report_by_date,
     departmentIndicator: order?.department_indicator,
@@ -91,10 +151,16 @@ const ServicesCounselingOrders = () => {
     ntsSac: order?.ntsSac,
   };
 
+  const tacWarningMsg =
+    'This TAC does not appear in TGET, so it might not be valid. Make sure it matches what‘s on the orders before you continue.';
+
   return (
     <div className={styles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => {
+          const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
+          const ntsTacWarning = tacValidationState[LOA_TYPE.NTS].isValid ? '' : tacWarningMsg;
+
           return (
             <form onSubmit={formik.handleSubmit}>
               <div className={styles.content}>
@@ -123,6 +189,12 @@ const ServicesCounselingOrders = () => {
                     showDepartmentIndicator={false}
                     showOrdersNumber={false}
                     showOrdersTypeDetail={false}
+                    ordersType={order.order_type}
+                    setFieldValue={formik.setFieldValue}
+                    hhgTacWarning={hhgTacWarning}
+                    ntsTacWarning={ntsTacWarning}
+                    validateHHGTac={handleHHGTacValidation}
+                    validateNTSTac={handleNTSTacValidation}
                   />
                 </div>
                 <div className={styles.bottom}>

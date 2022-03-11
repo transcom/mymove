@@ -21,7 +21,7 @@ describe('Profile component', () => {
         },
         orders: {
           test: {
-            new_duty_station: {
+            new_duty_location: {
               name: 'Test Duty Station',
             },
             status: 'DRAFT',
@@ -64,8 +64,8 @@ describe('Profile component', () => {
               streetAddress1: 'Some Backup Street',
               country: 'USA',
             },
-            current_station: {
-              origin_duty_station: {
+            current_location: {
+              origin_duty_location: {
                 name: 'Current Station',
               },
               grade: 'E-5',
@@ -140,8 +140,8 @@ describe('Profile component', () => {
               streetAddress1: 'Some Backup Street',
               country: 'USA',
             },
-            current_station: {
-              origin_duty_station: {
+            current_location: {
+              origin_duty_location: {
                 name: 'Current Station',
               },
               grade: 'E-5',
@@ -196,7 +196,7 @@ describe('Profile component', () => {
         },
         orders: {
           test: {
-            new_duty_station: {
+            new_duty_location: {
               name: 'Test Duty Station',
             },
             status: 'DRAFT',
@@ -240,8 +240,8 @@ describe('Profile component', () => {
               streetAddress1: 'Some Backup Street',
               country: 'USA',
             },
-            current_station: {
-              origin_duty_station: {
+            current_location: {
+              origin_duty_location: {
                 name: 'Current Station',
               },
               grade: 'E-5',

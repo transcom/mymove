@@ -55,35 +55,34 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
   };
 
   return (
-    <>
-      <div className={styles.tabContent}>
-        <div className={styles.container}>
-          <GridContainer className={styles.gridContainer}>
-            <Grid row>
-              <Grid col desktop={{ col: 8, offset: 2 }}>
-                <ShipmentForm
-                  match={match}
-                  history={history}
-                  submitHandler={mutateMTOShipment}
-                  isCreatePage={false}
-                  isForServicesCounseling
-                  currentResidence={customer.current_address}
-                  newDutyStationAddress={order.destinationDutyStation?.address}
-                  selectedMoveType={matchingShipment.shipmentType}
-                  mtoShipment={matchingShipment}
-                  serviceMember={{ weightAllotment }}
-                  moveTaskOrderID={move.id}
-                  mtoShipments={mtoShipments}
-                  TACs={TACs}
-                  SACs={SACs}
-                  userRole={roleTypes.SERVICES_COUNSELOR}
-                />
-              </Grid>
+    <div className={styles.tabContent}>
+      <div className={styles.container}>
+        <GridContainer className={styles.gridContainer}>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <ShipmentForm
+                match={match}
+                history={history}
+                submitHandler={mutateMTOShipment}
+                isCreatePage={false}
+                isForServicesCounseling
+                currentResidence={customer.current_address}
+                newDutyStationAddress={order.destinationDutyLocation?.address}
+                selectedMoveType={matchingShipment.shipmentType}
+                mtoShipment={matchingShipment}
+                serviceMember={{ weightAllotment }}
+                moveTaskOrderID={move.id}
+                mtoShipments={mtoShipments}
+                TACs={TACs}
+                SACs={SACs}
+                userRole={roleTypes.SERVICES_COUNSELOR}
+                displayDestinationType
+              />
             </Grid>
-          </GridContainer>
-        </div>
+          </Grid>
+        </GridContainer>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -1,11 +1,23 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ShipmentDetailsSidebar from './ShipmentDetailsSidebar';
 
 import { MockProviders } from 'testUtils';
 import { LOA_TYPE } from 'shared/constants';
 import { formatAccountingCode } from 'utils/shipmentDisplay';
+
+const mockPush = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: mockPush,
+  }),
+  useParams: () => ({
+    moveCode: 'TestCode',
+  }),
+}));
 
 const shipment = {
   mtoAgents: [
@@ -51,6 +63,7 @@ const shipment = {
   serviceOrderNumber: '1234',
   tacType: LOA_TYPE.HHG,
   sacType: LOA_TYPE.NTS,
+  shipmentType: 'HHG',
 };
 
 const ordersLOA = {
@@ -75,7 +88,12 @@ describe('Shipment Details Sidebar', () => {
   it('renders all fields when provided', () => {
     render(
       <MockProviders>
-        <ShipmentDetailsSidebar shipment={shipment} ordersLOA={ordersLOA} />
+        <ShipmentDetailsSidebar
+          shipment={shipment}
+          ordersLOA={ordersLOA}
+          handleEditFacilityInfo={() => {}}
+          handleEditAccountingCodes={() => {}}
+        />
       </MockProviders>,
     );
 
@@ -101,12 +119,72 @@ describe('Shipment Details Sidebar', () => {
   it('renders nothing with no info passed in', () => {
     render(
       <MockProviders>
-        <ShipmentDetailsSidebar />
+        <ShipmentDetailsSidebar handleEditFacilityInfo={() => {}} handleEditAccountingCodes={() => {}} />
       </MockProviders>,
     );
 
     headers.forEach((header) => {
       expect(screen.queryByText(header)).toBeNull();
     });
+  });
+
+  it('shows edit facility info modal on edit button click', () => {
+    render(
+      <MockProviders>
+        <ShipmentDetailsSidebar
+          shipment={shipment}
+          ordersLOA={ordersLOA}
+          handleEditFacilityInfo={() => {}}
+          handleEditAccountingCodes={() => {}}
+        />
+      </MockProviders>,
+    );
+
+    const openEditFacilityModalButton = screen.getByTestId('edit-facility-info-modal-open');
+
+    userEvent.click(openEditFacilityModalButton);
+
+    // This text is in the edit facility info modal
+    expect(screen.getByText('Edit facility info and address')).toBeInTheDocument();
+  });
+
+  it('shows edit service order number modal on edit button click', () => {
+    render(
+      <MockProviders>
+        <ShipmentDetailsSidebar
+          shipment={shipment}
+          ordersLOA={ordersLOA}
+          handleEditFacilityInfo={() => {}}
+          handleEditAccountingCodes={() => {}}
+        />
+      </MockProviders>,
+    );
+
+    const openSonModalButton = screen.getByTestId('service-order-number-modal-open');
+
+    userEvent.click(openSonModalButton);
+
+    // This text is in the edit facility info modal
+    expect(screen.getByRole('heading', { name: 'Edit service order number' })).toBeInTheDocument();
+  });
+
+  it('shows accounting codes modal on edit button click', () => {
+    render(
+      <MockProviders>
+        <ShipmentDetailsSidebar
+          shipment={shipment}
+          ordersLOA={ordersLOA}
+          handleEditFacilityInfo={() => {}}
+          handleEditAccountingCodes={() => {}}
+        />
+      </MockProviders>,
+    );
+
+    const openAccountingCodesModalButton = screen.getByTestId('edit-accounting-codes-modal-open');
+
+    userEvent.click(openAccountingCodesModalButton);
+
+    // This text is in the accounting codes modal
+    expect(screen.getByRole('heading', { name: 'Edit accounting codes' })).toBeInTheDocument();
   });
 });

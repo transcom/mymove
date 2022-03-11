@@ -21,8 +21,12 @@ import (
 type MTOShipmentType string
 
 func NewMTOShipmentType(value MTOShipmentType) *MTOShipmentType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated MTOShipmentType.
+func (m MTOShipmentType) Pointer() *MTOShipmentType {
+	return &m
 }
 
 const (

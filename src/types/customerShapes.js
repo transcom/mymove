@@ -46,7 +46,7 @@ export const OrdersShape = shape({
   id: string,
   issue_date: string,
   moves: arrayOf(string),
-  new_duty_station: DutyStationShape,
+  new_duty_location: DutyStationShape,
   orders_type: string,
   report_by_date: string,
   service_member_id: string,
@@ -85,6 +85,20 @@ export const MtoShipmentFormValuesShape = shape({
   customerRemarks: string,
 });
 
+export const PPMShipmentShape = shape({
+  pickupPostalCode: string,
+  secondaryPickupPostalCode: string,
+  destinationPostalCode: string,
+  secondaryDestinationPostalCode: string,
+  sitExpected: bool,
+  expectedDepartureDate: string,
+  hasProGear: bool,
+  proGearWeight: number,
+  spouseProGearWeight: number,
+  estimatedWeight: number,
+  estimatedIncentive: number,
+});
+
 export const MtoShipmentShape = shape({
   agents: arrayOf(MtoAgentShape),
   customerRemarks: string,
@@ -96,6 +110,7 @@ export const MtoShipmentShape = shape({
   destinationAddress: AddressShape,
   secondaryDeliveryAddress: AddressShape,
   secondaryPickupAddress: AddressShape,
+  ppmShipment: PPMShipmentShape,
 });
 
 export const HhgShipmentShape = MtoShipmentShape;
