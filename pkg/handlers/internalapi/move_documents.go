@@ -251,19 +251,20 @@ type DeleteMoveDocumentHandler struct {
 
 // Handle ... deletes a move document
 func (h DeleteMoveDocumentHandler) Handle(params movedocop.DeleteMoveDocumentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
-	// for now, only delete if weight ticket set or expense
-	moveDoc, err := models.FetchMoveDocument(appCtx.DB(), appCtx.Session(), moveDocID, false)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			// for now, only delete if weight ticket set or expense
+			moveDoc, err := models.FetchMoveDocument(appCtx.DB(), appCtx.Session(), moveDocID, false)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	err = models.DeleteMoveDocument(appCtx.DB(), moveDoc)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return movedocop.NewDeleteMoveDocumentNoContent()
-
+			err = models.DeleteMoveDocument(appCtx.DB(), moveDoc)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return movedocop.NewDeleteMoveDocumentNoContent()
+		})
 }
