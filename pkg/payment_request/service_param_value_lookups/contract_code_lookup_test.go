@@ -24,7 +24,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 	})
 
 	suite.Run("golden path with param cache", func() {
-		// MS
+		// DLH
 		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDLH,

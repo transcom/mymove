@@ -40,19 +40,19 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	subtestData.mtoShipment1.PrimeEstimatedWeight = &subtestData.estimatedWeight
 	suite.MustSave(&subtestData.mtoShipment1)
 
-	reService1 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+	reService1 := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDLH,
 		},
 	})
 
-	reService2 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+	reService2 := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDOP,
 		},
 	})
 
-	reService3 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+	reService3 := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeMS,
 		},
@@ -90,7 +90,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		ReService: reService3,
 	})
 
-	subtestData.serviceItemParamKey1 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+	subtestData.serviceItemParamKey1 = testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key:         models.ServiceItemParamNameWeightEstimated,
 			Description: "estimated weight",
@@ -98,7 +98,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			Origin:      models.ServiceItemParamOriginPrime,
 		},
 	})
-	subtestData.serviceItemParamKey2 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+	subtestData.serviceItemParamKey2 = testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key:         models.ServiceItemParamNameRequestedPickupDate,
 			Description: "requested pickup date",
@@ -108,7 +108,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	})
 
 	// DLH
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+	_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             subtestData.mtoServiceItem1.ReServiceID,
 			ServiceItemParamKeyID: subtestData.serviceItemParamKey1.ID,
@@ -118,7 +118,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	})
 
 	// DLH
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+	_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             subtestData.mtoServiceItem1.ReServiceID,
 			ServiceItemParamKeyID: subtestData.serviceItemParamKey2.ID,
@@ -127,7 +127,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	})
 
 	// DOP
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+	_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             mtoServiceItem2.ReServiceID,
 			ServiceItemParamKeyID: subtestData.serviceItemParamKey1.ID,
@@ -136,7 +136,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		},
 	})
 
-	subtestData.serviceItemParamKey3 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+	subtestData.serviceItemParamKey3 = testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
 			Description: "prime mto made available date",
@@ -145,7 +145,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		},
 	})
 
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+	_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             subtestData.mtoServiceItem4.ReServiceID,
 			ServiceItemParamKeyID: subtestData.serviceItemParamKey3.ID,

@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/gobuffalo/pop/v5"
@@ -50,8 +51,6 @@ func MakeServiceParam(db *pop.Connection, assertions Assertions) models.ServiceP
 	// Overwrite values with those from assertions
 	mergeModels(&serviceParam, assertions.ServiceParam)
 
-	// fmt.Printf("serviceParam service id %s\n", serviceParam.ServiceID)
-	// fmt.Printf("serviceParam param key id %s\n", serviceParam.ServiceItemParamKeyID)
 	mustCreate(db, &serviceParam, assertions.Stub)
 
 	return serviceParam
@@ -60,11 +59,13 @@ func MakeServiceParam(db *pop.Connection, assertions Assertions) models.ServiceP
 func setServiceParamIDs(db *pop.Connection, serviceParam *models.ServiceParam, assertions Assertions) {
 	// Make sure we have a ServiceID
 	var reServiceItem models.ReService
-	if assertions.ServiceParam.ServiceID == uuid.Nil && assertions.ReService.ID == uuid.Nil {
+	if assertions.ServiceParam.ServiceID == uuid.Nil && assertions.ServiceParam.Service.ID == uuid.Nil && assertions.ReService.ID == uuid.Nil {
 		reServiceItem = MakeDefaultReService(db)
 		serviceParam.ServiceID = reServiceItem.ID
 	} else if assertions.ServiceParam.ServiceID != uuid.Nil {
 		serviceParam.ServiceID = assertions.ServiceParam.ServiceID
+	} else if assertions.ServiceParam.Service.ID != uuid.Nil {
+		serviceParam.ServiceID = assertions.ServiceParam.Service.ID
 	} else if assertions.ReService.ID != uuid.Nil {
 		serviceParam.ServiceID = assertions.ReService.ID
 	}
@@ -85,7 +86,7 @@ func setServiceParamIDs(db *pop.Connection, serviceParam *models.ServiceParam, a
 
 func FetchOrMakeServiceParam(db *pop.Connection, assertions Assertions) models.ServiceParam {
 	// ServiceID and ServiceItemParmKeyID are unique to the ServiceParam and must be set unless creating with defaults
-	if (assertions.ServiceParam.ServiceID == uuid.Nil && assertions.ReService.ID == uuid.Nil) ||
+	if (assertions.ServiceParam.ServiceID == uuid.Nil && assertions.ServiceParam.Service.ID == uuid.Nil && assertions.ReService.ID == uuid.Nil) ||
 		(assertions.ServiceParam.ServiceItemParamKeyID == uuid.Nil &&
 			assertions.ServiceParam.ServiceItemParamKey.ID == uuid.Nil &&
 			assertions.ServiceItemParamKey.ID == uuid.Nil) {
@@ -98,8 +99,12 @@ func FetchOrMakeServiceParam(db *pop.Connection, assertions Assertions) models.S
 
 	existingServiceParam := models.ServiceParam{}
 	err := db.Where("service_params.service_id = ? AND service_params.service_item_param_key_id = ?", serviceParam.ServiceID, serviceParam.ServiceItemParamKeyID).First(&existingServiceParam)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		log.Panic(err)
+	}
+
+	if existingServiceParam.ID == uuid.Nil {
+		return MakeServiceParam(db, assertions)
 	}
 
 	return existingServiceParam
