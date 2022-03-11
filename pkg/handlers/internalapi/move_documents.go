@@ -3,6 +3,7 @@ package internalapi
 import (
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -187,34 +188,36 @@ type IndexMoveDocumentsHandler struct {
 
 // Handle handles the request
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveID, err := uuid.FromString(params.MoveID.String())
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveID, err := uuid.FromString(params.MoveID.String())
 
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			// Validate that this move belongs to the current user
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	moveDocs, err := move.FetchAllMoveDocumentsForMove(appCtx.DB(), false)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			moveDocs, err := move.FetchAllMoveDocumentsForMove(appCtx.DB(), false)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	moveDocumentsPayload := make(internalmessages.MoveDocuments, len(moveDocs))
-	for i, doc := range moveDocs {
-		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
-		if err != nil {
-			return handlers.ResponseForError(appCtx.Logger(), err)
-		}
-		moveDocumentsPayload[i] = moveDocumentPayload
-	}
+			moveDocumentsPayload := make(internalmessages.MoveDocuments, len(moveDocs))
+			for i, doc := range moveDocs {
+				moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err)
+				}
+				moveDocumentsPayload[i] = moveDocumentPayload
+			}
 
-	response := movedocop.NewIndexMoveDocumentsOK().WithPayload(moveDocumentsPayload)
-	return response
+			response := movedocop.NewIndexMoveDocumentsOK().WithPayload(moveDocumentsPayload)
+			return response
+		})
 }
 
 // UpdateMoveDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{moveDocumentId}
