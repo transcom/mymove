@@ -432,37 +432,39 @@ type SubmitAmendedOrdersHandler struct {
 
 // Handle ... submit a move to TOO for approval
 func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	moveID, _ := uuid.FromString(params.MoveID.String())
+			moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-	err = h.MoveRouter.Submit(appCtx, move)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
+			err = h.MoveRouter.Submit(appCtx, move)
+			if err != nil {
+				return handlers.ResponseForError(logger, err)
+			}
 
-	responseVErrors := validate.NewErrors()
-	var responseError error
+			responseVErrors := validate.NewErrors()
+			var responseError error
 
-	if verrs, saveErr := appCtx.DB().ValidateAndSave(move); verrs.HasAny() || saveErr != nil {
-		responseVErrors.Append(verrs)
-		responseError = errors.Wrap(saveErr, "Error Saving Move")
-	}
+			if verrs, saveErr := appCtx.DB().ValidateAndSave(move); verrs.HasAny() || saveErr != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(saveErr, "Error Saving Move")
+			}
 
-	if responseVErrors.HasAny() {
-		return handlers.ResponseForVErrors(logger, responseVErrors, responseError)
-	}
+			if responseVErrors.HasAny() {
+				return handlers.ResponseForVErrors(logger, responseVErrors, responseError)
+			}
 
-	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload)
+			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+			if err != nil {
+				return handlers.ResponseForError(logger, err)
+			}
+			return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload)
+		})
 }
