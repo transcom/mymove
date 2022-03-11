@@ -145,30 +145,73 @@ describe('Services counselor user', () => {
   });
 
   it('is able to edit allowances', () => {
+    const moveLocator = 'RET1RE';
+
+    // TOO Moves queue
     cy.wait(['@getSortedMoves']);
-    // It doesn't matter which move we click on in the queue.
-    cy.get('td').first().click();
-    cy.url().should('include', `details`);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+
+    // Move Details page
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-    cy.get('[data-testid="edit-allowances"]').click();
 
-    // the form
-    cy.get('[data-testid="proGearWeightInput"]').focus().clear().type('1999').blur();
-    cy.get('[data-testid="sitInput"]').focus().clear().type('199').blur();
+    // Navigate to Edit allowances page
+    cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
 
-    // Edit allowances page | Save
-    cy.get('[data-testid="scAllowancesSave"]').click();
+    // Toggle between Edit Allowances and Edit Orders page
+    cy.get('[data-testid="view-orders"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/orders`);
+    cy.get('[data-testid="view-allowances"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/allowances`);
 
-    cy.wait('@patchAllowances');
+    cy.wait(['@getMoves', '@getOrders']);
 
-    cy.location().should((loc) => {
-      expect(loc.pathname).to.include('/details');
+    cy.get('form').within(($form) => {
+      // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
+      cy.get('input[name="proGearWeight"]').clear().type('1999');
+      cy.get('input[name="proGearWeightSpouse"]').clear().type('499');
+      cy.get('input[name="requiredMedicalEquipmentWeight"]').clear().type('999');
+      cy.get('input[name="storageInTransit"]').clear().type('199');
+      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').siblings('label[for="ocieInput"]').click();
+
+      // Edit grade and authorized weight
+      cy.get('select[name=agency]').contains('Army');
+      cy.get('select[name=agency]').select('Navy');
+      cy.get('select[name="grade"]').contains('E-1');
+      cy.get('select[name="grade"]').select('W-2');
+
+      //Edit DependentsAuthorized
+      cy.get('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
+
+      // Edit allowances page | Save
+      cy.get('button')
+        .contains('Save')
+        .should('be.enabled')
+        .click()
+        .then(() => cy.get('button').should('be.disabled'));
     });
 
-    // things should save and then load afterward with new data
+    cy.wait(['@patchAllowances']);
+
+    // Verify edited values are saved
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
     cy.get('[data-testid="progear"]').contains('1,999');
+    cy.get('[data-testid="spouseProgear"]').contains('499');
+    cy.get('[data-testid="rme"]').contains('999');
     cy.get('[data-testid="storageInTransit"]').contains('199');
+    cy.get('[data-testid="ocie"]').contains('Unauthorized');
+
+    cy.get('[data-testid="branchRank"]').contains('Navy');
+    cy.get('[data-testid="branchRank"]').contains('W-2');
+    cy.get('[data-testid="dependents"]').contains('Unauthorized');
+
+    // Edit allowances page | Cancel
+    cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
+    cy.get('button').contains('Cancel').click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
   });
 
   it('is able to see and use the left navigation', () => {

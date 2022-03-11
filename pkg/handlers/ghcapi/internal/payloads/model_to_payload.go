@@ -207,9 +207,9 @@ func Order(order *models.Order) *ghcmessages.Order {
 		grade = ghcmessages.Grade(*order.Grade)
 	}
 	//
-	var branch ghcmessages.Branch
+	var affiliation ghcmessages.Affiliation
 	if order.ServiceMember.Affiliation != nil {
-		branch = ghcmessages.Branch(*order.ServiceMember.Affiliation)
+		affiliation = ghcmessages.Affiliation(*order.ServiceMember.Affiliation)
 	}
 
 	var moveCode string
@@ -228,7 +228,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		ID:                          strfmt.UUID(order.ID.String()),
 		OriginDutyLocation:          originDutyLocation,
 		ETag:                        etag.GenerateEtag(order.UpdatedAt),
-		Agency:                      branch,
+		Agency:                      &affiliation,
 		CustomerID:                  strfmt.UUID(order.ServiceMemberID.String()),
 		Customer:                    Customer(&order.ServiceMember),
 		FirstName:                   swag.StringValue(order.ServiceMember.FirstName),

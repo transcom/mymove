@@ -324,7 +324,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 				err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
 
 				suite.Error(err)
-				suite.Contains(err.Error(), "Cannot cancel a move that is already canceled.")
+				suite.Contains(err.Error(), "cannot cancel a move that is already canceled")
 			})
 		}
 	})
