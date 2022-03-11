@@ -19617,16 +19617,16 @@ svgo@^1.0.0, svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-client@^3.18.0:
-  version "3.18.0"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.18.0.tgz#2e59e666b38ded983e26fb512421ef8ff82547f0"
-  integrity sha512-lNfwTXHim0QiCNuZ4BKgWle7N7+9WlFLtcP02n0xSchFtdzsKJb2kWsOlwplRU3appVFjnHRy+1eVabRc3ZhbA==
+swagger-client@^3.18.3:
+  version "3.18.3"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.18.3.tgz#2e0dd6f79a72c7f4b027ba836a41182bd6addc70"
+  integrity sha512-IA2kiEe0ek2r1lwIyj73zcsaZ6aIOyGm00OB+VEgCAaTBz1AOTIbTQL2HCfqvEtMThGcvxVv+e1UJhHODOx3Ew==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     btoa "^1.2.1"
     cookie "~0.4.1"
-    cross-fetch "^3.1.4"
-    deep-extend "~0.6.0"
+    cross-fetch "^3.1.5"
+    deepmerge "~4.2.2"
     fast-json-patch "^3.0.0-1"
     form-data-encoder "^1.4.3"
     formdata-node "^4.0.0"
