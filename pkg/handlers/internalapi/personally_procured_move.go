@@ -433,33 +433,34 @@ type RequestPPMPaymentHandler struct {
 
 // Handle is the handler
 func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	err = ppm.RequestPayment()
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			err = ppm.RequestPayment()
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	verrs, err := models.SavePersonallyProcuredMove(appCtx.DB(), ppm)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			verrs, err := models.SavePersonallyProcuredMove(appCtx.DB(), ppm)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ppmop.NewRequestPPMPaymentOK().WithPayload(ppmPayload)
-
+			ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ppmop.NewRequestPPMPaymentOK().WithPayload(ppmPayload)
+		})
 }
 
 func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalmessages.ExpenseSummaryPayload {
