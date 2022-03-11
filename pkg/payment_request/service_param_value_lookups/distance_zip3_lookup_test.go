@@ -63,7 +63,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		}
 
 		appContext := suite.AppContextForTest()
-		distance, err := distanceZip3Lookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
+		distance, err := distanceZip3Lookup.lookup(appContext, &ServiceItemParamKeyData{
 			planner:       suite.planner,
 			mtoShipmentID: &ppmShipment.ShipmentID,
 		})
