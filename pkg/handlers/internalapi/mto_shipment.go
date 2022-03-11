@@ -36,55 +36,57 @@ type CreateMTOShipmentHandler struct {
 
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if appCtx.Session() == nil || (!appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil) {
-		return mtoshipmentops.NewCreateMTOShipmentUnauthorized()
-	}
-
-	payload := params.Body
-	if payload == nil {
-		appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
-		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-			"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest)))
-	}
-	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	var err error
-	var ppmShipment *models.PPMShipment
-	if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
-		// Return a PPM Shipment with an MTO Shipment inside
-		ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
-	} else {
-		// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
-		mtoShipment.Status = models.MTOShipmentStatusSubmitted
-		serviceItemsList := make(models.MTOServiceItems, 0)
-		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
-	}
-
-	if err != nil {
-		appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
-		case apperror.InvalidInputError:
-			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
-		case apperror.QueryError:
-			if e.Unwrap() != nil {
-				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				appCtx.Logger().Error("internalapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
+			if appCtx.Session() == nil || (!appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil) {
+				return mtoshipmentops.NewCreateMTOShipmentUnauthorized()
 			}
-			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
-		default:
-			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
-		}
-	}
 
-	if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
-		// Return an mtoShipment that has a ppmShipment
-		mtoShipment = &ppmShipment.Shipment
-	}
-	returnPayload := payloads.MTOShipment(mtoShipment)
-	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+			payload := params.Body
+			if payload == nil {
+				appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
+				return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest)))
+			}
+			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+			var err error
+			var ppmShipment *models.PPMShipment
+			if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
+				// Return a PPM Shipment with an MTO Shipment inside
+				ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
+			} else {
+				// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
+				mtoShipment.Status = models.MTOShipmentStatusSubmitted
+				serviceItemsList := make(models.MTOServiceItems, 0)
+				mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
+			}
+
+			if err != nil {
+				appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
+				case apperror.InvalidInputError:
+					return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the internal error (usually a pq error) for better debugging
+						appCtx.Logger().Error("internalapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
+					}
+					return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
+				default:
+					return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
+				}
+			}
+
+			if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
+				// Return an mtoShipment that has a ppmShipment
+				mtoShipment = &ppmShipment.Shipment
+			}
+			returnPayload := payloads.MTOShipment(mtoShipment)
+			return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+		})
 }
 
 //
