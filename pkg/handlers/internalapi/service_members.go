@@ -149,19 +149,19 @@ type ShowServiceMemberHandler struct {
 
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	// User should always be populated by middleware
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
-	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
-	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
+			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
+			return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
+		})
 }
 
 // PatchServiceMemberHandler patches a serviceMember via PATCH /serviceMembers/{serviceMemberId}
