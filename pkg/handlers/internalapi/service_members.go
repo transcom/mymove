@@ -319,20 +319,22 @@ type ShowServiceMemberOrdersHandler struct {
 
 // Handle retrieves orders for a logged in service member
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), appCtx.Session().ServiceMemberID)
-	if err != nil {
-		return servicememberop.NewShowServiceMemberOrdersNotFound()
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), appCtx.Session().ServiceMemberID)
+			if err != nil {
+				return servicememberop.NewShowServiceMemberOrdersNotFound()
+			}
 
-	order, err := serviceMember.FetchLatestOrder(appCtx.Session(), appCtx.DB())
-	if err != nil {
-		return servicememberop.NewShowServiceMemberOrdersNotFound()
-	}
+			order, err := serviceMember.FetchLatestOrder(appCtx.Session(), appCtx.DB())
+			if err != nil {
+				return servicememberop.NewShowServiceMemberOrdersNotFound()
+			}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload)
+			orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload)
+		})
 }
