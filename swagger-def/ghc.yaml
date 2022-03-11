@@ -2,11 +2,12 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: The API for move.mil
+  description:
+    $ref: info/ghc_description.md
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
-  title: move.mil API
+  title: MilMove GHC API
   version: 0.0.1
 basePath: /ghc/v1
 schemes:
