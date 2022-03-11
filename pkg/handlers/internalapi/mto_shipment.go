@@ -102,78 +102,80 @@ type UpdateMTOShipmentHandler struct {
 
 // Handle updates the mto shipment
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if appCtx.Session() == nil {
-		return mtoshipmentops.NewUpdateMTOShipmentUnauthorized()
-	}
-
-	if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
-		return mtoshipmentops.NewUpdateMTOShipmentForbidden()
-	}
-
-	payload := params.Body
-	if payload == nil {
-		appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
-		return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-			"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest)))
-	}
-
-	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
-	mtoShipment.ID = uuid.FromStringOrNil(params.MtoShipmentID.String())
-
-	status := mtoShipment.Status
-	if status != "" && status != models.MTOShipmentStatusDraft && status != models.MTOShipmentStatusSubmitted {
-		appCtx.Logger().Error("Invalid mto shipment status: shipment in service member app can only have draft or submitted status")
-
-		return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
-			payloads.ClientError(handlers.BadRequestErrMessage,
-				"When present, the MTO Shipment status must be one of: DRAFT or SUBMITTED.",
-				h.GetTraceIDFromRequest(params.HTTPRequest)))
-	}
-
-	var updatedMTOShipment *models.MTOShipment
-	var updatedPPMShipment *models.PPMShipment
-	var err error
-	// We should move this logic out of the handler and into a composable service object
-	err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		updatedMTOShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(txnAppCtx, mtoShipment, params.IfMatch)
-		if err != nil {
-			return err
-		}
-
-		updatedPPMShipment, err = h.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment, mtoShipment.ID)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
-		case apperror.InvalidInputError:
-			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
-		case apperror.PreconditionFailedError:
-			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
-		case apperror.QueryError:
-			if e.Unwrap() != nil {
-				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				appCtx.Logger().Error("internalapi.UpdateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
+			if appCtx.Session() == nil {
+				return mtoshipmentops.NewUpdateMTOShipmentUnauthorized()
 			}
-			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
-		default:
-			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
-		}
-	}
 
-	updatedMTOShipment.PPMShipment = updatedPPMShipment
-	returnPayload := payloads.MTOShipment(updatedMTOShipment)
+			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
+				return mtoshipmentops.NewUpdateMTOShipmentForbidden()
+			}
 
-	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
+			payload := params.Body
+			if payload == nil {
+				appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
+				return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest)))
+			}
+
+			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
+			mtoShipment.ID = uuid.FromStringOrNil(params.MtoShipmentID.String())
+
+			status := mtoShipment.Status
+			if status != "" && status != models.MTOShipmentStatusDraft && status != models.MTOShipmentStatusSubmitted {
+				appCtx.Logger().Error("Invalid mto shipment status: shipment in service member app can only have draft or submitted status")
+
+				return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+					payloads.ClientError(handlers.BadRequestErrMessage,
+						"When present, the MTO Shipment status must be one of: DRAFT or SUBMITTED.",
+						h.GetTraceIDFromRequest(params.HTTPRequest)))
+			}
+
+			var updatedMTOShipment *models.MTOShipment
+			var updatedPPMShipment *models.PPMShipment
+			var err error
+			// We should move this logic out of the handler and into a composable service object
+			err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+				updatedMTOShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(txnAppCtx, mtoShipment, params.IfMatch)
+				if err != nil {
+					return err
+				}
+
+				updatedPPMShipment, err = h.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment, mtoShipment.ID)
+				if err != nil {
+					return err
+				}
+
+				return nil
+			})
+
+			if err != nil {
+				appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
+				case apperror.InvalidInputError:
+					return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
+				case apperror.PreconditionFailedError:
+					return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the internal error (usually a pq error) for better debugging
+						appCtx.Logger().Error("internalapi.UpdateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
+					}
+					return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
+				default:
+					return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
+				}
+			}
+
+			updatedMTOShipment.PPMShipment = updatedPPMShipment
+			returnPayload := payloads.MTOShipment(updatedMTOShipment)
+
+			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
+		})
 }
 
 //
