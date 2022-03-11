@@ -384,37 +384,39 @@ type ShowMoveDatesSummaryHandler struct {
 
 // Handle returns a summary of the dates in the move process.
 func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	moveDate := time.Time(params.MoveDate)
-	moveID, _ := uuid.FromString(params.MoveID.String())
+			moveDate := time.Time(params.MoveDate)
+			moveID, _ := uuid.FromString(params.MoveID.String())
 
-	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			// Validate that this move belongs to the current user
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	// Attach move locator to logger
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+			// Attach move locator to logger
+			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-	summary, err := calculateMoveDatesFromMove(appCtx, h.Planner(), moveID, moveDate)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
+			summary, err := calculateMoveDatesFromMove(appCtx, h.Planner(), moveID, moveDate)
+			if err != nil {
+				return handlers.ResponseForError(logger, err)
+			}
 
-	moveDatesSummary := &internalmessages.MoveDatesSummary{
-		ID:       swag.String(params.MoveID.String() + ":" + params.MoveDate.String()),
-		MoveID:   &params.MoveID,
-		MoveDate: &params.MoveDate,
-		Pack:     handlers.FmtDateSlice(summary.PackDays),
-		Pickup:   handlers.FmtDateSlice(summary.PickupDays),
-		Transit:  handlers.FmtDateSlice(summary.TransitDays),
-		Delivery: handlers.FmtDateSlice(summary.DeliveryDays),
-		Report:   handlers.FmtDateSlice(summary.ReportDays),
-	}
+			moveDatesSummary := &internalmessages.MoveDatesSummary{
+				ID:       swag.String(params.MoveID.String() + ":" + params.MoveDate.String()),
+				MoveID:   &params.MoveID,
+				MoveDate: &params.MoveDate,
+				Pack:     handlers.FmtDateSlice(summary.PackDays),
+				Pickup:   handlers.FmtDateSlice(summary.PickupDays),
+				Transit:  handlers.FmtDateSlice(summary.TransitDays),
+				Delivery: handlers.FmtDateSlice(summary.DeliveryDays),
+				Report:   handlers.FmtDateSlice(summary.ReportDays),
+			}
 
-	return moveop.NewShowMoveDatesSummaryOK().WithPayload(moveDatesSummary)
+			return moveop.NewShowMoveDatesSummaryOK().WithPayload(moveDatesSummary)
+		})
 }
 
 // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
