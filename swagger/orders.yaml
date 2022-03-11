@@ -1,6 +1,10 @@
 swagger: '2.0'
 info:
-  description: API to submit, amend, and cancel orders for move.mil.
+  description: |
+    The Orders API is a RESTful API that enables to submit, amend, and
+    cancel orders for MilMove.
+
+    All endpoints are located under `/orders/v1`.
   version: 1.0.0
   title: move.mil Orders Gateway
   license:
