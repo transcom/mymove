@@ -60,8 +60,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		//verifyOldWeight := false
 		//verifyNewWeight := false
 		// orders update
-		verifyOldSAC := false
-		verifyNewSAC := false
+		// verifyOldSAC := false
+		// verifyNewSAC := false
 		// move update
 		verifyOldTIORemarks := false
 		verifyTIORemarks := false
@@ -107,7 +107,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 						}
 					}
 				}
-			} else if h.TableName == "orders" {
+				/*} else if h.TableName == "orders" {
 				if *h.ObjectID == approvedMove.Orders.ID {
 					if h.OldData != nil {
 						oldData := *h.OldData
@@ -121,7 +121,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 							verifyNewSAC = true
 						}
 					}
-				}
+				}*/
 			} else if h.TableName == "moves" {
 				if *h.ObjectID == approvedMove.ID {
 					if h.OldData != nil {
@@ -152,8 +152,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		//suite.True(verifyOldWeight, "verifyOldWeight")
 		//suite.True(verifyNewWeight, "verifyNewWeight")
 		// orders update
-		suite.True(verifyOldSAC, "verifyOldSAC")
-		suite.True(verifyNewSAC, "verifyNewSAC")
+		// suite.True(verifyOldSAC, "verifyOldSAC")
+		// suite.True(verifyNewSAC, "verifyNewSAC")
 		// move update
 		suite.True(verifyOldTIORemarks, "verifyOldTIORemarks")
 		suite.True(verifyTIORemarks, "verifyTIORemarks")
