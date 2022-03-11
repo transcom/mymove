@@ -144,32 +144,75 @@ describe('Services counselor user', () => {
     cy.wait('@createShipment');
   });
 
-  //  it('is able to edit allowances', () => {
-  // cy.wait(['@getSortedMoves']);
-    // It doesn't matter which move we click on in the queue.
-  // cy.get('td').first().click();
-  // cy.url().should('include', `details`);
-  // cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-  // cy.get('[data-testid="edit-allowances"]').click();
+  it('is able to edit allowances', () => {
+    const moveLocator = 'RET1RE';
 
-    // the form
-  //    cy.get('[data-testid="proGearWeightInput"]').clear().type('1999');
-  // cy.get('[data-testid="sitInput"]').clear().type('199');
+    // TOO Moves queue
+    cy.wait(['@getSortedMoves']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
 
-    // Edit allowances page | Save
-  //    cy.get('[data-testid="scAllowancesSave"]').click();
+    // Move Details page
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
-  //    cy.wait('@patchAllowances');
+    // Navigate to Edit allowances page
+    cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
 
-  //    cy.location().should((loc) => {
-  //   expect(loc.pathname).to.include('/details');
-  // });
+    // Toggle between Edit Allowances and Edit Orders page
+    cy.get('[data-testid="view-orders"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/orders`);
+    cy.get('[data-testid="view-allowances"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/allowances`);
 
-    // things should save and then load afterward with new data
-  //    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-  // cy.get('[data-testid="progear"]').contains('1,999');
-  // cy.get('[data-testid="storageInTransit"]').contains('199');
-  //});
+    cy.wait(['@getMoves', '@getOrders']);
+
+    cy.get('form').within(($form) => {
+      // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
+      cy.get('input[name="proGearWeight"]').clear().type('1999');
+      cy.get('input[name="proGearWeightSpouse"]').clear().type('499');
+      cy.get('input[name="requiredMedicalEquipmentWeight"]').clear().type('999');
+      cy.get('input[name="storageInTransit"]').clear().type('199');
+      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').siblings('label[for="ocieInput"]').click();
+
+      // Edit grade and authorized weight
+      cy.get('select[name=agency]').contains('Army');
+      cy.get('select[name=agency]').select('Navy');
+      cy.get('select[name="grade"]').contains('E-1');
+      cy.get('select[name="grade"]').select('W-2');
+
+      //Edit DependentsAuthorized
+      cy.get('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
+
+      // Edit allowances page | Save
+      cy.get('button')
+        .contains('Save')
+        .should('be.enabled')
+        .click()
+        .then(() => cy.get('button').should('be.disabled'));
+    });
+
+    cy.wait(['@patchAllowances']);
+
+    // Verify edited values are saved
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    cy.get('[data-testid="progear"]').contains('1,999');
+    cy.get('[data-testid="spouseProgear"]').contains('499');
+    cy.get('[data-testid="rme"]').contains('999');
+    cy.get('[data-testid="storageInTransit"]').contains('199');
+    cy.get('[data-testid="ocie"]').contains('Unauthorized');
+
+    cy.get('[data-testid="branchRank"]').contains('Navy');
+    cy.get('[data-testid="branchRank"]').contains('W-2');
+    cy.get('[data-testid="dependents"]').contains('Unauthorized');
+
+    // Edit allowances page | Cancel
+    cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
+    cy.get('button').contains('Cancel').click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+  });
 
   it('is able to see and use the left navigation', () => {
     const moveLocator = 'RET1RE';

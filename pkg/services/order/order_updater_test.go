@@ -488,7 +488,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 		newAuthorizedWeight := int64(10000)
 		grade := ghcmessages.GradeO5
-		affiliation := ghcmessages.BranchAIRFORCE
+		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := swag.Int64(100)
 		proGearWeightSpouse := swag.Int64(10)
@@ -496,7 +496,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.UpdateAllowancePayload{
-			Agency:               affiliation,
+			Agency:               &affiliation,
 			AuthorizedWeight:     &newAuthorizedWeight,
 			DependentsAuthorized: swag.Bool(true),
 			Grade:                &grade,
@@ -558,7 +558,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		grade := ghcmessages.GradeO5
-		affiliation := ghcmessages.BranchAIRFORCE
+		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := swag.Int64(100)
 		proGearWeightSpouse := swag.Int64(10)
@@ -566,7 +566,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
-			Agency:               affiliation,
+			Agency:               &affiliation,
 			DependentsAuthorized: swag.Bool(true),
 			Grade:                &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
@@ -592,7 +592,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.EqualValues(*payload.Grade, *fetchedSM.Rank)
-		suite.EqualValues(payload.Agency, *fetchedSM.Affiliation)
+		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 	})
 
 	suite.T().Run("Updates the allowance when move needs service counseling and order fields are missing", func(t *testing.T) {
@@ -607,7 +607,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		})
 
 		grade := ghcmessages.GradeO5
-		affiliation := ghcmessages.BranchAIRFORCE
+		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := swag.Int64(100)
 		proGearWeightSpouse := swag.Int64(10)
@@ -615,7 +615,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		eTag := etag.GenerateEtag(orderWithoutDefaults.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
-			Agency:               affiliation,
+			Agency:               &affiliation,
 			DependentsAuthorized: swag.Bool(true),
 			Grade:                &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
@@ -641,7 +641,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.EqualValues(*payload.Grade, *fetchedSM.Rank)
-		suite.EqualValues(payload.Agency, *fetchedSM.Affiliation)
+		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 
 		// make sure that there are missing submission fields and move is in correct status
 		fetchedMove := models.Move{}
@@ -659,7 +659,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		grade := ghcmessages.GradeO5
-		affiliation := ghcmessages.BranchAIRFORCE
+		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := swag.Int64(2001)
 		proGearWeightSpouse := swag.Int64(10)
@@ -667,7 +667,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
-			Agency:               affiliation,
+			Agency:               &affiliation,
 			DependentsAuthorized: swag.Bool(true),
 			Grade:                &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
@@ -695,7 +695,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		grade := ghcmessages.GradeO5
-		affiliation := ghcmessages.BranchAIRFORCE
+		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := swag.Int64(100)
 		proGearWeightSpouse := swag.Int64(501)
@@ -703,7 +703,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
-			Agency:               affiliation,
+			Agency:               &affiliation,
 			DependentsAuthorized: swag.Bool(true),
 			Grade:                &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,

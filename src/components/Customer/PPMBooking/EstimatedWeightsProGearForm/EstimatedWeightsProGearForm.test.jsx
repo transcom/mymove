@@ -11,8 +11,22 @@ const defaultProps = {
     has_dependents: true,
   },
   serviceMember: {
+    id: '10',
     weight_allotment: {
+      total_weight_self: 5000,
       total_weight_self_plus_dependents: 7000,
+      pro_gear_weight: 2000,
+      pro_gear_weight_spouse: 500,
+    },
+  },
+  mtoShipment: {
+    id: '123',
+    ppmShipment: {
+      id: '123',
+      pickupPostalCode: '20002',
+      destinationPostalCode: '20004',
+      sitExpected: false,
+      expectedDepartureDate: '2022-12-31',
     },
   },
 };
@@ -20,9 +34,9 @@ const defaultProps = {
 const mtoShipmentProps = {
   ...defaultProps,
   mtoShipment: {
-    id: '123',
+    ...defaultProps.mtoShipment,
     ppmShipment: {
-      id: '123',
+      ...defaultProps.mtoShipment.ppmShipment,
       hasProGear: true,
       proGearWeight: 1000,
       spouseProGearWeight: 100,
@@ -61,7 +75,10 @@ describe('EstimatedWeightsProGearForm component', () => {
   describe('pull values from the ppm shipment when available', () => {
     it('renders blank form on load', async () => {
       render(<EstimatedWeightsProGearForm {...mtoShipmentProps} />);
-      expect(await screen.getByLabelText('Estimated weight of this PPM shipment').value).toBe('4,000');
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Estimated weight of this PPM shipment').value).toBe('4,000');
+      });
       expect(screen.getByLabelText('Yes').value).toBe('true');
       expect(screen.getByLabelText('Estimated weight of your pro-gear').value).toBe('1,000');
       expect(screen.getByLabelText('Estimated weight of your spouse’s pro-gear').value).toBe('100');

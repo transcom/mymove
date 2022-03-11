@@ -298,13 +298,15 @@ describe('TOO user', () => {
     cy.get('[data-testid="view-allowances"]').click();
     cy.url().should('include', `/moves/${moveLocator}/allowances`);
 
+    cy.wait(['@getMoves', '@getOrders']);
+
     cy.get('form').within(($form) => {
       // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
       cy.get('input[name="proGearWeight"]').clear().type('1999');
       cy.get('input[name="proGearWeightSpouse"]').clear().type('499');
       cy.get('input[name="requiredMedicalEquipmentWeight"]').clear().type('999');
       cy.get('input[name="storageInTransit"]').clear().type('199');
-      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').click({ force: true });
+      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').siblings('label[for="ocieInput"]').click();
 
       // Edit grade and authorized weight
       cy.get('select[name=agency]').contains('Army');
@@ -314,10 +316,14 @@ describe('TOO user', () => {
       cy.get('input[name="authorizedWeight"]').clear().type('11111');
 
       //Edit DependentsAuthorized
-      cy.get('input[name="dependentsAuthorized"]').click({ force: true });
+      cy.get('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
 
       // Edit allowances page | Save
-      cy.get('button').contains('Save').click();
+      cy.get('button')
+        .contains('Save')
+        .should('be.enabled')
+        .click()
+        .then(() => cy.get('button').should('be.disabled'));
     });
 
     cy.wait(['@patchAllowances']);
