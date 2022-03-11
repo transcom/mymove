@@ -115,7 +115,8 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 				OR roles.role_type = 'ppm_office_users'
 				OR role_type = 'services_counselor'
 				OR role_type = 'contracting_officer')
-		LEFT JOIN office_users ON office_users.user_id = session_userid;`
+		LEFT JOIN office_users ON office_users.user_id = session_userid
+		ORDER BY action_tstamp_tx desc;`
 	audits := &models.AuditHistories{}
 	err := appCtx.DB().RawQuery(query, locator).All(audits)
 	if err != nil {
