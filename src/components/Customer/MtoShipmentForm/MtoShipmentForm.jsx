@@ -20,7 +20,6 @@ import styles from './MtoShipmentForm.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-// import { ORDERS_TYPE } from 'constants/orders';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
@@ -60,7 +59,6 @@ class MtoShipmentForm extends Component {
 
   submitMTOShipment = ({
     shipmentType,
-    // ordersType,
     pickup,
     hasDeliveryAddress,
     delivery,
@@ -71,14 +69,11 @@ class MtoShipmentForm extends Component {
     secondaryDelivery,
   }) => {
     const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
-    // const { history, match, selectedMoveType, selectedOrdersType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
 
     const shipmentTypeToSave = shipmentType || selectedMoveType;
     const isNTSR = shipmentTypeToSave === SHIPMENT_OPTIONS.NTSR;
     const saveDeliveryAddress = hasDeliveryAddress === 'yes' || isNTSR;
-    // const ordersTypeToSave = ordersType || selectedOrdersType;
-    // const isRetireeSeparatee = ordersTypeToSave !== ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
 
     const preformattedMtoShipment = {
       shipmentType: shipmentTypeToSave,
@@ -147,6 +142,8 @@ class MtoShipmentForm extends Component {
     } = this.props;
 
     const { errorMessage } = this.state;
+
+    const isRetireeSeparatee = orders.orders_type !== 'PERMANENT_CHANGE_OF_STATION';
 
     const shipmentType = mtoShipment.shipmentType || selectedMoveType;
     const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, roleTypes.CUSTOMER);
@@ -389,7 +386,8 @@ class MtoShipmentForm extends Component {
                               />
                             ) : (
                               <p>
-                                We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
+                                We can use the zip of your new duty location.
+                                {/* the HOR, PLEAD or HOS you entered with your orders. */}
                                 <br />
                                 <strong>
                                   {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
@@ -397,6 +395,17 @@ class MtoShipmentForm extends Component {
                                 </strong>
                                 <br />
                                 You can add the specific delivery address later, once you know it.
+                              </p>
+                            )}
+                            {isRetireeSeparatee && (
+                              <p>
+                                We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
+                                <br />
+                                <strong>
+                                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                                  {newDutyStationAddress.postalCode}{' '}
+                                </strong>
+                                <br />
                               </p>
                             )}
                           </Fieldset>
