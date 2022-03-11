@@ -3,7 +3,7 @@ import { ServicesCounselorOfficeUserType } from '../../../support/constants';
 /* TODO
   For NTS-release tests:
     - Duplicate this file
-    - Change moveLocator code to NTSR01
+    - Change moveLocator code to NTSRHG
     - Update references to NTS to NTS-release
     - Update addNTSShipment function to fill out facility information
 
@@ -17,9 +17,6 @@ describe('Services counselor user', () => {
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
     cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as('getSortedMoves');
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=SCE4ET').as(
-      'getFilterSortedMoves',
-    );
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('**/ghc/v1/orders/**').as('getOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
@@ -35,12 +32,12 @@ describe('Services counselor user', () => {
   });
 
   it('Services Counselor can add an NTS shipment to the customer move', () => {
-    navigateToMove('NTS001');
+    navigateToMove('NTSHHG');
     addNTSShipment();
   });
 
   it('Services Counselor can delete/remove an NTS shipment request', () => {
-    navigateToMove('NTS001');
+    navigateToMove('NTSHHG');
     addNTSShipment();
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').should('have.length', 3);
@@ -59,7 +56,7 @@ describe('Services counselor user', () => {
   });
 
   it('Services Counselor can enter accounting codes on the Orders Page', () => {
-    navigateToMove('NTS001');
+    navigateToMove('NTSHHG');
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
     cy.waitFor(['@getMTOServiceItems']);
@@ -82,7 +79,7 @@ describe('Services counselor user', () => {
   });
 
   it('Services Counselor can assign accounting code(s) to a shipment', () => {
-    navigateToMove('NTS001');
+    navigateToMove('NTSHHG');
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
     cy.waitFor(['@getMTOServiceItems, @getMoves']);
@@ -97,7 +94,7 @@ describe('Services counselor user', () => {
   });
 
   it('Services Counselor can submit a move with an NTS shipment', () => {
-    navigateToMove('NTS001');
+    navigateToMove('NTSHHG');
     // click to trigger confirmation modal
     cy.contains('Submit move details').click();
 

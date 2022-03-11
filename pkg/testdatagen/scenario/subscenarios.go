@@ -359,8 +359,8 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 		createTXO(appCtx)
 		createTXOServicesCounselor(appCtx)
 
-		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTS001")
-		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSR01")
+		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSHHG")
+		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
 
 		// Create some submitted Moves for TXO users
 		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter)
