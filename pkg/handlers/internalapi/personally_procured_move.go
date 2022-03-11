@@ -534,16 +534,18 @@ type RequestPPMExpenseSummaryHandler struct {
 
 // Handle is the handler
 func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSummaryParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
-	// Fetch all approved expense documents for a PPM
-	status := models.MoveDocumentStatusOK
-	moveDocsExpense, err := models.FetchMoveDocuments(appCtx.DB(), appCtx.Session(), ppmID, &status, models.MoveDocumentTypeEXPENSE, false)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	expenseSummaryPayload := buildExpenseSummaryPayload(moveDocsExpense)
+			// Fetch all approved expense documents for a PPM
+			status := models.MoveDocumentStatusOK
+			moveDocsExpense, err := models.FetchMoveDocuments(appCtx.DB(), appCtx.Session(), ppmID, &status, models.MoveDocumentTypeEXPENSE, false)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			expenseSummaryPayload := buildExpenseSummaryPayload(moveDocsExpense)
 
-	return ppmop.NewRequestPPMExpenseSummaryOK().WithPayload(&expenseSummaryPayload)
+			return ppmop.NewRequestPPMExpenseSummaryOK().WithPayload(&expenseSummaryPayload)
+		})
 }
