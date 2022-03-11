@@ -56,46 +56,48 @@ type ValidateEntitlementHandler struct {
 
 // Handle is the handler
 func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlementParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveID, _ := uuid.FromString(params.MoveID.String())
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveID, _ := uuid.FromString(params.MoveID.String())
 
-	// Fetch move, orders, serviceMember and PPM
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), orders.ServiceMemberID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			// Fetch move, orders, serviceMember and PPM
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), orders.ServiceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	// Return 404 if there's no PPM or Shipment,  or if there is no Rank
-	if (len(move.PersonallyProcuredMoves) < 1) || serviceMember.Rank == nil {
-		return entitlementop.NewValidateEntitlementNotFound()
-	}
-	var weightEstimate int64
-	if len(move.PersonallyProcuredMoves) >= 1 {
-		// PPMs are in descending order - this is the last one created
-		ppm := move.PersonallyProcuredMoves[0]
-		if ppm.WeightEstimate != nil {
-			weightEstimate = int64(*ppm.WeightEstimate)
-		} else {
-			weightEstimate = int64(0)
-		}
+			// Return 404 if there's no PPM or Shipment,  or if there is no Rank
+			if (len(move.PersonallyProcuredMoves) < 1) || serviceMember.Rank == nil {
+				return entitlementop.NewValidateEntitlementNotFound()
+			}
+			var weightEstimate int64
+			if len(move.PersonallyProcuredMoves) >= 1 {
+				// PPMs are in descending order - this is the last one created
+				ppm := move.PersonallyProcuredMoves[0]
+				if ppm.WeightEstimate != nil {
+					weightEstimate = int64(*ppm.WeightEstimate)
+				} else {
+					weightEstimate = int64(0)
+				}
 
-	}
+			}
 
-	smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	if weightEstimate > int64(smEntitlement) {
-		return handlers.ResponseForConflictErrors(appCtx.Logger(), fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
-	}
+			smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			if weightEstimate > int64(smEntitlement) {
+				return handlers.ResponseForConflictErrors(appCtx.Logger(), fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
+			}
 
-	return entitlementop.NewValidateEntitlementOK()
+			return entitlementop.NewValidateEntitlementOK()
+		})
 }
