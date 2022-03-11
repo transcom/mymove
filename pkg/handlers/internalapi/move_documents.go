@@ -228,18 +228,20 @@ type UpdateMoveDocumentHandler struct {
 
 // Handle ... updates a move document from a request payload
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
-	moveDoc, verrs, err := h.moveDocumentUpdater.Update(appCtx, params.UpdateMoveDocument, moveDocID)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
-	moveDocPayload, err := payloadForMoveDocument(h.FileStorer(), *moveDoc)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
+			moveDoc, verrs, err := h.moveDocumentUpdater.Update(appCtx, params.UpdateMoveDocument, moveDocID)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
+			moveDocPayload, err := payloadForMoveDocument(h.FileStorer(), *moveDoc)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
+		})
 }
 
 // DeleteMoveDocumentHandler deletes a move document via DELETE /moves/{moveId}/documents/{moveDocumentId}
