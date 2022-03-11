@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -35,14 +36,17 @@ type IndexEntitlementsHandler struct {
 
 // Handle is the handler
 func (h IndexEntitlementsHandler) Handle(params entitlementop.IndexEntitlementsParams) middleware.Responder {
-	entitlements := models.AllWeightAllotments()
-	payload := make(map[string]internalmessages.WeightAllotment)
-	for k, v := range entitlements {
-		rank := string(k)
-		allotment := payloadForEntitlementModel(v)
-		payload[rank] = allotment
-	}
-	return entitlementop.NewIndexEntitlementsOK().WithPayload(payload)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			entitlements := models.AllWeightAllotments()
+			payload := make(map[string]internalmessages.WeightAllotment)
+			for k, v := range entitlements {
+				rank := string(k)
+				allotment := payloadForEntitlementModel(v)
+				payload[rank] = allotment
+			}
+			return entitlementop.NewIndexEntitlementsOK().WithPayload(payload)
+		})
 }
 
 // ValidateEntitlementHandler validates a weight estimate based on entitlement for a PPM move
