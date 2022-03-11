@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// FLAG: This table is deprecated and has been archived and renamed to archived_reimbursements
+// This table is deprecated and has been archived and renamed to archived_reimbursements
 
 // MethodOfReceipt is how the SM will be paid
 type MethodOfReceipt string
