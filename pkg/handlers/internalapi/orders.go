@@ -300,47 +300,49 @@ type UploadAmendedOrdersHandler struct {
 
 // Handle updates an order to attach amended orders from a request payload
 func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	file, ok := params.File.(*runtime.File)
-	if !ok {
-		appCtx.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
-		return handlers.ResponseForError(appCtx.Logger(), nil)
-	}
+			file, ok := params.File.(*runtime.File)
+			if !ok {
+				appCtx.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
+				return handlers.ResponseForError(appCtx.Logger(), nil)
+			}
 
-	appCtx.Logger().Info(
-		"File uploader and size",
-		zap.String("userID", appCtx.Session().UserID.String()),
-		zap.String("serviceMemberID", appCtx.Session().ServiceMemberID.String()),
-		zap.String("officeUserID", appCtx.Session().OfficeUserID.String()),
-		zap.String("AdminUserID", appCtx.Session().AdminUserID.String()),
-		zap.Int64("size", file.Header.Size),
-	)
+			appCtx.Logger().Info(
+				"File uploader and size",
+				zap.String("userID", appCtx.Session().UserID.String()),
+				zap.String("serviceMemberID", appCtx.Session().ServiceMemberID.String()),
+				zap.String("officeUserID", appCtx.Session().OfficeUserID.String()),
+				zap.String("AdminUserID", appCtx.Session().AdminUserID.String()),
+				zap.Int64("size", file.Header.Size),
+			)
 
-	orderID, err := uuid.FromString(params.OrdersID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(appCtx, appCtx.Session().UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
+			orderID, err := uuid.FromString(params.OrdersID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(appCtx, appCtx.Session().UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
 
-	if verrs.HasAny() || err != nil {
-		switch err.(type) {
-		case uploader.ErrTooLarge:
-			return ordersop.NewUploadAmendedOrdersRequestEntityTooLarge()
-		case uploader.ErrFile:
-			return ordersop.NewUploadAmendedOrdersInternalServerError()
-		case uploader.ErrFailedToInitUploader:
-			return ordersop.NewUploadAmendedOrdersInternalServerError()
-		case apperror.NotFoundError:
-			return ordersop.NewUploadAmendedOrdersNotFound()
-		default:
-			return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-		}
-	}
+			if verrs.HasAny() || err != nil {
+				switch err.(type) {
+				case uploader.ErrTooLarge:
+					return ordersop.NewUploadAmendedOrdersRequestEntityTooLarge()
+				case uploader.ErrFile:
+					return ordersop.NewUploadAmendedOrdersInternalServerError()
+				case uploader.ErrFailedToInitUploader:
+					return ordersop.NewUploadAmendedOrdersInternalServerError()
+				case apperror.NotFoundError:
+					return ordersop.NewUploadAmendedOrdersNotFound()
+				default:
+					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+				}
+			}
 
-	uploadPayload, err := payloadForUploadModelFromAmendedOrdersUpload(h.FileStorer(), upload, url)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload)
+			uploadPayload, err := payloadForUploadModelFromAmendedOrdersUpload(h.FileStorer(), upload, url)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload)
+		})
 }
