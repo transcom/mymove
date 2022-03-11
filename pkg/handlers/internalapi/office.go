@@ -187,33 +187,35 @@ type ApproveReimbursementHandler struct {
 
 // Handle ... approves a Reimbursement from a request payload
 func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursementParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() {
-		return officeop.NewApproveReimbursementForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() {
+				return officeop.NewApproveReimbursementForbidden()
+			}
 
-	reimbursementID, err := uuid.FromString(params.ReimbursementID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			reimbursementID, err := uuid.FromString(params.ReimbursementID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	reimbursement, err := models.FetchReimbursement(appCtx.DB(), appCtx.Session(), reimbursementID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			reimbursement, err := models.FetchReimbursement(appCtx.DB(), appCtx.Session(), reimbursementID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	err = reimbursement.Approve()
-	if err != nil {
-		appCtx.Logger().Error("Attempted to approve, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			err = reimbursement.Approve()
+			if err != nil {
+				appCtx.Logger().Error("Attempted to approve, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	verrs, err := appCtx.DB().ValidateAndUpdate(reimbursement)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			verrs, err := appCtx.DB().ValidateAndUpdate(reimbursement)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	reimbursementPayload := payloadForReimbursementModel(reimbursement)
-	return officeop.NewApproveReimbursementOK().WithPayload(reimbursementPayload)
+			reimbursementPayload := payloadForReimbursementModel(reimbursement)
+			return officeop.NewApproveReimbursementOK().WithPayload(reimbursementPayload)
+		})
 }
