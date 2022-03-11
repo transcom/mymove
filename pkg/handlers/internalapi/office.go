@@ -132,50 +132,52 @@ type ApprovePPMHandler struct {
 
 // Handle ... approves a Personally Procured Move from a request payload
 func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() {
-		return officeop.NewApprovePPMForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() {
+				return officeop.NewApprovePPMForbidden()
+			}
 
-	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	moveID := ppm.MoveID
-	var approveDate time.Time
-	if params.ApprovePersonallyProcuredMovePayload.ApproveDate != nil {
-		approveDate = time.Time(*params.ApprovePersonallyProcuredMovePayload.ApproveDate)
-	}
-	err = ppm.Approve(approveDate)
-	if err != nil {
-		appCtx.Logger().Error("Attempted to approve PPM, got invalid transition", zap.Error(err), zap.String("move_status", string(ppm.Status)))
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			moveID := ppm.MoveID
+			var approveDate time.Time
+			if params.ApprovePersonallyProcuredMovePayload.ApproveDate != nil {
+				approveDate = time.Time(*params.ApprovePersonallyProcuredMovePayload.ApproveDate)
+			}
+			err = ppm.Approve(approveDate)
+			if err != nil {
+				appCtx.Logger().Error("Attempted to approve PPM, got invalid transition", zap.Error(err), zap.String("move_status", string(ppm.Status)))
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	verrs, err := appCtx.DB().ValidateAndUpdate(ppm)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			verrs, err := appCtx.DB().ValidateAndUpdate(ppm)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	err = h.NotificationSender().SendNotification(appCtx,
-		notifications.NewMoveApproved(h.HandlerContext.AppNames().MilServername, moveID),
-	)
-	if err != nil {
-		appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			err = h.NotificationSender().SendNotification(appCtx,
+				notifications.NewMoveApproved(h.HandlerContext.AppNames().MilServername, moveID),
+			)
+			if err != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return officeop.NewApprovePPMOK().WithPayload(ppmPayload)
+			ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return officeop.NewApprovePPMOK().WithPayload(ppmPayload)
+		})
 }
 
 // ApproveReimbursementHandler approves a move via POST /reimbursement/{reimbursementId}/approve
