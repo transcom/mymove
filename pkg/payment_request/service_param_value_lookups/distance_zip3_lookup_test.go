@@ -139,7 +139,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 			})
 
 		// DLH
-		reServiceDLH := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		reServiceDLH := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDLH,
 			},
@@ -159,7 +159,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		suite.MustSave(&mtoServiceItemDLH)
 
 		// ServiceItemParamNameActualPickupDate
-		serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		serviceItemParamKey1 := testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 			ServiceItemParamKey: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameDistanceZip3,
 				Description: "zip 3 distance",
@@ -168,7 +168,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 			},
 		})
 
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 			ServiceParam: models.ServiceParam{
 				ServiceID:             mtoServiceItemDLH.ReServiceID,
 				ServiceItemParamKeyID: serviceItemParamKey1.ID,

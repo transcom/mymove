@@ -27,7 +27,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		// MS
 		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: models.ReServiceCodeMS,
+				Code: models.ReServiceCodeDLH,
 			},
 		})
 
@@ -41,7 +41,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 			},
 		})
 
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 			ServiceParam: models.ServiceParam{
 				ServiceID:             mtoServiceItem1.ReServiceID,
 				ServiceItemParamKeyID: serviceItemParamKey1.ID,
