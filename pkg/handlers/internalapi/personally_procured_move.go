@@ -273,43 +273,45 @@ type UpdatePersonallyProcuredMoveEstimateHandler struct {
 
 // Handle recalculates the incentive value for a given PPM move
 func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdatePersonallyProcuredMoveEstimateParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveID, err := uuid.FromString(params.MoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	if ppm.MoveID != moveID {
-		appCtx.Logger().Info("Move ID for PPM does not match requested PPM Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", ppm.MoveID.String()))
-		return ppmop.NewUpdatePersonallyProcuredMoveEstimateBadRequest()
-	}
+			if ppm.MoveID != moveID {
+				appCtx.Logger().Info("Move ID for PPM does not match requested PPM Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", ppm.MoveID.String()))
+				return ppmop.NewUpdatePersonallyProcuredMoveEstimateBadRequest()
+			}
 
-	err = h.updateEstimates(appCtx, ppm, moveID)
-	if err != nil {
-		appCtx.Logger().Error("Unable to set calculated fields on PPM", zap.Error(err))
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			err = h.updateEstimates(appCtx, ppm, moveID)
+			if err != nil {
+				appCtx.Logger().Error("Unable to set calculated fields on PPM", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	verrs, err := models.SavePersonallyProcuredMove(appCtx.DB(), ppm)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			verrs, err := models.SavePersonallyProcuredMove(appCtx.DB(), ppm)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ppmop.NewUpdatePersonallyProcuredMoveEstimateOK().WithPayload(ppmPayload)
+			ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ppmop.NewUpdatePersonallyProcuredMoveEstimateOK().WithPayload(ppmPayload)
+		})
 }
 
 func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(appCtx appcontext.AppContext, ppm *models.PersonallyProcuredMove, moveID uuid.UUID) error {
