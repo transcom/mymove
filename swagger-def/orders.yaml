@@ -1,6 +1,7 @@
 swagger: '2.0'
 info:
-  description: 'API to submit, amend, and cancel orders for move.mil.'
+  description:
+    $ref: 'info/orders_description.md'
   version: 1.0.0
   title: move.mil Orders Gateway
   license:
