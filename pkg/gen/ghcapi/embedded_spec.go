@@ -4519,6 +4519,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "context": {
+          "type": "string",
+          "x-nullable": true
+        },
         "eventName": {
           "description": "API endpoint name that was called to make the change",
           "type": "string",
@@ -11406,6 +11410,10 @@ func init() {
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
+          "type": "string",
+          "x-nullable": true
+        },
+        "context": {
           "type": "string",
           "x-nullable": true
         },

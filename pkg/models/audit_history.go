@@ -28,6 +28,7 @@ type AuditHistory struct {
 	SessionUserLastName  *string    `json:"session_user_last_name" db:"session_user_last_name"`
 	SessionUserEmail     *string    `json:"session_user_email" db:"session_user_email"`
 	SessionUserTelephone *string    `json:"session_user_telephone" db:"session_user_telephone"`
+	Context              *string    `json:"context" db:"context"`
 	// Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx
 	TransactionID *int64 `json:"transaction_id" db:"transaction_id"`
 	// Record the text of the client query that triggered the audit event

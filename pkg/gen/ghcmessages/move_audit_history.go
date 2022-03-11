@@ -40,6 +40,9 @@ type MoveAuditHistory struct {
 	// Record the text of the client query that triggered the audit event
 	ClientQuery *string `json:"clientQuery,omitempty"`
 
+	// context
+	Context *string `json:"context,omitempty"`
+
 	// API endpoint name that was called to make the change
 	EventName *string `json:"eventName,omitempty"`
 

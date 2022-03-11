@@ -2521,6 +2521,9 @@ definitions:
         type: string
         pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         x-nullable: true
+      context:
+        type: string
+        x-nullable: true
       eventName:
         description: API endpoint name that was called to make the change
         type: string
