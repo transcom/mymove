@@ -11,6 +11,11 @@
       width: unset;
     }
 
+    :global(.usa-form-group--error),
+    :global(.usa-form-group.warning) {
+      @include u-margin-top(2);
+    }
+
     // last section wrapper on mobile shouldn't render divider
     @include at-media-max('tablet') {
       .sectionWrapper:nth-last-child(2) {
@@ -58,6 +63,10 @@
 
   :global(.usa-legend) {
     @include u-margin-top(0);
+  }
+
+  .innerHint {
+    @include u-margin-top(1);
   }
 
   .hint {

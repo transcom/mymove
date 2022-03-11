@@ -20,7 +20,7 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 	ppm := models.PersonallyProcuredMove{
 		Move:                          move,
 		MoveID:                        move.ID,
-		WeightEstimate:                poundPointer(8000),
+		WeightEstimate:                models.PoundPointer(8000),
 		OriginalMoveDate:              models.TimePointer(DateInsidePeakRateCycle),
 		PickupPostalCode:              models.StringPointer("72017"),
 		HasAdditionalPostalCode:       models.BoolPointer(false),
