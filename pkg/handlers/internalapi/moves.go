@@ -160,42 +160,45 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move to TOO for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveID, _ := uuid.FromString(params.MoveID.String())
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
-	err = h.MoveRouter.Submit(appCtx, move)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
+			moveID, _ := uuid.FromString(params.MoveID.String())
 
-	certificateParams := certop.NewCreateSignedCertificationParams()
-	certificateParams.CreateSignedCertificationPayload = params.SubmitMoveForApprovalPayload.Certificate
-	certificateParams.HTTPRequest = params.HTTPRequest
-	certificateParams.MoveID = params.MoveID
-	// Transaction to save move and dependencies
-	verrs, err := h.saveMoveDependencies(appCtx, move, certificateParams, appCtx.Session().UserID)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
-	}
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+			err = h.MoveRouter.Submit(appCtx, move)
+			if err != nil {
+				return handlers.ResponseForError(logger, err)
+			}
 
-	err = h.NotificationSender().SendNotification(appCtx,
-		notifications.NewMoveSubmitted(moveID),
-	)
-	if err != nil {
-		logger.Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(logger, err)
-	}
+			certificateParams := certop.NewCreateSignedCertificationParams()
+			certificateParams.CreateSignedCertificationPayload = params.SubmitMoveForApprovalPayload.Certificate
+			certificateParams.HTTPRequest = params.HTTPRequest
+			certificateParams.MoveID = params.MoveID
+			// Transaction to save move and dependencies
+			verrs, err := h.saveMoveDependencies(appCtx, move, certificateParams, appCtx.Session().UserID)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(logger, verrs, err)
+			}
 
-	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
+			err = h.NotificationSender().SendNotification(appCtx,
+				notifications.NewMoveSubmitted(moveID),
+			)
+			if err != nil {
+				logger.Error("problem sending email to user", zap.Error(err))
+				return handlers.ResponseForError(logger, err)
+			}
+
+			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+			if err != nil {
+				return handlers.ResponseForError(logger, err)
+			}
+			return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
+		})
 }
 
 // SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses, signed certificate,
