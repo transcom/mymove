@@ -390,38 +390,40 @@ type SubmitPersonallyProcuredMoveHandler struct {
 
 // Handle Submits a PPM to change its status to SUBMITTED
 func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonallyProcuredMoveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	var submitDate time.Time
-	if params.SubmitPersonallyProcuredMovePayload.SubmitDate != nil {
-		submitDate = time.Time(*params.SubmitPersonallyProcuredMovePayload.SubmitDate)
-	}
-	err = ppm.Submit(submitDate)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			var submitDate time.Time
+			if params.SubmitPersonallyProcuredMovePayload.SubmitDate != nil {
+				submitDate = time.Time(*params.SubmitPersonallyProcuredMovePayload.SubmitDate)
+			}
+			err = ppm.Submit(submitDate)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	verrs, err := models.SavePersonallyProcuredMove(appCtx.DB(), ppm)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			verrs, err := models.SavePersonallyProcuredMove(appCtx.DB(), ppm)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
+			ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	return ppmop.NewSubmitPersonallyProcuredMoveOK().WithPayload(ppmPayload)
+			return ppmop.NewSubmitPersonallyProcuredMoveOK().WithPayload(ppmPayload)
+		})
 }
 
 // RequestPPMPaymentHandler requests a payment for a PPM
