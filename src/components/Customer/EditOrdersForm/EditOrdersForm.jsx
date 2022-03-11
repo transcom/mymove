@@ -142,7 +142,7 @@ const EditOrdersForm = ({
                         rel="noopener noreferrer"
                         href="https://www.militaryonesource.mil/military-life-cycle/separation-transition/military-separation-retirement/deciding-where-to-live-when-you-leave-the-military/"
                       >
-                        Military OneSource
+                        Military OneSource.
                       </USWDSLink>
                     </p>
                   </Callout>
