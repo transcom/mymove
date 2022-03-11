@@ -237,56 +237,59 @@ type UpdateOrdersHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	orderID, err := uuid.FromString(params.OrdersID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	order, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), orderID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	payload := params.UpdateOrders
-	stationID, err := uuid.FromString(payload.NewDutyLocationID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			orderID, err := uuid.FromString(params.OrdersID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			order, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), orderID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	if payload.OrdersType == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: OrdersType"))
-	}
+			payload := params.UpdateOrders
+			stationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	order.OrdersNumber = payload.OrdersNumber
-	order.IssueDate = time.Time(*payload.IssueDate)
-	order.ReportByDate = time.Time(*payload.ReportByDate)
-	order.OrdersType = *payload.OrdersType
-	order.OrdersTypeDetail = payload.OrdersTypeDetail
-	order.HasDependents = *payload.HasDependents
-	order.SpouseHasProGear = *payload.SpouseHasProGear
-	order.NewDutyLocationID = dutyLocation.ID
-	order.NewDutyLocation = dutyLocation
-	order.TAC = payload.Tac
-	order.SAC = payload.Sac
+			if payload.OrdersType == nil {
+				return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: OrdersType"))
+			}
 
-	if payload.DepartmentIndicator != nil {
-		order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
-	}
+			order.OrdersNumber = payload.OrdersNumber
+			order.IssueDate = time.Time(*payload.IssueDate)
+			order.ReportByDate = time.Time(*payload.ReportByDate)
+			order.OrdersType = *payload.OrdersType
+			order.OrdersTypeDetail = payload.OrdersTypeDetail
+			order.HasDependents = *payload.HasDependents
+			order.SpouseHasProGear = *payload.SpouseHasProGear
+			order.NewDutyLocationID = dutyLocation.ID
+			order.NewDutyLocation = dutyLocation
+			order.TAC = payload.Tac
+			order.SAC = payload.Sac
 
-	verrs, err := models.SaveOrder(appCtx.DB(), &order)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			if payload.DepartmentIndicator != nil {
+				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
+			}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
+			verrs, err := models.SaveOrder(appCtx.DB(), &order)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
+
+			orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
+		})
 }
 
 // UploadAmendedOrdersHandler uploads amended orders to an order via PATCH /orders/{orderId}/upload_amended_orders
