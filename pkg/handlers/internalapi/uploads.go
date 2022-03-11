@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -109,23 +110,25 @@ type DeleteUploadHandler struct {
 
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	uploadID, _ := uuid.FromString(params.UploadID.String())
-	userUpload, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			uploadID, _ := uuid.FromString(params.UploadID.String())
+			userUpload, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	userUploader, err := uploaderpkg.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
-	}
-	if err = userUploader.DeleteUserUpload(appCtx, &userUpload); err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			userUploader, err := uploaderpkg.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
+			if err != nil {
+				appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
+			}
+			if err = userUploader.DeleteUserUpload(appCtx, &userUpload); err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	return uploadop.NewDeleteUploadNoContent()
+			return uploadop.NewDeleteUploadNoContent()
+		})
 }
 
 // DeleteUploadsHandler deletes a collection of uploads
