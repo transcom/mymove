@@ -104,21 +104,23 @@ type IndexSignedCertificationsHandler struct {
 
 // Handle gets a list of SignedCertifications for a move
 func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertificationParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveID, _ := uuid.FromString(params.MoveID.String())
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			moveID, _ := uuid.FromString(params.MoveID.String())
 
-	_, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			_, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), appCtx.Session(), moveID)
-	var signedCertificationsPayload internalmessages.SignedCertifications
-	for _, sc := range signedCertifications {
-		signedCertificationsPayload = append(signedCertificationsPayload, payloadForSignedCertificationModel(*sc))
-	}
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return certop.NewIndexSignedCertificationOK().WithPayload(signedCertificationsPayload)
+			signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), appCtx.Session(), moveID)
+			var signedCertificationsPayload internalmessages.SignedCertifications
+			for _, sc := range signedCertifications {
+				signedCertificationsPayload = append(signedCertificationsPayload, payloadForSignedCertificationModel(*sc))
+			}
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return certop.NewIndexSignedCertificationOK().WithPayload(signedCertificationsPayload)
+		})
 }
