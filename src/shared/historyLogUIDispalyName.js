@@ -27,68 +27,7 @@ const historyLogEventNameDisplay = new Map([
   ['createMTOServiceItem', 'Requested service item'], //prime.yaml
 ]);
 
-/*
-{
-  "action": "INSERT",
-  "actionTstampClk": "2022-03-01T16:01:12.217Z",
-  "actionTstampStm": "2022-03-01T16:01:12.215Z",
-  "actionTstampTx": "2022-03-01T16:01:12.188Z",
-  "changedValues": [
-  {
-    "columnName": "financial_review_flag",
-    "columnValue": "false"
-  },
-  {
-    "columnName": "id",
-    "columnValue": "4a0d1cb3-a1f7-40f4-911f-79a22c0c4f56"
-  },
-  {
-    "columnName": "show",
-    "columnValue": "true"
-  },
-  {
-    "columnName": "reference_id",
-    "columnValue": "3775-6135"
-  },
-  {
-    "columnName": "contractor_id",
-    "columnValue": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
-  },
-  {
-    "columnName": "locator",
-    "columnValue": "YHHFVB"
-  },
-  {
-    "columnName": "created_at",
-    "columnValue": "2022-03-01T16:01:12.214551"
-  },
-  {
-    "columnName": "updated_at",
-    "columnValue": "2022-03-01T16:01:12.214551"
-  },
-  {
-    "columnName": "status",
-    "columnValue": "DRAFT"
-  },
-  {
-    "columnName": "selected_move_type"
-  },
-  {
-    "columnName": "orders_id",
-    "columnValue": "e65e8bc8-38be-49bb-b378-cf495aa3861d"
-  }
-],
-  "eventName": "createOrders",
-  "id": "fcff54a3-8c70-41d6-b0e1-db394d2f585f",
-  "objectId": "4a0d1cb3-a1f7-40f4-911f-79a22c0c4f56",
-  "relId": 25807,
-  "sessionUserId": "5c3021d9-22bd-46b2-8055-27d0ba45d8f4",
-  "tableName": "moves",
-  "transactionId": 154032
-},
- */
-
-function getHistoryLogEventNameDisplay({ eventName /*operationId*/, changedValues }) {
+export function getHistoryLogEventNameDisplay({ eventName /*operationId*/, changedValues }) {
   switch (eventName) {
     case 'updateMTOServiceItemStatus': {
       // find 'columnName' with 'columnValue'
