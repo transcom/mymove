@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	accesscodeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -47,24 +48,26 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 		return accesscodeop.NewFetchAccessCodeOK().WithPayload(&internalmessages.AccessCode{})
 	}
 
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if appCtx.Session() == nil {
-		return accesscodeop.NewFetchAccessCodeUnauthorized()
-	}
+			if appCtx.Session() == nil {
+				return accesscodeop.NewFetchAccessCodeUnauthorized()
+			}
 
-	// Fetch access code
-	accessCode, err := h.accessCodeFetcher.FetchAccessCode(appCtx, appCtx.Session().ServiceMemberID)
-	var fetchAccessCodePayload *internalmessages.AccessCode
+			// Fetch access code
+			accessCode, err := h.accessCodeFetcher.FetchAccessCode(appCtx, appCtx.Session().ServiceMemberID)
+			var fetchAccessCodePayload *internalmessages.AccessCode
 
-	if err != nil {
-		appCtx.Logger().Error("Error retrieving access_code for service member", zap.Error(err))
-		return accesscodeop.NewFetchAccessCodeNotFound()
-	}
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving access_code for service member", zap.Error(err))
+				return accesscodeop.NewFetchAccessCodeNotFound()
+			}
 
-	fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
+			fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
-	return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
+			return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
+		})
 }
 
 // ValidateAccessCodeHandler validates an access code to allow access to the MilMove platform as a service member
@@ -75,27 +78,29 @@ type ValidateAccessCodeHandler struct {
 
 // Handle accepts the code - validates the access code
 func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCodeParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if appCtx.Session() == nil {
-		return accesscodeop.NewValidateAccessCodeUnauthorized()
-	}
+			if appCtx.Session() == nil {
+				return accesscodeop.NewValidateAccessCodeUnauthorized()
+			}
 
-	splitParams := strings.Split(*params.Code, "-")
-	moveType, code := splitParams[0], splitParams[1]
+			splitParams := strings.Split(*params.Code, "-")
+			moveType, code := splitParams[0], splitParams[1]
 
-	accessCode, valid, _ := h.accessCodeValidator.ValidateAccessCode(appCtx, code, models.SelectedMoveType(moveType))
-	var validateAccessCodePayload *internalmessages.AccessCode
+			accessCode, valid, _ := h.accessCodeValidator.ValidateAccessCode(appCtx, code, models.SelectedMoveType(moveType))
+			var validateAccessCodePayload *internalmessages.AccessCode
 
-	if !valid {
-		appCtx.Logger().Warn("Access code not valid")
-		validateAccessCodePayload = &internalmessages.AccessCode{}
-		return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
-	}
+			if !valid {
+				appCtx.Logger().Warn("Access code not valid")
+				validateAccessCodePayload = &internalmessages.AccessCode{}
+				return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+			}
 
-	validateAccessCodePayload = payloadForAccessCodeModel(*accessCode)
+			validateAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
-	return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+			return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+		})
 }
 
 // ClaimAccessCodeHandler updates an access code to mark it as claimed
@@ -106,19 +111,21 @@ type ClaimAccessCodeHandler struct {
 
 // Handle accepts the code - updates the access code
 func (h ClaimAccessCodeHandler) Handle(params accesscodeop.ClaimAccessCodeParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if appCtx.Session() == nil || appCtx.Session().ServiceMemberID == uuid.Nil {
-		return accesscodeop.NewClaimAccessCodeUnauthorized()
-	}
+			if appCtx.Session() == nil || appCtx.Session().ServiceMemberID == uuid.Nil {
+				return accesscodeop.NewClaimAccessCodeUnauthorized()
+			}
 
-	accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(appCtx, *params.AccessCode.Code, appCtx.Session().ServiceMemberID)
+			accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(appCtx, *params.AccessCode.Code, appCtx.Session().ServiceMemberID)
 
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
 
-	accessCodePayload := payloadForAccessCodeModel(*accessCode)
+			accessCodePayload := payloadForAccessCodeModel(*accessCode)
 
-	return accesscodeop.NewClaimAccessCodeOK().WithPayload(accessCodePayload)
+			return accesscodeop.NewClaimAccessCodeOK().WithPayload(accessCodePayload)
+		})
 }

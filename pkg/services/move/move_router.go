@@ -323,7 +323,7 @@ func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, mov
 	// We can cancel any move that isn't already complete.
 	// TODO: What does complete mean? How do we determine when a move is complete?
 	if move.Status == models.MoveStatusCANCELED {
-		return errors.Wrap(models.ErrInvalidTransition, "Cannot cancel a move that is already canceled.")
+		return errors.Wrap(models.ErrInvalidTransition, "cannot cancel a move that is already canceled")
 	}
 
 	move.Status = models.MoveStatusCANCELED

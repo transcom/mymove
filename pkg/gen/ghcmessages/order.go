@@ -20,7 +20,7 @@ import (
 type Order struct {
 
 	// agency
-	Agency Branch `json:"agency,omitempty"`
+	Agency *Affiliation `json:"agency,omitempty"`
 
 	// amended orders acknowledged at
 	// Format: date-time
@@ -214,13 +214,15 @@ func (m *Order) validateAgency(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.Agency.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("agency")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("agency")
+	if m.Agency != nil {
+		if err := m.Agency.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("agency")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("agency")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -528,13 +530,15 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 
 func (m *Order) contextValidateAgency(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.Agency.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("agency")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("agency")
+	if m.Agency != nil {
+		if err := m.Agency.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("agency")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("agency")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
