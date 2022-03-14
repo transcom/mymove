@@ -10,4 +10,4 @@ ALTER TABLE ppm_shipments
 	ADD COLUMN advance int;
 
 
-COMMENT on COLUMN ppm_shipments.advance IS 'Advance amount and if no advance requested field is set to NULL';
+COMMENT on COLUMN ppm_shipments.advance IS 'Advance amount up to 60% of estimated incentive and if no advance requested field is set to NULL';
