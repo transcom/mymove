@@ -48,10 +48,9 @@ describe('getIncentiveRange', () => {
 
 describe('maxAdvance', () => {
   it('should return the formatted range from the PPM if the PPM values exist', () => {
-    expect(maxAdvance(100000)).toBe('6000');
-  });
-
-  it('should return an empty string if no values exist', () => {
-    expect(maxAdvance().toBe(''));
+    const amount = 600;
+    expect(maxAdvance(100000)).toBe(
+      amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+    );
   });
 });
