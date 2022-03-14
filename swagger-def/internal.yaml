@@ -1,8 +1,9 @@
 swagger: '2.0'
 info:
-  description: The internal/website API for my.move.mil
+  description:
+    $ref: 'info/internal_description.md'
   version: 0.0.1
-  title: my.move.mil
+  title: MilMove Internal API
   contact:
     email: ppp@truss.works
   license:
