@@ -6,7 +6,7 @@ info:
 
     All endpoints are located under `/orders/v1`.
   version: 1.0.0
-  title: move.mil Orders Gateway
+  title: MilMove Orders API
   license:
     name: MIT
     url: https://github.com/transcom/mymove/blob/master/LICENSE.md
