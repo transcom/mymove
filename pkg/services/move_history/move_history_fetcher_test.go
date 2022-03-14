@@ -132,3 +132,32 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 	})
 
 }
+
+func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
+	moveHistoryFetcher := NewMoveHistoryFetcher()
+
+	suite.T().Run("returns Audit History with session information", func(t *testing.T) {
+
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		fakeRole := testdatagen.MakeRole(suite.DB(), testdatagen.Assertions{})
+		fakeUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
+		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
+			User: fakeUser,
+			UsersRoles: models.UsersRoles{
+				RoleID: fakeRole.ID,
+			},
+		})
+
+		_ = testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			User: fakeUser,
+			Move: models.Move{
+				ID: approvedMove.ID,
+			},
+		})
+
+		_, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), approvedMove.Locator)
+		suite.FatalNoError(err)
+
+	})
+
+}
