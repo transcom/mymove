@@ -35,9 +35,10 @@ const validationSchema = Yup.object().shape({
 });
 
 const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
+  const ppmShipmentAdvance = mtoShipment?.ppmShipment?.advance;
   const initialValues = {
-    amountRequested: mtoShipment?.ppmShipment?.advance?.toString() || '',
-    advanceRequested: mtoShipment?.ppmShipment?.advance ? 'true' : 'false',
+    amountRequested: ppmShipmentAdvance ? formatCentsTruncateWhole(ppmShipmentAdvance) : '',
+    advanceRequested: ppmShipmentAdvance ? 'true' : 'false',
     agreeToTerms: false,
   };
 
@@ -90,6 +91,11 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       prefix="$"
+                      error={
+                        mtoShipment?.ppmShipment &&
+                        values.amountRequested > mtoShipment.ppmShipment.estimatedIncentive / 100
+                      }
+                      errorMessage={`Your advance is limited to $${maxAdvanceToRequest}`}
                     />
                     <Hint>
                       Your move counselor will discuss next steps with you and let you know how you&apos;ll receive your

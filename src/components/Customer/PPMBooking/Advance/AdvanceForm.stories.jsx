@@ -55,10 +55,28 @@ PreFilledAdvanceForm.args = {
       secondaryPickupPostalCode: '34512',
       destinationPostalCode: '94611',
       secondaryDestinationPostalCode: '90210',
-      sitExpected: 'true',
       expectedDepartureDate: '2022-09-23',
       estimatedIncentive: 1000000,
       advance: 30000,
+    },
+  },
+};
+
+export const MaxRequestedExceededAdvanceForm = Template.bind({});
+MaxRequestedExceededAdvanceForm.args = {
+  onSubmit: action('submit button clicked'),
+  onBack: action('back button clicked'),
+  mtoShipment: {
+    id: '123',
+    ppmShipment: {
+      id: '123',
+      pickupPostalCode: '12345',
+      secondaryPickupPostalCode: '34512',
+      destinationPostalCode: '94611',
+      secondaryDestinationPostalCode: '90210',
+      expectedDepartureDate: '2022-09-23',
+      estimatedIncentive: 1000000,
+      advance: 300000000,
     },
   },
 };
