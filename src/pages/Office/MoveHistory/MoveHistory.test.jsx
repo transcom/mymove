@@ -108,14 +108,14 @@ describe('MoveHistory', () => {
     expect(screen.getByText('Move history (2)')).toBeInTheDocument();
     expect(screen.getByRole('table')).toBeInTheDocument();
 
-    expect(screen.getByTestId('Date & Time-0')).toHaveTextContent('09 Mar 22 15:33');
-    expect(screen.getByTestId('eventName-0')).toBeInTheDocument();
-    expect(screen.getByTestId('Details-0')).toBeInTheDocument();
-    expect(screen.getByTestId('user.name-0')).toBeInTheDocument();
+    expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent('09 Mar 22 15:33');
+    expect(screen.getByTestId('move-history-event-0')).toBeInTheDocument();
+    expect(screen.getByTestId('move-history-details-0')).toBeInTheDocument();
+    expect(screen.getByTestId('move-history-modified-by-0')).toBeInTheDocument();
 
-    expect(screen.getByTestId('Date & Time-1')).toHaveTextContent('08 Mar 22 18:28');
-    expect(screen.getByTestId('eventName-1')).toBeInTheDocument();
-    expect(screen.getByTestId('Details-1')).toBeInTheDocument();
-    expect(screen.getByTestId('user.name-1')).toBeInTheDocument();
+    expect(screen.getByTestId('move-history-date-time-1')).toHaveTextContent('08 Mar 22 18:28');
+    expect(screen.getByTestId('move-history-event-1')).toBeInTheDocument();
+    expect(screen.getByTestId('move-history-details-1')).toBeInTheDocument();
+    expect(screen.getByTestId('move-history-modified-by-1')).toBeInTheDocument();
   });
 });
