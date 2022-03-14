@@ -26,8 +26,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The internal/website API for my.move.mil",
-    "title": "my.move.mil",
+    "description": "The Internal API is a RESTful API that enables the Customer application for\nMilMove.\n\nAll endpoints are located under ` + "`" + `/internal` + "`" + `.\n",
+    "title": "MilMove Internal API",
     "contact": {
       "email": "ppp@truss.works"
     },
@@ -3330,6 +3330,7 @@ func init() {
       }
     },
     "Affiliation": {
+      "description": "Military branch of service",
       "type": "string",
       "title": "Branch of service",
       "enum": [
@@ -3337,14 +3338,16 @@ func init() {
         "NAVY",
         "MARINES",
         "AIR_FORCE",
-        "COAST_GUARD"
+        "COAST_GUARD",
+        "OTHER"
       ],
       "x-display-value": {
         "AIR_FORCE": "Air Force",
         "ARMY": "Army",
         "COAST_GUARD": "Coast Guard",
         "MARINES": "Marine Corps",
-        "NAVY": "Navy"
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
       },
       "x-nullable": true
     },
@@ -6922,8 +6925,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The internal/website API for my.move.mil",
-    "title": "my.move.mil",
+    "description": "The Internal API is a RESTful API that enables the Customer application for\nMilMove.\n\nAll endpoints are located under ` + "`" + `/internal` + "`" + `.\n",
+    "title": "MilMove Internal API",
     "contact": {
       "email": "ppp@truss.works"
     },
@@ -10277,6 +10280,7 @@ func init() {
       }
     },
     "Affiliation": {
+      "description": "Military branch of service",
       "type": "string",
       "title": "Branch of service",
       "enum": [
@@ -10284,14 +10288,16 @@ func init() {
         "NAVY",
         "MARINES",
         "AIR_FORCE",
-        "COAST_GUARD"
+        "COAST_GUARD",
+        "OTHER"
       ],
       "x-display-value": {
         "AIR_FORCE": "Air Force",
         "ARMY": "Army",
         "COAST_GUARD": "Coast Guard",
         "MARINES": "Marine Corps",
-        "NAVY": "Navy"
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
       },
       "x-nullable": true
     },

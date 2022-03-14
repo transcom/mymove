@@ -2,11 +2,12 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: The API for move.mil
+  description:
+    $ref: info/ghc_description.md
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
-  title: move.mil API
+  title: MilMove GHC API
   version: 0.0.1
 basePath: /ghc/v1
 schemes:
@@ -2214,23 +2215,6 @@ definitions:
     required:
       - message
     type: object
-  Branch:
-    type: string
-    title: branch
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marines
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      OTHER: OTHER
   Grade:
     type: string
     x-nullable: true
@@ -2551,8 +2535,7 @@ definitions:
       grade:
         $ref: '#/definitions/Grade'
       agency:
-        type: string
-        $ref: '#/definitions/Branch'
+        $ref: 'definitions/Affiliation.yaml'
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
@@ -2761,8 +2744,7 @@ definitions:
         type: boolean
         x-nullable: true
       agency:
-        description: the branch that the service member belongs to
-        $ref: '#/definitions/Branch'
+        $ref: 'definitions/Affiliation.yaml'
       proGearWeight:
         description: unit is in lbs
         example: 2000
@@ -2831,8 +2813,7 @@ definitions:
         type: boolean
         x-nullable: true
       agency:
-        description: the branch that the service member belongs to
-        $ref: '#/definitions/Branch'
+        $ref: 'definitions/Affiliation.yaml'
       proGearWeight:
         minimum: 0
         maximum: 2000

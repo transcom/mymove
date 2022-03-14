@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -22,58 +23,60 @@ type ShowPPMEstimateHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	ordersID, err := uuid.FromString(params.OrdersID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			ordersID, err := uuid.FromString(params.OrdersID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	move, err := models.FetchMoveByOrderID(appCtx.DB(), ordersID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			move, err := models.FetchMoveByOrderID(appCtx.DB(), ordersID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	engine := rateengine.NewRateEngine(move)
+			engine := rateengine.NewRateEngine(move)
 
-	destinationZip, err := GetDestinationDutyLocationPostalCode(appCtx, ordersID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			destinationZip, err := GetDestinationDutyLocationPostalCode(appCtx, ordersID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginZip, destinationZip)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginZip, destinationZip)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	distanceMilesFromOriginDutyLocationZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginDutyLocationZip, destinationZip)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			distanceMilesFromOriginDutyLocationZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginDutyLocationZip, destinationZip)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	costDetails, err := engine.ComputePPMMoveCosts(
-		appCtx,
-		unit.Pound(params.WeightEstimate),
-		params.OriginZip,
-		params.OriginDutyLocationZip,
-		destinationZip,
-		distanceMilesFromOriginPickupZip,
-		distanceMilesFromOriginDutyLocationZip,
-		time.Time(params.OriginalMoveDate),
-		0, // We don't want any SIT charges
-	)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			costDetails, err := engine.ComputePPMMoveCosts(
+				appCtx,
+				unit.Pound(params.WeightEstimate),
+				params.OriginZip,
+				params.OriginDutyLocationZip,
+				destinationZip,
+				distanceMilesFromOriginPickupZip,
+				distanceMilesFromOriginDutyLocationZip,
+				time.Time(params.OriginalMoveDate),
+				0, // We don't want any SIT charges
+			)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	cost := rateengine.GetWinningCostMove(costDetails)
+			cost := rateengine.GetWinningCostMove(costDetails)
 
-	min := cost.GCC.MultiplyFloat64(0.95)
-	max := cost.GCC.MultiplyFloat64(1.05)
+			min := cost.GCC.MultiplyFloat64(0.95)
+			max := cost.GCC.MultiplyFloat64(1.05)
 
-	ppmEstimate := internalmessages.PPMEstimateRange{
-		RangeMin: swag.Int64(min.Int64()),
-		RangeMax: swag.Int64(max.Int64()),
-	}
-	return ppmop.NewShowPPMEstimateOK().WithPayload(&ppmEstimate)
+			ppmEstimate := internalmessages.PPMEstimateRange{
+				RangeMin: swag.Int64(min.Int64()),
+				RangeMax: swag.Int64(max.Int64()),
+			}
+			return ppmop.NewShowPPMEstimateOK().WithPayload(&ppmEstimate)
+		})
 }

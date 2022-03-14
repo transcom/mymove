@@ -26,8 +26,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil admin actions.",
-    "title": "move.mil Admin API",
+    "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
+    "title": "MilMove Admin API",
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/master/LICENSE.md"
@@ -2654,8 +2654,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil admin actions.",
-    "title": "move.mil Admin API",
+    "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
+    "title": "MilMove Admin API",
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/master/LICENSE.md"

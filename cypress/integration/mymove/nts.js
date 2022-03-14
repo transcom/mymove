@@ -17,6 +17,7 @@ describe('Customer NTS Setup flow', function () {
   it('Edits an NTS shipment', function () {
     cy.apiSignInAsUser(ntsUser);
     customerVisitsReviewPage();
+    customerReviewsShipmentInfoOnReviewPageBeforeEdit();
     customerEditsNTSShipment();
   });
 
@@ -28,6 +29,7 @@ describe('Customer NTS Setup flow', function () {
   it('Submits an NTS shipment from homepage', function () {
     cy.apiSignInAsUser(ntsUser);
     customerVisitsReviewPage();
+    customerReviewsShipmentInfoOnReviewPageAfterEdit();
     customerSubmitsNTSShipmentMoveFromHomePage();
   });
 });
@@ -97,6 +99,52 @@ function customerEditsNTSShipment() {
 function customerVisitsReviewPage() {
   cy.get('button[data-testid="review-and-submit-btn"]').contains('Review and submit').click();
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
+}
+
+function customerReviewsShipmentInfoOnReviewPageBeforeEdit() {
+  cy.get('[data-testid="nts-summary"]').contains('NTS');
+
+  // Requested pickup date
+  cy.get('[data-testid="nts-summary"]').contains('15 Mar 2020');
+
+  // Pickup location
+  cy.get('[data-testid="nts-summary"]').contains('123 Any Street P.O. Box 12345');
+  cy.get('[data-testid="nts-summary"]').contains('Beverly Hills, CA 90210');
+
+  // Secondary pickup address
+  cy.get('[data-testid="nts-summary"]').contains('123 Any Street P.O. Box 12345');
+  cy.get('[data-testid="nts-summary"]').contains('Beverly Hills, CA 90210');
+
+  // Releasing agent
+  cy.get('[data-testid="nts-summary"]').contains('Jason Ash');
+  cy.get('[data-testid="nts-summary"]').contains('202-555-9301');
+  cy.get('[data-testid="nts-summary"]').contains('jason.ash@example.com');
+
+  // Remarks
+  cy.get('[data-testid="nts-summary"]').contains('Please treat gently');
+}
+
+function customerReviewsShipmentInfoOnReviewPageAfterEdit() {
+  cy.get('[data-testid="nts-summary"]').contains('NTS');
+
+  // Requested pickup date
+  cy.get('[data-testid="nts-summary"]').contains('25 Dec 2020');
+
+  // Pickup location
+  cy.get('[data-testid="nts-summary"]').contains('123 Any Street P.O. Box 12345');
+  cy.get('[data-testid="nts-summary"]').contains('Beverly Hills, CA 90210');
+
+  // Secondary pickup address
+  cy.get('[data-testid="nts-summary"]').contains('999 Any Street');
+  cy.get('[data-testid="nts-summary"]').contains('The Hills, CA 90210');
+
+  // Releasing agent
+  cy.get('[data-testid="nts-summary"]').contains('Jason Bourne');
+  cy.get('[data-testid="nts-summary"]').contains('202-555-9301');
+  cy.get('[data-testid="nts-summary"]').contains('jason.ash@example.com');
+
+  // Remarks
+  cy.get('[data-testid="nts-summary"]').contains('Warning: glass');
 }
 
 function customerCreatesAnNTSShipment() {

@@ -1,8 +1,12 @@
 swagger: '2.0'
 info:
-  description: The internal/website API for my.move.mil
+  description: |
+    The Internal API is a RESTful API that enables the Customer application for
+    MilMove.
+
+    All endpoints are located under `/internal`.
   version: 0.0.1
-  title: my.move.mil
+  title: MilMove Internal API
   contact:
     email: ppp@truss.works
   license:
@@ -2915,18 +2919,21 @@ definitions:
     type: string
     x-nullable: true
     title: Branch of service
+    description: Military branch of service
     enum:
       - ARMY
       - NAVY
       - MARINES
       - AIR_FORCE
       - COAST_GUARD
+      - OTHER
     x-display-value:
       ARMY: Army
       NAVY: Navy
       MARINES: Marine Corps
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
+      OTHER: OTHER
   TransportationOffice:
     type: object
     properties:
