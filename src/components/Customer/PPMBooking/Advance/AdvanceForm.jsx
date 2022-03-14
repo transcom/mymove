@@ -37,7 +37,7 @@ const validationSchema = Yup.object().shape({
 const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
   const initialValues = {
     amountRequested: mtoShipment?.ppmShipment?.advance?.toString() || '',
-    advanceRequested: mtoShipment?.ppmShipment?.advance?.toString() || 'false',
+    advanceRequested: mtoShipment?.ppmShipment?.advance ? 'true' : 'false',
     agreeToTerms: false,
   };
 
