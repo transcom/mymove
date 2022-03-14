@@ -11,7 +11,7 @@ import { formatDateFromIso } from 'shared/formatters';
 const formatChangedValues = (changedValues) => {
   return changedValues
     ? changedValues.map((changedValue) => (
-        <div>
+        <div key={`${changedValue.columnName}-${changedValue.columnValue}`}>
           {changedValue.columnName}: {changedValue.columnValue}
         </div>
       ))
@@ -45,15 +45,17 @@ const MoveHistory = ({ moveCode }) => {
   };
 
   return (
-    <TableQueue
-      showFilters={false}
-      showPagination={false}
-      disableSortBy
-      columns={columns}
-      title="Move history"
-      handleClick={() => {}}
-      useQueries={useGetMoveHistoryQuery}
-    />
+    <div className={styles.MoveHistoryTable}>
+      <TableQueue
+        showFilters={false}
+        showPagination={false}
+        disableSortBy
+        columns={columns}
+        title="Move history"
+        handleClick={() => {}}
+        useQueries={useGetMoveHistoryQuery}
+      />
+    </div>
   );
 };
 

@@ -1,7 +1,7 @@
 @import 'shared/styles/basics';
 @import 'shared/styles/colors';
 
-table tbody {
+.MoveHistoryTable {
   .dateAndTime {
     @include u-font-size('base', 3);
     color: $base-dark;
