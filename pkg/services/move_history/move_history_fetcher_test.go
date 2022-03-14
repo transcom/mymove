@@ -39,12 +39,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		updateAddress.PostalCode = "23503"
 		suite.MustSave(updateAddress)
 
-		//update shipment weight
-		//oldWeight := *approvedShipment.PrimeActualWeight
-		//updateWeight := *approvedShipment.PrimeActualWeight + unit.Pound(1000)
-		//*approvedShipment.PrimeActualWeight = updateWeight
-		//suite.MustSave(&approvedShipment)
-
 		// update move
 		tioRemarks := "updating TIO remarks for test"
 		approvedMove.TIORemarks = &tioRemarks
@@ -56,9 +50,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		verifyOldPickupAddress := false
 		verifyNewPickupAddress := false
-		// shipment update
-		//verifyOldWeight := false
-		//verifyNewWeight := false
 		// orders update
 		verifyOldSAC := false
 		verifyNewSAC := false
@@ -68,31 +59,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 
 		for _, h := range moveHistory.AuditHistories {
 
-			if h.TableName == "mto_shipments" {
-				/*
-					if *h.ObjectID == approvedShipment.ID {
-						if h.OldData != nil {
-							oldData := *h.OldData
-							if oldData["prime_actual_weight"] == oldWeight {
-								verifyOldWeight = true
-							}
-						}
-						if h.ChangedData != nil {
-							changedData := *h.ChangedData
-							fmt.Printf("+%v\n", changedData["prime_actual_weight"].(float64))
-							fmt.Printf("+%v\n", updateWeight)
-							weight, ok := changedData["prime_actual_weight"].(float64)
-							if ok {
-								// w, _ := strconv.ParseFloat(weight, 64)
-								if weight == updateWeight.Float64() {
-									verifyNewWeight = true
-								}
-							}
-
-						}
-					}
-				*/
-			} else if h.TableName == "addresses" {
+			if h.TableName == "addresses" {
 				if *h.ObjectID == updateAddress.ID {
 					if h.OldData != nil {
 						oldData := *h.OldData
@@ -148,9 +115,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		suite.True(verifyOldPickupAddress, "verifyOldPickupAddress")
 		suite.True(verifyNewPickupAddress, "verifyNewPickupAddress")
-		// shipment update
-		//suite.True(verifyOldWeight, "verifyOldWeight")
-		//suite.True(verifyNewWeight, "verifyNewWeight")
 		// orders update
 		suite.True(verifyOldSAC, "verifyOldSAC")
 		suite.True(verifyNewSAC, "verifyNewSAC")
