@@ -90,7 +90,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
               </FormGroup>
               {isRetirementOrSeparation ? (
                 <>
-                  <h3>Where are you entitled to move?</h3>
+                  <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>
                   <Callout>
                     <span>The government will pay for your move to:</span>
                     <ul>

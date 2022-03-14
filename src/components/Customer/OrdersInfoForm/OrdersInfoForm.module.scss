@@ -2,7 +2,7 @@
 @import 'shared/styles/colors.scss';
 
 .OrdersInfoForm {
-  h3 {
+  .calloutLabel {
     @include u-margin-top(5);
     @include u-margin-bottom(1);
     font-size: 17px;
