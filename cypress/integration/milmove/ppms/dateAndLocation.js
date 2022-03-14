@@ -1,9 +1,10 @@
-describe('the PPM flow', function () {
+describe('PPM Onboarding - Add dates and location flow', function () {
   before(() => {
     cy.prepareCustomerApp();
   });
 
   beforeEach(() => {
+    cy.intercept('POST', '**/internal/mto_shipments').as('createShipment');
     cy.logout();
   });
 
@@ -15,33 +16,12 @@ describe('the PPM flow', function () {
     invalidInputs();
   });
 
-  it('can submit a PPM move', () => {
+  it('can continue to next page', () => {
     cy.apiSignInAsUser(userId);
     customerChoosesAPPMMove();
     submitsDateAndLocation();
   });
 });
-
-function customerChoosesAPPMMove() {
-  cy.get('button[data-testid="shipment-selection-btn"]').click();
-  cy.nextPage();
-
-  cy.get('input[value="PPM"]').check({ force: true });
-  cy.nextPage();
-}
-
-function submitsDateAndLocation() {
-  cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
-
-  cy.get('input[name="destinationPostalCode"]').clear().type('76127');
-  cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
-
-  cy.get('button').contains('Save & Continue').click();
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
-  });
-}
 
 function invalidInputs() {
   cy.contains('PPM date & location');
@@ -82,4 +62,26 @@ function invalidInputs() {
   cy.get('@errorMessage').next('input').should('have.id', 'secondaryDestinationPostalCode');
   cy.get('input[name="secondaryDestinationPostalCode"]').clear().type('90210').blur();
   cy.get('@errorMessage').should('not.exist');
+}
+
+function customerChoosesAPPMMove() {
+  cy.get('button[data-testid="shipment-selection-btn"]').click();
+  cy.nextPage();
+
+  cy.get('input[value="PPM"]').check({ force: true });
+  cy.nextPage();
+}
+
+function submitsDateAndLocation() {
+  cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
+
+  cy.get('input[name="destinationPostalCode"]').clear().type('76127');
+  cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
+
+  cy.get('button').contains('Save & Continue').click();
+  cy.wait('@createShipment');
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
+  });
 }

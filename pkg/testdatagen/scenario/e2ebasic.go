@@ -3162,6 +3162,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createMoveWithSinceParamater(appCtx, userUploader)
 	createMoveWithTaskOrderServices(appCtx, userUploader)
 	createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx, userUploader)
+	createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
+	createUnsubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
 
 	//Retiree, HOR, HHG
 	createMoveWithOptions(appCtx, testdatagen.Assertions{
