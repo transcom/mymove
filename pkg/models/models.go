@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // EagerAssociations are a collection of named associations
@@ -16,6 +18,12 @@ func StringPointer(s string) *string {
 // IntPointer allows you to take the address of a int literal.
 // It is useful for initializing int pointer fields in model construction
 func IntPointer(i int) *int {
+	return &i
+}
+
+// Int32Pointer allows you to take the address of a int32 literal.
+// It is useful for initializing int32 pointer fields in model construction
+func Int32Pointer(i int32) *int32 {
 	return &i
 }
 
@@ -41,4 +49,10 @@ func TimePointer(t time.Time) *time.Time {
 // It is useful for initializing bool pointer fields in model construction
 func BoolPointer(b bool) *bool {
 	return &b
+}
+
+// PoundPointer allows you to get the pointer to a unit.Pound literal.
+// It is useful for initializing unit.Pound pointer fields in model construction
+func PoundPointer(p unit.Pound) *unit.Pound {
+	return &p
 }
