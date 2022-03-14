@@ -3145,6 +3145,10 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE3ET")
 	createNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE4ET")
 
+	// Creates a single HHG shipment. Used for NTS/NTS-release tests where NTS add shipment is tested
+	createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSHHG")
+	createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
+
 	createNeedsServicesCounseling(appCtx, retirement, hhg, &hos, "RET1RE")
 	createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "S3PAR3")
 

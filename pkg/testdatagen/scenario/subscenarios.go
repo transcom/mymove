@@ -355,8 +355,13 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 
 func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
+		pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+
 		createTXO(appCtx)
 		createTXOServicesCounselor(appCtx)
+
+		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSHHG")
+		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
 
 		// Create some submitted Moves for TXO users
 		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter)
