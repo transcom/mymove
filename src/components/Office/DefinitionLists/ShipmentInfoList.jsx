@@ -34,7 +34,7 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing }
   const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
   const requestedPickupDateElement = (
     <div className={requestedPickupDateElementFlags.classes}>
-      <dt>Requested move date</dt>
+      <dt>Requested pickup date</dt>
       <dd data-testid="requestedPickupDate">{requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')}</dd>
     </div>
   );

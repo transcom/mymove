@@ -337,7 +337,7 @@ describe('MoveDetails page', () => {
 
       expect(screen.getAllByRole('heading', { name: 'HHG', level: 3 }).length).toBe(2);
 
-      const moveDateTerms = screen.getAllByText('Requested move date');
+      const moveDateTerms = screen.getAllByText('Requested pickup date');
 
       expect(moveDateTerms.length).toBe(2);
 
