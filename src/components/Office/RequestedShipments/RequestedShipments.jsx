@@ -167,7 +167,7 @@ const RequestedShipments = ({
   // Check that there are Prime-handled shipments before determining if the button should be enabled
   const isButtonEnabled = filterPrimeShipments.length > 0 ? primeShipmentsForApproval : externalVendorShipmentsOnly;
 
-  const dutyStationPostal = { postalCode: ordersInfo.newDutyStation?.address?.postalCode };
+  const dutyStationPostal = { postalCode: ordersInfo.newDutyLocation?.address?.postalCode };
 
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">

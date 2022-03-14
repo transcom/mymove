@@ -2,11 +2,12 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: The API for move.mil
+  description:
+    $ref: info/ghc_description.md
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
-  title: move.mil API
+  title: MilMove GHC API
   version: 0.0.1
 basePath: /ghc/v1
 schemes:
@@ -2214,23 +2215,6 @@ definitions:
     required:
       - message
     type: object
-  Branch:
-    type: string
-    title: branch
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marines
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      OTHER: OTHER
   Grade:
     type: string
     x-nullable: true
@@ -2551,13 +2535,12 @@ definitions:
       grade:
         $ref: '#/definitions/Grade'
       agency:
-        type: string
-        $ref: '#/definitions/Branch'
+        $ref: 'definitions/Affiliation.yaml'
       entitlement:
         $ref: '#/definitions/Entitlements'
-      destinationDutyStation:
+      destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
-      originDutyStation:
+      originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2644,11 +2627,11 @@ definitions:
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
-      originDutyStationId:
+      originDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      newDutyStationId:
+      newDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2677,8 +2660,8 @@ definitions:
       - issueDate
       - reportByDate
       - ordersType
-      - originDutyStationId
-      - newDutyStationId
+      - originDutyLocationId
+      - newDutyLocationId
   UpdateOrderPayload:
     type: object
     properties:
@@ -2698,11 +2681,11 @@ definitions:
         $ref: '#/definitions/OrdersType'
       ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
-      originDutyStationId:
+      originDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      newDutyStationId:
+      newDutyLocationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2743,8 +2726,8 @@ definitions:
       - issueDate
       - reportByDate
       - ordersType
-      - newDutyStationId
-      - originDutyStationId
+      - newDutyLocationId
+      - originDutyLocationId
   UpdateAllowancePayload:
     type: object
     properties:
@@ -2761,8 +2744,7 @@ definitions:
         type: boolean
         x-nullable: true
       agency:
-        description: the branch that the service member belongs to
-        $ref: '#/definitions/Branch'
+        $ref: 'definitions/Affiliation.yaml'
       proGearWeight:
         description: unit is in lbs
         example: 2000
@@ -2831,8 +2813,7 @@ definitions:
         type: boolean
         x-nullable: true
       agency:
-        description: the branch that the service member belongs to
-        $ref: '#/definitions/Branch'
+        $ref: 'definitions/Affiliation.yaml'
       proGearWeight:
         minimum: 0
         maximum: 2000

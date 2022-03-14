@@ -3,10 +3,10 @@ import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 
-import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation';
+import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
-import { updateMTOShipment } from 'sagas/entities';
+import { updateMTOShipment } from 'store/entities/actions';
 
 const mockPush = jest.fn();
 const mockMoveId = 'move123';
@@ -34,9 +34,11 @@ jest.mock('utils/validation', () => ({
   validatePostalCode: jest.fn(),
 }));
 
-jest.mock('sagas/entities', () => ({
-  ...jest.requireActual('sagas/entities'),
-  updateMTOShipment: jest.fn(),
+const mockDispatch = jest.fn();
+
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  useDispatch: jest.fn().mockImplementation(() => mockDispatch),
 }));
 
 const defaultProps = {
@@ -126,7 +128,7 @@ describe('DateAndLocation component', () => {
           },
         });
 
-        expect(updateMTOShipment).toHaveBeenCalledWith({ id: mockNewShipmentId });
+        expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
         expect(mockPush).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
@@ -208,7 +210,7 @@ describe('DateAndLocation component', () => {
           },
         });
 
-        expect(updateMTOShipment).toHaveBeenCalledWith({ id: mockNewShipmentId });
+        expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
         expect(mockPush).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
@@ -327,7 +329,7 @@ describe('DateAndLocation component', () => {
           fullShipmentProps.mtoShipment.eTag,
         );
 
-        expect(updateMTOShipment).toHaveBeenCalledWith({ id: fullShipmentProps.mtoShipment.id });
+        expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: fullShipmentProps.mtoShipment.id }));
         expect(mockPush).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,

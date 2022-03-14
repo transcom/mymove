@@ -1,0 +1,12 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors.scss';
+
+.OrdersInfoForm {
+  .calloutLabel {
+    @include u-margin-top(5);
+    @include u-margin-bottom(1);
+    font-size: 17px;
+    line-height: 20px;
+    color: $base-darkest;
+  }
+}

@@ -24,7 +24,7 @@ const (
 	InsertTemplate string = `
 	{{range .}}
 INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at, country) VALUES ('{{.AddressID}}', 'N/A', '{{.Address.City}}', '{{.Address.State}}', '{{.Address.PostalCode}}', now(), now(), 'United States');
-INSERT INTO duty_stations (id, name, affiliation, address_id, created_at, updated_at, transportation_office_id) VALUES ('{{.DutyStationID}}', '{{.Stations.Name}}', 'MARINES', '{{.AddressID}}', now(), now(), '{{.To.ID}}');
+INSERT INTO duty_locations (id, name, affiliation, address_id, created_at, updated_at, transportation_office_id) VALUES ('{{.DutyLocationID}}', '{{.Stations.Name}}', 'MARINES', '{{.AddressID}}', now(), now(), '{{.To.ID}}');
 	{{end}}`
 )
 
@@ -74,7 +74,7 @@ func (b MigrationBuilder) ParseStations(filename string) ([]StationData, error) 
 	return stations, nil
 }
 
-// MigrationBuilder has methods that assist in building a DutyStation INSERT migration
+// MigrationBuilder has methods that assist in building a DutyLocation INSERT migration
 type MigrationBuilder struct {
 }
 

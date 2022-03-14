@@ -45,14 +45,14 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
       <div data-testid="infoBlock" className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>
-          <h4>{order.originDutyStation.name}</h4>
+          <h4>{order.originDutyLocation.name}</h4>
         </div>
-        {order.destinationDutyStation.name && (
+        {order.destinationDutyLocation.name && (
           <div>
             <p data-testid="destinationLabel">
               {isRetireeOrSeparatee ? 'HOR, HOS or PLEAD' : 'Authorized destination'}
             </p>
-            <h4>{order.destinationDutyStation.name}</h4>
+            <h4>{order.destinationDutyLocation.name}</h4>
           </div>
         )}
         <div>

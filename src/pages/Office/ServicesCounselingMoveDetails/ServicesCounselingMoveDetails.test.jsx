@@ -153,7 +153,6 @@ const ntsrShipmentMissingRequiredInfo = {
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vulputate commodo erat. ' +
     'Morbi porta nibh nibh, ac malesuada tortor egestas.',
   customerRemarks: 'Ut enim ad minima veniam',
-  tacType: 'HHG',
   sacType: 'NTS',
 };
 
@@ -165,7 +164,7 @@ const newMoveDetailsQuery = {
   },
   order: {
     id: '1',
-    originDutyStation: {
+    originDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Knox',
@@ -173,7 +172,7 @@ const newMoveDetailsQuery = {
         postalCode: '40121',
       },
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Irwin',
@@ -323,7 +322,9 @@ describe('MoveDetails page', () => {
 
       render(mockedComponent);
 
-      expect(await screen.findByTestId('requestedShipmentsTag')).toBeInTheDocument();
+      // In this case, we would expect 3 since this shipment is missing the storage facility
+      // and tac type.
+      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('3');
     });
 
     /* eslint-disable camelcase */
@@ -436,7 +437,7 @@ describe('MoveDetails page', () => {
       expect(destinationAddressTerms.length).toBe(2);
 
       expect(destinationAddressTerms[0].nextElementSibling.textContent).toBe(
-        moveDetailsQuery.order.destinationDutyStation.address.postalCode,
+        moveDetailsQuery.order.destinationDutyLocation.address.postalCode,
       );
 
       const { streetAddress1, city, state, postalCode } = moveDetailsQuery.mtoShipments[1].destinationAddress;

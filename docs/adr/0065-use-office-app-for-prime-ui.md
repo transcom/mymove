@@ -48,8 +48,8 @@ Prime UI will done without the aid or use of engineering effort.
     knowledge of the system, end-to-end, internally, without requiring the use
     of specialized Prime API engineers.*
 
-- `-` *There are some risks to this approach which are covered under __Decision
-    Risks__.*
+- `-` *There are some risks to this approach which are covered under **Decision
+    Risks**.*
 
 ## Decision Risks
 
@@ -66,10 +66,10 @@ internal application that will not be available in production environments. A
 secure migration for the application must be run in the production database
 which is a non-operational (NOOP) migration. This is achieved by having an empty
 migration file with SQL comments. Please read the [documentation on Secure
-Migrations][docusaurus] by searching the Docusaurus site. _A direct
+Migrations][docusaurus] by searching the Docusaurus site. *A direct
 link is not included here because the documentation site is going a
-restructuring while this ADR is being written_. This type of migration should be
-used for any environments which may be _production-like_ or where the `Prime
+restructuring while this ADR is being written*. This type of migration should be
+used for any environments which may be *production-like* or where the `Prime
 Simulator Role` must not exist.
 
 [docusaurus]: https://transcom.github.io/mymove-docs/

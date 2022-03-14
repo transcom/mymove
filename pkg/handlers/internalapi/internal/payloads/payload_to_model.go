@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -129,6 +130,45 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	return model
 }
 
+func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *models.PPMShipment {
+	if ppmShipment == nil {
+		return nil
+	}
+
+	// Temporarily hard code this value, until we determine this
+	estimatedIncentive := int32(10000)
+
+	ppmModel := &models.PPMShipment{
+		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
+		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
+		NetWeight:                      handlers.PoundPtrFromInt64Ptr(ppmShipment.NetWeight),
+		HasProGear:                     ppmShipment.HasProGear,
+		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
+		EstimatedIncentive:             &estimatedIncentive,
+	}
+
+	if ppmShipment.ExpectedDepartureDate != nil {
+		ppmModel.ExpectedDepartureDate = *handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
+	}
+
+	if ppmShipment.DestinationPostalCode != nil {
+		ppmModel.DestinationPostalCode = *ppmShipment.DestinationPostalCode
+	}
+
+	if ppmShipment.PickupPostalCode != nil {
+		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
+	}
+
+	if ppmShipment.SitExpected != nil {
+		ppmModel.SitExpected = *ppmShipment.SitExpected
+	}
+
+	return ppmModel
+}
+
 // MTOShipmentModelFromUpdate model
 func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *models.MTOShipment {
 	if mtoShipment == nil {
@@ -154,6 +194,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
+
+	model.PPMShipment = UpdatePPMShipmentModel(mtoShipment.PpmShipment)
 
 	return model
 }

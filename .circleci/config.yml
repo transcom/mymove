@@ -13,10 +13,10 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-7a53b275e24f79a860fa6180b6d983bf9110fc16
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-03964d7db55c2692d8a9ae89f81ee76c520b33c1
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-d919f8549bdb6891ff4bb06ba8bce74d515f322b
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-03964d7db55c2692d8a9ae89f81ee76c520b33c1
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres circleci/postgres:12.7-ram
@@ -632,6 +632,10 @@ commands:
           # reasonable proxy for test time
           command: |
             SPECS=$(circleci tests glob "<< parameters.spec_glob >>" | circleci tests split --split-by=filesize | paste -s -d, -)
+            if [ -z "${SPECS}" ]; then
+              echo "CircleCI Parallelism greater than number of files in glob. Please adjust the number parallelism value to a lower number."
+              exit 1
+            fi
             echo $SPECS
             docker build -t cypress:local -f cypress/Dockerfile.cypress cypress
             docker run --name cypress --network e2e_cypress -e CYPRESS_baseUrl="http://milmovelocal:4000" cypress:local run --spec "${SPECS}"

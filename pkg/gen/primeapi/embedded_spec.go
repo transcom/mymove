@@ -23,8 +23,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the\ndetails and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
-    "title": "Milmove Prime API",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
+    "title": "MilMove Prime API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -1416,7 +1416,7 @@ func init() {
       "x-nullable": true,
       "example": "OTHER_THAN_AUTHORIZED"
     },
-    "DutyStation": {
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "address": {
@@ -2397,8 +2397,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string",
@@ -2418,8 +2418,8 @@ func init() {
         "orderNumber": {
           "type": "string"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "rank": {
           "type": "string",
@@ -2894,6 +2894,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -3367,8 +3368,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the\ndetails and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
-    "title": "Milmove Prime API",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
+    "title": "MilMove Prime API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -5087,7 +5088,7 @@ func init() {
       "x-nullable": true,
       "example": "OTHER_THAN_AUTHORIZED"
     },
-    "DutyStation": {
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "address": {
@@ -6068,8 +6069,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string",
@@ -6089,8 +6090,8 @@ func init() {
         "orderNumber": {
           "type": "string"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "rank": {
           "type": "string",
@@ -6555,6 +6556,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",

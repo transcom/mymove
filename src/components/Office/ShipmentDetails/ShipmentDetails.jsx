@@ -19,7 +19,7 @@ const ShipmentDetails = ({
   handleEditServiceOrderNumber,
   handleEditAccountingCodes,
 }) => {
-  const { originDutyStation, destinationDutyStation, entitlement } = order;
+  const { originDutyLocation, destinationDutyLocation, entitlement } = order;
   const ordersLOA = {
     tac: order.tac,
     sac: order.sac,
@@ -36,8 +36,8 @@ const ShipmentDetails = ({
         shipment={shipment}
         entitilement={entitlement}
         dutyStationAddresses={{
-          originDutyStationAddress: originDutyStation?.address,
-          destinationDutyStationAddress: destinationDutyStation?.address,
+          originDutyStationAddress: originDutyLocation?.address,
+          destinationDutyStationAddress: destinationDutyLocation?.address,
         }}
         handleReviewSITExtension={handleReviewSITExtension}
         handleSubmitSITExtension={handleSubmitSITExtension}

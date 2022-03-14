@@ -11,6 +11,11 @@
       width: unset;
     }
 
+    :global(.usa-form-group--error),
+    :global(.usa-form-group.warning) {
+      @include u-margin-top(2);
+    }
+
     // last section wrapper on mobile shouldn't render divider
     @include at-media-max('tablet') {
       .sectionWrapper:nth-last-child(2) {
@@ -60,27 +65,31 @@
     @include u-margin-top(0);
   }
 
+  .innerHint {
+    @include u-margin-top(1);
+  }
+
   .hint {
     @include u-margin-top(2);
   }
+}
 
-  .buttonContainer {
-    @include u-display(flex);
-    flex-wrap: wrap;
+.buttonContainer {
+  @include u-display(flex);
+  flex-wrap: wrap;
 
-    button {
-      @include u-margin-top(2);
-      @include u-margin-bottom(0);
+  button:global(.usa-button) {
+    @include u-margin-top(2);
+    @include u-margin-bottom(0);
+  }
+
+  @include at-media-max(mobile-lg) {
+    .backButton {
+      order: 2;
     }
 
-    @include at-media-max($mobile) {
-      .backButton {
-        order: 2;
-      }
-
-      .saveButton {
-        order: 1;
-      }
+    .saveButton {
+      order: 1;
     }
   }
 }

@@ -1,8 +1,9 @@
 swagger: '2.0'
 info:
-  description: 'API to submit, amend, and cancel orders for move.mil.'
+  description:
+    $ref: 'info/orders_description.md'
   version: 1.0.0
-  title: move.mil Orders Gateway
+  title: MilMove Orders API
   license:
     name: MIT
     url: 'https://github.com/transcom/mymove/blob/master/LICENSE.md'
@@ -496,23 +497,6 @@ definitions:
       - hasDependents
       - losingUnit
       - gainingUnit
-  Affiliation:
-    type: string
-    description: Military branch of service
-    enum:
-      - air-force
-      - army
-      - civilian-agency
-      - coast-guard
-      - marine-corps
-      - navy
-    x-display-value:
-      air-force: Air Force
-      army: Army
-      civilian-agency: Civilian Agency
-      coast-guard: Coast Guard
-      marine-corps: Marine Corps
-      navy: Navy
   Member:
     type: object
     properties:
@@ -537,7 +521,7 @@ definitions:
         description: 'Jr., Sr., III, etc.'
         x-nullable: true
       affiliation:
-        $ref: '#/definitions/Affiliation'
+        $ref: 'definitions/Affiliation.yaml'
       rank:
         $ref: '#/definitions/Rank'
       title:

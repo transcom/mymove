@@ -96,18 +96,22 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
-          postalCode: order.destinationDutyStation.address.postalCode,
+          postalCode: order.destinationDutyLocation.address.postalCode,
         },
         ...shipment,
         displayDestinationType: isRetirementOrSeparation,
       };
 
       const errorIfMissingList = errorIfMissing[shipment.shipmentType];
-
       if (errorIfMissingList) {
         errorIfMissingList.forEach((fieldToCheck) => {
           if (!displayInfo[fieldToCheck]) {
             numberOfErrorIfMissingForAllShipments += 1;
+            // Since storage facility gets split into two fields - the name and the address
+            // it needs to be counted twice.
+            if (fieldToCheck === 'storageFacility') {
+              numberOfErrorIfMissingForAllShipments += 1;
+            }
           }
         });
       }
@@ -117,6 +121,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
         warnIfMissingList.forEach((fieldToCheck) => {
           if (!displayInfo[fieldToCheck]) {
             numberOfWarnIfMissingForAllShipments += 1;
+          }
+          // Since storage facility gets split into two fields - the name and the address
+          // it needs to be counted twice.
+          if (fieldToCheck === 'storageFacility') {
+            numberOfErrorIfMissingForAllShipments += 1;
           }
         });
       }
@@ -155,8 +164,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   };
 
   const ordersInfo = {
-    currentDutyStation: order.originDutyStation,
-    newDutyStation: order.destinationDutyStation,
+    currentDutyLocation: order.originDutyLocation,
+    newDutyLocation: order.destinationDutyLocation,
     issuedDate: order.date_issued,
     reportByDate: order.report_by_date,
     ordersType: order.order_type,

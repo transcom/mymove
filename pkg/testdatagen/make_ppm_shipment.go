@@ -78,12 +78,13 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 	hasProGear := true
 	proGearWeight := unit.Pound(1150)
 	spouseProGearWeight := unit.Pound(450)
+	estimatedIncentive := int32(567890)
 
 	ppmShipment := models.PPMShipment{
 		ShipmentID:            shipment.ID,
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusSubmitted,
-		SubmittedAt:           timePointer(time.Now()),
+		SubmittedAt:           models.TimePointer(time.Now()),
 		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
 		PickupPostalCode:      requiredFields.pickupPostalCode,
 		DestinationPostalCode: requiredFields.destinationPostalCode,
@@ -92,6 +93,7 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 		HasProGear:            &hasProGear,
 		ProGearWeight:         &proGearWeight,
 		SpouseProGearWeight:   &spouseProGearWeight,
+		EstimatedIncentive:    &estimatedIncentive,
 	}
 
 	// Overwrite values with those from assertions

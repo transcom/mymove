@@ -150,7 +150,7 @@ describe('RequestedShipments', () => {
         `${destination.streetAddress1},\xa0${destination.city}, ${destination.state} ${destination.postalCode}`,
       );
       expect(wrapper.find('[data-testid="destinationAddress"]').at(1).text()).toEqual(
-        ordersInfo.newDutyStation.address.postalCode,
+        ordersInfo.newDutyLocation.address.postalCode,
       );
     });
 

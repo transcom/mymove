@@ -95,7 +95,14 @@ func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *upload
 		createTXOUSMC(appCtx)
 
 		// Onboarding
+		testdatagen.MakeAccessCode(appCtx.DB(), testdatagen.Assertions{
+			AccessCode: models.AccessCode{
+				Code:     "ABC123",
+				MoveType: models.SelectedMoveTypePPM,
+			},
+		})
 		createUnsubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
+		createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
 	}
 }
@@ -354,8 +361,13 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 
 func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
+		pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+
 		createTXO(appCtx)
 		createTXOServicesCounselor(appCtx)
+
+		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSHHG")
+		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
 
 		// Create some submitted Moves for TXO users
 		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter)

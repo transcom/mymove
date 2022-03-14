@@ -1,8 +1,9 @@
 swagger: '2.0'
 info:
-  description: The API for move.mil admin actions.
+  description:
+    $ref: info/admin_description.md
   version: 1.0.0
-  title: move.mil Admin API
+  title: MilMove Admin API
   license:
     name: MIT
     url: https://github.com/transcom/mymove/blob/master/LICENSE.md

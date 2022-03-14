@@ -38,7 +38,7 @@ const useEditShipmentQueriesReturnValue = {
   },
   order: {
     id: '1',
-    originDutyStation: {
+    originDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Knox',
@@ -46,7 +46,7 @@ const useEditShipmentQueriesReturnValue = {
         postalCode: '40121',
       },
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Irwin',
@@ -147,7 +147,7 @@ const useEditShipmentQueriesReturnValueNTS = {
   },
   order: {
     id: '1',
-    originDutyStation: {
+    originDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Knox',
@@ -155,7 +155,7 @@ const useEditShipmentQueriesReturnValueNTS = {
         postalCode: '40121',
       },
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Irwin',

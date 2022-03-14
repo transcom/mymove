@@ -397,7 +397,7 @@ PpmWeight.propTypes = {
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
-  const originDutyLocationZip = serviceMember?.current_station?.address?.postalCode;
+  const originDutyLocationZip = serviceMember?.current_location?.address?.postalCode;
   const serviceMemberId = serviceMember?.id;
 
   const props = {

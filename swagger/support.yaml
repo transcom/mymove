@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  title: Milmove Support API
+  title: MilMove Support API
   version: 0.0.1
   license:
     name: MIT
@@ -8,14 +8,15 @@ info:
   contact:
     email: dp3@truss.works
   description: >
-    The Milmove Support API gives you programmatic access to support
-    functionality useful for testing and debug.
+    The Support API gives you programmatic access to support functionality
+    useful
+
+    for testing and debugging. **This API is not available in the Production
+
+    environment**.
 
 
-    This API is not available in production.
-
-
-    All endpoints are located at `primelocal/support/v1/`.
+    All endpoints are located at `/support/v1/`.
 basePath: /support/v1
 schemes:
   - http
@@ -901,7 +902,7 @@ definitions:
       - id
       - serviceMemberID
       - uploads
-  DutyStation:
+  DutyLocation:
     type: object
     properties:
       id:
@@ -1570,9 +1571,9 @@ definitions:
         x-nullable: true
       entitlement:
         $ref: '#/definitions/Entitlement'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
-      destinationDutyStationID:
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      destinationDutyLocationID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -1586,9 +1587,9 @@ definitions:
         $ref: '#/definitions/OrdersType'
       ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
-      originDutyStationID:
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      originDutyLocationID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -1601,7 +1602,7 @@ definitions:
       rank:
         $ref: '#/definitions/Rank'
       reportByDate:
-        description: Date that the service member must report to the new DutyStation by.
+        description: Date that the service member must report to the new DutyLocation by.
         type: string
         format: date
       status:
@@ -1652,8 +1653,8 @@ definitions:
       - status
       - uploadedOrdersID
       - tac
-      - originDutyStationID
-      - destinationDutyStationID
+      - originDutyLocationID
+      - destinationDutyLocationID
       - departmentIndicator
   OrdersStatus:
     type: string

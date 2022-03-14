@@ -51,9 +51,9 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
-			ID:            serviceMemberID,
-			DutyStationID: &yuma.ID,
-			Rank:          &rank,
+			ID:             serviceMemberID,
+			DutyLocationID: &yuma.ID,
+			Rank:           &rank,
 		},
 	})
 
@@ -235,5 +235,5 @@ func (suite *PaperworkServiceSuite) TestCreateFormServiceCreateAssetByteReaderFa
 	templateBuffer, err := createAssetByteReader(badAssetPath)
 	suite.Nil(templateBuffer)
 	suite.NotNil(err)
-	suite.Equal("Error creating asset from path. Check image path.: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error())
+	suite.Equal("error creating asset from path; check image path: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error())
 }

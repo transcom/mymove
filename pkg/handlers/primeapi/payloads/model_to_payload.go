@@ -136,17 +136,17 @@ func Order(order *models.Order) *primemessages.Order {
 	}
 
 	payload := primemessages.Order{
-		CustomerID:             strfmt.UUID(order.ServiceMemberID.String()),
-		Customer:               Customer(&order.ServiceMember),
-		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            Entitlement(order.Entitlement),
-		ID:                     strfmt.UUID(order.ID.String()),
-		OriginDutyStation:      originDutyLocation,
-		OrderNumber:            order.OrdersNumber,
-		LinesOfAccounting:      order.TAC,
-		Rank:                   order.Grade,
-		ETag:                   etag.GenerateEtag(order.UpdatedAt),
-		ReportByDate:           strfmt.Date(order.ReportByDate),
+		CustomerID:              strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:                Customer(&order.ServiceMember),
+		DestinationDutyLocation: destinationDutyStation,
+		Entitlement:             Entitlement(order.Entitlement),
+		ID:                      strfmt.UUID(order.ID.String()),
+		OriginDutyLocation:      originDutyLocation,
+		OrderNumber:             order.OrdersNumber,
+		LinesOfAccounting:       order.TAC,
+		Rank:                    order.Grade,
+		ETag:                    etag.GenerateEtag(order.UpdatedAt),
+		ReportByDate:            strfmt.Date(order.ReportByDate),
 	}
 
 	return &payload
@@ -192,12 +192,12 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 }
 
 // DutyLocation payload
-func DutyLocation(dutyStation *models.DutyLocation) *primemessages.DutyStation {
+func DutyLocation(dutyStation *models.DutyLocation) *primemessages.DutyLocation {
 	if dutyStation == nil {
 		return nil
 	}
 	address := Address(&dutyStation.Address)
-	payload := primemessages.DutyStation{
+	payload := primemessages.DutyLocation{
 		Address:   address,
 		AddressID: address.ID,
 		ID:        strfmt.UUID(dutyStation.ID.String()),

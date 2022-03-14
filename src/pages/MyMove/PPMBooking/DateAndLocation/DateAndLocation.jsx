@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import styles from './DateAndLocation.module.scss';
-
+import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { DutyStationShape } from 'types';
 import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
@@ -11,15 +11,16 @@ import { validatePostalCode } from 'utils/validation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { updateMTOShipment } from 'sagas/entities';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import { formatDateForSwagger } from 'shared/dates';
+import { updateMTOShipment } from 'store/entities/actions';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }) => {
   const [errorMessage, setErrorMessage] = useState();
   const history = useHistory();
   const { moveId, shipmentNumber } = useParams();
+  const dispatch = useDispatch();
 
   const isNewShipment = !mtoShipment?.id;
 
@@ -58,7 +59,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
       createMTOShipment(createOrUpdateShipment)
         .then((response) => {
           setSubmitting(false);
-          updateMTOShipment(response);
+          dispatch(updateMTOShipment(response));
           history.push(
             generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
               moveId,
@@ -77,7 +78,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
       patchMTOShipment(mtoShipment.id, createOrUpdateShipment, mtoShipment.eTag)
         .then((response) => {
           setSubmitting(false);
-          updateMTOShipment(response);
+          dispatch(updateMTOShipment(response));
           history.push(
             generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
               moveId,
@@ -93,7 +94,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
   };
 
   return (
-    <div className={styles.DateAndLocation}>
+    <div className={ppmBookingPageStyles.PPMBookingPage}>
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

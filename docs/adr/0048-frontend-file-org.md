@@ -19,7 +19,7 @@ For reference, the new file structure is described [here](https://transcom.githu
 I am proposing we start operating under the following guidelines:
 
 - Any new front-end files should be created in one of the new directories.
-  - If you are creating a new file and feel that it doesn't fit in one of the existing new directories, *or* you aren't sure where it belongs, ask in #prac-frontend.
+  - If you are creating a new file and feel that it doesn't fit in one of the existing new directories, _or_ you aren't sure where it belongs, ask in #prac-frontend.
 - If you are making significant changes to a file in a legacy directory, take the opportunity to move it into one of the new directories.
   - For moving files, usually you can do a global search of the codebase to find where it is imported to other files, searching by the filename and/or its named exports. Some IDEs (including VSCode) will also offer to automatically update import paths for you.
   - While this can be a delicate process, it is also usually easily tested by building the application and viewing some implementation of the code that has been moved. The build process and Jest tests will both throw an error if a missing file is referenced somewhere. If you don't feel comfortable doing this though, or if you would like help, ask in #prac-frontend.

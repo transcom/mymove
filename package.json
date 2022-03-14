@@ -67,8 +67,8 @@
     "redux-thunk": "^2.4.1",
     "regenerator-runtime": "^0.13.9",
     "reselect": "^4.1.5",
-    "swagger-client": "^3.18.0",
-    "swagger-ui-dist": "^4.2.1",
+    "swagger-client": "^3.18.3",
+    "swagger-ui-dist": "^4.4.0",
     "uswds": "2.10.3",
     "uuid": "^8.3.2",
     "yup": "^0.32.11"
@@ -145,6 +145,7 @@
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-ato": "file:./eslint-plugin-ato",
+    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-security": "^1.4.0",

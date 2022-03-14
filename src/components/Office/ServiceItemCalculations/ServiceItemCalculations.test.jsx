@@ -1,10 +1,12 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import ServiceItemCalculations from './ServiceItemCalculations';
 import testParams from './serviceItemTestParams';
 
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 // helper test function that helps test service item calculations based on code
 const testServiceItemCalculation = (testData) => {
@@ -310,4 +312,32 @@ describe('ServiceItemCalculations DUCRT', () => {
     testParams.additionalCratingDataDCRT,
     expectedOutput,
   ]);
+});
+
+describe('shipmentType prop can affect labels', () => {
+  it("shows 'Requested pickup' for HHG", () => {
+    render(
+      <ServiceItemCalculations
+        serviceItemParams={testParams.DomesticLongHaul}
+        totalAmountRequested={642}
+        itemCode={SERVICE_ITEM_CODES.DLH}
+        shipmentType={SHIPMENT_OPTIONS.HHG}
+      />,
+    );
+
+    expect(screen.getByText('Requested pickup: 09 Mar 2020')).toBeInTheDocument();
+  });
+
+  it("shows 'Actual pickup' for NTS-release", () => {
+    render(
+      <ServiceItemCalculations
+        serviceItemParams={testParams.DomesticLongHaul}
+        totalAmountRequested={642}
+        itemCode={SERVICE_ITEM_CODES.DLH}
+        shipmentType={SHIPMENT_OPTIONS.NTSR}
+      />,
+    );
+
+    expect(screen.getByText('Actual pickup: 09 Mar 2020')).toBeInTheDocument();
+  });
 });
