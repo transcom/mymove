@@ -89,6 +89,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                       signed={false} // disallow negative
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
+                      prefix="$"
                     />
                     <Hint>
                       Your move counselor will discuss next steps with you and let you know how you&apos;ll receive your
