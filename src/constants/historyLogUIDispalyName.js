@@ -26,7 +26,7 @@ const historyLogEventNameDisplay = new Map([
   ['createMTOServiceItem', 'Requested service item'], // prime.yaml
 ]);
 
-export function getHistoryLogEventNameDisplay({ eventName /* operationId */, changedValues }) {
+function getHistoryLogEventNameDisplay({ eventName /* operationId */, changedValues }) {
   switch (eventName) {
     case 'updateMTOServiceItemStatus': {
       // find 'columnName' with 'columnValue'
