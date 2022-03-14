@@ -416,6 +416,8 @@ func (m *MTOServiceItemDomesticCrating) validateStatus(formats strfmt.Registry) 
 	if err := m.Status().Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -537,6 +539,8 @@ func (m *MTOServiceItemDomesticCrating) contextValidateModelType(ctx context.Con
 	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("modelType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("modelType")
 		}
 		return err
 	}
@@ -567,6 +571,8 @@ func (m *MTOServiceItemDomesticCrating) contextValidateStatus(ctx context.Contex
 	if err := m.Status().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}

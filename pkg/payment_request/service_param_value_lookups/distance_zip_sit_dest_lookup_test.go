@@ -3,7 +3,6 @@ package serviceparamvaluelookups
 import (
 	"errors"
 	"strconv"
-	"testing"
 
 	"github.com/stretchr/testify/mock"
 
@@ -19,74 +18,85 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	finalDestZipSameZip3 := "30907"
 	finalDestZipDiffZip3 := "36106"
 
-	reService := testdatagen.FetchOrMakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
+	var destAddress models.Address
+	var finalDestDiffZip3Address models.Address
+	var paymentRequest models.PaymentRequest
+	var mtoServiceItemSameZip3 models.MTOServiceItem
+	var mtoServiceItemDiffZip3 models.MTOServiceItem
+
+	setupTestData := func() {
+
+		reService := testdatagen.FetchOrMakeReService(suite.DB(),
+			testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
 			},
-		},
-	)
+		)
 
-	destAddress := testdatagen.MakeAddress(suite.DB(),
-		testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: destZip,
+		destAddress = testdatagen.MakeAddress(suite.DB(),
+			testdatagen.Assertions{
+				Address: models.Address{
+					PostalCode: destZip,
+				},
+			})
+
+		finalDestSameZip3Address := testdatagen.MakeAddress(suite.DB(),
+			testdatagen.Assertions{
+				Address: models.Address{
+					PostalCode: finalDestZipSameZip3,
+				},
+			})
+
+		finalDestDiffZip3Address = testdatagen.MakeAddress(suite.DB(),
+			testdatagen.Assertions{
+				Address: models.Address{
+					PostalCode: finalDestZipDiffZip3,
+				},
+			})
+
+		move := testdatagen.MakeDefaultMove(suite.DB())
+
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(),
+			testdatagen.Assertions{
+				DestinationAddress: destAddress,
+			})
+
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: move,
+			})
+
+		mtoServiceItemSameZip3 = testdatagen.MakeMTOServiceItem(suite.DB(),
+			testdatagen.Assertions{
+				DestinationAddress: destAddress,
+				ReService:          reService,
+				Move:               move,
+				MTOShipment:        mtoShipment,
+				MTOServiceItem: models.MTOServiceItem{
+					SITDestinationFinalAddressID: &finalDestSameZip3Address.ID,
+					SITDestinationFinalAddress:   &finalDestSameZip3Address,
+				},
 			},
-		})
+		)
 
-	finalDestSameZip3Address := testdatagen.MakeAddress(suite.DB(),
-		testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: finalDestZipSameZip3,
+		mtoServiceItemDiffZip3 = testdatagen.MakeMTOServiceItem(suite.DB(),
+			testdatagen.Assertions{
+				DestinationAddress: destAddress,
+				ReService:          reService,
+				Move:               move,
+				MTOShipment:        mtoShipment,
+				MTOServiceItem: models.MTOServiceItem{
+					SITDestinationFinalAddressID: &finalDestDiffZip3Address.ID,
+					SITDestinationFinalAddress:   &finalDestDiffZip3Address,
+				},
 			},
-		})
+		)
+	}
 
-	finalDestDiffZip3Address := testdatagen.MakeAddress(suite.DB(),
-		testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: finalDestZipDiffZip3,
-			},
-		})
+	suite.Run("distance when zip3s are identical", func() {
+		setupTestData()
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
-
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(),
-		testdatagen.Assertions{
-			DestinationAddress: destAddress,
-		})
-
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: move,
-		})
-
-	mtoServiceItemSameZip3 := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			DestinationAddress: destAddress,
-			ReService:          reService,
-			Move:               move,
-			MTOShipment:        mtoShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITDestinationFinalAddressID: &finalDestSameZip3Address.ID,
-				SITDestinationFinalAddress:   &finalDestSameZip3Address,
-			},
-		},
-	)
-
-	mtoServiceItemDiffZip3 := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			DestinationAddress: destAddress,
-			ReService:          reService,
-			Move:               move,
-			MTOShipment:        mtoShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITDestinationFinalAddressID: &finalDestDiffZip3Address.ID,
-				SITDestinationFinalAddress:   &finalDestDiffZip3Address,
-			},
-		},
-	)
-
-	suite.T().Run("distance when zip3s are identical", func(t *testing.T) {
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItemSameZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
@@ -96,7 +106,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		suite.Equal(expected, distanceStr)
 	})
 
-	suite.T().Run("distance when zip3s are different", func(t *testing.T) {
+	suite.Run("distance when zip3s are different", func() {
+		setupTestData()
+
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
@@ -106,7 +118,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		suite.Equal(expected, distanceStr)
 	})
 
-	suite.T().Run("bad destination postal code", func(t *testing.T) {
+	suite.Run("bad destination postal code", func() {
+		setupTestData()
+
 		oldPostalCode := destAddress.PostalCode
 		destAddress.PostalCode = "5678"
 		suite.MustSave(&destAddress)
@@ -122,7 +136,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		suite.MustSave(&destAddress)
 	})
 
-	suite.T().Run("bad final destination postal code", func(t *testing.T) {
+	suite.Run("bad final destination postal code", func() {
+		setupTestData()
+
 		oldPostalCode := finalDestDiffZip3Address.PostalCode
 		finalDestDiffZip3Address.PostalCode = "5678"
 		suite.MustSave(&finalDestDiffZip3Address)
@@ -138,7 +154,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		suite.MustSave(&finalDestDiffZip3Address)
 	})
 
-	suite.T().Run("planner failure", func(t *testing.T) {
+	suite.Run("planner failure", func() {
+		setupTestData()
+
 		errorPlanner := &mocks.Planner{}
 		errorPlanner.On("Zip5TransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

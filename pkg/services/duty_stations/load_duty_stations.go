@@ -2,15 +2,14 @@ package dutystations
 
 import (
 	"encoding/csv"
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -25,7 +24,7 @@ const (
 	InsertTemplate string = `
 	{{range .}}
 INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at, country) VALUES ('{{.AddressID}}', 'N/A', '{{.Address.City}}', '{{.Address.State}}', '{{.Address.PostalCode}}', now(), now(), 'United States');
-INSERT INTO duty_stations (id, name, affiliation, address_id, created_at, updated_at, transportation_office_id) VALUES ('{{.DutyStationID}}', '{{.Stations.Name}}', 'MARINES', '{{.AddressID}}', now(), now(), '{{.To.ID}}');
+INSERT INTO duty_locations (id, name, affiliation, address_id, created_at, updated_at, transportation_office_id) VALUES ('{{.DutyLocationID}}', '{{.Stations.Name}}', 'MARINES', '{{.AddressID}}', now(), now(), '{{.To.ID}}');
 	{{end}}`
 )
 
@@ -51,7 +50,6 @@ func (b MigrationBuilder) ParseStations(filename string) ([]StationData, error) 
 
 	csvFile, err := os.Open(filepath.Clean(filename))
 	if err != nil {
-		fmt.Println(err)
 		return stations, err
 	}
 	r := csv.NewReader(csvFile)
@@ -59,7 +57,6 @@ func (b MigrationBuilder) ParseStations(filename string) ([]StationData, error) 
 	// Skip the first header row
 	dataRows, err := r.ReadAll()
 	if err != nil {
-		fmt.Println(err)
 		return stations, err
 	}
 	for _, row := range dataRows[1:] {
@@ -77,7 +74,7 @@ func (b MigrationBuilder) ParseStations(filename string) ([]StationData, error) 
 	return stations, nil
 }
 
-// MigrationBuilder has methods that assist in building a DutyStation INSERT migration
+// MigrationBuilder has methods that assist in building a DutyLocation INSERT migration
 type MigrationBuilder struct {
 }
 
@@ -86,8 +83,8 @@ func NewMigrationBuilder() MigrationBuilder {
 	return MigrationBuilder{}
 }
 
-func (b *MigrationBuilder) filterMarines(dss models.DutyStations) models.DutyStations {
-	var filtered []models.DutyStation
+func (b *MigrationBuilder) filterMarines(dss models.DutyLocations) models.DutyLocations {
+	var filtered []models.DutyLocation
 	for _, ds := range dss {
 		if ds.Affiliation != nil && *ds.Affiliation == internalmessages.AffiliationMARINES {
 			filtered = append(filtered, ds)
@@ -96,14 +93,14 @@ func (b *MigrationBuilder) filterMarines(dss models.DutyStations) models.DutySta
 	return filtered
 }
 
-func (b *MigrationBuilder) findDutyStations(appCtx appcontext.AppContext, s StationData) models.DutyStations {
+func (b *MigrationBuilder) findDutyStations(appCtx appcontext.AppContext, s StationData) models.DutyLocations {
 	zip := s.Zip
-	stations, err := models.FetchDutyStationsByPostalCode(appCtx.DB(), zip)
+	locations, err := models.FetchDutyLocationsByPostalCode(appCtx.DB(), zip)
 	if err != nil {
-		fmt.Println(err)
+		appCtx.Logger().Warn("Error fetching duty stations", zap.Error(err))
 	}
-	filteredStations := b.filterMarines(stations)
-	return filteredStations
+	filteredLocations := b.filterMarines(locations)
+	return filteredLocations
 }
 
 func (b *MigrationBuilder) addressLatLong(appCtx appcontext.AppContext, address models.Address) (route.LatLong, error) {
@@ -114,19 +111,13 @@ func (b *MigrationBuilder) addressLatLong(appCtx appcontext.AppContext, address 
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 	p := route.NewHEREPlannerHP(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
 
-	plannerType := reflect.TypeOf(p)
-	for i := 0; i < plannerType.NumMethod(); i++ {
-		method := plannerType.Method(i)
-		fmt.Println(method.Name)
-	}
-
 	return p.GetAddressLatLong(appCtx, &address)
 }
 
-func getCityState(unit string) (string, string) {
+func getCityState(appCtx appcontext.AppContext, unit string) (string, string) {
 	lst := strings.Split(unit, " ")
 	if len(lst[len(lst)-1]) != 2 {
-		fmt.Println("Misformatted unit: ", unit)
+		appCtx.Logger().Warn("Misformatted duty station unit", zap.String("unit", unit))
 	}
 	return strings.Join(lst[:len(lst)-1], " "), lst[len(lst)-1]
 }
@@ -152,7 +143,7 @@ func (b *MigrationBuilder) Build(appCtx appcontext.AppContext, dutyStationsFileP
 
 	var DutyStationMigrations []DutyStationMigration
 	for _, s := range stations {
-		city, state := getCityState(s.Unit)
+		city, state := getCityState(appCtx, s.Unit)
 		address := models.Address{
 			City:       city,
 			State:      state,
@@ -164,10 +155,9 @@ func (b *MigrationBuilder) Build(appCtx appcontext.AppContext, dutyStationsFileP
 
 		dbDutyStations := b.findDutyStations(appCtx, s)
 		if len(dbDutyStations) == 0 {
-			//fmt.Println("*** missing... add?? ***")
 			to, err := b.nearestTransportationOffice(appCtx, address)
 			if err != nil {
-				fmt.Println("Error encountered finding nearest transportation office: ", err)
+				appCtx.Logger().Warn("Error encountered finding nearest transportation office: ", zap.Error(err))
 				continue
 			}
 			DutyStationMigrations = append(DutyStationMigrations, DutyStationMigration{address, to, s, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4())})

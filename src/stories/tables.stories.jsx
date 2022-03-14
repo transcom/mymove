@@ -257,7 +257,7 @@ export const TableElements = () => (
 );
 
 export const StandardTables = () => (
-  <div id="sb-tables" style={{ padding: '20px' }}>
+  <div id="sb-tables" style={{ padding: '20px', minWidth: '1240px' }}>
     <hr />
     <h3>Queue table</h3>
     <QueueTable />
@@ -304,7 +304,7 @@ export const StandardTables = () => (
 );
 
 export const ServiceItemTables = () => (
-  <div id="sb-tables" style={{ padding: '20px' }}>
+  <div id="sb-tables" style={{ padding: '20px', minWidth: '1240px' }}>
     <hr />
     <h3>Service item table</h3>
     <ServiceItemsTable

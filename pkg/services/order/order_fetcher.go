@@ -24,8 +24,6 @@ type orderFetcher struct {
 type QueryOption func(*pop.Query)
 
 func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
-	// Now that we've joined orders and move_orders, we only want to return orders that
-	// have an associated move.
 	var moves []models.Move
 	var transportationOffice models.TransportationOffice
 	// select the GBLOC associated with the transportation office of the session's current office user
@@ -43,30 +41,47 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// Essentially these are private functions that return query objects that we can mash together to form a complete
 	// query from modular parts.
 
-	branchQuery := branchFilter(params.Branch)
+	// The services counselor queue does not base exclude marine results.
+	// Only the TIO and TOO queues should.
+	needsCounseling := false
+	if len(params.Status) > 0 {
+		for _, status := range params.Status {
+			if status == string(models.MoveStatusNeedsServiceCounseling) || status == string(models.MoveStatusServiceCounselingCompleted) {
+				needsCounseling = true
+			}
+		}
+	}
+
+	branchQuery := branchFilter(params.Branch, needsCounseling)
+
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
+	// var gblocQuery QueryOption
 	var gblocToFilterBy *string
-	if officeUserGbloc == "USMC" {
-		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+	if officeUserGbloc == "USMC" && !needsCounseling {
+		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling)
 		gblocToFilterBy = params.OriginGBLOC
 	} else {
 		gblocToFilterBy = &officeUserGbloc
 	}
 
 	// We need to use two different GBLOC filter queries because:
-	//  - The Services Counselor queue filters based on the GBLOC of the transportation office
-	//  - The TOO queue uses the GBLOC we get from the first shipment's postal code
+	//  - The Services Counselor queue filters based on the GBLOC of the origin duty station's
+	//    transportation office
+	//  - The TOO queue uses the GBLOC we get from examining the postal code of the first shipment's
+	//    pickup address. However, if that shipment happens to be an NTS-Release, we instead drop
+	//    back to the GBLOC of the origin duty station's transportation office since an NTS-Release
+	//    does not populate the pickup address field.
 	var gblocQuery QueryOption
-	if len(params.Status) == 1 && params.Status[0] == string(models.MoveStatusNeedsServiceCounseling) {
-		gblocQuery = gblocFilter(gblocToFilterBy)
+	if needsCounseling {
+		gblocQuery = gblocFilterForSC(gblocToFilterBy)
 	} else {
-		gblocQuery = shipmentGBLOCFilter(gblocToFilterBy)
+		gblocQuery = gblocFilterForTOO(gblocToFilterBy)
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
-	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
+	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyLocation)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
@@ -77,27 +92,28 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	query := appCtx.DB().Q().EagerPreload(
 		"Orders.ServiceMember",
-		"Orders.NewDutyStation.Address",
-		"Orders.OriginDutyStation.Address",
+		"Orders.NewDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
-		// "Orders.OriginDutyStation.TransportationOffice",
+		// "Orders.OriginDutyLocation.TransportationOffice",
 		"Orders.Entitlement",
 		"MTOShipments",
 		"MTOServiceItems",
 		"ShipmentGBLOC",
+		"OriginDutyLocationGBLOC",
 	).InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
-		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
+		InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 		// Need to use left join because some duty locations do not have transportation offices
-		LeftJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
+		LeftJoin("transportation_offices as origin_to", "origin_dl.transportation_office_id = origin_to.id").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
-		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
+		InnerJoin("origin_duty_location_to_gbloc as o_gbloc", "o_gbloc.move_id = moves.id").
+		LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 		Where("show = ?", swag.Bool(true)).
 		Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
-
 	for _, option := range options {
 		if option != nil {
 			option(query) // mutates
@@ -113,14 +129,14 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	}
 
 	var groupByColumms []string
-	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_ds.id")
+	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_dl.id")
 
 	if params.Sort != nil && *params.Sort == "destinationDutyStation" {
-		groupByColumms = append(groupByColumms, "dest_ds.name")
+		groupByColumms = append(groupByColumms, "dest_dl.name")
 	}
 
 	if params.Sort != nil && *params.Sort == "originDutyLocation" {
-		groupByColumms = append(groupByColumms, "origin_ds.name")
+		groupByColumms = append(groupByColumms, "origin_dl.name")
 	}
 
 	if params.Sort != nil && *params.Sort == "originGBLOC" {
@@ -137,19 +153,24 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	for i := range moves {
 		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
 		// where the first 2 levels match.  For example:
-		//   "Orders.OriginDutyStation.Address" and "Orders.OriginDutyStation.TransportationOffice"
+		//   "Orders.OriginDutyLocation.Address" and "Orders.OriginDutyLocation.TransportationOffice"
 		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
 		// in the EagerPreload above and request the second one explicitly with a separate Load call.
 		//
 		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
 		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-		//   cannot eager load the address as "OriginDutyStation.Address" because
-		//   OriginDutyStation is a pointer.
-		if moves[i].Orders.OriginDutyStation != nil {
-			loadErr := appCtx.DB().Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
+		//   cannot eager load the address as "OriginDutyLocation.Address" because
+		//   OriginDutyLocation is a pointer.
+		if moves[i].Orders.OriginDutyLocation != nil {
+			loadErr := appCtx.DB().Load(moves[i].Orders.OriginDutyLocation, "TransportationOffice")
 			if loadErr != nil {
 				return []models.Move{}, 0, err
 			}
+		}
+
+		err := appCtx.DB().Load(&moves[i].Orders.ServiceMember, "BackupContacts")
+		if err != nil {
+			return []models.Move{}, 0, err
 		}
 	}
 
@@ -163,14 +184,12 @@ func NewOrderFetcher() services.OrderFetcher {
 
 // FetchOrder retrieves an Order for a given UUID
 func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
-	// Now that we've joined orders and move_orders, we only want to return orders that
-	// have an associated move_task_order.
 	order := &models.Order{}
 	err := appCtx.DB().Q().Eager(
 		"ServiceMember.BackupContacts",
 		"ServiceMember.ResidentialAddress",
-		"NewDutyStation.Address",
-		"OriginDutyStation",
+		"NewDutyLocation.Address",
+		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",
 	).Find(order, orderID)
@@ -185,10 +204,10 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	}
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-	// cannot eager load the address as "OriginDutyStation.Address" because
-	// OriginDutyStation is a pointer.
-	if order.OriginDutyStation != nil {
-		err = appCtx.DB().Load(order.OriginDutyStation, "Address")
+	// cannot eager load the address as "OriginDutyLocation.Address" because
+	// OriginDutyLocation is a pointer.
+	if order.OriginDutyLocation != nil {
+		err = appCtx.DB().Load(order.OriginDutyLocation, "Address")
 		if err != nil {
 			return order, err
 		}
@@ -198,9 +217,9 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 }
 
 // These are a bunch of private functions that are used to cobble our list Orders filters together.
-func branchFilter(branch *string) QueryOption {
+func branchFilter(branch *string, needsCounseling bool) QueryOption {
 	return func(query *pop.Query) {
-		if branch == nil {
+		if branch == nil && !needsCounseling {
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {
@@ -238,7 +257,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
-			query.Where("dest_ds.name ILIKE ?", nameSearch)
+			query.Where("dest_dl.name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -247,7 +266,7 @@ func originDutyLocationFilter(originDutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
 		if originDutyLocation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *originDutyLocation)
-			query.Where("origin_ds.name ILIKE ?", nameSearch)
+			query.Where("origin_dl.name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -291,18 +310,24 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	}
 }
 
-func gblocFilter(gbloc *string) QueryOption {
+func gblocFilterForSC(gbloc *string) QueryOption {
+	// The SC should only see moves where the origin duty station's GBLOC matches the given GBLOC.
 	return func(query *pop.Query) {
 		if gbloc != nil {
-			query.Where("origin_to.gbloc ILIKE ?", *gbloc)
+			query.Where("o_gbloc.gbloc = ?", *gbloc)
 		}
 	}
 }
 
-func shipmentGBLOCFilter(gbloc *string) QueryOption {
+func gblocFilterForTOO(gbloc *string) QueryOption {
+	// The TOO should only see moves where the GBLOC for the first shipment's pickup address matches the given GBLOC
+	// unless we're dealing with an NTS-Release shipment. For NTS-Release shipments, we drop back to looking at the
+	// origin duty station's GBLOC since an NTS-Release does not populate the pickup address.
 	return func(query *pop.Query) {
 		if gbloc != nil {
-			query.Where("move_to_gbloc.gbloc = ?", *gbloc)
+			// Note: extra parens necessary to keep precedence correct when AND'ing all filters together.
+			query.Where("((mto_shipments.shipment_type != ? AND move_to_gbloc.gbloc = ?) OR (mto_shipments.shipment_type = ? AND o_gbloc.gbloc = ?))",
+				models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc, models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc)
 		}
 	}
 }
@@ -315,8 +340,8 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"locator":                "moves.locator",
 		"status":                 "moves.status",
 		"submittedAt":            "moves.submitted_at",
-		"destinationDutyStation": "dest_ds.name",
-		"originDutyLocation":     "origin_ds.name",
+		"destinationDutyStation": "dest_dl.name",
+		"originDutyLocation":     "origin_dl.name",
 		"requestedMoveDate":      "min(mto_shipments.requested_pickup_date)",
 		"originGBLOC":            "origin_to.gbloc",
 	}

@@ -26,7 +26,7 @@ jest.mock('components/DutyStationSearchBox/api', () => ({
       streetAddress1: 'n/a',
     }),
   ),
-  SearchDutyStations: jest.fn().mockImplementation(() =>
+  SearchDutyLocations: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
         address: {
@@ -169,7 +169,7 @@ describe('Orders page', () => {
         issue_date: '2020-11-08',
         report_by_date: '2020-11-26',
         has_dependents: false,
-        new_duty_station: {
+        new_duty_location: {
           address: {
             city: 'Des Moines',
             country: 'US',
@@ -198,7 +198,7 @@ describe('Orders page', () => {
       });
 
       userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-      userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+      userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
       userEvent.click(screen.getByLabelText('No'));
 
       // Test Duty Station Search Box interaction
@@ -212,7 +212,7 @@ describe('Orders page', () => {
           issue_date: '08 Nov 2020',
           report_by_date: '26 Nov 2020',
           has_dependents: 'no',
-          new_duty_station: 'Luke AFB',
+          new_duty_location: 'Luke AFB',
         });
       });
 
@@ -241,7 +241,7 @@ describe('Orders page', () => {
         issue_date: '2020-11-08',
         report_by_date: '2020-11-26',
         has_dependents: false,
-        new_duty_station: {
+        new_duty_location: {
           address: {
             city: 'Des Moines',
             country: 'US',
@@ -281,7 +281,7 @@ describe('Orders page', () => {
         issue_date: '2020-11-08',
         report_by_date: '2020-11-26',
         has_dependents: false,
-        new_duty_station: {
+        new_duty_location: {
           address: {
             city: 'Des Moines',
             country: 'US',
@@ -345,7 +345,7 @@ describe('Orders page', () => {
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: false,
-      new_duty_station: {
+      new_duty_location: {
         address: {
           city: 'Des Moines',
           country: 'US',

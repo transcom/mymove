@@ -15,7 +15,8 @@ export function* fetchUser() {
   yield put(getLoggedInUserStart());
 
   try {
-    const isLoggedIn = yield call(GetIsLoggedIn);
+    // The `GetIsLoggedIn` call returns a object with a parameter isLoggedIn
+    const { isLoggedIn } = yield call(GetIsLoggedIn);
     if (isLoggedIn) {
       try {
         const user = yield call(GetLoggedInUser); // make user API call

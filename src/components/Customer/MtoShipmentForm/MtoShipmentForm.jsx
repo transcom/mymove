@@ -21,8 +21,9 @@ import formStyles from 'styles/form.module.scss';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
+import { HhgShipmentShape, HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
+import { formatWeight } from 'utils/formatters';
 import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
 import { shipmentForm } from 'content/shipments';
 import { DatePickerInput } from 'components/form/fields';
@@ -35,6 +36,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
+import { roleTypes } from 'constants/userRoles';
 
 const blankAddress = {
   address: {
@@ -69,14 +71,18 @@ class MtoShipmentForm extends Component {
     const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
 
+    const shipmentTypeToSave = shipmentType || selectedMoveType;
+    const isNTSR = shipmentTypeToSave === SHIPMENT_OPTIONS.NTSR;
+    const saveDeliveryAddress = hasDeliveryAddress === 'yes' || isNTSR;
+
     const preformattedMtoShipment = {
-      shipmentType: shipmentType || selectedMoveType,
+      shipmentType: shipmentTypeToSave,
       moveId,
       customerRemarks,
       pickup,
       delivery: {
         ...delivery,
-        address: hasDeliveryAddress === 'yes' ? delivery.address : undefined,
+        address: saveDeliveryAddress ? delivery.address : undefined,
       },
       secondaryPickup: hasSecondaryPickup ? secondaryPickup : {},
       secondaryDelivery: hasSecondaryDelivery ? secondaryDelivery : {},
@@ -131,13 +137,14 @@ class MtoShipmentForm extends Component {
       isCreatePage,
       mtoShipment,
       serviceMember,
+      orders,
       currentResidence,
     } = this.props;
 
     const { errorMessage } = this.state;
 
     const shipmentType = mtoShipment.shipmentType || selectedMoveType;
-    const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, true);
+    const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, roleTypes.CUSTOMER);
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;
@@ -206,218 +213,215 @@ class MtoShipmentForm extends Component {
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
 
                     <Alert type="info" noIcon>
-                      Remember: You can move {serviceMember.weight_allotment.total_weight_self} lbs total. You’ll be
-                      billed for any excess weight you move.
+                      Remember: You can move{' '}
+                      {orders.has_dependents
+                        ? formatWeight(serviceMember.weight_allotment?.total_weight_self_plus_dependents)
+                        : formatWeight(serviceMember.weight_allotment?.total_weight_self)}{' '}
+                      total. You’ll be billed for any excess weight you move.
                     </Alert>
 
                     <Form className={formStyles.form}>
                       {showPickupFields && (
-                        <>
-                          <SectionWrapper className={formStyles.formSection}>
-                            {showDeliveryFields && <h2>Pickup info</h2>}
-                            <Fieldset legend="Date">
-                              <Hint id="pickupDateHint">
-                                This is the day movers would put this shipment on their truck. Packing starts earlier.
-                                Dates will be finalized when you talk to your movers. Your actual pickup date will fall
-                                within 7 days of your preferred date.
-                              </Hint>
-                              <DatePickerInput
-                                name="pickup.requestedDate"
-                                label="Preferred pickup date"
-                                id="requestedPickupDate"
-                                validate={validateDate}
-                              />
-                            </Fieldset>
-
-                            <AddressFields
-                              name="pickup.address"
-                              legend="Pickup location"
-                              render={(fields) => (
-                                <>
-                                  <p>What address are the movers picking up from?</p>
-                                  <Checkbox
-                                    data-testid="useCurrentResidence"
-                                    label="Use my current address"
-                                    name="useCurrentResidence"
-                                    onChange={handleUseCurrentResidenceChange}
-                                    id="useCurrentResidenceCheckbox"
-                                  />
-                                  {fields}
-                                  <h4>Second pickup location</h4>
-                                  <FormGroup>
-                                    <p>
-                                      Do you want movers to pick up any belongings from a second address? (Must be near
-                                      your pickup address. Subject to approval.)
-                                    </p>
-                                    <div className={formStyles.radioGroup}>
-                                      <Field
-                                        as={Radio}
-                                        id="has-secondary-pickup"
-                                        data-testid="has-secondary-pickup"
-                                        label="Yes"
-                                        name="hasSecondaryPickup"
-                                        value="yes"
-                                        title="Yes, I have a second pickup location"
-                                        checked={hasSecondaryPickup === 'yes'}
-                                      />
-                                      <Field
-                                        as={Radio}
-                                        id="no-secondary-pickup"
-                                        data-testid="no-secondary-pickup"
-                                        label="No"
-                                        name="hasSecondaryPickup"
-                                        value="no"
-                                        title="No, I do not have a second pickup location"
-                                        checked={hasSecondaryPickup !== 'yes'}
-                                      />
-                                    </div>
-                                  </FormGroup>
-                                  {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />}
-                                </>
-                              )}
+                        <SectionWrapper className={formStyles.formSection}>
+                          {showDeliveryFields && <h2>Pickup info</h2>}
+                          <Fieldset legend="Date">
+                            <Hint id="pickupDateHint">
+                              This is the day movers would put this shipment on their truck. Packing starts earlier.
+                              Dates will be finalized when you talk to your movers. Your actual pickup date will fall
+                              within 7 days of your preferred date.
+                            </Hint>
+                            <DatePickerInput
+                              name="pickup.requestedDate"
+                              label="Preferred pickup date"
+                              id="requestedPickupDate"
+                              validate={validateDate}
                             />
+                          </Fieldset>
 
-                            <ContactInfoFields
-                              name="pickup.agent"
-                              legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
-                              render={(fields) => (
-                                <>
-                                  <p>Who can let the movers pick up your things if you’re not there?</p>
-                                  {fields}
-                                </>
-                              )}
-                            />
-                          </SectionWrapper>
-                        </>
-                      )}
-
-                      {showDeliveryFields && (
-                        <>
-                          <SectionWrapper className={formStyles.formSection}>
-                            {showPickupFields && <h2>Destination info</h2>}
-                            <Fieldset legend="Date">
-                              <Hint>
-                                If you’re not sure, use your report-by date. You’ll finalize an actual delivery date
-                                later by talking with your movers once the shipment is underway.
-                              </Hint>
-                              <DatePickerInput
-                                name="delivery.requestedDate"
-                                label="Preferred delivery date"
-                                id="requestedDeliveryDate"
-                                validate={validateDate}
-                              />
-                            </Fieldset>
-
-                            <Fieldset legend="Delivery location">
-                              {!isNTSR && (
+                          <AddressFields
+                            name="pickup.address"
+                            legend="Pickup location"
+                            render={(fields) => (
+                              <>
+                                <p>What address are the movers picking up from?</p>
+                                <Checkbox
+                                  data-testid="useCurrentResidence"
+                                  label="Use my current address"
+                                  name="useCurrentResidence"
+                                  onChange={handleUseCurrentResidenceChange}
+                                  id="useCurrentResidenceCheckbox"
+                                />
+                                {fields}
+                                <h4>Second pickup location</h4>
                                 <FormGroup>
-                                  <p>Do you know your delivery address yet?</p>
+                                  <p>
+                                    Do you want movers to pick up any belongings from a second address? (Must be near
+                                    your pickup address. Subject to approval.)
+                                  </p>
                                   <div className={formStyles.radioGroup}>
                                     <Field
                                       as={Radio}
-                                      id="has-delivery-address"
+                                      id="has-secondary-pickup"
+                                      data-testid="has-secondary-pickup"
                                       label="Yes"
-                                      name="hasDeliveryAddress"
+                                      name="hasSecondaryPickup"
                                       value="yes"
-                                      title="Yes, I know my delivery address"
-                                      checked={hasDeliveryAddress === 'yes'}
+                                      title="Yes, I have a second pickup location"
+                                      checked={hasSecondaryPickup === 'yes'}
                                     />
                                     <Field
                                       as={Radio}
-                                      id="no-delivery-address"
+                                      id="no-secondary-pickup"
+                                      data-testid="no-secondary-pickup"
                                       label="No"
-                                      name="hasDeliveryAddress"
+                                      name="hasSecondaryPickup"
                                       value="no"
-                                      title="No, I do not know my delivery address"
-                                      checked={hasDeliveryAddress === 'no'}
+                                      title="No, I do not have a second pickup location"
+                                      checked={hasSecondaryPickup !== 'yes'}
                                     />
                                   </div>
                                 </FormGroup>
-                              )}
-                              {hasDeliveryAddress === 'yes' || isNTSR ? (
-                                <AddressFields
-                                  name="delivery.address"
-                                  render={(fields) => (
-                                    <>
-                                      {fields}
-                                      <h4>Second delivery location</h4>
-                                      <FormGroup>
-                                        <p>
-                                          Do you want the movers to deliver any belongings to a second address? (Must be
-                                          near your delivery address. Subject to approval.)
-                                        </p>
-                                        <div className={formStyles.radioGroup}>
-                                          <Field
-                                            as={Radio}
-                                            data-testid="has-secondary-delivery"
-                                            id="has-secondary-delivery"
-                                            label="Yes"
-                                            name="hasSecondaryDelivery"
-                                            value="yes"
-                                            title="Yes, I have a second destination location"
-                                            checked={hasSecondaryDelivery === 'yes'}
-                                          />
-                                          <Field
-                                            as={Radio}
-                                            data-testid="no-secondary-delivery"
-                                            id="no-secondary-delivery"
-                                            label="No"
-                                            name="hasSecondaryDelivery"
-                                            value="no"
-                                            title="No, I do not have a second destination location"
-                                            checked={hasSecondaryDelivery !== 'yes'}
-                                          />
-                                        </div>
-                                      </FormGroup>
-                                      {hasSecondaryDelivery === 'yes' && (
-                                        <AddressFields name="secondaryDelivery.address" />
-                                      )}
-                                    </>
-                                  )}
-                                />
-                              ) : (
-                                <p>
-                                  We can use the zip of your new duty location.
-                                  <br />
-                                  <strong>
-                                    {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                                    {newDutyStationAddress.postalCode}{' '}
-                                  </strong>
-                                  <br />
-                                  You can add the specific delivery address later, once you know it.
-                                </p>
-                              )}
-                            </Fieldset>
+                                {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />}
+                              </>
+                            )}
+                          />
 
-                            <ContactInfoFields
-                              name="delivery.agent"
-                              legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
-                              render={(fields) => (
-                                <>
-                                  <p>Who can take delivery for you if the movers arrive and you’re not there?</p>
-                                  {fields}
-                                </>
-                              )}
+                          <ContactInfoFields
+                            name="pickup.agent"
+                            legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
+                            render={(fields) => (
+                              <>
+                                <p>Who can let the movers pick up your things if you’re not there?</p>
+                                {fields}
+                              </>
+                            )}
+                          />
+                        </SectionWrapper>
+                      )}
+
+                      {showDeliveryFields && (
+                        <SectionWrapper className={formStyles.formSection}>
+                          {showPickupFields && <h2>Destination info</h2>}
+                          <Fieldset legend="Date">
+                            <Hint>
+                              If you’re not sure, use your report-by date. You’ll finalize an actual delivery date later
+                              by talking with your movers once the shipment is underway.
+                            </Hint>
+                            <DatePickerInput
+                              name="delivery.requestedDate"
+                              label="Preferred delivery date"
+                              id="requestedDeliveryDate"
+                              validate={validateDate}
                             />
-                          </SectionWrapper>
-                        </>
+                          </Fieldset>
+
+                          <Fieldset legend="Delivery location">
+                            {!isNTSR && (
+                              <FormGroup>
+                                <p>Do you know your delivery address yet?</p>
+                                <div className={formStyles.radioGroup}>
+                                  <Field
+                                    as={Radio}
+                                    id="has-delivery-address"
+                                    label="Yes"
+                                    name="hasDeliveryAddress"
+                                    value="yes"
+                                    title="Yes, I know my delivery address"
+                                    checked={hasDeliveryAddress === 'yes'}
+                                  />
+                                  <Field
+                                    as={Radio}
+                                    id="no-delivery-address"
+                                    label="No"
+                                    name="hasDeliveryAddress"
+                                    value="no"
+                                    title="No, I do not know my delivery address"
+                                    checked={hasDeliveryAddress === 'no'}
+                                  />
+                                </div>
+                              </FormGroup>
+                            )}
+                            {hasDeliveryAddress === 'yes' || isNTSR ? (
+                              <AddressFields
+                                name="delivery.address"
+                                render={(fields) => (
+                                  <>
+                                    {fields}
+                                    <h4>Second delivery location</h4>
+                                    <FormGroup>
+                                      <p>
+                                        Do you want the movers to deliver any belongings to a second address? (Must be
+                                        near your delivery address. Subject to approval.)
+                                      </p>
+                                      <div className={formStyles.radioGroup}>
+                                        <Field
+                                          as={Radio}
+                                          data-testid="has-secondary-delivery"
+                                          id="has-secondary-delivery"
+                                          label="Yes"
+                                          name="hasSecondaryDelivery"
+                                          value="yes"
+                                          title="Yes, I have a second destination location"
+                                          checked={hasSecondaryDelivery === 'yes'}
+                                        />
+                                        <Field
+                                          as={Radio}
+                                          data-testid="no-secondary-delivery"
+                                          id="no-secondary-delivery"
+                                          label="No"
+                                          name="hasSecondaryDelivery"
+                                          value="no"
+                                          title="No, I do not have a second destination location"
+                                          checked={hasSecondaryDelivery !== 'yes'}
+                                        />
+                                      </div>
+                                    </FormGroup>
+                                    {hasSecondaryDelivery === 'yes' && (
+                                      <AddressFields name="secondaryDelivery.address" />
+                                    )}
+                                  </>
+                                )}
+                              />
+                            ) : (
+                              <p>
+                                We can use the zip of your new duty location.
+                                <br />
+                                <strong>
+                                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                                  {newDutyStationAddress.postalCode}{' '}
+                                </strong>
+                                <br />
+                                You can add the specific delivery address later, once you know it.
+                              </p>
+                            )}
+                          </Fieldset>
+
+                          <ContactInfoFields
+                            name="delivery.agent"
+                            legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                            render={(fields) => (
+                              <>
+                                <p>Who can take delivery for you if the movers arrive and you’re not there?</p>
+                                {fields}
+                              </>
+                            )}
+                          />
+                        </SectionWrapper>
                       )}
 
                       {isNTS && (
-                        <>
-                          <SectionWrapper className={formStyles.formSection} data-testid="nts-what-to-expect">
-                            <Fieldset legend="What you can expect">
-                              <p>
-                                The moving company will find a storage facility approved by the government, and will
-                                move your belongings there.
-                              </p>
-                              <p>
-                                You’ll need to schedule an NTS release shipment to get your items back, most likely as
-                                part of a future move.
-                              </p>
-                            </Fieldset>
-                          </SectionWrapper>
-                        </>
+                        <SectionWrapper className={formStyles.formSection} data-testid="nts-what-to-expect">
+                          <Fieldset legend="What you can expect">
+                            <p>
+                              The moving company will find a storage facility approved by the government, and will move
+                              your belongings there.
+                            </p>
+                            <p>
+                              You’ll need to schedule an NTS release shipment to get your items back, most likely as
+                              part of a future move.
+                            </p>
+                          </Fieldset>
+                        </SectionWrapper>
                       )}
 
                       <SectionWrapper className={formStyles.formSection}>
@@ -429,7 +433,12 @@ class MtoShipmentForm extends Component {
                           <Callout>
                             Examples
                             <ul>
-                              {isNTSR && <li>The storage facility or address where your items are currently stored</li>}
+                              {isNTSR && (
+                                <li>
+                                  Details about the facility where your things are now, including the name or address
+                                  (if you know them)
+                                </li>
+                              )}
                               <li>Large, bulky, or fragile items</li>
                               <li>Access info for your origin or destination address</li>
                               <li>You’re shipping weapons or alcohol</li>
@@ -490,6 +499,7 @@ MtoShipmentForm.propTypes = {
       total_weight_self: number,
     }),
   }).isRequired,
+  orders: OrdersShape,
 };
 
 MtoShipmentForm.defaultProps = {
@@ -513,6 +523,7 @@ MtoShipmentForm.defaultProps = {
       streetAddress1: '',
     },
   },
+  orders: {},
 };
 
 export default MtoShipmentForm;

@@ -34,8 +34,8 @@ type ServiceMemberPayload struct {
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
-	// current station
-	CurrentStation *DutyStationPayload `json:"current_station,omitempty"`
+	// current location
+	CurrentLocation *DutyLocationPayload `json:"current_location,omitempty"`
 
 	// DoD ID number
 	// Example: 5789345789
@@ -139,7 +139,7 @@ func (m *ServiceMemberPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateCurrentStation(formats); err != nil {
+	if err := m.validateCurrentLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -210,6 +210,8 @@ func (m *ServiceMemberPayload) validateAffiliation(formats strfmt.Registry) erro
 		if err := m.Affiliation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -226,6 +228,8 @@ func (m *ServiceMemberPayload) validateBackupContacts(formats strfmt.Registry) e
 	if err := m.BackupContacts.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("backup_contacts")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("backup_contacts")
 		}
 		return err
 	}
@@ -242,6 +246,8 @@ func (m *ServiceMemberPayload) validateBackupMailingAddress(formats strfmt.Regis
 		if err := m.BackupMailingAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("backup_mailing_address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("backup_mailing_address")
 			}
 			return err
 		}
@@ -263,15 +269,17 @@ func (m *ServiceMemberPayload) validateCreatedAt(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *ServiceMemberPayload) validateCurrentStation(formats strfmt.Registry) error {
-	if swag.IsZero(m.CurrentStation) { // not required
+func (m *ServiceMemberPayload) validateCurrentLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.CurrentLocation) { // not required
 		return nil
 	}
 
-	if m.CurrentStation != nil {
-		if err := m.CurrentStation.Validate(formats); err != nil {
+	if m.CurrentLocation != nil {
+		if err := m.CurrentLocation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_station")
+				return ve.ValidateName("current_location")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("current_location")
 			}
 			return err
 		}
@@ -336,6 +344,8 @@ func (m *ServiceMemberPayload) validateOrders(formats strfmt.Registry) error {
 			if err := m.Orders[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("orders" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("orders" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -367,6 +377,8 @@ func (m *ServiceMemberPayload) validateRank(formats strfmt.Registry) error {
 		if err := m.Rank.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
 			}
 			return err
 		}
@@ -393,6 +405,8 @@ func (m *ServiceMemberPayload) validateResidentialAddress(formats strfmt.Registr
 		if err := m.ResidentialAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("residential_address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("residential_address")
 			}
 			return err
 		}
@@ -460,6 +474,8 @@ func (m *ServiceMemberPayload) validateWeightAllotment(formats strfmt.Registry) 
 		if err := m.WeightAllotment.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_allotment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("weight_allotment")
 			}
 			return err
 		}
@@ -484,7 +500,7 @@ func (m *ServiceMemberPayload) ContextValidate(ctx context.Context, formats strf
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateCurrentStation(ctx, formats); err != nil {
+	if err := m.contextValidateCurrentLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -516,6 +532,8 @@ func (m *ServiceMemberPayload) contextValidateAffiliation(ctx context.Context, f
 		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -529,6 +547,8 @@ func (m *ServiceMemberPayload) contextValidateBackupContacts(ctx context.Context
 	if err := m.BackupContacts.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("backup_contacts")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("backup_contacts")
 		}
 		return err
 	}
@@ -542,6 +562,8 @@ func (m *ServiceMemberPayload) contextValidateBackupMailingAddress(ctx context.C
 		if err := m.BackupMailingAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("backup_mailing_address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("backup_mailing_address")
 			}
 			return err
 		}
@@ -550,12 +572,14 @@ func (m *ServiceMemberPayload) contextValidateBackupMailingAddress(ctx context.C
 	return nil
 }
 
-func (m *ServiceMemberPayload) contextValidateCurrentStation(ctx context.Context, formats strfmt.Registry) error {
+func (m *ServiceMemberPayload) contextValidateCurrentLocation(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.CurrentStation != nil {
-		if err := m.CurrentStation.ContextValidate(ctx, formats); err != nil {
+	if m.CurrentLocation != nil {
+		if err := m.CurrentLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_station")
+				return ve.ValidateName("current_location")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("current_location")
 			}
 			return err
 		}
@@ -572,6 +596,8 @@ func (m *ServiceMemberPayload) contextValidateOrders(ctx context.Context, format
 			if err := m.Orders[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("orders" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("orders" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -588,6 +614,8 @@ func (m *ServiceMemberPayload) contextValidateRank(ctx context.Context, formats 
 		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
 			}
 			return err
 		}
@@ -602,6 +630,8 @@ func (m *ServiceMemberPayload) contextValidateResidentialAddress(ctx context.Con
 		if err := m.ResidentialAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("residential_address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("residential_address")
 			}
 			return err
 		}
@@ -616,6 +646,8 @@ func (m *ServiceMemberPayload) contextValidateWeightAllotment(ctx context.Contex
 		if err := m.WeightAllotment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_allotment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("weight_allotment")
 			}
 			return err
 		}

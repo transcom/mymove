@@ -1042,6 +1042,51 @@ func init() {
         }
       ]
     },
+    "/move/{locator}/history": {
+      "get": {
+        "description": "Returns the history for a given move for a unique alphanumeric locator string",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns the history of an identified move",
+        "operationId": "getMoveHistory",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the individual move history",
+            "schema": {
+              "$ref": "#/definitions/MoveHistory"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "Code used to identify a move in the system",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
       "get": {
         "description": "Gets all line items for a move",
@@ -1127,7 +1172,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -1373,7 +1418,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
         "consumes": [
           "application/json"
         ],
@@ -1930,7 +1975,7 @@ func init() {
     },
     "/queues/counseling": {
       "get": {
-        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
         "produces": [
           "application/json"
         ],
@@ -2018,7 +2063,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the GBLOC of the service member's origin duty station",
+            "description": "filters the GBLOC of the service member's origin duty location",
             "name": "originGBLOC",
             "in": "query"
           },
@@ -2061,7 +2106,7 @@ func init() {
     },
     "/queues/moves": {
       "get": {
-        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
         "produces": [
           "application/json"
         ],
@@ -2091,7 +2136,7 @@ func init() {
               "locator",
               "status",
               "originDutyLocation",
-              "destinationDutyStation"
+              "destinationDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -2135,7 +2180,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -2172,7 +2217,7 @@ func init() {
     },
     "/queues/payment-requests": {
       "get": {
-        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.\n",
+        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty location.\n",
         "produces": [
           "application/json"
         ],
@@ -2249,7 +2294,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -2954,6 +2999,7 @@ func init() {
   },
   "definitions": {
     "Address": {
+      "description": "A postal address",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -2975,7 +3021,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3118,6 +3165,28 @@ func init() {
         }
       }
     },
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -3158,26 +3227,6 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
-      }
-    },
-    "Branch": {
-      "type": "string",
-      "title": "branch",
-      "enum": [
-        "ARMY",
-        "NAVY",
-        "MARINES",
-        "AIR_FORCE",
-        "COAST_GUARD",
-        "OTHER"
-      ],
-      "x-display-value": {
-        "AIR_FORCE": "Air Force",
-        "ARMY": "Army",
-        "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
-        "NAVY": "Navy",
-        "OTHER": "OTHER"
       }
     },
     "ClientError": {
@@ -3221,8 +3270,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
@@ -3257,6 +3305,10 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 2000
+        },
+        "storageInTransit": {
+          "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
+          "type": "integer"
         }
       }
     },
@@ -3266,8 +3318,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "originDutyStationId",
-        "newDutyStationId"
+        "originDutyLocationId",
+        "newDutyLocationId"
       ],
       "properties": {
         "issueDate": {
@@ -3277,29 +3329,27 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -3312,9 +3362,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -3331,7 +3380,6 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "requestedPickupDate",
         "pickupAddress",
         "destinationAddress"
       ],
@@ -3340,13 +3388,13 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
         },
         "customerRemarks": {
-          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -3359,6 +3407,9 @@ func init() {
             }
           ]
         },
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
+        },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
           "type": "string",
@@ -3366,11 +3417,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -3387,10 +3434,17 @@ func init() {
             }
           ]
         },
+        "requestedDeliveryDate": {
+          "description": "The customer's preferred delivery date.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "sacType": {
           "allOf": [
@@ -3560,6 +3614,18 @@ func init() {
       },
       "x-nullable": true
     },
+    "DestinationType": {
+      "type": "string",
+      "title": "Destination Type",
+      "enum": [
+        "HOME_OF_RECORD",
+        "HOME_OF_SELECTION",
+        "PLACE_ENTERED_ACTIVE_DUTY",
+        "OTHER_THAN_AUTHORIZED"
+      ],
+      "x-nullable": true,
+      "example": "OTHER_THAN_AUTHORIZED"
+    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
       "type": "string",
@@ -3594,7 +3660,7 @@ func init() {
         }
       }
     },
-    "DutyStation": {
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "address": {
@@ -3737,6 +3803,7 @@ func init() {
         "E_7",
         "E_8",
         "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
         "O_1_ACADEMY_GRADUATE",
         "O_2",
         "O_3",
@@ -3770,9 +3837,10 @@ func init() {
         "E_7": "E-7",
         "E_8": "E-8",
         "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
         "MIDSHIPMAN": "Midshipman",
         "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1/Service Academy Graduate",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
         "O_2": "O-2",
         "O_3": "O-3",
         "O_4": "O-4",
@@ -3828,7 +3896,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {
@@ -4085,6 +4152,7 @@ func init() {
       ]
     },
     "MTOServiceItems": {
+      "description": "A list of service items connected to this shipment.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
@@ -4121,7 +4189,7 @@ func init() {
           "example": 2000
         },
         "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -4143,6 +4211,9 @@ func init() {
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "type": "boolean",
@@ -4411,12 +4482,143 @@ func init() {
         }
       }
     },
+    "MoveAuditHistories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistory"
+      }
+    },
+    "MoveAuditHistory": {
+      "properties": {
+        "action": {
+          "description": "Action type; I = insert, D = delete, U = update, T = truncate",
+          "type": "string"
+        },
+        "actionTstampClk": {
+          "description": "Wall clock time at which audited event's trigger call occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampStm": {
+          "description": "Statement start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampTx": {
+          "description": "Transaction start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "changedValues": {
+          "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "clientQuery": {
+          "description": "Record the text of the client query that triggered the audit event",
+          "type": "string",
+          "x-nullable": true
+        },
+        "eventName": {
+          "description": "API endpoint name that was called to make the change",
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "description": "id from audity_history table",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "objectId": {
+          "description": "id column for the tableName where the data was changed",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "oldValues": {
+          "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "relId": {
+          "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
+          "type": "integer"
+        },
+        "schemaName": {
+          "description": "Database schema audited table for this event is in",
+          "type": "string"
+        },
+        "sessionUserId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "statementOnly": {
+          "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",
+          "type": "boolean",
+          "example": false
+        },
+        "tableName": {
+          "description": "name of database table that was changed",
+          "type": "string"
+        },
+        "transactionId": {
+          "description": "Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
+    "MoveAuditHistoryItem": {
+      "properties": {
+        "columnName": {
+          "type": "string"
+        },
+        "columnValue": {
+          "type": "string"
+        }
+      }
+    },
+    "MoveAuditHistoryItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistoryItem"
+      }
+    },
+    "MoveHistory": {
+      "properties": {
+        "historyRecords": {
+          "description": "A list of MoveAuditHistory's connected to the move.",
+          "$ref": "#/definitions/MoveAuditHistories"
+        },
+        "id": {
+          "description": "move ID",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "locator": {
+          "description": "move locator",
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "referenceId": {
+          "description": "move referenceID",
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        }
+      }
+    },
     "MoveStatus": {
       "type": "string",
       "enum": [
         "DRAFT",
         "NEEDS SERVICE COUNSELING",
-        "SEVICE COUNSELING COMPLETED",
+        "SERVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -4439,7 +4641,7 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -4464,7 +4666,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -4502,12 +4704,20 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
+    },
     "Order": {
       "type": "object",
       "properties": {
         "agency": {
-          "type": "string",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "amendedOrdersAcknowledgedAt": {
           "type": "string",
@@ -4531,8 +4741,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string"
@@ -4596,8 +4806,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
           "type": "string",
@@ -4919,8 +5129,8 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "id": {
           "type": "string",
@@ -4930,7 +5140,7 @@ func init() {
           "type": "string"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -4944,7 +5154,7 @@ func init() {
           "type": "integer"
         },
         "status": {
-          "$ref": "#/definitions/QueueMoveStatus"
+          "$ref": "#/definitions/MoveStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -4952,14 +5162,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "QueueMoveStatus": {
-      "type": "string",
-      "enum": [
-        "New move",
-        "Move approved",
-        "Approvals requested"
-      ]
     },
     "QueueMoves": {
       "type": "array",
@@ -4990,7 +5192,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "integer"
+          "format": "double"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -5010,7 +5212,7 @@ func init() {
           "format": "uuid"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -5059,6 +5261,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -5080,17 +5284,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -5264,6 +5471,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -5406,8 +5614,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "authorizedWeight": {
           "description": "unit is in lbs",
@@ -5450,6 +5657,10 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 2000
+        },
+        "storageInTransit": {
+          "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
+          "type": "integer"
         }
       }
     },
@@ -5537,8 +5748,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "newDutyStationId",
-        "originDutyStationId"
+        "newDutyLocationId",
+        "originDutyLocationId"
       ],
       "properties": {
         "departmentIndicator": {
@@ -5552,23 +5763,21 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersAcknowledgement": {
@@ -5588,7 +5797,7 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -5601,9 +5810,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -5668,6 +5876,9 @@ func init() {
             }
           ],
           "x-nullable": true
+        },
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -7242,6 +7453,66 @@ func init() {
         }
       ]
     },
+    "/move/{locator}/history": {
+      "get": {
+        "description": "Returns the history for a given move for a unique alphanumeric locator string",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns the history of an identified move",
+        "operationId": "getMoveHistory",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the individual move history",
+            "schema": {
+              "$ref": "#/definitions/MoveHistory"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "Code used to identify a move in the system",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
       "get": {
         "description": "Gets all line items for a move",
@@ -7348,7 +7619,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -7651,7 +7922,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
         "consumes": [
           "application/json"
         ],
@@ -8368,7 +8639,7 @@ func init() {
     },
     "/queues/counseling": {
       "get": {
-        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
         "produces": [
           "application/json"
         ],
@@ -8456,7 +8727,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the GBLOC of the service member's origin duty station",
+            "description": "filters the GBLOC of the service member's origin duty location",
             "name": "originGBLOC",
             "in": "query"
           },
@@ -8505,7 +8776,7 @@ func init() {
     },
     "/queues/moves": {
       "get": {
-        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
         "produces": [
           "application/json"
         ],
@@ -8535,7 +8806,7 @@ func init() {
               "locator",
               "status",
               "originDutyLocation",
-              "destinationDutyStation"
+              "destinationDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -8579,7 +8850,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -8622,7 +8893,7 @@ func init() {
     },
     "/queues/payment-requests": {
       "get": {
-        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.\n",
+        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty location.\n",
         "produces": [
           "application/json"
         ],
@@ -8699,7 +8970,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "destinationDutyStation",
+            "name": "destinationDutyLocation",
             "in": "query"
           },
           {
@@ -9593,6 +9864,7 @@ func init() {
   },
   "definitions": {
     "Address": {
+      "description": "A postal address",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -9614,7 +9886,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -9757,6 +10030,28 @@ func init() {
         }
       }
     },
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -9797,26 +10092,6 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
-      }
-    },
-    "Branch": {
-      "type": "string",
-      "title": "branch",
-      "enum": [
-        "ARMY",
-        "NAVY",
-        "MARINES",
-        "AIR_FORCE",
-        "COAST_GUARD",
-        "OTHER"
-      ],
-      "x-display-value": {
-        "AIR_FORCE": "Air Force",
-        "ARMY": "Army",
-        "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
-        "NAVY": "Navy",
-        "OTHER": "OTHER"
       }
     },
     "ClientError": {
@@ -9860,8 +10135,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
@@ -9899,6 +10173,11 @@ func init() {
           "minimum": 0,
           "x-formatting": "weight",
           "example": 2000
+        },
+        "storageInTransit": {
+          "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -9908,8 +10187,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "originDutyStationId",
-        "newDutyStationId"
+        "originDutyLocationId",
+        "newDutyLocationId"
       ],
       "properties": {
         "issueDate": {
@@ -9919,29 +10198,27 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -9954,9 +10231,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -9973,7 +10249,6 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "requestedPickupDate",
         "pickupAddress",
         "destinationAddress"
       ],
@@ -9982,13 +10257,13 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
         },
         "customerRemarks": {
-          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -10001,6 +10276,9 @@ func init() {
             }
           ]
         },
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
+        },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
           "type": "string",
@@ -10008,11 +10286,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -10029,10 +10303,17 @@ func init() {
             }
           ]
         },
+        "requestedDeliveryDate": {
+          "description": "The customer's preferred delivery date.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "sacType": {
           "allOf": [
@@ -10202,6 +10483,18 @@ func init() {
       },
       "x-nullable": true
     },
+    "DestinationType": {
+      "type": "string",
+      "title": "Destination Type",
+      "enum": [
+        "HOME_OF_RECORD",
+        "HOME_OF_SELECTION",
+        "PLACE_ENTERED_ACTIVE_DUTY",
+        "OTHER_THAN_AUTHORIZED"
+      ],
+      "x-nullable": true,
+      "example": "OTHER_THAN_AUTHORIZED"
+    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
       "type": "string",
@@ -10236,7 +10529,7 @@ func init() {
         }
       }
     },
-    "DutyStation": {
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "address": {
@@ -10379,6 +10672,7 @@ func init() {
         "E_7",
         "E_8",
         "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
         "O_1_ACADEMY_GRADUATE",
         "O_2",
         "O_3",
@@ -10412,9 +10706,10 @@ func init() {
         "E_7": "E-7",
         "E_8": "E-8",
         "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
         "MIDSHIPMAN": "Midshipman",
         "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1/Service Academy Graduate",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
         "O_2": "O-2",
         "O_3": "O-3",
         "O_4": "O-4",
@@ -10470,7 +10765,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {
@@ -10727,6 +11021,7 @@ func init() {
       ]
     },
     "MTOServiceItems": {
+      "description": "A list of service items connected to this shipment.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
@@ -10763,7 +11058,7 @@ func init() {
           "example": 2000
         },
         "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -10785,6 +11080,9 @@ func init() {
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "type": "boolean",
@@ -11053,12 +11351,143 @@ func init() {
         }
       }
     },
+    "MoveAuditHistories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistory"
+      }
+    },
+    "MoveAuditHistory": {
+      "properties": {
+        "action": {
+          "description": "Action type; I = insert, D = delete, U = update, T = truncate",
+          "type": "string"
+        },
+        "actionTstampClk": {
+          "description": "Wall clock time at which audited event's trigger call occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampStm": {
+          "description": "Statement start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "actionTstampTx": {
+          "description": "Transaction start timestamp for tx in which audited event occurred",
+          "type": "string",
+          "format": "date-time"
+        },
+        "changedValues": {
+          "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "clientQuery": {
+          "description": "Record the text of the client query that triggered the audit event",
+          "type": "string",
+          "x-nullable": true
+        },
+        "eventName": {
+          "description": "API endpoint name that was called to make the change",
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "description": "id from audity_history table",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "objectId": {
+          "description": "id column for the tableName where the data was changed",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "oldValues": {
+          "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
+        },
+        "relId": {
+          "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
+          "type": "integer"
+        },
+        "schemaName": {
+          "description": "Database schema audited table for this event is in",
+          "type": "string"
+        },
+        "sessionUserId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "statementOnly": {
+          "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",
+          "type": "boolean",
+          "example": false
+        },
+        "tableName": {
+          "description": "name of database table that was changed",
+          "type": "string"
+        },
+        "transactionId": {
+          "description": "Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
+    "MoveAuditHistoryItem": {
+      "properties": {
+        "columnName": {
+          "type": "string"
+        },
+        "columnValue": {
+          "type": "string"
+        }
+      }
+    },
+    "MoveAuditHistoryItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveAuditHistoryItem"
+      }
+    },
+    "MoveHistory": {
+      "properties": {
+        "historyRecords": {
+          "description": "A list of MoveAuditHistory's connected to the move.",
+          "$ref": "#/definitions/MoveAuditHistories"
+        },
+        "id": {
+          "description": "move ID",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "locator": {
+          "description": "move locator",
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "referenceId": {
+          "description": "move referenceID",
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        }
+      }
+    },
     "MoveStatus": {
       "type": "string",
       "enum": [
         "DRAFT",
         "NEEDS SERVICE COUNSELING",
-        "SEVICE COUNSELING COMPLETED",
+        "SERVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -11081,7 +11510,7 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -11106,7 +11535,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -11144,12 +11573,20 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
+    },
     "Order": {
       "type": "object",
       "properties": {
         "agency": {
-          "type": "string",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "amendedOrdersAcknowledgedAt": {
           "type": "string",
@@ -11173,8 +11610,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
           "type": "string"
@@ -11238,8 +11675,8 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
           "type": "string",
@@ -11561,8 +11998,8 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
         "id": {
           "type": "string",
@@ -11572,7 +12009,7 @@ func init() {
           "type": "string"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -11586,7 +12023,7 @@ func init() {
           "type": "integer"
         },
         "status": {
-          "$ref": "#/definitions/QueueMoveStatus"
+          "$ref": "#/definitions/MoveStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -11594,14 +12031,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "QueueMoveStatus": {
-      "type": "string",
-      "enum": [
-        "New move",
-        "Move approved",
-        "Approvals requested"
-      ]
     },
     "QueueMoves": {
       "type": "array",
@@ -11632,7 +12061,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "integer"
+          "format": "double"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -11652,7 +12081,7 @@ func init() {
           "format": "uuid"
         },
         "originDutyLocation": {
-          "$ref": "#/definitions/DutyStation"
+          "$ref": "#/definitions/DutyLocation"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -11701,6 +12130,8 @@ func init() {
       }
     },
     "Reweigh": {
+      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
@@ -11722,17 +12153,20 @@ func init() {
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
+          "x-omitempty": false,
+          "example": "The reweigh was not performed due to some justification provided by the counselor"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -11909,6 +12343,7 @@ func init() {
         "PSI_ShippingLinehaulIntlOOPrice",
         "RateAreaNonStdDest",
         "RateAreaNonStdOrigin",
+        "ReferenceDate",
         "RequestedPickupDate",
         "ServiceAreaDest",
         "ServiceAreaOrigin",
@@ -12051,8 +12486,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "authorizedWeight": {
           "description": "unit is in lbs",
@@ -12098,6 +12532,11 @@ func init() {
           "minimum": 0,
           "x-formatting": "weight",
           "example": 2000
+        },
+        "storageInTransit": {
+          "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -12185,8 +12624,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "newDutyStationId",
-        "originDutyStationId"
+        "newDutyLocationId",
+        "originDutyLocationId"
       ],
       "properties": {
         "departmentIndicator": {
@@ -12200,23 +12639,21 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ntsSac": {
-          "type": "string",
           "title": "NTS SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "ntsTac": {
-          "type": "string",
           "title": "NTS TAC",
           "maxLength": 4,
           "minLength": 4,
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
         "ordersAcknowledgement": {
@@ -12236,7 +12673,7 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -12249,9 +12686,8 @@ func init() {
           "example": "2018-04-26"
         },
         "sac": {
-          "type": "string",
           "title": "HHG SAC",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "N002214CSW32Y9"
         },
         "tac": {
@@ -12316,6 +12752,9 @@ func init() {
             }
           ],
           "x-nullable": true
+        },
+        "destinationType": {
+          "$ref": "#/definitions/DestinationType"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",

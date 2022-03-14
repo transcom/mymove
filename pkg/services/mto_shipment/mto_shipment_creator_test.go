@@ -3,11 +3,11 @@ package mtoshipment
 import (
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -68,47 +68,47 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.NotEmpty(invalidErr.ValidationErrors)
 	})
 
-	// Unhappy path
-	suite.Run("When required requested pickup dates are zero (required for NTS & HHG shipment types)", func() {
+	suite.Run("Test requested pickup date requirement for various shipment types", func() {
 		subtestData := suite.createSubtestData(testdatagen.Assertions{})
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		// default is HHG
-		hhgShipmentFail := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		// Default is HHG, but we set it explicitly below via the test cases
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			Stub: true,
 		})
-		hhgShipmentFailClear := clearShipmentIDFields(&hhgShipmentFail)
-		hhgShipmentFailClear.RequestedPickupDate = new(time.Time)
 
-		// We don't need the shipment because it only returns data that wasn't saved.
-		_, err := creator.CreateMTOShipment(appCtx, hhgShipmentFailClear, nil)
+		testCases := []struct {
+			input        *time.Time
+			shipmentType models.MTOShipmentType
+			shouldError  bool
+		}{
+			{nil, models.MTOShipmentTypeHHG, true},
+			{&time.Time{}, models.MTOShipmentTypeHHG, true},
+			{swag.Time(time.Now()), models.MTOShipmentTypeHHG, false},
+			{nil, models.MTOShipmentTypeHHGOutOfNTSDom, false},
+			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTSDom, true},
+			{swag.Time(time.Now()), models.MTOShipmentTypeHHGOutOfNTSDom, true},
+			{nil, models.MTOShipmentTypePPM, false},
+			{swag.Time(time.Now()), models.MTOShipmentTypePPM, false},
+		}
 
-		suite.Error(err)
-		suite.IsType(apperror.InvalidInputError{}, err)
-		suite.Contains(err.Error(), "RequestedPickupDate")
-	})
+		for _, testCase := range testCases {
+			mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+			mtoShipmentClear.ShipmentType = testCase.shipmentType
+			mtoShipmentClear.RequestedPickupDate = testCase.input
+			_, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
 
-	suite.Run("When non-required requested pickup dates are zero (not required for NTSr shipment type)", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
-		appCtx := subtestData.appCtx
-		creator := subtestData.shipmentCreator
-
-		ntsrShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
-			},
-			Stub: true,
-		})
-		ntsrShipmentNoIDs := clearShipmentIDFields(&ntsrShipment)
-		ntsrShipmentNoIDs.RequestedPickupDate = new(time.Time)
-
-		// We don't need the shipment because it only returns data that wasn't saved.
-		_, err := creator.CreateMTOShipment(appCtx, ntsrShipmentNoIDs, nil)
-
-		suite.NoError(err)
+			if testCase.shouldError {
+				if suite.Errorf(err, "should have errored for a %s shipment with requested pickup date set to %s", testCase.shipmentType, testCase.input) {
+					suite.IsType(apperror.InvalidInputError{}, err)
+					suite.Contains(err.Error(), "RequestedPickupDate")
+				}
+			} else {
+				suite.NoErrorf(err, "should have not errored for a %s shipment with requested pickup date set to %s", testCase.shipmentType, testCase.input)
+			}
+		}
 	})
 
 	// Happy path
@@ -132,6 +132,30 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
 		suite.NotEmpty(createdShipment.PickupAddressID)
 		suite.NotEmpty(createdShipment.DestinationAddressID)
+	})
+	suite.Run("If the shipment is created successfully with a destination address type it should be returned", func() {
+		destinationType := models.DestinationTypeHomeOfRecord
+		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
+		creator := subtestData.shipmentCreator
+
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			Move:        subtestData.move,
+			MTOShipment: models.MTOShipment{DestinationType: &destinationType},
+			Stub:        true,
+		})
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+		serviceItemsList := models.MTOServiceItems{}
+
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, serviceItemsList)
+
+		suite.NoError(err)
+		suite.NotNil(createdShipment)
+		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
+		suite.NotEmpty(createdShipment.PickupAddressID)
+		suite.NotEmpty(createdShipment.DestinationAddressID)
+		suite.Equal(string(models.DestinationTypeHomeOfRecord), string(*createdShipment.DestinationType))
 	})
 
 	suite.Run("If the shipment is created successfully with submitted status it should be returned", func() {
@@ -189,13 +213,15 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		ntsRecorededWeight := unit.Pound(980)
+		ntsRecordedWeight := unit.Pound(980)
+		requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, time.April, 5, 0, 0, 0, 0, time.UTC)
 		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			MTOShipment: models.MTOShipment{
-				ShipmentType:      models.MTOShipmentTypeHHGOutOfNTSDom,
-				Status:            models.MTOShipmentStatusSubmitted,
-				NTSRecordedWeight: &ntsRecorededWeight,
+				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
+				Status:                models.MTOShipmentStatusSubmitted,
+				NTSRecordedWeight:     &ntsRecordedWeight,
+				RequestedDeliveryDate: &requestedDeliveryDate,
 			},
 			Stub: true,
 		})
@@ -203,8 +229,36 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
 		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
+		if suite.NoError(err) {
+			if suite.NotNil(createdShipment.NTSRecordedWeight) {
+				suite.Equal(ntsRecordedWeight, *createdShipment.NTSRecordedWeight)
+			}
+			if suite.NotNil(createdShipment.RequestedDeliveryDate) {
+				suite.Equal(requestedDeliveryDate, *createdShipment.RequestedDeliveryDate)
+			}
+		}
+	})
+
+	suite.Run("If the submitted shipment is a PPM shipment", func() {
+		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		appCtx := subtestData.appCtx
+		creator := subtestData.shipmentCreator
+
+		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: subtestData.move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusDraft,
+			},
+			Stub: true,
+		})
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
+
 		suite.NoError(err)
-		suite.Equal(ntsRecorededWeight, *createdShipment.NTSRecordedWeight)
+		suite.NotNil(createdShipment)
 	})
 
 	suite.Run("When NTSRecordedWeight it set for a non NTS Release shipment", func() {
@@ -212,22 +266,25 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		ntsRecorededWeight := unit.Pound(980)
+		ntsRecordedWeight := unit.Pound(980)
 		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: subtestData.move,
 			MTOShipment: models.MTOShipment{
 				Status:            models.MTOShipmentStatusSubmitted,
-				NTSRecordedWeight: &ntsRecorededWeight,
+				NTSRecordedWeight: &ntsRecordedWeight,
 			},
 			Stub: true,
 		})
 		ntsrShipmentNoIDs := clearShipmentIDFields(&mtoShipment)
-		ntsrShipmentNoIDs.RequestedPickupDate = new(time.Time)
+		ntsrShipmentNoIDs.RequestedPickupDate = swag.Time(time.Now())
 
 		// We don't need the shipment because it only returns data that wasn't saved.
 		_, err := creator.CreateMTOShipment(appCtx, ntsrShipmentNoIDs, nil)
 
-		suite.Error(err, "field NTSRecordedWeight cannot be set for shipment type HHG")
+		if suite.Errorf(err, "should have errored for a %s shipment with ntsRecordedWeight set", ntsrShipmentNoIDs.ShipmentType) {
+			suite.IsType(apperror.InvalidInputError{}, err)
+			suite.Contains(err.Error(), "NTSRecordedWeight")
+		}
 	})
 
 	suite.Run("If the shipment has mto service items", func() {
@@ -389,6 +446,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
+			{"PPM", models.MTOShipmentTypePPM},
 		}
 
 		for _, tt := range testCases {

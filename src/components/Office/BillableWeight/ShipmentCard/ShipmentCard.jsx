@@ -1,5 +1,5 @@
 import React from 'react';
-import { func, string, number } from 'prop-types';
+import { func, string, number, bool, node, oneOfType } from 'prop-types';
 import classnames from 'classnames';
 
 import EditBillableWeight from '../EditBillableWeight/EditBillableWeight';
@@ -7,10 +7,44 @@ import EditBillableWeight from '../EditBillableWeight/EditBillableWeight';
 import styles from './ShipmentCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatWeight, formatAddressShort, formatDateFromIso } from 'shared/formatters';
+import { formatAddressShort, formatDateFromIso } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
-import { MandatorySimpleAddressShape } from 'types/address';
+import { MandatorySimpleAddressShape, SimpleAddressShape } from 'types/address';
+import { ShipmentOptionsOneOf } from 'types/shipment';
+import { shipmentTypeLabels } from 'content/shipments';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
+const ShipmentCardDetailRow = ({ display, rowTestId, className, title, content, contentTestId }) => {
+  if (display) {
+    return (
+      <div data-testid={rowTestId} className={className}>
+        <strong>{title}</strong>
+        <span data-testid={contentTestId}>{content}</span>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+ShipmentCardDetailRow.propTypes = {
+  display: bool,
+  rowTestId: string,
+  className: string,
+  title: string,
+  content: oneOfType([node, string]),
+  contentTestId: string,
+};
+
+ShipmentCardDetailRow.defaultProps = {
+  display: true,
+  rowTestId: '',
+  className: '',
+  title: '',
+  content: '',
+  contentTestId: '',
+};
 
 export default function ShipmentCard({
   billableWeight,
@@ -27,6 +61,8 @@ export default function ShipmentCard({
   reweighWeight,
   maxBillableWeight,
   totalBillableWeight,
+  shipmentType,
+  storageFacilityAddress,
 }) {
   let showOriginalWeightHighlight = false;
   let showReweighWeightHighlight = false;
@@ -50,69 +86,88 @@ export default function ShipmentCard({
     showReweighWeightHighlight = true;
   }
 
+  const shipmentIsNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
+  const shipmentIsNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
+  const dateText = shipmentIsNTSR ? 'Delivered' : 'Departed';
+
+  const originAddress = shipmentIsNTSR ? storageFacilityAddress : pickupAddress;
+  const deliveryAddress = shipmentIsNTS ? storageFacilityAddress : destinationAddress;
+
   return (
-    <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG} className={styles.container}>
+    <ShipmentContainer shipmentType={shipmentType} className={styles.container}>
       <header>
-        <h2>HHG</h2>
+        <h2>{shipmentTypeLabels[shipmentType]}</h2>
+
         <section>
           <span>
-            <strong>Departed</strong>
+            <strong>{dateText}</strong>
             <span data-testid="departureDate"> {formatDateFromIso(departedDate, 'DD MMM YYYY')}</span>
           </span>
           <span>
-            <strong>From</strong> {pickupAddress && formatAddressShort(pickupAddress)}
+            <strong>From</strong> {originAddress && formatAddressShort(originAddress)}
           </span>
           <span>
-            <strong>To</strong> {destinationAddress && formatAddressShort(destinationAddress)}
+            <strong>To</strong> {deliveryAddress && formatAddressShort(deliveryAddress)}
           </span>
         </section>
       </header>
       <div className={styles.weights}>
-        <div
-          data-testid="estimatedWeightContainer"
+        <ShipmentCardDetailRow
+          display={!shipmentIsNTSR}
+          rowTestId="estimatedWeightContainer"
           className={classnames(styles.field, {
             [styles.warning]: !estimatedWeight,
           })}
-        >
-          <strong>Estimated weight</strong>
-          <span data-testid="estimatedWeight">
-            {estimatedWeight ? formatWeight(estimatedWeight) : <strong>Missing</strong>}
-          </span>
-        </div>
-        <div
-          data-testid="originalWeightContainer"
+          title="Estimated weight"
+          contentTestId="estimatedWeight"
+          content={estimatedWeight ? formatWeight(estimatedWeight) : <strong>Missing</strong>}
+        />
+
+        <ShipmentCardDetailRow
+          display={!shipmentIsNTSR}
+          rowTestId="originalWeightContainer"
           className={classnames(styles.field, {
             [styles.warning]: showOriginalWeightHighlight,
           })}
-        >
-          <strong>Original weight</strong>
-          <span data-testid="originalWeight">{formatWeight(originalWeight)}</span>
-        </div>
-        {dateReweighRequested && (
-          <div>
-            <div
-              data-testid="reweighWeightContainer"
-              className={classnames(styles.field, {
-                [styles.warning]: showReweighWeightHighlight,
-              })}
-            >
-              <strong>Reweigh weight</strong>
-              <span data-testid="reweighWeight">
-                {reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}
-              </span>
-            </div>
-            <div className={reweighRemarks ? styles.field : classnames(styles.field, styles.lastRow)}>
-              <strong>Date reweigh requested</strong>
-              <span data-testid="dateReweighRequested">{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
-            </div>
-            {reweighRemarks && (
-              <div className={classnames(styles.field, styles.remarks, styles.lastRow)}>
-                <strong>Reweigh remarks</strong>
-                <span data-testid="reweighRemarks">{reweighRemarks}</span>
-              </div>
-            )}
-          </div>
-        )}
+          title="Original weight"
+          contentTestId="originalWeight"
+          content={formatWeight(originalWeight)}
+        />
+
+        <ShipmentCardDetailRow
+          display={!shipmentIsNTSR && !!dateReweighRequested}
+          rowTestId="reweighWeightContainer"
+          className={classnames(styles.field, {
+            [styles.warning]: showReweighWeightHighlight,
+          })}
+          title="Reweigh weight"
+          contentTestId="reweighWeight"
+          content={reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}
+        />
+
+        <ShipmentCardDetailRow
+          display={!shipmentIsNTSR && !!dateReweighRequested}
+          className={reweighRemarks ? styles.field : classnames(styles.field, styles.lastRow)}
+          title="Date reweigh requested"
+          contentTestId="dateReweighRequested"
+          content={formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}
+        />
+
+        <ShipmentCardDetailRow
+          display={!shipmentIsNTSR && !!dateReweighRequested && !!reweighRemarks}
+          className={classnames(styles.field, styles.remarks, styles.lastRow)}
+          title="Reweigh remarks"
+          contentTestId="reweighRemarks"
+          content={reweighRemarks}
+        />
+
+        <ShipmentCardDetailRow
+          display={shipmentIsNTSR}
+          className={classnames(styles.field, styles.lastRow)}
+          title="Shipment weight"
+          contentTestId="shipmentWeight"
+          content={formatWeight(originalWeight)}
+        />
       </div>
       <footer>
         <EditBillableWeight
@@ -124,6 +179,7 @@ export default function ShipmentCard({
           editEntity={editEntity}
           maxBillableWeight={maxBillableWeight}
           totalBillableWeight={totalBillableWeight}
+          isNTSRShipment={shipmentType === SHIPMENT_OPTIONS.NTSR}
         />
       </footer>
     </ShipmentContainer>
@@ -145,6 +201,8 @@ ShipmentCard.propTypes = {
   reweighWeight: number,
   maxBillableWeight: number.isRequired,
   totalBillableWeight: number,
+  shipmentType: ShipmentOptionsOneOf.isRequired,
+  storageFacilityAddress: SimpleAddressShape,
 };
 
 ShipmentCard.defaultProps = {
@@ -156,4 +214,5 @@ ShipmentCard.defaultProps = {
   reweighWeight: null,
   reweighRemarks: '',
   totalBillableWeight: 0,
+  storageFacilityAddress: {},
 };

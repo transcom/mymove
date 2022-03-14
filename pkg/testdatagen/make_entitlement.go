@@ -11,7 +11,7 @@ import (
 func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitlement {
 	truePtr := true
 	dependents := 1
-	storageInTransit := 2
+	storageInTransit := 90
 	rmeWeight := 1000
 	ocie := true
 	grade := assertions.Order.Grade
@@ -19,7 +19,7 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	proGearWeightSpouse := 500
 
 	if grade == nil || *grade == "" {
-		grade = stringPointer("E_1")
+		grade = models.StringPointer("E_1")
 	}
 
 	entitlement := models.Entitlement{

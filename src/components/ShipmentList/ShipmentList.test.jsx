@@ -5,14 +5,15 @@ import { render, screen } from '@testing-library/react';
 
 import ShipmentList from '.';
 
-import { formatWeight } from 'shared/formatters';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { formatWeight } from 'utils/formatters';
 
 describe('ShipmentList component', () => {
   const shipments = [
-    { id: 'ID-1', shipmentType: 'PPM' },
-    { id: 'ID-2', shipmentType: 'HHG' },
-    { id: 'ID-3', shipmentType: 'HHG_INTO_NTS_DOMESTIC' },
-    { id: 'ID-4', shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' },
+    { id: 'ID-1', shipmentType: SHIPMENT_OPTIONS.PPM },
+    { id: 'ID-2', shipmentType: SHIPMENT_OPTIONS.HHG },
+    { id: 'ID-3', shipmentType: SHIPMENT_OPTIONS.NTS },
+    { id: 'ID-4', shipmentType: SHIPMENT_OPTIONS.NTSR },
   ];
   const onShipmentClick = jest.fn();
   const defaultProps = {
@@ -58,21 +59,21 @@ describe('Shipment List being used for billable weight', () => {
     const shipments = [
       {
         id: '0001',
-        shipmentType: 'HHG',
+        shipmentType: SHIPMENT_OPTIONS.HHG,
         calculatedBillableWeight: 1161,
         primeEstimatedWeight: 200,
         reweigh: { id: '1234', weight: 50 },
       },
       {
         id: '0002',
-        shipmentType: 'HHG',
+        shipmentType: SHIPMENT_OPTIONS.HHG,
         calculatedBillableWeight: 3200,
         primeEstimatedWeight: 3000,
         reweigh: { id: '1234' },
       },
       {
         id: '0003',
-        shipmentType: 'HHG',
+        shipmentType: SHIPMENT_OPTIONS.HHG,
         calculatedBillableWeight: 3000,
         primeEstimatedWeight: 3000,
         reweigh: { id: '1234', weight: 40 },
@@ -99,15 +100,17 @@ describe('Shipment List being used for billable weight', () => {
 
   it('does not display weight flags when not appropriate', () => {
     const shipments = [
-      { id: '0001', shipmentType: 'HHG', calculatedBillableWeight: 5666, primeEstimatedWeight: 5600 },
+      { id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG, calculatedBillableWeight: 5666, primeEstimatedWeight: 5600 },
       {
         id: '0002',
-        shipmentType: 'HHG',
+        shipmentType: SHIPMENT_OPTIONS.HHG,
         calculatedBillableWeight: 3200,
         primeEstimatedWeight: 3000,
         reweigh: { id: '1234', weight: 3400 },
       },
-      { id: '0003', shipmentType: 'HHG', calculatedBillableWeight: 5400, primeEstimatedWeight: 5000 },
+      { id: '0003', shipmentType: SHIPMENT_OPTIONS.HHG, calculatedBillableWeight: 5400, primeEstimatedWeight: 5000 },
+      // we don't show flags for ntsr shipments - if this was an hhg, it would show a missing weight warning
+      { id: '0004', shipmentType: SHIPMENT_OPTIONS.NTSR },
     ];
 
     const defaultProps = {

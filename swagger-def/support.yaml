@@ -833,7 +833,7 @@ definitions:
       - id
       - serviceMemberID
       - uploads
-  DutyStation:
+  DutyLocation:
     type: object
     properties:
       id:
@@ -1466,9 +1466,9 @@ definitions:
         x-nullable: true
       entitlement:
         $ref: '#/definitions/Entitlement'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
-      destinationDutyStationID:
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      destinationDutyLocationID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -1480,9 +1480,9 @@ definitions:
         $ref: '#/definitions/OrdersType'
       ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
-      originDutyStationID:
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      originDutyLocationID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -1493,7 +1493,7 @@ definitions:
       rank:
         $ref: '#/definitions/Rank'
       reportByDate:
-        description: Date that the service member must report to the new DutyStation by.
+        description: Date that the service member must report to the new DutyLocation by.
         type: string
         format: date
       status:
@@ -1539,8 +1539,8 @@ definitions:
       - status
       - uploadedOrdersID
       - tac
-      - originDutyStationID
-      - destinationDutyStationID
+      - originDutyLocationID
+      - destinationDutyLocationID
       - departmentIndicator
   OrdersStatus:
     type: string
@@ -1702,6 +1702,7 @@ definitions:
       - E_7
       - E_8
       - E_9
+      - E_9_SPECIAL_SENIOR_ENLISTED
       - O_1_ACADEMY_GRADUATE
       - O_2
       - O_3
@@ -1803,7 +1804,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
+        readOnly: false
       moveTaskOrderID:
         type: string
         format: uuid

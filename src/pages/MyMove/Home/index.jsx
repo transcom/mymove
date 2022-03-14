@@ -41,11 +41,12 @@ import {
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatCustomerDate } from 'utils/formatters';
+import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
+import { shipmentTypes } from 'constants/shipments';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -105,16 +106,6 @@ export class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
-  get hasHHGShipment() {
-    const { mtoShipments } = this.props;
-    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.HHG);
-  }
-
-  get hasNTSShipment() {
-    const { mtoShipments } = this.props;
-    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.NTS);
-  }
-
   get hasPPMShipment() {
     const { currentPpm } = this.props;
     return !!Object.keys(currentPpm).length;
@@ -128,6 +119,18 @@ export class Home extends Component {
       return 'Add another shipment';
     }
     return 'Set up your shipments';
+  }
+
+  get reportByLabel() {
+    const { orders } = this.props;
+    switch (orders.orders_type) {
+      case 'RETIREMENT':
+        return 'Retirement date';
+      case 'SEPARATION':
+        return 'Separation date';
+      default:
+        return 'Report by';
+    }
   }
 
   renderAlert = () => {
@@ -165,15 +168,21 @@ export class Home extends Component {
     return (
       <>
         <p>
-          You’re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
-          <strong>{orders.origin_duty_station?.name}.</strong> Report by{' '}
+          You’re moving to <strong>{orders.new_duty_location.name}</strong> from{' '}
+          <strong>{orders.origin_duty_location?.name}.</strong>
+          {` ${this.reportByLabel} `}
           <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         </p>
 
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
             <dt>Weight allowance</dt>
-            <dd>{serviceMember.weight_allotment.total_weight_self} lbs.</dd>
+            <dd>
+              {orders.has_dependents
+                ? formatWeight(serviceMember.weight_allotment.total_weight_self_plus_dependents)
+                : formatWeight(serviceMember.weight_allotment.total_weight_self)}
+              .
+            </dd>
           </div>
           {move.locator && (
             <div className={styles.subheaderSubsection}>
@@ -194,9 +203,7 @@ export class Home extends Component {
     }
 
     let destLink = '';
-    if (shipmentType === 'PPM') {
-      destLink = `/moves/${move.id}/review/edit-date-and-location`;
-    } else if (shipmentType === 'HHG') {
+    if (shipmentType === shipmentTypes.HHG || shipmentType === shipmentTypes.PPM) {
       destLink = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: move.id,
         mtoShipmentId: shipmentId,
@@ -261,7 +268,7 @@ export class Home extends Component {
     }
 
     // eslint-disable-next-line camelcase
-    const { current_station } = serviceMember;
+    const { current_location } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
 
     const shipmentSelectionPath =
@@ -403,9 +410,9 @@ export class Home extends Component {
                 </SectionWrapper>
                 <Contact
                   header="Contacts"
-                  dutyStationName={current_station?.transportation_office?.name}
+                  dutyStationName={current_location?.transportation_office?.name}
                   officeType="Origin Transportation Office"
-                  telephone={current_station?.transportation_office?.phone_lines[0]}
+                  telephone={current_location?.transportation_office?.phone_lines[0]}
                 />
               </>
             )}

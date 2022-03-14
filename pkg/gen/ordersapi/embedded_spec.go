@@ -330,22 +330,24 @@ func init() {
     "Affiliation": {
       "description": "Military branch of service",
       "type": "string",
+      "title": "Branch of service",
       "enum": [
-        "air-force",
-        "army",
-        "civilian-agency",
-        "coast-guard",
-        "marine-corps",
-        "navy"
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
       ],
       "x-display-value": {
-        "air-force": "Air Force",
-        "army": "Army",
-        "civilian-agency": "Civilian Agency",
-        "coast-guard": "Coast Guard",
-        "marine-corps": "Marine Corps",
-        "navy": "Navy"
-      }
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
     },
     "Issuer": {
       "description": "Organization that issues orders. If more organizations, especially civilian ones, become clients of this API in the future, this enumeration may need to be expanded.",
@@ -490,8 +492,9 @@ func init() {
         "e-7",
         "e-8",
         "e-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
         "midshipman",
-        "o-1",
+        "o-1-ACADEMY-GRADUATE",
         "o-2",
         "o-3",
         "o-4",
@@ -508,6 +511,7 @@ func init() {
         "w-5"
       ],
       "x-display-value": {
+        "E-9-SPECIAL-SENIOR-ENLISTED": "E-9 (Special Senior Enlisted)",
         "aviation-cadet": "Aviation Cadet",
         "cadet": "Service Academy Cadet",
         "civilian": "Civilian",
@@ -521,7 +525,7 @@ func init() {
         "e-8": "E-8",
         "e-9": "E-9",
         "midshipman": "Midshipman",
-        "o-1": "O-1",
+        "o-1-ACADEMY-GRADUATE": "O-1 or Service Academy Graduate",
         "o-10": "O-10",
         "o-2": "O-2",
         "o-3": "O-3",
@@ -1005,22 +1009,24 @@ func init() {
     "Affiliation": {
       "description": "Military branch of service",
       "type": "string",
+      "title": "Branch of service",
       "enum": [
-        "air-force",
-        "army",
-        "civilian-agency",
-        "coast-guard",
-        "marine-corps",
-        "navy"
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
       ],
       "x-display-value": {
-        "air-force": "Air Force",
-        "army": "Army",
-        "civilian-agency": "Civilian Agency",
-        "coast-guard": "Coast Guard",
-        "marine-corps": "Marine Corps",
-        "navy": "Navy"
-      }
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
     },
     "Issuer": {
       "description": "Organization that issues orders. If more organizations, especially civilian ones, become clients of this API in the future, this enumeration may need to be expanded.",
@@ -1165,8 +1171,9 @@ func init() {
         "e-7",
         "e-8",
         "e-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
         "midshipman",
-        "o-1",
+        "o-1-ACADEMY-GRADUATE",
         "o-2",
         "o-3",
         "o-4",
@@ -1183,6 +1190,7 @@ func init() {
         "w-5"
       ],
       "x-display-value": {
+        "E-9-SPECIAL-SENIOR-ENLISTED": "E-9 (Special Senior Enlisted)",
         "aviation-cadet": "Aviation Cadet",
         "cadet": "Service Academy Cadet",
         "civilian": "Civilian",
@@ -1196,7 +1204,7 @@ func init() {
         "e-8": "E-8",
         "e-9": "E-9",
         "midshipman": "Midshipman",
-        "o-1": "O-1",
+        "o-1-ACADEMY-GRADUATE": "O-1 or Service Academy Graduate",
         "o-10": "O-10",
         "o-2": "O-2",
         "o-3": "O-3",

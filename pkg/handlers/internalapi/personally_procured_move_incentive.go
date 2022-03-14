@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -22,61 +23,63 @@ type ShowPPMIncentiveHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	if !appCtx.Session().IsOfficeUser() {
-		return ppmop.NewShowPPMIncentiveForbidden()
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			if !appCtx.Session().IsOfficeUser() {
+				return ppmop.NewShowPPMIncentiveForbidden()
+			}
 
-	ordersID, err := uuid.FromString(params.OrdersID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			ordersID, err := uuid.FromString(params.OrdersID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	move, err := models.FetchMoveByOrderID(appCtx.DB(), ordersID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			move, err := models.FetchMoveByOrderID(appCtx.DB(), ordersID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	engine := rateengine.NewRateEngine(move)
+			engine := rateengine.NewRateEngine(move)
 
-	destinationZip, err := GetDestinationDutyStationPostalCode(appCtx, ordersID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			destinationZip, err := GetDestinationDutyLocationPostalCode(appCtx, ordersID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginZip, destinationZip)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginZip, destinationZip)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginDutyStationZip, destinationZip)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			distanceMilesFromOriginDutyLocationZip, err := h.Planner().Zip5TransitDistanceLineHaul(appCtx, params.OriginDutyLocationZip, destinationZip)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	costDetails, err := engine.ComputePPMMoveCosts(
-		appCtx,
-		unit.Pound(params.Weight),
-		params.OriginZip,
-		params.OriginDutyStationZip,
-		destinationZip,
-		distanceMilesFromOriginPickupZip,
-		distanceMilesFromOriginDutyStationZip,
-		time.Time(params.OriginalMoveDate),
-		0, // We don't want any SIT charges
-	)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			costDetails, err := engine.ComputePPMMoveCosts(
+				appCtx,
+				unit.Pound(params.Weight),
+				params.OriginZip,
+				params.OriginDutyLocationZip,
+				destinationZip,
+				distanceMilesFromOriginPickupZip,
+				distanceMilesFromOriginDutyLocationZip,
+				time.Time(params.OriginalMoveDate),
+				0, // We don't want any SIT charges
+			)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	cost := rateengine.GetWinningCostMove(costDetails)
+			cost := rateengine.GetWinningCostMove(costDetails)
 
-	gcc := cost.GCC
-	incentivePercentage := cost.GCC.MultiplyFloat64(0.95)
+			gcc := cost.GCC
+			incentivePercentage := cost.GCC.MultiplyFloat64(0.95)
 
-	ppmObligation := internalmessages.PPMIncentive{
-		Gcc:                 swag.Int64(gcc.Int64()),
-		IncentivePercentage: swag.Int64(incentivePercentage.Int64()),
-	}
-	return ppmop.NewShowPPMIncentiveOK().WithPayload(&ppmObligation)
+			ppmObligation := internalmessages.PPMIncentive{
+				Gcc:                 swag.Int64(gcc.Int64()),
+				IncentivePercentage: swag.Int64(incentivePercentage.Int64()),
+			}
+			return ppmop.NewShowPPMIncentiveOK().WithPayload(&ppmObligation)
+		})
 }

@@ -34,11 +34,11 @@ type CreateUpdateOrders struct {
 	// Format: date
 	IssueDate *strfmt.Date `json:"issue_date"`
 
-	// new duty station id
+	// new duty location id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
-	NewDutyStationID *strfmt.UUID `json:"new_duty_station_id"`
+	NewDutyLocationID *strfmt.UUID `json:"new_duty_location_id"`
 
 	// Orders Number
 	// Example: 030-00362
@@ -94,7 +94,7 @@ func (m *CreateUpdateOrders) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateNewDutyStationID(formats); err != nil {
+	if err := m.validateNewDutyLocationID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -133,6 +133,8 @@ func (m *CreateUpdateOrders) validateDepartmentIndicator(formats strfmt.Registry
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("department_indicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("department_indicator")
 			}
 			return err
 		}
@@ -163,13 +165,13 @@ func (m *CreateUpdateOrders) validateIssueDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreateUpdateOrders) validateNewDutyStationID(formats strfmt.Registry) error {
+func (m *CreateUpdateOrders) validateNewDutyLocationID(formats strfmt.Registry) error {
 
-	if err := validate.Required("new_duty_station_id", "body", m.NewDutyStationID); err != nil {
+	if err := validate.Required("new_duty_location_id", "body", m.NewDutyLocationID); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("new_duty_station_id", "body", "uuid", m.NewDutyStationID.String(), formats); err != nil {
+	if err := validate.FormatOf("new_duty_location_id", "body", "uuid", m.NewDutyLocationID.String(), formats); err != nil {
 		return err
 	}
 
@@ -190,6 +192,8 @@ func (m *CreateUpdateOrders) validateOrdersType(formats strfmt.Registry) error {
 		if err := m.OrdersType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type")
 			}
 			return err
 		}
@@ -207,6 +211,8 @@ func (m *CreateUpdateOrders) validateOrdersTypeDetail(formats strfmt.Registry) e
 		if err := m.OrdersTypeDetail.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type_detail")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type_detail")
 			}
 			return err
 		}
@@ -278,6 +284,8 @@ func (m *CreateUpdateOrders) contextValidateDepartmentIndicator(ctx context.Cont
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("department_indicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("department_indicator")
 			}
 			return err
 		}
@@ -292,6 +300,8 @@ func (m *CreateUpdateOrders) contextValidateOrdersType(ctx context.Context, form
 		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type")
 			}
 			return err
 		}
@@ -306,6 +316,8 @@ func (m *CreateUpdateOrders) contextValidateOrdersTypeDetail(ctx context.Context
 		if err := m.OrdersTypeDetail.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type_detail")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type_detail")
 			}
 			return err
 		}

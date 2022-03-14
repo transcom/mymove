@@ -26,7 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
@@ -168,8 +168,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmRequestPPMPaymentHandler: ppm.RequestPPMPaymentHandlerFunc(func(params ppm.RequestPPMPaymentParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.RequestPPMPayment has not yet been implemented")
 		}),
-		DutyStationsSearchDutyStationsHandler: duty_stations.SearchDutyStationsHandlerFunc(func(params duty_stations.SearchDutyStationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation duty_stations.SearchDutyStations has not yet been implemented")
+		DutyLocationsSearchDutyLocationsHandler: duty_locations.SearchDutyLocationsHandlerFunc(func(params duty_locations.SearchDutyLocationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation duty_locations.SearchDutyLocations has not yet been implemented")
 		}),
 		AddressesShowAddressHandler: addresses.ShowAddressHandlerFunc(func(params addresses.ShowAddressParams) middleware.Responder {
 			return middleware.NotImplemented("operation addresses.ShowAddress has not yet been implemented")
@@ -180,8 +180,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		DocumentsShowDocumentHandler: documents.ShowDocumentHandlerFunc(func(params documents.ShowDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation documents.ShowDocument has not yet been implemented")
 		}),
-		TransportationOfficesShowDutyStationTransportationOfficeHandler: transportation_offices.ShowDutyStationTransportationOfficeHandlerFunc(func(params transportation_offices.ShowDutyStationTransportationOfficeParams) middleware.Responder {
-			return middleware.NotImplemented("operation transportation_offices.ShowDutyStationTransportationOffice has not yet been implemented")
+		TransportationOfficesShowDutyLocationTransportationOfficeHandler: transportation_offices.ShowDutyLocationTransportationOfficeHandlerFunc(func(params transportation_offices.ShowDutyLocationTransportationOfficeParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_offices.ShowDutyLocationTransportationOffice has not yet been implemented")
 		}),
 		UsersShowLoggedInUserHandler: users.ShowLoggedInUserHandlerFunc(func(params users.ShowLoggedInUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.ShowLoggedInUser has not yet been implemented")
@@ -374,16 +374,16 @@ type MymoveAPI struct {
 	PpmRequestPPMExpenseSummaryHandler ppm.RequestPPMExpenseSummaryHandler
 	// PpmRequestPPMPaymentHandler sets the operation handler for the request p p m payment operation
 	PpmRequestPPMPaymentHandler ppm.RequestPPMPaymentHandler
-	// DutyStationsSearchDutyStationsHandler sets the operation handler for the search duty stations operation
-	DutyStationsSearchDutyStationsHandler duty_stations.SearchDutyStationsHandler
+	// DutyLocationsSearchDutyLocationsHandler sets the operation handler for the search duty locations operation
+	DutyLocationsSearchDutyLocationsHandler duty_locations.SearchDutyLocationsHandler
 	// AddressesShowAddressHandler sets the operation handler for the show address operation
 	AddressesShowAddressHandler addresses.ShowAddressHandler
 	// CalendarShowAvailableMoveDatesHandler sets the operation handler for the show available move dates operation
 	CalendarShowAvailableMoveDatesHandler calendar.ShowAvailableMoveDatesHandler
 	// DocumentsShowDocumentHandler sets the operation handler for the show document operation
 	DocumentsShowDocumentHandler documents.ShowDocumentHandler
-	// TransportationOfficesShowDutyStationTransportationOfficeHandler sets the operation handler for the show duty station transportation office operation
-	TransportationOfficesShowDutyStationTransportationOfficeHandler transportation_offices.ShowDutyStationTransportationOfficeHandler
+	// TransportationOfficesShowDutyLocationTransportationOfficeHandler sets the operation handler for the show duty location transportation office operation
+	TransportationOfficesShowDutyLocationTransportationOfficeHandler transportation_offices.ShowDutyLocationTransportationOfficeHandler
 	// UsersShowLoggedInUserHandler sets the operation handler for the show logged in user operation
 	UsersShowLoggedInUserHandler users.ShowLoggedInUserHandler
 	// MovesShowMoveHandler sets the operation handler for the show move operation
@@ -623,8 +623,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmRequestPPMPaymentHandler == nil {
 		unregistered = append(unregistered, "ppm.RequestPPMPaymentHandler")
 	}
-	if o.DutyStationsSearchDutyStationsHandler == nil {
-		unregistered = append(unregistered, "duty_stations.SearchDutyStationsHandler")
+	if o.DutyLocationsSearchDutyLocationsHandler == nil {
+		unregistered = append(unregistered, "duty_locations.SearchDutyLocationsHandler")
 	}
 	if o.AddressesShowAddressHandler == nil {
 		unregistered = append(unregistered, "addresses.ShowAddressHandler")
@@ -635,8 +635,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.DocumentsShowDocumentHandler == nil {
 		unregistered = append(unregistered, "documents.ShowDocumentHandler")
 	}
-	if o.TransportationOfficesShowDutyStationTransportationOfficeHandler == nil {
-		unregistered = append(unregistered, "transportation_offices.ShowDutyStationTransportationOfficeHandler")
+	if o.TransportationOfficesShowDutyLocationTransportationOfficeHandler == nil {
+		unregistered = append(unregistered, "transportation_offices.ShowDutyLocationTransportationOfficeHandler")
 	}
 	if o.UsersShowLoggedInUserHandler == nil {
 		unregistered = append(unregistered, "users.ShowLoggedInUserHandler")
@@ -950,7 +950,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/duty_stations"] = duty_stations.NewSearchDutyStations(o.context, o.DutyStationsSearchDutyStationsHandler)
+	o.handlers["GET"]["/duty_locations"] = duty_locations.NewSearchDutyLocations(o.context, o.DutyLocationsSearchDutyLocationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -966,7 +966,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/duty_stations/{dutyStationId}/transportation_office"] = transportation_offices.NewShowDutyStationTransportationOffice(o.context, o.TransportationOfficesShowDutyStationTransportationOfficeHandler)
+	o.handlers["GET"]["/duty_locations/{dutyLocationId}/transportation_office"] = transportation_offices.NewShowDutyLocationTransportationOffice(o.context, o.TransportationOfficesShowDutyLocationTransportationOfficeHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

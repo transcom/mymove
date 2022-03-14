@@ -16,6 +16,7 @@ describe('TOO user', () => {
     cy.intercept('POST', '**/ghc/v1/shipments/**/request-cancellation').as('requestShipmentCancellation');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
+    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('patchShipment');
     cy.intercept('PATCH', '**/ghc/v1/orders/**/allowances').as('patchAllowances');
     cy.intercept('**/ghc/v1/moves/**/financial-review-flag').as('financialReviewFlagCompleted');
 
@@ -38,7 +39,7 @@ describe('TOO user', () => {
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('#approved-shipments').should('not.exist');
     cy.get('#requested-shipments');
-    cy.contains('Approve selected shipments').should('be.disabled');
+    cy.contains('Approve selected').should('be.disabled');
     cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
 
     // Select & approve items
@@ -52,7 +53,7 @@ describe('TOO user', () => {
       cy.get('label[for="shipmentManagementFee"]').click();
       cy.get('label[for="counselingFee"]').click();
       // Open modal
-      const button = cy.contains('Approve selected shipments');
+      const button = cy.contains('Approve selected');
       button.should('be.enabled');
       button.click();
       cy.get('#approvalConfirmationModal [data-testid="modal"]').then(($modal) => {
@@ -85,7 +86,7 @@ describe('TOO user', () => {
     cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
     cy.get('#approved-shipments');
     cy.get('#requested-shipments').should('not.exist');
-    cy.contains('Approve selected shipments').should('not.exist');
+    cy.contains('Approve selected').should('not.exist');
   });
 
   it('is able to flag a move for financial review', () => {
@@ -242,7 +243,7 @@ describe('TOO user', () => {
         .type('JB McGuire-Dix-Lakehurst')
         .get('[class*="-menu"]')
         .find('[class*="-option"]')
-        .eq(3)
+        .eq(5)
         .click(0, 0);
 
       cy.get('input[name="issueDate"]').click({ force: true }).clear().type('16 Mar 2018');
@@ -261,7 +262,7 @@ describe('TOO user', () => {
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="currentDutyLocation"]').contains('Fort Irwin');
-    cy.get('[data-testid="newDutyLocation"]').contains('JB Lewis-McChord');
+    cy.get('[data-testid="newDutyLocation"]').contains('Joint Base Lewis-McChord (McChord AFB)');
     cy.get('[data-testid="issuedDate"]').contains('16 Mar 2018');
     cy.get('[data-testid="reportByDate"]').contains('22 Mar 2018');
     cy.get('[data-testid="departmentIndicator"]').contains('Army');
@@ -297,12 +298,15 @@ describe('TOO user', () => {
     cy.get('[data-testid="view-allowances"]').click();
     cy.url().should('include', `/moves/${moveLocator}/allowances`);
 
+    cy.wait(['@getMoves', '@getOrders']);
+
     cy.get('form').within(($form) => {
-      // Edit pro-gear, pro-gear spouse, RME, and OCIE fields
+      // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
       cy.get('input[name="proGearWeight"]').clear().type('1999');
       cy.get('input[name="proGearWeightSpouse"]').clear().type('499');
       cy.get('input[name="requiredMedicalEquipmentWeight"]').clear().type('999');
-      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').click({ force: true });
+      cy.get('input[name="storageInTransit"]').clear().type('199');
+      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').siblings('label[for="ocieInput"]').click();
 
       // Edit grade and authorized weight
       cy.get('select[name=agency]').contains('Army');
@@ -312,10 +316,14 @@ describe('TOO user', () => {
       cy.get('input[name="authorizedWeight"]').clear().type('11111');
 
       //Edit DependentsAuthorized
-      cy.get('input[name="dependentsAuthorized"]').click({ force: true });
+      cy.get('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
 
       // Edit allowances page | Save
-      cy.get('button').contains('Save').click();
+      cy.get('button')
+        .contains('Save')
+        .should('be.enabled')
+        .click()
+        .then(() => cy.get('button').should('be.disabled'));
     });
 
     cy.wait(['@patchAllowances']);
@@ -328,6 +336,7 @@ describe('TOO user', () => {
     cy.get('[data-testid="progear"]').contains('1,999');
     cy.get('[data-testid="spouseProgear"]').contains('499');
     cy.get('[data-testid="rme"]').contains('999');
+    cy.get('[data-testid="storageInTransit"]').contains('199');
     cy.get('[data-testid="ocie"]').contains('Unauthorized');
 
     cy.get('[data-testid="authorizedWeight"]').contains('11,111');
@@ -339,6 +348,49 @@ describe('TOO user', () => {
     cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
     cy.get('button').contains('Cancel').click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
+  });
+
+  it('is able to edit shipment', () => {
+    const moveLocator = 'TEST12';
+    const deliveryDate = new Date().toLocaleDateString('en-US');
+
+    // TOO Moves queue
+    cy.wait(['@getSortedOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Edit the shipment
+    cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
+    // fill out some changes on the form
+    cy.get('#requestedDeliveryDate').clear().type(deliveryDate).blur();
+    cy.get('input[name="delivery.address.streetAddress1"]').clear().type('7 q st');
+    cy.get('input[name="delivery.address.city"]').clear().type('city');
+    cy.get('select[name="delivery.address.state"]').select('OH');
+    cy.get('input[name="delivery.address.postalCode"]').clear().type('90210');
+    cy.get('[data-testid="submitForm"]').click();
+    // the shipment should be saved successfully
+    cy.wait('@patchShipment');
+  });
+
+  it('is able to edit shipment for retiree', () => {
+    const moveLocator = 'R3T1R3';
+    const deliveryDate = new Date().toLocaleDateString('en-US');
+
+    // TOO Moves queue
+    cy.wait(['@getSortedOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Edit the shipment
+    cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
+    // fill out some changes on the form
+    cy.get('#requestedDeliveryDate').clear().type(deliveryDate).blur();
+    cy.get('input[name="delivery.address.streetAddress1"]').clear().type('7 q st');
+    cy.get('input[name="delivery.address.city"]').clear().type('city');
+    cy.get('select[name="delivery.address.state"]').select('OH');
+    cy.get('input[name="delivery.address.postalCode"]').clear().type('90210');
+    cy.get('select[name="destinationType"]').select('HOME_OF_SELECTION');
+    cy.get('[data-testid="submitForm"]').click();
+    // the shipment should be saved successfully
+    cy.wait('@patchShipment');
   });
 
   it('is able to request cancellation for a shipment', () => {
@@ -394,7 +446,7 @@ describe('TOO user', () => {
     cy.get('[data-testid="sitExtensions"]');
 
     // Total SIT
-    cy.contains('270 authorized');
+    cy.contains('379 authorized');
     // cy.contains('60 used');
     // cy.contains('210 remaining');
     // cy.contains('Ends 26 Apr 2022');

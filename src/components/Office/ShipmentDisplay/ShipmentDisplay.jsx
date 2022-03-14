@@ -7,14 +7,15 @@ import classnames from 'classnames';
 
 import { EditButton } from 'components/form/IconButtons';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
-import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
+import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
-import { LOA_TYPE, SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
+import { OrdersLOAShape } from 'types/order';
 import { AgentShape } from 'types/agent';
+import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -22,76 +23,24 @@ const ShipmentDisplay = ({
   onChange,
   shipmentId,
   isSubmitted,
-  showIcon,
+  allowApproval,
   editURL,
   ordersLOA,
   warnIfMissing,
   errorIfMissing,
   showWhenCollapsed,
+  neverShow,
 }) => {
   const history = useHistory();
-  const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
+  const containerClasses = classnames(styles.container, { [styles.noIcon]: !allowApproval });
   const [isExpanded, setIsExpanded] = useState(false);
-  let infoList;
-  let tac;
-  switch (displayInfo.tacType) {
-    case LOA_TYPE.HHG:
-      tac = ordersLOA.tac;
-      break;
-    case LOA_TYPE.NTS:
-      tac = ordersLOA.ntsTAC;
-      break;
-    default:
-      tac = ordersLOA.tac;
-  }
+  const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
+  const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
 
-  let sac;
-  switch (displayInfo.sacType) {
-    case LOA_TYPE.HHG:
-      sac = ordersLOA.sac;
-      break;
-    case LOA_TYPE.NTS:
-      sac = ordersLOA.ntsSAC;
-      break;
-    default:
-      sac = ordersLOA.sac;
-  }
-
-  const setDisplayInfo = () => {
-    switch (shipmentType) {
-      case SHIPMENT_OPTIONS.HHG:
-        infoList = (
-          <ShipmentInfoList className={styles.shipmentDisplayInfo} shipment={displayInfo} shipmentType={shipmentType} />
-        );
-        break;
-      case SHIPMENT_OPTIONS.NTSR:
-        infoList = (
-          <NTSRShipmentInfoList
-            className={styles.shipmentDisplayInfo}
-            shipment={{ ...displayInfo, tac, sac }}
-            isExpanded={isExpanded}
-            warnIfMissing={warnIfMissing}
-            errorIfMissing={errorIfMissing}
-            showWhenCollapsed={showWhenCollapsed}
-          />
-        );
-        break;
-      default:
-        infoList = (
-          <ShipmentInfoList
-            className={styles.shipmentDisplayInfo}
-            shipment={displayInfo}
-            shipmentType={shipmentType}
-            isExpanded={isExpanded}
-          />
-        );
-    }
-  };
-  setDisplayInfo();
+  const disableApproval = errorIfMissing.some((requiredInfo) => !displayInfo[requiredInfo]);
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
-    setDisplayInfo();
   };
   const expandableIconClasses = classnames({
     'chevron-up': isExpanded,
@@ -102,7 +51,7 @@ const ShipmentDisplay = ({
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={containerClasses} shipmentType={shipmentType}>
         <div className={styles.heading}>
-          {showIcon && isSubmitted && (
+          {allowApproval && isSubmitted && !displayInfo.usesExternalVendor && (
             <Checkbox
               id={`shipment-display-checkbox-${shipmentId}`}
               data-testid="shipment-display-checkbox"
@@ -111,10 +60,13 @@ const ShipmentDisplay = ({
               label=""
               value={shipmentId}
               aria-labelledby={`shipment-display-label-${shipmentId}`}
+              disabled={disableApproval}
             />
           )}
 
-          {showIcon && !isSubmitted && <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />}
+          {allowApproval && !isSubmitted && (
+            <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />
+          )}
           <div className={styles.headingTagWrapper}>
             <h3>
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
@@ -125,11 +77,21 @@ const ShipmentDisplay = ({
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
               <Tag>cancellation requested</Tag>
             )}
+            {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
           </div>
 
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
-        {infoList}
+        <ShipmentInfoListSelector
+          className={styles.shipmentDisplayInfo}
+          shipment={{ ...displayInfo, tac, sac }}
+          shipmentType={shipmentType}
+          isExpanded={isExpanded}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          showWhenCollapsed={showWhenCollapsed}
+          neverShow={neverShow}
+        />
         {editURL && (
           <EditButton
             onClick={() => {
@@ -165,6 +127,8 @@ ShipmentDisplay.propTypes = {
     pickupAddress: AddressShape,
     secondaryPickupAddress: AddressShape,
     destinationAddress: AddressShape,
+    destinationType: PropTypes.string,
+    displayDestinationType: PropTypes.bool,
     secondaryDeliveryAddress: AddressShape,
     counselorRemarks: PropTypes.string,
     shipmentId: PropTypes.string,
@@ -182,34 +146,32 @@ ShipmentDisplay.propTypes = {
     }),
     tacType: PropTypes.string,
     sacType: PropTypes.string,
+    ntsRecordedWeight: PropTypes.number,
   }).isRequired,
-  showIcon: PropTypes.bool,
+  allowApproval: PropTypes.bool,
   editURL: PropTypes.string,
-  ordersLOA: PropTypes.shape({
-    tac: PropTypes.string,
-    sac: PropTypes.string,
-    ntsTAC: PropTypes.string,
-    ntsSAC: PropTypes.string,
-  }),
+  ordersLOA: OrdersLOAShape,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  neverShow: PropTypes.arrayOf(PropTypes.string),
 };
 
 ShipmentDisplay.defaultProps = {
   onChange: () => {},
   shipmentType: SHIPMENT_OPTIONS.HHG,
-  showIcon: true,
+  allowApproval: true,
   editURL: '',
   ordersLOA: {
     tac: '',
     sac: '',
-    ntsTAC: '',
-    ntsSAC: '',
+    ntsTac: '',
+    ntsSac: '',
   },
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  neverShow: [],
 };
 
 export default ShipmentDisplay;

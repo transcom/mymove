@@ -63,7 +63,7 @@ describe('fetchUser saga', () => {
     });
 
     it('dispatches the User is not logged in error action', () => {
-      expect(generator.next(false).value).toEqual(put(getLoggedInUserFailure('User is not logged in')));
+      expect(generator.next({ isLoggedIn: false }).value).toEqual(put(getLoggedInUserFailure('User is not logged in')));
     });
 
     it('is done', () => {
@@ -83,7 +83,7 @@ describe('fetchUser saga', () => {
     });
 
     it('makes the GetLoggedInUser API call', () => {
-      expect(generator.next(true).value).toEqual(call(GetLoggedInUser));
+      expect(generator.next({ isLoggedIn: true }).value).toEqual(call(GetLoggedInUser));
     });
 
     it('sets the flash error', () => {
@@ -102,7 +102,11 @@ describe('fetchUser saga', () => {
 
     it('dispatches the User is not logged in error action', () => {
       const error = new Error('Get user request failed');
-      expect(generator.next(false).value).toEqual(put(getLoggedInUserFailure(error)));
+      expect(generator.next().value).toEqual(put(getLoggedInUserFailure(error)));
+    });
+
+    it('is done', () => {
+      expect(generator.next().done).toEqual(true);
     });
   });
 
@@ -129,7 +133,7 @@ describe('fetchUser saga', () => {
     });
 
     it('makes the GetLoggedInUser API call', () => {
-      expect(generator.next(true).value).toEqual(call(GetLoggedInUser));
+      expect(generator.next({ isLoggedIn: true }).value).toEqual(call(GetLoggedInUser));
     });
 
     it('stores the user data in the entities reducer', () => {

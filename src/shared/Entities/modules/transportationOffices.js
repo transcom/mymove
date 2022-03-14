@@ -2,30 +2,31 @@ import { isNil } from 'lodash';
 
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
-import { selectCurrentDutyStation } from 'store/entities/selectors';
+import { selectCurrentDutyLocation } from 'store/entities/selectors';
 
-export const loadDutyStationTransportationOfficeOperation = 'TransportationOffice.loadDutyStationTransportationOffice';
-const dutyStationTransportationOfficeSchemaKey = 'transportationOffice';
+export const loadDutyLocationTransportationOfficeOperation =
+  'TransportationOffice.loadDutyLocationTransportationOffice';
+const dutyLocationTransportationOfficeSchemaKey = 'transportationOffice';
 
-export function loadDutyStationTransportationOffice(
-  dutyStationId,
-  label = loadDutyStationTransportationOfficeOperation,
-  schemaKey = dutyStationTransportationOfficeSchemaKey,
+export function loadDutyLocationTransportationOffice(
+  dutyLocationId,
+  label = loadDutyLocationTransportationOfficeOperation,
+  schemaKey = dutyLocationTransportationOfficeSchemaKey,
 ) {
-  const swaggerTag = 'transportation_offices.showDutyStationTransportationOffice';
-  return swaggerRequest(getClient, swaggerTag, { dutyStationId }, { label, schemaKey });
+  const swaggerTag = 'transportation_offices.showDutyLocationTransportationOffice';
+  return swaggerRequest(getClient, swaggerTag, { dutyLocationId }, { label, schemaKey });
 }
 
-export function selectDutyStationTransportationOffice(state) {
-  // check for the service member's duty station outside of entities until refactored to be in entities
-  const dutyStation = selectCurrentDutyStation(state);
-  const transportationOffice = dutyStation.transportation_office;
+export function selectDutyLocationTransportationOffice(state) {
+  // check for the service member's duty location outside of entities until refactored to be in entities
+  const dutyLocation = selectCurrentDutyLocation(state);
+  const transportationOffice = dutyLocation.transportation_office;
   // check in entities for the loaded transportation office
   if (isNil(state.entities.transportationOffices)) {
     return {};
   }
   const offices = Object.values(state.entities.transportationOffices);
-  const officesOfDutyStation = offices.find((office) => office.id === transportationOffice.id);
+  const officesOfDutyLocation = offices.find((office) => office.id === transportationOffice.id);
 
-  return officesOfDutyStation;
+  return officesOfDutyLocation;
 }

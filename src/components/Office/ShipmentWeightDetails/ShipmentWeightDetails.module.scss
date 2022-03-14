@@ -7,6 +7,9 @@
   > div:first-child {
     @include u-margin-right(2);
   }
+  > div:only-child {
+      @include u-margin-right(0);
+    }
   .rightAlignButtonWrapper {
     display: flex;
     justify-content: flex-end;

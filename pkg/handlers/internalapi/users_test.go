@@ -118,7 +118,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 
 		// Remove transportation office info from current station
-		station := sm.DutyStation
+		station := sm.DutyLocation
 		station.TransportationOfficeID = nil
 		suite.MustSave(&station)
 
@@ -146,7 +146,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 
 		// Remove transportation office info from new station
 		// happens when a customer is not done
-		station := order.NewDutyStation
+		station := order.NewDutyLocation
 		station.TransportationOfficeID = nil
 		suite.MustSave(&station)
 

@@ -89,3 +89,52 @@ export function fromPrimeAPIAddressFormat(address) {
     postalCode: address.postalCode,
   };
 }
+
+// Format a weight with lbs following, e.g. 4000 becomes 4,000 lbs
+export function formatWeight(weight) {
+  if (weight) {
+    return `${weight.toLocaleString()} lbs`;
+  }
+  return '0 lbs';
+}
+
+export const formatDelimitedNumber = (number) => {
+  // Fail-safe in case an actual number value is passed in
+  const numberString = number.toString();
+  return Number(numberString.replace(/,/g, ''));
+};
+/**
+ * Depending on the order type, this will return:
+ * Report by date (PERMANENT_CHANGE_OF_STATION)
+ * Date of retirement (RETIREMENT)
+ * Date of separation (SEPARATION)
+ */
+export const formatLabelReportByDate = (orderType) => {
+  switch (orderType) {
+    case 'RETIREMENT':
+      return 'Date of retirement';
+    case 'SEPARATION':
+      return 'Date of separation';
+    default:
+      return 'Report by date';
+  }
+};
+
+// Format a number of cents into a string, e.g. 12,345.67
+export function formatCents(cents, minimumFractionDigits = 2, maximumFractionDigits = 2) {
+  return (cents / 100).toLocaleString(undefined, { minimumFractionDigits, maximumFractionDigits });
+}
+
+// Formats a numeric value amount in the default locale with configurable options
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString
+export function formatAmount(amount, options = { minimumFractionDigits: 2, maximumFractionDigits: 2 }) {
+  if (!Number.isFinite(amount)) {
+    return '';
+  }
+  return amount.toLocaleString(undefined, options);
+}
+
+// Converts a cents value into whole dollars, dropping the decimal precision without rounding e.g. 1234599 -> 12,345
+export function formatCentsTruncateWhole(cents) {
+  return formatAmount(Math.floor(cents / 100), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}

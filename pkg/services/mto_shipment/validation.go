@@ -61,6 +61,7 @@ func checkAvailToPrime() validator {
 			Where("available_to_prime_at IS NOT NULL").
 			Where("mto_shipments.id = ?", newer.ID).
 			Where("show = TRUE").
+			Where("uses_external_vendor = FALSE").
 			First(&move)
 		if err != nil {
 			switch err {

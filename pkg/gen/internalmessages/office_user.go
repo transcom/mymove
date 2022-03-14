@@ -158,6 +158,8 @@ func (m *OfficeUser) validateTransportationOffice(formats strfmt.Registry) error
 		if err := m.TransportationOffice.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("transportation_office")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("transportation_office")
 			}
 			return err
 		}
@@ -210,6 +212,8 @@ func (m *OfficeUser) contextValidateTransportationOffice(ctx context.Context, fo
 		if err := m.TransportationOffice.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("transportation_office")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("transportation_office")
 			}
 			return err
 		}

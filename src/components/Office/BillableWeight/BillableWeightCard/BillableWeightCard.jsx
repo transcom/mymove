@@ -7,7 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './BillableWeightCard.module.scss';
 
 import ShipmentList from 'components/ShipmentList';
-import { formatWeight } from 'shared/formatters';
+import ExternalVendorWeightSummary from 'components/Office/ExternalVendorWeightSummary/ExternalVendorWeightSummary';
+import { formatWeight } from 'utils/formatters';
 
 export default function BillableWeightCard({
   maxBillableWeight,
@@ -35,7 +36,7 @@ export default function BillableWeightCard({
             </div>
           )}
         </div>
-        <Button onClick={onReviewWeights} secondary={secondaryReviewWeightsBtn}>
+        <Button onClick={onReviewWeights} secondary={secondaryReviewWeightsBtn} style={{ maxWidth: '160px' }}>
           Review weights
         </Button>
       </div>
@@ -49,6 +50,9 @@ export default function BillableWeightCard({
           <h6>
             Weight allowance<strong>{formatWeight(weightAllowance)}</strong>
           </h6>
+          {shipments.some((s) => s.usesExternalVendor) && (
+            <ExternalVendorWeightSummary shipments={shipments.filter((s) => s.usesExternalVendor)} />
+          )}
         </div>
         <div className={styles.shipmentSection}>
           <h5>Total billable weight</h5>

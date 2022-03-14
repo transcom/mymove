@@ -192,11 +192,11 @@ describe('formatMtoShipmentForDisplay', () => {
   it('can format a shipment with shipment weight', () => {
     const params = {
       ...mtoShipment,
-      primeActualWeight: 4000,
+      ntsRecordedWeight: 4000,
     };
 
     const displayValues = formatMtoShipmentForDisplay(params);
-    expect(displayValues.primeActualWeight).toEqual(4000);
+    expect(displayValues.ntsRecordedWeight).toEqual(4000);
   });
 });
 
@@ -247,7 +247,9 @@ describe('formatMtoShipmentForAPI', () => {
       city: 'San Antonio',
       state: 'TX',
       ZIP: '78234',
+      eTag: '678',
     },
+    eTag: '456',
   };
 
   it('can format an HHG shipment', () => {
@@ -290,6 +292,9 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.agents[0].phone).toBe('222-555-1234');
     expect(actual.agents[0].agentType).toBe('RELEASING_AGENT');
     expect(actual.customerRemarks).toBe('some mock remarks');
+
+    expect(actual.storageFacility.eTag).toBeUndefined();
+    expect(actual.storageFacility.address.eTag).toBeUndefined();
   });
 
   it('can format an NTS shipment', () => {
@@ -327,12 +332,25 @@ describe('formatMtoShipmentForAPI', () => {
       ...mtoShipmentParams,
       shipmentType: SHIPMENT_OPTIONS.NTSR,
       delivery: { ...deliveryInfo },
-      primeActualWeight: '4000',
+      ntsRecordedWeight: '4000',
       storageFacility,
     };
 
     const actual = formatMtoShipmentForAPI(params);
-    expect(actual.primeActualWeight).toEqual(4000);
+    expect(actual.ntsRecordedWeight).toEqual(4000);
+  });
+
+  it('can format a shipment with shipment weight including delimiters', () => {
+    const params = {
+      ...mtoShipmentParams,
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      delivery: { ...deliveryInfo },
+      ntsRecordedWeight: '4,500',
+      storageFacility,
+    };
+
+    const actual = formatMtoShipmentForAPI(params);
+    expect(actual.ntsRecordedWeight).toEqual(4500);
   });
 
   it('can format an HHG shipment with a secondary pickup/destination', () => {

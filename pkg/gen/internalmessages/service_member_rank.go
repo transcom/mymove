@@ -20,8 +20,12 @@ import (
 type ServiceMemberRank string
 
 func NewServiceMemberRank(value ServiceMemberRank) *ServiceMemberRank {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ServiceMemberRank.
+func (m ServiceMemberRank) Pointer() *ServiceMemberRank {
+	return &m
 }
 
 const (
@@ -52,6 +56,9 @@ const (
 
 	// ServiceMemberRankE9 captures enum value "E_9"
 	ServiceMemberRankE9 ServiceMemberRank = "E_9"
+
+	// ServiceMemberRankE9SPECIALSENIORENLISTED captures enum value "E_9_SPECIAL_SENIOR_ENLISTED"
+	ServiceMemberRankE9SPECIALSENIORENLISTED ServiceMemberRank = "E_9_SPECIAL_SENIOR_ENLISTED"
 
 	// ServiceMemberRankO1ACADEMYGRADUATE captures enum value "O_1_ACADEMY_GRADUATE"
 	ServiceMemberRankO1ACADEMYGRADUATE ServiceMemberRank = "O_1_ACADEMY_GRADUATE"
@@ -116,7 +123,7 @@ var serviceMemberRankEnum []interface{}
 
 func init() {
 	var res []ServiceMemberRank
-	if err := json.Unmarshal([]byte(`["E_1","E_2","E_3","E_4","E_5","E_6","E_7","E_8","E_9","O_1_ACADEMY_GRADUATE","O_2","O_3","O_4","O_5","O_6","O_7","O_8","O_9","O_10","W_1","W_2","W_3","W_4","W_5","AVIATION_CADET","CIVILIAN_EMPLOYEE","ACADEMY_CADET","MIDSHIPMAN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["E_1","E_2","E_3","E_4","E_5","E_6","E_7","E_8","E_9","E_9_SPECIAL_SENIOR_ENLISTED","O_1_ACADEMY_GRADUATE","O_2","O_3","O_4","O_5","O_6","O_7","O_8","O_9","O_10","W_1","W_2","W_3","W_4","W_5","AVIATION_CADET","CIVILIAN_EMPLOYEE","ACADEMY_CADET","MIDSHIPMAN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

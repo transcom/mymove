@@ -10,7 +10,7 @@ export default {
   decorators: [
     withKnobs,
     (Story) => (
-      <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+      <div className="officeApp" style={{ padding: `20px`, background: `#f0f0f0` }}>
         <Story />
       </div>
     ),
@@ -40,6 +40,7 @@ const entitlement = {
   proGearWeight: 2000,
   proGearWeightSpouse: 500,
   requiredMedicalEquipmentWeight: 1000,
+  storageInTransit: 90,
   organizationalClothingAndIndividualEquipment: true,
   totalWeight: 12875,
   totalDependents: 2,
@@ -50,6 +51,7 @@ export const Basic = (data) => {
     <Formik
       initialValues={{
         authorizedWeight: '8000',
+        storageInTransit: '90',
       }}
       onSubmit={() => {}}
     >

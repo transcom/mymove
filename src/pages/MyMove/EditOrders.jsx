@@ -21,26 +21,21 @@ import {
   selectMoveIsApproved,
   selectUploadsForCurrentOrders,
   selectHasCurrentPPM,
-  selectEntitlementsForLoggedInUser,
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
-import { OrdersShape } from 'types/customerShapes';
-import { formatYesNoInputValue, formatYesNoAPIValue } from 'utils/formatters';
+import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
+import { formatWeight, formatYesNoInputValue } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
-import { EntitlementShape, ExistingUploadsShape } from 'types';
-import { DutyStationShape } from 'types/dutyStation';
+import { ExistingUploadsShape } from 'types';
 
 export const EditOrders = ({
+  serviceMember,
   currentOrders,
-  serviceMemberId,
   updateOrders,
   existingUploads,
   moveIsApproved,
-  spouseHasProGear,
-  currentStation,
   setFlashMessage,
-  entitlement,
   context,
 }) => {
   const filePondEl = createRef();
@@ -52,7 +47,7 @@ export const EditOrders = ({
     issue_date: currentOrders?.issue_date || '',
     report_by_date: currentOrders?.report_by_date || '',
     has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
-    new_duty_station: currentOrders?.new_duty_station || null,
+    new_duty_location: currentOrders?.new_duty_location || null,
     uploaded_orders: existingUploads || [],
   };
 
@@ -62,6 +57,8 @@ export const EditOrders = ({
     ? ORDERS_TYPE_OPTIONS
     : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
+
+  const serviceMemberId = serviceMember.id;
 
   useEffect(() => {
     getOrdersForServiceMember(serviceMemberId).then((response) => {
@@ -90,35 +87,35 @@ export const EditOrders = ({
   };
 
   const submitOrders = (fieldValues) => {
-    let entitlementCouldChange = false;
+    const hasDependents = fieldValues.has_dependents === 'yes';
+    const entitlementCouldChange = hasDependents !== currentOrders.has_dependents;
+    const newDutyStationId = fieldValues.new_duty_location.id;
 
-    const fromFormSpouseHasProGear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
-
-    if (fieldValues.has_dependents !== currentOrders.has_dependents || fromFormSpouseHasProGear !== spouseHasProGear) {
-      entitlementCouldChange = true;
-    }
-
-    const newDutyStationId = fieldValues.new_duty_station.id;
     return patchOrders({
       ...fieldValues,
-      has_dependents: formatYesNoAPIValue(fieldValues.has_dependents),
-      new_duty_station_id: newDutyStationId,
-      spouse_has_pro_gear: fromFormSpouseHasProGear,
+      id: currentOrders.id,
+      service_member_id: serviceMember.id,
+      has_dependents: hasDependents,
+      new_duty_location_id: newDutyStationId,
+      // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the
+      // ppm office edit orders
+      spouse_has_pro_gear: currentOrders.spouse_has_pro_gear,
     })
       .then((response) => {
         updateOrders(response);
-
         if (entitlementCouldChange) {
+          const weightAllowance = hasDependents
+            ? serviceMember.weight_allotment.total_weight_self_plus_dependents
+            : serviceMember.weight_allotment.total_weight_self;
           setFlashMessage(
             'EDIT_ORDERS_SUCCESS',
             'info',
-            `Your weight entitlement is now ${entitlement.sum.toLocaleString()} lbs.`,
+            `Your weight entitlement is now ${formatWeight(weightAllowance)}.`,
             'Your changes have been saved. Note that the entitlement has also changed.',
           );
         } else {
           setFlashMessage('EDIT_ORDERS_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
-
         history.goBack();
       })
       .catch((e) => {
@@ -127,7 +124,6 @@ export const EditOrders = ({
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update orders due to server error');
         setServerError(errorMessage);
-
         scrollToTop();
       });
   };
@@ -164,7 +160,7 @@ export const EditOrders = ({
                 onUploadComplete={handleUploadComplete}
                 onDelete={handleDeleteFile}
                 ordersTypeOptions={ordersTypeOptions}
-                currentStation={currentStation}
+                currentStation={serviceMember.current_location}
                 onCancel={handleCancel}
               />
             </div>
@@ -177,41 +173,33 @@ export const EditOrders = ({
 
 EditOrders.propTypes = {
   moveIsApproved: PropTypes.bool.isRequired,
-  serviceMemberId: PropTypes.string.isRequired,
+  serviceMember: ServiceMemberShape.isRequired,
   setFlashMessage: PropTypes.func.isRequired,
   updateOrders: PropTypes.func.isRequired,
   currentOrders: OrdersShape.isRequired,
-  entitlement: EntitlementShape.isRequired,
   existingUploads: ExistingUploadsShape,
-  spouseHasProGear: PropTypes.bool,
   context: PropTypes.shape({
     flags: PropTypes.shape({
       allOrdersTypes: PropTypes.bool,
     }).isRequired,
   }).isRequired,
-  currentStation: DutyStationShape,
 };
 
 EditOrders.defaultProps = {
   existingUploads: [],
-  spouseHasProGear: false,
-  currentStation: {},
 };
 
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const serviceMemberId = serviceMember?.id;
   const currentOrders = selectCurrentOrders(state) || {};
   const uploads = selectUploadsForCurrentOrders(state);
 
   return {
+    serviceMember,
     currentOrders,
-    serviceMemberId,
     existingUploads: uploads,
     moveIsApproved: selectMoveIsApproved(state),
     isPpm: selectHasCurrentPPM(state),
-    entitlement: selectEntitlementsForLoggedInUser(state),
-    currentStation: serviceMember?.current_station || {},
   };
 }
 

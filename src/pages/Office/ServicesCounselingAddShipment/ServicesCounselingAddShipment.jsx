@@ -14,6 +14,7 @@ import { useEditShipmentQueries } from 'hooks/queries';
 import { createMTOShipment } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
 const ServicesCounselingAddShipment = ({ match }) => {
@@ -40,12 +41,12 @@ const ServicesCounselingAddShipment = ({ match }) => {
 
   const TACs = {
     HHG: order.tac,
-    NTS: order.nts_tac,
+    NTS: order.ntsTac,
   };
 
   const SACs = {
     HHG: order.sac,
-    NTS: order.nts_sac,
+    NTS: order.ntsSac,
   };
 
   return (
@@ -61,14 +62,17 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   history={history}
                   submitHandler={mutateMTOShipments}
                   isCreatePage
+                  ServicesCounselingShipmentForm
                   currentResidence={customer.current_address}
-                  newDutyStationAddress={order.destinationDutyStation?.address}
+                  newDutyStationAddress={order.destinationDutyLocation?.address}
                   selectedMoveType={selectedMoveType}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}
                   TACs={TACs}
                   SACs={SACs}
+                  userRole={roleTypes.SERVICES_COUNSELOR}
+                  displayDestinationType
                 />
               </Grid>
             </Grid>

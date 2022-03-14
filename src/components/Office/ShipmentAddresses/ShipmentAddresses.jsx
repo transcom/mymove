@@ -12,39 +12,59 @@ import DataTable from '../../DataTable/index';
 import styles from './ShipmentAddresses.module.scss';
 
 import { shipmentStatuses } from 'constants/shipments';
-import { ShipmentStatusesOneOf } from 'types/shipment';
+import { ShipmentOptionsOneOf, ShipmentStatusesOneOf } from 'types/shipment';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const ShipmentAddresses = ({
   pickupAddress,
   destinationAddress,
-  originDutyStation,
-  destinationDutyStation,
+  originDutyLocation,
+  destinationDutyLocation,
   handleDivertShipment,
   shipmentInfo,
 }) => {
+  let pickupHeader;
+  let destinationHeader;
+  switch (shipmentInfo.shipmentType) {
+    case SHIPMENT_OPTIONS.HHG:
+      pickupHeader = "Customer's addresses";
+      destinationHeader = '';
+      break;
+    case SHIPMENT_OPTIONS.NTS:
+      pickupHeader = 'Pickup address';
+      destinationHeader = 'Facility address';
+      break;
+    case SHIPMENT_OPTIONS.NTSR:
+      pickupHeader = 'Facility address';
+      destinationHeader = 'Delivery address';
+      break;
+    default:
+      pickupHeader = "Customer's addresses";
+      destinationHeader = '';
+  }
+
   return (
     <DataTableWrapper className={classnames('maxw-tablet', 'table--data-point-group', styles.mtoShipmentAddresses)}>
       <DataTable
         columnHeaders={[
           'Authorized addresses',
           <div className={styles.rightAlignButtonWrapper}>
-            {shipmentInfo.shipmentStatus !== shipmentStatuses.CANCELED && (
-              <Button
-                type="button"
-                onClick={() => handleDivertShipment(shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag)}
-                unstyled
-              >
+            {shipmentInfo.status !== shipmentStatuses.CANCELED && (
+              <Button type="button" onClick={() => handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag)} unstyled>
                 Request diversion
               </Button>
             )}
           </div>,
         ]}
-        dataRow={[formatAddress(originDutyStation), formatAddress(destinationDutyStation)]}
+        dataRow={[formatAddress(originDutyLocation), formatAddress(destinationDutyLocation)]}
         icon={<FontAwesomeIcon icon="arrow-right" />}
       />
       <DataTable
-        columnHeaders={["Customer's addresses", '']}
-        dataRow={[formatAddress(pickupAddress), formatAddress(destinationAddress)]}
+        columnHeaders={[pickupHeader, destinationHeader]}
+        dataRow={[
+          pickupAddress ? formatAddress(pickupAddress) : '—',
+          destinationAddress ? formatAddress(destinationAddress) : '—',
+        ]}
         icon={<FontAwesomeIcon icon="arrow-right" />}
       />
     </DataTableWrapper>
@@ -54,21 +74,22 @@ const ShipmentAddresses = ({
 ShipmentAddresses.propTypes = {
   pickupAddress: AddressShape,
   destinationAddress: AddressShape,
-  originDutyStation: AddressShape,
-  destinationDutyStation: AddressShape,
+  originDutyLocation: AddressShape,
+  destinationDutyLocation: AddressShape,
   handleDivertShipment: PropTypes.func.isRequired,
   shipmentInfo: PropTypes.shape({
-    shipmentID: PropTypes.string.isRequired,
-    ifMatchEtag: PropTypes.string.isRequired,
-    shipmentStatus: ShipmentStatusesOneOf.isRequired,
+    id: PropTypes.string.isRequired,
+    eTag: PropTypes.string.isRequired,
+    status: ShipmentStatusesOneOf.isRequired,
+    shipmentType: ShipmentOptionsOneOf.isRequired,
   }).isRequired,
 };
 
 ShipmentAddresses.defaultProps = {
   pickupAddress: {},
   destinationAddress: {},
-  originDutyStation: {},
-  destinationDutyStation: {},
+  originDutyLocation: {},
+  destinationDutyLocation: {},
 };
 
 export default ShipmentAddresses;

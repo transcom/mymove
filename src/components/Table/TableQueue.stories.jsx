@@ -81,12 +81,27 @@ const defaultProps = {
   columns: columns(),
 };
 
-export const TXOTable = () => <TableQueue {...defaultProps} />;
-
-export const TXOTableSortable = () => (
-  <TableQueue {...defaultProps} disableSortBy={false} defaultSortedColumns={[{ id: 'col1', desc: false }]} />
+export const TXOTable = () => (
+  <div className="officeApp">
+    <TableQueue {...defaultProps} />
+  </div>
 );
 
-export const TXOTableFilters = () => <TableQueue {...defaultProps} columns={columns(true)} showFilters />;
+export const TXOTableSortable = () => (
+  <div className="officeApp">
+    <TableQueue {...defaultProps} disableSortBy={false} defaultSortedColumns={[{ id: 'col1', desc: false }]} />
+  </div>
+);
 
-export const TXOTablePagination = () => <TableQueue {...defaultProps} showPagination />;
+export const TXOTableFilters = () => (
+  <div className="officeApp">
+    <TableQueue {...defaultProps} columns={columns(true)} showFilters />
+  </div>
+);
+
+export const TXOTablePagination = () => (
+  <div className="officeApp">
+    {' '}
+    <TableQueue {...defaultProps} showPagination />
+  </div>
+);

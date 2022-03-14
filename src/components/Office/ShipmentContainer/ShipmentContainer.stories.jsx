@@ -1,7 +1,6 @@
 import React from 'react';
 import { boolean, number, object, text } from '@storybook/addon-knobs';
 
-import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 import ShipmentHeading from '../ShipmentHeading/ShipmentHeading';
 
 import ShipmentContainer from './ShipmentContainer';
@@ -10,6 +9,7 @@ import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsT
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
+import { SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
   title: 'Office Components/ShipmentContainer',
@@ -68,9 +68,10 @@ export const MTOAccessorial = () => (
     />
     <ShipmentAddresses
       shipmentInfo={object('MTOShipment.shipmentInfo', {
-        shipmentID: '1',
-        ifMatchEtag: '1',
-        shipmentStatus: 'APPROVED',
+        id: '1',
+        eTag: '1',
+        status: 'APPROVED',
+        shipmentType: SHIPMENT_OPTIONS.HHG,
       })}
       handleDivertShipment={() => {}}
       pickupAddress={object('MTOShipment.pickupAddress', {
@@ -85,13 +86,13 @@ export const MTOAccessorial = () => (
         state: 'CA',
         postalCode: '94535',
       })}
-      originDutyStation={object('Order.originDutyStation', {
+      originDutyLocation={object('Order.originDutyLocation', {
         streetAddress1: '',
         city: 'Fort Knox',
         state: 'KY',
         postalCode: '40121',
       })}
-      destinationDutyStation={object('Order.destinationDutyStation', {
+      destinationDutyLocation={object('Order.destinationDutyLocation', {
         streetAddress1: '',
         city: 'Fort Irwin',
         state: 'CA',

@@ -89,19 +89,19 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticUncratingServiceItem() mode
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameServicesScheduleDest,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(ducrtTestServiceSchedule),
-			},
-			{
 				Key:     models.ServiceItemParamNameCubicFeetBilled,
 				KeyType: models.ServiceItemParamTypeDecimal,
 				Value:   fmt.Sprintf("%d", int(ducrtTestBilledCubicFeet)),
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
 				Value:   ducrtTestRequestedPickupDate.Format(DateParamFormat),
+			},
+			{
+				Key:     models.ServiceItemParamNameServicesScheduleDest,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(ducrtTestServiceSchedule),
 			},
 		},
 	)

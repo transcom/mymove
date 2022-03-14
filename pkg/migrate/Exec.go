@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"database/sql"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 var (
@@ -16,14 +18,29 @@ var (
 )
 
 // Exec executes a query
-func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
+func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration, logger *zap.Logger) error {
 
+	scanner := bufio.NewScanner(inputReader)
 	lines := make(chan string, 1000)
 	dropComments := true
 	dropSearchPath := true
+
+	if scanner.Scan() {
+		line := scanner.Text()
+		if 0 == strings.Index(line, "-- POP RAW MIGRATION --") {
+			var sb strings.Builder
+			for scanner.Scan() {
+				sb.WriteString(scanner.Text())
+				sb.WriteString("\n")
+			}
+			_, err := tx.Store.Exec(sb.String())
+			return err
+		}
+		lines <- ReadInSQLLine(line, dropComments, dropSearchPath)
+	}
+
 	// read values out of the buffer
 	go func() {
-		scanner := bufio.NewScanner(inputReader)
 		for scanner.Scan() {
 			lines <- ReadInSQLLine(scanner.Text(), dropComments, dropSearchPath)
 		}
@@ -31,7 +48,7 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 	}()
 
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements, wait)
+	go SplitStatements(lines, statements, wait, logger)
 
 	var match []string
 	var preparedStmt *sql.Stmt

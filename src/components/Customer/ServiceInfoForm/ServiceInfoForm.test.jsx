@@ -15,7 +15,7 @@ jest.mock('components/DutyStationSearchBox/api', () => ({
       streetAddress1: '123 Main St',
     }),
   ),
-  SearchDutyStations: jest.fn().mockImplementation(() =>
+  SearchDutyLocations: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
         address: {
@@ -138,9 +138,9 @@ describe('ServiceInfoForm', () => {
       affiliation: '',
       edipi: '',
       rank: '',
-      current_station: {},
+      current_location: {},
     },
-    newDutyStation: {},
+    newDutyLocation: {},
   };
 
   it('renders the form inputs', async () => {
@@ -188,7 +188,7 @@ describe('ServiceInfoForm', () => {
     render(
       <ServiceInfoForm
         {...testProps}
-        newDutyStation={{ name: 'Luke AFB', id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a' }}
+        newDutyLocation={{ name: 'Luke AFB', id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a' }}
       />,
     );
 
@@ -198,7 +198,7 @@ describe('ServiceInfoForm', () => {
     await selectEvent.select(dutyStationInput, /Luke/);
 
     expect(await screen.findByRole('form')).toHaveFormValues({
-      current_station: 'Luke AFB',
+      current_location: 'Luke AFB',
     });
 
     expect(await screen.findByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
@@ -234,7 +234,7 @@ describe('ServiceInfoForm', () => {
     await selectEvent.select(screen.getByLabelText('Current duty location'), /Luke/);
 
     expect(screen.getByRole('form')).toHaveFormValues({
-      current_station: 'Luke AFB',
+      current_location: 'Luke AFB',
     });
 
     userEvent.click(submitBtn);
@@ -247,7 +247,7 @@ describe('ServiceInfoForm', () => {
           affiliation: 'NAVY',
           edipi: '1234567890',
           rank: 'E_5',
-          current_station: {
+          current_location: {
             address: {
               city: 'Test City',
               id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',

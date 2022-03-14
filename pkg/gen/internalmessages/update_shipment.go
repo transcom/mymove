@@ -32,6 +32,9 @@ type UpdateShipment struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
+	// ppm shipment
+	PpmShipment *UpdatePPMShipment `json:"ppmShipment,omitempty"`
+
 	// requested delivery date
 	// Format: date
 	RequestedDeliveryDate strfmt.Date `json:"requestedDeliveryDate,omitempty"`
@@ -66,6 +69,10 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -107,6 +114,8 @@ func (m *UpdateShipment) validateAgents(formats strfmt.Registry) error {
 	if err := m.Agents.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -123,6 +132,8 @@ func (m *UpdateShipment) validateDestinationAddress(formats strfmt.Registry) err
 		if err := m.DestinationAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -140,6 +151,27 @@ func (m *UpdateShipment) validatePickupAddress(formats strfmt.Registry) error {
 		if err := m.PickupAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) validatePpmShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmShipment) { // not required
+		return nil
+	}
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
 			}
 			return err
 		}
@@ -181,6 +213,8 @@ func (m *UpdateShipment) validateSecondaryDeliveryAddress(formats strfmt.Registr
 		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -198,6 +232,8 @@ func (m *UpdateShipment) validateSecondaryPickupAddress(formats strfmt.Registry)
 		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
 			}
 			return err
 		}
@@ -214,6 +250,8 @@ func (m *UpdateShipment) validateShipmentType(formats strfmt.Registry) error {
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -229,6 +267,8 @@ func (m *UpdateShipment) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -249,6 +289,10 @@ func (m *UpdateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -279,6 +323,8 @@ func (m *UpdateShipment) contextValidateAgents(ctx context.Context, formats strf
 	if err := m.Agents.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -292,6 +338,8 @@ func (m *UpdateShipment) contextValidateDestinationAddress(ctx context.Context, 
 		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -306,6 +354,24 @@ func (m *UpdateShipment) contextValidatePickupAddress(ctx context.Context, forma
 		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
 			}
 			return err
 		}
@@ -320,6 +386,8 @@ func (m *UpdateShipment) contextValidateSecondaryDeliveryAddress(ctx context.Con
 		if err := m.SecondaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -334,6 +402,8 @@ func (m *UpdateShipment) contextValidateSecondaryPickupAddress(ctx context.Conte
 		if err := m.SecondaryPickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
 			}
 			return err
 		}
@@ -347,6 +417,8 @@ func (m *UpdateShipment) contextValidateShipmentType(ctx context.Context, format
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -359,6 +431,8 @@ func (m *UpdateShipment) contextValidateStatus(ctx context.Context, formats strf
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}

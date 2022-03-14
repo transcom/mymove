@@ -17,7 +17,7 @@ jest.mock('components/DutyStationSearchBox/api', () => ({
       streetAddress1: 'n/a',
     }),
   ),
-  SearchDutyStations: jest.fn().mockImplementation(() =>
+  SearchDutyLocations: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
         address: {
@@ -135,7 +135,7 @@ const testProps = {
     issue_date: '',
     report_by_date: '',
     has_dependents: '',
-    new_duty_station: {},
+    new_duty_location: {},
     uploaded_orders: [],
   },
   onCancel: jest.fn(),
@@ -156,7 +156,7 @@ const initialValues = {
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: 'No',
-  new_duty_station: {
+  new_duty_location: {
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -190,7 +190,7 @@ describe('EditOrdersForm component', () => {
     it.each([
       ['Orders type', true, HTMLSelectElement],
       ['Orders date', true, HTMLInputElement],
-      ['Report-by date', true, HTMLInputElement],
+      ['Report by date', true, HTMLInputElement],
       ['Yes', false, HTMLInputElement],
       ['No', false, HTMLInputElement],
       ['New duty location', false, HTMLInputElement],
@@ -255,7 +255,7 @@ describe('EditOrdersForm component', () => {
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     userEvent.click(screen.getByLabelText('No'));
 
     // Test duty station Search Box interaction
@@ -265,7 +265,7 @@ describe('EditOrdersForm component', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
-        new_duty_station: 'Luke AFB',
+        new_duty_location: 'Luke AFB',
       });
     });
 
@@ -319,7 +319,7 @@ describe('EditOrdersForm component', () => {
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
@@ -329,7 +329,7 @@ describe('EditOrdersForm component', () => {
 
     await waitFor(() =>
       expect(screen.getByRole('form')).toHaveFormValues({
-        new_duty_station: 'Luke AFB',
+        new_duty_location: 'Luke AFB',
       }),
     );
 
@@ -344,7 +344,7 @@ describe('EditOrdersForm component', () => {
           has_dependents: 'no',
           issue_date: '08 Nov 2020',
           report_by_date: '26 Nov 2020',
-          new_duty_station: {
+          new_duty_location: {
             address: {
               city: 'Glendale Luke AFB',
               country: 'United States',
@@ -383,7 +383,7 @@ describe('EditOrdersForm component', () => {
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: 'no',
-      new_duty_station: {
+      new_duty_location: {
         address: {
           city: 'Des Moines',
           country: 'US',
@@ -416,12 +416,12 @@ describe('EditOrdersForm component', () => {
       render(<EditOrdersForm {...testProps} initialValues={testInitialValues} />);
 
       expect(await screen.findByRole('form')).toHaveFormValues({
-        new_duty_station: 'Yuma AFB',
+        new_duty_location: 'Yuma AFB',
       });
 
       expect(screen.getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
       expect(screen.getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
-      expect(screen.getByLabelText('Report-by date')).toHaveValue('26 Nov 2020');
+      expect(screen.getByLabelText('Report by date')).toHaveValue('26 Nov 2020');
       expect(screen.getByLabelText('Yes')).not.toBeChecked();
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
@@ -441,7 +441,7 @@ describe('EditOrdersForm component', () => {
       ['Orders Type', 'orders_type', ''],
       ['Orders Date', 'issue_date', ''],
       ['Report By Date', 'report_by_date', ''],
-      ['Duty Location', 'new_duty_station', null],
+      ['Duty Location', 'new_duty_location', null],
       ['Uploaded Orders', 'uploaded_orders', []],
     ])('when there is no %s', async (attributeNamePrettyPrint, attributeName, valueToReplaceIt) => {
       const modifiedProps = {
@@ -451,7 +451,7 @@ describe('EditOrdersForm component', () => {
           issue_date: '2020-11-08',
           report_by_date: '2020-11-26',
           has_dependents: 'no',
-          new_duty_station: {
+          new_duty_location: {
             address: {
               city: 'Des Moines',
               country: 'US',

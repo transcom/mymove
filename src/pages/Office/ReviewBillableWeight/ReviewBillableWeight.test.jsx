@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 
 import ReviewBillableWeight from './ReviewBillableWeight';
 
-import { formatWeight, formatDateFromIso } from 'shared/formatters';
+import { formatWeight } from 'utils/formatters';
+import { formatDateFromIso } from 'shared/formatters';
 import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
 
@@ -30,7 +31,7 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-const mockOriginDutyStation = {
+const mockOriginDutyLocation = {
   address: {
     city: 'Des Moines',
     country: 'US',
@@ -48,7 +49,7 @@ const mockOriginDutyStation = {
   name: 'XBc1KNi3pA',
 };
 
-const mockDestinationDutyStation = {
+const mockDestinationDutyLocation = {
   address: {
     city: 'Augusta',
     country: 'United States',
@@ -70,7 +71,7 @@ const mockOrders = {
     customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
     date_issued: '2018-03-15',
     department_indicator: 'AIR_FORCE',
-    destinationDutyStation: mockDestinationDutyStation,
+    destinationDutyLocation: mockDestinationDutyLocation,
     eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
     entitlement: {
       authorizedWeight: 5000,
@@ -95,7 +96,7 @@ const mockOrders = {
     order_number: 'ORDER3',
     order_type: 'PERMANENT_CHANGE_OF_STATION',
     order_type_detail: 'HHG_PERMITTED',
-    originDutyStation: mockOriginDutyStation,
+    originDutyLocation: mockOriginDutyLocation,
     report_by_date: '2018-08-01',
     tac: 'F8E1',
     sac: 'E2P3',
@@ -106,6 +107,7 @@ const mockMtoShipments = [
   {
     id: 1,
     status: shipmentStatuses.APPROVED,
+    shipmentType: 'HHG',
     calculatedBillableWeight: 3000,
     billableWeightCap: 1000,
     primeEstimatedWeight: 1000,
@@ -118,6 +120,7 @@ const mockMtoShipments = [
   {
     id: 2,
     status: shipmentStatuses.APPROVED,
+    shipmentType: 'HHG',
     calculatedBillableWeight: 2000,
     billableWeightCap: 2000,
     primeEstimatedWeight: 2000,
@@ -130,6 +133,7 @@ const mockMtoShipments = [
   {
     id: 3,
     status: shipmentStatuses.DIVERSION_REQUESTED,
+    shipmentType: 'HHG',
     calculatedBillableWeight: 3000,
     billableWeightCap: 3000,
     primeEstimatedWeight: 7000,
@@ -141,9 +145,26 @@ const mockMtoShipments = [
   },
 ];
 
+const mockMtoNTSReleaseShipments = [
+  {
+    id: 1,
+    status: shipmentStatuses.APPROVED,
+    shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+    calculatedBillableWeight: 3000,
+    billableWeightCap: 1000,
+    primeEstimatedWeight: 1000,
+    primeActualWeight: 300,
+    reweigh: { verificationReason: 'reweigh required', requestedAt: '2021-09-01' },
+    pickupAddress: { city: 'Las Vegas', state: 'NV', postalCode: '90210' },
+    destinationAddress: { city: 'Miami', state: 'FL', postalCode: '33607' },
+    actualPickupDate: '2021-08-31',
+  },
+];
+
 const mockHasAllInformationShipment = {
   id: 1,
   status: shipmentStatuses.DIVERSION_REQUESTED,
+  shipmentType: 'HHG',
   calculatedBillableWeight: 3000,
   billableWeightCap: 3000,
   primeEstimatedWeight: 7000,
@@ -157,6 +178,7 @@ const mockHasAllInformationShipment = {
 const mockNoReweighWeightShipment = {
   id: 2,
   status: shipmentStatuses.DIVERSION_REQUESTED,
+  shipmentType: 'HHG',
   calculatedBillableWeight: 3000,
   billableWeightCap: 3000,
   primeEstimatedWeight: 7000,
@@ -170,6 +192,7 @@ const mockNoReweighWeightShipment = {
 const mockNoPrimeEstimatedWeightShipment = {
   id: 3,
   status: shipmentStatuses.DIVERSION_REQUESTED,
+  shipmentType: 'HHG',
   calculatedBillableWeight: 3000,
   billableWeightCap: 3000,
   primeActualWeight: 300,
@@ -198,6 +221,12 @@ const move = {
 const useMovePaymentRequestsReturnValue = {
   order: mockOrders['1'],
   mtoShipments: mockMtoShipments,
+  move,
+};
+
+const useMovePaymentRequestsNTSReleaseReturnValue = {
+  order: mockOrders['1'],
+  mtoShipments: mockMtoNTSReleaseShipments,
   move,
 };
 
@@ -609,6 +638,18 @@ describe('ReviewBillableWeight', () => {
       it('does not render the alert when the shipment is not overweight - the billable weight is less than the estimated weight * 110%', () => {
         useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
+
+        render(<ReviewBillableWeight />);
+
+        const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
+        userEvent.click(reviewShipmentWeights);
+
+        expect(screen.queryByTestId('shipmentBillableWeightExceeds110OfEstimated')).not.toBeInTheDocument();
+      });
+
+      it('does not render the alert when the shipment an NTS-release', () => {
+        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+        useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsNTSReleaseReturnValue);
 
         render(<ReviewBillableWeight />);
 

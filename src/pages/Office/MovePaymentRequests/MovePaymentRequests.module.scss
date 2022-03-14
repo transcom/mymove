@@ -1,14 +1,29 @@
 @import 'shared/styles/colors';
+@import 'shared/styles/_basics';
 
 .errorTag {
-    height: 20px;
-    width: 20px;
+  height: 20px;
+  width: 20px;
 }
 
 .warning {
-    color: $warning;
+  color: $warning;
 
-    &.errorTag {
-        width: 20px;
-    }
+  &.errorTag {
+    width: 20px;
+  }
+}
+
+.warningTag {
+  padding-right: 0;
+}
+
+.tioPaymentRequestsHeadingFlexbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  :global(.usa-button) {
+    padding-right: 0;
+  }
 }

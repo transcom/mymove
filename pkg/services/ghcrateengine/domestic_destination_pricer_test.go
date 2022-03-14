@@ -31,19 +31,19 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 					Value:   testdatagen.DefaultContractCode,
 				},
 				{
-					Key:     models.ServiceItemParamNameRequestedPickupDate,
+					Key:     models.ServiceItemParamNameReferenceDate,
 					KeyType: models.ServiceItemParamTypeDate,
 					Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
-				},
-				{
-					Key:     models.ServiceItemParamNameWeightBilled,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   "0",
 				},
 				{
 					Key:     models.ServiceItemParamNameServiceAreaDest,
 					KeyType: models.ServiceItemParamTypeString,
 					Value:   ddpTestServiceArea,
+				},
+				{
+					Key:     models.ServiceItemParamNameWeightBilled,
+					KeyType: models.ServiceItemParamTypeInteger,
+					Value:   "0",
 				},
 			},
 		)
@@ -76,11 +76,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 		suite.Error(err)
 		suite.Equal("could not find param with key ContractCode", err.Error())
 
-		// No requested pickup date
-		missingRequestedPickupDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameRequestedPickupDate)
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingRequestedPickupDate)
+		// No reference date
+		missingReferenceDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameReferenceDate)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingReferenceDate)
 		suite.Error(err)
-		suite.Equal("could not find param with key RequestedPickupDate", err.Error())
+		suite.Equal("could not find param with key ReferenceDate", err.Error())
 
 		// No weight
 		missingBilledWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
@@ -201,10 +201,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
-		// No requested pickup date
+		// No reference date
 		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, ddpTestWeight, ddpTestServiceArea)
 		suite.Error(err)
-		suite.Equal("RequestedPickupDate is required", err.Error())
+		suite.Equal("ReferenceDate is required", err.Error())
 
 		// No weight
 		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, ddpTestServiceArea)
@@ -229,19 +229,19 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationServiceItems() m
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
 				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
-			},
-			{
-				Key:     models.ServiceItemParamNameWeightBilled,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(ddpTestWeight),
 			},
 			{
 				Key:     models.ServiceItemParamNameServiceAreaDest,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   ddpTestServiceArea,
+			},
+			{
+				Key:     models.ServiceItemParamNameWeightBilled,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(ddpTestWeight),
 			},
 		},
 	)

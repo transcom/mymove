@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/etag"
+
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -246,5 +248,124 @@ func (suite *PayloadsSuite) TestSitExtension() {
 		suite.Equal((*strfmt.DateTime)(sitExtension.DecisionDate), returnedPayload.DecisionDate)
 		suite.NotNil(returnedPayload.ETag)
 
+	})
+}
+
+func (suite *PayloadsSuite) TestEntitlement() {
+
+	suite.T().Run("Success - Returns the entitlement payload with only required fields", func(t *testing.T) {
+		entitlement := models.Entitlement{
+			ID:                             uuid.Must(uuid.NewV4()),
+			DependentsAuthorized:           nil,
+			TotalDependents:                nil,
+			NonTemporaryStorage:            nil,
+			PrivatelyOwnedVehicle:          nil,
+			DBAuthorizedWeight:             nil,
+			StorageInTransit:               nil,
+			RequiredMedicalEquipmentWeight: 0,
+			OrganizationalClothingAndIndividualEquipment: false,
+			ProGearWeight:       0,
+			ProGearWeightSpouse: 0,
+			CreatedAt:           time.Now(),
+			UpdatedAt:           time.Now(),
+		}
+
+		payload := Entitlement(&entitlement)
+
+		suite.Equal(strfmt.UUID(entitlement.ID.String()), payload.ID)
+		suite.Equal(int64(0), payload.RequiredMedicalEquipmentWeight)
+		suite.Equal(false, payload.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(int64(0), payload.ProGearWeight)
+		suite.Equal(int64(0), payload.ProGearWeightSpouse)
+		suite.NotEmpty(payload.ETag)
+		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
+
+		suite.Nil(payload.AuthorizedWeight)
+		suite.Nil(payload.DependentsAuthorized)
+		suite.Nil(payload.NonTemporaryStorage)
+		suite.Nil(payload.PrivatelyOwnedVehicle)
+
+		/* These fields are defaulting to zero if they are nil in the model */
+		suite.Equal(int64(0), payload.StorageInTransit)
+		suite.Equal(int64(0), payload.TotalDependents)
+		suite.Equal(int64(0), payload.TotalWeight)
+	})
+
+	suite.T().Run("Success - Returns the entitlement payload with all optional fields populated", func(t *testing.T) {
+		entitlement := models.Entitlement{
+			ID:                             uuid.Must(uuid.NewV4()),
+			DependentsAuthorized:           handlers.FmtBool(true),
+			TotalDependents:                handlers.FmtInt(2),
+			NonTemporaryStorage:            handlers.FmtBool(true),
+			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
+			DBAuthorizedWeight:             handlers.FmtInt(10000),
+			StorageInTransit:               handlers.FmtInt(45),
+			RequiredMedicalEquipmentWeight: 500,
+			OrganizationalClothingAndIndividualEquipment: true,
+			ProGearWeight:       1000,
+			ProGearWeightSpouse: 750,
+			CreatedAt:           time.Now(),
+			UpdatedAt:           time.Now(),
+		}
+
+		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
+		// 9000 lbs with dependents
+		entitlement.SetWeightAllotment(string(models.ServiceMemberRankE5))
+
+		payload := Entitlement(&entitlement)
+
+		suite.Equal(strfmt.UUID(entitlement.ID.String()), payload.ID)
+		suite.True(*payload.DependentsAuthorized)
+		suite.Equal(int64(2), payload.TotalDependents)
+		suite.True(*payload.NonTemporaryStorage)
+		suite.True(*payload.PrivatelyOwnedVehicle)
+		suite.Equal(int64(10000), *payload.AuthorizedWeight)
+		suite.Equal(int64(9000), payload.TotalWeight)
+		suite.Equal(int64(45), payload.StorageInTransit)
+		suite.Equal(int64(500), payload.RequiredMedicalEquipmentWeight)
+		suite.Equal(true, payload.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(int64(1000), payload.ProGearWeight)
+		suite.Equal(int64(750), payload.ProGearWeightSpouse)
+		suite.NotEmpty(payload.ETag)
+		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
+	})
+
+	suite.T().Run("Success - Returns the entitlement payload with total weight self when dependents are not authorized", func(t *testing.T) {
+		entitlement := models.Entitlement{
+			ID:                             uuid.Must(uuid.NewV4()),
+			DependentsAuthorized:           handlers.FmtBool(false),
+			TotalDependents:                handlers.FmtInt(2),
+			NonTemporaryStorage:            handlers.FmtBool(true),
+			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
+			DBAuthorizedWeight:             handlers.FmtInt(10000),
+			StorageInTransit:               handlers.FmtInt(45),
+			RequiredMedicalEquipmentWeight: 500,
+			OrganizationalClothingAndIndividualEquipment: true,
+			ProGearWeight:       1000,
+			ProGearWeightSpouse: 750,
+			CreatedAt:           time.Now(),
+			UpdatedAt:           time.Now(),
+		}
+
+		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
+		// 9000 lbs with dependents
+		entitlement.SetWeightAllotment(string(models.ServiceMemberRankE5))
+
+		payload := Entitlement(&entitlement)
+
+		suite.Equal(strfmt.UUID(entitlement.ID.String()), payload.ID)
+		suite.False(*payload.DependentsAuthorized)
+		suite.Equal(int64(2), payload.TotalDependents)
+		suite.True(*payload.NonTemporaryStorage)
+		suite.True(*payload.PrivatelyOwnedVehicle)
+		suite.Equal(int64(10000), *payload.AuthorizedWeight)
+		suite.Equal(int64(7000), payload.TotalWeight)
+		suite.Equal(int64(45), payload.StorageInTransit)
+		suite.Equal(int64(500), payload.RequiredMedicalEquipmentWeight)
+		suite.Equal(true, payload.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(int64(1000), payload.ProGearWeight)
+		suite.Equal(int64(750), payload.ProGearWeightSpouse)
+		suite.NotEmpty(payload.ETag)
+		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
 	})
 }

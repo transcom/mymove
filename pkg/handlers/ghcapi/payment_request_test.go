@@ -133,11 +133,19 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	expectedServiceItemName := "Test Service"
 	expectedShipmentType := models.MTOShipmentTypeHHG
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	move := testdatagen.MakeAvailableMove(suite.DB())
+	move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+	// we need a mapping for the pickup address postal code to our user's gbloc
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+		move.MTOShipments[0].PickupAddress.PostalCode,
+		officeUser.TransportationOffice.Gbloc)
+
 	// This should create all the other associated records we need.
 	paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-		Move: move,
+		Move:           move,
+		PaymentRequest: models.PaymentRequest{MoveTaskOrderID: move.ID, MoveTaskOrder: move},
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key:  models.ServiceItemParamNameRequestedPickupDate,
 			Type: models.ServiceItemParamTypeDate,
@@ -146,7 +154,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	paymentRequest := paymentServiceItemParam.PaymentServiceItem.PaymentRequest
 	paymentRequests := models.PaymentRequests{paymentRequest}
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTIO,
 	})

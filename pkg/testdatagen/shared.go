@@ -27,7 +27,6 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 // Assertions defines assertions about what the data contains
@@ -38,10 +37,10 @@ type Assertions struct {
 	BackupContact                            models.BackupContact
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
-	DestinationDutyStation                   models.DutyStation
+	DestinationDutyStation                   models.DutyLocation
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
-	DutyStation                              models.DutyStation
+	DutyLocation                             models.DutyLocation
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	Entitlement                              models.Entitlement
@@ -62,7 +61,7 @@ type Assertions struct {
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	Organization                             models.Organization
-	OriginDutyStation                        models.DutyStation
+	OriginDutyLocation                       models.DutyLocation
 	PaymentRequest                           models.PaymentRequest
 	PaymentRequestToInterchangeControlNumber models.PaymentRequestToInterchangeControlNumber
 	PaymentServiceItem                       models.PaymentServiceItem
@@ -70,6 +69,7 @@ type Assertions struct {
 	PaymentServiceItemParams                 models.PaymentServiceItemParams
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	PickupAddress                            models.Address
+	PPMShipment                              models.PPMShipment
 	PrimeUpload                              models.PrimeUpload
 	PrimeUploader                            *uploader.PrimeUploader
 	ProofOfServiceDoc                        models.ProofOfServiceDoc
@@ -111,14 +111,6 @@ type Assertions struct {
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 	Zip3Distance                             models.Zip3Distance
-}
-
-func stringPointer(s string) *string {
-	return &s
-}
-
-func poundPointer(p unit.Pound) *unit.Pound {
-	return &p
 }
 
 func mustCreate(db *pop.Connection, model interface{}, stub bool) {
@@ -290,4 +282,14 @@ func (t customTransformer) Transformer(typ reflect.Type) func(dst, src reflect.V
 		}
 	}
 	return nil
+}
+
+// CurrentDateWithoutTime returns a pointer to a time.Time, stripped of any time info (so date only).
+func CurrentDateWithoutTime() *time.Time {
+	currentTime := time.Now()
+	year, month, day := currentTime.Date()
+
+	currentDate := time.Date(year, month, day, 0, 0, 0, 0, currentTime.Location())
+
+	return &currentDate
 }

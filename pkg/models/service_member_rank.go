@@ -22,6 +22,8 @@ const (
 	ServiceMemberRankE8 ServiceMemberRank = "E_8"
 	// ServiceMemberRankE9 captures enum value "E_9"
 	ServiceMemberRankE9 ServiceMemberRank = "E_9"
+	// ServiceMemberRankE9SPECIALSENIORENLISTED captures enum value "E_9_SPECIAL_SENIOR_ENLISTED"
+	ServiceMemberRankE9SPECIALSENIORENLISTED ServiceMemberRank = "E_9_SPECIAL_SENIOR_ENLISTED"
 	// ServiceMemberRankO1ACADEMYGRADUATE captures enum value "O_1_ACADEMY_GRADUATE"
 	ServiceMemberRankO1ACADEMYGRADUATE ServiceMemberRank = "O_1_ACADEMY_GRADUATE"
 	// ServiceMemberRankO2 captures enum value "O_2"

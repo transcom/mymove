@@ -1,6 +1,8 @@
 import { makeCalculations } from './helpers';
 import testParams from './serviceItemTestParams';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 describe('makeCalculations', () => {
   it('returns correct data for DomesticLongHaul', () => {
     const result = makeCalculations('DLH', 99999, testParams.DomesticLongHaul, testParams.additionalCratingDataDCRT);
@@ -25,6 +27,50 @@ describe('makeCalculations', () => {
           { text: 'Domestic non-peak', styles: {} },
           { text: 'Origin service area: 176', styles: {} },
           { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+        ],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [{ text: 'Base year: 2', styles: {} }],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [{ text: '', styles: {} }],
+      },
+    ]);
+  });
+
+  it('returns correct data for DomesticLongHaul for NTS-release', () => {
+    const result = makeCalculations(
+      'DLH',
+      99999,
+      testParams.DomesticLongHaul,
+      testParams.additionalCratingDataDCRT,
+      SHIPMENT_OPTIONS.NTSR,
+    );
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+      },
+      {
+        value: '1.71',
+        label: 'Baseline linehaul price',
+        details: [
+          { text: 'Domestic non-peak', styles: {} },
+          { text: 'Origin service area: 176', styles: {} },
+          { text: 'Actual pickup: 09 Mar 2020', styles: {} },
         ],
       },
       {
@@ -497,7 +543,7 @@ describe('makeCalculations', () => {
     });
 
     it('returns the correct data for mileage below 50 with matching ZIP3s', () => {
-      const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDeliveryMachingZip3);
+      const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDeliveryMatchingZip3);
       expect(result).toEqual([
         {
           details: [
@@ -588,6 +634,44 @@ describe('makeCalculations', () => {
           { text: 'Requested pickup: 09 Mar 2020', styles: {} },
           { text: 'Domestic non-peak', styles: {} },
         ],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [{ text: 'Base year: 2', styles: {} }],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [{ text: '', styles: {} }],
+      },
+    ]);
+  });
+
+  it('returns correct data for DomesticNTSPacking', () => {
+    const result = makeCalculations('DNPK', 99999, testParams.DomesticNTSPacking);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: [
+          { text: 'Original: 8,500 lbs', styles: { fontWeight: 'bold' } },
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+        ],
+      },
+      {
+        value: '1.71',
+        label: 'Pack price',
+        details: [
+          { text: 'Origin service schedule: 3', styles: {} },
+          { text: 'Requested pickup: 09 Mar 2020', styles: {} },
+          { text: 'Domestic non-peak', styles: {} },
+        ],
+      },
+      {
+        value: '1.35',
+        label: 'NTS packing factor',
+        details: [],
       },
       {
         value: '1.033',
@@ -814,11 +898,6 @@ describe('makeCalculations', () => {
 
   // it('returns correct data for DomesticTowAwayBoatFactor', () => {
   //   const result = makeCalculations('?', 99999, testParams.DomesticTowAwayBoatFactor);
-  //   expect(result).toEqual([]);
-  // });
-
-  // it('returns correct data for DomesticNTSPacking', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticNTSPacking);
   //   expect(result).toEqual([]);
   // });
 });

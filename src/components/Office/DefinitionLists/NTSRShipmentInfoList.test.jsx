@@ -5,11 +5,11 @@ import { object, text } from '@storybook/addon-knobs';
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
 
 const showWhenCollapsed = ['counselorRemarks'];
-const warnIfMissing = ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
+const warnIfMissing = ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'];
 const errorIfMissing = ['storageFacility'];
 
 const shipment = {
-  primeActualWeight: 2000,
+  ntsRecordedWeight: 2000,
   storageFacility: {
     address: {
       city: 'Anytown',
@@ -57,7 +57,7 @@ const shipment = {
 
 describe('NTSR Shipment Info List renders all fields when provided and expanded', () => {
   it.each([
-    ['primeActualWeight', '2,000 lbs'],
+    ['ntsRecordedWeight', '2,000 lbs'],
     ['storageFacilityName', shipment.storageFacility.facilityName],
     ['serviceOrderNumber', shipment.serviceOrderNumber],
     ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
@@ -76,7 +76,7 @@ describe('NTSR Shipment Info List renders all fields when provided and expanded'
 });
 
 describe('NTSR Shipment Info List renders missing non-required items correctly', () => {
-  it.each(['counselorRemarks', 'tacType', 'sacType', 'primeActualWeight', 'serviceOrderNumber'])(
+  it.each(['counselorRemarks', 'tacType', 'sacType', 'ntsRecordedWeight', 'serviceOrderNumber'])(
     'Verify Shipment field %s displays "—" with a warning class',
     async (shipmentField) => {
       render(
@@ -134,7 +134,7 @@ describe('NTSR Shipment Info List collapsed view', () => {
       />,
     );
 
-    expect(screen.queryByTestId('primeActualWeight')).toBeNull();
+    expect(screen.queryByTestId('ntsRecordedWeight')).toBeNull();
     expect(screen.queryByTestId('storageFacility')).toBeNull();
     expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
     expect(screen.queryByTestId('secondaryDeliveryAddress')).toBeNull();

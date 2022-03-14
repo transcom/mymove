@@ -129,25 +129,24 @@ func Order(order *models.Order) *primemessages.Order {
 	if order == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&order.NewDutyStation)
-	originDutyStation := DutyStation(order.OriginDutyStation)
+	destinationDutyStation := DutyLocation(&order.NewDutyLocation)
+	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
-	entitlements := Entitlement(order.Entitlement)
 
 	payload := primemessages.Order{
-		CustomerID:             strfmt.UUID(order.ServiceMemberID.String()),
-		Customer:               Customer(&order.ServiceMember),
-		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            entitlements,
-		ID:                     strfmt.UUID(order.ID.String()),
-		OriginDutyStation:      originDutyStation,
-		OrderNumber:            order.OrdersNumber,
-		LinesOfAccounting:      order.TAC,
-		Rank:                   order.Grade,
-		ETag:                   etag.GenerateEtag(order.UpdatedAt),
-		ReportByDate:           strfmt.Date(order.ReportByDate),
+		CustomerID:              strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:                Customer(&order.ServiceMember),
+		DestinationDutyLocation: destinationDutyStation,
+		Entitlement:             Entitlement(order.Entitlement),
+		ID:                      strfmt.UUID(order.ID.String()),
+		OriginDutyLocation:      originDutyLocation,
+		OrderNumber:             order.OrdersNumber,
+		LinesOfAccounting:       order.TAC,
+		Rank:                    order.Grade,
+		ETag:                    etag.GenerateEtag(order.UpdatedAt),
+		ReportByDate:            strfmt.Date(order.ReportByDate),
 	}
 
 	return &payload
@@ -159,8 +158,8 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		return nil
 	}
 	var totalWeight int64
-	if entitlement.WeightAllotment() != nil {
-		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
+	if weightAllowance := entitlement.WeightAllowance(); weightAllowance != nil {
+		totalWeight = int64(*weightAllowance)
 	}
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {
@@ -192,13 +191,13 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	}
 }
 
-// DutyStation payload
-func DutyStation(dutyStation *models.DutyStation) *primemessages.DutyStation {
+// DutyLocation payload
+func DutyLocation(dutyStation *models.DutyLocation) *primemessages.DutyLocation {
 	if dutyStation == nil {
 		return nil
 	}
 	address := Address(&dutyStation.Address)
-	payload := primemessages.DutyStation{
+	payload := primemessages.DutyLocation{
 		Address:   address,
 		AddressID: address.ID,
 		ID:        strfmt.UUID(dutyStation.ID.String()),
@@ -222,6 +221,23 @@ func Address(address *models.Address) *primemessages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+	}
+}
+
+// StorageFacility payload
+func StorageFacility(storage *models.StorageFacility) *primemessages.StorageFacility {
+	if storage == nil {
+		return nil
+	}
+
+	return &primemessages.StorageFacility{
+		ID:           strfmt.UUID(storage.ID.String()),
+		Address:      Address(&storage.Address),
+		ETag:         etag.GenerateEtag(storage.UpdatedAt),
+		Email:        storage.Email,
+		FacilityName: storage.FacilityName,
+		LotNumber:    storage.LotNumber,
+		Phone:        storage.Phone,
 	}
 }
 
@@ -401,6 +417,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	if mtoShipment.DestinationAddress != nil {
 		payload.DestinationAddress.Address = *Address(mtoShipment.DestinationAddress)
 	}
+	if mtoShipment.DestinationType != nil {
+		destinationType := primemessages.DestinationType(*mtoShipment.DestinationType)
+		payload.DestinationType = &destinationType
+	}
 	if mtoShipment.SecondaryPickupAddress != nil {
 		payload.SecondaryPickupAddress.Address = *Address(mtoShipment.SecondaryPickupAddress)
 	}
@@ -408,8 +428,14 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.SecondaryDeliveryAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
 	}
 
+	if mtoShipment.StorageFacility != nil {
+		payload.StorageFacility = StorageFacility(mtoShipment.StorageFacility)
+	}
+
 	if mtoShipment.MTOServiceItems != nil {
 		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
+	} else {
+		payload.SetMtoServiceItems([]primemessages.MTOServiceItem{})
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {
@@ -421,8 +447,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	}
 
 	if mtoShipment.NTSRecordedWeight != nil {
-		ntsRecordedWeight := int64(*mtoShipment.NTSRecordedWeight)
-		payload.NtsRecordedWeight = &ntsRecordedWeight
+		payload.NtsRecordedWeight = handlers.FmtInt64(mtoShipment.NTSRecordedWeight.Int64())
 	}
 
 	return payload
@@ -543,7 +568,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 
 // MTOServiceItems payload
 func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.MTOServiceItem {
-	var payload []primemessages.MTOServiceItem
+	payload := []primemessages.MTOServiceItem{}
 
 	for _, p := range *mtoServiceItems {
 		copyOfP := p // Make copy to avoid implicit memory aliasing of items from a range statement.

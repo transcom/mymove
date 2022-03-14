@@ -7,6 +7,9 @@
   h4 {
     flex-grow: 1;
   }
+  :global(.usa-button.usa-button--unstyled) {
+    max-width: 44px;
+  }
 }
 
 .rejectReasonClose {

@@ -3,7 +3,6 @@ package serviceparamvaluelookups
 import (
 	"errors"
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -19,29 +18,40 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	key := models.ServiceItemParamNameMTOAvailableToPrimeAt
 
 	availableToPrimeAt := time.Date(testdatagen.TestYear, time.June, 3, 12, 57, 33, 123, time.UTC)
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &availableToPrimeAt,
-			},
-		})
+	var mtoServiceItem models.MTOServiceItem
+	var paymentRequest models.PaymentRequest
+	var paramLookup *ServiceItemParamKeyData
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: mtoServiceItem.MoveTaskOrder,
-		})
+	setupTestData := func() {
+		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(),
+			testdatagen.Assertions{
+				Move: models.Move{
+					AvailableToPrimeAt: &availableToPrimeAt,
+				},
+			})
 
-	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-	suite.FatalNoError(err)
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
 
-	suite.T().Run("golden path", func(t *testing.T) {
+		var err error
+		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+	}
+
+	suite.Run("golden path", func() {
+		setupTestData()
+
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		expected := availableToPrimeAt.Format(ghcrateengine.TimestampParamFormat)
 		suite.Equal(expected, valueStr)
 	})
 
-	suite.T().Run("nil AvailableToPrimeAt", func(t *testing.T) {
+	suite.Run("nil AvailableToPrimeAt", func() {
+		setupTestData()
+
 		// Set the AvailableToPrimeAt to nil
 		moveTaskOrder := paymentRequest.MoveTaskOrder
 		oldAvailableToPrimeAt := moveTaskOrder.AvailableToPrimeAt
@@ -59,7 +69,9 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 		suite.MustSave(&moveTaskOrder)
 	})
 
-	suite.T().Run("bogus MoveTaskOrderID", func(t *testing.T) {
+	suite.Run("bogus MoveTaskOrderID", func() {
+		setupTestData()
+
 		// Pass in a non-existent MoveTaskOrderID
 		invalidMoveTaskOrderID := uuid.Must(uuid.NewV4())
 		badParamLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, invalidMoveTaskOrderID, nil)

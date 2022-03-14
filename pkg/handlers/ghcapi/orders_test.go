@@ -6,6 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/trace"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -60,8 +61,8 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.Equal(order.ID.String(), ordersPayload.ID.String())
 	suite.Equal(move.Locator, ordersPayload.MoveCode)
 	suite.Equal(order.ServiceMemberID.String(), ordersPayload.Customer.ID.String())
-	suite.Equal(order.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
-	suite.NotNil(order.NewDutyStation)
+	suite.Equal(order.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
+	suite.NotNil(order.NewDutyLocation)
 	payloadEntitlement := ordersPayload.Entitlement
 	suite.Equal((*order.EntitlementID).String(), payloadEntitlement.ID.String())
 	orderEntitlement := order.Entitlement
@@ -70,8 +71,8 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.EqualValues(orderEntitlement.ProGearWeightSpouse, payloadEntitlement.ProGearWeightSpouse)
 	suite.EqualValues(orderEntitlement.RequiredMedicalEquipmentWeight, payloadEntitlement.RequiredMedicalEquipmentWeight)
 	suite.EqualValues(orderEntitlement.OrganizationalClothingAndIndividualEquipment, payloadEntitlement.OrganizationalClothingAndIndividualEquipment)
-	suite.Equal(order.OriginDutyStation.ID.String(), ordersPayload.OriginDutyStation.ID.String())
-	suite.NotZero(order.OriginDutyStation)
+	suite.Equal(order.OriginDutyLocation.ID.String(), ordersPayload.OriginDutyLocation.ID.String())
+	suite.NotZero(order.OriginDutyLocation)
 	suite.NotZero(ordersPayload.DateIssued)
 }
 
@@ -162,12 +163,12 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 }
 
 type updateOrderHandlerAmendedUploadSubtestData struct {
-	handlerContext         handlers.HandlerContext
-	userUploader           *uploader.UserUploader
-	amendedOrder           models.Order
-	approvalsRequestedMove models.Move
-	originDutyStation      models.DutyStation
-	destinationDutyStation models.DutyStation
+	handlerContext          handlers.HandlerContext
+	userUploader            *uploader.UserUploader
+	amendedOrder            models.Order
+	approvalsRequestedMove  models.Move
+	originDutyLocation      models.DutyLocation
+	destinationDutyLocation models.DutyLocation
 }
 
 func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (subtestData *updateOrderHandlerAmendedUploadSubtestData) {
@@ -199,8 +200,8 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 
 	subtestData.amendedOrder = subtestData.approvalsRequestedMove.Orders
 
-	subtestData.originDutyStation = testdatagen.MakeDefaultDutyStation(suite.DB())
-	subtestData.destinationDutyStation = testdatagen.MakeDefaultDutyStation(suite.DB())
+	subtestData.originDutyLocation = testdatagen.MakeDefaultDutyLocation(suite.DB())
+	subtestData.destinationDutyLocation = testdatagen.MakeDefaultDutyLocation(suite.DB())
 
 	return subtestData
 }
@@ -227,8 +228,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		subtestData := suite.makeUpdateOrderHandlerAmendedUploadSubtestData()
 		context := subtestData.handlerContext
 		userUploader := subtestData.userUploader
-		destinationDutyStation := subtestData.destinationDutyStation
-		originDutyStation := subtestData.originDutyStation
+		destinationDutyStation := subtestData.destinationDutyLocation
+		originDutyStation := subtestData.originDutyLocation
 
 		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 		upload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
@@ -262,12 +263,12 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			OrdersType:            ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
 			OrdersTypeDetail:      &ordersTypeDetail,
 			OrdersNumber:          handlers.FmtString("ORDER100"),
-			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
-			OriginDutyStationID:   handlers.FmtUUID(originDutyStation.ID),
+			NewDutyLocationID:     handlers.FmtUUID(destinationDutyStation.ID),
+			OriginDutyLocationID:  handlers.FmtUUID(originDutyStation.ID),
 			Tac:                   handlers.FmtString("E19A"),
-			Sac:                   handlers.FmtString("987654321"),
-			NtsTac:                handlers.FmtString("E19A"),
-			NtsSac:                handlers.FmtString("987654321"),
+			Sac:                   nullable.NewString("987654321"),
+			NtsTac:                nullable.NewString("E19A"),
+			NtsSac:                nullable.NewString("987654321"),
 			OrdersAcknowledgement: &ordersAcknowledgement,
 		}
 
@@ -298,8 +299,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		ordersPayload := orderOK.Payload
 
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
-		suite.Equal(body.OriginDutyStationID.String(), ordersPayload.OriginDutyStation.ID.String())
+		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
+		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
@@ -307,9 +308,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		suite.Equal(body.OrdersNumber, ordersPayload.OrderNumber)
 		suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(body.Sac, ordersPayload.Sac)
-		suite.Equal(body.NtsTac, ordersPayload.NtsTac)
-		suite.Equal(body.NtsSac, ordersPayload.NtsSac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
+		suite.Equal(body.NtsTac.Value, ordersPayload.NtsTac)
+		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
 		suite.NotNil(ordersPayload.AmendedOrdersAcknowledgedAt)
 
 		reloadErr := suite.DB().Reload(&move)
@@ -321,8 +322,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	suite.Run("Does not update move status if orders are not acknowledged", func() {
 		subtestData := suite.makeUpdateOrderHandlerAmendedUploadSubtestData()
 		context := subtestData.handlerContext
-		destinationDutyStation := subtestData.destinationDutyStation
-		originDutyStation := subtestData.originDutyStation
+		destinationDutyStation := subtestData.destinationDutyLocation
+		originDutyStation := subtestData.originDutyLocation
 		amendedOrder := subtestData.amendedOrder
 		approvalsRequestedMove := subtestData.approvalsRequestedMove
 
@@ -337,12 +338,12 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			OrdersType:            ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
 			OrdersTypeDetail:      &ordersTypeDetail,
 			OrdersNumber:          handlers.FmtString("ORDER100"),
-			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
-			OriginDutyStationID:   handlers.FmtUUID(originDutyStation.ID),
+			NewDutyLocationID:     handlers.FmtUUID(destinationDutyStation.ID),
+			OriginDutyLocationID:  handlers.FmtUUID(originDutyStation.ID),
 			Tac:                   handlers.FmtString("E19A"),
-			Sac:                   handlers.FmtString("987654321"),
-			NtsTac:                handlers.FmtString("E19A"),
-			NtsSac:                handlers.FmtString("987654321"),
+			Sac:                   nullable.NewString("987654321"),
+			NtsTac:                nullable.NewString("E19A"),
+			NtsSac:                nullable.NewString("987654321"),
 			OrdersAcknowledgement: &unacknowledgedOrders,
 		}
 
@@ -386,25 +387,25 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 	subtestData.move = testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
 	subtestData.order = subtestData.move.Orders
 
-	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	originDutyStation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	destinationDutyStation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 	subtestData.body = &ghcmessages.UpdateOrderPayload{
-		DepartmentIndicator: &deptIndicator,
-		IssueDate:           handlers.FmtDatePtr(&issueDate),
-		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
-		OrdersType:          ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
-		OrdersTypeDetail:    &ordersTypeDetail,
-		OrdersNumber:        handlers.FmtString("ORDER100"),
-		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
-		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("E19A"),
-		Sac:                 handlers.FmtString("987654321"),
-		NtsTac:              handlers.FmtString("E19A"),
-		NtsSac:              handlers.FmtString("987654321"),
+		DepartmentIndicator:  &deptIndicator,
+		IssueDate:            handlers.FmtDatePtr(&issueDate),
+		ReportByDate:         handlers.FmtDatePtr(&reportByDate),
+		OrdersType:           ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
+		OrdersTypeDetail:     &ordersTypeDetail,
+		OrdersNumber:         handlers.FmtString("ORDER100"),
+		NewDutyLocationID:    handlers.FmtUUID(destinationDutyStation.ID),
+		OriginDutyLocationID: handlers.FmtUUID(originDutyStation.ID),
+		Tac:                  handlers.FmtString("E19A"),
+		Sac:                  nullable.NewString("987654321"),
+		NtsTac:               nullable.NewString("E19A"),
+		NtsSac:               nullable.NewString("987654321"),
 	}
 
 	return subtestData
@@ -446,8 +447,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
-		suite.Equal(body.OriginDutyStationID.String(), ordersPayload.OriginDutyStation.ID.String())
+		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
+		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
@@ -455,9 +456,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.Equal(body.OrdersNumber, ordersPayload.OrderNumber)
 		suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(body.Sac, ordersPayload.Sac)
-		suite.Equal(body.NtsTac, ordersPayload.NtsTac)
-		suite.Equal(body.NtsSac, ordersPayload.NtsSac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
+		suite.Equal(body.NtsTac.Value, ordersPayload.NtsTac)
+		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
 	})
 
 	suite.Run("Returns a 403 when the user does not have TXO role", func() {
@@ -682,19 +683,19 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	subtestData.move = testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 	subtestData.order = subtestData.move.Orders
-	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	originDutyStation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+	destinationDutyStation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 
 	subtestData.body = &ghcmessages.CounselingUpdateOrderPayload{
-		IssueDate:           handlers.FmtDatePtr(&issueDate),
-		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
-		OrdersType:          ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
-		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
-		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("E19A"),
-		Sac:                 handlers.FmtString("987654321"),
-		NtsTac:              handlers.FmtString("E19A"),
-		NtsSac:              handlers.FmtString("987654321"),
+		IssueDate:            handlers.FmtDatePtr(&issueDate),
+		ReportByDate:         handlers.FmtDatePtr(&reportByDate),
+		OrdersType:           ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
+		NewDutyLocationID:    handlers.FmtUUID(destinationDutyStation.ID),
+		OriginDutyLocationID: handlers.FmtUUID(originDutyStation.ID),
+		Tac:                  handlers.FmtString("E19A"),
+		Sac:                  nullable.NewString("987654321"),
+		NtsTac:               nullable.NewString("E19A"),
+		NtsSac:               nullable.NewString("987654321"),
 	}
 
 	return subtestData
@@ -734,15 +735,15 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 
 		suite.Assertions.IsType(&orderop.CounselingUpdateOrderOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
-		suite.Equal(body.OriginDutyStationID.String(), ordersPayload.OriginDutyStation.ID.String())
+		suite.Equal(body.NewDutyLocationID.String(), ordersPayload.DestinationDutyLocation.ID.String())
+		suite.Equal(body.OriginDutyLocationID.String(), ordersPayload.OriginDutyLocation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
 		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
 		suite.Equal(body.Tac, ordersPayload.Tac)
-		suite.Equal(body.Sac, ordersPayload.Sac)
-		suite.Equal(body.NtsTac, ordersPayload.NtsTac)
-		suite.Equal(body.NtsSac, ordersPayload.NtsSac)
+		suite.Equal(body.Sac.Value, ordersPayload.Sac)
+		suite.Equal(body.NtsTac.Value, ordersPayload.NtsTac)
+		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
 	})
 
 	suite.Run("Returns a 403 when the user does not have Counselor role", func() {
@@ -894,14 +895,14 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 
 	newAuthorizedWeight := int64(10000)
 	grade := ghcmessages.GradeO5
-	affiliation := ghcmessages.BranchAIRFORCE
+	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
 	proGearWeight := swag.Int64(100)
 	proGearWeightSpouse := swag.Int64(10)
 	rmeWeight := swag.Int64(10000)
 
 	subtestData.body = &ghcmessages.UpdateAllowancePayload{
-		Agency:               affiliation,
+		Agency:               &affiliation,
 		AuthorizedWeight:     &newAuthorizedWeight,
 		DependentsAuthorized: swag.Bool(true),
 		Grade:                &grade,
@@ -909,6 +910,7 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
+		StorageInTransit:               swag.Int64(60),
 	}
 	return subtestData
 }
@@ -989,6 +991,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
+		suite.Equal(*body.StorageInTransit, *ordersPayload.Entitlement.StorageInTransit)
 	})
 
 	suite.Run("Returns a 403 when the user does not have TOO role", func() {
@@ -1161,20 +1164,21 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 
 func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	grade := ghcmessages.GradeO5
-	affiliation := ghcmessages.BranchAIRFORCE
+	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
 	proGearWeight := swag.Int64(100)
 	proGearWeightSpouse := swag.Int64(10)
 	rmeWeight := swag.Int64(10000)
 
 	body := &ghcmessages.CounselingUpdateAllowancePayload{
-		Agency:               affiliation,
+		Agency:               &affiliation,
 		DependentsAuthorized: swag.Bool(true),
 		Grade:                &grade,
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
+		StorageInTransit:               swag.Int64(80),
 	}
 
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)
@@ -1216,6 +1220,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
+		suite.Equal(*body.StorageInTransit, *ordersPayload.Entitlement.StorageInTransit)
 	})
 
 	suite.Run("Returns a 403 when the user does not have Counselor role", func() {

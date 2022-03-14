@@ -13,10 +13,10 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-cf2249e54c69b52625f1ab04eb79f37381d0d3bf
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-03964d7db55c2692d8a9ae89f81ee76c520b33c1
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-cf2249e54c69b52625f1ab04eb79f37381d0d3bf
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-03964d7db55c2692d8a9ae89f81ee76c520b33c1
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres circleci/postgres:12.7-ram
@@ -150,7 +150,7 @@ executors:
           POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: test_db
 
-  mymove_integration_tester:
+  milmove_integration_tester:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
@@ -632,6 +632,10 @@ commands:
           # reasonable proxy for test time
           command: |
             SPECS=$(circleci tests glob "<< parameters.spec_glob >>" | circleci tests split --split-by=filesize | paste -s -d, -)
+            if [ -z "${SPECS}" ]; then
+              echo "CircleCI Parallelism greater than number of files in glob. Please adjust the number parallelism value to a lower number."
+              exit 1
+            fi
             echo $SPECS
             docker build -t cypress:local -f cypress/Dockerfile.cypress cypress
             docker run --name cypress --network e2e_cypress -e CYPRESS_baseUrl="http://milmovelocal:4000" cypress:local run --spec "${SPECS}"
@@ -914,8 +918,9 @@ jobs:
   # separate the integration tests by site so that if there is a flaky
   # test, we only have to re-run part of the integration tests
   integration_tests_admin:
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 2 files here
     parallelism: 2
-    executor: mymove_integration_tester
+    executor: milmove_integration_tester
     steps:
       - attach_workspace:
           at: .
@@ -935,8 +940,9 @@ jobs:
       - announce_failure
 
   integration_tests_office:
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
     parallelism: 4
-    executor: mymove_integration_tester
+    executor: milmove_integration_tester
     steps:
       - attach_workspace:
           at: .
@@ -956,7 +962,7 @@ jobs:
       - announce_failure
 
   integration_tests_prime:
-    executor: mymove_integration_tester
+    executor: milmove_integration_tester
     steps:
       - attach_workspace:
           at: .
@@ -975,14 +981,36 @@ jobs:
           path: cypress/results
       - announce_failure
 
-  integration_tests_milmove:
+  # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
+  integration_tests_mymove:
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
     parallelism: 4
-    executor: mymove_integration_tester
+    executor: milmove_integration_tester
     steps:
       - attach_workspace:
           at: .
       - e2e_tests_cypress:
           spec_glob: cypress/integration/mymove/**/*.js
+      - store_artifacts:
+          path: cypress/reports
+          destination: reports
+      - store_artifacts:
+          path: cypress/videos
+          destination: videos
+      - store_artifacts:
+          path: cypress/screenshots
+          destination: screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+
+  integration_tests_milmove:
+    executor: milmove_integration_tester
+    steps:
+      - attach_workspace:
+          at: .
+      - e2e_tests_cypress:
+          spec_glob: cypress/integration/milmove/**/*.js
       - store_artifacts:
           path: cypress/reports
           destination: reports
@@ -1946,6 +1974,16 @@ workflows:
             branches:
               ignore: *integration-ignore-branch
 
+      - integration_tests_mymove:
+          requires:
+            - compile_app_server
+            - compile_app_client
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
+
       - integration_tests_milmove:
           requires:
             - compile_app_server
@@ -1961,6 +1999,7 @@ workflows:
             - integration_tests_admin
             - integration_tests_office
             - integration_tests_prime
+            - integration_tests_mymove
             - integration_tests_milmove
           # See comments at the top of this file for configuring/using
           # this branch config

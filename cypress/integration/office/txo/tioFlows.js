@@ -38,6 +38,7 @@ describe('TIO user', () => {
       'patchPaymentServiceItemStatus',
     );
     cy.intercept('PATCH', '**/ghc/v1/payment-requests/**/status').as('patchPaymentRequestStatus');
+    cy.intercept('**/ghc/v1/moves/**/financial-review-flag').as('financialReviewFlagCompleted');
 
     const userId = '3b2cc1b0-31a2-4d1b-874f-0591f9127374';
     cy.apiSignInAsUser(userId, TIOOfficeUserType);
@@ -215,5 +216,63 @@ describe('TIO user', () => {
     cy.get('a[title="Home"]').click();
 
     cy.contains('Payment requests', { matchCase: false });
+  });
+
+  // This test performs a mutation so it can only succeed on a fresh DB.
+  it('can flag the move for review', () => {
+    const paymentRequestId = 'ea945ab7-099a-4819-82de-6968efe131dc';
+
+    // TIO Payment Requests queue
+    cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
+    cy.get('#locator').type('TIOFLO');
+    cy.get('th[data-testid="locator"]').first().click();
+    cy.get('[data-testid="locator-0"]').click();
+
+    // Payment Requests page
+    cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    // click to trigger financial review modal
+    cy.contains('Flag move for financial review').click();
+
+    // Enter information in modal and submit
+    cy.get('label').contains('Yes').click();
+    cy.get('textarea').type('Something is rotten in the state of Denmark');
+
+    // Click save on the modal
+    cy.get('button').contains('Save').click();
+
+    // Verify sucess alert and tag
+    cy.contains('Move flagged for financial review.');
+    cy.contains('Flagged for financial review');
+  });
+
+  // This test performs a mutation so it can only succeed on a fresh DB.
+  it('can unflag the move for review', () => {
+    const paymentRequestId = 'ea945ab7-099a-4819-82de-6968efe131dc';
+
+    // TIO Payment Requests queue
+    cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
+    cy.get('#locator').type('TIOFLO');
+    cy.get('th[data-testid="locator"]').first().click();
+    cy.get('[data-testid="locator-0"]').click();
+
+    // Payment Requests page
+    cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    // click to trigger financial review modal
+    cy.contains('Edit').click();
+
+    // Enter information in modal and submit
+    cy.get('label').contains('No').click();
+
+    // Click save on the modal
+    cy.get('button').contains('Save').click();
+
+    // Verify sucess alert and tag
+    cy.contains('Move unflagged for financial review.');
   });
 });

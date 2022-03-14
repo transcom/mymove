@@ -1,11 +1,23 @@
 import React from 'react';
+import { MemoryRouter, Route } from 'react-router';
 
 import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 import ShipmentDetails from './ShipmentDetails';
 
+import { LOA_TYPE } from 'shared/constants';
+
 export default {
   title: 'Office Components/Shipment Details',
+  decorators: [
+    (Story) => (
+      <MemoryRouter initialEntries={['/moves/HGNTSR/mto']}>
+        <Route path="/moves/:moveCode/mto">
+          <Story />
+        </Route>
+      </MemoryRouter>
+    ),
+  ],
 };
 
 const shipment = {
@@ -39,7 +51,7 @@ const shipment = {
   },
   primeEstimatedWeight: 4000,
   primeActualWeight: 3800,
-  agents: [
+  mtoAgents: [
     {
       agentType: 'RELEASING_AGENT',
       firstName: 'Quinn',
@@ -76,10 +88,24 @@ const shipment = {
   ],
   sitStatus: SITStatusOrigin,
   sitDaysAllowance: 270,
+  storageFacility: {
+    facilityName: 'Most Excellent Storage',
+    address: {
+      streetAddress1: '3373 NW Martin Luther King Jr Blvd',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78212',
+    },
+    phone: '555-555-5555',
+    lotNumber: '64321',
+  },
+  serviceOrderNumber: '1234',
+  tacType: LOA_TYPE.HHG,
+  sacType: LOA_TYPE.NTS,
 };
 
 const order = {
-  originDutyStation: {
+  originDutyLocation: {
     address: {
       streetAddress1: '444 S 131st St',
       city: 'San Antonio',
@@ -87,7 +113,7 @@ const order = {
       postalCode: '78234',
     },
   },
-  destinationDutyStation: {
+  destinationDutyLocation: {
     address: {
       streetAddress1: '17 8th St',
       city: 'Austin',
@@ -95,6 +121,24 @@ const order = {
       postalCode: '78751',
     },
   },
+  tac: '1234',
+  sac: '567',
+  ntsTac: '8912',
+  ntsSac: '345',
 };
 
-export const Default = () => <ShipmentDetails shipment={shipment} order={order} />;
+export const Default = () => {
+  const [modifiedShipment, setModifiedShipment] = React.useState(shipment);
+  const handleEditSon = (values) => {
+    setModifiedShipment({
+      ...shipment,
+      serviceOrderNumber: values.serviceOrderNumber,
+    });
+  };
+
+  return (
+    <div className="officeApp">
+      <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
+    </div>
+  );
+};

@@ -33,6 +33,9 @@ type UpdateMTOShipment struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
 
+	// destination type
+	DestinationType *DestinationType `json:"destinationType,omitempty"`
+
 	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
 	//
 	Diversion bool `json:"diversion,omitempty"`
@@ -81,6 +84,9 @@ type UpdateMTOShipment struct {
 
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+
+	// storage facility
+	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
 }
 
 // Validate validates this update m t o shipment
@@ -92,6 +98,10 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -119,6 +129,10 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateStorageFacility(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -140,6 +154,25 @@ func (m *UpdateMTOShipment) validateActualPickupDate(formats strfmt.Registry) er
 func (m *UpdateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) validateDestinationType(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationType) { // not required
+		return nil
+	}
+
+	if m.DestinationType != nil {
+		if err := m.DestinationType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -201,8 +234,29 @@ func (m *UpdateMTOShipment) validateShipmentType(formats strfmt.Registry) error 
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) validateStorageFacility(formats strfmt.Registry) error {
+	if swag.IsZero(m.StorageFacility) { // not required
+		return nil
+	}
+
+	if m.StorageFacility != nil {
+		if err := m.StorageFacility.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storageFacility")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storageFacility")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -213,6 +267,10 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 	var res []error
 
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDestinationType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -232,6 +290,10 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateStorageFacility(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -239,6 +301,22 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (m *UpdateMTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationType != nil {
+		if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
+	}
 
 	return nil
 }
@@ -263,8 +341,26 @@ func (m *UpdateMTOShipment) contextValidateShipmentType(ctx context.Context, for
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidateStorageFacility(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.StorageFacility != nil {
+		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storageFacility")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storageFacility")
+			}
+			return err
+		}
 	}
 
 	return nil

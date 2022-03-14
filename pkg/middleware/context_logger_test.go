@@ -31,11 +31,12 @@ func (suite *testSuite) TestContextLoggerWithoutTrace() {
 	lines := strings.Split(out, "\n")
 	suite.Len(lines, 2) // test that there are 2 log lines (info message and error message)
 	parts := strings.Split(lines[0], "\t")
-	suite.Len(parts, 3)
+	// 4 parts: LogLevel, Message, milmove_trace_id, host
+	suite.Len(parts, 4)
 	suite.Equal(parts[1], "INFO")
 	suite.Equal(parts[2], "Placeholder for info message")
 	parts = strings.Split(lines[1], "\t")
-	suite.Len(parts, 3)
+	suite.Len(parts, 4)
 	suite.Equal(parts[1], "ERROR")
 	suite.Equal(parts[2], "Placeholder for error message")
 }

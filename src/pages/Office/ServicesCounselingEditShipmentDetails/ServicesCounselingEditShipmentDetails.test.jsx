@@ -38,7 +38,7 @@ const useEditShipmentQueriesReturnValue = {
   },
   order: {
     id: '1',
-    originDutyStation: {
+    originDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Knox',
@@ -46,7 +46,7 @@ const useEditShipmentQueriesReturnValue = {
         postalCode: '40121',
       },
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Irwin',
@@ -154,11 +154,13 @@ const errorReturnValue = {
 };
 
 const props = {
+  onUpdate: () => {},
   match: {
     path: '',
     isExact: false,
     url: '',
     params: { moveCode: 'move123', shipmentId: 'shipment123' },
+    onUpdate: () => {},
   },
 };
 
@@ -193,10 +195,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     });
   });
 
-  it('routes to the move details page when the save button is clicked', async () => {
+  it('calls props.onUpdate with success and routes to move details when the save button is clicked and the shipment update is successful', async () => {
     updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+    const onUpdateMock = jest.fn();
 
-    render(<ServicesCounselingEditShipmentDetails {...props} />);
+    render(<ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />);
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -206,6 +209,27 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+      expect(onUpdateMock).toHaveBeenCalledWith('success');
+    });
+  });
+
+  it('calls props.onUpdate with error and routes to move details when the save button is clicked and the shipment update is unsuccessful', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    updateMTOShipment.mockImplementation(() => Promise.reject(new Error('something went wrong')));
+    useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+    const onUpdateMock = jest.fn();
+
+    render(<ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />);
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+
+    expect(saveButton).not.toBeDisabled();
+
+    userEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+      expect(onUpdateMock).toHaveBeenCalledWith('error');
     });
   });
 

@@ -1,12 +1,12 @@
 import { getClient, checkResponse } from 'shared/Swagger/api';
 import { formatDateForSwagger } from 'shared/dates';
 
-export async function GetPpmIncentive(moveDate, originZip, originDutyStationZip, ordersID, weight) {
+export async function GetPpmIncentive(moveDate, originZip, originDutyLocationZip, ordersID, weight) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMIncentive({
     original_move_date: formatDateForSwagger(moveDate),
     origin_zip: originZip,
-    origin_duty_station_zip: originDutyStationZip,
+    origin_duty_location_zip: originDutyLocationZip,
     orders_id: ordersID,
     weight: weight,
   });

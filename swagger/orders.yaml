@@ -496,23 +496,6 @@ definitions:
       - hasDependents
       - losingUnit
       - gainingUnit
-  Affiliation:
-    type: string
-    description: Military branch of service
-    enum:
-      - air-force
-      - army
-      - civilian-agency
-      - coast-guard
-      - marine-corps
-      - navy
-    x-display-value:
-      air-force: Air Force
-      army: Army
-      civilian-agency: Civilian Agency
-      coast-guard: Coast Guard
-      marine-corps: Marine Corps
-      navy: Navy
   Member:
     type: object
     properties:
@@ -659,8 +642,9 @@ definitions:
       - e-7
       - e-8
       - e-9
+      - E-9-SPECIAL-SENIOR-ENLISTED
       - midshipman
-      - o-1
+      - o-1-ACADEMY-GRADUATE
       - o-2
       - o-3
       - o-4
@@ -688,8 +672,9 @@ definitions:
       e-7: E-7
       e-8: E-8
       e-9: E-9
+      E-9-SPECIAL-SENIOR-ENLISTED: E-9 (Special Senior Enlisted)
       midshipman: Midshipman
-      o-1: O-1
+      o-1-ACADEMY-GRADUATE: O-1 or Service Academy Graduate
       o-2: O-2
       o-3: O-3
       o-4: O-4
@@ -812,3 +797,22 @@ definitions:
         type: string
         description: In the USA, this is the ZIP Code.
         x-nullable: true
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      OTHER: OTHER

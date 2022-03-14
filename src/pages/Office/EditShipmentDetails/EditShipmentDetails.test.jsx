@@ -38,7 +38,7 @@ const useEditShipmentQueriesReturnValue = {
   },
   order: {
     id: '1',
-    originDutyStation: {
+    originDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Knox',
@@ -46,7 +46,7 @@ const useEditShipmentQueriesReturnValue = {
         postalCode: '40121',
       },
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Irwin',
@@ -139,6 +139,102 @@ const useEditShipmentQueriesReturnValue = {
   isSuccess: true,
 };
 
+const useEditShipmentQueriesReturnValueNTS = {
+  move: {
+    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    ordersId: '1',
+    status: 'NEEDS SERVICE COUNSELING',
+  },
+  order: {
+    id: '1',
+    originDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Knox',
+        state: 'KY',
+        postalCode: '40121',
+      },
+    },
+    destinationDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Irwin',
+        state: 'CA',
+        postalCode: '92310',
+      },
+    },
+    customer: {
+      agency: 'ARMY',
+      backup_contact: {
+        email: 'email@example.com',
+        name: 'name',
+        phone: '555-555-5555',
+      },
+      current_address: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41Mzg0Njha',
+        id: '3a5f7cf2-6193-4eb3-a244-14d21ca05d7b',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      dodID: '6833908165',
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
+      email: 'combo@ppm.hhg',
+      first_name: 'Submitted',
+      id: 'f6bd793f-7042-4523-aa30-34946e7339c9',
+      last_name: 'Ppmhhg',
+      phone: '555-555-5555',
+    },
+    entitlement: {
+      authorizedWeight: 8000,
+      dependentsAuthorized: true,
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NzgwMzda',
+      id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
+      nonTemporaryStorage: true,
+      privatelyOwnedVehicle: true,
+      proGearWeight: 2000,
+      proGearWeightSpouse: 500,
+      storageInTransit: 2,
+      totalDependents: 1,
+      totalWeight: 8000,
+    },
+    order_number: 'ORDER3',
+    order_type: 'PERMANENT_CHANGE_OF_STATION',
+    order_type_detail: 'HHG_PERMITTED',
+    tac: '9999',
+    ntsTac: '1111',
+    ntsSac: '2222',
+  },
+  mtoShipments: [
+    {
+      customerRemarks: 'please treat gently',
+      pickupAddress: {
+        city: 'Fairfield',
+        country: 'US',
+        id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+        postalCode: '94535',
+        state: 'CA',
+        streetAddress1: '987 Any Avenue',
+      },
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+      id: 'shipment123',
+      moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+      requestedPickupDate: '2018-03-15',
+      scheduledPickupDate: '2018-03-16',
+      shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+      status: 'SUBMITTED',
+      updatedAt: '2020-06-10T15:58:02.404031Z',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
 const loadingReturnValue = {
   ...useEditShipmentQueriesReturnValue,
   isLoading: true,
@@ -193,19 +289,33 @@ describe('EditShipmentDetails component', () => {
     });
   });
 
+  it('renders the Edit Shipment Form for NTS', async () => {
+    useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValueNTS);
+    render(<EditShipmentDetails {...props} />);
+
+    const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
+    await waitFor(() => {
+      expect(h1).toBeInTheDocument();
+    });
+    expect(screen.getAllByLabelText('ZIP').length).toBe(2);
+    expect(screen.getByLabelText('1111 (NTS)')).toBeInTheDocument();
+    expect(screen.getByLabelText('2222 (NTS)')).toBeInTheDocument();
+  });
+
   it('routes to the move details page when the save button is clicked', async () => {
+    useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
     updateMTOShipment.mockImplementation(() => Promise.resolve({}));
 
     render(<EditShipmentDetails {...props} />);
 
-    const saveButton = screen.getByRole('button', { name: 'Save' });
+    const saveButton = await screen.findByRole('button', { name: 'Save' });
 
     expect(saveButton).not.toBeDisabled();
 
     userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+      expect(mockPush).toHaveBeenCalledWith('/moves/move123/details');
     });
   });
 
@@ -220,7 +330,7 @@ describe('EditShipmentDetails component', () => {
     userEvent.click(cancelButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+      expect(mockPush).toHaveBeenCalledWith('/moves/move123/details');
     });
   });
 });

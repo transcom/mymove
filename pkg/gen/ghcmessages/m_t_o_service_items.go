@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// MTOServiceItems m t o service items
+// MTOServiceItems A list of service items connected to this shipment.
 //
 // swagger:model MTOServiceItems
 type MTOServiceItems []*MTOServiceItem
@@ -32,6 +32,8 @@ func (m MTOServiceItems) Validate(formats strfmt.Registry) error {
 			if err := m[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName(strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName(strconv.Itoa(i))
 				}
 				return err
 			}
@@ -55,6 +57,8 @@ func (m MTOServiceItems) ContextValidate(ctx context.Context, formats strfmt.Reg
 			if err := m[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName(strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName(strconv.Itoa(i))
 				}
 				return err
 			}

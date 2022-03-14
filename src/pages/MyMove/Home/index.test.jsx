@@ -2,11 +2,14 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import moment from 'moment';
+import { generatePath } from 'react-router';
 
 import { Home } from './index';
 
 import { MockProviders } from 'testUtils';
 import { formatCustomerDate } from 'utils/formatters';
+import { customerRoutes } from 'constants/routes';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -17,13 +20,16 @@ jest.mock('containers/FlashMessage/FlashMessage', () => {
 const defaultProps = {
   serviceMember: {
     id: 'testServiceMemberId',
-    current_station: {
+    current_location: {
       transportation_office: {
         name: 'Test Transportation Office Name',
         phone_lines: ['555-555-5555'],
       },
     },
-    weight_allotment: {},
+    weight_allotment: {
+      total_weight_self: 8000,
+      total_weight_self_plus_dependents: 11000,
+    },
   },
   showLoggedInUser: jest.fn(),
   createServiceMember: jest.fn(),
@@ -76,20 +82,69 @@ describe('Home component', () => {
   });
 
   describe('contents of Step 3', () => {
-    it('contains ppm and hhg cards if those shipments exist', () => {
-      const testProps = {
-        currentPpm: { id: '12345', createdAt: moment() },
-        mtoShipments: [
-          { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: 'HHG' },
-          { id: '4322', createdAt: moment().subtract(1, 'days'), shipmentType: 'HHG' },
-        ],
-      };
+    const testProps = {
+      currentPpm: { id: '12345', createdAt: moment() },
+      mtoShipments: [
+        { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
+        { id: '4322', createdAt: moment().subtract(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
+        { id: '4323', createdAt: moment().add(2, 'days'), shipmentType: SHIPMENT_OPTIONS.NTS },
+        { id: '4324', createdAt: moment().add(3, 'days'), shipmentType: SHIPMENT_OPTIONS.NTSR },
+      ],
+    };
 
-      const wrapper = mountHomeWithProviders(testProps);
-      expect(wrapper.find('ShipmentListItem').length).toBe(3);
+    const wrapper = mountHomeWithProviders(testProps);
+
+    it('contains ppm and hhg cards if those shipments exist', () => {
+      expect(wrapper.find('ShipmentListItem').length).toBe(5);
       expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('HHG 1');
       expect(wrapper.find('ShipmentListItem').at(1).text()).toContain('PPM');
       expect(wrapper.find('ShipmentListItem').at(2).text()).toContain('HHG 2');
+      expect(wrapper.find('ShipmentListItem').at(3).text()).toContain('NTS');
+      expect(wrapper.find('ShipmentListItem').at(4).text()).toContain('NTS-release');
+    });
+
+    it('handles edit click to edit hhg shipment route', () => {
+      const editHHGShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: defaultProps.move.id,
+        mtoShipmentId: testProps.mtoShipments[1].id,
+      });
+
+      wrapper.find('ShipmentListItem').at(0).simulate('click');
+
+      expect(defaultProps.history.push).toHaveBeenCalledWith(`${editHHGShipmentPath}?shipmentNumber=1`);
+    });
+
+    it('handles edit click to edit ppm shipment route', () => {
+      const editPPMShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: defaultProps.move.id,
+        mtoShipmentId: testProps.currentPpm.id,
+      });
+
+      wrapper.find('ShipmentListItem').at(1).simulate('click');
+
+      expect(defaultProps.history.push).toHaveBeenCalledWith(`${editPPMShipmentPath}?shipmentNumber=1`);
+    });
+
+    it('handles edit click to edit nts shipment route', () => {
+      const editNTSShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: defaultProps.move.id,
+        mtoShipmentId: testProps.mtoShipments[2].id,
+      });
+
+      wrapper.find('ShipmentListItem').at(3).simulate('click');
+
+      expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSShipmentPath);
+    });
+
+    it('handles edit click to edit ntsr shipment route', () => {
+      const editNTSRShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: defaultProps.move.id,
+        mtoShipmentId: testProps.mtoShipments[3].id,
+      });
+
+      wrapper.find('ShipmentListItem').at(4).simulate('click');
+
+      expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSRShipmentPath);
     });
   });
 
@@ -108,7 +163,7 @@ describe('Home component', () => {
 
   describe('if the user has orders but not shipments', () => {
     const wrapper = mountHomeWithProviders({
-      orders: { testOrder: 'test', new_duty_station: { name: 'Test Duty Station' } },
+      orders: { testOrder: 'test', new_duty_location: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
     });
 
@@ -122,9 +177,31 @@ describe('Home component', () => {
     });
   });
 
+  describe('if the user has orders with no dependents', () => {
+    const wrapper = mountHomeWithProviders({
+      orders: { testOrder: 'test', has_dependents: false, new_duty_location: { name: 'Test Duty Station' } },
+      uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
+    });
+
+    it('renders the correct weight allowance', () => {
+      expect(wrapper.text().includes('8,000 lbs.')).toBe(true);
+    });
+  });
+
+  describe('if the user has orders with dependents', () => {
+    const wrapper = mountHomeWithProviders({
+      orders: { testOrder: 'test', has_dependents: true, new_duty_location: { name: 'Test Duty Station' } },
+      uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
+    });
+
+    it('renders the correct weight allowance', () => {
+      expect(wrapper.text().includes('11,000 lbs.')).toBe(true);
+    });
+  });
+
   describe('if the user has orders and shipments but has not submitted their move', () => {
     const wrapper = mountHomeWithProviders({
-      orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+      orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
       mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
     });
@@ -136,7 +213,7 @@ describe('Home component', () => {
 
   describe('if the user has orders and a currentPpm but has not submitted their move', () => {
     const wrapper = mountHomeWithProviders({
-      orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+      orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
       currentPpm: { id: 'testPpm123' },
     });
@@ -150,7 +227,7 @@ describe('Home component', () => {
     describe('for PPM moves', () => {
       const orders = {
         id: 'testOrder123',
-        new_duty_station: {
+        new_duty_location: {
           name: 'Test Duty Station',
         },
       };
@@ -186,7 +263,7 @@ describe('Home component', () => {
 
     describe('for HHG moves (no PPM)', () => {
       const wrapper = mountHomeWithProviders({
-        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
         mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
         move: { id: 'testMoveId', status: 'SUBMITTED' },
@@ -209,7 +286,7 @@ describe('Home component', () => {
 
     describe('for NTS moves (no PPM)', () => {
       const wrapper = mountHomeWithProviders({
-        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
         mtoShipments: [{ id: 'test123', shipmentType: 'NTS' }],
         move: { id: 'testMoveId', status: 'SUBMITTED' },
@@ -234,7 +311,7 @@ describe('Home component', () => {
       const submittedAt = new Date();
       const orders = {
         id: 'testOrder123',
-        new_duty_station: {
+        new_duty_location: {
           name: 'Test Duty Station',
         },
       };
@@ -288,7 +365,7 @@ describe('Home component', () => {
       const submittedAt = new Date();
       const orders = {
         id: 'testOrder123',
-        new_duty_station: {
+        new_duty_location: {
           name: 'Test Duty Station',
         },
       };
@@ -321,7 +398,7 @@ describe('Home component', () => {
       const submittedAt = new Date();
       const orders = {
         id: 'testOrder123',
-        new_duty_station: {
+        new_duty_location: {
           name: 'Test Duty Station',
         },
       };

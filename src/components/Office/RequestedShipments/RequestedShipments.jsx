@@ -15,10 +15,19 @@ import { formatDateFromIso } from 'shared/formatters';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { tooRoutes } from 'constants/routes';
+import { shipmentDestinationTypes } from 'constants/shipments';
 
-const errorIfMissing = {
-  HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'tacType'],
+// nts defaults show preferred pickup date and pickup address, flagged items when collapsed
+// ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
+// Different things show when collapsed depending on if the shipment is an external vendor or not.
+const showWhenCollapsedWithExternalVendor = {
+  HHG_INTO_NTS_DOMESTIC: ['serviceOrderNumber'],
+  HHG_OUTOF_NTS_DOMESTIC: ['serviceOrderNumber'],
+};
+
+const showWhenCollapsedWithGHCPrime = {
   HHG_INTO_NTS_DOMESTIC: ['tacType'],
+  HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
 };
 
 const RequestedShipments = ({
@@ -34,26 +43,36 @@ const RequestedShipments = ({
   handleAfterSuccess,
   missingRequiredOrdersInfo,
   moveCode,
+  errorIfMissing,
+  displayDestinationType,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
+
+  const filterPrimeShipments = mtoShipments.filter((shipment) => !shipment.usesExternalVendor);
 
   const filterShipments = (formikShipmentIds) => {
     return mtoShipments.filter(({ id }) => formikShipmentIds.includes(id));
   };
 
+  const ordersLOA = {
+    tac: ordersInfo.tacMDC,
+    sac: ordersInfo.sacSDN,
+    ntsTac: ordersInfo.NTStac,
+    ntsSac: ordersInfo.NTSsac,
+  };
+
   const shipmentDisplayInfo = (shipment, dutyStationPostal) => {
+    const destType = displayDestinationType ? shipmentDestinationTypes[shipment.destinationType] : null;
+
     return {
+      ...shipment,
       heading: shipmentTypeLabels[shipment.shipmentType],
       isDiversion: shipment.diversion,
       shipmentStatus: shipment.status,
-      requestedPickupDate: shipment.requestedPickupDate,
-      pickupAddress: shipment.pickupAddress,
-      secondaryPickupAddress: shipment.secondaryPickupAddress,
       destinationAddress: shipment.destinationAddress || dutyStationPostal,
-      secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
-      counselorRemarks: shipment.counselorRemarks,
-      customerRemarks: shipment.customerRemarks,
+      destinationType: destType,
+      displayDestinationType,
     };
   };
 
@@ -134,21 +153,31 @@ const RequestedShipments = ({
     setIsModalVisible(true);
   };
 
-  // if showing service items, enable button when shipment and service item are selected and there is no missing required Orders information
-  // if not showing service items, enable button if a shipment is selected and there is no missing required Orders information
-  const isButtonEnabled = moveTaskOrder.availableToPrimeAt
+  // if showing service items on a move with Prime shipments, enable button when shipment and service item are selected and there is no missing required Orders information
+  // if not showing service items on a move with Prime shipments, enable button if a shipment is selected and there is no missing required Orders information
+  const primeShipmentsForApproval = moveTaskOrder.availableToPrimeAt
     ? formik.values.shipments.length > 0 && !missingRequiredOrdersInfo
     : formik.values.shipments.length > 0 &&
       (formik.values.counselingFee || formik.values.shipmentManagementFee) &&
       !missingRequiredOrdersInfo;
 
-  const dutyStationPostal = { postalCode: ordersInfo.newDutyStation?.address?.postalCode };
+  // on a move with only External Vendor shipments enable button if a a service item is selected
+  const externalVendorShipmentsOnly = formik.values.counselingFee || formik.values.shipmentManagementFee;
+
+  // Check that there are Prime-handled shipments before determining if the button should be enabled
+  const isButtonEnabled = filterPrimeShipments.length > 0 ? primeShipmentsForApproval : externalVendorShipmentsOnly;
+
+  const dutyStationPostal = { postalCode: ordersInfo.newDutyLocation?.address?.postalCode };
 
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
       {shipmentsStatus === 'SUBMITTED' && (
         <>
-          <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
+          <div
+            id="approvalConfirmationModal"
+            data-testid="approvalConfirmationModal"
+            style={{ display: isModalVisible ? 'block' : 'none' }}
+          >
             <ShipmentApprovalPreview
               mtoShipments={filteredShipments}
               ordersInfo={ordersInfo}
@@ -178,7 +207,13 @@ const RequestedShipments = ({
                       shipmentType={shipment.shipmentType}
                       isSubmitted
                       displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                      ordersLOA={ordersLOA}
                       errorIfMissing={errorIfMissing[shipment.shipmentType]}
+                      showWhenCollapsed={
+                        shipment.usesExternalVendor
+                          ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
+                          : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
+                      }
                       editURL={editURL}
                       /* eslint-disable-next-line react/jsx-props-no-spreading */
                       {...formik.getFieldProps(`shipments`)}
@@ -220,7 +255,7 @@ const RequestedShipments = ({
                 type="button"
                 disabled={!isButtonEnabled}
               >
-                <span>Approve selected shipments</span>
+                <span>Approve selected</span>
               </Button>
             </div>
           </form>
@@ -244,6 +279,12 @@ const RequestedShipments = ({
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
                     displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                    ordersLOA={ordersLOA}
+                    showWhenCollapsed={
+                      shipment.usesExternalVendor
+                        ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
+                        : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
+                    }
                     isSubmitted={false}
                     editURL={editURL}
                   />
@@ -323,6 +364,8 @@ RequestedShipments.propTypes = {
   missingRequiredOrdersInfo: PropTypes.bool,
   handleAfterSuccess: PropTypes.func,
   moveCode: PropTypes.string.isRequired,
+  errorIfMissing: PropTypes.shape({}),
+  displayDestinationType: PropTypes.bool,
 };
 
 RequestedShipments.defaultProps = {
@@ -332,6 +375,8 @@ RequestedShipments.defaultProps = {
   approveMTOShipment: () => Promise.resolve(),
   missingRequiredOrdersInfo: false,
   handleAfterSuccess: () => {},
+  errorIfMissing: {},
+  displayDestinationType: false,
 };
 
 export default RequestedShipments;

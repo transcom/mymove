@@ -6,6 +6,8 @@ import (
 	html "html/template"
 	text "text/template"
 
+	"github.com/dustin/go-humanize"
+
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -56,7 +58,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
-	originDSTransportInfo, err := models.FetchDSContactInfo(appCtx.DB(), serviceMember.DutyStationID)
+	originDSTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyLocationID)
 	if err != nil {
 		return emails, err
 	}
@@ -81,10 +83,10 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		Link:                       "https://my.move.mil/",
 		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
 		OriginDutyStation:          originDutyStation,
-		DestinationDutyStation:     orders.NewDutyStation.Name,
+		DestinationDutyStation:     orders.NewDutyLocation.Name,
 		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
 		Locator:                    move.Locator,
-		WeightAllowance:            totalEntitlement,
+		WeightAllowance:            humanize.Comma(int64(totalEntitlement)),
 	})
 
 	if err != nil {
@@ -124,7 +126,7 @@ type moveSubmittedEmailData struct {
 	DestinationDutyStation     string
 	OriginDutyStationPhoneLine *string
 	Locator                    string
-	WeightAllowance            int
+	WeightAllowance            string
 }
 
 // RenderHTML renders the html for the email

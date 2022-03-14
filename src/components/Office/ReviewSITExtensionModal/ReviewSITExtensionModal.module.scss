@@ -2,7 +2,6 @@
 @import 'shared/styles/basics';
 
 .ReviewSITExtensionModal {
-  min-width: 45rem !important;
   overflow-y: auto;
   max-height: 90vh;
 
@@ -25,7 +24,8 @@
     @include u-padding-top(3);
   }
 
-  :global(.usa-label), :global(.usa-legend) {
+  :global(.usa-label),
+  :global(.usa-legend) {
     color: $base-darker;
   }
 

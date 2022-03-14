@@ -16,19 +16,22 @@ const ServicesCounselingMoveDocumentWrapper = lazy(() =>
 const ServicesCounselingMoveDetails = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetails'),
 );
+const ServicesCounselingEditShipmentDetails = lazy(() =>
+  import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
+);
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 
 const ServicesCounselingMoveInfo = () => {
-  const [customerEditAlert, setCustomerEditAlert] = useState(null);
+  const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
-  const onCustomerInfoUpdate = (alertType) => {
+  const onInfoSavedUpdate = (alertType) => {
     if (alertType === 'error') {
-      setCustomerEditAlert({
+      setInfoSavedAlert({
         alertType,
         message: 'Something went wrong, and your changes were not saved. Please try again later.',
       });
     } else {
-      setCustomerEditAlert({
+      setInfoSavedAlert({
         alertType,
         message: 'Your changes were saved.',
       });
@@ -39,14 +42,14 @@ const ServicesCounselingMoveInfo = () => {
   useEffect(() => {
     // clear alert when route changes
     const unlisten = history.listen(() => {
-      if (customerEditAlert) {
-        setCustomerEditAlert(null);
+      if (infoSavedAlert) {
+        setInfoSavedAlert(null);
       }
     });
     return () => {
       unlisten();
     };
-  }, [history, customerEditAlert]);
+  }, [history, infoSavedAlert]);
 
   const { moveCode } = useParams();
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
@@ -70,7 +73,7 @@ const ServicesCounselingMoveInfo = () => {
         <Switch>
           {/* TODO - Routes not finalized, revisit */}
           <Route path={servicesCounselingRoutes.MOVE_VIEW_PATH} exact>
-            <ServicesCounselingMoveDetails customerEditAlert={customerEditAlert} />
+            <ServicesCounselingMoveDetails infoSavedAlert={infoSavedAlert} />
           </Route>
 
           <Route
@@ -86,9 +89,16 @@ const ServicesCounselingMoveInfo = () => {
               customer={customerData}
               isLoading={isLoading}
               isError={isError}
-              onUpdate={onCustomerInfoUpdate}
+              onUpdate={onInfoSavedUpdate}
             />
           </Route>
+
+          <Route
+            path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
+            exact
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            render={(props) => <ServicesCounselingEditShipmentDetails {...props} onUpdate={onInfoSavedUpdate} />}
+          />
 
           {/* TODO - clarify role/tab access */}
           <Redirect from={servicesCounselingRoutes.BASE_MOVE_PATH} to={servicesCounselingRoutes.MOVE_VIEW_PATH} />

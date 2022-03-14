@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import Orders from './Orders';
 
@@ -45,6 +46,16 @@ jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
 }));
 
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  getTacValid: ({ tac }) => {
+    return {
+      tac,
+      isValid: tac === '1111' || tac === '2222',
+    };
+  },
+}));
+
 const useOrdersDocumentQueriesReturnValue = {
   orders: {
     1: {
@@ -52,7 +63,7 @@ const useOrdersDocumentQueriesReturnValue = {
       customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
       date_issued: '2018-03-15',
       department_indicator: 'AIR_FORCE',
-      destinationDutyStation: mockDestinationDutyStation,
+      destinationDutyLocation: mockDestinationDutyStation,
       eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
       entitlement: {
         authorizedWeight: 5000,
@@ -74,10 +85,12 @@ const useOrdersDocumentQueriesReturnValue = {
       order_number: 'ORDER3',
       order_type: 'PERMANENT_CHANGE_OF_STATION',
       order_type_detail: 'HHG_PERMITTED',
-      originDutyStation: mockOriginDutyStation,
+      originDutyLocation: mockOriginDutyStation,
       report_by_date: '2018-08-01',
       tac: 'F8E1',
       sac: 'E2P3',
+      ntsTac: '1111',
+      ntsSac: '2222',
     },
   },
 };
@@ -127,14 +140,56 @@ describe('Orders page', () => {
 
   describe('Basic rendering', () => {
     it('renders the sidebar orders detail form', async () => {
-      useOrdersDocumentQueries.mockReturnValueOnce(useOrdersDocumentQueriesReturnValue);
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
         <MockProviders initialEntries={['moves/FP24I2/orders']}>
           <Orders />
         </MockProviders>,
       );
+
       expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
+      expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
+      expect(screen.getByTestId('ntsSacInput')).toHaveValue('2222');
+    });
+  });
+
+  describe('TAC validation', () => {
+    it('validates on load', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <Orders />
+        </MockProviders>,
+      );
+
+      expect(await screen.findByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
+    });
+
+    it('validates on user input', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+          <Orders />
+        </MockProviders>,
+      );
+
+      const hhgTacInput = screen.getByTestId('hhgTacInput');
+      userEvent.clear(hhgTacInput);
+      userEvent.type(hhgTacInput, '2222');
+
+      await waitFor(() => {
+        expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument();
+      });
+
+      userEvent.clear(hhgTacInput);
+      userEvent.type(hhgTacInput, '3333');
+
+      await waitFor(() => {
+        expect(screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
+      });
     });
   });
 });

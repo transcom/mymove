@@ -25,6 +25,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   NumberDaysSIT: 'NumberDaysSIT',
   OriginPrice: 'OriginPrice',
   PriceRateOrFactor: 'PriceRateOrFactor',
+  ReferenceDate: 'ReferenceDate',
   RequestedDeliveryDate: 'RequestedDeliveryDate',
   RequestedPickupDate: 'RequestedPickupDate',
   ServiceAreaDest: 'ServiceAreaDest',
@@ -55,6 +56,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   // Domestic non-peak or Domestic peak
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
   [SERVICE_ITEM_PARAM_KEYS.OriginPrice]: 'Origin price',
+  [SERVICE_ITEM_PARAM_KEYS.ReferenceDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaDest]: 'Destination service area',
@@ -85,6 +87,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
   Mileage: 'Mileage',
+  NTSPackingFactor: 'NTS packing factor',
+  NTSReleaseReferenceDate: 'Actual pickup',
   PackPrice: 'Pack price',
   PickupDate: 'Pickup date',
   PickupSITPrice: 'SIT pickup price',
@@ -110,6 +114,7 @@ const SERVICE_ITEM_CODES = {
   DOPSIT: 'DOPSIT',
   DOSHUT: 'DOSHUT',
   DPK: 'DPK',
+  DNPK: 'DNPK',
   DSH: 'DSH',
   DUPK: 'DUPK',
   FSC: 'FSC',
@@ -131,6 +136,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DOPSIT,
   SERVICE_ITEM_CODES.DOSHUT,
   SERVICE_ITEM_CODES.DPK,
+  SERVICE_ITEM_CODES.DNPK,
   SERVICE_ITEM_CODES.DSH,
   SERVICE_ITEM_CODES.DUPK,
   SERVICE_ITEM_CODES.FSC,
@@ -139,10 +145,6 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DUCRT,
 ];
 
-export {
-  SERVICE_ITEM_STATUSES as default,
-  SERVICE_ITEM_PARAM_KEYS,
-  SERVICE_ITEM_CALCULATION_LABELS,
-  SERVICE_ITEM_CODES,
-  allowedServiceItemCalculations,
-};
+export default SERVICE_ITEM_STATUSES;
+
+export { SERVICE_ITEM_PARAM_KEYS, SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, allowedServiceItemCalculations };

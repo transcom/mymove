@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Reweigh reweigh
+// Reweigh A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.
 //
 // swagger:model Reweigh
 type Reweigh struct {
@@ -38,15 +38,15 @@ type Reweigh struct {
 
 	// verification provided at
 	// Format: date-time
-	VerificationProvidedAt *strfmt.DateTime `json:"verificationProvidedAt,omitempty"`
+	VerificationProvidedAt *strfmt.DateTime `json:"verificationProvidedAt"`
 
 	// verification reason
-	// Example: The reweigh was not performed due to some justification provided by the Prime
-	VerificationReason *string `json:"verificationReason,omitempty"`
+	// Example: The reweigh was not performed due to some justification provided by the counselor
+	VerificationReason *string `json:"verificationReason"`
 
 	// weight
 	// Example: 2000
-	Weight *int64 `json:"weight,omitempty"`
+	Weight *int64 `json:"weight"`
 }
 
 // Validate validates this reweigh
@@ -111,6 +111,8 @@ func (m *Reweigh) validateRequestedBy(formats strfmt.Registry) error {
 	if err := m.RequestedBy.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("requestedBy")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("requestedBy")
 		}
 		return err
 	}
@@ -161,6 +163,8 @@ func (m *Reweigh) contextValidateRequestedBy(ctx context.Context, formats strfmt
 	if err := m.RequestedBy.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("requestedBy")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("requestedBy")
 		}
 		return err
 	}

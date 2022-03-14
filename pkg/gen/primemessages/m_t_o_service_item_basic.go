@@ -323,6 +323,8 @@ func (m *MTOServiceItemBasic) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status().Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -344,6 +346,8 @@ func (m *MTOServiceItemBasic) validateReServiceCode(formats strfmt.Registry) err
 		if err := m.ReServiceCode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reServiceCode")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reServiceCode")
 			}
 			return err
 		}
@@ -409,6 +413,8 @@ func (m *MTOServiceItemBasic) contextValidateModelType(ctx context.Context, form
 	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("modelType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("modelType")
 		}
 		return err
 	}
@@ -439,6 +445,8 @@ func (m *MTOServiceItemBasic) contextValidateStatus(ctx context.Context, formats
 	if err := m.Status().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -452,6 +460,8 @@ func (m *MTOServiceItemBasic) contextValidateReServiceCode(ctx context.Context, 
 		if err := m.ReServiceCode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reServiceCode")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reServiceCode")
 			}
 			return err
 		}

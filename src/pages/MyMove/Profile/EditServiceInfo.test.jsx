@@ -31,7 +31,6 @@ describe('EditServiceInfo page', () => {
       id: 'testServiceMemberId',
     },
     currentOrders: {},
-    entitlement: {},
     moveIsInDraft: true,
   };
 
@@ -61,7 +60,7 @@ describe('EditServiceInfo page', () => {
       affiliation: 'NAVY',
       edipi: '1234567890',
       rank: 'E_5',
-      current_station: {
+      current_location: {
         address: {
           city: 'Test City',
           id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
@@ -86,8 +85,9 @@ describe('EditServiceInfo page', () => {
         {...testProps}
         serviceMember={testServiceMemberValues}
         currentOrders={{
+          has_dependents: false,
           grade: testServiceMemberValues.rank,
-          origin_duty_station: testServiceMemberValues.current_station,
+          origin_duty_location: testServiceMemberValues.current_location,
         }}
       />,
     );
@@ -119,7 +119,7 @@ describe('EditServiceInfo page', () => {
       affiliation: 'NAVY',
       edipi: '1234567890',
       rank: 'E_5',
-      current_station: {
+      current_location: {
         address: {
           city: 'Test City',
           id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
@@ -134,9 +134,41 @@ describe('EditServiceInfo page', () => {
         name: 'Luke AFB',
         updated_at: '2021-02-11T16:48:04.117Z',
       },
+      weight_allotment: {
+        total_weight_self: 7000,
+        total_weight_self_plus_dependents: 9000,
+      },
     };
 
-    patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
+    const testServiceMemberValuesResponse = {
+      id: 'testServiceMemberId',
+      first_name: 'Leo',
+      last_name: 'Spaceman',
+      affiliation: 'NAVY',
+      edipi: '1234567890',
+      rank: 'E_2',
+      current_location: {
+        address: {
+          city: 'Test City',
+          id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+          postalCode: '12345',
+          state: 'NY',
+          streetAddress1: '123 Main St',
+        },
+        address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+        name: 'Luke AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      },
+      weight_allotment: {
+        total_weight_self: 5000,
+        total_weight_self_plus_dependents: 8000,
+      },
+    };
+
+    patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValuesResponse));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(
@@ -145,9 +177,9 @@ describe('EditServiceInfo page', () => {
         serviceMember={testServiceMemberValues}
         currentOrders={{
           grade: testServiceMemberValues.rank,
-          origin_duty_station: testServiceMemberValues.current_station,
+          has_dependents: true,
+          origin_duty_location: testServiceMemberValues.current_location,
         }}
-        entitlement={{ sum: 15000 }}
       />,
     );
 
@@ -162,11 +194,11 @@ describe('EditServiceInfo page', () => {
       expect(patchServiceMember).toHaveBeenCalled();
     });
 
-    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
+    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValuesResponse);
     expect(testProps.setFlashMessage).toHaveBeenCalledWith(
       'EDIT_SERVICE_INFO_SUCCESS',
       'info',
-      `Your weight entitlement is now 15,000 lbs.`,
+      `Your weight entitlement is now 8,000 lbs.`,
       'Your changes have been saved. Note that the entitlement has also changed.',
     );
 
@@ -181,7 +213,7 @@ describe('EditServiceInfo page', () => {
       affiliation: 'NAVY',
       edipi: '1234567890',
       rank: 'E_5',
-      current_station: {
+      current_location: {
         address: {
           city: 'Test City',
           id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
@@ -195,6 +227,10 @@ describe('EditServiceInfo page', () => {
         id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
         name: 'Luke AFB',
         updated_at: '2021-02-11T16:48:04.117Z',
+      },
+      weight_allotment: {
+        total_weight_self: 7000,
+        total_weight_self_plus_dependents: 9000,
       },
     };
 
@@ -218,7 +254,7 @@ describe('EditServiceInfo page', () => {
         serviceMember={testServiceMemberValues}
         currentOrders={{
           grade: testServiceMemberValues.rank,
-          origin_duty_station: testServiceMemberValues.current_station,
+          origin_duty_location: testServiceMemberValues.current_location,
         }}
       />,
     );

@@ -22,9 +22,9 @@ export const selectServiceMemberFromLoggedInUser = (state) => {
   return state.entities.serviceMembers?.[`${user.service_member}`] || null;
 };
 
-export const selectCurrentDutyStation = (state) => {
+export const selectCurrentDutyLocation = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  return serviceMember?.current_station || null;
+  return serviceMember?.current_location || null;
 };
 
 export const selectServiceMemberProfileState = createSelector(selectServiceMemberFromLoggedInUser, (serviceMember) => {
@@ -41,7 +41,7 @@ export const selectServiceMemberProfileState = createSelector(selectServiceMembe
     personal_email,
     phone_is_preferred,
     email_is_preferred,
-    current_station,
+    current_location,
     residential_address,
     backup_mailing_address,
     backup_contacts,
@@ -50,7 +50,7 @@ export const selectServiceMemberProfileState = createSelector(selectServiceMembe
   if (!rank || !edipi || !affiliation) return profileStates.EMPTY_PROFILE;
   if (!first_name || !last_name) return profileStates.DOD_INFO_COMPLETE;
   if (!telephone || !personal_email || !(phone_is_preferred || email_is_preferred)) return profileStates.NAME_COMPLETE;
-  if (!current_station || !current_station.id || current_station.id === NULL_UUID)
+  if (!current_location || !current_location.id || current_location.id === NULL_UUID)
     return profileStates.CONTACT_INFO_COMPLETE;
   if (!residential_address) return profileStates.DUTY_STATION_COMPLETE;
   if (!backup_mailing_address) return profileStates.ADDRESS_COMPLETE;
@@ -72,7 +72,7 @@ export const selectIsProfileComplete = createSelector(
       serviceMember.last_name &&
       serviceMember.telephone &&
       serviceMember.personal_email &&
-      serviceMember.current_station?.id &&
+      serviceMember.current_location?.id &&
       serviceMember.residential_address?.postalCode &&
       serviceMember.backup_mailing_address?.postalCode &&
       serviceMember.backup_contacts?.length > 0

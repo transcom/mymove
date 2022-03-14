@@ -28,7 +28,7 @@ var parameters = map[string]string{
 	"locator":            "moves.locator",
 	"status":             "payment_requests.status",
 	"age":                "payment_requests.created_at",
-	"originDutyLocation": "duty_stations.name",
+	"originDutyLocation": "duty_locations.name",
 }
 
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
@@ -50,15 +50,19 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 
 	paymentRequests := models.PaymentRequests{}
 	query := appCtx.DB().Q().EagerPreload(
-		"MoveTaskOrder.Orders.OriginDutyStation.TransportationOffice",
+		"MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
 		// "MoveTaskOrder.Orders.ServiceMember",
 	).
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
-		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
-		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
+		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_location_id").
+		// Need to use left join because some duty locations do not have transportation offices
+		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
+		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
+		// and we don't want it to get hidden from services counselors.
+		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		Where("moves.show = ?", swag.Bool(true))
 
 	branchQuery := branchFilter(params.Branch)
@@ -67,19 +71,20 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	var gblocQuery QueryOption
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+		gblocQuery = nil
 	} else {
-		gblocQuery = gblocFilter(gbloc)
+		gblocQuery = shipmentGBLOCFilter(&gbloc)
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
-	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
+	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyStation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 
-	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery}
+	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -95,26 +100,29 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		params.PerPage = swag.Int64(20)
 	}
 
-	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_stations.id, duty_stations.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err
 	}
-
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
 
 	for i := range paymentRequests {
 		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
 		// where the first 2 levels match.  For example:
-		//   "MoveTaskOrder.Orders.OriginDutyStation.TransportationOffice" and "MoveTaskOrder.Orders.ServiceMember"
+		//   "MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice" and "MoveTaskOrder.Orders.ServiceMember"
 		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
 		// in the EagerPreload above and request the second one explicitly with a separate Load call.
 		//
 		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
 		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-		//   cannot eager load the address as "OriginDutyStation.Address" because
-		//   OriginDutyStation is a pointer.
+		//   cannot eager load the address as "OriginDutyLocation.Address" because
+		//   OriginDutyLocation is a pointer.
 		loadErr := appCtx.DB().Load(&paymentRequests[i].MoveTaskOrder.Orders, "ServiceMember")
+		if loadErr != nil {
+			return nil, 0, err
+		}
+		loadErr = appCtx.DB().Load(&paymentRequests[i].MoveTaskOrder, "ShipmentGBLOC")
 		if loadErr != nil {
 			return nil, 0, err
 		}
@@ -144,8 +152,12 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("contractors", "contractors.id = moves.contractor_id").
-		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
-		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
+		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_location_id").
+		// Need to use left join because some duty locations do not have transportation offices
+		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
+		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
+		// and we don't want it to get hidden from services counselors.
+		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		Where("moves.show = ?", swag.Bool(true))
 
 	var branchQuery QueryOption
@@ -155,7 +167,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
 	} else {
-		gblocQuery = gblocFilter(gbloc)
+		gblocQuery = shipmentGBLOCFilter(&gbloc)
 	}
 	locatorQuery := locatorFilter(&locator)
 
@@ -228,7 +240,7 @@ func dutyLocationFilter(dutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
 		if dutyLocation != nil {
 			locationSearch := fmt.Sprintf("%s%%", *dutyLocation)
-			query.Where("duty_stations.name ILIKE ?", locationSearch)
+			query.Where("duty_locations.name ILIKE ?", locationSearch)
 		}
 	}
 }
@@ -248,11 +260,11 @@ func locatorFilter(locator *string) QueryOption {
 		}
 	}
 }
-func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
+func destinationDutyLocationFilter(destinationDutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
-		if destinationDutyStation != nil {
-			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
-			query.InnerJoin("duty_stations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
+		if destinationDutyLocation != nil {
+			nameSearch := fmt.Sprintf("%s%%", *destinationDutyLocation)
+			query.InnerJoin("duty_locations as destination_duty_location", "orders.new_duty_location = destination_duty_location.id").Where("destination_duty_location.name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -267,9 +279,11 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 	}
 }
 
-func gblocFilter(gbloc string) QueryOption {
+func shipmentGBLOCFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
-		query.Where("transportation_offices.gbloc = ?", gbloc)
+		if gbloc != nil {
+			query.Where("move_to_gbloc.gbloc = ?", *gbloc)
+		}
 	}
 }
 

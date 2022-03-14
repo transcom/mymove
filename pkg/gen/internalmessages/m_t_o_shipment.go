@@ -53,6 +53,9 @@ type MTOShipment struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
+	// ppm shipment
+	PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
+
 	// requested delivery date
 	// Read Only: true
 	// Format: date
@@ -109,6 +112,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePpmShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateRequestedDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -151,6 +158,8 @@ func (m *MTOShipment) validateAgents(formats strfmt.Registry) error {
 	if err := m.Agents.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -179,6 +188,8 @@ func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error 
 		if err := m.DestinationAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -220,6 +231,27 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 		if err := m.PickupAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validatePpmShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmShipment) { // not required
+		return nil
+	}
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
 			}
 			return err
 		}
@@ -261,6 +293,8 @@ func (m *MTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) 
 		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -278,6 +312,8 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
 			}
 			return err
 		}
@@ -294,6 +330,8 @@ func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -309,6 +347,8 @@ func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -360,6 +400,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRequestedDeliveryDate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -399,6 +443,8 @@ func (m *MTOShipment) contextValidateAgents(ctx context.Context, formats strfmt.
 	if err := m.Agents.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agents")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("agents")
 		}
 		return err
 	}
@@ -430,6 +476,8 @@ func (m *MTOShipment) contextValidateDestinationAddress(ctx context.Context, for
 		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -462,6 +510,24 @@ func (m *MTOShipment) contextValidatePickupAddress(ctx context.Context, formats 
 		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
 			}
 			return err
 		}
@@ -494,6 +560,8 @@ func (m *MTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Contex
 		if err := m.SecondaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -508,6 +576,8 @@ func (m *MTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context,
 		if err := m.SecondaryPickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
 			}
 			return err
 		}
@@ -521,6 +591,8 @@ func (m *MTOShipment) contextValidateShipmentType(ctx context.Context, formats s
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentType")
 		}
 		return err
 	}
@@ -533,6 +605,8 @@ func (m *MTOShipment) contextValidateStatus(ctx context.Context, formats strfmt.
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}

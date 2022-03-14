@@ -2,7 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 
-import { shipmentOptionLabels } from 'shared/constants';
+import { LOA_TYPE, shipmentOptionLabels } from 'shared/constants';
 import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments';
 
 export function formatAddress(address) {
@@ -13,6 +13,32 @@ export function formatAddress(address) {
       {city ? `${city}, ${state} ${postalCode}` : postalCode}
     </>
   );
+}
+
+export function retrieveTAC(tacType, ordersLOA) {
+  switch (tacType) {
+    case LOA_TYPE.HHG:
+      return ordersLOA.tac;
+    case LOA_TYPE.NTS:
+      return ordersLOA.ntsTac;
+    default:
+      return ordersLOA.tac;
+  }
+}
+
+export function retrieveSAC(sacType, ordersLOA) {
+  switch (sacType) {
+    case LOA_TYPE.HHG:
+      return ordersLOA.sac;
+    case LOA_TYPE.NTS:
+      return ordersLOA.ntsSac;
+    default:
+      return ordersLOA.sac;
+  }
+}
+
+export function formatAccountingCode(accountingCode, accountingCodeType) {
+  return String(accountingCode).concat(' (', accountingCodeType, ')');
 }
 
 // Display street address 1, street address 2, city, state, and zip

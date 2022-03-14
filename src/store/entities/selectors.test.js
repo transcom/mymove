@@ -4,7 +4,7 @@ import {
   selectServiceMemberProfileState,
   selectIsProfileComplete,
   selectBackupContacts,
-  selectCurrentDutyStation,
+  selectCurrentDutyLocation,
   selectOrdersForLoggedInUser,
   selectCurrentOrders,
   selectMovesForLoggedInUser,
@@ -228,7 +228,7 @@ describe('selectServiceMemberProfileState', () => {
             phone_is_preferred: true,
             telephone: '555-555-5556',
             email_is_preferred: false,
-            current_station: {
+            current_location: {
               id: 'testDutyStationId',
               address: {
                 city: 'Colorado Springs',
@@ -268,7 +268,7 @@ describe('selectServiceMemberProfileState', () => {
             phone_is_preferred: true,
             telephone: '555-555-5556',
             email_is_preferred: false,
-            current_station: {
+            current_location: {
               id: 'testDutyStationId',
               address: {
                 city: 'Colorado Springs',
@@ -324,7 +324,7 @@ describe('selectServiceMemberProfileState', () => {
             phone_is_preferred: true,
             telephone: '555-555-5556',
             email_is_preferred: false,
-            current_station: {
+            current_location: {
               id: 'testDutyStationId',
               address: {
                 city: 'Colorado Springs',
@@ -373,7 +373,7 @@ describe('selectServiceMemberProfileState', () => {
               streetAddress1: '200 K St',
             },
             created_at: '2018-05-25T15:48:49.918Z',
-            current_station: {
+            current_location: {
               address: {
                 city: 'Colorado Springs',
                 country: 'United States',
@@ -416,8 +416,8 @@ describe('selectServiceMemberProfileState', () => {
   });
 });
 
-describe('selectCurrentDutyStation', () => {
-  it('returns the service member’s current duty station', () => {
+describe('selectCurrentDutyLocation', () => {
+  it('returns the service member’s current duty location', () => {
     const testState = {
       entities: {
         user: {
@@ -429,7 +429,7 @@ describe('selectCurrentDutyStation', () => {
         serviceMembers: {
           serviceMemberId456: {
             id: 'serviceMemberId456',
-            current_station: {
+            current_location: {
               id: 'dutyStationId890',
             },
           },
@@ -437,12 +437,12 @@ describe('selectCurrentDutyStation', () => {
       },
     };
 
-    expect(selectCurrentDutyStation(testState)).toEqual(
-      testState.entities.serviceMembers.serviceMemberId456.current_station,
+    expect(selectCurrentDutyLocation(testState)).toEqual(
+      testState.entities.serviceMembers.serviceMemberId456.current_location,
     );
   });
 
-  it('returns null if there is the service member has no current station', () => {
+  it('returns null if there is the service member has no current location', () => {
     const testState = {
       entities: {
         user: {
@@ -459,7 +459,7 @@ describe('selectCurrentDutyStation', () => {
       },
     };
 
-    expect(selectCurrentDutyStation(testState)).toEqual(null);
+    expect(selectCurrentDutyLocation(testState)).toEqual(null);
   });
 });
 
@@ -540,7 +540,7 @@ describe('selectIsProfileComplete', () => {
       streetAddress1: '200 K St',
     },
     created_at: '2018-05-25T15:48:49.918Z',
-    current_station: {
+    current_location: {
       address: {
         city: 'Colorado Springs',
         country: 'United States',

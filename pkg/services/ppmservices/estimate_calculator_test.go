@@ -370,14 +370,14 @@ func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, origi
 	suite.MustSave(&address1)
 
 	affiliationAirforce := internalmessages.AffiliationAIRFORCE
-	stationName := "Origin Duty Station"
-	originStation := models.DutyStation{
-		Name:        stationName,
+	locationName := "Origin Duty Location"
+	originLocation := models.DutyLocation{
+		Name:        locationName,
 		Affiliation: &affiliationAirforce,
 		AddressID:   address1.ID,
 		Address:     address1,
 	}
-	suite.MustSave(&originStation)
+	suite.MustSave(&originLocation)
 
 	address2 := models.Address{
 		StreetAddress1: "some address",
@@ -386,22 +386,22 @@ func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, origi
 		PostalCode:     newDutyStationZip,
 	}
 	suite.MustSave(&address2)
-	stationName = "New Duty Station"
-	newStation := models.DutyStation{
-		Name:        stationName,
+	locationName = "New Duty Location"
+	newLocation := models.DutyLocation{
+		Name:        locationName,
 		Affiliation: &affiliationAirforce,
 		AddressID:   address2.ID,
 		Address:     address2,
 	}
-	suite.MustSave(&newStation)
+	suite.MustSave(&newLocation)
 
 	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			NewDutyStationID: newStation.ID,
-			NewDutyStation:   newStation,
+			NewDutyLocationID: newLocation.ID,
+			NewDutyLocation:   newLocation,
 			ServiceMember: models.ServiceMember{
-				DutyStation:   originStation,
-				DutyStationID: &originStation.ID,
+				DutyLocation:   originLocation,
+				DutyLocationID: &originLocation.ID,
 			},
 		},
 	})

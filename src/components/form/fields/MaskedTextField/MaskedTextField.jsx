@@ -5,6 +5,8 @@ import { useField } from 'formik';
 import { IMaskInput } from 'react-imask';
 import { FormGroup, Label } from '@trussworks/react-uswds';
 
+import styles from './MaskedTextField.module.scss';
+
 import { OptionalTag } from 'components/form/OptionalTag';
 import { ErrorMessage } from 'components/form/index';
 import Hint from 'components/Hint';
@@ -15,6 +17,7 @@ const MaskedTextField = ({
   formGroupClassName,
   inputClassName,
   errorClassName,
+  hintClassName,
   id,
   name,
   labelHint,
@@ -30,6 +33,7 @@ const MaskedTextField = ({
   optional,
   errorMessage,
   error,
+  suffix,
   ...props
 }) => {
   const [field, metaProps, helpers] = useField({ id, name, validate, ...props });
@@ -49,25 +53,54 @@ const MaskedTextField = ({
           {metaProps.error ? metaProps.error : errorMessage}
         </ErrorMessage>
       )}
-      {showWarning && <Hint data-testid="textInputWarning">{warning}</Hint>}
+      {showWarning && (
+        <Hint className={hintClassName} data-testid="textInputWarning">
+          {warning}
+        </Hint>
+      )}
       {/* eslint-disable react/jsx-props-no-spreading */}
-      <IMaskInput
-        className={classnames('usa-input', inputClassName)}
-        data-testid={inputTestId}
-        type={type}
-        id={id}
-        name={name}
-        value={value ?? defaultValue}
-        mask={mask}
-        blocks={blocks}
-        lazy={lazy}
-        onAccept={(val, masked) => {
-          helpers.setValue(masked.unmaskedValue);
-          // setValue is already triggering validation for this field so we should be able to skip it in setTouched
-          helpers.setTouched(true, false);
-        }}
-        {...props}
-      />
+      {suffix ? (
+        <div className={suffix && styles.hasSuffix}>
+          <IMaskInput
+            className={classnames('usa-input', inputClassName)}
+            data-testid={inputTestId}
+            type={type}
+            id={id}
+            name={name}
+            value={value ?? defaultValue}
+            mask={mask}
+            blocks={blocks}
+            lazy={lazy}
+            onAccept={(val, masked) => {
+              helpers.setValue(masked.unmaskedValue);
+              // setValue is already triggering validation for this field so we should be able to skip it in setTouched
+              helpers.setTouched(true, false);
+            }}
+            onBlur={field.onBlur}
+            {...props}
+          />
+          {suffix && <div className="suffix">{suffix}</div>}
+        </div>
+      ) : (
+        <IMaskInput
+          className={classnames('usa-input', inputClassName)}
+          data-testid={inputTestId}
+          type={type}
+          id={id}
+          name={name}
+          value={value ?? defaultValue}
+          mask={mask}
+          blocks={blocks}
+          lazy={lazy}
+          onAccept={(val, masked) => {
+            helpers.setValue(masked.unmaskedValue);
+            // setValue is already triggering validation for this field so we should be able to skip it in setTouched
+            helpers.setTouched(true, false);
+          }}
+          onBlur={field.onBlur}
+          {...props}
+        />
+      )}
       {children}
       {/* eslint-enable react/jsx-props-no-spreading */}
     </FormGroup>
@@ -79,9 +112,11 @@ MaskedTextField.propTypes = {
   children: PropTypes.node,
   defaultValue: PropTypes.string,
   errorClassName: PropTypes.string,
+  hintClassName: PropTypes.string,
   formGroupClassName: PropTypes.string,
   id: PropTypes.string.isRequired,
   inputClassName: PropTypes.string,
+  suffix: PropTypes.string,
   label: PropTypes.string,
   labelClassName: PropTypes.string,
   labelHint: PropTypes.string,
@@ -102,7 +137,9 @@ MaskedTextField.defaultProps = {
   children: null,
   defaultValue: '',
   errorClassName: '',
+  hintClassName: '',
   formGroupClassName: '',
+  suffix: '',
   inputClassName: '',
   label: '',
   labelClassName: '',

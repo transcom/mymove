@@ -11,10 +11,10 @@ import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
+import { roleTypes } from 'constants/userRoles';
 
 const EditShipmentDetails = ({ match }) => {
   const { moveCode, shipmentId } = useParams();
@@ -38,12 +38,12 @@ const EditShipmentDetails = ({ match }) => {
 
   const TACs = {
     HHG: order.tac,
-    NTS: order.nts_tac,
+    NTS: order.ntsTac,
   };
 
   const SACs = {
     HHG: order.sac,
-    NTS: order.nts_sac,
+    NTS: order.ntsSac,
   };
 
   return (
@@ -60,14 +60,16 @@ const EditShipmentDetails = ({ match }) => {
                   submitHandler={mutateMTOShipment}
                   isCreatePage={false}
                   currentResidence={customer.current_address}
-                  newDutyStationAddress={order.destinationDutyStation?.address}
-                  selectedMoveType={SHIPMENT_OPTIONS.HHG}
+                  newDutyStationAddress={order.destinationDutyLocation?.address}
+                  selectedMoveType={matchingShipment.shipmentType}
                   mtoShipment={matchingShipment}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}
                   TACs={TACs}
                   SACs={SACs}
+                  userRole={roleTypes.TOO}
+                  displayDestinationType
                 />
               </Grid>
             </Grid>

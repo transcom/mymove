@@ -28,7 +28,7 @@ import (
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/gobuffalo/pop/v5"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
@@ -931,6 +931,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			internalMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
+		internalMux.Use(middleware.RequestLogger(logger))
 		internalMux.HandleFunc("/users/is_logged_in", isLoggedInMiddleware).Methods("GET")
 		// Mux for internal API that enforces auth
 		internalAPIMux := internalMux.PathPrefix("/").Subrouter()

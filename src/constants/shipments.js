@@ -34,4 +34,11 @@ export const shipmentStatuses = {
   DIVERSION_REQUESTED: 'DIVERSION_REQUESTED',
 };
 
+export const shipmentDestinationTypes = {
+  HOME_OF_RECORD: 'Home of record (HOR)',
+  HOME_OF_SELECTION: 'Home of selection (HOS)',
+  PLACE_ENTERED_ACTIVE_DUTY: 'Place entered active duty (PLEAD)',
+  OTHER_THAN_AUTHORIZED: 'Other than authorized',
+};
+
 export const LONGHAUL_MIN_DISTANCE = 50;

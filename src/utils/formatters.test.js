@@ -57,9 +57,42 @@ describe('formatters', () => {
     });
   });
 
+  describe('formatWeight', () => {
+    describe('when formatting a integer weight', () => {
+      const weight = 4000;
+      const formattedWeight = formatters.formatWeight(weight);
+      it('should be be formatted as expected', () => {
+        expect(formattedWeight).toEqual('4,000 lbs');
+      });
+    });
+    describe('when formatting a integer weight', () => {
+      const weight = '';
+      const formattedWeight = formatters.formatWeight(weight);
+      it('should be be formatted as expected', () => {
+        expect(formattedWeight).toEqual('0 lbs');
+      });
+    });
+  });
+
   describe('formatDollarFromMillicents', () => {
     it('returns expected value', () => {
       expect(formatters.formatDollarFromMillicents('80000')).toBe('$0.80');
+    });
+  });
+
+  describe('formatCents', () => {
+    it('formats cents value into local string to 2 decimal places', () => {
+      expect(formatters.formatCents(120034)).toEqual('1,200.34');
+    });
+
+    it('formats without decimal place when fraction digits are zero', () => {
+      expect(formatters.formatCents(120034, 0, 0)).toEqual('1,200');
+    });
+  });
+
+  describe('formatCentsTruncateWhole', () => {
+    it('formats cents value into local string and truncates decimal', () => {
+      expect(formatters.formatCentsTruncateWhole(120034)).toEqual('1,200');
     });
   });
 
@@ -78,6 +111,35 @@ describe('formatters', () => {
 
     it('returns plural when greater than 1', () => {
       expect(formatters.formatDaysInTransit(2)).toEqual('2 days');
+    });
+  });
+
+  describe('formatDelimitedNumber', () => {
+    it('works for simple string numbers', () => {
+      expect(formatters.formatDelimitedNumber('500')).toEqual(500);
+      expect(formatters.formatDelimitedNumber('1,234')).toEqual(1234);
+      expect(formatters.formatDelimitedNumber('12,345,678,901')).toEqual(12345678901);
+    });
+
+    it('works for actual numbers', () => {
+      expect(formatters.formatDelimitedNumber(500)).toEqual(500);
+      expect(formatters.formatDelimitedNumber(1234)).toEqual(1234);
+    });
+
+    it('works for non-integers', () => {
+      expect(formatters.formatDelimitedNumber('1,234.56')).toEqual(1234.56);
+    });
+  });
+
+  describe('formatLabelReportByDate', () => {
+    it('returns the correct label for RETIREMENT', () => {
+      expect(formatters.formatLabelReportByDate('RETIREMENT')).toEqual('Date of retirement');
+    });
+    it('returns the correct label for SEPARATION', () => {
+      expect(formatters.formatLabelReportByDate('SEPARATION')).toEqual('Date of separation');
+    });
+    it('returns a default label for all other values', () => {
+      expect(formatters.formatLabelReportByDate('test')).toEqual('Report by date');
     });
   });
 });

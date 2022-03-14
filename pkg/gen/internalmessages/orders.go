@@ -56,9 +56,9 @@ type Orders struct {
 	// moves
 	Moves IndexMovesPayload `json:"moves,omitempty"`
 
-	// new duty station
+	// new duty location
 	// Required: true
-	NewDutyStation *DutyStationPayload `json:"new_duty_station"`
+	NewDutyLocation *DutyLocationPayload `json:"new_duty_location"`
 
 	// Orders Number
 	// Example: 030-00362
@@ -71,8 +71,8 @@ type Orders struct {
 	// orders type detail
 	OrdersTypeDetail *OrdersTypeDetail `json:"orders_type_detail,omitempty"`
 
-	// origin duty station
-	OriginDutyStation *DutyStationPayload `json:"origin_duty_station,omitempty"`
+	// origin duty location
+	OriginDutyLocation *DutyLocationPayload `json:"origin_duty_location,omitempty"`
 
 	// Report by
 	//
@@ -149,7 +149,7 @@ func (m *Orders) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateNewDutyStation(formats); err != nil {
+	if err := m.validateNewDutyLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -161,7 +161,7 @@ func (m *Orders) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateOriginDutyStation(formats); err != nil {
+	if err := m.validateOriginDutyLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -225,6 +225,8 @@ func (m *Orders) validateDepartmentIndicator(formats strfmt.Registry) error {
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("department_indicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("department_indicator")
 			}
 			return err
 		}
@@ -276,6 +278,8 @@ func (m *Orders) validateMoves(formats strfmt.Registry) error {
 	if err := m.Moves.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("moves")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("moves")
 		}
 		return err
 	}
@@ -283,16 +287,18 @@ func (m *Orders) validateMoves(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Orders) validateNewDutyStation(formats strfmt.Registry) error {
+func (m *Orders) validateNewDutyLocation(formats strfmt.Registry) error {
 
-	if err := validate.Required("new_duty_station", "body", m.NewDutyStation); err != nil {
+	if err := validate.Required("new_duty_location", "body", m.NewDutyLocation); err != nil {
 		return err
 	}
 
-	if m.NewDutyStation != nil {
-		if err := m.NewDutyStation.Validate(formats); err != nil {
+	if m.NewDutyLocation != nil {
+		if err := m.NewDutyLocation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("new_duty_station")
+				return ve.ValidateName("new_duty_location")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("new_duty_location")
 			}
 			return err
 		}
@@ -315,6 +321,8 @@ func (m *Orders) validateOrdersType(formats strfmt.Registry) error {
 		if err := m.OrdersType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type")
 			}
 			return err
 		}
@@ -332,6 +340,8 @@ func (m *Orders) validateOrdersTypeDetail(formats strfmt.Registry) error {
 		if err := m.OrdersTypeDetail.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type_detail")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type_detail")
 			}
 			return err
 		}
@@ -340,15 +350,17 @@ func (m *Orders) validateOrdersTypeDetail(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Orders) validateOriginDutyStation(formats strfmt.Registry) error {
-	if swag.IsZero(m.OriginDutyStation) { // not required
+func (m *Orders) validateOriginDutyLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginDutyLocation) { // not required
 		return nil
 	}
 
-	if m.OriginDutyStation != nil {
-		if err := m.OriginDutyStation.Validate(formats); err != nil {
+	if m.OriginDutyLocation != nil {
+		if err := m.OriginDutyLocation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("origin_duty_station")
+				return ve.ValidateName("origin_duty_location")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("origin_duty_location")
 			}
 			return err
 		}
@@ -400,6 +412,8 @@ func (m *Orders) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -429,6 +443,8 @@ func (m *Orders) validateUploadedAmendedOrders(formats strfmt.Registry) error {
 		if err := m.UploadedAmendedOrders.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("uploaded_amended_orders")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("uploaded_amended_orders")
 			}
 			return err
 		}
@@ -459,6 +475,8 @@ func (m *Orders) validateUploadedOrders(formats strfmt.Registry) error {
 		if err := m.UploadedOrders.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("uploaded_orders")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("uploaded_orders")
 			}
 			return err
 		}
@@ -479,7 +497,7 @@ func (m *Orders) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateNewDutyStation(ctx, formats); err != nil {
+	if err := m.contextValidateNewDutyLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -491,7 +509,7 @@ func (m *Orders) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateOriginDutyStation(ctx, formats); err != nil {
+	if err := m.contextValidateOriginDutyLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -519,6 +537,8 @@ func (m *Orders) contextValidateDepartmentIndicator(ctx context.Context, formats
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("department_indicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("department_indicator")
 			}
 			return err
 		}
@@ -532,6 +552,8 @@ func (m *Orders) contextValidateMoves(ctx context.Context, formats strfmt.Regist
 	if err := m.Moves.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("moves")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("moves")
 		}
 		return err
 	}
@@ -539,12 +561,14 @@ func (m *Orders) contextValidateMoves(ctx context.Context, formats strfmt.Regist
 	return nil
 }
 
-func (m *Orders) contextValidateNewDutyStation(ctx context.Context, formats strfmt.Registry) error {
+func (m *Orders) contextValidateNewDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.NewDutyStation != nil {
-		if err := m.NewDutyStation.ContextValidate(ctx, formats); err != nil {
+	if m.NewDutyLocation != nil {
+		if err := m.NewDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("new_duty_station")
+				return ve.ValidateName("new_duty_location")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("new_duty_location")
 			}
 			return err
 		}
@@ -559,6 +583,8 @@ func (m *Orders) contextValidateOrdersType(ctx context.Context, formats strfmt.R
 		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type")
 			}
 			return err
 		}
@@ -573,6 +599,8 @@ func (m *Orders) contextValidateOrdersTypeDetail(ctx context.Context, formats st
 		if err := m.OrdersTypeDetail.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type_detail")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type_detail")
 			}
 			return err
 		}
@@ -581,12 +609,14 @@ func (m *Orders) contextValidateOrdersTypeDetail(ctx context.Context, formats st
 	return nil
 }
 
-func (m *Orders) contextValidateOriginDutyStation(ctx context.Context, formats strfmt.Registry) error {
+func (m *Orders) contextValidateOriginDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.OriginDutyStation != nil {
-		if err := m.OriginDutyStation.ContextValidate(ctx, formats); err != nil {
+	if m.OriginDutyLocation != nil {
+		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("origin_duty_station")
+				return ve.ValidateName("origin_duty_location")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("origin_duty_location")
 			}
 			return err
 		}
@@ -600,6 +630,8 @@ func (m *Orders) contextValidateStatus(ctx context.Context, formats strfmt.Regis
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -613,6 +645,8 @@ func (m *Orders) contextValidateUploadedAmendedOrders(ctx context.Context, forma
 		if err := m.UploadedAmendedOrders.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("uploaded_amended_orders")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("uploaded_amended_orders")
 			}
 			return err
 		}
@@ -627,6 +661,8 @@ func (m *Orders) contextValidateUploadedOrders(ctx context.Context, formats strf
 		if err := m.UploadedOrders.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("uploaded_orders")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("uploaded_orders")
 			}
 			return err
 		}

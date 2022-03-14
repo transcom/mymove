@@ -3,15 +3,19 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 import ShipmentWeightDetails from './ShipmentWeightDetails';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 const shipmentInfoReweighRequested = {
   shipmentID: 'shipment1',
   ifMatchEtag: 'etag1',
   reweighID: 'reweighRequestID',
+  shipmentType: SHIPMENT_OPTIONS.HHG,
 };
 
 const shipmentInfoNoReweigh = {
   shipmentID: 'shipment1',
   ifMatchEtag: 'etag1',
+  shipmentType: SHIPMENT_OPTIONS.HHG,
 };
 
 const shipmentInfoReweigh = {
@@ -19,6 +23,7 @@ const shipmentInfoReweigh = {
   ifMatchEtag: 'etag1',
   reweighID: 'reweighRequestID',
   reweighWeight: 1000,
+  shipmentType: SHIPMENT_OPTIONS.HHG,
 };
 
 const handleRequestReweighModal = jest.fn();
@@ -44,7 +49,7 @@ describe('ShipmentWeightDetails', () => {
     expect(reweighButton).toBeTruthy();
   });
 
-  it('renders with estimated weight', async () => {
+  it('renders with estimated weight if not an NTSR', async () => {
     render(
       <ShipmentWeightDetails
         estimatedWeight={11000}
@@ -56,6 +61,19 @@ describe('ShipmentWeightDetails', () => {
 
     const estWeight = await screen.findByText('11,000 lbs');
     expect(estWeight).toBeTruthy();
+  });
+
+  it('renders without estimated weight if an NTSR', async () => {
+    render(
+      <ShipmentWeightDetails
+        estimatedWeight={null}
+        actualWeight={12000}
+        shipmentInfo={{ ...shipmentInfoReweighRequested, shipmentType: SHIPMENT_OPTIONS.NTSR }}
+        handleRequestReweighModal={handleRequestReweighModal}
+      />,
+    );
+
+    expect(screen.queryByText('Estimated weight')).not.toBeInTheDocument();
   });
 
   it('renders with shipment weight', async () => {

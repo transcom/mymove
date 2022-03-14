@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -18,29 +19,29 @@ import (
 
 func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessages.MoveQueueItem {
 	MoveQueueItemPayload := internalmessages.MoveQueueItem{
-		ID:                         handlers.FmtUUID(MoveQueueItem.ID),
-		CreatedAt:                  handlers.FmtDateTime(MoveQueueItem.CreatedAt),
-		Edipi:                      swag.String(MoveQueueItem.Edipi),
-		Rank:                       (*internalmessages.ServiceMemberRank)(MoveQueueItem.Rank),
-		CustomerName:               swag.String(MoveQueueItem.CustomerName),
-		Locator:                    swag.String(MoveQueueItem.Locator),
-		Status:                     swag.String(MoveQueueItem.Status),
-		PpmStatus:                  handlers.FmtStringPtr(MoveQueueItem.PpmStatus),
-		OrdersType:                 swag.String(MoveQueueItem.OrdersType),
-		MoveDate:                   handlers.FmtDatePtr(MoveQueueItem.MoveDate),
-		SubmittedDate:              handlers.FmtDateTimePtr(MoveQueueItem.SubmittedDate),
-		LastModifiedDate:           handlers.FmtDateTime(MoveQueueItem.LastModifiedDate),
-		OriginDutyStationName:      swag.String(MoveQueueItem.OriginDutyStationName),
-		DestinationDutyStationName: swag.String(MoveQueueItem.DestinationDutyStationName),
-		PmSurveyConductedDate:      handlers.FmtDateTimePtr(MoveQueueItem.PmSurveyConductedDate),
-		OriginGbloc:                handlers.FmtStringPtr(MoveQueueItem.OriginGBLOC),
-		DestinationGbloc:           handlers.FmtStringPtr(MoveQueueItem.DestinationGBLOC),
-		DeliveredDate:              handlers.FmtDateTimePtr(MoveQueueItem.DeliveredDate),
-		InvoiceApprovedDate:        handlers.FmtDateTimePtr(MoveQueueItem.InvoiceApprovedDate),
-		WeightAllotment:            payloadForWeightAllotmentModel(models.GetWeightAllotment(*MoveQueueItem.Rank)),
-		BranchOfService:            handlers.FmtString(MoveQueueItem.BranchOfService),
-		ActualMoveDate:             handlers.FmtDatePtr(MoveQueueItem.ActualMoveDate),
-		OriginalMoveDate:           handlers.FmtDatePtr(MoveQueueItem.OriginalMoveDate),
+		ID:                          handlers.FmtUUID(MoveQueueItem.ID),
+		CreatedAt:                   handlers.FmtDateTime(MoveQueueItem.CreatedAt),
+		Edipi:                       swag.String(MoveQueueItem.Edipi),
+		Rank:                        (*internalmessages.ServiceMemberRank)(MoveQueueItem.Rank),
+		CustomerName:                swag.String(MoveQueueItem.CustomerName),
+		Locator:                     swag.String(MoveQueueItem.Locator),
+		Status:                      swag.String(MoveQueueItem.Status),
+		PpmStatus:                   handlers.FmtStringPtr(MoveQueueItem.PpmStatus),
+		OrdersType:                  swag.String(MoveQueueItem.OrdersType),
+		MoveDate:                    handlers.FmtDatePtr(MoveQueueItem.MoveDate),
+		SubmittedDate:               handlers.FmtDateTimePtr(MoveQueueItem.SubmittedDate),
+		LastModifiedDate:            handlers.FmtDateTime(MoveQueueItem.LastModifiedDate),
+		OriginDutyLocationName:      swag.String(MoveQueueItem.OriginDutyLocationName),
+		DestinationDutyLocationName: swag.String(MoveQueueItem.DestinationDutyLocationName),
+		PmSurveyConductedDate:       handlers.FmtDateTimePtr(MoveQueueItem.PmSurveyConductedDate),
+		OriginGbloc:                 handlers.FmtStringPtr(MoveQueueItem.OriginGBLOC),
+		DestinationGbloc:            handlers.FmtStringPtr(MoveQueueItem.DestinationGBLOC),
+		DeliveredDate:               handlers.FmtDateTimePtr(MoveQueueItem.DeliveredDate),
+		InvoiceApprovedDate:         handlers.FmtDateTimePtr(MoveQueueItem.InvoiceApprovedDate),
+		WeightAllotment:             payloadForWeightAllotmentModel(models.GetWeightAllotment(*MoveQueueItem.Rank)),
+		BranchOfService:             handlers.FmtString(MoveQueueItem.BranchOfService),
+		ActualMoveDate:              handlers.FmtDatePtr(MoveQueueItem.ActualMoveDate),
+		OriginalMoveDate:            handlers.FmtDatePtr(MoveQueueItem.OriginalMoveDate),
 	}
 	return &MoveQueueItemPayload
 }
@@ -95,27 +96,29 @@ func sortQueueItemsByLastModifiedDate(moveQueueItems []models.MoveQueueItem) {
 
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() {
-		return queueop.NewShowQueueForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() {
+				return queueop.NewShowQueueForbidden()
+			}
 
-	lifecycleState := params.QueueType
+			lifecycleState := params.QueueType
 
-	MoveQueueItems, err := models.GetMoveQueueItems(appCtx.DB(), lifecycleState)
-	if err != nil {
-		appCtx.Logger().Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			MoveQueueItems, err := models.GetMoveQueueItems(appCtx.DB(), lifecycleState)
+			if err != nil {
+				appCtx.Logger().Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	// Sorting the slice by LastModifiedDate so that the API results follow suit.
-	sortQueueItemsByLastModifiedDate(MoveQueueItems)
+			// Sorting the slice by LastModifiedDate so that the API results follow suit.
+			sortQueueItemsByLastModifiedDate(MoveQueueItems)
 
-	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
-	for i, MoveQueueItem := range MoveQueueItems {
-		MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem)
-		MoveQueueItemPayloads[i] = MoveQueueItemPayload
-	}
-	return queueop.NewShowQueueOK().WithPayload(MoveQueueItemPayloads)
+			MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
+			for i, MoveQueueItem := range MoveQueueItems {
+				MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem)
+				MoveQueueItemPayloads[i] = MoveQueueItemPayload
+			}
+			return queueop.NewShowQueueOK().WithPayload(MoveQueueItemPayloads)
+		})
 }

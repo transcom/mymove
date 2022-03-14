@@ -9,6 +9,9 @@
 .EditFinancialReviewContainer {
   display: flex;
   align-content: baseline;
+  :global(.usa-button) {
+    width: auto;
+  }
 }
 
 .EditFinancialReviewButton {

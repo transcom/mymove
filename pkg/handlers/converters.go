@@ -111,6 +111,11 @@ func FmtInt64(i int64) *int64 {
 	return &i
 }
 
+// FmtInt converts an int to an int pointer
+func FmtInt(i int) *int {
+	return &i
+}
+
 // FmtBool converts pop type to go-swagger type
 func FmtBool(b bool) *bool {
 	return &b

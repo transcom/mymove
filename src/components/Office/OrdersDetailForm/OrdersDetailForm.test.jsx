@@ -26,8 +26,8 @@ const dutyStation = {
 };
 
 const initialValues = {
-  currentDutyStation: dutyStation,
-  newDutyStation: dutyStation,
+  currentDutyLocation: dutyStation,
+  newDutyLocation: dutyStation,
   dateIssued: '2020-03-08',
   reportByDate: '2020-04-01',
   departmentIndicator: 'NAVY_AND_MARINES',
@@ -48,6 +48,8 @@ const defaultProps = {
   ordersTypeDetailOptions,
   showOrdersAcknowledgement: true,
   validateTac: jest.fn,
+  ordersType: 'PERMANENT_CHANGE_OF_STATION',
+  setFieldValue: jest.fn,
 };
 
 function renderOrdersDetailForm(props) {
@@ -122,5 +124,41 @@ describe('OrdersDetailForm', () => {
     expect(screen.queryByLabelText('TAC')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('SAC')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('I have read the new orders')).not.toBeInTheDocument();
+  });
+
+  it('has the right labels for a retiree', async () => {
+    renderOrdersDetailForm({
+      showDepartmentIndicator: false,
+      showOrdersNumber: false,
+      showOrdersTypeDetail: false,
+      showHHGTac: false,
+      showHHGSac: false,
+      showNTSTac: false,
+      showNTSSac: false,
+      showOrdersAcknowledgement: false,
+      ordersType: 'RETIREMENT',
+    });
+
+    // correct labels are visible
+    expect(await screen.findByLabelText('Date of retirement')).toBeInTheDocument();
+    expect(await screen.findByLabelText('HOR, HOS or PLEAD')).toBeInTheDocument();
+  });
+
+  it('has the right labels for a separatee', async () => {
+    renderOrdersDetailForm({
+      showDepartmentIndicator: false,
+      showOrdersNumber: false,
+      showOrdersTypeDetail: false,
+      showHHGTac: false,
+      showHHGSac: false,
+      showNTSTac: false,
+      showNTSSac: false,
+      showOrdersAcknowledgement: false,
+      ordersType: 'SEPARATION',
+    });
+
+    // correct labels are visible
+    expect(await screen.findByLabelText('Date of separation')).toBeInTheDocument();
+    expect(await screen.findByLabelText('HOR, HOS or PLEAD')).toBeInTheDocument();
   });
 });

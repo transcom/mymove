@@ -6,15 +6,22 @@
 
 set -eu -o pipefail
 
-filename="$1"
-readonly filename
-
 UNAME_S=$(uname -s)
 if [ "$UNAME_S" == "Linux" ]; then
-  /usr/local/bin/swagger validate "${filename}"
+  LOCAL_SWAGGER="/usr/local/bin/swagger"
+elif swagger version 2>/dev/null | grep -F -q -E 'version: v?0.29.0'; then
+  LOCAL_SWAGGER=$(which swagger)
+fi
+
+if [[ -n "${LOCAL_SWAGGER+x}" ]]; then
+  for filename in "$@"; do
+    ${LOCAL_SWAGGER} validate "${filename}"
+  done
 else
   # Locally we need to download the docker image to get the binary
-  image=milmove/circleci-docker:milmove-app-cf2249e54c69b52625f1ab04eb79f37381d0d3bf
+  image=milmove/circleci-docker:milmove-app-03964d7db55c2692d8a9ae89f81ee76c520b33c1
   docker pull -q "${image}"
-  docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger validate "${filename}"
+  for filename in "$@"; do
+    docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger validate "${filename}"
+  done
 fi

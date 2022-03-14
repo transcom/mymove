@@ -528,9 +528,13 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Check the state value sent back from login.gov with the value saved in the cookie
 	returnedState := r.URL.Query().Get("state")
-	stateCookie, err := r.Cookie(StateCookieName(appCtx.Session()))
+	stateCookieName := StateCookieName(appCtx.Session())
+	stateCookie, err := r.Cookie(stateCookieName)
 	if err != nil {
-		appCtx.Logger().Error("Getting login.gov state cookie", zap.Error(err))
+		appCtx.Logger().Error("Getting login.gov state cookie",
+			zap.String("stateCookieName", stateCookieName),
+			zap.String("sessionUserId", appCtx.Session().UserID.String()),
+			zap.Error(err))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
@@ -804,7 +808,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			UserID:             user.ID,
 			RequiresAccessCode: h.Context.GetFeatureFlag(cli.FeatureFlagAccessCode),
 		}
-		smVerrs, smErr := models.SaveServiceMember(appCtx.DB(), &newServiceMember)
+		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)

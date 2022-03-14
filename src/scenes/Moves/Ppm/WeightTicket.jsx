@@ -540,8 +540,8 @@ WeightTicket.propTypes = {
 function mapStateToProps(state, ownProps) {
   const moveId = ownProps.match.params.moveId;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const dutyStationId = serviceMember?.current_station?.id;
-  const transportationOffice = serviceMember?.current_station.transportation_office;
+  const dutyLocationId = serviceMember?.current_location?.id;
+  const transportationOffice = serviceMember?.current_location.transportation_office;
 
   return {
     moveId: moveId,
@@ -552,7 +552,7 @@ function mapStateToProps(state, ownProps) {
     currentPpm: selectCurrentPPM(state) || {},
     weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     transportationOffice: transportationOffice,
-    dutyStationId: dutyStationId,
+    dutyLocationId: dutyLocationId,
   };
 }
 

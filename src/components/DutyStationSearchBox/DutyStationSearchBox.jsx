@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { debounce } from 'lodash';
 
 import styles from './DutyStationSearchBox.module.scss';
-import { SearchDutyStations, ShowAddress } from './api';
+import { SearchDutyLocations, ShowAddress } from './api';
 
 import { DutyStationShape } from 'types';
 
@@ -76,7 +76,7 @@ const customStyles = {
 };
 
 export const DutyStationSearchBoxComponent = (props) => {
-  const { searchDutyStations, showAddress, title, input, name, errorMsg, displayAddress } = props;
+  const { searchDutyLocations, showAddress, title, input, name, errorMsg, displayAddress } = props;
   const { value, onChange, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
@@ -87,9 +87,9 @@ export const DutyStationSearchBoxComponent = (props) => {
       return undefined;
     }
 
-    searchDutyStations(query)
-      .then((stations) => {
-        callback(stations);
+    searchDutyLocations(query)
+      .then((locations) => {
+        callback(locations);
       })
       .catch(() => {
         callback(null);
@@ -163,7 +163,9 @@ export const DutyStationSearchBoxComponent = (props) => {
 };
 
 export const DutyStationSearchBoxContainer = (props) => {
-  return <DutyStationSearchBoxComponent {...props} searchDutyStations={SearchDutyStations} showAddress={ShowAddress} />;
+  return (
+    <DutyStationSearchBoxComponent {...props} searchDutyLocations={SearchDutyLocations} showAddress={ShowAddress} />
+  );
 };
 
 DutyStationSearchBoxContainer.propTypes = {
@@ -191,7 +193,7 @@ DutyStationSearchBoxContainer.defaultProps = {
 
 DutyStationSearchBoxComponent.propTypes = {
   ...DutyStationSearchBoxContainer.propTypes,
-  searchDutyStations: PropTypes.func.isRequired,
+  searchDutyLocations: PropTypes.func.isRequired,
   showAddress: PropTypes.func.isRequired,
 };
 

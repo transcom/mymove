@@ -20,7 +20,7 @@ import (
 type QueuePaymentRequest struct {
 
 	// Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.
-	Age int64 `json:"age,omitempty"`
+	Age float64 `json:"age,omitempty"`
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
@@ -40,7 +40,7 @@ type QueuePaymentRequest struct {
 	MoveID strfmt.UUID `json:"moveID,omitempty"`
 
 	// origin duty location
-	OriginDutyLocation *DutyStation `json:"originDutyLocation,omitempty"`
+	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
 
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
@@ -104,6 +104,8 @@ func (m *QueuePaymentRequest) validateCustomer(formats strfmt.Registry) error {
 		if err := m.Customer.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("customer")
 			}
 			return err
 		}
@@ -121,6 +123,8 @@ func (m *QueuePaymentRequest) validateDepartmentIndicator(formats strfmt.Registr
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("departmentIndicator")
 			}
 			return err
 		}
@@ -162,6 +166,8 @@ func (m *QueuePaymentRequest) validateOriginDutyLocation(formats strfmt.Registry
 		if err := m.OriginDutyLocation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originDutyLocation")
 			}
 			return err
 		}
@@ -178,6 +184,8 @@ func (m *QueuePaymentRequest) validateOriginGBLOC(formats strfmt.Registry) error
 	if err := m.OriginGBLOC.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("originGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("originGBLOC")
 		}
 		return err
 	}
@@ -193,6 +201,8 @@ func (m *QueuePaymentRequest) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -248,6 +258,8 @@ func (m *QueuePaymentRequest) contextValidateCustomer(ctx context.Context, forma
 		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("customer")
 			}
 			return err
 		}
@@ -262,6 +274,8 @@ func (m *QueuePaymentRequest) contextValidateDepartmentIndicator(ctx context.Con
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("departmentIndicator")
 			}
 			return err
 		}
@@ -276,6 +290,8 @@ func (m *QueuePaymentRequest) contextValidateOriginDutyLocation(ctx context.Cont
 		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originDutyLocation")
 			}
 			return err
 		}
@@ -289,6 +305,8 @@ func (m *QueuePaymentRequest) contextValidateOriginGBLOC(ctx context.Context, fo
 	if err := m.OriginGBLOC.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("originGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("originGBLOC")
 		}
 		return err
 	}
@@ -301,6 +319,8 @@ func (m *QueuePaymentRequest) contextValidateStatus(ctx context.Context, formats
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/uploader"
@@ -69,10 +70,10 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	if order.Entitlement != nil {
 		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
 	}
-	var originDutyStation models.DutyStation
-	originDutyStation = models.DutyStation{}
-	if order.OriginDutyStation != nil {
-		originDutyStation = *order.OriginDutyStation
+	var originDutyLocation models.DutyLocation
+	originDutyLocation = models.DutyLocation{}
+	if order.OriginDutyLocation != nil {
+		originDutyLocation = *order.OriginDutyLocation
 	}
 
 	ordersType := order.OrdersType
@@ -85,9 +86,9 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		ReportByDate:          handlers.FmtDate(order.ReportByDate),
 		OrdersType:            &ordersType,
 		OrdersTypeDetail:      order.OrdersTypeDetail,
-		OriginDutyStation:     payloadForDutyStationModel(originDutyStation),
+		OriginDutyLocation:    payloadForDutyLocationModel(originDutyLocation),
 		Grade:                 order.Grade,
-		NewDutyStation:        payloadForDutyStationModel(order.NewDutyStation),
+		NewDutyLocation:       payloadForDutyLocationModel(order.NewDutyLocation),
 		HasDependents:         handlers.FmtBool(order.HasDependents),
 		SpouseHasProGear:      handlers.FmtBool(order.SpouseHasProGear),
 		UploadedOrders:        orderPayload,
@@ -111,87 +112,95 @@ type CreateOrdersHandler struct {
 
 // Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	payload := params.CreateOrders
+			payload := params.CreateOrders
 
-	serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	newDutyStation, err := models.FetchDutyStation(appCtx.DB(), stationID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	originDutyStation := serviceMember.DutyStation
-	grade := (*string)(serviceMember.Rank)
+			stationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			originDutyLocation := serviceMember.DutyLocation
+			grade := (*string)(serviceMember.Rank)
 
-	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
-	if entitlementErr != nil {
-		return handlers.ResponseForError(appCtx.Logger(), entitlementErr)
-	}
-	entitlement := models.Entitlement{
-		DependentsAuthorized: payload.HasDependents,
-		DBAuthorizedWeight:   models.IntPointer(weight),
-	}
+			weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
+			if entitlementErr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), entitlementErr)
+			}
 
-	if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
-		return handlers.ResponseForError(appCtx.Logger(), saveEntitlementErr)
-	}
+			// Assign default SIT allowance based on customer type.
+			// We only have service members right now, but once we introduce more, this logic will have to change.
+			sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
 
-	var deptIndicator *string
-	if payload.DepartmentIndicator != nil {
-		converted := string(*payload.DepartmentIndicator)
-		deptIndicator = &converted
-	}
+			entitlement := models.Entitlement{
+				DependentsAuthorized: payload.HasDependents,
+				DBAuthorizedWeight:   models.IntPointer(weight),
+				StorageInTransit:     models.IntPointer(sitDaysAllowance),
+			}
 
-	if payload.OrdersType == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: OrdersType"))
-	}
-	newOrder, verrs, err := serviceMember.CreateOrder(
-		appCtx.DB(),
-		time.Time(*payload.IssueDate),
-		time.Time(*payload.ReportByDate),
-		*payload.OrdersType,
-		*payload.HasDependents,
-		*payload.SpouseHasProGear,
-		newDutyStation,
-		payload.OrdersNumber,
-		payload.Tac,
-		payload.Sac,
-		deptIndicator,
-		&originDutyStation,
-		grade,
-		&entitlement,
-	)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), saveEntitlementErr)
+			}
 
-	moveOptions := models.MoveOptions{
-		SelectedType: nil,
-		Show:         swag.Bool(true),
-	}
-	newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
-	newOrder.Moves = append(newOrder.Moves, *newMove)
+			var deptIndicator *string
+			if payload.DepartmentIndicator != nil {
+				converted := string(*payload.DepartmentIndicator)
+				deptIndicator = &converted
+			}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), newOrder)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ordersop.NewCreateOrdersCreated().WithPayload(orderPayload)
+			if payload.OrdersType == nil {
+				return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: OrdersType"))
+			}
+			newOrder, verrs, err := serviceMember.CreateOrder(
+				appCtx,
+				time.Time(*payload.IssueDate),
+				time.Time(*payload.ReportByDate),
+				*payload.OrdersType,
+				*payload.HasDependents,
+				*payload.SpouseHasProGear,
+				newDutyLocation,
+				payload.OrdersNumber,
+				payload.Tac,
+				payload.Sac,
+				deptIndicator,
+				&originDutyLocation,
+				grade,
+				&entitlement,
+			)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
+
+			moveOptions := models.MoveOptions{
+				SelectedType: nil,
+				Show:         swag.Bool(true),
+			}
+			newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
+			newOrder.Moves = append(newOrder.Moves, *newMove)
+
+			orderPayload, err := payloadForOrdersModel(h.FileStorer(), newOrder)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ordersop.NewCreateOrdersCreated().WithPayload(orderPayload)
+		})
 }
 
 // ShowOrdersHandler returns orders for a user and order ID
@@ -201,22 +210,24 @@ type ShowOrdersHandler struct {
 
 // Handle retrieves orders in the system belonging to the logged in user given order ID
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	orderID, err := uuid.FromString(params.OrdersID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			orderID, err := uuid.FromString(params.OrdersID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	order, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), orderID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			order, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), orderID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
+			orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
+		})
 }
 
 // UpdateOrdersHandler updates an order via PUT /orders/{orderId}
@@ -226,56 +237,59 @@ type UpdateOrdersHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	orderID, err := uuid.FromString(params.OrdersID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	order, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), orderID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	payload := params.UpdateOrders
-	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	dutyStation, err := models.FetchDutyStation(appCtx.DB(), stationID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			orderID, err := uuid.FromString(params.OrdersID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			order, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), orderID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	if payload.OrdersType == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: OrdersType"))
-	}
+			payload := params.UpdateOrders
+			stationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	order.OrdersNumber = payload.OrdersNumber
-	order.IssueDate = time.Time(*payload.IssueDate)
-	order.ReportByDate = time.Time(*payload.ReportByDate)
-	order.OrdersType = *payload.OrdersType
-	order.OrdersTypeDetail = payload.OrdersTypeDetail
-	order.HasDependents = *payload.HasDependents
-	order.SpouseHasProGear = *payload.SpouseHasProGear
-	order.NewDutyStationID = dutyStation.ID
-	order.NewDutyStation = dutyStation
-	order.TAC = payload.Tac
-	order.SAC = payload.Sac
+			if payload.OrdersType == nil {
+				return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: OrdersType"))
+			}
 
-	if payload.DepartmentIndicator != nil {
-		order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
-	}
+			order.OrdersNumber = payload.OrdersNumber
+			order.IssueDate = time.Time(*payload.IssueDate)
+			order.ReportByDate = time.Time(*payload.ReportByDate)
+			order.OrdersType = *payload.OrdersType
+			order.OrdersTypeDetail = payload.OrdersTypeDetail
+			order.HasDependents = *payload.HasDependents
+			order.SpouseHasProGear = *payload.SpouseHasProGear
+			order.NewDutyLocationID = dutyLocation.ID
+			order.NewDutyLocation = dutyLocation
+			order.TAC = payload.Tac
+			order.SAC = payload.Sac
 
-	verrs, err := models.SaveOrder(appCtx.DB(), &order)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			if payload.DepartmentIndicator != nil {
+				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
+			}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
+			verrs, err := models.SaveOrder(appCtx.DB(), &order)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
+
+			orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
+		})
 }
 
 // UploadAmendedOrdersHandler uploads amended orders to an order via PATCH /orders/{orderId}/upload_amended_orders
@@ -286,47 +300,49 @@ type UploadAmendedOrdersHandler struct {
 
 // Handle updates an order to attach amended orders from a request payload
 func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	file, ok := params.File.(*runtime.File)
-	if !ok {
-		appCtx.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
-		return handlers.ResponseForError(appCtx.Logger(), nil)
-	}
+			file, ok := params.File.(*runtime.File)
+			if !ok {
+				appCtx.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
+				return handlers.ResponseForError(appCtx.Logger(), nil)
+			}
 
-	appCtx.Logger().Info(
-		"File uploader and size",
-		zap.String("userID", appCtx.Session().UserID.String()),
-		zap.String("serviceMemberID", appCtx.Session().ServiceMemberID.String()),
-		zap.String("officeUserID", appCtx.Session().OfficeUserID.String()),
-		zap.String("AdminUserID", appCtx.Session().AdminUserID.String()),
-		zap.Int64("size", file.Header.Size),
-	)
+			appCtx.Logger().Info(
+				"File uploader and size",
+				zap.String("userID", appCtx.Session().UserID.String()),
+				zap.String("serviceMemberID", appCtx.Session().ServiceMemberID.String()),
+				zap.String("officeUserID", appCtx.Session().OfficeUserID.String()),
+				zap.String("AdminUserID", appCtx.Session().AdminUserID.String()),
+				zap.Int64("size", file.Header.Size),
+			)
 
-	orderID, err := uuid.FromString(params.OrdersID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(appCtx, appCtx.Session().UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
+			orderID, err := uuid.FromString(params.OrdersID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(appCtx, appCtx.Session().UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
 
-	if verrs.HasAny() || err != nil {
-		switch err.(type) {
-		case uploader.ErrTooLarge:
-			return ordersop.NewUploadAmendedOrdersRequestEntityTooLarge()
-		case uploader.ErrFile:
-			return ordersop.NewUploadAmendedOrdersInternalServerError()
-		case uploader.ErrFailedToInitUploader:
-			return ordersop.NewUploadAmendedOrdersInternalServerError()
-		case apperror.NotFoundError:
-			return ordersop.NewUploadAmendedOrdersNotFound()
-		default:
-			return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-		}
-	}
+			if verrs.HasAny() || err != nil {
+				switch err.(type) {
+				case uploader.ErrTooLarge:
+					return ordersop.NewUploadAmendedOrdersRequestEntityTooLarge()
+				case uploader.ErrFile:
+					return ordersop.NewUploadAmendedOrdersInternalServerError()
+				case uploader.ErrFailedToInitUploader:
+					return ordersop.NewUploadAmendedOrdersInternalServerError()
+				case apperror.NotFoundError:
+					return ordersop.NewUploadAmendedOrdersNotFound()
+				default:
+					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+				}
+			}
 
-	uploadPayload, err := payloadForUploadModelFromAmendedOrdersUpload(h.FileStorer(), upload, url)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload)
+			uploadPayload, err := payloadForUploadModelFromAmendedOrdersUpload(h.FileStorer(), upload, url)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload)
+		})
 }

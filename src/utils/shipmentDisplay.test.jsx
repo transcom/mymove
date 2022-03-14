@@ -2,17 +2,50 @@ import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 
 import {
+  formatAccountingCode,
   formatAddress,
   formatAgent,
   formatCustomerDestination,
   formatPaymentRequestAddressString,
   formatPaymentRequestReviewAddressString,
   getShipmentModificationType,
+  retrieveSAC,
+  retrieveTAC,
 } from './shipmentDisplay';
 
+import { LOA_TYPE } from 'shared/constants';
 import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments';
 
 describe('shipmentDisplay utils', () => {
+  describe('formatAccountingCode', () => {
+    it('formats the accounting code with the type in parentheses', () => {
+      const formattedAccountingCode = formatAccountingCode(1234, 'SAC');
+      expect(formattedAccountingCode).toEqual('1234 (SAC)');
+    });
+  });
+
+  describe('retrieveTAC', () => {
+    it.each([
+      [LOA_TYPE.HHG, { tac: '1234', ntsTac: '456' }, '1234'],
+      [LOA_TYPE.NTS, { tac: '1234', ntsTac: '456' }, '456'],
+      ['default', { tac: '1234', ntsTac: '456' }, '1234'],
+    ])('returns the correct tac when provided the tac type of %s', (tacType, ordersLOA, expectedTAC) => {
+      const retrievedTAC = retrieveTAC(tacType, ordersLOA, expectedTAC);
+      expect(retrievedTAC).toEqual(expectedTAC);
+    });
+  });
+
+  describe('retrieveSAC', () => {
+    it.each([
+      [LOA_TYPE.HHG, { sac: '1234', ntsSac: '456' }, '1234'],
+      [LOA_TYPE.NTS, { sac: '1234', ntsSac: '456' }, '456'],
+      ['default', { sac: '1234', ntsTac: '456' }, '1234'],
+    ])('returns the correct SAC when provided the tac type of %s', (sacType, ordersLOA, expectedSAC) => {
+      const retrievedSAC = retrieveSAC(sacType, ordersLOA, expectedSAC);
+      expect(retrievedSAC).toEqual(expectedSAC);
+    });
+  });
+
   describe('formatAddress', () => {
     describe('all address parts provided', () => {
       const shipmentAddress = {

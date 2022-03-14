@@ -1075,7 +1075,7 @@ func init() {
         }
       }
     },
-    "DutyStation": {
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "id": {
@@ -1877,8 +1877,8 @@ func init() {
         "status",
         "uploadedOrdersID",
         "tac",
-        "originDutyStationID",
-        "destinationDutyStationID",
+        "originDutyLocationID",
+        "destinationDutyLocationID",
         "departmentIndicator"
       ],
       "properties": {
@@ -1895,10 +1895,10 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
-        "destinationDutyStationID": {
+        "destinationDutyLocationID": {
           "description": "ID of the destination duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
@@ -1935,10 +1935,10 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
-        "originDutyStationID": {
+        "originDutyLocationID": {
           "description": "ID of the origin duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
@@ -1948,7 +1948,7 @@ func init() {
           "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
-          "description": "Date that the service member must report to the new DutyStation by.",
+          "description": "Date that the service member must report to the new DutyLocation by.",
           "type": "string",
           "format": "date"
         },
@@ -2172,6 +2172,7 @@ func init() {
         "E_7",
         "E_8",
         "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
         "O_1_ACADEMY_GRADUATE",
         "O_2",
         "O_3",
@@ -2440,7 +2441,6 @@ func init() {
         "traceID": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updatedAt": {
@@ -3867,7 +3867,7 @@ func init() {
         }
       }
     },
-    "DutyStation": {
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "id": {
@@ -4669,8 +4669,8 @@ func init() {
         "status",
         "uploadedOrdersID",
         "tac",
-        "originDutyStationID",
-        "destinationDutyStationID",
+        "originDutyLocationID",
+        "destinationDutyLocationID",
         "departmentIndicator"
       ],
       "properties": {
@@ -4687,10 +4687,10 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
-        "destinationDutyStationID": {
+        "destinationDutyLocationID": {
           "description": "ID of the destination duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
@@ -4727,10 +4727,10 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
-        "originDutyStationID": {
+        "originDutyLocationID": {
           "description": "ID of the origin duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
@@ -4740,7 +4740,7 @@ func init() {
           "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
-          "description": "Date that the service member must report to the new DutyStation by.",
+          "description": "Date that the service member must report to the new DutyLocation by.",
           "type": "string",
           "format": "date"
         },
@@ -4964,6 +4964,7 @@ func init() {
         "E_7",
         "E_8",
         "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
         "O_1_ACADEMY_GRADUATE",
         "O_2",
         "O_3",
@@ -5232,7 +5233,6 @@ func init() {
         "traceID": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updatedAt": {

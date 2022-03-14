@@ -83,13 +83,13 @@ export class PpmWeight extends Component {
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive = () => {
-    const { currentPPM, originDutyStationZip } = this.props;
+    const { currentPPM, originDutyLocationZip } = this.props;
     const weight = this.state.pendingPpmWeight;
 
     const origMoveDate = currentPPM?.original_move_date;
     const pickupPostalCode = currentPPM?.pickup_postal_code;
 
-    calculatePPMEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight)
+    calculatePPMEstimate(origMoveDate, pickupPostalCode, originDutyLocationZip, this.props.orders.id, weight)
       .then((response) => {
         this.props.updatePPMEstimate(response);
         this.props.setPPMEstimateError(null);
@@ -397,7 +397,7 @@ PpmWeight.propTypes = {
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
-  const originDutyStationZip = serviceMember?.current_station?.address?.postalCode;
+  const originDutyLocationZip = serviceMember?.current_location?.address?.postalCode;
   const serviceMemberId = serviceMember?.id;
 
   const props = {
@@ -408,7 +408,7 @@ function mapStateToProps(state) {
     currentPPM: selectCurrentPPM(state) || {},
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
-    originDutyStationZip,
+    originDutyLocationZip,
     orders: selectCurrentOrders(state) || {},
   };
 

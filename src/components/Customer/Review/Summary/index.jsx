@@ -11,13 +11,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './Summary.module.scss';
 
 import { customerRoutes } from 'constants/routes';
+import { ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { validateEntitlement } from 'services/internalApi';
 import ConnectedPPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove } from 'shared/Entities/modules/moves';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { formatOrderType } from 'utils/formatters';
 import Alert from 'shared/Alert';
 import ProfileTable from 'components/Customer/Review/ProfileTable';
 import OrdersTable from 'components/Customer/Review/OrdersTable';
@@ -163,7 +163,7 @@ export class Summary extends Component {
           <NTSRShipmentCard
             key={shipment.id}
             destinationLocation={shipment?.destinationAddress}
-            destinationZIP={currentOrders.new_duty_station.address.postalCode}
+            destinationZIP={currentOrders.new_duty_location.address.postalCode}
             secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
             showEditBtn={showEditBtn}
             moveId={moveId}
@@ -180,7 +180,7 @@ export class Summary extends Component {
       return (
         <HHGShipmentCard
           key={shipment.id}
-          destinationZIP={currentOrders.new_duty_station.address.postalCode}
+          destinationZIP={currentOrders.new_duty_location.address.postalCode}
           secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
           secondaryPickupAddress={shipment?.secondaryPickupAddress}
           destinationLocation={shipment?.destinationAddress}
@@ -212,7 +212,7 @@ export class Summary extends Component {
     const { entitlementWarning, showModal } = this.state;
 
     const { moveId } = match.params;
-    const currentStation = get(serviceMember, 'current_station');
+    const currentStation = get(serviceMember, 'current_location');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
     const rootReviewAddressWithMoveId = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
@@ -246,14 +246,14 @@ export class Summary extends Component {
           <ProfileTable
             affiliation={serviceMember.affiliation}
             city={serviceMember.residential_address.city}
-            currentDutyStationName={currentOrders.origin_duty_station.name}
+            currentDutyStationName={currentOrders.origin_duty_location.name}
             edipi={serviceMember.edipi}
             email={serviceMember.personal_email}
             firstName={serviceMember.first_name}
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postalCode}
-            rank={currentOrders.grade}
+            rank={ORDERS_RANK_OPTIONS[serviceMember?.rank] || ''}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}
@@ -265,9 +265,9 @@ export class Summary extends Component {
             hasDependents={currentOrders.has_dependents}
             issueDate={currentOrders.issue_date}
             moveId={moveId}
-            newDutyStationName={currentOrders.new_duty_station.name}
+            newDutyStationName={currentOrders.new_duty_location.name}
             onEditClick={this.handleEditClick}
-            orderType={formatOrderType(currentOrders.orders_type)}
+            orderType={currentOrders.orders_type}
             reportByDate={currentOrders.report_by_date}
             uploads={currentOrders.uploaded_orders.uploads}
           />

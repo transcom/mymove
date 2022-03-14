@@ -257,29 +257,32 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 
 	suite.Run("service member", func() {
 
-		// Regular service member
+		// Create a user email that won't be filtered out of the devlocal user query w/ a default value of
+		// first.last@login.gov.test
+		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+			User: User{
+				LoginGovEmail: "test@example.com",
+			},
+		})
+
+		testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
+			ServiceMember: ServiceMember{
+				UserID: user.ID,
+				User:   user,
+			},
+		})
+
+		// This service member will be filtered out from the result because we haven't overridden the default email
 		testdatagen.MakeDefaultServiceMember(suite.DB())
+
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
+
 		suite.NoError(err)
 		suite.NotEmpty(identities)
 		suite.Equal(1, len(identities))
-
-		if len(identities) > 1 {
-			suite.NotNil(identities[0].ServiceMemberID)
-			suite.Nil(identities[0].OfficeUserID)
-		}
-
-		// Service member is super user
-		testdatagen.MakeDefaultServiceMember(suite.DB())
-		identities, err = FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
-		suite.NoError(err)
-		suite.NotEmpty(identities)
-		suite.Equal(2, len(identities))
-
-		if len(identities) == 2 {
-			suite.NotNil(identities[1].ServiceMemberID)
-			suite.Nil(identities[1].OfficeUserID)
-		}
+		suite.NotNil(identities[0].ServiceMemberID)
+		suite.Equal("test@example.com", identities[0].Email)
+		suite.Nil(identities[0].OfficeUserID)
 	})
 
 	// In the following tests you won't see extra users returned. Eeach query is

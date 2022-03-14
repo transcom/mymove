@@ -27,7 +27,7 @@
 
   // TODO - adapt these for different screen sizes/modal sizes?
   max-width: 630px;
-  min-width: 400px;
+  min-width: 320px;
 
   .title,
   .content,
@@ -56,4 +56,5 @@
   top: 0;
   width: 100vw;
   z-index: 1000;
+  overflow-x: scroll;
 }

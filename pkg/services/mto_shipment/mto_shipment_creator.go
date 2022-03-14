@@ -4,17 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/services/fetch"
-
-	"github.com/gobuffalo/validate/v3"
-
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -51,14 +48,27 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	var err error
 
 	err = checkShipmentIDFields(shipment, serviceItems)
+
 	if err != nil {
 		return nil, err
 	}
 
-	// Check that only NTS Release shipment uses that NTSRecordedWeight field
-	if shipment.NTSRecordedWeight != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
-		errMessage := fmt.Sprintf("field NTSRecordedWeight cannot be set for shipment type %s", string(shipment.ShipmentType))
-		return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, errMessage)
+	// Check shipment fields that should be there or not based on shipment type.
+	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		if shipment.RequestedPickupDate != nil {
+			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
+				fmt.Sprintf("RequestedPickupDate should not be set when creating a %s shipment", shipment.ShipmentType))
+		}
+	} else if shipment.ShipmentType != models.MTOShipmentTypePPM {
+		// No need for a PPM to have a RequestedPickupDate
+		if shipment.RequestedPickupDate == nil || shipment.RequestedPickupDate.IsZero() {
+			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
+				fmt.Sprintf("RequestedPickupDate is required to create a %s shipment", shipment.ShipmentType))
+		}
+		if shipment.NTSRecordedWeight != nil {
+			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
+				fmt.Sprintf("NTSRecordedWeight should not be set when creating a %s shipment", shipment.ShipmentType))
+		}
 	}
 
 	var move models.Move
@@ -124,7 +134,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
-		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && shipment.ShipmentType != models.MTOShipmentTypePPM {
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
@@ -164,11 +174,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create storage facility %#v %e", verrs, err)
 			}
 			shipment.StorageFacilityID = &shipment.StorageFacility.ID
-		}
-
-		// check that required items to create shipment are present
-		if shipment.RequestedPickupDate.IsZero() && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
-			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create an HHG or NTS type MTO shipment")
 		}
 
 		//assign status to shipment draft by default

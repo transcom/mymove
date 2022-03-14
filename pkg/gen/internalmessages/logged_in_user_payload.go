@@ -111,6 +111,8 @@ func (m *LoggedInUserPayload) validateOfficeUser(formats strfmt.Registry) error 
 		if err := m.OfficeUser.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("office_user")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("office_user")
 			}
 			return err
 		}
@@ -133,6 +135,8 @@ func (m *LoggedInUserPayload) validateRoles(formats strfmt.Registry) error {
 			if err := m.Roles[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("roles" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -152,6 +156,8 @@ func (m *LoggedInUserPayload) validateServiceMember(formats strfmt.Registry) err
 		if err := m.ServiceMember.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("service_member")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("service_member")
 			}
 			return err
 		}
@@ -214,6 +220,8 @@ func (m *LoggedInUserPayload) contextValidateOfficeUser(ctx context.Context, for
 		if err := m.OfficeUser.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("office_user")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("office_user")
 			}
 			return err
 		}
@@ -230,6 +238,8 @@ func (m *LoggedInUserPayload) contextValidateRoles(ctx context.Context, formats 
 			if err := m.Roles[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("roles" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -246,6 +256,8 @@ func (m *LoggedInUserPayload) contextValidateServiceMember(ctx context.Context, 
 		if err := m.ServiceMember.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("service_member")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("service_member")
 			}
 			return err
 		}

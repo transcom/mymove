@@ -89,7 +89,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginFirstDaySITServiceIte
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
 				Value:   dofsitTestRequestedPickupDate.Format(DateParamFormat),
 			},
@@ -99,24 +99,9 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginFirstDaySITServiceIte
 				Value:   dofsitTestServiceArea,
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightOriginal,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "1400",
-			},
-			{
 				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dofsitTestWeight)),
-			},
-			{
-				Key:     models.ServiceItemParamNameWeightEstimated,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "1400",
-			},
-			{
-				Key:     models.ServiceItemParamNameZipPickupAddress,
-				KeyType: models.ServiceItemParamTypeString,
-				Value:   "90210",
 			},
 		},
 	)

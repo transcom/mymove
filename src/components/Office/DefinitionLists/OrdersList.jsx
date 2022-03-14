@@ -8,28 +8,50 @@ import { OrdersInfoShape } from 'types/order';
 import { formatDate } from 'shared/dates';
 import { departmentIndicatorReadable, ordersTypeReadable, ordersTypeDetailReadable } from 'shared/formatters';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import { formatLabelReportByDate } from 'utils/formatters';
 
 const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
+  const { ordersType } = ordersInfo;
+  const isRetiree = ordersType === 'RETIREMENT';
+  const isSeparatee = ordersType === 'SEPARATION';
   const missingText = showMissingWarnings ? 'Missing' : '—';
+
+  const reportDateRowLabel = formatLabelReportByDate(ordersType);
 
   return (
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
-        <div className={descriptionListStyles.row}>
-          <dt>Current duty location</dt>
-          <dd data-testid="currentDutyLocation">{ordersInfo.currentDutyStation?.name}</dd>
-        </div>
-        <div className={descriptionListStyles.row}>
-          <dt>New duty location</dt>
-          <dd data-testid="newDutyLocation">{ordersInfo.newDutyStation?.name}</dd>
+        <div
+          className={classnames(descriptionListStyles.row, {
+            [styles.missingInfoError]: showMissingWarnings && !ordersInfo.ordersType,
+          })}
+        >
+          <dt>Orders type</dt>
+          <dd data-testid="ordersType">{ordersTypeReadable(ordersInfo.ordersType, missingText)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Date issued</dt>
           <dd data-testid="issuedDate">{formatDate(ordersInfo.issuedDate, 'DD MMM YYYY')}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>Report by date</dt>
+          <dt data-testid="reportByDateLabel">{reportDateRowLabel}</dt>
           <dd data-testid="reportByDate">{formatDate(ordersInfo.reportByDate, 'DD MMM YYYY')}</dd>
+        </div>
+        <div className={descriptionListStyles.row}>
+          <dt>Current duty location</dt>
+          <dd data-testid="currentDutyLocation">{ordersInfo.currentDutyLocation?.name}</dd>
+        </div>
+        <div
+          className={classnames(descriptionListStyles.row, {
+            [styles.missingInfoError]: !ordersInfo.newDutyLocation?.name,
+          })}
+        >
+          <dt data-testid="newDutyLocationLabel">
+            {isRetiree || isSeparatee ? 'HOR, HOS, or PLEAD' : 'New duty location'}
+          </dt>
+          <dd data-testid="newDutyLocation">
+            {ordersInfo.newDutyLocation?.name ? ordersInfo.newDutyLocation?.name : '-'}
+          </dd>
         </div>
         <div
           className={classnames(descriptionListStyles.row, {
@@ -49,14 +71,7 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
           <dt>Orders number</dt>
           <dd data-testid="ordersNumber">{!ordersInfo.ordersNumber ? missingText : ordersInfo.ordersNumber}</dd>
         </div>
-        <div
-          className={classnames(descriptionListStyles.row, {
-            [styles.missingInfoError]: showMissingWarnings && !ordersInfo.ordersType,
-          })}
-        >
-          <dt>Orders type</dt>
-          <dd data-testid="ordersType">{ordersTypeReadable(ordersInfo.ordersType, missingText)}</dd>
-        </div>
+
         <div
           className={classnames(descriptionListStyles.row, {
             [styles.missingInfoError]: showMissingWarnings && !ordersInfo.ordersTypeDetail,

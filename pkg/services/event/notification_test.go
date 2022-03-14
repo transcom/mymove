@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -188,14 +189,74 @@ func (suite *EventServiceSuite) TestAssembleOrderPayload() {
 		suite.Equal(order.ID.String(), data.ID.String())
 		suite.NotNil(order.ServiceMember)
 		suite.NotNil(order.Entitlement)
-		suite.NotNil(order.OriginDutyStation)
+		suite.NotNil(order.OriginDutyLocation)
 		suite.NotEqual(order.ServiceMember.ID, uuid.Nil)
 		suite.NotEqual(order.Entitlement.ID, uuid.Nil)
-		suite.NotEqual(order.OriginDutyStation.ID, uuid.Nil)
+		suite.NotEqual(order.OriginDutyLocation.ID, uuid.Nil)
 
-		if order.OriginDutyStation != nil {
-			suite.NotNil(order.OriginDutyStation.Address)
-			suite.NotEqual(order.OriginDutyStation.Address.ID, uuid.Nil)
+		if order.OriginDutyLocation != nil {
+			suite.NotNil(order.OriginDutyLocation.Address)
+			suite.NotEqual(order.OriginDutyLocation.Address.ID, uuid.Nil)
 		}
+	})
+}
+
+func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
+	suite.T().Run("Non-external shipment returns payload with all associations", func(t *testing.T) {
+		// Setup test data
+		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		secondaryPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+		destinationAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
+		secondaryDeliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
+
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				PickupAddress:            &pickupAddress,
+				SecondaryPickupAddress:   &secondaryPickupAddress,
+				DestinationAddress:       &destinationAddress,
+				SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: swag.Time(time.Now()),
+			},
+		})
+
+		agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOShipment: shipment,
+		})
+
+		// Test the assemble function
+		payload, shouldNotify, err := assembleMTOShipmentPayload(suite.AppContextForTest(), shipment.ID)
+		suite.Nil(err)
+		suite.True(shouldNotify)
+
+		data := &primemessages.MTOShipment{}
+		unmarshalErr := data.UnmarshalBinary(payload)
+		suite.Nil(unmarshalErr)
+
+		suite.Equal(shipment.ID.String(), data.ID.String())
+		suite.Equal(shipment.PickupAddress.ID.String(), data.PickupAddress.ID.String())
+		suite.Equal(shipment.SecondaryPickupAddress.ID.String(), data.SecondaryPickupAddress.ID.String())
+		suite.Equal(shipment.DestinationAddress.ID.String(), data.DestinationAddress.ID.String())
+		suite.Equal(shipment.SecondaryDeliveryAddress.ID.String(), data.SecondaryDeliveryAddress.ID.String())
+		suite.Equal(agent.ID.String(), data.Agents[0].ID.String())
+	})
+
+	suite.T().Run("External shipment reports that it should not notify", func(t *testing.T) {
+		// Setup test data
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: true,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: swag.Time(time.Now()),
+			},
+		})
+
+		// Test the assemble function
+		payload, shouldNotify, err := assembleMTOShipmentPayload(suite.AppContextForTest(), shipment.ID)
+		suite.Nil(err)
+		suite.False(shouldNotify)
+		suite.Nil(payload)
 	})
 }

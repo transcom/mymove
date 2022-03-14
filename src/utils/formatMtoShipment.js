@@ -1,9 +1,11 @@
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
-import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
+import { MTOAgentType } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { parseSwaggerDate } from 'shared/formatters';
+import { formatDelimitedNumber } from 'utils/formatters';
+import { roleTypes } from 'constants/userRoles';
 
 const formatDateForSwagger = (date) => {
   const parsedDate = parseDate(date);
@@ -36,7 +38,28 @@ function formatAgentForAPI(agent) {
   return agentCopy;
 }
 
-function formatAddressForAPI(address) {
+export function formatStorageFacilityForAPI(storageFacility) {
+  const storageFacilityCopy = { ...storageFacility };
+  Object.keys(storageFacilityCopy).forEach((key) => {
+    const sanitizedKey = `${key}`;
+    if (storageFacilityCopy[sanitizedKey] === '') {
+      delete storageFacilityCopy[sanitizedKey];
+    } else if (
+      // These fields are readOnly so we don't want to send them in requests
+      sanitizedKey === 'eTag'
+    ) {
+      delete storageFacilityCopy[sanitizedKey];
+    }
+  });
+  return storageFacilityCopy;
+}
+
+export function removeEtag(obj) {
+  const { eTag, ...rest } = obj;
+  return rest;
+}
+
+export function formatAddressForAPI(address) {
   const formattedAddress = address;
 
   if (formattedAddress.state) {
@@ -79,11 +102,14 @@ export function formatMtoShipmentForDisplay({
   moveTaskOrderID,
   secondaryPickupAddress,
   secondaryDeliveryAddress,
-  primeActualWeight,
+  ntsRecordedWeight,
   tacType,
   sacType,
   serviceOrderNumber,
   storageFacility,
+  usesExternalVendor,
+  userRole,
+  destinationType,
 }) {
   const displayValues = {
     shipmentType,
@@ -109,10 +135,11 @@ export function formatMtoShipmentForDisplay({
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
     hasSecondaryDelivery: 'no',
-    primeActualWeight,
+    ntsRecordedWeight,
     tacType,
     sacType,
     serviceOrderNumber,
+    usesExternalVendor,
   };
 
   if (agents) {
@@ -151,6 +178,10 @@ export function formatMtoShipmentForDisplay({
     displayValues.hasDeliveryAddress = 'yes';
   }
 
+  if (destinationType) {
+    displayValues.destinationType = destinationType;
+  }
+
   if (secondaryDeliveryAddress) {
     displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
     displayValues.hasSecondaryDelivery = 'yes';
@@ -170,6 +201,11 @@ export function formatMtoShipmentForDisplay({
     };
   }
 
+  if (userRole === roleTypes.TOO && usesExternalVendor === undefined) {
+    // Vendor defaults to the Prime
+    displayValues.usesExternalVendor = false;
+  }
+
   return displayValues;
 }
 
@@ -186,11 +222,13 @@ export function formatMtoShipmentForAPI({
   counselorRemarks,
   secondaryPickup,
   secondaryDelivery,
-  primeActualWeight,
+  ntsRecordedWeight,
   tacType,
   sacType,
   serviceOrderNumber,
   storageFacility,
+  usesExternalVendor,
+  destinationType,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -198,6 +236,7 @@ export function formatMtoShipmentForAPI({
     customerRemarks,
     counselorRemarks,
     agents: [],
+    destinationType,
   };
 
   if (pickup?.requestedDate && pickup.requestedDate !== '') {
@@ -217,6 +256,10 @@ export function formatMtoShipmentForAPI({
 
     if (delivery.address) {
       formattedMtoShipment.destinationAddress = formatAddressForAPI(delivery.address);
+    }
+
+    if (destinationType) {
+      formattedMtoShipment.destinationType = destinationType;
     }
 
     if (delivery.agent) {
@@ -239,8 +282,8 @@ export function formatMtoShipmentForAPI({
     formattedMtoShipment.agents = undefined;
   }
 
-  if (primeActualWeight) {
-    formattedMtoShipment.primeActualWeight = Number(primeActualWeight);
+  if (ntsRecordedWeight) {
+    formattedMtoShipment.ntsRecordedWeight = formatDelimitedNumber(ntsRecordedWeight);
   }
 
   if (tacType) {
@@ -255,14 +298,25 @@ export function formatMtoShipmentForAPI({
     formattedMtoShipment.serviceOrderNumber = serviceOrderNumber;
   }
 
-  if (shipmentType === SHIPMENT_OPTIONS.NTSR && storageFacility) {
+  if (storageFacility?.address) {
+    const sanitizedStorageFacility = formatStorageFacilityForAPI(storageFacility);
     formattedMtoShipment.storageFacility = {
-      ...storageFacility,
-      address: formatAddressForAPI(storageFacility.address),
+      ...sanitizedStorageFacility,
+      address: removeEtag(formatAddressForAPI(sanitizedStorageFacility.address)),
     };
+  }
+
+  if (usesExternalVendor !== undefined) {
+    formattedMtoShipment.usesExternalVendor = usesExternalVendor;
   }
 
   return formattedMtoShipment;
 }
 
-export default { formatMtoShipmentForAPI, formatMtoShipmentForDisplay };
+export default {
+  formatMtoShipmentForAPI,
+  formatMtoShipmentForDisplay,
+  formatAddressForAPI,
+  formatStorageFacilityForAPI,
+  removeEtag,
+};

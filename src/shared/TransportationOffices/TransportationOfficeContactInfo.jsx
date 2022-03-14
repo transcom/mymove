@@ -4,26 +4,26 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {
-  loadDutyStationTransportationOffice,
-  selectDutyStationTransportationOffice,
+  loadDutyLocationTransportationOffice,
+  selectDutyLocationTransportationOffice,
 } from 'shared/Entities/modules/transportationOffices';
 
 export class TransportationOfficeContactInfo extends Component {
   componentDidMount() {
-    const { dutyStation } = this.props;
-    this.props.loadDutyStationTransportationOffice(dutyStation.id);
+    const { dutyLocation } = this.props;
+    this.props.loadDutyLocationTransportationOffice(dutyLocation.id);
   }
   render() {
-    const { isOrigin, dutyStation, transportationOffice } = this.props;
+    const { isOrigin, dutyLocation, transportationOffice } = this.props;
     const transportationOfficeName = get(transportationOffice, 'name');
     const officeName =
-      transportationOfficeName && get(dutyStation, 'name') !== transportationOfficeName
+      transportationOfficeName && get(dutyLocation, 'name') !== transportationOfficeName
         ? transportationOffice.name
         : 'Transportation Office';
     const contactInfo = Boolean(get(transportationOffice, 'phone_lines[0]'));
     return (
       <div className="titled_block">
-        {dutyStation && <strong>{dutyStation.name}</strong>}
+        {dutyLocation && <strong>{dutyLocation.name}</strong>}
         <div>
           {isOrigin ? 'Origin' : 'Destination'} {officeName}
         </div>
@@ -33,8 +33,8 @@ export class TransportationOfficeContactInfo extends Component {
   }
 }
 TransportationOfficeContactInfo.propTypes = {
-  loadDutyStationTransportationOffice: PropTypes.func.isRequired,
-  dutyStation: PropTypes.shape({
+  loadDutyLocationTransportationOffice: PropTypes.func.isRequired,
+  dutyLocation: PropTypes.shape({
     name: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
     transportation_office: PropTypes.shape({ phone_lines: PropTypes.array }),
@@ -48,12 +48,12 @@ TransportationOfficeContactInfo.defaultProps = {
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    transportationOffice: selectDutyStationTransportationOffice(state),
+    transportationOffice: selectDutyLocationTransportationOffice(state),
   };
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadDutyStationTransportationOffice }, dispatch);
+  return bindActionCreators({ loadDutyLocationTransportationOffice }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(TransportationOfficeContactInfo);

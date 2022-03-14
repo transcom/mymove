@@ -25,8 +25,8 @@ type QueueMove struct {
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
-	// destination duty station
-	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
+	// destination duty location
+	DestinationDutyLocation *DutyLocation `json:"destinationDutyLocation,omitempty"`
 
 	// id
 	// Format: uuid
@@ -36,7 +36,7 @@ type QueueMove struct {
 	Locator string `json:"locator,omitempty"`
 
 	// origin duty location
-	OriginDutyLocation *DutyStation `json:"originDutyLocation,omitempty"`
+	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
 
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
@@ -49,7 +49,7 @@ type QueueMove struct {
 	ShipmentsCount int64 `json:"shipmentsCount,omitempty"`
 
 	// status
-	Status QueueMoveStatus `json:"status,omitempty"`
+	Status MoveStatus `json:"status,omitempty"`
 
 	// submitted at
 	// Format: date-time
@@ -68,7 +68,7 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDestinationDutyStation(formats); err != nil {
+	if err := m.validateDestinationDutyLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -111,6 +111,8 @@ func (m *QueueMove) validateCustomer(formats strfmt.Registry) error {
 		if err := m.Customer.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("customer")
 			}
 			return err
 		}
@@ -128,6 +130,8 @@ func (m *QueueMove) validateDepartmentIndicator(formats strfmt.Registry) error {
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("departmentIndicator")
 			}
 			return err
 		}
@@ -136,15 +140,17 @@ func (m *QueueMove) validateDepartmentIndicator(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *QueueMove) validateDestinationDutyStation(formats strfmt.Registry) error {
-	if swag.IsZero(m.DestinationDutyStation) { // not required
+func (m *QueueMove) validateDestinationDutyLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationDutyLocation) { // not required
 		return nil
 	}
 
-	if m.DestinationDutyStation != nil {
-		if err := m.DestinationDutyStation.Validate(formats); err != nil {
+	if m.DestinationDutyLocation != nil {
+		if err := m.DestinationDutyLocation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationDutyStation")
+				return ve.ValidateName("destinationDutyLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationDutyLocation")
 			}
 			return err
 		}
@@ -174,6 +180,8 @@ func (m *QueueMove) validateOriginDutyLocation(formats strfmt.Registry) error {
 		if err := m.OriginDutyLocation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originDutyLocation")
 			}
 			return err
 		}
@@ -190,6 +198,8 @@ func (m *QueueMove) validateOriginGBLOC(formats strfmt.Registry) error {
 	if err := m.OriginGBLOC.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("originGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("originGBLOC")
 		}
 		return err
 	}
@@ -217,6 +227,8 @@ func (m *QueueMove) validateStatus(formats strfmt.Registry) error {
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}
@@ -248,7 +260,7 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateDestinationDutyStation(ctx, formats); err != nil {
+	if err := m.contextValidateDestinationDutyLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -276,6 +288,8 @@ func (m *QueueMove) contextValidateCustomer(ctx context.Context, formats strfmt.
 		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("customer")
 			}
 			return err
 		}
@@ -290,6 +304,8 @@ func (m *QueueMove) contextValidateDepartmentIndicator(ctx context.Context, form
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("departmentIndicator")
 			}
 			return err
 		}
@@ -298,12 +314,14 @@ func (m *QueueMove) contextValidateDepartmentIndicator(ctx context.Context, form
 	return nil
 }
 
-func (m *QueueMove) contextValidateDestinationDutyStation(ctx context.Context, formats strfmt.Registry) error {
+func (m *QueueMove) contextValidateDestinationDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.DestinationDutyStation != nil {
-		if err := m.DestinationDutyStation.ContextValidate(ctx, formats); err != nil {
+	if m.DestinationDutyLocation != nil {
+		if err := m.DestinationDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationDutyStation")
+				return ve.ValidateName("destinationDutyLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationDutyLocation")
 			}
 			return err
 		}
@@ -318,6 +336,8 @@ func (m *QueueMove) contextValidateOriginDutyLocation(ctx context.Context, forma
 		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originDutyLocation")
 			}
 			return err
 		}
@@ -331,6 +351,8 @@ func (m *QueueMove) contextValidateOriginGBLOC(ctx context.Context, formats strf
 	if err := m.OriginGBLOC.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("originGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("originGBLOC")
 		}
 		return err
 	}
@@ -343,6 +365,8 @@ func (m *QueueMove) contextValidateStatus(ctx context.Context, formats strfmt.Re
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { withRouter } from 'react-router-dom';
-import { Alert, Button, GridContainer, Tag } from '@trussworks/react-uswds';
+import { withRouter, Link } from 'react-router-dom';
+import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
@@ -8,11 +8,12 @@ import { func } from 'prop-types';
 import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
-import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
+import EditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
@@ -21,7 +22,6 @@ import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
-import LeftNav from 'components/LeftNav';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
@@ -36,9 +36,11 @@ import {
   updateBillableWeight,
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
+  updateMTOShipment,
   approveSITExtension,
   denySITExtension,
   submitSITExtension,
+  updateFinancialFlag,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -48,6 +50,11 @@ import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { includedStatusesForCalculatingWeights, useCalculatedWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
+import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import leftNavStyles from 'components/LeftNav/LeftNav.module.scss';
+import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -81,6 +88,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
+  const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [alertType, setAlertType] = useState('success');
 
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
@@ -89,6 +99,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
+  const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
 
   const nonShipmentSections = useMemo(() => {
     return ['move-weights'];
@@ -155,6 +166,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
+  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+    onSuccess: (_, variables) => {
+      queryCache.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+    },
+  });
+
   const [mutateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
@@ -195,7 +213,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateOrders] = useMutation(updateBillableWeight, {
+  const [mutateOrderBillableWeight] = useMutation(updateBillableWeight, {
     onSuccess: (data, variables) => {
       queryCache.invalidateQueries([MOVES, move.locator]);
       const updatedOrder = data.orders[variables.orderID];
@@ -281,6 +299,43 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
+  const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([MOVES, data.locator], data);
+      queryCache.invalidateQueries([MOVES, data.locator]);
+      if (data.financialReviewFlag) {
+        setAlertMessage('Move flagged for financial review.');
+        setAlertType('success');
+      } else {
+        setAlertMessage('Move unflagged for financial review.');
+        setAlertType('success');
+      }
+    },
+    onError: () => {
+      setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
+      setAlertType('error');
+    },
+  });
+
+  const handleSubmitFinancialReviewModal = (remarks, flagForReview) => {
+    // if it's set to yes let's send a true to the backend. If not we'll send false.
+    const flagForReviewBool = flagForReview === 'yes';
+    mutateFinancialReview({
+      moveID: move.id,
+      ifMatchETag: move.eTag,
+      body: { remarks, flagForReview: flagForReviewBool },
+    });
+    setIsFinancialModalVisible(false);
+  };
+
+  const handleCancelFinancialReviewModal = () => {
+    setIsFinancialModalVisible(false);
+  };
+
+  const handleShowFinancialReviewModal = () => {
+    setIsFinancialModalVisible(true);
+  };
+
   const handleReviewSITExtension = (sitExtensionID, formValues, shipment) => {
     if (formValues.acceptExtension === 'yes') {
       mutateSITExtensionApproval({
@@ -328,12 +383,46 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     });
   };
 
+  const handleEditAccountingCodes = (fields, shipment) => {
+    const body = { tacType: null, sacType: null, ...fields };
+    mutateMTOShipment({
+      moveTaskOrderID: shipment.moveTaskOrderID,
+      shipmentID: shipment.id,
+      ifMatchETag: shipment.eTag,
+      body,
+    });
+  };
+
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
       shipmentID: mtoShipmentID,
       operationPath: 'shipment.requestShipmentCancellation',
       ifMatchETag: eTag,
       onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
+    });
+  };
+
+  const handleEditFacilityInfo = (fields, shipment) => {
+    const formattedStorageFacility = formatStorageFacilityForAPI(fields.storageFacility);
+    const formattedStorageFacilityAddress = removeEtag(formatAddressForAPI(fields.storageFacility.address));
+    const body = {
+      storageFacility: { ...formattedStorageFacility, address: formattedStorageFacilityAddress },
+      serviceOrderNumber: fields.serviceOrderNumber,
+    };
+    mutateMTOShipment({
+      moveTaskOrderID: shipment.moveTaskOrderID,
+      shipmentID: shipment.id,
+      ifMatchETag: shipment.eTag,
+      body,
+    });
+  };
+
+  const handleEditServiceOrderNumber = (fields, shipment) => {
+    mutateMTOShipment({
+      moveTaskOrderID: shipment.moveTaskOrderID,
+      shipmentID: shipment.id,
+      ifMatchETag: shipment.eTag,
+      body: { serviceOrderNumber: fields.serviceOrderNumber },
     });
   };
 
@@ -350,7 +439,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   };
 
   const handleUpdateBillableWeight = (maxBillableWeight) => {
-    mutateOrders({ orderID: order.id, ifMatchETag: order.eTag, body: { authorizedWeight: maxBillableWeight } });
+    mutateOrderBillableWeight({
+      orderID: order.id,
+      ifMatchETag: order.eTag,
+      body: { authorizedWeight: maxBillableWeight },
+    });
   };
 
   const handleAcknowledgeExcessWeightRisk = () => {
@@ -382,6 +475,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         ? mtoShipments.filter((shipment) => shipment.status === shipmentStatuses.SUBMITTED).length
         : 0;
       setUnapprovedShipmentCount(shipmentCount);
+
+      const externalVendorShipments = mtoShipments?.length
+        ? mtoShipments.filter((shipment) => shipment.usesExternalVendor).length
+        : 0;
+      setExternalVendorShipmentCount(externalVendorShipments);
     }
   }, [mtoShipments, setUnapprovedShipmentCount]);
 
@@ -497,40 +595,51 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        <LeftNav className={styles.sidebar}>
+        {/* nav is being used here instead of LeftNav since there are two separate sections that need to be interated through */}
+        <nav className={classnames(leftNavStyles.LeftNav)}>
           {nonShipmentSections.map((s) => {
             return (
-              <a
+              <LeftNavSection
                 key={`sidenav_${s}`}
-                href={`#${s}`}
-                className={classnames({ active: `#${s}` === activeSection })}
-                onClick={() => setActiveSection(`#${s}`)}
+                sectionName={s}
+                isActive={`${s}` === activeSection}
+                onClickHandler={() => setActiveSection(`${s}`)}
               >
                 {nonShipmentSectionLabels[`${s}`]}
-              </a>
+              </LeftNavSection>
             );
           })}
           {sections.map((s) => {
-            const classes = classnames({ active: `#s-${s.id}` === activeSection });
             return (
-              <a
+              <LeftNavSection
                 key={`sidenav_${s.id}`}
-                href={`#s-${s.id}`}
-                className={classes}
-                onClick={() => setActiveSection(`#s-${s.id}`)}
+                sectionName={`s-${s.id}`}
+                isActive={`s-${s.id}` === activeSection}
+                onClickHandler={() => setActiveSection(`s-${s.id}`)}
               >
                 {s.label}{' '}
-                {(unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`]) && (
-                  <Tag>
-                    {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
-                      (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
-                  </Tag>
-                )}
-              </a>
+                <LeftNavTag
+                  showTag={Boolean(
+                    unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`],
+                  )}
+                >
+                  {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
+                    (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
+                </LeftNavTag>
+              </LeftNavSection>
             );
           })}
-        </LeftNav>
+        </nav>
         <FlashGridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+          <Grid row className={styles.pageHeader}>
+            {alertMessage && (
+              <Grid col={12} className={styles.alertContainer}>
+                <Alert slim type={alertType}>
+                  {alertMessage}
+                </Alert>
+              </Grid>
+            )}
+          </Grid>
           {isWeightAlertVisible && (
             <Alert slim type="warning" cta={excessWeightAlertControl} className={styles.alertWithButton}>
               <span>
@@ -578,17 +687,42 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               onClose={setIsWeightModalVisible}
             />
           )}
+          {isFinancialModalVisible && (
+            <FinancialReviewModal
+              onClose={handleCancelFinancialReviewModal}
+              onSubmit={handleSubmitFinancialReviewModal}
+              initialRemarks={move?.financialReviewRemarks}
+              initialSelection={move?.financialReviewFlag}
+            />
+          )}
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
               <h6>MTO Reference ID #{move?.referenceId}</h6>
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
+              <div className={moveTaskOrderStyles.financialReviewContainer}>
+                <FinancialReviewButton
+                  onClick={handleShowFinancialReviewModal}
+                  reviewRequested={move.financialReviewFlag}
+                />
+              </div>
             </div>
           </div>
+
           <div className={moveTaskOrderStyles.weightHeader} id="move-weights">
             <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
             <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
+              {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) &&
+                externalVendorShipmentCount > 0 && <br />}
+              {externalVendorShipmentCount > 0 && (
+                <small>
+                  {externalVendorShipmentCount} shipment not moved by GHC prime.{' '}
+                  <Link className="usa-link" to={`/moves/${moveCode}`}>
+                    View move details
+                  </Link>
+                </small>
+              )}
             </WeightDisplay>
             <WeightDisplay
               heading="Max billable weight"
@@ -617,7 +751,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             const rejectedServiceItems = serviceItemsForShipment?.filter(
               (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
             );
-            const dutyStationPostal = { postalCode: order.destinationDutyStation.address.postalCode };
+            const dutyStationPostal = { postalCode: order.destinationDutyLocation.address.postalCode };
             const { pickupAddress, destinationAddress } = mtoShipment;
             const formattedScheduledPickup = formatShipmentDate(mtoShipment.scheduledPickupDate);
 
@@ -651,6 +785,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   handleRequestReweighModal={handleRequestReweighModal}
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
+                  handleEditFacilityInfo={handleEditFacilityInfo}
+                  handleEditServiceOrderNumber={handleEditServiceOrderNumber}
+                  handleEditAccountingCodes={handleEditAccountingCodes}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable

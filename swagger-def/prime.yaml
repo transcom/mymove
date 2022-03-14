@@ -334,13 +334,13 @@ paths:
           required: true
           name: body
           schema:
-            $ref: '#/definitions/Address'
+            $ref: 'definitions/Address.yaml'
         - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: Successfully updated the address.
           schema:
-            $ref: '#/definitions/Address'
+            $ref: 'definitions/Address.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -873,159 +873,6 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
-  Address:
-    description: A postal address.
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      streetAddress1:
-        type: string
-        example: 123 Main Ave
-        title: Street address 1
-      streetAddress2:
-        type: string
-        example: Apartment 9000
-        x-nullable: true
-        title: Street address 2
-      streetAddress3:
-        type: string
-        example: Montmârtre
-        x-nullable: true
-        title: Address Line 3
-      city:
-        type: string
-        example: Anytown
-        title: City
-      state:
-        title: State
-        type: string
-        x-display-value:
-          AL: AL
-          AK: AK
-          AR: AR
-          AZ: AZ
-          CA: CA
-          CO: CO
-          CT: CT
-          DC: DC
-          DE: DE
-          FL: FL
-          GA: GA
-          HI: HI
-          IA: IA
-          ID: ID
-          IL: IL
-          IN: IN
-          KS: KS
-          KY: KY
-          LA: LA
-          MA: MA
-          MD: MD
-          ME: ME
-          MI: MI
-          MN: MN
-          MO: MO
-          MS: MS
-          MT: MT
-          NC: NC
-          ND: ND
-          NE: NE
-          NH: NH
-          NJ: NJ
-          NM: NM
-          NV: NV
-          NY: NY
-          OH: OH
-          OK: OK
-          OR: OR
-          PA: PA
-          RI: RI
-          SC: SC
-          SD: SD
-          TN: TN
-          TX: TX
-          UT: UT
-          VA: VA
-          VT: VT
-          WA: WA
-          WI: WI
-          WV: WV
-          WY: WY
-        enum:
-          - AL
-          - AK
-          - AR
-          - AZ
-          - CA
-          - CO
-          - CT
-          - DC
-          - DE
-          - FL
-          - GA
-          - HI
-          - IA
-          - ID
-          - IL
-          - IN
-          - KS
-          - KY
-          - LA
-          - MA
-          - MD
-          - ME
-          - MI
-          - MN
-          - MO
-          - MS
-          - MT
-          - NC
-          - ND
-          - NE
-          - NH
-          - NJ
-          - NM
-          - NV
-          - NY
-          - OH
-          - OK
-          - OR
-          - PA
-          - RI
-          - SC
-          - SD
-          - TN
-          - TX
-          - UT
-          - VA
-          - VT
-          - WA
-          - WI
-          - WV
-          - WY
-      postalCode:
-        type: string
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-      country:
-        type: string
-        title: Country
-        x-nullable: true
-        example: 'USA'
-        default: USA
-      eTag:
-        type: string
-        readOnly: true
-    required:
-      - streetAddress1
-      - city
-      - state
-      - postalCode
   ClientError:
     type: object
     properties:
@@ -1083,11 +930,11 @@ definitions:
       pickupAddress:
         description: The address where the movers should pick up this shipment.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
@@ -1165,7 +1012,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       currentAddress:
-        $ref: '#/definitions/Address'
+        $ref: 'definitions/Address.yaml'
       firstName:
         type: string
         example: Vanya
@@ -1186,7 +1033,7 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  DutyStation:
+  DutyLocation:
     type: object
     properties:
       id:
@@ -1201,7 +1048,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       address:
-        $ref: '#/definitions/Address'
+        $ref: 'definitions/Address.yaml'
       eTag:
         type: string
         readOnly: true
@@ -1549,7 +1396,7 @@ definitions:
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
             x-nullable: true
           sitDestinationFinalAddress:
-            $ref: '#/definitions/Address'
+            $ref: 'definitions/Address.yaml'
         required:
           - reServiceCode
           - sitEntryDate
@@ -1667,7 +1514,7 @@ definitions:
             x-nullable: true
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
           sitHHGActualOrigin:
-            $ref: '#/definitions/Address'
+            $ref: 'definitions/Address.yaml'
         required:
           - reServiceCode
           - reason
@@ -1842,7 +1689,7 @@ definitions:
           The address where the movers should pick up this shipment, entered by the customer during onboarding
           when they enter shipment details.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         description: |
           Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
@@ -1851,15 +1698,21 @@ definitions:
           May be blank when entered by the customer, required when entered by the Prime. May not represent the true
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
+      destinationType:
+        $ref: 'definitions/DestinationType.yaml'
       secondaryPickupAddress:
         description: A second pickup address for this shipment, if the customer entered one. An optional field.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
       secondaryDeliveryAddress:
         description: A second delivery address for this shipment, if the customer entered one. An optional field.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
+      storageFacility:
+        allOf:
+          - x-nullable: true
+          - $ref: 'definitions/StorageFacility.yaml'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
@@ -1952,10 +1805,10 @@ definitions:
         type: string
       entitlement:
         $ref: '#/definitions/Entitlements'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
       rank:
         type: string
         example: 'E_5'
@@ -2251,7 +2104,7 @@ definitions:
             type: string
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination.
           sitDestinationFinalAddress:
-            $ref: '#/definitions/Address'
+            $ref: 'definitions/Address.yaml'
   UpdateMTOShipment:
     properties:
       scheduledPickupDate:
@@ -2296,7 +2149,7 @@ definitions:
           The address where the movers should pick up this shipment, entered by the customer during onboarding
           when they enter shipment details.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         description: |
           Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
@@ -2305,15 +2158,21 @@ definitions:
           May be blank when entered by the customer, required when entered by the Prime. May not represent the true
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
+      destinationType:
+        $ref: 'definitions/DestinationType.yaml'
       secondaryPickupAddress:
         description: A second pickup address for this shipment, if the customer entered one. An optional field.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
       secondaryDeliveryAddress:
         description: A second delivery address for this shipment, if the customer entered one. An optional field.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
+      storageFacility:
+        allOf:
+          - x-nullable: true
+          - $ref: 'definitions/StorageFacility.yaml'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:

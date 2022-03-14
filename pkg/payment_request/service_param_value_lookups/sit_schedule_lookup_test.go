@@ -3,7 +3,6 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 	"strconv"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -14,63 +13,73 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	originKey := models.ServiceItemParamNameSITScheduleOrigin
 	destKey := models.ServiceItemParamNameSITScheduleDest
 
-	originAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			PostalCode: "35007",
-		},
-	})
-	destAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			PostalCode: "45007",
-		},
-	})
+	var mtoServiceItem models.MTOServiceItem
+	var paymentRequest models.PaymentRequest
+	var originDomesticServiceArea models.ReDomesticServiceArea
+	var destDomesticServiceArea models.ReDomesticServiceArea
 
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PickupAddressID:      &originAddress.ID,
-			PickupAddress:        &originAddress,
-			DestinationAddressID: &destAddress.ID,
-			DestinationAddress:   &destAddress,
-		},
-	})
+	setupTestData := func() {
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: mtoServiceItem.MoveTaskOrder,
+		originAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: "35007",
+			},
+		})
+		destAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: "45007",
+			},
 		})
 
-	originDomesticServiceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
-		ReDomesticServiceArea: models.ReDomesticServiceArea{
-			ServiceArea:   "004",
-			SITPDSchedule: 2,
-		},
-	})
+		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				PickupAddressID:      &originAddress.ID,
+				PickupAddress:        &originAddress,
+				DestinationAddressID: &destAddress.ID,
+				DestinationAddress:   &destAddress,
+			},
+		})
 
-	testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
-		ReZip3: models.ReZip3{
-			Contract:            originDomesticServiceArea.Contract,
-			DomesticServiceArea: originDomesticServiceArea,
-			Zip3:                "350",
-		},
-	})
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
 
-	destDomesticServiceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
-		ReDomesticServiceArea: models.ReDomesticServiceArea{
-			Contract:      originDomesticServiceArea.Contract,
-			ServiceArea:   "005",
-			SITPDSchedule: 3,
-		},
-	})
+		originDomesticServiceArea = testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ServiceArea:   "004",
+				SITPDSchedule: 2,
+			},
+		})
 
-	testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
-		ReZip3: models.ReZip3{
-			Contract:            destDomesticServiceArea.Contract,
-			DomesticServiceArea: destDomesticServiceArea,
-			Zip3:                "450",
-		},
-	})
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            originDomesticServiceArea.Contract,
+				DomesticServiceArea: originDomesticServiceArea,
+				Zip3:                "350",
+			},
+		})
 
-	suite.T().Run("lookup SITScheduleOrigin", func(t *testing.T) {
+		destDomesticServiceArea = testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				Contract:      originDomesticServiceArea.Contract,
+				ServiceArea:   "005",
+				SITPDSchedule: 3,
+			},
+		})
+
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            destDomesticServiceArea.Contract,
+				DomesticServiceArea: destDomesticServiceArea,
+				Zip3:                "450",
+			},
+		})
+	}
+
+	suite.Run("lookup SITScheduleOrigin", func() {
+		setupTestData()
+
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), originKey)
@@ -78,7 +87,9 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		suite.Equal(strconv.Itoa(originDomesticServiceArea.SITPDSchedule), valueStr)
 	})
 
-	suite.T().Run("lookup SITScheduleOriginDest", func(t *testing.T) {
+	suite.Run("lookup SITScheduleOriginDest", func() {
+		setupTestData()
+
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), destKey)
@@ -86,7 +97,9 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		suite.Equal(strconv.Itoa(destDomesticServiceArea.SITPDSchedule), valueStr)
 	})
 
-	suite.T().Run("lookup SITScheduleOrigin not found", func(t *testing.T) {
+	suite.Run("lookup SITScheduleOrigin not found", func() {
+		setupTestData()
+
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
@@ -103,7 +116,9 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		suite.Contains(err.Error(), expected)
 	})
 
-	suite.T().Run("lookup SITScheduleDest not found", func(t *testing.T) {
+	suite.Run("lookup SITScheduleDest not found", func() {
+		setupTestData()
+
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),

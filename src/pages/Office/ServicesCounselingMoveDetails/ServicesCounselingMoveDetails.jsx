@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
@@ -11,18 +11,21 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
 import { MOVES } from 'constants/queryKeys';
+import { ORDERS_TYPE } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
-import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
+import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import LeftNav from 'components/LeftNav/LeftNav';
+import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -31,7 +34,7 @@ import formattedCustomerName from 'utils/formattedCustomerName';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 
-const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
+const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   const { moveCode } = useParams();
   const history = useHistory();
   const [alertMessage, setAlertMessage] = useState(null);
@@ -44,15 +47,40 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 
   const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
 
+  const sections = useMemo(() => {
+    return ['shipments', 'orders', 'allowances', 'customer-info'];
+  }, []);
+
+  // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
   // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
-  const showWhenCollapsed = { HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'] }; // add any additional fields that we also want to always show
+  const showWhenCollapsed = {
+    HHG_INTO_NTS_DOMESTIC: ['counselorRemarks'],
+    HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'],
+  }; // add any additional fields that we also want to always show
+  const neverShow = { HHG_INTO_NTS_DOMESTIC: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility'] };
   const warnIfMissing = {
-    HHG_OUTOF_NTS_DOMESTIC: ['primeActualWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
+    HHG: ['counselorRemarks'],
+    HHG_INTO_NTS_DOMESTIC: ['counselorRemarks', 'tacType', 'sacType'],
+    HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
   };
   const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
 
   let shipmentsInfo = [];
   let disableSubmit = false;
+  let numberOfErrorIfMissingForAllShipments = 0;
+  let numberOfWarnIfMissingForAllShipments = 0;
+
+  // for now we are only showing dest type on retiree and separatee orders
+  const isRetirementOrSeparation =
+    order.order_type === ORDERS_TYPE.RETIREMENT || order.order_type === ORDERS_TYPE.SEPARATION;
+
+  if (isRetirementOrSeparation) {
+    // destination type must be set for for HHG, NTSR shipments only
+    errorIfMissing.HHG = ['destinationType'];
+    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push('destinationType');
+    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
+    errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
+  }
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
@@ -68,18 +96,41 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
-          postalCode: order.destinationDutyStation.address.postalCode,
+          postalCode: order.destinationDutyLocation.address.postalCode,
         },
         ...shipment,
+        displayDestinationType: isRetirementOrSeparation,
       };
 
-      if (!disableSubmit && errorIfMissing[shipment.shipmentType]) {
-        for (let i = 0; i < errorIfMissing[shipment.shipmentType].length; i += 1) {
-          if (!displayInfo[errorIfMissing[shipment.shipmentType][i]]) {
-            disableSubmit = true;
+      const errorIfMissingList = errorIfMissing[shipment.shipmentType];
+      if (errorIfMissingList) {
+        errorIfMissingList.forEach((fieldToCheck) => {
+          if (!displayInfo[fieldToCheck]) {
+            numberOfErrorIfMissingForAllShipments += 1;
+            // Since storage facility gets split into two fields - the name and the address
+            // it needs to be counted twice.
+            if (fieldToCheck === 'storageFacility') {
+              numberOfErrorIfMissingForAllShipments += 1;
+            }
           }
-        }
+        });
       }
+
+      const warnIfMissingList = warnIfMissing[shipment.shipmentType];
+      if (warnIfMissingList) {
+        warnIfMissingList.forEach((fieldToCheck) => {
+          if (!displayInfo[fieldToCheck]) {
+            numberOfWarnIfMissingForAllShipments += 1;
+          }
+          // Since storage facility gets split into two fields - the name and the address
+          // it needs to be counted twice.
+          if (fieldToCheck === 'storageFacility') {
+            numberOfErrorIfMissingForAllShipments += 1;
+          }
+        });
+      }
+
+      disableSubmit = numberOfErrorIfMissingForAllShipments !== 0;
 
       return {
         id: shipment.id,
@@ -113,8 +164,8 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   };
 
   const ordersInfo = {
-    currentDutyStation: order.originDutyStation,
-    newDutyStation: order.destinationDutyStation,
+    currentDutyLocation: order.originDutyLocation,
+    newDutyLocation: order.destinationDutyLocation,
     issuedDate: order.date_issued,
     reportByDate: order.report_by_date,
     ordersType: order.order_type,
@@ -126,8 +177,8 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   const ordersLOA = {
     tac: order.tac,
     sac: order.sac,
-    ntsTAC: order.ntsTAC,
-    ntsSAC: order.ntsSac,
+    ntsTac: order.ntsTac,
+    ntsSac: order.ntsSac,
   };
 
   const handleButtonDropdownChange = (e) => {
@@ -209,6 +260,15 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
+        <LeftNav sections={sections}>
+          <LeftNavTag
+            associatedSectionName="shipments"
+            showTag={numberOfErrorIfMissingForAllShipments !== 0 || numberOfWarnIfMissingForAllShipments !== 0}
+            testID="requestedShipmentsTag"
+          >
+            {numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments}
+          </LeftNavTag>
+        </LeftNav>
         {isSubmitModalVisible && (
           <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
         )}
@@ -229,10 +289,10 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                 </Alert>
               </Grid>
             )}
-            {customerEditAlert && (
+            {infoSavedAlert && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-                <Alert slim type={customerEditAlert.alertType}>
-                  {customerEditAlert.message}
+                <Alert slim type={infoSavedAlert.alertType}>
+                  {infoSavedAlert.message}
                 </Alert>
               </Grid>
             )}
@@ -257,9 +317,11 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
                 counselorCanEdit && (
-                  <ButtonDropdown onChange={handleButtonDropdownChange}>
+                  <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
-                    <option value={SHIPMENT_OPTIONS_URL.HHG}>HHG</option>
+                    <option test-dataid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+                      HHG
+                    </option>
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                   </ButtonDropdown>
@@ -283,11 +345,12 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                     key={shipment.id}
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
-                    showIcon={false}
+                    allowApproval={false}
                     ordersLOA={ordersLOA}
                     warnIfMissing={warnIfMissing[shipment.shipmentType]}
                     errorIfMissing={errorIfMissing[shipment.shipmentType]}
                     showWhenCollapsed={showWhenCollapsed[shipment.shipmentType]}
+                    neverShow={neverShow[shipment.shipmentType]}
                   />
                 ))}
               </div>
@@ -318,6 +381,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                 counselorCanEdit && (
                   <Link
                     className="usa-button usa-button--secondary"
+                    data-testid="edit-allowances"
                     to={generatePath(servicesCounselingRoutes.ALLOWANCES_EDIT_PATH, { moveCode })}
                   >
                     Edit allowances
@@ -353,11 +417,11 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 };
 
 ServicesCounselingMoveDetails.propTypes = {
-  customerEditAlert: AlertStateShape,
+  infoSavedAlert: AlertStateShape,
 };
 
 ServicesCounselingMoveDetails.defaultProps = {
-  customerEditAlert: null,
+  infoSavedAlert: null,
 };
 
 export default ServicesCounselingMoveDetails;

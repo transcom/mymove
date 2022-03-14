@@ -8,7 +8,7 @@ export default {
 };
 
 const info = {
-  primeActualWeight: 2000,
+  ntsRecordedWeight: 2000,
   storageFacility: {
     address: {
       city: 'Anytown',
@@ -61,7 +61,7 @@ export const NTSRBasic = () => (
       destinationAddress: info.destinationAddress,
       tacType: info.tacType,
       sacType: info.sacType,
-      primeActualWeight: info.primeActualWeight,
+      ntsRecordedWeight: info.ntsRecordedWeight,
       serviceOrderNumber: info.serviceOrderNumber,
     }}
   />
@@ -69,58 +69,32 @@ export const NTSRBasic = () => (
 
 export const NTSRMissingInfo = () => (
   <NTSRShipmentInfoList
+    isExpanded
     shipment={{
       requestedDeliveryDate: info.requestedDeliveryDate,
       destinationAddress: info.destinationAddress,
       tacType: info.tacType,
       sacType: info.sacType,
-      primeActualWeight: info.primeActualWeight,
+      ntsRecordedWeight: info.ntsRecordedWeight,
       serviceOrderNumber: info.serviceOrderNumber,
     }}
     errorIfMissing={['storageFacility']}
   />
 );
 
-export const WithAgents = () => (
+export const NTSRWithAllInfo = () => (
   <NTSRShipmentInfoList
-    shipment={{
-      counselorRemarks: info.counselorRemarks,
-      requestedDeliveryDate: info.requestedDeliveryDate,
-      storageFacility: info.storageFacility,
-      destinationAddress: info.destinationAddress,
-      tacType: info.tacType,
-      sacType: info.sacType,
-      primeActualWeight: info.primeActualWeight,
-      serviceOrderNumber: info.serviceOrderNumber,
-      agents: [info.agents[0], info.agents[1]],
-    }}
-  />
-);
-
-export const WithRemarks = () => (
-  <NTSRShipmentInfoList
-    shipment={{
-      requestedPickupDate: info.requestedPickupDate,
-      pickupAddress: info.pickupAddress,
-      destinationAddress: info.destinationAddress,
-      counselorRemarks: info.counselorRemarks,
-      customerRemarks: info.customerRemarks,
-    }}
-  />
-);
-
-export const WithAllInfo = () => (
-  <NTSRShipmentInfoList
+    isExpanded
     shipment={{
       requestedDeliveryDate: info.requestedDeliveryDate,
       storageFacility: info.storageFacility,
       tacType: info.tacType,
       sacType: info.sacType,
-      primeActualWeight: info.primeActualWeight,
+      ntsRecordedWeight: info.ntsRecordedWeight,
       serviceOrderNumber: info.serviceOrderNumber,
       destinationAddress: info.destinationAddress,
       secondaryDeliveryAddress: info.secondaryDeliveryAddress,
-      agents: [info.agents[0], info.agents[1]],
+      agents: info.agents,
       counselorRemarks: info.counselorRemarks,
       customerRemarks: info.customerRemarks,
     }}

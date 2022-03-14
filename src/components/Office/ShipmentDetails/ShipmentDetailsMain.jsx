@@ -6,6 +6,7 @@ import { SIT_EXTENSION_STATUS } from '../../../constants/sitExtensions';
 import styles from './ShipmentDetails.module.scss';
 
 import { formatDate } from 'shared/dates';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
 import SubmitSITExtensionModal from 'components/Office/SubmitSITExtensionModal/SubmitSITExtensionModal';
@@ -37,6 +38,8 @@ const ShipmentDetailsMain = ({
     sitExtensions,
     sitStatus,
     storageInTransit,
+    shipmentType,
+    storageFacility,
   } = shipment;
   const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
 
@@ -76,6 +79,27 @@ const ShipmentDetailsMain = ({
     ],
   );
 
+  let displayedPickupAddress;
+  let displayedDeliveryAddress;
+
+  switch (shipmentType) {
+    case SHIPMENT_OPTIONS.HHG:
+      displayedPickupAddress = pickupAddress;
+      displayedDeliveryAddress = destinationAddress || destinationDutyStationAddress?.postalCode;
+      break;
+    case SHIPMENT_OPTIONS.NTS:
+      displayedPickupAddress = pickupAddress;
+      displayedDeliveryAddress = storageFacility ? storageFacility.address : null;
+      break;
+    case SHIPMENT_OPTIONS.NTSR:
+      displayedPickupAddress = storageFacility ? storageFacility.address : null;
+      displayedDeliveryAddress = destinationAddress;
+      break;
+    default:
+      displayedPickupAddress = pickupAddress;
+      displayedDeliveryAddress = destinationAddress || destinationDutyStationAddress?.postalCode;
+  }
+
   return (
     <div className={className}>
       {isReviewSITExtensionModalVisible && (
@@ -109,11 +133,16 @@ const ShipmentDetailsMain = ({
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
       />
       <ShipmentAddresses
-        pickupAddress={pickupAddress}
-        destinationAddress={destinationAddress || destinationDutyStationAddress?.postalCode}
-        originDutyStation={originDutyStationAddress}
-        destinationDutyStation={destinationDutyStationAddress}
-        shipmentInfo={{ shipmentID: shipment.id, ifMatchEtag: shipment.eTag, shipmentStatus: shipment.status }}
+        pickupAddress={displayedPickupAddress}
+        destinationAddress={displayedDeliveryAddress}
+        originDutyLocation={originDutyStationAddress}
+        destinationDutyLocation={destinationDutyStationAddress}
+        shipmentInfo={{
+          id: shipment.id,
+          eTag: shipment.eTag,
+          status: shipment.status,
+          shipmentType: shipment.shipmentType,
+        }}
         handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails
@@ -124,6 +153,7 @@ const ShipmentDetailsMain = ({
           ifMatchEtag: shipment.eTag,
           reweighID: shipment.reweigh?.id,
           reweighWeight: shipment.reweigh?.weight,
+          shipmentType: shipment.shipmentType,
         }}
         handleRequestReweighModal={handleRequestReweighModal}
       />

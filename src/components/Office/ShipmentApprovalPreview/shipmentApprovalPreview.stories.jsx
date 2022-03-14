@@ -218,7 +218,7 @@ const customerInfo = {
 };
 
 const ordersInfo = {
-  newDutyStation: {
+  newDutyLocation: {
     address: {
       city: 'Augusta',
       country: 'United States',
@@ -233,7 +233,7 @@ const ordersInfo = {
     id: '2d5ada83-e09a-47f8-8de6-83ec51694a86',
     name: 'Fort Gordon',
   },
-  currentDutyStation: {
+  currentDutyLocation: {
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -261,33 +261,37 @@ const ordersInfo = {
 };
 
 export const shipmentApprovalPreviewModal = () => (
-  <ShipmentApprovalPreview
-    customerInfo={customerInfo}
-    setIsModalVisible={() => {
-      return true;
-    }}
-    mtoShipments={[shipments[0]]}
-    allowancesInfo={allowancesInfo}
-    counselingFee
-    shipmentManagementFee
-    onSubmit={action('submit shipment approval')}
-    ordersInfo={ordersInfo}
-  />
+  <div style={{ minWidth: '1240px' }}>
+    <ShipmentApprovalPreview
+      customerInfo={customerInfo}
+      setIsModalVisible={() => {
+        return true;
+      }}
+      mtoShipments={[shipments[0]]}
+      allowancesInfo={allowancesInfo}
+      counselingFee
+      shipmentManagementFee
+      onSubmit={action('submit shipment approval')}
+      ordersInfo={ordersInfo}
+    />
+  </div>
 );
 
 export const approvalPreviewWithShipments = () => (
-  <ShipmentApprovalPreview
-    customerInfo={customerInfo}
-    setIsModalVisible={() => {
-      return true;
-    }}
-    mtoShipments={shipments}
-    allowancesInfo={allowancesInfo}
-    counselingFee
-    shipmentManagementFee
-    onSubmit={action('submit shipment approval')}
-    ordersInfo={ordersInfo}
-  />
+  <div style={{ minWidth: '1240px' }}>
+    <ShipmentApprovalPreview
+      customerInfo={customerInfo}
+      setIsModalVisible={() => {
+        return true;
+      }}
+      mtoShipments={shipments}
+      allowancesInfo={allowancesInfo}
+      counselingFee
+      shipmentManagementFee
+      onSubmit={action('submit shipment approval')}
+      ordersInfo={ordersInfo}
+    />
+  </div>
 );
 
 export default { title: 'Office Components/ShipmentApprovalPreview' };

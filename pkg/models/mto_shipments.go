@@ -44,6 +44,8 @@ const (
 	MTOShipmentTypeBoatHaulAway MTOShipmentType = "BOAT_HAUL_AWAY"
 	// MTOShipmentTypeBoatTowAway is a Shipment Type for Boat Tow Away
 	MTOShipmentTypeBoatTowAway MTOShipmentType = "BOAT_TOW_AWAY"
+	// MTOShipmentTypePPM is a Shipment Type for Personally Procured Move shipments
+	MTOShipmentTypePPM MTOShipmentType = "PPM"
 )
 
 // These are meant to be the default number of SIT days that a customer is allowed to have. They should be used when
@@ -84,6 +86,15 @@ const (
 	LOATypeNTS LOAType = "NTS"
 )
 
+type DestinationType string
+
+const (
+	DestinationTypeHomeOfRecord           DestinationType = "HOME_OF_RECORD"
+	DestinationTypeHomeOfSelection        DestinationType = "HOME_OF_SELECTION"
+	DestinationTypePlaceEnteredActiveDuty DestinationType = "PLACE_ENTERED_ACTIVE_DUTY"
+	DestinationTypeOtherThanAuthorized    DestinationType = "OTHER_THAN_AUTHORIZED"
+)
+
 // MTOShipment is an object representing data for a move task order shipment
 type MTOShipment struct {
 	ID                               uuid.UUID         `db:"id"`
@@ -102,6 +113,7 @@ type MTOShipment struct {
 	PickupAddressID                  *uuid.UUID        `db:"pickup_address_id"`
 	DestinationAddress               *Address          `belongs_to:"addresses" fk_id:"destination_address_id"`
 	DestinationAddressID             *uuid.UUID        `db:"destination_address_id"`
+	DestinationType                  *DestinationType  `db:"destination_address_type"`
 	MTOAgents                        MTOAgents         `has_many:"mto_agents" fk_id:"mto_shipment_id"`
 	MTOServiceItems                  MTOServiceItems   `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
 	SecondaryPickupAddress           *Address          `belongs_to:"addresses" fk_id:"secondary_pickup_address_id"`
@@ -128,6 +140,7 @@ type MTOShipment struct {
 	ServiceOrderNumber               *string           `db:"service_order_number"`
 	TACType                          *LOAType          `db:"tac_type"`
 	SACType                          *LOAType          `db:"sac_type"`
+	PPMShipment                      *PPMShipment      `has_one:"ppm_shipment" fk_id:"shipment_id"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 	DeletedAt                        *time.Time        `db:"deleted_at"`
@@ -191,6 +204,18 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	vs = append(vs, &OptionalStringInclusion{Field: ptrSACType, Name: "SACType", List: []string{
 		string(LOATypeHHG),
 		string(LOATypeNTS),
+	}})
+
+	var destinationType *string
+	if m.DestinationType != nil {
+		valDestinationType := string(*m.DestinationType)
+		destinationType = &valDestinationType
+	}
+	vs = append(vs, &OptionalStringInclusion{Field: destinationType, Name: "DestinationType", List: []string{
+		string(DestinationTypeHomeOfRecord),
+		string(DestinationTypeHomeOfSelection),
+		string(DestinationTypePlaceEnteredActiveDuty),
+		string(DestinationTypeOtherThanAuthorized),
 	}})
 
 	return validate.Validate(vs...), nil

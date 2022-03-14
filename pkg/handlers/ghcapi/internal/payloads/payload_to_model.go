@@ -201,6 +201,10 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
 	}
 
+	if mtoShipment.RequestedDeliveryDate != nil {
+		model.RequestedDeliveryDate = swag.Time(time.Time(*mtoShipment.RequestedDeliveryDate))
+	}
+
 	// Set up address models
 	var addressModel *models.Address
 
@@ -212,6 +216,11 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
+	}
+
+	if mtoShipment.DestinationType != nil {
+		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)
+		model.DestinationType = &valDestinationType
 	}
 
 	if mtoShipment.Agents != nil {
@@ -286,6 +295,11 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
 	model.DestinationAddress = AddressModel(&mtoShipment.DestinationAddress.Address)
+
+	if mtoShipment.DestinationType != nil {
+		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)
+		model.DestinationType = &valDestinationType
+	}
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)

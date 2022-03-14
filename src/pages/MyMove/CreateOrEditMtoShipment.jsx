@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { func, shape, number } from 'prop-types';
+import { func, number, shape } from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import qs from 'query-string';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/actions';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
-import { HhgShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
+import { HhgShipmentShape, HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
@@ -17,6 +17,7 @@ import {
 } from 'store/entities/selectors';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { LocationShape } from 'types/index';
+import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation';
 
 export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
@@ -34,19 +35,23 @@ export class CreateOrEditMtoShipment extends Component {
       newDutyStationAddress,
       updateMTOShipment,
       serviceMember,
+      orders,
     } = this.props;
 
     const { type } = qs.parse(location.search);
 
-    if (type === SHIPMENT_OPTIONS.PPM) {
-      const { moveId } = match.params;
-
-      history.replace(`/moves/${moveId}/ppm-start`);
-      return <div />;
-    }
-
     // wait until MTO shipment has loaded to render form
     if (type || mtoShipment?.id) {
+      if (type === SHIPMENT_OPTIONS.PPM || mtoShipment?.shipmentType === SHIPMENT_OPTIONS.PPM) {
+        return (
+          <DateAndLocation
+            mtoShipment={mtoShipment}
+            serviceMember={serviceMember}
+            destinationDutyLocation={orders.new_duty_location}
+          />
+        );
+      }
+
       return (
         <MtoShipmentForm
           match={match}
@@ -58,6 +63,7 @@ export class CreateOrEditMtoShipment extends Component {
           newDutyStationAddress={newDutyStationAddress}
           updateMTOShipment={updateMTOShipment}
           serviceMember={serviceMember}
+          orders={orders}
         />
       );
     }
@@ -82,6 +88,7 @@ CreateOrEditMtoShipment.propTypes = {
       total_weight_self: number,
     }),
   }).isRequired,
+  orders: OrdersShape,
 };
 
 CreateOrEditMtoShipment.defaultProps = {
@@ -103,6 +110,7 @@ CreateOrEditMtoShipment.defaultProps = {
     state: '',
     postalCode: '',
   },
+  orders: {},
 };
 
 function mapStateToProps(state, ownProps) {
@@ -110,9 +118,10 @@ function mapStateToProps(state, ownProps) {
 
   const props = {
     serviceMember,
+    orders: selectCurrentOrders(state) || {},
     mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
-    newDutyStationAddress: selectCurrentOrders(state)?.new_duty_station?.address || {},
+    newDutyStationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
   };
 
   return props;

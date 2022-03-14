@@ -88,7 +88,7 @@
   }
 }
 
-.edit-btn {
+:global(.usa-button).edit-btn {
   background-color: transparent;
   color: $primary;
   text-decoration: none;

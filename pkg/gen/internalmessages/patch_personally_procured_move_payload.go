@@ -204,6 +204,8 @@ func (m *PatchPersonallyProcuredMovePayload) validateAdvance(formats strfmt.Regi
 		if err := m.Advance.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advance")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("advance")
 			}
 			return err
 		}
@@ -221,6 +223,8 @@ func (m *PatchPersonallyProcuredMovePayload) validateAdvanceWorksheet(formats st
 		if err := m.AdvanceWorksheet.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advance_worksheet")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("advance_worksheet")
 			}
 			return err
 		}
@@ -416,6 +420,8 @@ func (m *PatchPersonallyProcuredMovePayload) validateSize(formats strfmt.Registr
 		if err := m.Size.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("size")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("size")
 			}
 			return err
 		}
@@ -476,6 +482,8 @@ func (m *PatchPersonallyProcuredMovePayload) contextValidateAdvance(ctx context.
 		if err := m.Advance.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advance")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("advance")
 			}
 			return err
 		}
@@ -490,6 +498,8 @@ func (m *PatchPersonallyProcuredMovePayload) contextValidateAdvanceWorksheet(ctx
 		if err := m.AdvanceWorksheet.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advance_worksheet")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("advance_worksheet")
 			}
 			return err
 		}
@@ -504,6 +514,8 @@ func (m *PatchPersonallyProcuredMovePayload) contextValidateSize(ctx context.Con
 		if err := m.Size.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("size")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("size")
 			}
 			return err
 		}

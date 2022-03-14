@@ -26,4 +26,8 @@ const info = {
   },
 };
 
-export const Basic = () => <CustomerInfoList customerInfo={object('info', info)} />;
+export const Basic = () => (
+  <div className="officeApp">
+    <CustomerInfoList customerInfo={object('info', info)} />
+  </div>
+);

@@ -11,7 +11,7 @@ import { mtoShipmentTypes } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
+import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentServiceItemsTable from 'components/Office/ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import { MTOShipmentShape, OrdersInfoShape } from 'types/order';
@@ -72,13 +72,15 @@ const ShipmentApprovalPreview = ({
                       {shipment.diversion && <Tag>diversion</Tag>}
                     </div>
                     <div className={styles.shipmentDetailWrapper}>
-                      <ShipmentInfoList
+                      <ShipmentInfoListSelector
                         className={styles.shipmentInfo}
+                        shipmentType={shipment.shipmentType}
+                        isExpanded
                         shipment={{
                           ...shipment,
                           destinationAddress: shipment.destinationAddress
                             ? shipment.destinationAddress
-                            : { postalCode: ordersInfo.newDutyStation.address.postalCode },
+                            : { postalCode: ordersInfo.newDutyLocation.address.postalCode },
                           agents: shipment.mtoAgents,
                         }}
                       />

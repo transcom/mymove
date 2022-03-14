@@ -20,8 +20,12 @@ import (
 type PaymentServiceItemStatus string
 
 func NewPaymentServiceItemStatus(value PaymentServiceItemStatus) *PaymentServiceItemStatus {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated PaymentServiceItemStatus.
+func (m PaymentServiceItemStatus) Pointer() *PaymentServiceItemStatus {
+	return &m
 }
 
 const (

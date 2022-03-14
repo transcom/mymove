@@ -9,10 +9,27 @@ const props = {
   order: {
     agency: 'NAVY',
     grade: 'E_6',
-    originDutyStation: {
+    originDutyLocation: {
       name: 'JBSA Lackland',
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
+      name: 'JB Lewis-McChord',
+    },
+    report_by_date: '2018-08-01',
+  },
+  moveCode: 'FKLCTR',
+};
+
+const propsRetiree = {
+  customer: { last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+  order: {
+    agency: 'NAVY',
+    grade: 'E_6',
+    order_type: 'RETIREMENT',
+    originDutyLocation: {
+      name: 'JBSA Lackland',
+    },
+    destinationDutyLocation: {
       name: 'JB Lewis-McChord',
     },
     report_by_date: '2018-08-01',
@@ -21,6 +38,7 @@ const props = {
 };
 
 const mountCustomerHeader = () => mount(<CustomerHeader {...props} />);
+const mountCustomerHeaderRetiree = () => mount(<CustomerHeader {...propsRetiree} />);
 
 describe('CustomerHeader component', () => {
   const wrapper = mountCustomerHeader();
@@ -35,5 +53,11 @@ describe('CustomerHeader component', () => {
     expect(wrapper.find('[data-testid="infoBlock"]').text()).toContain('JBSA Lackland');
     expect(wrapper.find('[data-testid="infoBlock"]').text()).toContain('JB Lewis-McChord');
     expect(wrapper.find('[data-testid="infoBlock"]').text()).toContain('01 Aug 2018');
+  });
+
+  const wrapperRetiree = mountCustomerHeaderRetiree();
+  it('renders expected values for a retiree', () => {
+    expect(wrapperRetiree.find('[data-testid="destinationLabel"]').text()).toContain('HOR, HOS or PLEAD');
+    expect(wrapperRetiree.find('[data-testid="reportDateLabel"]').text()).toContain('Date of retirement');
   });
 });

@@ -8,6 +8,14 @@ export default {
   component: FinancialReviewButton,
 };
 
-export const MoveNotFlaggedForFinancialReview = () => <FinancialReviewButton onClick={action('Click')} />;
+export const MoveNotFlaggedForFinancialReview = () => (
+  <div className="officeApp">
+    <FinancialReviewButton onClick={action('Click')} />
+  </div>
+);
 
-export const MoveFlaggedForFinancialReview = () => <FinancialReviewButton onClick={action('Click')} reviewRequested />;
+export const MoveFlaggedForFinancialReview = () => (
+  <div className="officeApp">
+    <FinancialReviewButton onClick={action('Click')} reviewRequested />
+  </div>
+);

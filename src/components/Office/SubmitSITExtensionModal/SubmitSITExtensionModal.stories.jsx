@@ -30,5 +30,7 @@ const summarySITExtension = (
 );
 
 export const Basic = () => (
-  <SubmitSITExtensionModal Submit={() => {}} onClose={() => {}} summarySITComponent={summarySITExtension} />
+  <div className="officeApp">
+    <SubmitSITExtensionModal Submit={() => {}} onClose={() => {}} summarySITComponent={summarySITExtension} />
+  </div>
 );

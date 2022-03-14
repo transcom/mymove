@@ -43,7 +43,7 @@ type ShowPPMIncentiveParams struct {
 	  Pattern: ^(\d{5}([\-]\d{4})?)$
 	  In: query
 	*/
-	OriginDutyStationZip string
+	OriginDutyLocationZip string
 	/*
 	  Required: true
 	  Pattern: ^(\d{5}([\-]\d{4})?)$
@@ -78,8 +78,8 @@ func (o *ShowPPMIncentiveParams) BindRequest(r *http.Request, route *middleware.
 		res = append(res, err)
 	}
 
-	qOriginDutyStationZip, qhkOriginDutyStationZip, _ := qs.GetOK("origin_duty_station_zip")
-	if err := o.bindOriginDutyStationZip(qOriginDutyStationZip, qhkOriginDutyStationZip, route.Formats); err != nil {
+	qOriginDutyLocationZip, qhkOriginDutyLocationZip, _ := qs.GetOK("origin_duty_location_zip")
+	if err := o.bindOriginDutyLocationZip(qOriginDutyLocationZip, qhkOriginDutyLocationZip, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -143,10 +143,10 @@ func (o *ShowPPMIncentiveParams) validateOrdersID(formats strfmt.Registry) error
 	return nil
 }
 
-// bindOriginDutyStationZip binds and validates parameter OriginDutyStationZip from query.
-func (o *ShowPPMIncentiveParams) bindOriginDutyStationZip(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindOriginDutyLocationZip binds and validates parameter OriginDutyLocationZip from query.
+func (o *ShowPPMIncentiveParams) bindOriginDutyLocationZip(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("origin_duty_station_zip", "query", rawData)
+		return errors.Required("origin_duty_location_zip", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -156,22 +156,22 @@ func (o *ShowPPMIncentiveParams) bindOriginDutyStationZip(rawData []string, hasK
 	// Required: true
 	// AllowEmptyValue: false
 
-	if err := validate.RequiredString("origin_duty_station_zip", "query", raw); err != nil {
+	if err := validate.RequiredString("origin_duty_location_zip", "query", raw); err != nil {
 		return err
 	}
-	o.OriginDutyStationZip = raw
+	o.OriginDutyLocationZip = raw
 
-	if err := o.validateOriginDutyStationZip(formats); err != nil {
+	if err := o.validateOriginDutyLocationZip(formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// validateOriginDutyStationZip carries on validations for parameter OriginDutyStationZip
-func (o *ShowPPMIncentiveParams) validateOriginDutyStationZip(formats strfmt.Registry) error {
+// validateOriginDutyLocationZip carries on validations for parameter OriginDutyLocationZip
+func (o *ShowPPMIncentiveParams) validateOriginDutyLocationZip(formats strfmt.Registry) error {
 
-	if err := validate.Pattern("origin_duty_station_zip", "query", o.OriginDutyStationZip, `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("origin_duty_location_zip", "query", o.OriginDutyLocationZip, `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 

@@ -90,6 +90,13 @@ var e9 = WeightAllotment{
 	ProGearWeightSpouse:           500,
 }
 
+var e9SpecialSeniorEnlisted = WeightAllotment{
+	TotalWeightSelf:               14000,
+	TotalWeightSelfPlusDependents: 17000,
+	ProGearWeight:                 2000,
+	ProGearWeightSpouse:           500,
+}
+
 // O-1 through O-5 share their entitlements with W-1 through W-5
 var o1W1AcademyGraduate = WeightAllotment{
 	TotalWeightSelf:               10000,
@@ -169,34 +176,35 @@ var civilianEmployee = WeightAllotment{
 }
 
 var entitlements = map[ServiceMemberRank]WeightAllotment{
-	ServiceMemberRankACADEMYCADET:      midshipman,
-	ServiceMemberRankAVIATIONCADET:     aviationCadet,
-	ServiceMemberRankE1:                e1,
-	ServiceMemberRankE2:                e2,
-	ServiceMemberRankE3:                e3,
-	ServiceMemberRankE4:                e4,
-	ServiceMemberRankE5:                e5,
-	ServiceMemberRankE6:                e6,
-	ServiceMemberRankE7:                e7,
-	ServiceMemberRankE8:                e8,
-	ServiceMemberRankE9:                e9,
-	ServiceMemberRankMIDSHIPMAN:        midshipman,
-	ServiceMemberRankO1ACADEMYGRADUATE: o1W1AcademyGraduate,
-	ServiceMemberRankO2:                o2W2,
-	ServiceMemberRankO3:                o3W3,
-	ServiceMemberRankO4:                o4W4,
-	ServiceMemberRankO5:                o5W5,
-	ServiceMemberRankO6:                o6,
-	ServiceMemberRankO7:                o7,
-	ServiceMemberRankO8:                o8,
-	ServiceMemberRankO9:                o9,
-	ServiceMemberRankO10:               o10,
-	ServiceMemberRankW1:                o1W1AcademyGraduate,
-	ServiceMemberRankW2:                o2W2,
-	ServiceMemberRankW3:                o3W3,
-	ServiceMemberRankW4:                o4W4,
-	ServiceMemberRankW5:                o5W5,
-	ServiceMemberRankCIVILIANEMPLOYEE:  civilianEmployee,
+	ServiceMemberRankACADEMYCADET:            midshipman,
+	ServiceMemberRankAVIATIONCADET:           aviationCadet,
+	ServiceMemberRankE1:                      e1,
+	ServiceMemberRankE2:                      e2,
+	ServiceMemberRankE3:                      e3,
+	ServiceMemberRankE4:                      e4,
+	ServiceMemberRankE5:                      e5,
+	ServiceMemberRankE6:                      e6,
+	ServiceMemberRankE7:                      e7,
+	ServiceMemberRankE8:                      e8,
+	ServiceMemberRankE9:                      e9,
+	ServiceMemberRankE9SPECIALSENIORENLISTED: e9SpecialSeniorEnlisted,
+	ServiceMemberRankMIDSHIPMAN:              midshipman,
+	ServiceMemberRankO1ACADEMYGRADUATE:       o1W1AcademyGraduate,
+	ServiceMemberRankO2:                      o2W2,
+	ServiceMemberRankO3:                      o3W3,
+	ServiceMemberRankO4:                      o4W4,
+	ServiceMemberRankO5:                      o5W5,
+	ServiceMemberRankO6:                      o6,
+	ServiceMemberRankO7:                      o7,
+	ServiceMemberRankO8:                      o8,
+	ServiceMemberRankO9:                      o9,
+	ServiceMemberRankO10:                     o10,
+	ServiceMemberRankW1:                      o1W1AcademyGraduate,
+	ServiceMemberRankW2:                      o2W2,
+	ServiceMemberRankW3:                      o3W3,
+	ServiceMemberRankW4:                      o4W4,
+	ServiceMemberRankW5:                      o5W5,
+	ServiceMemberRankCIVILIANEMPLOYEE:        civilianEmployee,
 }
 
 func getEntitlement(rank ServiceMemberRank) (WeightAllotment, error) {

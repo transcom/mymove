@@ -8,6 +8,7 @@ import {
 } from './validationSchemas';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { roleTypes } from 'constants/userRoles';
 
 const hhgShipmentSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
@@ -22,6 +23,16 @@ const ntsShipmentSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
   secondaryPickup: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
+  serviceOrderNumber: Yup.string().matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
+});
+
+const ntsShipmentTOOSchema = Yup.object().shape({
+  pickup: RequiredPlaceSchema,
+  secondaryPickup: AdditionalAddressSchema,
+  serviceOrderNumber: Yup.string()
+    .required('Required')
+    .matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
+  storageFacility: StorageFacilityAddressSchema,
 });
 
 const ntsReleaseShipmentSchema = Yup.object().shape({
@@ -30,15 +41,25 @@ const ntsReleaseShipmentSchema = Yup.object().shape({
   customerRemarks: Yup.string(),
 });
 
-const ntsReleaseShipmentOfficeSchema = Yup.object().shape({
+const ntsReleaseShipmentCounselorSchema = Yup.object().shape({
   delivery: RequiredPlaceSchema,
   secondaryDelivery: AdditionalAddressSchema,
-  customerRemarks: Yup.string(),
-  serviceOrderNumber: Yup.string(),
+  counselorRemarks: Yup.string(),
+  serviceOrderNumber: Yup.string().matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
   storageFacility: StorageFacilityAddressSchema,
 });
 
-function getShipmentOptions(shipmentType, isCustomer) {
+const ntsReleaseShipmentTOOSchema = Yup.object().shape({
+  delivery: RequiredPlaceSchema,
+  ntsRecordedWeight: Yup.string().required('Required'),
+  secondaryDelivery: AdditionalAddressSchema,
+  serviceOrderNumber: Yup.string()
+    .required('Required')
+    .matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
+  storageFacility: StorageFacilityAddressSchema,
+});
+
+function getShipmentOptions(shipmentType, userRole) {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       return {
@@ -48,26 +69,54 @@ function getShipmentOptions(shipmentType, isCustomer) {
       };
 
     case SHIPMENT_OPTIONS.NTS:
-      return {
-        schema: ntsShipmentSchema,
-        showPickupFields: true,
-        showDeliveryFields: false,
-      };
+      switch (userRole) {
+        case roleTypes.TOO: {
+          return {
+            schema: ntsShipmentTOOSchema,
+            showPickupFields: true,
+            showDeliveryFields: false,
+          };
+        }
 
-    case SHIPMENT_OPTIONS.NTSR:
-      if (isCustomer) {
-        return {
-          schema: ntsReleaseShipmentSchema,
-          showPickupFields: false,
-          showDeliveryFields: true,
-        };
+        default: {
+          return {
+            schema: ntsShipmentSchema,
+            showPickupFields: true,
+            showDeliveryFields: false,
+          };
+        }
       }
 
-      return {
-        schema: ntsReleaseShipmentOfficeSchema,
-        showPickupFields: false,
-        showDeliveryFields: true,
-      };
+    case SHIPMENT_OPTIONS.NTSR:
+      switch (userRole) {
+        case roleTypes.CUSTOMER: {
+          return {
+            schema: ntsReleaseShipmentSchema,
+            showPickupFields: false,
+            showDeliveryFields: true,
+          };
+        }
+
+        case roleTypes.SERVICES_COUNSELOR: {
+          return {
+            schema: ntsReleaseShipmentCounselorSchema,
+            showPickupFields: false,
+            showDeliveryFields: true,
+          };
+        }
+
+        case roleTypes.TOO: {
+          return {
+            schema: ntsReleaseShipmentTOOSchema,
+            showPickupFields: false,
+            showDeliveryFields: true,
+          };
+        }
+
+        default: {
+          throw new Error('unrecognized user role type');
+        }
+      }
 
     default:
       throw new Error('unrecognized move type');

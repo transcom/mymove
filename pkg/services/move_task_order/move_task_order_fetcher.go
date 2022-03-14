@@ -2,6 +2,7 @@ package movetaskorder
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -37,8 +38,8 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 		"MTOShipments.MTOAgents",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
-		"Orders.NewDutyStation.Address",
-		"Orders.OriginDutyStation.Address",
+		"Orders.NewDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address",
 	)
 
 	setMTOQueryFilters(query, searchParams)
@@ -49,8 +50,24 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 		return models.Moves{}, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
 	}
 
-	return moveTaskOrders, nil
+	// Filtering external vendor shipments (if requested) in code since we can't do it easily in Pop
+	// without a raw query (which could be painful since we'd have to populate all the associations).
+	if searchParams != nil && searchParams.ExcludeExternalShipments {
+		for i, move := range moveTaskOrders {
+			var filteredShipments models.MTOShipments
+			if move.MTOShipments != nil {
+				filteredShipments = models.MTOShipments{}
+			}
+			for _, shipment := range move.MTOShipments {
+				if !shipment.UsesExternalVendor {
+					filteredShipments = append(filteredShipments, shipment)
+				}
+			}
+			moveTaskOrders[i].MTOShipments = filteredShipments
+		}
+	}
 
+	return moveTaskOrders, nil
 }
 
 // FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
@@ -70,15 +87,21 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.SITExtensions",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
-		"Orders.NewDutyStation.Address",
-		"Orders.OriginDutyStation.Address", // this line breaks Eager, but works with EagerPreload
+		"Orders.NewDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload
 	)
+
+	if searchParams == nil {
+		return &models.Move{}, errors.New("searchParams should not be nil since move ID or locator are required")
+	}
 
 	// Find the move by ID or Locator
 	if searchParams.MoveTaskOrderID != uuid.Nil {
 		query.Where("id = $1", searchParams.MoveTaskOrderID)
-	} else {
+	} else if searchParams.Locator != "" {
 		query.Where("locator = $1", searchParams.Locator)
+	} else {
+		return &models.Move{}, errors.New("searchParams should have either a move ID or locator set")
 	}
 
 	setMTOQueryFilters(query, searchParams)
@@ -93,20 +116,31 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
+	// Filtering external vendor shipments in code since we can't do it easily in Pop without a raw query.
+	var filteredShipments models.MTOShipments
+	if mto.MTOShipments != nil {
+		filteredShipments = models.MTOShipments{}
+	}
 	for i, shipment := range mto.MTOShipments {
-		reweigh, reweighErr := fetchReweigh(appCtx, shipment.ID)
+		// Skip any shipments that use an external vendor (if requested)
+		if searchParams.ExcludeExternalShipments && shipment.UsesExternalVendor {
+			continue
+		}
 
+		reweigh, reweighErr := fetchReweigh(appCtx, shipment.ID)
 		if reweighErr != nil {
 			return &models.Move{}, err
 		}
-
 		mto.MTOShipments[i].Reweigh = reweigh
+
+		filteredShipments = append(filteredShipments, mto.MTOShipments[i])
 	}
+	mto.MTOShipments = filteredShipments
 
 	return mto, nil
 }
 
-// ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targetting the Prime API.
+// ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.
 func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moveTaskOrders models.Moves
 	var err error

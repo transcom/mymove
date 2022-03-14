@@ -58,7 +58,7 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	OriginDutyLocation *string
-	/*filters the GBLOC of the service member's origin duty station
+	/*filters the GBLOC of the service member's origin duty location
 	  In: query
 	*/
 	OriginGBLOC *string

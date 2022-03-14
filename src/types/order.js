@@ -9,14 +9,14 @@ import { ShipmentOptionsOneOf } from 'types/shipment';
 
 export const DestinationDutyStationShape = PropTypes.shape({
   name: PropTypes.string,
-  address: PropTypes.AddressShape,
+  address: AddressShape,
 });
 
 export const OriginDutyStationShape = PropTypes.shape({
   id: PropTypes.string,
   name: PropTypes.string,
   address_id: PropTypes.string,
-  address: PropTypes.AddressShape,
+  address: AddressShape,
 });
 
 export const EntitlementShape = PropTypes.shape({
@@ -40,15 +40,15 @@ export const OrderShape = PropTypes.shape({
   order_type_detail: PropTypes.string,
   tac: PropTypes.string,
   sac: PropTypes.string,
-  destinationDutyStation: DestinationDutyStationShape,
-  originDutyStation: OriginDutyStationShape,
+  destinationDutyLocation: DestinationDutyStationShape,
+  originDutyLocation: OriginDutyStationShape,
   entitlement: EntitlementShape,
 });
 
 export const OrdersInfoShape = PropTypes.shape({
   id: PropTypes.string,
-  currentDutyStation: OriginDutyStationShape,
-  newDutyStation: DestinationDutyStationShape,
+  currentDutyLocation: OriginDutyStationShape,
+  newDutyLocation: DestinationDutyStationShape,
   issuedDate: PropTypes.string,
   reportByDate: PropTypes.string,
   departmentIndicator: PropTypes.string,
@@ -172,3 +172,10 @@ export const ExistingUploadsShape = PropTypes.arrayOf(
     filename: PropTypes.string.isRequired,
   }),
 );
+
+export const OrdersLOAShape = PropTypes.shape({
+  tac: PropTypes.string,
+  sac: PropTypes.string,
+  ntsTac: PropTypes.string,
+  ntsSac: PropTypes.string,
+});

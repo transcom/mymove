@@ -21,6 +21,10 @@
     justify-content: center;
     border: 1px solid $base-lighter;
     border-radius: 4px;
+    max-width: 32rem;
+    :global(.usa-checkbox__label) {
+      @include u-margin-top(0);
+    }
   }
 
   h3 {

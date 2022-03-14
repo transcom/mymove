@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	documentop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -43,22 +44,23 @@ type GetDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h GetDocumentHandler) Handle(params documentop.GetDocumentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			documentID, err := uuid.FromString(params.DocumentID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	documentID, err := uuid.FromString(params.DocumentID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			document, err := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, false)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	document, err := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, false)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-
-	return documentop.NewGetDocumentOK().WithPayload(documentPayload)
+			return documentop.NewGetDocumentOK().WithPayload(documentPayload)
+		})
 }

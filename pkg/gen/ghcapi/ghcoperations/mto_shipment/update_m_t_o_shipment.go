@@ -34,18 +34,17 @@ func NewUpdateMTOShipment(ctx *middleware.Context, handler UpdateMTOShipmentHand
 updateMTOShipment
 
 Updates a specified MTO shipment.
-
 Required fields include:
 * MTO Shipment ID required in path
 * If-Match required in headers
 * No fields required in body
-
 Optional fields include:
 * New shipment status type
 * Shipment Type
 * Customer requested pick-up date
 * Pick-up Address
 * Delivery Address
+* Delivery Address Type
 * Customer Remarks
 * Counselor Remarks
 * Releasing / Receiving agents

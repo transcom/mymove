@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -79,29 +77,47 @@ func checkAvailabilityToPrime(event *Event) (bool, error) {
 
 }
 
-// assembleMTOShipmentPayload assembles the MTOShipment Payload and returns the JSON in bytes
-func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUID) ([]byte, error) {
-	model := models.MTOShipment{}
-
-	// Important to be specific about which addl associations to load to reduce DB hits
-	err := appCtx.DB().Eager("PickupAddress", "DestinationAddress",
-		"SecondaryPickupAddress", "SecondaryDeliveryAddress",
-		"MTOAgents").Find(&model, updatedObjectID.String())
-
+// assembleMTOShipmentPayload assembles the MTOShipment Payload and returns the JSON in bytes and a bool
+// representing whether this notification should continue (we don't want to notify when the shipment
+// is handled by an external vendor, for instance).
+func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUID) ([]byte, bool, error) {
+	// First, get the MTOShipment and ensure we need to notify before loading other relationships.
+	var mtoShipment models.MTOShipment
+	err := appCtx.DB().Find(&mtoShipment, updatedObjectID.String())
 	if err != nil {
 		notFoundError := apperror.NewNotFoundError(updatedObjectID, "looking for MTOShipment")
 		notFoundError.Wrap(err)
-		return nil, notFoundError
+		return nil, false, notFoundError
 	}
 
-	payload := payloads.MTOShipment(&model)
+	// If this shipment is being handled by an external vendor, don't notify the prime.
+	if mtoShipment.UsesExternalVendor {
+		return nil, false, nil
+	}
+
+	// Now load any additional required relationships since we now know we intend to send this notification.
+	err = appCtx.DB().Load(&mtoShipment, "PickupAddress", "DestinationAddress", "SecondaryPickupAddress",
+		"SecondaryDeliveryAddress", "MTOAgents", "StorageFacility")
+	if err != nil {
+		return nil, false, apperror.NewQueryError("MTOShipment", err, "Unable to load MTOShipment relationships")
+	}
+
+	if mtoShipment.StorageFacility != nil && uuid.Nil != mtoShipment.StorageFacility.AddressID {
+		err = appCtx.DB().Load(mtoShipment.StorageFacility, "Address")
+		if err != nil {
+			notFoundError := apperror.NewNotFoundError(updatedObjectID, "looking for MTOShipment.StorageFacility.Address")
+			notFoundError.Wrap(err)
+			return nil, false, notFoundError
+		}
+	}
+
+	payload := payloads.MTOShipment(&mtoShipment)
 	payloadArray, err := json.Marshal(payload)
 	if err != nil {
-		unknownErr := apperror.NewEventError("Unknown error creating MTOShipment payload.", err)
-		return nil, unknownErr
+		return nil, false, apperror.NewEventError("Unknown error creating MTOShipment payload.", err)
 	}
-	return payloadArray, nil
 
+	return payloadArray, true, nil
 }
 
 // assembleMTOPayload assembles the MoveTaskOrder Payload and returns the JSON in bytes
@@ -176,13 +192,13 @@ func assembleOrderPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUI
 	model := models.Order{}
 	// Important to be specific about which addl associations to load to reduce DB hits
 	err := appCtx.DB().Eager(
-		"ServiceMember", "Entitlement", "OriginDutyStation", "NewDutyStation.Address").Find(&model, updatedObjectID)
+		"ServiceMember", "Entitlement", "OriginDutyLocation", "NewDutyLocation.Address").Find(&model, updatedObjectID)
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-	// cannot eager load the address as "OriginDutyStation.Address" because
-	// OriginDutyStation is a pointer.
-	if model.OriginDutyStation != nil {
-		err = appCtx.DB().Load(model.OriginDutyStation, "Address")
+	// cannot eager load the address as "OriginDutyLocation.Address" because
+	// OriginDutyLocation is a pointer.
+	if model.OriginDutyLocation != nil {
+		err = appCtx.DB().Load(model.OriginDutyLocation, "Address")
 	}
 
 	if err != nil {
@@ -230,7 +246,11 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 	case models.PaymentRequest:
 		payloadArray, err = assemblePaymentRequestPayload(appCtx, event.UpdatedObjectID)
 	case models.MTOShipment:
-		payloadArray, err = assembleMTOShipmentPayload(appCtx, event.UpdatedObjectID)
+		var shouldNotify bool
+		payloadArray, shouldNotify, err = assembleMTOShipmentPayload(appCtx, event.UpdatedObjectID)
+		if !shouldNotify {
+			return false, err
+		}
 	case models.MTOServiceItem:
 		payloadArray, err = assembleMTOServiceItemPayload(appCtx, event.UpdatedObjectID)
 	case models.Move:

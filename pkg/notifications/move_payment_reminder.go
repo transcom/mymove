@@ -50,7 +50,7 @@ type PaymentReminderEmailInfos []PaymentReminderEmailInfo
 type PaymentReminderEmailInfo struct {
 	ServiceMemberID      uuid.UUID   `db:"id"`
 	Email                *string     `db:"personal_email"`
-	NewDutyStationName   string      `db:"new_duty_station_name"`
+	NewDutyLocationName  string      `db:"new_duty_location_name"`
 	WeightEstimate       *unit.Pound `db:"weight_estimate"`
 	IncentiveEstimateMin *unit.Cents `db:"incentive_estimate_min"`
 	IncentiveEstimateMax *unit.Cents `db:"incentive_estimate_max"`
@@ -68,7 +68,7 @@ func (m PaymentReminder) GetEmailInfo(appCtx appcontext.AppContext) (PaymentRemi
 	COALESCE(ppm.incentive_estimate_min, 0) AS incentive_estimate_min,
 	COALESCE(ppm.incentive_estimate_max, 0) AS incentive_estimate_max,
 	ppm.original_move_date as move_date,
-	dsn.name AS new_duty_station_name,
+	dln.name AS new_duty_location_name,
 	tos.name AS transportation_office_name,
 	opl.number AS transportation_office_phone,
 	m.locator
@@ -76,8 +76,8 @@ FROM personally_procured_moves ppm
 	JOIN moves m ON ppm.move_id = m.id
 	JOIN orders o ON m.orders_id = o.id
 	JOIN service_members sm ON o.service_member_id = sm.id
-	JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
-	JOIN transportation_offices tos ON tos.id = dsn.transportation_office_id
+	JOIN duty_locations dln ON o.new_duty_location_id = dln.id
+	JOIN transportation_offices tos ON tos.id = dln.transportation_office_id
 	LEFT JOIN office_phone_lines opl on opl.transportation_office_id = tos.id and opl.id =
 	(
 		SELECT opl2.id FROM office_phone_lines opl2
@@ -134,7 +134,7 @@ func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentRemin
 		}
 
 		htmlBody, textBody, err := m.renderTemplates(appCtx, PaymentReminderEmailData{
-			DestinationDutyStation: PaymentReminderEmailInfo.NewDutyStationName,
+			DestinationDutyStation: PaymentReminderEmailInfo.NewDutyLocationName,
 			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderEmailInfo.WeightEstimate.Int()),
 			IncentiveEstimateMin:   PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(),
 			IncentiveEstimateMax:   PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString(),
@@ -154,7 +154,7 @@ func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentRemin
 		}
 		smEmail := emailContent{
 			recipientEmail: *PaymentReminderEmailInfo.Email,
-			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (move %s)", PaymentReminderEmailInfo.NewDutyStationName, PaymentReminderEmailInfo.Locator),
+			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (move %s)", PaymentReminderEmailInfo.NewDutyLocationName, PaymentReminderEmailInfo.Locator),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 			onSuccess:      m.OnSuccess(appCtx, PaymentReminderEmailInfo),

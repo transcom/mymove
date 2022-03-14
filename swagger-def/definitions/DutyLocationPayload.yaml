@@ -1,0 +1,37 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  name:
+    type: string
+    example: Fort Bragg North Station
+  address:
+    $ref: 'Address.yaml'
+  address_id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  affiliation:
+    $ref: 'Affiliation.yaml'
+  transportation_office_id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    x-nullable: true
+  transportation_office:
+    $ref: 'TransportationOffice.yaml'
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time
+required:
+  - id
+  - name
+  - address_id
+  - affiliation
+  - created_at
+  - updated_at

@@ -16,23 +16,23 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveSharedTest(orderID uuid.UU
 	}
 	suite.MustSave(&address)
 
-	stationName := "New Duty Station"
-	station := models.DutyStation{
-		Name:      stationName,
+	locationName := "New Duty Location"
+	location := models.DutyLocation{
+		Name:      locationName,
 		AddressID: address.ID,
 		Address:   address,
 	}
-	suite.MustSave(&station)
+	suite.MustSave(&location)
 
 	_ = testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               orderID,
-			NewDutyStationID: station.ID,
+			ID:                orderID,
+			NewDutyLocationID: location.ID,
 		},
 	})
 }
 
-func (suite *HandlerSuite) GetDestinationDutyStationPostalCode() {
+func (suite *HandlerSuite) GetDestinationDutyLocationPostalCode() {
 	orderID := uuid.Must(uuid.NewV4())
 	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 	suite.setupPersonallyProcuredMoveSharedTest(orderID)
@@ -47,7 +47,7 @@ func (suite *HandlerSuite) GetDestinationDutyStationPostalCode() {
 	}
 
 	for _, ts := range tests {
-		destinationZip, err := GetDestinationDutyStationPostalCode(suite.AppContextForTest(), ts.lookupID)
+		destinationZip, err := GetDestinationDutyLocationPostalCode(suite.AppContextForTest(), ts.lookupID)
 		suite.Equal(ts.resultErr, err, "Wrong resultErr: %s", ts.lookupID)
 		suite.Equal(ts.resultZip, destinationZip, "Wrong moveID: %s", ts.lookupID)
 	}

@@ -1,8 +1,8 @@
 import { checkResponse, getClient } from 'shared/Swagger/api';
 
-export async function SearchDutyStations(query) {
+export async function SearchDutyLocations(query) {
   const client = await getClient();
-  const response = await client.apis.duty_stations.searchDutyStations({
+  const response = await client.apis.duty_locations.searchDutyLocations({
     search: query,
   });
   checkResponse(response, 'failed to query duty stations due to server error');

@@ -192,6 +192,8 @@ func (m *Revision) validateGainingUnit(formats strfmt.Registry) error {
 		if err := m.GainingUnit.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("gainingUnit")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("gainingUnit")
 			}
 			return err
 		}
@@ -219,6 +221,8 @@ func (m *Revision) validateLosingUnit(formats strfmt.Registry) error {
 		if err := m.LosingUnit.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("losingUnit")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("losingUnit")
 			}
 			return err
 		}
@@ -237,6 +241,8 @@ func (m *Revision) validateMember(formats strfmt.Registry) error {
 		if err := m.Member.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("member")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("member")
 			}
 			return err
 		}
@@ -254,6 +260,8 @@ func (m *Revision) validateNtsAccounting(formats strfmt.Registry) error {
 		if err := m.NtsAccounting.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ntsAccounting")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ntsAccounting")
 			}
 			return err
 		}
@@ -276,6 +284,8 @@ func (m *Revision) validateOrdersType(formats strfmt.Registry) error {
 		if err := m.OrdersType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ordersType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ordersType")
 			}
 			return err
 		}
@@ -293,6 +303,8 @@ func (m *Revision) validatePcsAccounting(formats strfmt.Registry) error {
 		if err := m.PcsAccounting.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pcsAccounting")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pcsAccounting")
 			}
 			return err
 		}
@@ -310,6 +322,8 @@ func (m *Revision) validatePovShipmentAccounting(formats strfmt.Registry) error 
 		if err := m.PovShipmentAccounting.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("povShipmentAccounting")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("povShipmentAccounting")
 			}
 			return err
 		}
@@ -327,6 +341,8 @@ func (m *Revision) validatePovStorageAccounting(formats strfmt.Registry) error {
 		if err := m.PovStorageAccounting.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("povStorageAccounting")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("povStorageAccounting")
 			}
 			return err
 		}
@@ -386,6 +402,8 @@ func (m *Revision) validateStatus(formats strfmt.Registry) error {
 		if err := m.Status.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("status")
 			}
 			return err
 		}
@@ -402,6 +420,8 @@ func (m *Revision) validateTourType(formats strfmt.Registry) error {
 	if err := m.TourType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("tourType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("tourType")
 		}
 		return err
 	}
@@ -418,6 +438,8 @@ func (m *Revision) validateUbAccounting(formats strfmt.Registry) error {
 		if err := m.UbAccounting.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ubAccounting")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ubAccounting")
 			}
 			return err
 		}
@@ -486,6 +508,8 @@ func (m *Revision) contextValidateGainingUnit(ctx context.Context, formats strfm
 		if err := m.GainingUnit.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("gainingUnit")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("gainingUnit")
 			}
 			return err
 		}
@@ -500,6 +524,8 @@ func (m *Revision) contextValidateLosingUnit(ctx context.Context, formats strfmt
 		if err := m.LosingUnit.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("losingUnit")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("losingUnit")
 			}
 			return err
 		}
@@ -514,6 +540,8 @@ func (m *Revision) contextValidateMember(ctx context.Context, formats strfmt.Reg
 		if err := m.Member.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("member")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("member")
 			}
 			return err
 		}
@@ -528,6 +556,8 @@ func (m *Revision) contextValidateNtsAccounting(ctx context.Context, formats str
 		if err := m.NtsAccounting.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ntsAccounting")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ntsAccounting")
 			}
 			return err
 		}
@@ -542,6 +572,8 @@ func (m *Revision) contextValidateOrdersType(ctx context.Context, formats strfmt
 		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ordersType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ordersType")
 			}
 			return err
 		}
@@ -556,6 +588,8 @@ func (m *Revision) contextValidatePcsAccounting(ctx context.Context, formats str
 		if err := m.PcsAccounting.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pcsAccounting")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pcsAccounting")
 			}
 			return err
 		}
@@ -570,6 +604,8 @@ func (m *Revision) contextValidatePovShipmentAccounting(ctx context.Context, for
 		if err := m.PovShipmentAccounting.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("povShipmentAccounting")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("povShipmentAccounting")
 			}
 			return err
 		}
@@ -584,6 +620,8 @@ func (m *Revision) contextValidatePovStorageAccounting(ctx context.Context, form
 		if err := m.PovStorageAccounting.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("povStorageAccounting")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("povStorageAccounting")
 			}
 			return err
 		}
@@ -598,6 +636,8 @@ func (m *Revision) contextValidateStatus(ctx context.Context, formats strfmt.Reg
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("status")
 			}
 			return err
 		}
@@ -611,6 +651,8 @@ func (m *Revision) contextValidateTourType(ctx context.Context, formats strfmt.R
 	if err := m.TourType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("tourType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("tourType")
 		}
 		return err
 	}
@@ -624,6 +666,8 @@ func (m *Revision) contextValidateUbAccounting(ctx context.Context, formats strf
 		if err := m.UbAccounting.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ubAccounting")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ubAccounting")
 			}
 			return err
 		}

@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -37,109 +38,111 @@ func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserP
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsServiceMember() {
-		var officeUser models.OfficeUser
-		var err error
-		if appCtx.Session().OfficeUserID != uuid.Nil {
-			officeUser, err = h.officeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
-			if err != nil {
-				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
-				return userop.NewIsLoggedInUserInternalServerError()
-			}
-		}
-
-		userPayload := internalmessages.LoggedInUserPayload{
-			ID:         handlers.FmtUUID(appCtx.Session().UserID),
-			FirstName:  appCtx.Session().FirstName,
-			Email:      appCtx.Session().Email,
-			OfficeUser: payloads.OfficeUser(&officeUser),
-		}
-		decoratePayloadWithRoles(appCtx.Session(), &userPayload)
-		return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
-	}
-
-	// Load Servicemember and first level associations
-	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), appCtx.Session().ServiceMemberID)
-
-	if err != nil {
-		appCtx.Logger().Error("Error retrieving service_member", zap.Error(err))
-		return userop.NewShowLoggedInUserUnauthorized()
-	}
-
-	// Load duty station and transportation office association
-	if serviceMember.DutyStationID != nil {
-		// Fetch associations on duty station
-		dutyStation, dutyStationErr := models.FetchDutyStation(appCtx.DB(), *serviceMember.DutyStationID)
-		if dutyStationErr != nil {
-			return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
-		}
-		serviceMember.DutyStation = dutyStation
-
-		// Fetch duty station transportation office
-		transportationOffice, tspErr := models.FetchDutyStationTransportationOffice(appCtx.DB(), *serviceMember.DutyStationID)
-		if tspErr != nil {
-			if errors.Cause(tspErr) != models.ErrFetchNotFound {
-				// The absence of an office shouldn't render the entire request a 404
-				return handlers.ResponseForError(appCtx.Logger(), tspErr)
-			}
-			// We might not have Transportation Office data for a Duty Station, and that's ok
-			if errors.Cause(tspErr) != models.ErrFetchNotFound {
-				return handlers.ResponseForError(appCtx.Logger(), tspErr)
-			}
-		}
-		serviceMember.DutyStation.TransportationOffice = transportationOffice
-	}
-
-	// Load the latest orders associations and new duty station transport office
-	if len(serviceMember.Orders) > 0 {
-		orders, orderErr := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].ID)
-		if orderErr != nil {
-			return handlers.ResponseForError(appCtx.Logger(), orderErr)
-		}
-
-		serviceMember.Orders[0] = orders
-
-		newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyStationTransportationOffice(appCtx.DB(), orders.NewDutyStationID)
-		if dutyStationErr != nil {
-			if errors.Cause(dutyStationErr) != models.ErrFetchNotFound {
-				// The absence of an office shouldn't render the entire request a 404
-				return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
-			}
-		}
-		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
-
-		// Load associations on PPM if they exist
-		if len(serviceMember.Orders[0].Moves) > 0 {
-			if len(serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves) > 0 {
-				// TODO: load advances on all ppms for the latest order's move
-				ppm, ppmErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID)
-				if ppmErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), ppmErr)
+			if !appCtx.Session().IsServiceMember() {
+				var officeUser models.OfficeUser
+				var err error
+				if appCtx.Session().OfficeUserID != uuid.Nil {
+					officeUser, err = h.officeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+					if err != nil {
+						appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+						return userop.NewIsLoggedInUserInternalServerError()
+					}
 				}
-				serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
+
+				userPayload := internalmessages.LoggedInUserPayload{
+					ID:         handlers.FmtUUID(appCtx.Session().UserID),
+					FirstName:  appCtx.Session().FirstName,
+					Email:      appCtx.Session().Email,
+					OfficeUser: payloads.OfficeUser(&officeUser),
+				}
+				decoratePayloadWithRoles(appCtx.Session(), &userPayload)
+				return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 			}
 
-			// Check if move is valid and not hidden
-			// If the move is hidden, return an error
-			if !(*serviceMember.Orders[0].Moves[0].Show) {
+			// Load Servicemember and first level associations
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), appCtx.Session().ServiceMemberID)
+
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving service_member", zap.Error(err))
 				return userop.NewShowLoggedInUserUnauthorized()
 			}
-		}
-	}
 
-	requiresAccessCode := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
+			// Load duty station and transportation office association
+			if serviceMember.DutyLocationID != nil {
+				// Fetch associations on duty station
+				dutyStation, dutyStationErr := models.FetchDutyLocation(appCtx.DB(), *serviceMember.DutyLocationID)
+				if dutyStationErr != nil {
+					return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
+				}
+				serviceMember.DutyLocation = dutyStation
 
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	userPayload := internalmessages.LoggedInUserPayload{
-		ID:            handlers.FmtUUID(appCtx.Session().UserID),
-		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, requiresAccessCode),
-		FirstName:     appCtx.Session().FirstName,
-		Email:         appCtx.Session().Email,
-	}
-	decoratePayloadWithRoles(appCtx.Session(), &userPayload)
-	return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
+				// Fetch duty station transportation office
+				transportationOffice, tspErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), *serviceMember.DutyLocationID)
+				if tspErr != nil {
+					if errors.Cause(tspErr) != models.ErrFetchNotFound {
+						// The absence of an office shouldn't render the entire request a 404
+						return handlers.ResponseForError(appCtx.Logger(), tspErr)
+					}
+					// We might not have Transportation Office data for a Duty Station, and that's ok
+					if errors.Cause(tspErr) != models.ErrFetchNotFound {
+						return handlers.ResponseForError(appCtx.Logger(), tspErr)
+					}
+				}
+				serviceMember.DutyLocation.TransportationOffice = transportationOffice
+			}
+
+			// Load the latest orders associations and new duty station transport office
+			if len(serviceMember.Orders) > 0 {
+				orders, orderErr := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].ID)
+				if orderErr != nil {
+					return handlers.ResponseForError(appCtx.Logger(), orderErr)
+				}
+
+				serviceMember.Orders[0] = orders
+
+				newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), orders.NewDutyLocationID)
+				if dutyStationErr != nil {
+					if errors.Cause(dutyStationErr) != models.ErrFetchNotFound {
+						// The absence of an office shouldn't render the entire request a 404
+						return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
+					}
+				}
+				serviceMember.Orders[0].NewDutyLocation.TransportationOffice = newDutyStationTransportationOffice
+
+				// Load associations on PPM if they exist
+				if len(serviceMember.Orders[0].Moves) > 0 {
+					if len(serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves) > 0 {
+						// TODO: load advances on all ppms for the latest order's move
+						ppm, ppmErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID)
+						if ppmErr != nil {
+							return handlers.ResponseForError(appCtx.Logger(), ppmErr)
+						}
+						serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
+					}
+
+					// Check if move is valid and not hidden
+					// If the move is hidden, return an error
+					if !(*serviceMember.Orders[0].Moves[0].Show) {
+						return userop.NewShowLoggedInUserUnauthorized()
+					}
+				}
+			}
+
+			requiresAccessCode := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
+
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			userPayload := internalmessages.LoggedInUserPayload{
+				ID:            handlers.FmtUUID(appCtx.Session().UserID),
+				ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, requiresAccessCode),
+				FirstName:     appCtx.Session().FirstName,
+				Email:         appCtx.Session().Email,
+			}
+			decoratePayloadWithRoles(appCtx.Session(), &userPayload)
+			return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
+		})
 }

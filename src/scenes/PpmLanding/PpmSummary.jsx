@@ -24,7 +24,7 @@ const MoveInfoHeader = (props) => {
   return (
     <div>
       <h1>
-        {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
+        {get(orders, 'new_duty_location.name', 'New move')} (from {get(profile, 'current_location.name', '')})
       </h1>
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
       {!isEmpty(entitlement) && (
@@ -78,7 +78,7 @@ export class PpmSummaryComponent extends React.Component {
           calculatePPMEstimate(
             this.props.ppm.original_move_date,
             this.props.ppm.pickup_postal_code,
-            this.props.originDutyStationZip,
+            this.props.originDutyLocationZip,
             this.props.orders.id,
             netWeight,
           )
@@ -115,7 +115,7 @@ export class PpmSummaryComponent extends React.Component {
       <div>
         {move.status === 'CANCELED' && (
           <Alert type="info" heading="Your move was canceled">
-            Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the
+            Your move from {get(profile, 'current_location.name')} to {get(orders, 'new_duty_location.name')} with the
             move locator ID {get(move, 'locator')} was canceled.
           </Alert>
         )}
@@ -165,7 +165,7 @@ export class PpmSummaryComponent extends React.Component {
             </div>
             <div className="contact_block">
               <h2>Contacts</h2>
-              <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
+              <TransportationOfficeContactInfo dutyLocation={profile.current_location} isOrigin={true} />
             </div>
           </div>
         </div>
@@ -182,7 +182,7 @@ function mapStateToProps(state, ownProps) {
 
   return {
     isMissingWeightTicketDocuments,
-    originDutyStationZip: serviceMember?.current_station?.address?.postalCode,
+    originDutyLocationZip: serviceMember?.current_location?.address?.postalCode,
   };
 }
 

@@ -154,8 +154,8 @@ type ShipmentSummaryWorksheetPage3Values struct {
 type ShipmentSummaryFormData struct {
 	ServiceMember           ServiceMember
 	Order                   Order
-	CurrentDutyStation      DutyStation
-	NewDutyStation          DutyStation
+	CurrentDutyLocation     DutyLocation
+	NewDutyLocation         DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
 	PersonallyProcuredMoves PersonallyProcuredMoves
 	PreparationDate         time.Time
@@ -205,9 +205,9 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	move := Move{}
 	dbQErr := db.Q().Eager(
 		"Orders",
-		"Orders.NewDutyStation.Address",
+		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyStation.Address",
+		"Orders.ServiceMember.DutyLocation.Address",
 		"PersonallyProcuredMoves",
 	).Find(&move, moveID)
 
@@ -265,8 +265,8 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
-		CurrentDutyStation:      serviceMember.DutyStation,
-		NewDutyStation:          move.Orders.NewDutyStation,
+		CurrentDutyLocation:     serviceMember.DutyLocation,
+		NewDutyLocation:         move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
 		SignedCertification:     *signedCertification,
@@ -374,9 +374,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 
-	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyStation)
-	page1.AuthorizedDestination = FormatLocation(data.NewDutyStation)
-	page1.NewDutyAssignment = FormatLocation(data.NewDutyStation)
+	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyLocation)
+	page1.AuthorizedDestination = FormatLocation(data.NewDutyLocation)
+	page1.NewDutyAssignment = FormatLocation(data.NewDutyLocation)
 
 	page1.WeightAllotment = FormatWeights(data.WeightAllotment.Entitlement)
 	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGear)
@@ -423,34 +423,35 @@ func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
 //FormatRank formats the service member's rank for Shipment Summary Worksheet
 func FormatRank(rank *ServiceMemberRank) string {
 	var rankDisplayValue = map[ServiceMemberRank]string{
-		ServiceMemberRankE1:                "E-1",
-		ServiceMemberRankE2:                "E-2",
-		ServiceMemberRankE3:                "E-3",
-		ServiceMemberRankE4:                "E-4",
-		ServiceMemberRankE5:                "E-5",
-		ServiceMemberRankE6:                "E-6",
-		ServiceMemberRankE7:                "E-7",
-		ServiceMemberRankE8:                "E-8",
-		ServiceMemberRankE9:                "E-9",
-		ServiceMemberRankO1ACADEMYGRADUATE: "O-1/Service Academy Graduate",
-		ServiceMemberRankO2:                "O-2",
-		ServiceMemberRankO3:                "O-3",
-		ServiceMemberRankO4:                "O-4",
-		ServiceMemberRankO5:                "O-5",
-		ServiceMemberRankO6:                "O-6",
-		ServiceMemberRankO7:                "O-7",
-		ServiceMemberRankO8:                "O-8",
-		ServiceMemberRankO9:                "O-9",
-		ServiceMemberRankO10:               "O-10",
-		ServiceMemberRankW1:                "W-1",
-		ServiceMemberRankW2:                "W-2",
-		ServiceMemberRankW3:                "W-3",
-		ServiceMemberRankW4:                "W-4",
-		ServiceMemberRankW5:                "W-5",
-		ServiceMemberRankAVIATIONCADET:     "Aviation Cadet",
-		ServiceMemberRankCIVILIANEMPLOYEE:  "Civilian Employee",
-		ServiceMemberRankACADEMYCADET:      "Service Academy Cadet",
-		ServiceMemberRankMIDSHIPMAN:        "Midshipman",
+		ServiceMemberRankE1:                      "E-1",
+		ServiceMemberRankE2:                      "E-2",
+		ServiceMemberRankE3:                      "E-3",
+		ServiceMemberRankE4:                      "E-4",
+		ServiceMemberRankE5:                      "E-5",
+		ServiceMemberRankE6:                      "E-6",
+		ServiceMemberRankE7:                      "E-7",
+		ServiceMemberRankE8:                      "E-8",
+		ServiceMemberRankE9:                      "E-9",
+		ServiceMemberRankE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
+		ServiceMemberRankO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
+		ServiceMemberRankO2:                      "O-2",
+		ServiceMemberRankO3:                      "O-3",
+		ServiceMemberRankO4:                      "O-4",
+		ServiceMemberRankO5:                      "O-5",
+		ServiceMemberRankO6:                      "O-6",
+		ServiceMemberRankO7:                      "O-7",
+		ServiceMemberRankO8:                      "O-8",
+		ServiceMemberRankO9:                      "O-9",
+		ServiceMemberRankO10:                     "O-10",
+		ServiceMemberRankW1:                      "W-1",
+		ServiceMemberRankW2:                      "W-2",
+		ServiceMemberRankW3:                      "W-3",
+		ServiceMemberRankW4:                      "W-4",
+		ServiceMemberRankW5:                      "W-5",
+		ServiceMemberRankAVIATIONCADET:           "Aviation Cadet",
+		ServiceMemberRankCIVILIANEMPLOYEE:        "Civilian Employee",
+		ServiceMemberRankACADEMYCADET:            "Service Academy Cadet",
+		ServiceMemberRankMIDSHIPMAN:              "Midshipman",
 	}
 	if rank != nil {
 		return rankDisplayValue[*rank]
@@ -518,8 +519,8 @@ func FormatSignatureDate(signature SignedCertification) string {
 }
 
 //FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
-func FormatLocation(dutyStation DutyStation) string {
-	return fmt.Sprintf("%s, %s %s", dutyStation.Name, dutyStation.Address.State, dutyStation.Address.PostalCode)
+func FormatLocation(dutyLocation DutyLocation) string {
+	return fmt.Sprintf("%s, %s %s", dutyLocation.Name, dutyLocation.Address.State, dutyLocation.Address.PostalCode)
 }
 
 //FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet

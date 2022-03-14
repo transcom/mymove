@@ -29,8 +29,12 @@ import (
 type MTOServiceItemModelType string
 
 func NewMTOServiceItemModelType(value MTOServiceItemModelType) *MTOServiceItemModelType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated MTOServiceItemModelType.
+func (m MTOServiceItemModelType) Pointer() *MTOServiceItemModelType {
+	return &m
 }
 
 const (

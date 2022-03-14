@@ -5,8 +5,10 @@ import { Formik } from 'formik';
 import StorageFacilityInfo from './StorageFacilityInfo';
 
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
+import shipmentFormStyles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
+import { roleTypes } from 'constants/userRoles';
 
 export default {
   title: 'Office Components / Forms / ShipmentForm / StorageFacilityInfo',
@@ -20,7 +22,9 @@ export default {
               {() => {
                 return (
                   <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
-                    <Story />
+                    <div className={shipmentFormStyles.ShipmentForm}>
+                      <Story />
+                    </div>
                   </Form>
                 );
               }}
@@ -32,4 +36,5 @@ export default {
   ],
 };
 
-export const standard = () => <StorageFacilityInfo />;
+export const AsServiceCounselor = () => <StorageFacilityInfo userRole={roleTypes.SERVICES_COUNSELOR} />;
+export const AsTOO = () => <StorageFacilityInfo userRole={roleTypes.TOO} />;

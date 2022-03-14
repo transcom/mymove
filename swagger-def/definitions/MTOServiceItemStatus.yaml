@@ -1,0 +1,6 @@
+description: Describes all statuses for a MTOServiceItem
+type: string
+enum:
+  - SUBMITTED
+  - APPROVED
+  - REJECTED

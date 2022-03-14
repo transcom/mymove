@@ -20,8 +20,12 @@ import (
 type MovingExpenseType string
 
 func NewMovingExpenseType(value MovingExpenseType) *MovingExpenseType {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated MovingExpenseType.
+func (m MovingExpenseType) Pointer() *MovingExpenseType {
+	return &m
 }
 
 const (

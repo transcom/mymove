@@ -41,7 +41,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		moveRouter,
 	)
 
-	suite.RunWithRollback("MTO status is updated succesfully", func() {
+	suite.RunWithRollback("MTO status is updated successfully", func() {
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
 		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTO.ID, eTag)
@@ -52,7 +52,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
 	})
 
-	suite.RunWithRollback("MTO status is updated succesfully with facility info", func() {
+	suite.RunWithRollback("MTO status is updated successfully with facility info", func() {
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
 			StorageFacility: models.StorageFacility{
 				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -98,12 +98,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 			},
 			Order: expectedOrder,
 		})
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
 			},
 			Move: noFacilityInfoMove,
 		})
+
+		// Clear out the NTS Storage Facility
+		mtoShipment.StorageFacility = nil
+		mtoShipment.StorageFacilityID = nil
+		testdatagen.MustSave(suite.DB(), &mtoShipment)
+
 		eTag := etag.GenerateEtag(noFacilityInfoMove.UpdatedAt)
 
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), noFacilityInfoMove.ID, eTag)
@@ -142,10 +148,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCounselingInfo() {
-	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
-	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: expectedOrder,
-	})
+	expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
 
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
@@ -160,7 +163,22 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		PointOfContact:     "user@prime.com",
 	}
 
-	suite.RunWithRollback("MTO post counseling information is updated succesfully", func() {
+	suite.RunWithRollback("MTO post counseling information is updated successfully", func() {
+		// Make a couple of shipments for the move; one prime, one external
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: false,
+			},
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+
 		eTag := base64.StdEncoding.EncodeToString([]byte(expectedMTO.UpdatedAt.Format(time.RFC3339Nano)))
 
 		actualMTO, err := mtoUpdater.UpdatePostCounselingInfo(suite.AppContextForTest(), expectedMTO.ID, body, eTag)
@@ -177,8 +195,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 		suite.NotNil(expectedMTO.Orders.ServiceMember.FirstName)
 		suite.NotNil(expectedMTO.Orders.ServiceMember.LastName)
-		suite.NotNil(expectedMTO.Orders.NewDutyStation.Address.City)
-		suite.NotNil(expectedMTO.Orders.NewDutyStation.Address.State)
+		suite.NotNil(expectedMTO.Orders.NewDutyLocation.Address.City)
+		suite.NotNil(expectedMTO.Orders.NewDutyLocation.Address.State)
+
+		// Should get one shipment back since we filter out external moves.
+		suite.Equal(expectedMTO.ID.String(), actualMTO.ID.String())
+		if suite.Len(actualMTO.MTOShipments, 1) {
+			suite.Equal(primeShipment.ID.String(), actualMTO.MTOShipments[0].ID.String())
+		}
 	})
 
 	suite.RunWithRollback("Etag is stale", func() {

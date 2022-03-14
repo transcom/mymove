@@ -94,13 +94,11 @@ func MakeNTSRShipment(db *pop.Connection, assertions Assertions) models.MTOShipm
 	}
 
 	// mock dates
-	requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	requestedDeliveryDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	// TODO: add receiving agent
 	MTOShipment := models.MTOShipment{
 		MoveTaskOrder:            moveTaskOrder,
 		MoveTaskOrderID:          moveTaskOrder.ID,
-		RequestedPickupDate:      &requestedPickupDate,
 		RequestedDeliveryDate:    &requestedDeliveryDate,
 		CustomerRemarks:          swag.String("Please treat gently"),
 		DestinationAddress:       &destinationAddress,

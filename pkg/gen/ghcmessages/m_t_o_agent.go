@@ -40,7 +40,6 @@ type MTOAgent struct {
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
@@ -213,26 +212,8 @@ func (m *MTOAgent) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this m t o agent based on the context it is used
+// ContextValidate validates this m t o agent based on context it is used
 func (m *MTOAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateID(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *MTOAgent) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
-		return err
-	}
-
 	return nil
 }
 

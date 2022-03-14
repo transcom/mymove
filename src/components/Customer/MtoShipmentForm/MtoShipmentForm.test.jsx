@@ -47,7 +47,11 @@ const defaultProps = {
   serviceMember: {
     weight_allotment: {
       total_weight_self: 5000,
+      total_weight_self_plus_dependents: 8000,
     },
+  },
+  orders: {
+    has_dependents: false,
   },
 };
 
@@ -59,6 +63,8 @@ describe('MtoShipmentForm component', () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+
+      expect(screen.getByText(/5,000 lbs/)).toHaveClass('usa-alert__text');
 
       expect(screen.getAllByText('Date')[0]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Preferred pickup date')).toBeInstanceOf(HTMLInputElement);
@@ -99,7 +105,9 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByLabelText('Email')[1]).toHaveAttribute('name', 'delivery.agent.email');
 
       expect(
-        screen.queryByText('The storage facility or address where your items are currently stored'),
+        screen.queryByText(
+          'Details about the facility where your things are now, including the name or address (if you know them)',
+        ),
       ).not.toBeInTheDocument();
 
       expect(
@@ -107,6 +115,16 @@ describe('MtoShipmentForm component', () => {
           'Are there things about this shipment that your counselor or movers should discuss with you?',
         ),
       ).toBeInstanceOf(HTMLTextAreaElement);
+    });
+
+    it('renders the correct weight allowance when there are dependents', async () => {
+      render(
+        <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} orders={{ has_dependents: true }} />,
+      );
+
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+
+      expect(screen.getByText(/8,000 lbs/)).toHaveClass('usa-alert__text');
     });
 
     it('does not render special NTS What to expect section', async () => {
@@ -738,6 +756,9 @@ describe('MtoShipmentForm component', () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
+
+      expect(screen.getByText(/5,000 lbs/)).toHaveClass('usa-alert__text');
+
       expect(screen.getByText('Date')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Preferred pickup date')).toBeInstanceOf(HTMLInputElement);
 
@@ -759,7 +780,9 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByText('Pickup location')).toHaveLength(1);
       expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
       expect(
-        screen.queryByText('The storage facility or address where your items are currently stored'),
+        screen.queryByText(
+          'Details about the facility where your things are now, including the name or address (if you know them)',
+        ),
       ).not.toBeInTheDocument();
 
       expect(
@@ -767,6 +790,16 @@ describe('MtoShipmentForm component', () => {
           'Are there things about this shipment that your counselor or movers should discuss with you?',
         ),
       ).toBeInstanceOf(HTMLTextAreaElement);
+    });
+
+    it('renders the correct weight allowance when there are dependents', async () => {
+      render(
+        <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} orders={{ has_dependents: true }} />,
+      );
+
+      expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
+
+      expect(screen.getByText(/8,000 lbs/)).toHaveClass('usa-alert__text');
     });
 
     it('renders special NTS What to expect section', async () => {
@@ -783,6 +816,8 @@ describe('MtoShipmentForm component', () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
+
+      expect(screen.getByText(/5,000 lbs/)).toHaveClass('usa-alert__text');
 
       expect(screen.queryByLabelText('Preferred pickup date')).not.toBeInTheDocument();
       expect(screen.queryByText('Pickup Info')).not.toBeInTheDocument();
@@ -805,7 +840,9 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
 
       expect(
-        screen.queryByText('The storage facility or address where your items are currently stored'),
+        screen.queryByText(
+          'Details about the facility where your things are now, including the name or address (if you know them)',
+        ),
       ).toBeInTheDocument();
 
       expect(
@@ -813,6 +850,20 @@ describe('MtoShipmentForm component', () => {
           'Are there things about this shipment that your counselor or movers should discuss with you?',
         ),
       ).toBeInstanceOf(HTMLTextAreaElement);
+    });
+
+    it('renders the correct weight allowance when there are dependents', async () => {
+      render(
+        <MtoShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.NTSR}
+          orders={{ has_dependents: true }}
+        />,
+      );
+
+      expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
+
+      expect(screen.getByText(/8,000 lbs/)).toHaveClass('usa-alert__text');
     });
 
     it('does not render special NTS What to expect section', async () => {

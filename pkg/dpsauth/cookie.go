@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/pkg/errors"
 )
 
@@ -16,9 +16,9 @@ const prefix = "milmove-"
 func LoginGovIDToCookie(userID string, cookieSecret []byte, cookieExpires int) (*http.Cookie, error) {
 	expirationTime := time.Now().Add(time.Minute * time.Duration(cookieExpires))
 
-	claims := &jwt.StandardClaims{
+	claims := &jwt.RegisteredClaims{
 		Subject:   userID,
-		ExpiresAt: expirationTime.Unix(),
+		ExpiresAt: jwt.NewNumericDate(expirationTime),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -37,7 +37,7 @@ func CookieToLoginGovID(cookieValue string, cookieSecret []byte) (string, error)
 	if !strings.HasPrefix(cookieValue, prefix) {
 		return "", &ErrInvalidCookie{errMessage: "Invalid cookie: missing prefix"}
 	}
-	token, err := jwt.ParseWithClaims(cookieValue[len(prefix):], &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(cookieValue[len(prefix):], &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return cookieSecret, nil
 	})
 
@@ -49,6 +49,6 @@ func CookieToLoginGovID(cookieValue string, cookieSecret []byte) (string, error)
 		return "", &ErrInvalidCookie{errMessage: "Invalid cookie: failed JWT validation"}
 	}
 
-	claims := token.Claims.(*jwt.StandardClaims)
+	claims := token.Claims.(*jwt.RegisteredClaims)
 	return claims.Subject, nil
 }

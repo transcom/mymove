@@ -213,6 +213,10 @@ bin/soda: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
 
+# No static linking / $(LDFLAGS) because gotestsum is only used for building the CirlceCi test report
+bin/gotestsum: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
+	go build -o bin/gotestsum gotest.tools/gotestsum
+
 # No static linking / $(LDFLAGS) because mockery is only used for testing
 bin/mockery: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/mockery github.com/vektra/mockery/v2
@@ -262,31 +266,33 @@ bin/health-checker: cmd/health-checker
 bin/iws: cmd/iws
 	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
-bin/milmove: cmd/milmove
+PKG_GOSRC := $(wildcard pkg/**/*.go)
+
+bin/milmove: $(wildcard cmd/milmove/**/*.go) $(PKG_GOSRC)
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin/milmove-tasks: cmd/milmove-tasks
+bin/milmove-tasks: $(wildcard cmd/milmove-tasks/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin/prime-api-client: cmd/prime-api-client
+bin/prime-api-client: $(wildcard cmd/prime-api-client/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
-bin/webhook-client: cmd/webhook-client
+bin/webhook-client: $(wildcard cmd/webhook-client/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
 
-bin/read-alb-logs: cmd/read-alb-logs
+bin/read-alb-logs: $(wildcard cmd/read-alb-logs/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/report-ecs: cmd/report-ecs
+bin/report-ecs: $(wildcard cmd/report-ecs/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
-bin/send-to-gex: pkg/gen/ cmd/send-to-gex
+bin/send-to-gex: $(wildcard cmd/send-to-gex/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
-bin/tls-checker: cmd/tls-checker
+bin/tls-checker: $(wildcard cmd/tls-checker/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
-bin/generate-payment-request-edi: cmd/generate-payment-request-edi
+bin/generate-payment-request-edi: $(wildcard cmd/generate-payment-request-edi/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
 pkg/assets/assets.go:
@@ -300,7 +306,6 @@ pkg/assets/assets.go:
 # ----- START SERVER TARGETS -----
 #
 
-.PHONY: swagger_generate
 swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
 
 # If any swagger files (source or generated) have changed, re-run so
@@ -318,10 +323,11 @@ endif
 	./scripts/openapi bundle -o swagger/ ## Bundles the API definition files into a complete specification
 	touch .swagger_build.stamp
 
-.PHONY: server_generate
-server_generate: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/gen/ ## Generate golang server code from Swagger files
-pkg/gen/: pkg/assets/assets.go $(wildcard swagger/*.yaml)
+server_generate: .server_generate.stamp
+
+.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/assets/assets.go $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
 	scripts/gen-server
+	touch .server_generate.stamp
 
 .PHONY: server_build
 server_build: bin/milmove ## Build the server
@@ -747,15 +753,15 @@ e2e_test_docker: ## Run e2e (end-to-end) integration tests with docker
 
 .PHONY: e2e_test_docker_mymove
 e2e_test_docker_mymove: ## Run e2e (end-to-end) Service Member integration tests with docker
-	$(AWS_VAULT) SPEC=cypress/integration/mymove/**/* ./scripts/run-e2e-test-docker
+	$(AWS_VAULT) SPECS=cypress/integration/mymove/**/* ./scripts/run-e2e-test-docker
 
 .PHONY: e2e_test_docker_office
 e2e_test_docker_office: ## Run e2e (end-to-end) Office integration tests with docker
-	$(AWS_VAULT) SPEC=cypress/integration/office/**/* ./scripts/run-e2e-test-docker
+	$(AWS_VAULT) SPECS=cypress/integration/office/**/* ./scripts/run-e2e-test-docker
 
 .PHONY: e2e_test_docker_api
 e2e_test_docker_api: ## Run e2e (end-to-end) API integration tests with docker
-	$(AWS_VAULT) SPEC=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
+	$(AWS_VAULT) SPECS=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
 
 .PHONY: e2e_clean
 e2e_clean: ## Clean e2e (end-to-end) files and docker images
@@ -1118,8 +1124,8 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-cf2249e54c69b52625f1ab04eb79f37381d0d3bf
-	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-cf2249e54c69b52625f1ab04eb79f37381d0d3bf bash
+	docker pull milmove/circleci-docker:milmove-app-03964d7db55c2692d8a9ae89f81ee76c520b33c1
+	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-03964d7db55c2692d8a9ae89f81ee76c520b33c1 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

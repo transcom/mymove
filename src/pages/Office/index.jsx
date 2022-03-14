@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './Office.module.scss';
-import '../../../node_modules/uswds/dist/css/uswds.css';
+import 'uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
@@ -52,9 +52,6 @@ const ServicesCounselingMoveInfo = lazy(() =>
   import('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo'),
 );
 const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounselingQueue/ServicesCounselingQueue'));
-const ServicesCounselingEditShipmentDetails = lazy(() =>
-  import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
-);
 const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
@@ -178,7 +175,7 @@ export class OfficeApp extends Component {
             <FOUOHeader />
             {selectedRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {!hideHeaderPPM && <>{userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}</>}
+            {!hideHeaderPPM && userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
               {hasRecentError && history.location.pathname === '/' && (
@@ -222,14 +219,6 @@ export class OfficeApp extends Component {
                       exact
                       path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
                       component={ServicesCounselingAddShipment}
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
-                    />
-
-                    <PrivateRoute
-                      key="servicesCounselingEditShipmentDetailsRoute"
-                      exact
-                      path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
-                      component={ServicesCounselingEditShipmentDetails}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
                     <PrivateRoute
