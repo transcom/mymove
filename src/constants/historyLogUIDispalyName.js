@@ -7,21 +7,20 @@ const historyLogEventNameDisplay = new Map([
   ['updateAllowance', 'Updated allowances'], // ghc.yaml
   ['counselingUpdateAllowance', 'Updated allowances'], // ghc.yaml
   ['updateMoveTaskOrder', 'Updated move'], // ghc.yaml
-  ['updateMTOShipment', 'Updated shipment'], // ghc.yaml
+  ['updateMTOShipment', 'Updated shipment'], // ghc.yaml internal.yaml prime.yaml
   ['approveShipment', 'Approved shipment'], // ghc.yaml
   ['requestShipmentDiversion', 'Requested diversion'], // ghc.yaml
   ['updateMTOServiceItem', 'Updated service item'], // ghc.yaml
   ['updateMTOServiceItemStatus', ''], // ghc.yaml
   ['updateMoveTaskOrderStatus', ''], // ghc.yaml
   ['setFinancialReviewFlag', 'Flagged move'], // ghc.yaml
+  ['requestShipmentCancellation', 'Updated shipment'], // ghc.yaml
   ['createOrders', 'Submitted orders'], // internal.yaml
   ['updateOrders', 'Updated orders'], // internal.yaml
   ['uploadAmendedOrders', 'Updated orders'], // internal.yaml
   ['submitMoveForApproval', 'Submitted move'], // internal.yaml
   ['submitAmendedOrders', 'Updated orders'], // internal.yaml
   ['createMTOShipment', 'Submitted/Requested shipments'], // internal.yaml prime.yaml
-  ['updateMTOShipment', 'Updated shipments'], // internal.yaml
-  ['updateMTOShipment', 'Updated shipment'], // prime.yaml
   ['updateMTOShipmentAddress', 'Updated shipment'], // prime.yaml
   ['createMTOServiceItem', 'Requested service item'], // prime.yaml
 ]);
