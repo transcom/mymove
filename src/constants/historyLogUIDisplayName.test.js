@@ -1,4 +1,4 @@
-import { getHistoryLogEventNameDisplay } from './historyLogUIDispalyName';
+import { getHistoryLogEventNameDisplay } from './historyLogUIDisplayName';
 
 describe('historyLogUIDisplay', () => {
   describe('display Submitted orders', () => {
