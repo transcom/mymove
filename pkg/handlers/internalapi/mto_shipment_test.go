@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -887,7 +889,13 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 		Move: mto,
 	})
 
-	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment}
+	advance := unit.Cents(10000)
+	ppmShipment3 := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		Move:        mto,
+		PPMShipment: models.PPMShipment{Advance: &advance},
+	})
+
+	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment, ppmShipment3.Shipment}
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
@@ -918,7 +926,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
-		suite.Len(okResponse.Payload, 4)
+		suite.Len(okResponse.Payload, 5)
 
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
@@ -953,11 +961,10 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.SpouseProGearWeight, returnedShipment.PpmShipment.SpouseProGearWeight)
 				suite.EqualInt32Int64Pointers(expectedShipment.PPMShipment.EstimatedIncentive, returnedShipment.PpmShipment.EstimatedIncentive)
 				if expectedShipment.PPMShipment.Advance != nil {
-					suite.Equal(expectedShipment.PPMShipment.Advance.Int64(), returnedShipment.PpmShipment.Advance)
+					suite.Equal(expectedShipment.PPMShipment.Advance.Int64(), *returnedShipment.PpmShipment.Advance)
 				} else {
 					suite.Nil(returnedShipment.PpmShipment.Advance)
 				}
-
 				continue // PPM Shipments won't have the rest of the fields below.
 			}
 
