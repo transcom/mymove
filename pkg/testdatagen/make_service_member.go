@@ -96,7 +96,7 @@ func MakeDefaultServiceMember(db *pop.Connection) models.ServiceMember {
 //   - User,
 //   - ResidentialAddress
 //   - BackupMailingAddress
-//   - DutyStation
+//   - DutyLocation
 //   - BackupContact
 func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	affiliation := assertions.ServiceMember.Affiliation
@@ -116,8 +116,8 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 		Affiliation:            affiliation,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
-		DutyStationID:          &station.ID,
-		DutyStation:            station,
+		DutyLocationID:         &station.ID,
+		DutyLocation:           station,
 		EmailIsPreferred:       swag.Bool(true),
 		Telephone:              swag.String("555-555-5555"),
 	}

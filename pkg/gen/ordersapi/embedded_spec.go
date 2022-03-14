@@ -20,8 +20,8 @@ func init() {
 	SwaggerJSON = json.RawMessage([]byte(`{
   "swagger": "2.0",
   "info": {
-    "description": "API to submit, amend, and cancel orders for move.mil.",
-    "title": "move.mil Orders Gateway",
+    "description": "The Orders API is a RESTful API that enables to submit, amend, and\ncancel orders for MilMove.\n\nAll endpoints are located under ` + "`" + `/orders/v1` + "`" + `.\n",
+    "title": "MilMove Orders API",
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/master/LICENSE.md"
@@ -330,22 +330,24 @@ func init() {
     "Affiliation": {
       "description": "Military branch of service",
       "type": "string",
+      "title": "Branch of service",
       "enum": [
-        "air-force",
-        "army",
-        "civilian-agency",
-        "coast-guard",
-        "marine-corps",
-        "navy"
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
       ],
       "x-display-value": {
-        "air-force": "Air Force",
-        "army": "Army",
-        "civilian-agency": "Civilian Agency",
-        "coast-guard": "Coast Guard",
-        "marine-corps": "Marine Corps",
-        "navy": "Navy"
-      }
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
     },
     "Issuer": {
       "description": "Organization that issues orders. If more organizations, especially civilian ones, become clients of this API in the future, this enumeration may need to be expanded.",
@@ -697,8 +699,8 @@ func init() {
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "swagger": "2.0",
   "info": {
-    "description": "API to submit, amend, and cancel orders for move.mil.",
-    "title": "move.mil Orders Gateway",
+    "description": "The Orders API is a RESTful API that enables to submit, amend, and\ncancel orders for MilMove.\n\nAll endpoints are located under ` + "`" + `/orders/v1` + "`" + `.\n",
+    "title": "MilMove Orders API",
     "license": {
       "name": "MIT",
       "url": "https://github.com/transcom/mymove/blob/master/LICENSE.md"
@@ -1007,22 +1009,24 @@ func init() {
     "Affiliation": {
       "description": "Military branch of service",
       "type": "string",
+      "title": "Branch of service",
       "enum": [
-        "air-force",
-        "army",
-        "civilian-agency",
-        "coast-guard",
-        "marine-corps",
-        "navy"
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
       ],
       "x-display-value": {
-        "air-force": "Air Force",
-        "army": "Army",
-        "civilian-agency": "Civilian Agency",
-        "coast-guard": "Coast Guard",
-        "marine-corps": "Marine Corps",
-        "navy": "Navy"
-      }
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
     },
     "Issuer": {
       "description": "Organization that issues orders. If more organizations, especially civilian ones, become clients of this API in the future, this enumeration may need to be expanded.",

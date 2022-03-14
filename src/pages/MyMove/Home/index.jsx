@@ -121,6 +121,18 @@ export class Home extends Component {
     return 'Set up your shipments';
   }
 
+  get reportByLabel() {
+    const { orders } = this.props;
+    switch (orders.orders_type) {
+      case 'RETIREMENT':
+        return 'Retirement date';
+      case 'SEPARATION':
+        return 'Separation date';
+      default:
+        return 'Report by';
+    }
+  }
+
   renderAlert = () => {
     if (this.hasUnapprovedAmendedOrders) {
       return (
@@ -156,8 +168,9 @@ export class Home extends Component {
     return (
       <>
         <p>
-          You’re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
-          <strong>{orders.origin_duty_station?.name}.</strong> Report by{' '}
+          You’re moving to <strong>{orders.new_duty_location.name}</strong> from{' '}
+          <strong>{orders.origin_duty_location?.name}.</strong>
+          {` ${this.reportByLabel} `}
           <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         </p>
 
@@ -255,7 +268,7 @@ export class Home extends Component {
     }
 
     // eslint-disable-next-line camelcase
-    const { current_station } = serviceMember;
+    const { current_location } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
 
     const shipmentSelectionPath =
@@ -397,9 +410,9 @@ export class Home extends Component {
                 </SectionWrapper>
                 <Contact
                   header="Contacts"
-                  dutyStationName={current_station?.transportation_office?.name}
+                  dutyStationName={current_location?.transportation_office?.name}
                   officeType="Origin Transportation Office"
-                  telephone={current_station?.transportation_office?.phone_lines[0]}
+                  telephone={current_location?.transportation_office?.phone_lines[0]}
                 />
               </>
             )}

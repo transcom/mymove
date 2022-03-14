@@ -164,7 +164,7 @@ const newMoveDetailsQuery = {
   },
   order: {
     id: '1',
-    originDutyStation: {
+    originDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Knox',
@@ -172,7 +172,7 @@ const newMoveDetailsQuery = {
         postalCode: '40121',
       },
     },
-    destinationDutyStation: {
+    destinationDutyLocation: {
       address: {
         streetAddress1: '',
         city: 'Fort Irwin',
@@ -337,7 +337,7 @@ describe('MoveDetails page', () => {
 
       expect(screen.getAllByRole('heading', { name: 'HHG', level: 3 }).length).toBe(2);
 
-      const moveDateTerms = screen.getAllByText('Requested move date');
+      const moveDateTerms = screen.getAllByText('Requested pickup date');
 
       expect(moveDateTerms.length).toBe(2);
 
@@ -437,7 +437,7 @@ describe('MoveDetails page', () => {
       expect(destinationAddressTerms.length).toBe(2);
 
       expect(destinationAddressTerms[0].nextElementSibling.textContent).toBe(
-        moveDetailsQuery.order.destinationDutyStation.address.postalCode,
+        moveDetailsQuery.order.destinationDutyLocation.address.postalCode,
       );
 
       const { streetAddress1, city, state, postalCode } = moveDetailsQuery.mtoShipments[1].destinationAddress;

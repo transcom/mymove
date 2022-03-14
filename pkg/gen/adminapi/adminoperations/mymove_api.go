@@ -139,7 +139,10 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	}
 }
 
-/*MymoveAPI The API for move.mil admin actions. */
+/*MymoveAPI The Admin API is a RESTful API that enables the Admin application for MilMove.
+
+All endpoints are located under `/admin/v1`.
+*/
 type MymoveAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context

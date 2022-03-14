@@ -94,14 +94,14 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	suite.NotNil(emailInfo)
 	suite.Len(emailInfo, 2, "Wrong number of rows returned")
-	suite.Equal(ppms[0].Move.Orders.NewDutyLocation.Name, emailInfo[0].NewDutyStationName)
+	suite.Equal(ppms[0].Move.Orders.NewDutyLocation.Name, emailInfo[0].NewDutyLocationName)
 	suite.NotNil(emailInfo[0].Email)
 	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
 	suite.Equal(ppms[0].WeightEstimate, emailInfo[0].WeightEstimate)
 	suite.Equal(ppms[0].IncentiveEstimateMin, emailInfo[0].IncentiveEstimateMin)
 	suite.Equal(ppms[0].IncentiveEstimateMax, emailInfo[0].IncentiveEstimateMax)
-	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.Name, *emailInfo[0].TOName)
-	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, *emailInfo[0].TOPhone)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyLocation.TransportationOffice.Name, *emailInfo[0].TOName)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyLocation.TransportationOffice.PhoneLines[0].Number, *emailInfo[0].TOPhone)
 	suite.Equal(ppms[0].Move.Locator, emailInfo[0].Locator)
 }
 
@@ -403,7 +403,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 	emailInfos := PaymentReminderEmailInfos{
 		{
 			Email:                &email1,
-			NewDutyStationName:   "nd1",
+			NewDutyLocationName:  "nd1",
 			WeightEstimate:       &weightEst1,
 			IncentiveEstimateMin: &estimateMin1,
 			IncentiveEstimateMax: &estimateMax1,
@@ -414,7 +414,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		},
 		{
 			Email:                &email2,
-			NewDutyStationName:   "nd2",
+			NewDutyLocationName:  "nd2",
 			WeightEstimate:       &weightEst2,
 			IncentiveEstimateMin: &estimateMin2,
 			IncentiveEstimateMax: &estimateMax2,
@@ -425,7 +425,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		},
 		{
 			Email:                &email3,
-			NewDutyStationName:   "nd3",
+			NewDutyLocationName:  "nd3",
 			WeightEstimate:       &weightEst3,
 			IncentiveEstimateMin: &estimateMin3,
 			IncentiveEstimateMax: &estimateMax3,
@@ -437,7 +437,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		{
 			// nil emails should be skipped
 			Email:                nil,
-			NewDutyStationName:   "nd0",
+			NewDutyLocationName:  "nd0",
 			WeightEstimate:       &weightEst3,
 			IncentiveEstimateMin: &estimateMin3,
 			IncentiveEstimateMax: &estimateMax3,
@@ -454,7 +454,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		emailInfo := emailInfos[i]
 
 		data := PaymentReminderEmailData{
-			DestinationDutyStation: emailInfo.NewDutyStationName,
+			DestinationDutyStation: emailInfo.NewDutyLocationName,
 			WeightEstimate:         fmt.Sprintf("%d", emailInfo.WeightEstimate.Int()),
 			IncentiveEstimateMin:   emailInfo.IncentiveEstimateMin.ToDollarString(),
 			IncentiveEstimateMax:   emailInfo.IncentiveEstimateMax.ToDollarString(),
@@ -469,7 +469,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		suite.NoError(err)
 		expectedEmailContent := emailContent{
 			recipientEmail: *emailInfo.Email,
-			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (move %s)", emailInfo.NewDutyStationName, emailInfo.Locator),
+			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (move %s)", emailInfo.NewDutyLocationName, emailInfo.Locator),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 		}

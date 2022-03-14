@@ -23,8 +23,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
+    "title": "MilMove GHC API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -3165,6 +3165,28 @@ func init() {
         }
       }
     },
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -3205,26 +3227,6 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
-      }
-    },
-    "Branch": {
-      "type": "string",
-      "title": "branch",
-      "enum": [
-        "ARMY",
-        "NAVY",
-        "MARINES",
-        "AIR_FORCE",
-        "COAST_GUARD",
-        "OTHER"
-      ],
-      "x-display-value": {
-        "AIR_FORCE": "Air Force",
-        "ARMY": "Army",
-        "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
-        "NAVY": "Navy",
-        "OTHER": "OTHER"
       }
     },
     "ClientError": {
@@ -3268,8 +3270,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
@@ -3317,8 +3318,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "originDutyStationId",
-        "newDutyStationId"
+        "originDutyLocationId",
+        "newDutyLocationId"
       ],
       "properties": {
         "issueDate": {
@@ -3328,7 +3329,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -3348,7 +3349,7 @@ func init() {
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -4716,8 +4717,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "type": "string",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "amendedOrdersAcknowledgedAt": {
           "type": "string",
@@ -4741,7 +4741,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
@@ -4806,7 +4806,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
@@ -5614,8 +5614,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "authorizedWeight": {
           "description": "unit is in lbs",
@@ -5749,8 +5748,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "newDutyStationId",
-        "originDutyStationId"
+        "newDutyLocationId",
+        "originDutyLocationId"
       ],
       "properties": {
         "departmentIndicator": {
@@ -5764,7 +5763,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -5798,7 +5797,7 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -6111,8 +6110,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
+    "title": "MilMove GHC API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -10031,6 +10030,28 @@ func init() {
         }
       }
     },
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -10071,26 +10092,6 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
-      }
-    },
-    "Branch": {
-      "type": "string",
-      "title": "branch",
-      "enum": [
-        "ARMY",
-        "NAVY",
-        "MARINES",
-        "AIR_FORCE",
-        "COAST_GUARD",
-        "OTHER"
-      ],
-      "x-display-value": {
-        "AIR_FORCE": "Air Force",
-        "ARMY": "Army",
-        "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
-        "NAVY": "Navy",
-        "OTHER": "OTHER"
       }
     },
     "ClientError": {
@@ -10134,8 +10135,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
@@ -10187,8 +10187,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "originDutyStationId",
-        "newDutyStationId"
+        "originDutyLocationId",
+        "newDutyLocationId"
       ],
       "properties": {
         "issueDate": {
@@ -10198,7 +10198,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -10218,7 +10218,7 @@ func init() {
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -11586,8 +11586,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "type": "string",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "amendedOrdersAcknowledgedAt": {
           "type": "string",
@@ -11611,7 +11610,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
+        "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "eTag": {
@@ -11676,7 +11675,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
+        "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
         "report_by_date": {
@@ -12487,8 +12486,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "authorizedWeight": {
           "description": "unit is in lbs",
@@ -12626,8 +12624,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "newDutyStationId",
-        "originDutyStationId"
+        "newDutyLocationId",
+        "originDutyLocationId"
       ],
       "properties": {
         "departmentIndicator": {
@@ -12641,7 +12639,7 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
-        "newDutyStationId": {
+        "newDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -12675,7 +12673,7 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStationId": {
+        "originDutyLocationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"

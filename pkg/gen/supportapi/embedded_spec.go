@@ -23,8 +23,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.\n\nThis API is not available in production.\n\nAll endpoints are located at ` + "`" + `primelocal/support/v1/` + "`" + `.\n",
-    "title": "Milmove Support API",
+    "description": "The Support API gives you programmatic access to support functionality useful\nfor testing and debugging. **This API is not available in the Production\nenvironment**.\n\nAll endpoints are located at ` + "`" + `/support/v1/` + "`" + `.\n",
+    "title": "MilMove Support API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -1075,7 +1075,7 @@ func init() {
         }
       }
     },
-    "DutyStation": {
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "id": {
@@ -1877,8 +1877,8 @@ func init() {
         "status",
         "uploadedOrdersID",
         "tac",
-        "originDutyStationID",
-        "destinationDutyStationID",
+        "originDutyLocationID",
+        "destinationDutyLocationID",
         "departmentIndicator"
       ],
       "properties": {
@@ -1895,10 +1895,10 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
-        "destinationDutyStationID": {
+        "destinationDutyLocationID": {
           "description": "ID of the destination duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
@@ -1935,10 +1935,10 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
-        "originDutyStationID": {
+        "originDutyLocationID": {
           "description": "ID of the origin duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
@@ -1948,7 +1948,7 @@ func init() {
           "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
-          "description": "Date that the service member must report to the new DutyStation by.",
+          "description": "Date that the service member must report to the new DutyLocation by.",
           "type": "string",
           "format": "date"
         },
@@ -2541,8 +2541,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.\n\nThis API is not available in production.\n\nAll endpoints are located at ` + "`" + `primelocal/support/v1/` + "`" + `.\n",
-    "title": "Milmove Support API",
+    "description": "The Support API gives you programmatic access to support functionality useful\nfor testing and debugging. **This API is not available in the Production\nenvironment**.\n\nAll endpoints are located at ` + "`" + `/support/v1/` + "`" + `.\n",
+    "title": "MilMove Support API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -3867,7 +3867,7 @@ func init() {
         }
       }
     },
-    "DutyStation": {
+    "DutyLocation": {
       "type": "object",
       "properties": {
         "id": {
@@ -4669,8 +4669,8 @@ func init() {
         "status",
         "uploadedOrdersID",
         "tac",
-        "originDutyStationID",
-        "destinationDutyStationID",
+        "originDutyLocationID",
+        "destinationDutyLocationID",
         "departmentIndicator"
       ],
       "properties": {
@@ -4687,10 +4687,10 @@ func init() {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "destinationDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
-        "destinationDutyStationID": {
+        "destinationDutyLocationID": {
           "description": "ID of the destination duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
@@ -4727,10 +4727,10 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "originDutyStation": {
-          "$ref": "#/definitions/DutyStation"
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
         },
-        "originDutyStationID": {
+        "originDutyLocationID": {
           "description": "ID of the origin duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
@@ -4740,7 +4740,7 @@ func init() {
           "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
-          "description": "Date that the service member must report to the new DutyStation by.",
+          "description": "Date that the service member must report to the new DutyLocation by.",
           "type": "string",
           "format": "date"
         },

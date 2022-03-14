@@ -9,6 +9,7 @@ import { debounce } from 'lodash';
 import styles from './DutyStationSearchBox.module.scss';
 import { SearchDutyLocations, ShowAddress } from './api';
 
+import Hint from 'components/Hint';
 import { DutyStationShape } from 'types';
 
 const getOptionName = (option) => option.name;
@@ -76,7 +77,7 @@ const customStyles = {
 };
 
 export const DutyStationSearchBoxComponent = (props) => {
-  const { searchDutyLocations, showAddress, title, input, name, errorMsg, displayAddress } = props;
+  const { searchDutyLocations, showAddress, title, input, name, errorMsg, displayAddress, hint } = props;
   const { value, onChange, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
@@ -135,6 +136,7 @@ export const DutyStationSearchBoxComponent = (props) => {
           {title}
         </Label>
       </div>
+      {hint && <Hint className={styles.hint}>{hint}</Hint>}
       <div className={inputContainerClasses}>
         <AsyncSelect
           name={name}
@@ -178,6 +180,7 @@ DutyStationSearchBoxContainer.propTypes = {
     onChange: PropTypes.func,
     value: DutyStationShape,
   }),
+  hint: PropTypes.node,
 };
 
 DutyStationSearchBoxContainer.defaultProps = {
@@ -189,6 +192,7 @@ DutyStationSearchBoxContainer.defaultProps = {
     onChange: () => {},
     value: undefined,
   },
+  hint: '',
 };
 
 DutyStationSearchBoxComponent.propTypes = {

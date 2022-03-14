@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -28,20 +29,22 @@ type GetCustomerHandler struct {
 
 // Handle getting the information of a specific customer
 func (h GetCustomerHandler) Handle(params customercodeop.GetCustomerParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	customerID, _ := uuid.FromString(params.CustomerID.String())
-	customer, err := h.FetchCustomer(appCtx, customerID)
-	if err != nil {
-		appCtx.Logger().Error("Loading Customer Info", zap.Error(err))
-		switch err {
-		case sql.ErrNoRows:
-			return customercodeop.NewGetCustomerNotFound()
-		default:
-			return customercodeop.NewGetCustomerInternalServerError()
-		}
-	}
-	customerInfoPayload := payloads.Customer(customer)
-	return customercodeop.NewGetCustomerOK().WithPayload(customerInfoPayload)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			customerID, _ := uuid.FromString(params.CustomerID.String())
+			customer, err := h.FetchCustomer(appCtx, customerID)
+			if err != nil {
+				appCtx.Logger().Error("Loading Customer Info", zap.Error(err))
+				switch err {
+				case sql.ErrNoRows:
+					return customercodeop.NewGetCustomerNotFound()
+				default:
+					return customercodeop.NewGetCustomerInternalServerError()
+				}
+			}
+			customerInfoPayload := payloads.Customer(customer)
+			return customercodeop.NewGetCustomerOK().WithPayload(customerInfoPayload)
+		})
 }
 
 // UpdateCustomerHandler updates a customer via PATCH /customer/{customerId}
@@ -52,40 +55,42 @@ type UpdateCustomerHandler struct {
 
 // Handle updates a customer from a request payload
 func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		appCtx.Logger().Error("user is not authenticated with service counselor office role")
-		return customercodeop.NewUpdateCustomerForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				appCtx.Logger().Error("user is not authenticated with service counselor office role")
+				return customercodeop.NewUpdateCustomerForbidden()
+			}
 
-	customerID, err := uuid.FromString(params.CustomerID.String())
-	if err != nil {
-		appCtx.Logger().Error("unable to parse customer id param to uuid", zap.Error(err))
-		return customercodeop.NewUpdateCustomerBadRequest()
-	}
+			customerID, err := uuid.FromString(params.CustomerID.String())
+			if err != nil {
+				appCtx.Logger().Error("unable to parse customer id param to uuid", zap.Error(err))
+				return customercodeop.NewUpdateCustomerBadRequest()
+			}
 
-	newCustomer := payloads.CustomerToServiceMember(*params.Body)
-	newCustomer.ID = customerID
+			newCustomer := payloads.CustomerToServiceMember(*params.Body)
+			newCustomer.ID = customerID
 
-	updatedCustomer, err := h.customerUpdater.UpdateCustomer(appCtx, params.IfMatch, newCustomer)
+			updatedCustomer, err := h.customerUpdater.UpdateCustomer(appCtx, params.IfMatch, newCustomer)
 
-	if err != nil {
-		appCtx.Logger().Error("error updating customer", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return customercodeop.NewGetCustomerNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return customercodeop.NewUpdateCustomerUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return customercodeop.NewUpdateCustomerPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return customercodeop.NewUpdateCustomerInternalServerError()
-		}
-	}
+			if err != nil {
+				appCtx.Logger().Error("error updating customer", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return customercodeop.NewGetCustomerNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return customercodeop.NewUpdateCustomerUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return customercodeop.NewUpdateCustomerPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return customercodeop.NewUpdateCustomerInternalServerError()
+				}
+			}
 
-	customerPayload := payloads.Customer(updatedCustomer)
+			customerPayload := payloads.Customer(updatedCustomer)
 
-	return customercodeop.NewUpdateCustomerOK().WithPayload(customerPayload)
+			return customercodeop.NewUpdateCustomerOK().WithPayload(customerPayload)
+		})
 }

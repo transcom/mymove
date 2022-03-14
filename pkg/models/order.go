@@ -43,10 +43,12 @@ type Order struct {
 	OrdersTypeDetail            *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents               bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear            bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
-	OriginDutyLocation          *DutyLocation                      `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
+	OriginDutyLocation          *DutyLocation                      `belongs_to:"duty_locations" fk_id:"origin_duty_station_id"`
 	OriginDutyLocationID        *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
-	NewDutyLocationID           uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
-	NewDutyLocation             DutyLocation                       `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
+	NewDutyStationID            uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
+	NewDutyStation              DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_station_id"`
+	NewDutyLocationID           uuid.UUID                          `json:"new_duty_location_id" db:"new_duty_location_id"`
+	NewDutyLocation             DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
 	UploadedOrders              Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
 	UploadedOrdersID            uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber                *string                            `json:"orders_number" db:"orders_number"`
@@ -95,6 +97,10 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
+
+	if order.NewDutyStationID != order.NewDutyLocationID {
+		order.NewDutyStationID = order.NewDutyLocationID
+	}
 
 	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")

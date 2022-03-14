@@ -647,6 +647,59 @@ func createUnsubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, u
 	})
 }
 
+func createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
+	 */
+	email := "estimated_weights@ppm.unsubmitted"
+	uuidStr := "4512dc8c-c777-444e-b6dc-7971e398f2dc"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smIDPPM := "81b772ab-86ff-4bda-b0fa-21b14dfe14d5"
+	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.FromString(smIDPPM)),
+			UserID:        uuid.Must(uuid.FromString(uuidStr)),
+			FirstName:     models.StringPointer("Minimal"),
+			LastName:      models.StringPointer("PPM"),
+			Edipi:         models.StringPointer("8738145769"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.Must(uuid.FromString(smIDPPM)),
+			ServiceMember:   smWithPPM,
+		},
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.Must(uuid.FromString("e89a7018-be76-449a-b99b-e30a09c485dc")),
+			Locator:          "PPMEWH",
+			SelectedMoveType: &ppmMoveType,
+		},
+	})
+
+	testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		PPMShipment: models.PPMShipment{
+			ID:                 uuid.Must(uuid.FromString("65eea403-89ac-4c2d-9b1c-0dcc8805258f")),
+			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
+			HasProGear:         models.BoolPointer(false),
+			EstimatedIncentive: models.Int32Pointer(int32(1000000)),
+		},
+	})
+}
+
 func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	/*
@@ -1455,7 +1508,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		"94535", "94535").Return(348, nil).Once()
+		"94535", "94535").Return(348, nil).Times(2)
 
 	// called for zip 5 domestic linehaul service item
 	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535").Return(348, nil).Once()
@@ -1465,7 +1518,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		"90210", "90211").Return(3, nil).Times(7)
 
 	// called for domestic shorthaul service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(5)
+	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(10)
 
 	// called for domestic origin SIT pickup service item
 	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
@@ -5104,6 +5157,45 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			RequestedDeliveryDate: &requestedDeliveryDate,
 		},
 	})
+}
+
+func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, locator string) {
+	db := appCtx.DB()
+	submittedAt := time.Now()
+	ntsMoveType := models.SelectedMoveTypeNTS
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: true,
+		},
+		Order: models.Order{
+			OrdersType: ordersType,
+		},
+	})
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:          locator,
+			Status:           models.MoveStatusNeedsServiceCounseling,
+			SelectedMoveType: &ntsMoveType,
+			SubmittedAt:      &submittedAt,
+		},
+		Order: orders,
+	})
+
+	// Makes a basic HHG shipment to reflect likely real scenario
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+		},
+	})
+
 }
 
 func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {

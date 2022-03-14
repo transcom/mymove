@@ -154,8 +154,8 @@ type ShipmentSummaryWorksheetPage3Values struct {
 type ShipmentSummaryFormData struct {
 	ServiceMember           ServiceMember
 	Order                   Order
-	CurrentDutyStation      DutyLocation
-	NewDutyStation          DutyLocation
+	CurrentDutyLocation     DutyLocation
+	NewDutyLocation         DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
 	PersonallyProcuredMoves PersonallyProcuredMoves
 	PreparationDate         time.Time
@@ -207,7 +207,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		"Orders",
 		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyStation.Address",
+		"Orders.ServiceMember.DutyLocation.Address",
 		"PersonallyProcuredMoves",
 	).Find(&move, moveID)
 
@@ -265,8 +265,8 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
-		CurrentDutyStation:      serviceMember.DutyStation,
-		NewDutyStation:          move.Orders.NewDutyLocation,
+		CurrentDutyLocation:     serviceMember.DutyLocation,
+		NewDutyLocation:         move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
 		SignedCertification:     *signedCertification,
@@ -374,9 +374,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 
-	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyStation)
-	page1.AuthorizedDestination = FormatLocation(data.NewDutyStation)
-	page1.NewDutyAssignment = FormatLocation(data.NewDutyStation)
+	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyLocation)
+	page1.AuthorizedDestination = FormatLocation(data.NewDutyLocation)
+	page1.NewDutyAssignment = FormatLocation(data.NewDutyLocation)
 
 	page1.WeightAllotment = FormatWeights(data.WeightAllotment.Entitlement)
 	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGear)
@@ -519,8 +519,8 @@ func FormatSignatureDate(signature SignedCertification) string {
 }
 
 //FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
-func FormatLocation(dutyStation DutyLocation) string {
-	return fmt.Sprintf("%s, %s %s", dutyStation.Name, dutyStation.Address.State, dutyStation.Address.PostalCode)
+func FormatLocation(dutyLocation DutyLocation) string {
+	return fmt.Sprintf("%s, %s %s", dutyLocation.Name, dutyLocation.Address.State, dutyLocation.Address.PostalCode)
 }
 
 //FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet

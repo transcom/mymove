@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  title: Milmove Prime API
+  title: MilMove Prime API
   version: 0.0.1
   license:
     name: MIT
@@ -1033,7 +1033,7 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  DutyStation:
+  DutyLocation:
     type: object
     properties:
       id:
@@ -1805,10 +1805,10 @@ definitions:
         type: string
       entitlement:
         $ref: '#/definitions/Entitlements'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
       rank:
         type: string
         example: 'E_5'

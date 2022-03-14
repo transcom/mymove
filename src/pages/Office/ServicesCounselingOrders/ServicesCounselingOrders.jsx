@@ -25,8 +25,8 @@ import { LOA_TYPE } from 'shared/constants';
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 
 const validationSchema = Yup.object({
-  originDutyStation: Yup.object().defined('Required'),
-  newDutyStation: Yup.object().required('Required'),
+  originDutyLocation: Yup.object().defined('Required'),
+  newDutyLocation: Yup.object().required('Required'),
   issueDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
@@ -129,8 +129,8 @@ const ServicesCounselingOrders = () => {
   const onSubmit = (values) => {
     const body = {
       ...values,
-      originDutyStationId: values.originDutyStation.id,
-      newDutyStationId: values.newDutyStation.id,
+      originDutyLocationId: values.originDutyLocation.id,
+      newDutyLocationId: values.newDutyLocation.id,
       issueDate: formatSwaggerDate(values.issueDate),
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
@@ -139,8 +139,8 @@ const ServicesCounselingOrders = () => {
   };
 
   const initialValues = {
-    originDutyStation: order?.originDutyStation,
-    newDutyStation: order?.destinationDutyStation,
+    originDutyLocation: order?.originDutyLocation,
+    newDutyLocation: order?.destinationDutyLocation,
     issueDate: order?.date_issued,
     reportByDate: order?.report_by_date,
     departmentIndicator: order?.department_indicator,

@@ -269,7 +269,7 @@ describe('when getting the next incomplete page', () => {
             email_is_preferred: true,
             telephone: '666-666-6666',
             personal_email: 'foo@bar.com',
-            current_station: {
+            current_location: {
               id: NULL_UUID,
               name: '',
             },
@@ -293,7 +293,7 @@ describe('when getting the next incomplete page', () => {
             phone_is_preferred: true,
             telephone: '666-666-6666',
             personal_email: 'foo@bar.com',
-            current_station: {
+            current_location: {
               id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
               name: 'Blue Grass Army Depot',
             },
@@ -317,7 +317,7 @@ describe('when getting the next incomplete page', () => {
             phone_is_preferred: true,
             telephone: '666-666-6666',
             personal_email: 'foo@bar.com',
-            current_station: {
+            current_location: {
               id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
               name: 'Blue Grass Army Depot',
             },
@@ -347,7 +347,7 @@ describe('when getting the next incomplete page', () => {
             phone_is_preferred: true,
             telephone: '666-666-6666',
             personal_email: 'foo@bar.com',
-            current_station: {
+            current_location: {
               id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
               name: 'Blue Grass Army Depot',
             },
@@ -392,7 +392,7 @@ describe('when getting the next incomplete page', () => {
           phone_is_preferred: true,
           telephone: '666-666-6666',
           personal_email: 'foo@bar.com',
-          current_station: {
+          current_location: {
             id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
             name: 'Blue Grass Army Depot',
           },
@@ -440,7 +440,7 @@ describe('when getting the next incomplete page', () => {
             orders_type: 'foo',
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
-            new_duty_station: { id: 'something' },
+            new_duty_location: { id: 'something' },
           },
           move: { id: 'bar' },
           context: ppmContext,
@@ -459,7 +459,7 @@ describe('when getting the next incomplete page', () => {
             orders_type: 'foo',
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
-            new_duty_station: { id: 'something' },
+            new_duty_location: { id: 'something' },
             uploaded_orders: {
               uploads: [{}],
             },
@@ -490,7 +490,7 @@ describe('when getting the next incomplete page', () => {
             orders_type: 'foo',
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
-            new_duty_station: { id: 'something' },
+            new_duty_location: { id: 'something' },
             uploaded_orders: {
               uploads: [{}],
             },
@@ -522,7 +522,7 @@ describe('when getting the next incomplete page', () => {
             orders_type: 'foo',
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
-            new_duty_station: { id: 'something' },
+            new_duty_location: { id: 'something' },
             uploaded_orders: {
               uploads: [{}],
             },

@@ -50,7 +50,7 @@ const info = {
 };
 
 const labels = {
-  requestedPickupDate: 'Requested move date',
+  requestedPickupDate: 'Requested pickup date',
   pickupAddress: 'Origin address',
   secondaryPickupAddress: 'Second pickup address',
   destinationAddress: 'Destination address',

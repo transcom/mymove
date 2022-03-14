@@ -24,21 +24,15 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 	})
 
 	suite.Run("golden path with param cache", func() {
-
-		// MS
-		reService1 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		// DLH
+		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: models.ReServiceCodeMS,
+				Code: models.ReServiceCodeDLH,
 			},
 		})
 
-		// MS
-		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: reService1,
-		})
-
 		// ContractCode
-		serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		serviceItemParamKey1 := testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 			ServiceItemParamKey: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameContractCode,
 				Description: "contract code",
@@ -47,7 +41,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 			},
 		})
 
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 			ServiceParam: models.ServiceParam{
 				ServiceID:             mtoServiceItem1.ReServiceID,
 				ServiceItemParamKeyID: serviceItemParamKey1.ID,

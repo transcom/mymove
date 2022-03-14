@@ -102,7 +102,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	// Check that the order destination duty station exists, then hook up to order
 	// It's required in the payload
 	destinationDutyStation := models.DutyLocation{}
-	destinationDutyStationID := uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
+	destinationDutyStationID := uuid.FromStringOrNil(orderPayload.DestinationDutyLocationID.String())
 	err := appCtx.DB().Find(&destinationDutyStation, destinationDutyStationID)
 	if err != nil {
 		appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))
@@ -110,16 +110,18 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
 		default:
-			return nil, apperror.NewQueryError("DutyStation", err, "")
+			return nil, apperror.NewQueryError("DutyLocation", err, "")
 		}
 	}
+	order.NewDutyStation = destinationDutyStation
+	order.NewDutyStationID = destinationDutyStationID
 	order.NewDutyLocation = destinationDutyStation
 	order.NewDutyLocationID = destinationDutyStationID
 	// Check that if provided, the origin duty station exists, then hook up to order
 	var originDutyStation *models.DutyLocation
-	if orderPayload.OriginDutyStationID != nil {
+	if orderPayload.OriginDutyLocationID != nil {
 		originDutyStation = &models.DutyLocation{}
-		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
+		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyLocationID.String())
 		err = appCtx.DB().Find(originDutyStation, originDutyStationID)
 		if err != nil {
 			appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))
@@ -127,7 +129,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 			case sql.ErrNoRows:
 				return nil, apperror.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
 			default:
-				return nil, apperror.NewQueryError("DutyStation", err, "")
+				return nil, apperror.NewQueryError("DutyLocation", err, "")
 			}
 		}
 		order.OriginDutyLocation = originDutyStation
@@ -295,12 +297,12 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 		model.ServiceMemberID = customerID
 	}
 
-	if orderPayload.DestinationDutyStationID != nil {
-		model.NewDutyLocationID = uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
+	if orderPayload.DestinationDutyLocationID != nil {
+		model.NewDutyLocationID = uuid.FromStringOrNil(orderPayload.DestinationDutyLocationID.String())
 	}
 
-	if orderPayload.OriginDutyStationID != nil {
-		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
+	if orderPayload.OriginDutyLocationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyLocationID.String())
 		model.OriginDutyLocationID = &originDutyStationID
 	}
 
