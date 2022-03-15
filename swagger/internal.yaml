@@ -2546,22 +2546,11 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
-      advanceRequested:
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      advanceId:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-        x-nullable: true
-        x-omitempty: false
-      advanceWorksheetId:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
+      advance:
+        description: |
+          The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
         x-nullable: true
         x-omitempty: false
       eTag:
