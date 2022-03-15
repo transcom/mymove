@@ -82,23 +82,29 @@ func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 
 // MoveAuditHistory payload
 func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
+
 	payload := &ghcmessages.MoveAuditHistory{
-		Action:          auditHistory.Action,
-		ActionTstampClk: strfmt.DateTime(auditHistory.ActionTstampClk),
-		ActionTstampStm: strfmt.DateTime(auditHistory.ActionTstampStm),
-		ActionTstampTx:  strfmt.DateTime(auditHistory.ActionTstampTx),
-		ChangedValues:   moveHistoryValues(auditHistory.ChangedData, "changed_data"),
-		OldValues:       moveHistoryValues(auditHistory.OldData, "old_values"),
-		ClientQuery:     auditHistory.ClientQuery,
-		EventName:       auditHistory.EventName,
-		ID:              strfmt.UUID(auditHistory.ID.String()),
-		ObjectID:        handlers.FmtUUIDPtr(auditHistory.ObjectID),
-		RelID:           auditHistory.RelID,
-		SessionUserID:   handlers.FmtUUIDPtr(auditHistory.SessionUserID),
-		StatementOnly:   auditHistory.StatementOnly,
-		TableName:       auditHistory.TableName,
-		SchemaName:      auditHistory.SchemaName,
-		TransactionID:   auditHistory.TransactionID,
+		Action:               auditHistory.Action,
+		ActionTstampClk:      strfmt.DateTime(auditHistory.ActionTstampClk),
+		ActionTstampStm:      strfmt.DateTime(auditHistory.ActionTstampStm),
+		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
+		ChangedValues:        moveHistoryValues(auditHistory.ChangedData, "changed_data"),
+		OldValues:            moveHistoryValues(auditHistory.OldData, "old_values"),
+		ClientQuery:          auditHistory.ClientQuery,
+		EventName:            auditHistory.EventName,
+		ID:                   strfmt.UUID(auditHistory.ID.String()),
+		ObjectID:             handlers.FmtUUIDPtr(auditHistory.ObjectID),
+		RelID:                auditHistory.RelID,
+		SessionUserID:        handlers.FmtUUIDPtr(auditHistory.SessionUserID),
+		SessionUserFirstName: auditHistory.SessionUserFirstName,
+		SessionUserLastName:  auditHistory.SessionUserLastName,
+		SessionUserEmail:     auditHistory.SessionUserEmail,
+		SessionUserTelephone: auditHistory.SessionUserTelephone,
+		Context:              auditHistory.Context,
+		StatementOnly:        auditHistory.StatementOnly,
+		TableName:            auditHistory.TableName,
+		SchemaName:           auditHistory.SchemaName,
+		TransactionID:        auditHistory.TransactionID,
 	}
 
 	return payload
