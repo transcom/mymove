@@ -284,6 +284,7 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	suite.Assertions.IsType(&officeop.ApprovePPMForbidden{}, response)
 }
 
+// TODO: Determine whether we need to complete remove reimbursements handler from Office handlers
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	reimbursement := testdatagen.MakeDefaultRequestedReimbursement(suite.DB())
