@@ -1,7 +1,12 @@
 package serviceparamvaluelookups
 
 import (
+	"fmt"
 	"strconv"
+
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/route/mocks"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -47,6 +52,31 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		suite.NoError(err)
 
 		suite.Equal(unit.Miles(defaultZip3Distance), *mtoShipment.Distance)
+	})
+
+	suite.Run("Calculate zip3 distance lookup without a saved service item", func() {
+		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+
+		distanceZip3Lookup := DistanceZip3Lookup{
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupPostalCode},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationPostalCode},
+		}
+
+		appContext := suite.AppContextForTest()
+		distance, err := distanceZip3Lookup.lookup(appContext, &ServiceItemParamKeyData{
+			planner:       suite.planner,
+			mtoShipmentID: &ppmShipment.ShipmentID,
+		})
+		suite.NoError(err)
+
+		planner := suite.planner.(*mocks.Planner)
+		planner.AssertCalled(suite.T(), "Zip3TransitDistance", appContext, ppmShipment.PickupPostalCode, ppmShipment.DestinationPostalCode)
+
+		err = suite.DB().Reload(&ppmShipment.Shipment)
+		suite.NoError(err)
+
+		suite.Equal(fmt.Sprintf("%d", defaultZip3Distance), distance)
+		suite.Equal(unit.Miles(defaultZip3Distance), *ppmShipment.Shipment.Distance)
 	})
 
 	suite.Run("Doesn't update mtoShipment distance when the pickup and destination zip3s are the same", func() {
@@ -109,7 +139,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 			})
 
 		// DLH
-		reServiceDLH := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		reServiceDLH := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDLH,
 			},
@@ -129,7 +159,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		suite.MustSave(&mtoServiceItemDLH)
 
 		// ServiceItemParamNameActualPickupDate
-		serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		serviceItemParamKey1 := testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 			ServiceItemParamKey: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameDistanceZip3,
 				Description: "zip 3 distance",
@@ -138,7 +168,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 			},
 		})
 
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 			ServiceParam: models.ServiceParam{
 				ServiceID:             mtoServiceItemDLH.ReServiceID,
 				ServiceItemParamKeyID: serviceItemParamKey1.ID,
@@ -223,5 +253,22 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Shipment must have valid destination zipcode")
+	})
+
+	suite.Run("returns a not found error if the service item shipment id doesn't exist", func() {
+		distanceZip3Lookup := DistanceZip3Lookup{
+			PickupAddress:      testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{Stub: true}),
+			DestinationAddress: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true}),
+		}
+
+		mtoShipmentID := uuid.Must(uuid.NewV4())
+
+		_, err := distanceZip3Lookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
+			planner:       suite.planner,
+			mtoShipmentID: &mtoShipmentID,
+		})
+
+		suite.Error(err)
+		suite.Equal(fmt.Sprintf("ID: %s not found looking for MTOShipmentID", mtoShipmentID), err.Error())
 	})
 }

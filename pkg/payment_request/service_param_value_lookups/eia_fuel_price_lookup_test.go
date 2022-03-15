@@ -21,14 +21,34 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		firstGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 06, 0, 0, 0, 0, time.UTC)
 		firstGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243699)
+
+		var existingFuelPrice1 models.GHCDieselFuelPrice
+		err := suite.DB().Where("ghc_diesel_fuel_prices.publication_date = ?", firstGHCDieselFuelPrice.PublicationDate).First(&existingFuelPrice1)
+		if err == nil {
+			firstGHCDieselFuelPrice.ID = existingFuelPrice1.ID
+		}
+
 		suite.NoError(suite.DB().Save(&firstGHCDieselFuelPrice))
 
 		secondGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 13, 0, 0, 0, 0, time.UTC)
 		secondGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243799)
+
+		var existingFuelPrice2 models.GHCDieselFuelPrice
+		err = suite.DB().Where("ghc_diesel_fuel_prices.publication_date = ?", secondGHCDieselFuelPrice.PublicationDate).First(&existingFuelPrice2)
+		if err == nil {
+			secondGHCDieselFuelPrice.ID = existingFuelPrice2.ID
+		}
+
 		suite.NoError(suite.DB().Save(&secondGHCDieselFuelPrice))
 
 		thirdGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 20, 0, 0, 0, 0, time.UTC)
 		thirdGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243299)
+		var existingFuelPrice3 models.GHCDieselFuelPrice
+		err = suite.DB().Where("ghc_diesel_fuel_prices.publication_date = ?", thirdGHCDieselFuelPrice.PublicationDate).First(&existingFuelPrice3)
+		if err == nil {
+			thirdGHCDieselFuelPrice.ID = existingFuelPrice3.ID
+		}
+
 		suite.NoError(suite.DB().Save(&thirdGHCDieselFuelPrice))
 
 		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -61,7 +81,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		// ServiceItemParamNameEIAFuelPrice
 
 		// FSC
-		reService1 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		reService1 := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeFSC,
 			},
@@ -76,7 +96,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		})
 
 		// EIAFuelPrice
-		serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		serviceItemParamKey1 := testdatagen.FetchOrMakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 			ServiceItemParamKey: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameEIAFuelPrice,
 				Description: "EIA Fuel Price",
@@ -85,7 +105,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 			},
 		})
 
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
 			ServiceParam: models.ServiceParam{
 				ServiceID:             mtoServiceItemFSC.ReServiceID,
 				ServiceItemParamKeyID: serviceItemParamKey1.ID,
@@ -109,7 +129,10 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 	suite.Run("No MTO shipment pickup date found", func() {
 		setupTestData()
 
-		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		// create a service item that has a shipment without an ActualPickupDate
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{}),
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -118,9 +141,8 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 				},
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-		suite.FatalNoError(err)
-		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.Error(err)
+		suite.Equal("Not found looking for pickup address", err.Error())
 	})
 }
