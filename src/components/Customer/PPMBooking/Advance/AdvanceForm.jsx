@@ -19,15 +19,11 @@ import { formatCentsTruncateWhole } from 'utils/formatters';
 
 const validationSchema = Yup.object().shape({
   advanceRequested: Yup.boolean().required('Required'),
-  amountRequested: Yup.number()
-    .min(1, "The minimum advance request is $1. If you don't want an advance, select No.")
-    .when('advanceRequested', {
-      is: true,
-      then: (schema) =>
-        schema.required(
-          `Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.`,
-        ),
-    }),
+  amountRequested: Yup.number().when('advanceRequested', {
+    is: true,
+    then: (schema) =>
+      schema.required('Required').min(1, "The minimum advance request is $1. If you don't want an advance, select No."),
+  }),
   agreeToTerms: Yup.boolean().when('advanceRequested', {
     is: true,
     then: (schema) => schema.oneOf([true], 'Required'),
