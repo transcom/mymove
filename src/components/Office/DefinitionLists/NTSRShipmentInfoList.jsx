@@ -91,7 +91,9 @@ const NTSRShipmentInfoList = ({
   const requestedDeliveryDateElement = (
     <div className={requestedDeliveryDateElementFlags.classes}>
       <dt>Requested delivery date</dt>
-      <dd>{(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) || '—'}</dd>
+      <dd data-testid="requestedDeliveryDate">
+        {(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) || '—'}
+      </dd>
     </div>
   );
 
