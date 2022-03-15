@@ -64,52 +64,54 @@ export const AddressFields = ({ legend, className, name, render, validators }) =
   const addressFieldsUUID = useRef(uuidv4());
 
   return (
-    <Fieldset legend={legend} className={className}>
-      {render(
-        <>
-          <TextField
-            label="Address 1"
-            id={`mailingAddress1_${addressFieldsUUID.current}`}
-            name={`${name}.streetAddress1`}
-            validate={validators?.streetAddress1}
-          />
-          <TextField
-            label="Address 2"
-            labelHint="Optional"
-            id={`mailingAddress2_${addressFieldsUUID.current}`}
-            name={`${name}.streetAddress2`}
-            validate={validators?.streetAddress2}
-          />
-          <TextField
-            label="City"
-            id={`city_${addressFieldsUUID.current}`}
-            name={`${name}.city`}
-            validate={validators?.city}
-          />
+    <div className="margin-top-neg-105">
+      <Fieldset legend={legend} className={className}>
+        {render(
+          <>
+            <TextField
+              label="Address 1"
+              id={`mailingAddress1_${addressFieldsUUID.current}`}
+              name={`${name}.streetAddress1`}
+              validate={validators?.streetAddress1}
+            />
+            <TextField
+              label="Address 2"
+              labelHint="Optional"
+              id={`mailingAddress2_${addressFieldsUUID.current}`}
+              name={`${name}.streetAddress2`}
+              validate={validators?.streetAddress2}
+            />
+            <TextField
+              label="City"
+              id={`city_${addressFieldsUUID.current}`}
+              name={`${name}.city`}
+              validate={validators?.city}
+            />
 
-          <div className="grid-row grid-gap">
-            <div className="mobile-lg:grid-col-6">
-              <DropdownInput
-                name={`${name}.state`}
-                id={`state_${addressFieldsUUID.current}`}
-                label="State"
-                options={statesList}
-                validate={validators?.state}
-              />
+            <div className="grid-row grid-gap">
+              <div className="mobile-lg:grid-col-6">
+                <DropdownInput
+                  name={`${name}.state`}
+                  id={`state_${addressFieldsUUID.current}`}
+                  label="State"
+                  options={statesList}
+                  validate={validators?.state}
+                />
+              </div>
+              <div className="mobile-lg:grid-col-6">
+                <TextField
+                  label="ZIP"
+                  id={`zip_${addressFieldsUUID.current}`}
+                  name={`${name}.postalCode`}
+                  maxLength={10}
+                  validate={validators?.postalCode}
+                />
+              </div>
             </div>
-            <div className="mobile-lg:grid-col-6">
-              <TextField
-                label="ZIP"
-                id={`zip_${addressFieldsUUID.current}`}
-                name={`${name}.postalCode`}
-                maxLength={10}
-                validate={validators?.postalCode}
-              />
-            </div>
-          </div>
-        </>,
-      )}
-    </Fieldset>
+          </>,
+        )}
+      </Fieldset>
+    </div>
   );
 };
 
