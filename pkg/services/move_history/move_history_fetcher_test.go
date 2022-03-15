@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -138,6 +140,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 	suite.T().Run("returns Audit History with session information", func(t *testing.T) {
 
+		assert := assert.New(t)
+
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		fakeRole := testdatagen.MakeTOORole(suite.DB())
 		fakeUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
@@ -158,6 +162,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		moveHistoryData, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), approvedMove.Locator)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
+
+		assert.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
+		//assert.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserID, "AuditHistories contains an AuditHistory with a SessionUserID")
+		//assert.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserFirstName, "AuditHistories contains an AuditHistory with a SessionUserFirstName")
+		//assert.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserLastName, "AuditHistories contains an AuditHistory with a SessionUserLastName")
+		//assert.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserEmail, "AuditHistories contains an AuditHistory with a SessionUserEmail")
+		//assert.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserTelephone, "AuditHistories contains an AuditHistory with a SessionUserTelephone")
 
 	})
 
