@@ -2,6 +2,9 @@
 @import 'shared/styles/colors';
 
 .MoveHistoryTable {
+  td {
+    vertical-align: top;
+  }
   .dateAndTime {
     @include u-font-size('base', 3);
     color: $base-dark;
@@ -14,12 +17,5 @@
   .details {
     @include u-font-size('base', 4);
     color: $base-darker;
-  }
-  .modifiedBy {
-    @include u-font-size('base', 3);
-    color: $base-darkest;
-  }
-  td {
-    vertical-align: top;
   }
 }

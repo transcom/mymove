@@ -2,6 +2,7 @@ import React from 'react';
 import { string } from 'prop-types';
 
 import styles from './MoveHistory.module.scss';
+import ModifiedBy from './ModifiedBy';
 
 import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
@@ -41,9 +42,18 @@ const columns = [
     },
     { id: 'move-history-details' },
   ),
-  createHeader('Modified By', (row) => <div className={styles.modifiedBy}>{row.userName}</div>, {
-    id: 'move-history-modified-by',
-  }),
+  createHeader(
+    'Modified By',
+    (row) => (
+      <ModifiedBy
+        firstName={row.sessionUserFirstName}
+        lastName={row.sessionUserLastName}
+        email={row.sessionUserEmail}
+        phone={row.sessionUserTelephone}
+      />
+    ),
+    { id: 'move-history-modified-by' },
+  ),
 ];
 
 const MoveHistory = ({ moveCode }) => {
