@@ -26,7 +26,7 @@ jest.mock('hooks/queries', () => ({
             ],
             clientQuery:
               'UPDATE "moves" AS moves SET "available_to_prime_at" = $1, "billable_weights_reviewed_at" = $2, "cancel_reason" = $3, "contractor_id" = $4, "excess_weight_acknowledged_at" = $5, "excess_weight_qualified_at" = $6, "excess_weight_upload_id" = $7, "financial_review_flag" = $8, "financial_review_flag_set_at" = $9, "financial_review_remarks" = $10, "locator" = $11, "orders_id" = $12, "ppm_estimated_weight" = $13, "ppm_type" = $14, "reference_id" = $15, "selected_move_type" = $16, "service_counseling_completed_at" = $17, "show" = $18, "status" = $19, "submitted_at" = $20, "tio_remarks" = $21, "updated_at" = $22 WHERE moves.id = $23',
-            eventName: '',
+            eventName: 'updateOrder',
             id: '7ce7c1ac-a1d7-4caf-858c-09674a00f273',
             objectId: 'abe92574-53a8-4026-a75c-45ff9eea9bc6',
             oldValues: [
@@ -109,7 +109,7 @@ describe('MoveHistory', () => {
     expect(screen.getByRole('table')).toBeInTheDocument();
 
     expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent('09 Mar 22 15:33');
-    expect(screen.getByTestId('move-history-event-0')).toBeInTheDocument();
+    expect(screen.getByTestId('move-history-event-0')).toHaveTextContent('Updated orders');
     expect(screen.getByTestId('move-history-details-0')).toBeInTheDocument();
     expect(screen.getByTestId('move-history-modified-by-0')).toBeInTheDocument();
 
