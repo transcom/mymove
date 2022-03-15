@@ -60,7 +60,11 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	}
 }
 
-/*MymoveAPI API to submit, amend, and cancel orders for move.mil. */
+/*MymoveAPI The Orders API is a RESTful API that enables to submit, amend, and
+cancel orders for MilMove.
+
+All endpoints are located under `/orders/v1`.
+*/
 type MymoveAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context

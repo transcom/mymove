@@ -61,7 +61,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   Estimate the full weight of your PPM, including everything you plan to move. If you’re moving pro-gear
                   in this PPM, include that weight in this estimate.
                 </p>
-                <p>
+                <p className={formStyles.pBeforeFormGroup}>
                   Do not count weight twice, though. Do not include weight in your estimate that will be moved in other
                   shipments.
                 </p>
@@ -81,6 +81,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                       ? 'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.'
                       : ''
                   }
+                  hintClassName={ppmBookingStyles.innerHint}
                 />
 
                 <p>
@@ -101,8 +102,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   <a
                     href="https://www.ustranscom.mil/dp3/weightestimator.cfm"
                     target="_blank"
-                    noopener
-                    rel="noreferrer"
+                    rel="noreferrer noopener"
                   >
                     weight estimation calculator
                   </a>{' '}
@@ -198,13 +198,9 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
 EstimatedWeightsProGearForm.propTypes = {
   orders: OrdersShape.isRequired,
   serviceMember: ServiceMemberShape.isRequired,
-  mtoShipment: MtoShipmentShape,
+  mtoShipment: MtoShipmentShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-};
-
-EstimatedWeightsProGearForm.defaultProps = {
-  mtoShipment: undefined,
 };
 
 export default EstimatedWeightsProGearForm;

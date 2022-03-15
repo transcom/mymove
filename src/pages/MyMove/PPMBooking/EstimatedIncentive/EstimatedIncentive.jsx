@@ -2,10 +2,12 @@ import React from 'react';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
 import { useSelector } from 'react-redux';
+import classnames from 'classnames';
 
 import styles from './EstimatedIncentive.module.scss';
 
 import ppmBookingStyles from 'components/Customer/PPMBooking/PPMBooking.module.scss';
+import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { selectMTOShipmentById } from 'store/entities/selectors';
@@ -25,7 +27,7 @@ const EstimatedIncentive = () => {
   };
 
   return (
-    <div className={styles.EstimatedIncentive}>
+    <div className={classnames(ppmBookingPageStyles.PPMBookingPage, styles.EstimatedIncentive)}>
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

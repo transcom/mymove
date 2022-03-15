@@ -13,3 +13,8 @@
   border: 3px solid #cd2026;
   max-width: 32rem;
 }
+
+.hint {
+  @include u-margin-top(0);
+  @include u-margin-bottom(1);
+}

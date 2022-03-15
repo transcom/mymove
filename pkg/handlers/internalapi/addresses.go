@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 
 	addressop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
@@ -45,14 +46,16 @@ type ShowAddressHandler struct {
 
 // Handle returns a address given an addressId
 func (h ShowAddressHandler) Handle(params addressop.ShowAddressParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	addressID, err := uuid.FromString(params.AddressID.String())
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+			addressID, err := uuid.FromString(params.AddressID.String())
 
-	if err != nil {
-		appCtx.Logger().Error("Finding address", zap.Error(err))
-	}
-	address := models.FetchAddressByID(appCtx.DB(), &addressID)
+			if err != nil {
+				appCtx.Logger().Error("Finding address", zap.Error(err))
+			}
+			address := models.FetchAddressByID(appCtx.DB(), &addressID)
 
-	addressPayload := payloads.Address(address)
-	return addressop.NewShowAddressOK().WithPayload(addressPayload)
+			addressPayload := payloads.Address(address)
+			return addressop.NewShowAddressOK().WithPayload(addressPayload)
+		})
 }

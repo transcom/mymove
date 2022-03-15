@@ -5,6 +5,8 @@ import { Button } from '@trussworks/react-uswds';
 
 import reviewStyles from '../Review.module.scss';
 
+import { formatOrderType, formatLabelReportByDate } from 'utils/formatters';
+
 const OrdersTable = ({
   hasDependents,
   issueDate,
@@ -15,7 +17,9 @@ const OrdersTable = ({
   reportByDate,
   uploads,
 }) => {
+  const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(orderType);
   const editPath = `/moves/${moveId}/review/edit-orders`;
+
   return (
     <div className={reviewStyles['review-container']}>
       <div className={reviewStyles['review-header']}>
@@ -32,18 +36,18 @@ const OrdersTable = ({
         <tbody>
           <tr>
             <th scope="row">Orders type</th>
-            <td style={{ wordBreak: 'break-word' }}>{orderType}</td>
+            <td style={{ wordBreak: 'break-word' }}>{formatOrderType(orderType)}</td>
           </tr>
           <tr>
             <th scope="row">Orders date</th>
             <td>{issueDate}</td>
           </tr>
           <tr>
-            <th scope="row">Report by date</th>
+            <th scope="row">{formatLabelReportByDate(orderType)}</th>
             <td>{reportByDate}</td>
           </tr>
           <tr>
-            <th scope="row">New duty location</th>
+            <th scope="row">{isRetirementOrSeparation ? 'HOR, PLEAD or HOS' : 'New duty location'}</th>
             <td>{newDutyStationName}</td>
           </tr>
           <tr>

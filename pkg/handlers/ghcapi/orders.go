@@ -29,20 +29,23 @@ type GetOrdersHandler struct {
 
 // Handle getting the information of a specific order
 func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	orderID, _ := uuid.FromString(params.OrderID.String())
-	order, err := h.FetchOrder(appCtx, orderID)
-	if err != nil {
-		appCtx.Logger().Error("fetching order", zap.Error(err))
-		switch err {
-		case sql.ErrNoRows:
-			return orderop.NewGetOrderNotFound()
-		default:
-			return orderop.NewGetOrderInternalServerError()
-		}
-	}
-	orderPayload := payloads.Order(order)
-	return orderop.NewGetOrderOK().WithPayload(orderPayload)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
+
+			orderID, _ := uuid.FromString(params.OrderID.String())
+			order, err := h.FetchOrder(appCtx, orderID)
+			if err != nil {
+				appCtx.Logger().Error("fetching order", zap.Error(err))
+				switch err {
+				case sql.ErrNoRows:
+					return orderop.NewGetOrderNotFound()
+				default:
+					return orderop.NewGetOrderInternalServerError()
+				}
+			}
+			orderPayload := payloads.Order(order)
+			return orderop.NewGetOrderOK().WithPayload(orderPayload)
+		})
 }
 
 // UpdateOrderHandler updates an order via PATCH /orders/{orderId}
@@ -54,41 +57,44 @@ type UpdateOrderHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewUpdateOrderNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
-		case apperror.ConflictError:
-			return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.PreconditionFailedError:
-			return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewUpdateOrderInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || (!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
-		return handleError(apperror.NewForbiddenError("is not a TXO"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error updating order", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewUpdateOrderNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
+				case apperror.ConflictError:
+					return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.PreconditionFailedError:
+					return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewUpdateOrderInternalServerError()
+				}
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || (!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
+				return handleError(apperror.NewForbiddenError("is not a TXO"))
+			}
 
-	h.triggerUpdateOrderEvent(appCtx, orderID, moveID, params)
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	orderPayload := payloads.Order(updatedOrder)
+			h.triggerUpdateOrderEvent(appCtx, orderID, moveID, params)
 
-	return orderop.NewUpdateOrderOK().WithPayload(orderPayload)
+			orderPayload := payloads.Order(updatedOrder)
+
+			return orderop.NewUpdateOrderOK().WithPayload(orderPayload)
+		})
 }
 
 // CounselingUpdateOrderHandler updates an order via PATCH /counseling/orders/{orderId}
@@ -99,40 +105,42 @@ type CounselingUpdateOrderHandler struct {
 
 // Handle ... updates an order as requested by a services counselor
 func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrderParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewCounselingUpdateOrderNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return orderop.NewCounselingUpdateOrderUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return orderop.NewCounselingUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewCounselingUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewCounselingUpdateOrderInternalServerError()
-		}
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error updating order", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewCounselingUpdateOrderNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return orderop.NewCounselingUpdateOrderUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return orderop.NewCounselingUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewCounselingUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewCounselingUpdateOrderInternalServerError()
+				}
+			}
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsCounselor(appCtx, orderID, *params.Body, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsCounselor(appCtx, orderID, *params.Body, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	h.triggerCounselingUpdateOrderEvent(appCtx, orderID, moveID, params)
+			h.triggerCounselingUpdateOrderEvent(appCtx, orderID, moveID, params)
 
-	orderPayload := payloads.Order(updatedOrder)
+			orderPayload := payloads.Order(updatedOrder)
 
-	return orderop.NewCounselingUpdateOrderOK().WithPayload(orderPayload)
+			return orderop.NewCounselingUpdateOrderOK().WithPayload(orderPayload)
+		})
 }
 
 // UpdateAllowanceHandler updates an order and entitlements via PATCH /orders/{orderId}/allowances
@@ -143,39 +151,42 @@ type UpdateAllowanceHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order allowance", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewUpdateAllowanceNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewUpdateAllowanceInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(apperror.NewForbiddenError("is not a TOO"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error updating order allowance", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewUpdateAllowanceNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewUpdateAllowanceInternalServerError()
+				}
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				return handleError(apperror.NewForbiddenError("is not a TOO"))
+			}
 
-	h.triggerUpdatedAllowanceEvent(appCtx, orderID, moveID, params)
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	orderPayload := payloads.Order(updatedOrder)
+			h.triggerUpdatedAllowanceEvent(appCtx, orderID, moveID, params)
 
-	return orderop.NewUpdateAllowanceOK().WithPayload(orderPayload)
+			orderPayload := payloads.Order(updatedOrder)
+
+			return orderop.NewUpdateAllowanceOK().WithPayload(orderPayload)
+		})
 }
 
 // CounselingUpdateAllowanceHandler updates an order and entitlements via PATCH /counseling/orders/{orderId}/allowances
@@ -186,39 +197,42 @@ type CounselingUpdateAllowanceHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdateAllowanceParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating order allowance", zap.Error(err))
-		switch err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewCounselingUpdateAllowanceNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-			return orderop.NewCounselingUpdateAllowanceUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return orderop.NewCounselingUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewCounselingUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewCounselingUpdateAllowanceInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error updating order allowance", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewCounselingUpdateAllowanceNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return orderop.NewCounselingUpdateAllowanceUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return orderop.NewCounselingUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewCounselingUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewCounselingUpdateAllowanceInternalServerError()
+				}
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsCounselor(appCtx, orderID, *params.Body, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
+			}
 
-	h.triggerCounselingUpdateAllowanceEvent(appCtx, orderID, moveID, params)
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsCounselor(appCtx, orderID, *params.Body, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	orderPayload := payloads.Order(updatedOrder)
+			h.triggerCounselingUpdateAllowanceEvent(appCtx, orderID, moveID, params)
 
-	return orderop.NewCounselingUpdateAllowanceOK().WithPayload(orderPayload)
+			orderPayload := payloads.Order(updatedOrder)
+
+			return orderop.NewCounselingUpdateAllowanceOK().WithPayload(orderPayload)
+		})
 }
 
 // UpdateBillableWeightHandler updates the max billable weight on an order's entitlements via PATCH /orders/{orderId}/update-billable-weight
@@ -229,40 +243,43 @@ type UpdateBillableWeightHandler struct {
 
 // Handle ... updates the authorized weight
 func (h UpdateBillableWeightHandler) Handle(params orderop.UpdateBillableWeightParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewUpdateBillableWeightNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return orderop.NewUpdateBillableWeightUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return orderop.NewUpdateBillableWeightPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewUpdateBillableWeightForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewUpdateBillableWeightInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(apperror.NewForbiddenError("is not a TOO"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewUpdateBillableWeightNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return orderop.NewUpdateBillableWeightUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return orderop.NewUpdateBillableWeightPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewUpdateBillableWeightForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewUpdateBillableWeightInternalServerError()
+				}
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
-	updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateBillableWeightAsTOO(appCtx, orderID, dbAuthorizedWeight, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				return handleError(apperror.NewForbiddenError("is not a TOO"))
+			}
 
-	h.triggerUpdatedBillableWeightEvent(appCtx, orderID, moveID, params)
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateBillableWeightAsTOO(appCtx, orderID, dbAuthorizedWeight, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	orderPayload := payloads.Order(updatedOrder)
+			h.triggerUpdatedBillableWeightEvent(appCtx, orderID, moveID, params)
 
-	return orderop.NewUpdateBillableWeightOK().WithPayload(orderPayload)
+			orderPayload := payloads.Order(updatedOrder)
+
+			return orderop.NewUpdateBillableWeightOK().WithPayload(orderPayload)
+		})
 }
 
 // UpdateMaxBillableWeightAsTIOHandler updates the max billable weight on an order's entitlements via PATCH /orders/{orderId}/update-billable-weight/tio
@@ -273,41 +290,44 @@ type UpdateMaxBillableWeightAsTIOHandler struct {
 
 // Handle ... updates the authorized weight
 func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBillableWeightAsTIOParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewUpdateMaxBillableWeightAsTIONotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewUpdateMaxBillableWeightAsTIOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-		return handleError(apperror.NewForbiddenError("is not a TIO"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewUpdateMaxBillableWeightAsTIONotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewUpdateMaxBillableWeightAsTIOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError()
+				}
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
-	remarks := params.Body.TioRemarks
-	updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(appCtx, orderID, dbAuthorizedWeight, remarks, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+				return handleError(apperror.NewForbiddenError("is not a TIO"))
+			}
 
-	h.triggerUpdatedMaxBillableWeightAsTIOEvent(appCtx, orderID, moveID, params)
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+			remarks := params.Body.TioRemarks
+			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(appCtx, orderID, dbAuthorizedWeight, remarks, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	orderPayload := payloads.Order(updatedOrder)
+			h.triggerUpdatedMaxBillableWeightAsTIOEvent(appCtx, orderID, moveID, params)
 
-	return orderop.NewUpdateMaxBillableWeightAsTIOOK().WithPayload(orderPayload)
+			orderPayload := payloads.Order(updatedOrder)
+
+			return orderop.NewUpdateMaxBillableWeightAsTIOOK().WithPayload(orderPayload)
+		})
 }
 
 // AcknowledgeExcessWeightRiskHandler is called when a TOO dismissed the alert to acknowledge the excess weight risk via POST /orders/{orderId}/acknowledge-excess-weight-risk
@@ -318,39 +338,42 @@ type AcknowledgeExcessWeightRiskHandler struct {
 
 // Handle ... updates the authorized weight
 func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExcessWeightRiskParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	handleError := func(err error) middleware.Responder {
-		appCtx.Logger().Error("error acknowledging excess weight risk", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return orderop.NewAcknowledgeExcessWeightRiskNotFound()
-		case apperror.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-			return orderop.NewAcknowledgeExcessWeightRiskUnprocessableEntity().WithPayload(payload)
-		case apperror.PreconditionFailedError:
-			return orderop.NewAcknowledgeExcessWeightRiskPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case apperror.ForbiddenError:
-			return orderop.NewAcknowledgeExcessWeightRiskForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return orderop.NewAcknowledgeExcessWeightRiskInternalServerError()
-		}
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(apperror.NewForbiddenError("is not a TOO"))
-	}
+			handleError := func(err error) middleware.Responder {
+				appCtx.Logger().Error("error acknowledging excess weight risk", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewAcknowledgeExcessWeightRiskNotFound()
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return orderop.NewAcknowledgeExcessWeightRiskUnprocessableEntity().WithPayload(payload)
+				case apperror.PreconditionFailedError:
+					return orderop.NewAcknowledgeExcessWeightRiskPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				case apperror.ForbiddenError:
+					return orderop.NewAcknowledgeExcessWeightRiskForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+				default:
+					return orderop.NewAcknowledgeExcessWeightRiskInternalServerError()
+				}
+			}
 
-	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedMove, err := h.excessWeightRiskManager.AcknowledgeExcessWeightRisk(appCtx, orderID, params.IfMatch)
-	if err != nil {
-		return handleError(err)
-	}
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				return handleError(apperror.NewForbiddenError("is not a TOO"))
+			}
 
-	h.triggerAcknowledgeExcessWeightRiskEvent(appCtx, updatedMove.ID, params)
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			updatedMove, err := h.excessWeightRiskManager.AcknowledgeExcessWeightRisk(appCtx, orderID, params.IfMatch)
+			if err != nil {
+				return handleError(err)
+			}
 
-	movePayload := payloads.Move(updatedMove)
+			h.triggerAcknowledgeExcessWeightRiskEvent(appCtx, updatedMove.ID, params)
 
-	return orderop.NewAcknowledgeExcessWeightRiskOK().WithPayload(movePayload)
+			movePayload := payloads.Move(updatedMove)
+
+			return orderop.NewAcknowledgeExcessWeightRiskOK().WithPayload(movePayload)
+		})
 }
 
 func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateOrderParams) {

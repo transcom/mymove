@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -47,94 +48,97 @@ type CreateMovingExpenseDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMovingExpenseDocumentParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+	return h.AuditableAppContextFromRequest(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) middleware.Responder {
 
-	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			moveID, err := uuid.FromString(params.MoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	payload := params.CreateMovingExpenseDocumentPayload
+			// Validate that this move belongs to the current user
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
 
-	uploadIds := payload.UploadIds
-	haveReceipt := !payload.ReceiptMissing
-	// To maintain old behavior that required / assumed
-	// that users always had receipts
-	if len(uploadIds) == 0 && haveReceipt {
-		return movedocop.NewCreateMovingExpenseDocumentBadRequest()
-	}
+			payload := params.CreateMovingExpenseDocumentPayload
 
-	// Fetch uploads to confirm ownership
-	userUploads := models.UserUploads{}
-	for _, id := range uploadIds {
-		convertedUploadID := uuid.Must(uuid.FromString(id.String()))
-		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), convertedUploadID)
-		if fetchUploadErr != nil {
-			return handlers.ResponseForError(appCtx.Logger(), fetchUploadErr)
-		}
-		userUploads = append(userUploads, userUpload)
-	}
+			uploadIds := payload.UploadIds
+			haveReceipt := !payload.ReceiptMissing
+			// To maintain old behavior that required / assumed
+			// that users always had receipts
+			if len(uploadIds) == 0 && haveReceipt {
+				return movedocop.NewCreateMovingExpenseDocumentBadRequest()
+			}
 
-	var ppmID *uuid.UUID
-	if payload.PersonallyProcuredMoveID != nil {
-		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
+			// Fetch uploads to confirm ownership
+			userUploads := models.UserUploads{}
+			for _, id := range uploadIds {
+				convertedUploadID := uuid.Must(uuid.FromString(id.String()))
+				userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), convertedUploadID)
+				if fetchUploadErr != nil {
+					return handlers.ResponseForError(appCtx.Logger(), fetchUploadErr)
+				}
+				userUploads = append(userUploads, userUpload)
+			}
 
-		// Enforce that the ppm's move_id matches our move
-		ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), id)
-		if fetchPPMErr != nil {
-			return handlers.ResponseForError(appCtx.Logger(), fetchPPMErr)
-		}
-		if ppm.MoveID != moveID {
-			return movedocop.NewCreateMovingExpenseDocumentBadRequest()
-		}
+			var ppmID *uuid.UUID
+			if payload.PersonallyProcuredMoveID != nil {
+				id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
 
-		ppmID = &id
-	}
+				// Enforce that the ppm's move_id matches our move
+				ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), id)
+				if fetchPPMErr != nil {
+					return handlers.ResponseForError(appCtx.Logger(), fetchPPMErr)
+				}
+				if ppm.MoveID != moveID {
+					return movedocop.NewCreateMovingExpenseDocumentBadRequest()
+				}
 
-	var storageStartDate *time.Time
-	if payload.StorageStartDate != nil {
-		storageStartDate = (*time.Time)(payload.StorageStartDate)
-	}
-	var storageEndDate *time.Time
-	if payload.StorageEndDate != nil {
-		storageEndDate = (*time.Time)(payload.StorageEndDate)
-	}
-	movingExpenseDocument := models.MovingExpenseDocument{
-		RequestedAmountCents: unit.Cents(*payload.RequestedAmountCents),
-		PaymentMethod:        *payload.PaymentMethod,
-		ReceiptMissing:       payload.ReceiptMissing,
-		StorageEndDate:       storageEndDate,
-		StorageStartDate:     storageStartDate,
-	}
-	if payload.MovingExpenseType != nil {
-		movingExpenseDocument.MovingExpenseType = models.MovingExpenseType(*payload.MovingExpenseType)
-	}
-	if payload.MoveDocumentType == nil {
-		return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: MoveDocumentType"))
-	}
-	newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
-		appCtx.DB(),
-		userUploads,
-		ppmID,
-		models.MoveDocumentType(*payload.MoveDocumentType),
-		*payload.Title,
-		payload.Notes,
-		movingExpenseDocument,
-		*move.SelectedMoveType,
-	)
+				ppmID = &id
+			}
 
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
-	}
+			var storageStartDate *time.Time
+			if payload.StorageStartDate != nil {
+				storageStartDate = (*time.Time)(payload.StorageStartDate)
+			}
+			var storageEndDate *time.Time
+			if payload.StorageEndDate != nil {
+				storageEndDate = (*time.Time)(payload.StorageEndDate)
+			}
+			movingExpenseDocument := models.MovingExpenseDocument{
+				RequestedAmountCents: unit.Cents(*payload.RequestedAmountCents),
+				PaymentMethod:        *payload.PaymentMethod,
+				ReceiptMissing:       payload.ReceiptMissing,
+				StorageEndDate:       storageEndDate,
+				StorageStartDate:     storageStartDate,
+			}
+			if payload.MovingExpenseType != nil {
+				movingExpenseDocument.MovingExpenseType = models.MovingExpenseType(*payload.MovingExpenseType)
+			}
+			if payload.MoveDocumentType == nil {
+				return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: MoveDocumentType"))
+			}
+			newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
+				appCtx.DB(),
+				userUploads,
+				ppmID,
+				models.MoveDocumentType(*payload.MoveDocumentType),
+				*payload.Title,
+				payload.Notes,
+				movingExpenseDocument,
+				*move.SelectedMoveType,
+			)
 
-	newPayload, err := payloadForMovingExpenseDocumentModel(h.FileStorer(), *newMovingExpenseDocument)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	return movedocop.NewCreateMovingExpenseDocumentOK().WithPayload(newPayload)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+			}
+
+			newPayload, err := payloadForMovingExpenseDocumentModel(h.FileStorer(), *newMovingExpenseDocument)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err)
+			}
+			return movedocop.NewCreateMovingExpenseDocumentOK().WithPayload(newPayload)
+		})
 }
