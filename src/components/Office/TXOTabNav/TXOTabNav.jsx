@@ -58,7 +58,7 @@ const TXOTabNav = ({
               {pendingPaymentRequestCount > 0 && <Tag>{pendingPaymentRequestCount}</Tag>}
             </NavLink>,
             <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/history`}>
-              <span className="tab-title">History</span>
+              <span className="tab-title">Move history</span>
             </NavLink>,
           ]}
         />
