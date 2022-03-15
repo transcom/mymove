@@ -155,8 +155,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 			},
 		})
 
-		_, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), approvedMove.Locator)
-		suite.FatalNoError(err)
+		moveHistoryData, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), approvedMove.Locator)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
 
 	})
 
