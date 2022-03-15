@@ -34,7 +34,7 @@ type Assertions struct {
 	AccessCode                               models.AccessCode
 	Address                                  models.Address
 	AdminUser                                models.AdminUser
-	AuditHistory                             models.AuditHistory
+	TestDataAuditHistory                     TestDataAuditHistory
 	BackupContact                            models.BackupContact
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
