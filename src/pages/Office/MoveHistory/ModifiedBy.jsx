@@ -19,10 +19,10 @@ const ModifiedBy = ({ firstName, lastName, email, phone }) => (
 );
 
 ModifiedBy.defaultProps = {
-  firstName: null,
-  lastName: null,
-  email: null,
-  phone: null,
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
 };
 
 ModifiedBy.propTypes = {
