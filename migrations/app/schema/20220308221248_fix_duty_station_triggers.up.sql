@@ -29,7 +29,7 @@ $$
 BEGIN
 	IF new.origin_duty_location_id IS NULL OR
 	   (new.origin_duty_station_id IS NOT NULL AND new.origin_duty_station_id <> old.origin_duty_station_id) THEN
-		new.origin_duty_location_id = new.origin_duty_station_id;
+		new.origin_duty_location_id := new.origin_duty_station_id;
 	END IF;
 	RETURN new;
 END
