@@ -91,8 +91,30 @@ describe('AdvanceForm component', () => {
 
         const requiredAlerts = screen.getByRole('alert');
 
+        expect(requiredAlerts).toHaveTextContent('Required');
+      });
+    });
+
+    it('marks amount requested input as min of $1 expected when conditionally displayed', async () => {
+      render(<AdvanceForm {...defaultProps} />);
+
+      const inputAdvanceRequested = screen.getByLabelText('Yes');
+
+      await userEvent.click(inputAdvanceRequested);
+
+      const amountRequested = screen.getByLabelText('Amount requested');
+
+      await userEvent.click(amountRequested);
+      await userEvent.type(amountRequested, '0');
+      await userEvent.tab();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+
+        const requiredAlerts = screen.getByRole('alert');
+
         expect(requiredAlerts).toHaveTextContent(
-          "Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.",
+          "The minimum advance request is $1. If you don't want an advance, select No.",
         );
       });
     });

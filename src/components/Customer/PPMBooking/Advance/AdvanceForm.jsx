@@ -17,18 +17,23 @@ import { CheckboxField } from 'components/form/fields';
 import { maxAdvance } from 'utils/incentives';
 import { formatCentsTruncateWhole } from 'utils/formatters';
 
-const validationSchema = Yup.object().shape({
-  advanceRequested: Yup.boolean().required('Required'),
-  amountRequested: Yup.number().when('advanceRequested', {
-    is: true,
-    then: (schema) =>
-      schema.required('Required').min(1, "The minimum advance request is $1. If you don't want an advance, select No."),
-  }),
-  agreeToTerms: Yup.boolean().when('advanceRequested', {
-    is: true,
-    then: (schema) => schema.oneOf([true], 'Required'),
-  }),
-});
+const validationSchema = (maxAdvanceRequest, estimatedIncentive) => {
+  return Yup.object().shape({
+    advanceRequested: Yup.boolean().required('Required'),
+    amountRequested: Yup.number().when('advanceRequested', {
+      is: true,
+      then: (schema) =>
+        schema
+          .required('Required')
+          .min(1, "The minimum advance request is $1. If you don't want an advance, select No.")
+          .max(estimatedIncentive / 100, `Your advance is limited to $${maxAdvanceRequest}`),
+    }),
+    agreeToTerms: Yup.boolean().when('advanceRequested', {
+      is: true,
+      then: (schema) => schema.oneOf([true], 'Required'),
+    }),
+  });
+};
 
 const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
   const ppmShipmentAdvance = mtoShipment?.ppmShipment?.advance;
@@ -42,7 +47,11 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
   const formatedIncentive = formatCentsTruncateWhole(mtoShipment?.ppmShipment?.estimatedIncentive);
 
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={() => validationSchema(maxAdvanceToRequest, mtoShipment?.ppmShipment?.estimatedIncentive)}
+      onSubmit={onSubmit}
+    >
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
           <div className={ppmBookingStyles.formContainer}>
@@ -87,11 +96,6 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       prefix="$"
-                      error={
-                        mtoShipment?.ppmShipment &&
-                        values.amountRequested > mtoShipment.ppmShipment.estimatedIncentive / 100
-                      }
-                      errorMessage={`Your advance is limited to $${maxAdvanceToRequest}`}
                     />
                     <Hint>
                       Your move counselor will discuss next steps with you and let you know how you&apos;ll receive your
