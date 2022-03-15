@@ -26,8 +26,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The internal/website API for my.move.mil",
-    "title": "my.move.mil",
+    "description": "The Internal API is a RESTful API that enables the Customer application for\nMilMove.\n\nAll endpoints are located under ` + "`" + `/internal` + "`" + `.\n",
+    "title": "MilMove Internal API",
     "contact": {
       "email": "ppp@truss.works"
     },
@@ -5293,26 +5293,12 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "advanceId": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "advanceRequested": {
-          "type": "boolean",
+        "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "advanceWorksheetId": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "approvedAt": {
           "type": "string",
@@ -6925,8 +6911,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The internal/website API for my.move.mil",
-    "title": "my.move.mil",
+    "description": "The Internal API is a RESTful API that enables the Customer application for\nMilMove.\n\nAll endpoints are located under ` + "`" + `/internal` + "`" + `.\n",
+    "title": "MilMove Internal API",
     "contact": {
       "email": "ppp@truss.works"
     },
@@ -12260,26 +12246,12 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "advanceId": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "advanceRequested": {
-          "type": "boolean",
+        "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "advanceWorksheetId": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "approvedAt": {
           "type": "string",

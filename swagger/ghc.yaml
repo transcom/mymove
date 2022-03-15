@@ -2,11 +2,16 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: The API for move.mil
+  description: >
+    The GHC API is a RESTful API that enables the Office application for
+    MilMove.
+
+
+    All endpoints are located under `/ghc/v1`.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-  title: move.mil API
+  title: MilMove GHC API
   version: 0.0.1
 basePath: /ghc/v1
 schemes:
@@ -2497,6 +2502,26 @@ definitions:
       sessionUserId:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
+        type: string
+        x-nullable: true
+      sessionUserFirstName:
+        example: foo
+        type: string
+        x-nullable: true
+      sessionUserLastName:
+        example: bar
+        type: string
+        x-nullable: true
+      sessionUserEmail:
+        example: foobar@example.com
+        type: string
+        x-nullable: true
+      sessionUserTelephone:
+        format: telephone
+        type: string
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      context:
         type: string
         x-nullable: true
       eventName:

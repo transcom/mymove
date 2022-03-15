@@ -94,7 +94,7 @@ const NTSShipmentInfoList = ({
   const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
   const requestedPickupDateElement = (
     <div className={requestedPickupDateElementFlags.classes}>
-      <dt>Preferred pickup date</dt>
+      <dt>Requested pickup date</dt>
       <dd data-testid="requestedPickupDate">
         {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) || '—'}
       </dd>

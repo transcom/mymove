@@ -23,8 +23,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
+    "title": "MilMove GHC API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -4519,6 +4519,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "context": {
+          "type": "string",
+          "x-nullable": true
+        },
         "eventName": {
           "description": "API endpoint name that was called to make the change",
           "type": "string",
@@ -4550,11 +4554,32 @@ func init() {
           "description": "Database schema audited table for this event is in",
           "type": "string"
         },
+        "sessionUserEmail": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foobar@example.com"
+        },
+        "sessionUserFirstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foo"
+        },
         "sessionUserId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sessionUserLastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "bar"
+        },
+        "sessionUserTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         },
         "statementOnly": {
           "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",
@@ -6110,8 +6135,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
+    "title": "MilMove GHC API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -11388,6 +11413,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "context": {
+          "type": "string",
+          "x-nullable": true
+        },
         "eventName": {
           "description": "API endpoint name that was called to make the change",
           "type": "string",
@@ -11419,11 +11448,32 @@ func init() {
           "description": "Database schema audited table for this event is in",
           "type": "string"
         },
+        "sessionUserEmail": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foobar@example.com"
+        },
+        "sessionUserFirstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foo"
+        },
         "sessionUserId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sessionUserLastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "bar"
+        },
+        "sessionUserTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         },
         "statementOnly": {
           "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",

@@ -45,32 +45,36 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		originDomesticServiceArea = testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+		originDomesticServiceArea = testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
 				ServiceArea:   "004",
 				SITPDSchedule: 2,
 			},
+			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
 		})
 
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 			ReZip3: models.ReZip3{
 				Contract:            originDomesticServiceArea.Contract,
+				ContractID:          originDomesticServiceArea.ContractID,
 				DomesticServiceArea: originDomesticServiceArea,
 				Zip3:                "350",
 			},
 		})
 
-		destDomesticServiceArea = testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+		destDomesticServiceArea = testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
 				Contract:      originDomesticServiceArea.Contract,
-				ServiceArea:   "005",
-				SITPDSchedule: 3,
+				ContractID:    originDomesticServiceArea.ContractID,
+				ServiceArea:   "680",
+				SITPDSchedule: 2,
 			},
 		})
 
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 			ReZip3: models.ReZip3{
 				Contract:            destDomesticServiceArea.Contract,
+				ContractID:          destDomesticServiceArea.ContractID,
 				DomesticServiceArea: destDomesticServiceArea,
 				Zip3:                "450",
 			},
@@ -100,7 +104,16 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	suite.Run("lookup SITScheduleOrigin not found", func() {
 		setupTestData()
 
-		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{PostalCode: "00000"},
+		})
+
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				PickupAddress:   &pickupAddress,
+				PickupAddressID: &pickupAddress.ID,
+			},
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -112,14 +125,23 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), originKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
-		expected := fmt.Sprintf(" with error unable to find domestic service area for 902 under contract code %s", ghcrateengine.DefaultContractCode)
+		expected := fmt.Sprintf(" with error unable to find domestic service area for 000 under contract code %s", ghcrateengine.DefaultContractCode)
 		suite.Contains(err.Error(), expected)
 	})
 
 	suite.Run("lookup SITScheduleDest not found", func() {
 		setupTestData()
 
-		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{PostalCode: "00100"},
+		})
+
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				DestinationAddress:   &destinationAddress,
+				DestinationAddressID: &destinationAddress.ID,
+			},
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -131,7 +153,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), destKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
-		expected := fmt.Sprintf(" with error unable to find domestic service area for 945 under contract code %s", ghcrateengine.DefaultContractCode)
+		expected := fmt.Sprintf(" with error unable to find domestic service area for 001 under contract code %s", ghcrateengine.DefaultContractCode)
 		suite.Contains(err.Error(), expected)
 	})
 }

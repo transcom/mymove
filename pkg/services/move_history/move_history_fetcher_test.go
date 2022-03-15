@@ -39,12 +39,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		updateAddress.PostalCode = "23503"
 		suite.MustSave(updateAddress)
 
-		//update shipment weight
-		//oldWeight := *approvedShipment.PrimeActualWeight
-		//updateWeight := *approvedShipment.PrimeActualWeight + unit.Pound(1000)
-		//*approvedShipment.PrimeActualWeight = updateWeight
-		//suite.MustSave(&approvedShipment)
-
 		// update move
 		tioRemarks := "updating TIO remarks for test"
 		approvedMove.TIORemarks = &tioRemarks
@@ -56,43 +50,16 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		verifyOldPickupAddress := false
 		verifyNewPickupAddress := false
-		// shipment update
-		//verifyOldWeight := false
-		//verifyNewWeight := false
 		// orders update
-		verifyOldSAC := false
-		verifyNewSAC := false
+		// verifyOldSAC := false
+		// verifyNewSAC := false
 		// move update
 		verifyOldTIORemarks := false
 		verifyTIORemarks := false
 
 		for _, h := range moveHistory.AuditHistories {
 
-			if h.TableName == "mto_shipments" {
-				/*
-					if *h.ObjectID == approvedShipment.ID {
-						if h.OldData != nil {
-							oldData := *h.OldData
-							if oldData["prime_actual_weight"] == oldWeight {
-								verifyOldWeight = true
-							}
-						}
-						if h.ChangedData != nil {
-							changedData := *h.ChangedData
-							fmt.Printf("+%v\n", changedData["prime_actual_weight"].(float64))
-							fmt.Printf("+%v\n", updateWeight)
-							weight, ok := changedData["prime_actual_weight"].(float64)
-							if ok {
-								// w, _ := strconv.ParseFloat(weight, 64)
-								if weight == updateWeight.Float64() {
-									verifyNewWeight = true
-								}
-							}
-
-						}
-					}
-				*/
-			} else if h.TableName == "addresses" {
+			if h.TableName == "addresses" {
 				if *h.ObjectID == updateAddress.ID {
 					if h.OldData != nil {
 						oldData := *h.OldData
@@ -107,7 +74,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 						}
 					}
 				}
-			} else if h.TableName == "orders" {
+				/*} else if h.TableName == "orders" {
 				if *h.ObjectID == approvedMove.Orders.ID {
 					if h.OldData != nil {
 						oldData := *h.OldData
@@ -121,7 +88,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 							verifyNewSAC = true
 						}
 					}
-				}
+				}*/
 			} else if h.TableName == "moves" {
 				if *h.ObjectID == approvedMove.ID {
 					if h.OldData != nil {
@@ -148,12 +115,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		suite.True(verifyOldPickupAddress, "verifyOldPickupAddress")
 		suite.True(verifyNewPickupAddress, "verifyNewPickupAddress")
-		// shipment update
-		//suite.True(verifyOldWeight, "verifyOldWeight")
-		//suite.True(verifyNewWeight, "verifyNewWeight")
 		// orders update
-		suite.True(verifyOldSAC, "verifyOldSAC")
-		suite.True(verifyNewSAC, "verifyNewSAC")
+		// suite.True(verifyOldSAC, "verifyOldSAC")
+		// suite.True(verifyNewSAC, "verifyNewSAC")
 		// move update
 		suite.True(verifyOldTIORemarks, "verifyOldTIORemarks")
 		suite.True(verifyTIORemarks, "verifyTIORemarks")
@@ -167,4 +131,44 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
+}
+
+func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
+	moveHistoryFetcher := NewMoveHistoryFetcher()
+
+	suite.T().Run("returns Audit History with session information", func(t *testing.T) {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		fakeRole := testdatagen.MakeTOORole(suite.DB())
+		fakeUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
+		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
+			User: fakeUser,
+			UsersRoles: models.UsersRoles{
+				RoleID: fakeRole.ID,
+			},
+		})
+		_ = testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+			OfficeUser: models.OfficeUser{
+				User:   fakeUser,
+				UserID: &fakeUser.ID,
+			},
+		})
+
+		_ = testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			User: fakeUser,
+			Move: models.Move{
+				ID: approvedMove.ID,
+			},
+		})
+
+		moveHistoryData, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), approvedMove.Locator)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
+		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserID, "AuditHistories contains an AuditHistory with a SessionUserID")
+		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserFirstName, "AuditHistories contains an AuditHistory with a SessionUserFirstName")
+		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserLastName, "AuditHistories contains an AuditHistory with a SessionUserLastName")
+		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserEmail, "AuditHistories contains an AuditHistory with a SessionUserEmail")
+		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserTelephone, "AuditHistories contains an AuditHistory with a SessionUserTelephone")
+	})
 }
