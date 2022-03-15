@@ -385,28 +385,31 @@ class MtoShipmentForm extends Component {
                                 )}
                               />
                             ) : (
-                              <p>
-                                We can use the zip of your new duty location.
-                                {/* the HOR, PLEAD or HOS you entered with your orders. */}
-                                <br />
-                                <strong>
-                                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                                  {newDutyStationAddress.postalCode}{' '}
-                                </strong>
-                                <br />
-                                You can add the specific delivery address later, once you know it.
-                              </p>
-                            )}
-                            {isRetireeSeparatee && (
-                              <p>
-                                We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
-                                <br />
-                                <strong>
-                                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                                  {newDutyStationAddress.postalCode}{' '}
-                                </strong>
-                                <br />
-                              </p>
+                              // eslint-disable-next-line react/jsx-no-useless-fragment
+                              <>
+                                {isRetireeSeparatee ? (
+                                  <p>
+                                    We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
+                                    <br />
+                                    <strong>
+                                      {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                                      {newDutyStationAddress.postalCode}{' '}
+                                    </strong>
+                                    <br />
+                                  </p>
+                                ) : (
+                                  <p>
+                                    We can use the zip of your new duty location.
+                                    <br />
+                                    <strong>
+                                      {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                                      {newDutyStationAddress.postalCode}{' '}
+                                    </strong>
+                                    <br />
+                                    You can add the specific delivery address later, once you know it.
+                                  </p>
+                                )}
+                              </>
                             )}
                           </Fieldset>
 
