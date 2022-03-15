@@ -26,8 +26,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The internal/website API for my.move.mil",
-    "title": "my.move.mil",
+    "description": "The Internal API is a RESTful API that enables the Customer application for\nMilMove.\n\nAll endpoints are located under ` + "`" + `/internal` + "`" + `.\n",
+    "title": "MilMove Internal API",
     "contact": {
       "email": "ppp@truss.works"
     },
@@ -6925,8 +6925,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The internal/website API for my.move.mil",
-    "title": "my.move.mil",
+    "description": "The Internal API is a RESTful API that enables the Customer application for\nMilMove.\n\nAll endpoints are located under ` + "`" + `/internal` + "`" + `.\n",
+    "title": "MilMove Internal API",
     "contact": {
       "email": "ppp@truss.works"
     },

@@ -8,16 +8,18 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestLookupQueryHelpers() {
-	domesticServiceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+	domesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 		ReDomesticServiceArea: models.ReDomesticServiceArea{
 			ServiceArea:      "004",
 			ServicesSchedule: 2,
 		},
+		ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
 	})
 
-	zip3 := testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+	zip3 := testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 		ReZip3: models.ReZip3{
 			Contract:            domesticServiceArea.Contract,
+			ContractID:          domesticServiceArea.ContractID,
 			DomesticServiceArea: domesticServiceArea,
 			Zip3:                "350",
 		},
