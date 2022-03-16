@@ -11,7 +11,7 @@ const OrdersTable = ({
   hasDependents,
   issueDate,
   moveId,
-  newDutyStationName,
+  newDutyLocationName,
   onEditClick,
   orderType,
   reportByDate,
@@ -48,7 +48,7 @@ const OrdersTable = ({
           </tr>
           <tr>
             <th scope="row">{isRetirementOrSeparation ? 'HOR, PLEAD or HOS' : 'New duty location'}</th>
-            <td>{newDutyStationName}</td>
+            <td>{newDutyLocationName}</td>
           </tr>
           <tr>
             <th scope="row">Dependents</th>
@@ -70,7 +70,7 @@ OrdersTable.propTypes = {
   hasDependents: bool.isRequired,
   issueDate: string.isRequired,
   moveId: string.isRequired,
-  newDutyStationName: string.isRequired,
+  newDutyLocationName: string.isRequired,
   onEditClick: func.isRequired,
   orderType: string.isRequired,
   reportByDate: string.isRequired,

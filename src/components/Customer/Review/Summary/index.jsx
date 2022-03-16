@@ -265,7 +265,7 @@ export class Summary extends Component {
             hasDependents={currentOrders.has_dependents}
             issueDate={currentOrders.issue_date}
             moveId={moveId}
-            newDutyStationName={currentOrders.new_duty_location.name}
+            newDutyLocationName={currentOrders.new_duty_location.name}
             onEditClick={this.handleEditClick}
             orderType={currentOrders.orders_type}
             reportByDate={currentOrders.report_by_date}
