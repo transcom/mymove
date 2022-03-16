@@ -114,15 +114,15 @@ describe('Services counselor user', () => {
       .within(($form) => {
         cy.get('[data-icon="chevron-down"]').click();
 
-        cy.get('div[class*="warning"] > [data-testid="ntsRecordedWeight"]').should('exist');
-        cy.get('div[class*="missingInfoError"] > [data-testid="storageFacilityName"]').should('exist');
+        cy.get('div[class*="warning"] [data-testid="ntsRecordedWeight"]').should('exist');
+        cy.get('div[class*="missingInfoError"] [data-testid="storageFacilityName"]').should('exist');
         cy.get('[data-testid="storageFacilityName"]').contains('Missing');
-        cy.get('div[class*="warning"] > [data-testid="serviceOrderNumber"]').should('exist');
-        cy.get('div[class*="missingInfoError"] > [data-testid="storageFacilityAddress"]').should('exist');
+        cy.get('div[class*="warning"] [data-testid="serviceOrderNumber"]').should('exist');
+        cy.get('div[class*="missingInfoError"] [data-testid="storageFacilityAddress"]').should('exist');
         cy.get('[data-testid="storageFacilityAddress"]').contains('Missing');
-        cy.get('div[class*="warning"] > [data-testid="counselorRemarks"]').should('exist');
-        cy.get('div[class*="warning"] > [data-testid="tacType"]').should('exist');
-        cy.get('div[class*="warning"] > [data-testid="sacType"]').should('exist');
+        cy.get('div[class*="warning"] [data-testid="counselorRemarks"]').should('exist');
+        cy.get('div[class*="warning"] [data-testid="tacType"]').should('exist');
+        cy.get('div[class*="warning"] [data-testid="sacType"]').should('exist');
       });
 
     editNTSReleaseShipment();
