@@ -17,6 +17,7 @@ describe('Customer NTSr Setup flow', function () {
   it('Edits an NTSr shipment from review page', function () {
     cy.apiSignInAsUser(ntsUser);
     customerVisitsReviewPage();
+    customerReviewsShipmentInfoOnReviewPage();
     customerEditsNTSRShipmentFromReviewPage();
   });
 
@@ -72,6 +73,29 @@ function customerEditsNTSRShipmentFromReviewPage() {
   cy.get('[data-testid="ntsr-summary"]').contains('123 Oak Street');
   cy.get('[data-testid="ntsr-summary"]').contains('Ketchum Ash');
   cy.get('[data-testid="ntsr-summary"]').contains('Warning: fragile');
+}
+
+function customerReviewsShipmentInfoOnReviewPage() {
+  cy.get('[data-testid="review-move-header"]').contains('Review your details');
+
+  // Requested delivery date
+  cy.get('[data-testid="ntsr-summary"]').last().contains('15 Mar 2020');
+
+  // Destination
+  cy.get('[data-testid="ntsr-summary"]').last().contains('987 Any Avenue P.O. Box 9876');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('Fairfield, CA 94535');
+
+  // Second destination
+  cy.get('[data-testid="ntsr-summary"]').last().contains('123 Any Street P.O. Box 12345');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('Beverly Hills, CA 90210');
+
+  // Receiving agent
+  cy.get('[data-testid="ntsr-summary"]').last().contains('Jason Ash');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('202-555-9301');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('jason.ash@example.com');
+
+  // Remarks
+  cy.get('[data-testid="ntsr-summary"]').last().contains('Please treat gently');
 }
 
 function customerVisitsReviewPage() {
