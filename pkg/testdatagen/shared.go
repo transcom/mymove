@@ -27,7 +27,6 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 // Assertions defines assertions about what the data contains
@@ -35,6 +34,7 @@ type Assertions struct {
 	AccessCode                               models.AccessCode
 	Address                                  models.Address
 	AdminUser                                models.AdminUser
+	TestDataAuditHistory                     TestDataAuditHistory
 	BackupContact                            models.BackupContact
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
@@ -112,18 +112,6 @@ type Assertions struct {
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 	Zip3Distance                             models.Zip3Distance
-}
-
-func stringPointer(s string) *string {
-	return &s
-}
-
-func poundPointer(p unit.Pound) *unit.Pound {
-	return &p
-}
-
-func timePointer(t time.Time) *time.Time {
-	return &t
 }
 
 func mustCreate(db *pop.Connection, model interface{}, stub bool) {

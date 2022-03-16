@@ -113,10 +113,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
 	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
-	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
-	suite.Equal(yuma.Address.ID, ssd.CurrentDutyStation.Address.ID)
-	suite.Equal(fortGordon.ID, ssd.NewDutyStation.ID)
-	suite.Equal(fortGordon.Address.ID, ssd.NewDutyStation.Address.ID)
+	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
+	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
+	suite.Equal(fortGordon.ID, ssd.NewDutyLocation.ID)
+	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
 	rankWtgAllotment := models.GetWeightAllotment(rank)
 	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
@@ -239,10 +239,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
 	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
-	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
-	suite.Equal(yuma.Address.ID, ssd.CurrentDutyStation.Address.ID)
-	suite.Equal(fortGordon.ID, ssd.NewDutyStation.ID)
-	suite.Equal(fortGordon.Address.ID, ssd.NewDutyStation.Address.ID)
+	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
+	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
+	suite.Equal(fortGordon.ID, ssd.NewDutyLocation.ID)
+	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
 	rankWtgAllotment := models.GetWeightAllotment(rank)
 	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
@@ -337,8 +337,8 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	ssd := models.ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   order,
-		CurrentDutyStation:      yuma,
-		NewDutyStation:          fortGordon,
+		CurrentDutyLocation:     yuma,
+		NewDutyLocation:         fortGordon,
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),

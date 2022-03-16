@@ -267,7 +267,11 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	}
 }
 
-/*MymoveAPI The internal/website API for my.move.mil */
+/*MymoveAPI The Internal API is a RESTful API that enables the Customer application for
+MilMove.
+
+All endpoints are located under `/internal`.
+*/
 type MymoveAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context

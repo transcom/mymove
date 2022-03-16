@@ -23,8 +23,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
+    "title": "MilMove GHC API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -3165,6 +3165,28 @@ func init() {
         }
       }
     },
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -3205,26 +3227,6 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
-      }
-    },
-    "Branch": {
-      "type": "string",
-      "title": "branch",
-      "enum": [
-        "ARMY",
-        "NAVY",
-        "MARINES",
-        "AIR_FORCE",
-        "COAST_GUARD",
-        "OTHER"
-      ],
-      "x-display-value": {
-        "AIR_FORCE": "Air Force",
-        "ARMY": "Army",
-        "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
-        "NAVY": "Navy",
-        "OTHER": "OTHER"
       }
     },
     "ClientError": {
@@ -3268,8 +3270,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
@@ -4518,6 +4519,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "context": {
+          "type": "string",
+          "x-nullable": true
+        },
         "eventName": {
           "description": "API endpoint name that was called to make the change",
           "type": "string",
@@ -4549,11 +4554,32 @@ func init() {
           "description": "Database schema audited table for this event is in",
           "type": "string"
         },
+        "sessionUserEmail": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foobar@example.com"
+        },
+        "sessionUserFirstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foo"
+        },
         "sessionUserId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sessionUserLastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "bar"
+        },
+        "sessionUserTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         },
         "statementOnly": {
           "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",
@@ -4716,8 +4742,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "type": "string",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "amendedOrdersAcknowledgedAt": {
           "type": "string",
@@ -5614,8 +5639,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "authorizedWeight": {
           "description": "unit is in lbs",
@@ -6111,8 +6135,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
+    "title": "MilMove GHC API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -10031,6 +10055,28 @@ func init() {
         }
       }
     },
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      },
+      "x-nullable": true
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -10071,26 +10117,6 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
-      }
-    },
-    "Branch": {
-      "type": "string",
-      "title": "branch",
-      "enum": [
-        "ARMY",
-        "NAVY",
-        "MARINES",
-        "AIR_FORCE",
-        "COAST_GUARD",
-        "OTHER"
-      ],
-      "x-display-value": {
-        "AIR_FORCE": "Air Force",
-        "ARMY": "Army",
-        "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
-        "NAVY": "Navy",
-        "OTHER": "OTHER"
       }
     },
     "ClientError": {
@@ -10134,8 +10160,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
@@ -11388,6 +11413,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "context": {
+          "type": "string",
+          "x-nullable": true
+        },
         "eventName": {
           "description": "API endpoint name that was called to make the change",
           "type": "string",
@@ -11419,11 +11448,32 @@ func init() {
           "description": "Database schema audited table for this event is in",
           "type": "string"
         },
+        "sessionUserEmail": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foobar@example.com"
+        },
+        "sessionUserFirstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "foo"
+        },
         "sessionUserId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sessionUserLastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "bar"
+        },
+        "sessionUserTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         },
         "statementOnly": {
           "description": "true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'",
@@ -11586,8 +11636,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "type": "string",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "amendedOrdersAcknowledgedAt": {
           "type": "string",
@@ -12487,8 +12536,7 @@ func init() {
       "type": "object",
       "properties": {
         "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
+          "$ref": "#/definitions/Affiliation"
         },
         "authorizedWeight": {
           "description": "unit is in lbs",

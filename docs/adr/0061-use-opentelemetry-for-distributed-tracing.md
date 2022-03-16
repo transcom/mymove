@@ -1,6 +1,6 @@
 # _Use OpenTelemetry to instrument code for distributed tracing_
 
-**User Story:** *[Distributed Tracing ADR](https://dp3.atlassian.net/browse/MB-8053)*
+**User Story:** _[Distributed Tracing ADR](https://dp3.atlassian.net/browse/MB-8053)_
 
 _Give developers and operators an easier way to understand the behavior and
 structure of running systems by instrumenting code for distributed tracing._
@@ -65,7 +65,7 @@ gathering, exploring, and displaying trace information
 
 ## Decision Outcome
 
-* Chosen Alternative: *Use OpenTelemetry*
+* Chosen Alternative: _Use OpenTelemetry_
 * OpenTelemetry is an emerging industry standard
   * vendors find benefit of being in the OpenTelemetry ecosystem because they
   no longer have to create or support instrumentation libraries in an ever

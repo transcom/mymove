@@ -20,7 +20,7 @@ import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInf
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { requiredAddressSchema } from 'utils/validation';
+import { addressSchema } from 'utils/validation';
 import { isValidWeight, isEmpty } from 'shared/utils';
 import { fromPrimeAPIAddressFormat, formatAddressForPrimeAPI } from 'utils/formatters';
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
@@ -138,8 +138,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   };
 
   const validationSchema = Yup.object().shape({
-    pickupAddress: requiredAddressSchema,
-    destinationAddress: requiredAddressSchema,
+    pickupAddress: addressSchema,
+    destinationAddress: addressSchema,
     scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
     actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
   });

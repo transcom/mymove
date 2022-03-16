@@ -41,30 +41,34 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		originDomesticServiceArea = testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+		originDomesticServiceArea = testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
 				ServiceArea: "004",
 			},
+			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
 		})
 
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 			ReZip3: models.ReZip3{
 				Contract:            originDomesticServiceArea.Contract,
+				ContractID:          originDomesticServiceArea.ContractID,
 				DomesticServiceArea: originDomesticServiceArea,
 				Zip3:                "350",
 			},
 		})
 
-		destDomesticServiceArea = testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+		destDomesticServiceArea = testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
 				Contract:    originDomesticServiceArea.Contract,
-				ServiceArea: "042",
+				ContractID:  originDomesticServiceArea.ContractID,
+				ServiceArea: "608",
 			},
 		})
 
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 			ReZip3: models.ReZip3{
 				Contract:            destDomesticServiceArea.Contract,
+				ContractID:          destDomesticServiceArea.ContractID,
 				DomesticServiceArea: destDomesticServiceArea,
 				Zip3:                "450",
 			},

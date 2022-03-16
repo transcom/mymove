@@ -84,7 +84,7 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 		ShipmentID:            shipment.ID,
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusSubmitted,
-		SubmittedAt:           timePointer(time.Now()),
+		SubmittedAt:           models.TimePointer(time.Now()),
 		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
 		PickupPostalCode:      requiredFields.pickupPostalCode,
 		DestinationPostalCode: requiredFields.destinationPostalCode,

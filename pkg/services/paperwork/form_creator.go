@@ -36,7 +36,7 @@ type formCreator struct {
 func createAssetByteReader(path string) (*bytes.Reader, error) {
 	asset, err := assets.Asset(path)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error creating asset from path. Check image path.")
+		return nil, errors.Wrap(err, "error creating asset from path; check image path")
 	}
 
 	templateBuffer := bytes.NewReader(asset)
@@ -48,7 +48,7 @@ func MakeFormTemplate(data interface{}, fileName string, formLayout paperworkfor
 	// Read in bytes from Asset pkg
 	templateBuffer, err := createAssetByteReader(formLayout.TemplateImagePath)
 	if err != nil {
-		return services.FormTemplate{}, errors.Wrap(err, "Error reading template file and creating form template")
+		return services.FormTemplate{}, errors.Wrap(err, "error reading template file and creating form template")
 	}
 	return services.FormTemplate{Buffer: templateBuffer, FieldsLayout: formLayout.FieldsLayout, FormType: formType, FileName: fileName, Data: data}, nil
 }

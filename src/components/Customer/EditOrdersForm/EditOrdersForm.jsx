@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
-import { Radio, FormGroup, Label } from '@trussworks/react-uswds';
+import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
+
+import styles from './EditOrdersForm.module.scss';
 
 import { Form } from 'components/form/Form';
 import FileUpload from 'components/FileUpload/FileUpload';
@@ -15,6 +17,7 @@ import { DropdownArrayOf, ExistingUploadsShape } from 'types';
 import { DutyStationShape } from 'types/dutyStation';
 import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import Callout from 'components/Callout';
 import { formatLabelReportByDate } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 
@@ -65,8 +68,10 @@ const EditOrdersForm = ({
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
+        const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
+
         return (
-          <Form className={formStyles.form}>
+          <Form className={`${formStyles.form} ${styles.EditOrdersForm}`}>
             <img src={profileImage} alt="" />
             <h1
               style={{
@@ -118,7 +123,39 @@ const EditOrdersForm = ({
                   />
                 </div>
               </FormGroup>
-              <DutyStationInput name="new_duty_location" label="New duty location" displayAddress={false} />
+              {isRetirementOrSeparation ? (
+                <>
+                  <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>
+                  <Callout>
+                    <span>The government will pay for your move to:</span>
+                    <ul>
+                      <li>Home of record (HOR)</li>
+                      <li>Place entered active duty (PLEAD)</li>
+                    </ul>
+                    <p>
+                      It might pay for a move to your Home of selection (HOS), anywhere in CONUS. Check your orders.
+                    </p>
+                    <p>
+                      Read more about where you are entitled to move when leaving the military on{' '}
+                      <USWDSLink
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href="https://www.militaryonesource.mil/military-life-cycle/separation-transition/military-separation-retirement/deciding-where-to-live-when-you-leave-the-military/"
+                      >
+                        Military OneSource.
+                      </USWDSLink>
+                    </p>
+                  </Callout>
+                  <DutyStationInput
+                    name="new_duty_location"
+                    label="HOR, PLEAD or HOS"
+                    displayAddress={false}
+                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
+                  />
+                </>
+              ) : (
+                <DutyStationInput name="new_duty_location" label="New duty location" displayAddress={false} />
+              )}
               <p>Uploads:</p>
               <UploadsTable uploads={initialValues.uploaded_orders} onDelete={onDelete} />
               <div>

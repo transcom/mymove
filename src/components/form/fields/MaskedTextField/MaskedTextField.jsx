@@ -17,6 +17,7 @@ const MaskedTextField = ({
   formGroupClassName,
   inputClassName,
   errorClassName,
+  hintClassName,
   id,
   name,
   labelHint,
@@ -53,7 +54,11 @@ const MaskedTextField = ({
           {metaProps.error ? metaProps.error : errorMessage}
         </ErrorMessage>
       )}
-      {showWarning && <Hint data-testid="textInputWarning">{warning}</Hint>}
+      {showWarning && (
+        <Hint className={hintClassName} data-testid="textInputWarning">
+          {warning}
+        </Hint>
+      )}
       {/* eslint-disable react/jsx-props-no-spreading */}
       {suffix || prefix ? (
         <div className={suffix ? styles.hasSuffix : styles.hasPrefix}>
@@ -73,8 +78,8 @@ const MaskedTextField = ({
               // setValue is already triggering validation for this field so we should be able to skip it in setTouched
               helpers.setTouched(true, false);
             }}
+            onBlur={field.onBlur}
             {...props}
-            {...field}
           />
           {suffix && <div className="suffix">{suffix}</div>}
         </div>
@@ -94,8 +99,8 @@ const MaskedTextField = ({
             // setValue is already triggering validation for this field so we should be able to skip it in setTouched
             helpers.setTouched(true, false);
           }}
+          onBlur={field.onBlur}
           {...props}
-          {...field}
         />
       )}
       {children}
@@ -109,6 +114,7 @@ MaskedTextField.propTypes = {
   children: PropTypes.node,
   defaultValue: PropTypes.string,
   errorClassName: PropTypes.string,
+  hintClassName: PropTypes.string,
   formGroupClassName: PropTypes.string,
   id: PropTypes.string.isRequired,
   inputClassName: PropTypes.string,
@@ -134,6 +140,7 @@ MaskedTextField.defaultProps = {
   children: null,
   defaultValue: '',
   errorClassName: '',
+  hintClassName: '',
   formGroupClassName: '',
   suffix: '',
   prefix: '',

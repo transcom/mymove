@@ -90,7 +90,7 @@ const NTSRShipmentInfoList = ({
   const requestedDeliveryDateElementFlags = getDisplayFlags('requestedDeliveryDate');
   const requestedDeliveryDateElement = (
     <div className={requestedDeliveryDateElementFlags.classes}>
-      <dt>Preferred delivery date</dt>
+      <dt>Requested delivery date</dt>
       <dd>{(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) || '—'}</dd>
     </div>
   );

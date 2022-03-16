@@ -14,7 +14,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Affiliation Military branch of service
+// Affiliation Branch of service
+//
+// Military branch of service
 //
 // swagger:model Affiliation
 type Affiliation string
@@ -30,23 +32,23 @@ func (m Affiliation) Pointer() *Affiliation {
 
 const (
 
-	// AffiliationAirDashForce captures enum value "air-force"
-	AffiliationAirDashForce Affiliation = "air-force"
+	// AffiliationARMY captures enum value "ARMY"
+	AffiliationARMY Affiliation = "ARMY"
 
-	// AffiliationArmy captures enum value "army"
-	AffiliationArmy Affiliation = "army"
+	// AffiliationNAVY captures enum value "NAVY"
+	AffiliationNAVY Affiliation = "NAVY"
 
-	// AffiliationCivilianDashAgency captures enum value "civilian-agency"
-	AffiliationCivilianDashAgency Affiliation = "civilian-agency"
+	// AffiliationMARINES captures enum value "MARINES"
+	AffiliationMARINES Affiliation = "MARINES"
 
-	// AffiliationCoastDashGuard captures enum value "coast-guard"
-	AffiliationCoastDashGuard Affiliation = "coast-guard"
+	// AffiliationAIRFORCE captures enum value "AIR_FORCE"
+	AffiliationAIRFORCE Affiliation = "AIR_FORCE"
 
-	// AffiliationMarineDashCorps captures enum value "marine-corps"
-	AffiliationMarineDashCorps Affiliation = "marine-corps"
+	// AffiliationCOASTGUARD captures enum value "COAST_GUARD"
+	AffiliationCOASTGUARD Affiliation = "COAST_GUARD"
 
-	// AffiliationNavy captures enum value "navy"
-	AffiliationNavy Affiliation = "navy"
+	// AffiliationOTHER captures enum value "OTHER"
+	AffiliationOTHER Affiliation = "OTHER"
 )
 
 // for schema
@@ -54,7 +56,7 @@ var affiliationEnum []interface{}
 
 func init() {
 	var res []Affiliation
-	if err := json.Unmarshal([]byte(`["air-force","army","civilian-agency","coast-guard","marine-corps","navy"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ARMY","NAVY","MARINES","AIR_FORCE","COAST_GUARD","OTHER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
