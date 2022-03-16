@@ -26,7 +26,7 @@ describe('Duty Station page', () => {
     },
   };
 
-  it('renders the CurrentDutyStationForm', async () => {
+  it('renders the CurrentDutyLocationForm', async () => {
     render(<DutyStation {...testProps} />);
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Current duty location');
   });

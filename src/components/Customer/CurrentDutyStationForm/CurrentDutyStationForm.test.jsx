@@ -2,12 +2,12 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import CurrentDutyStationForm from './CurrentDutyStationForm';
+import CurrentDutyLocationForm from './CurrentDutyStationForm';
 
-describe('CurrentDutyStationForm component', () => {
+describe('CurrentDutyLocationForm component', () => {
   it('renders the form input', async () => {
     const { getByLabelText } = render(
-      <CurrentDutyStationForm
+      <CurrentDutyLocationForm
         onSubmit={jest.fn()}
         onBack={jest.fn()}
         initialValues={{ current_location: {} }}
@@ -21,7 +21,7 @@ describe('CurrentDutyStationForm component', () => {
 
   it('keeps the next button disabled if the form is not filled out', async () => {
     const { getByRole } = render(
-      <CurrentDutyStationForm
+      <CurrentDutyLocationForm
         onSubmit={jest.fn()}
         onBack={jest.fn()}
         initialValues={{ current_location: {} }}
@@ -38,7 +38,7 @@ describe('CurrentDutyStationForm component', () => {
   it('shows an error message if trying to submit an invalid form', async () => {
     const onSubmit = jest.fn();
     const { getByRole, getAllByText } = render(
-      <CurrentDutyStationForm
+      <CurrentDutyLocationForm
         onSubmit={onSubmit}
         onBack={jest.fn()}
         initialValues={{
@@ -71,7 +71,7 @@ describe('CurrentDutyStationForm component', () => {
   it('submits the form when its valid', async () => {
     const onSubmit = jest.fn();
     const { getByRole } = render(
-      <CurrentDutyStationForm
+      <CurrentDutyLocationForm
         onSubmit={onSubmit}
         onBack={jest.fn()}
         initialValues={{
@@ -99,7 +99,7 @@ describe('CurrentDutyStationForm component', () => {
   it('uses the onBack handler when the back button is clicked', async () => {
     const onBack = jest.fn();
     const { getByRole } = render(
-      <CurrentDutyStationForm
+      <CurrentDutyLocationForm
         onSubmit={jest.fn()}
         onBack={onBack}
         initialValues={{
