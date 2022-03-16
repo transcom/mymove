@@ -17,7 +17,7 @@ import { DutyLocationShape } from 'types/dutyLocation';
 
 const dutyStationFormName = 'duty_station';
 
-export const DutyStation = ({ serviceMember, existingStation, newDutyLocation, updateServiceMember, push }) => {
+export const DutyLocation = ({ serviceMember, existingStation, newDutyLocation, updateServiceMember, push }) => {
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -76,7 +76,7 @@ export const DutyStation = ({ serviceMember, existingStation, newDutyLocation, u
   );
 };
 
-DutyStation.propTypes = {
+DutyLocation.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   serviceMember: ServiceMemberShape.isRequired,
   push: PropTypes.func.isRequired,
@@ -84,7 +84,7 @@ DutyStation.propTypes = {
   newDutyLocation: DutyLocationShape,
 };
 
-DutyStation.defaultProps = {
+DutyLocation.defaultProps = {
   existingStation: {},
   newDutyLocation: {},
 };
@@ -108,4 +108,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(requireCustomerState(DutyStation, profileStates.CONTACT_INFO_COMPLETE));
+)(requireCustomerState(DutyLocation, profileStates.CONTACT_INFO_COMPLETE));

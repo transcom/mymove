@@ -5,7 +5,7 @@ import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { push } from 'connected-react-router';
 
-import ConnectedDutyStation, { DutyStation } from './DutyStation';
+import ConnectedDutyLocation, { DutyLocation } from './DutyLocation';
 
 import { MockProviders } from 'testUtils';
 import { patchServiceMember } from 'services/internalApi';
@@ -27,12 +27,12 @@ describe('Duty Station page', () => {
   };
 
   it('renders the CurrentDutyLocationForm', async () => {
-    render(<DutyStation {...testProps} />);
+    render(<DutyLocation {...testProps} />);
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Current duty location');
   });
 
   it('back button goes to the Contact Info step', async () => {
-    render(<DutyStation {...testProps} />);
+    render(<DutyLocation {...testProps} />);
 
     const backButton = await screen.findByText('Back');
 
@@ -65,7 +65,7 @@ describe('Duty Station page', () => {
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(
-      <DutyStation
+      <DutyLocation
         {...testProps}
         serviceMember={testServiceMemberValues}
         existingStation={testExistingStationValues}
@@ -118,7 +118,7 @@ describe('Duty Station page', () => {
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
     render(
-      <DutyStation
+      <DutyLocation
         {...testProps}
         serviceMember={testServiceMemberValues}
         existingStation={testExistingStationValues}
@@ -141,7 +141,7 @@ describe('Duty Station page', () => {
   afterEach(jest.resetAllMocks);
 });
 
-describe('requireCustomerState DutyStation', () => {
+describe('requireCustomerState DutyLocation', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
   const mockDispatch = jest.fn();
 
@@ -185,7 +185,7 @@ describe('requireCustomerState DutyStation', () => {
 
     render(
       <MockProviders initialState={mockState}>
-        <ConnectedDutyStation {...props} />
+        <ConnectedDutyLocation {...props} />
       </MockProviders>,
     );
 
@@ -222,7 +222,7 @@ describe('requireCustomerState DutyStation', () => {
 
     render(
       <MockProviders initialState={mockState}>
-        <ConnectedDutyStation {...props} />
+        <ConnectedDutyLocation {...props} />
       </MockProviders>,
     );
 
@@ -268,7 +268,7 @@ describe('requireCustomerState DutyStation', () => {
 
     render(
       <MockProviders initialState={mockState}>
-        <ConnectedDutyStation {...props} />
+        <ConnectedDutyLocation {...props} />
       </MockProviders>,
     );
 
@@ -319,7 +319,7 @@ describe('requireCustomerState DutyStation', () => {
 
     render(
       <MockProviders initialState={mockState}>
-        <ConnectedDutyStation {...props} />
+        <ConnectedDutyLocation {...props} />
       </MockProviders>,
     );
 
