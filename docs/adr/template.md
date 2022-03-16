@@ -5,6 +5,18 @@
 *[context and problem statement]*
 *[decision drivers | forces]* <!-- optional -->
 
+## Measuring success
+
+*[Briefly describe how this decision record will measure success.]*
+
+### Observability
+
+*[How will this change be observed by other team members?]*
+
+### Ownership
+
+*[Which practice will own this decision record?]*
+
 ## Considered Alternatives
 
 * *[alternative 1]*
