@@ -239,6 +239,12 @@ describe('MtoShipmentForm component', () => {
       expect(zip[2]).toHaveAttribute('name', 'secondaryDelivery.address.postalCode');
     });
 
+    it('renders the correct helper text when the orders type is RETIREE/SEPARATEE', async () => {
+      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      // const isRetireeSeparatee = orders.orders_type !== 'PERMANENT_CHANGE_OF_STATION';
+      // We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
+    });
+
     it('goes back when the back button is clicked', async () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
