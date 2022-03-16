@@ -164,13 +164,13 @@ export const DutyLocationSearchBoxComponent = (props) => {
   );
 };
 
-export const DutyStationSearchBoxContainer = (props) => {
+export const DutyLocationSearchBoxContainer = (props) => {
   return (
     <DutyLocationSearchBoxComponent {...props} searchDutyLocations={SearchDutyLocations} showAddress={ShowAddress} />
   );
 };
 
-DutyStationSearchBoxContainer.propTypes = {
+DutyLocationSearchBoxContainer.propTypes = {
   displayAddress: PropTypes.bool,
   name: PropTypes.string.isRequired,
   errorMsg: PropTypes.string,
@@ -183,7 +183,7 @@ DutyStationSearchBoxContainer.propTypes = {
   hint: PropTypes.node,
 };
 
-DutyStationSearchBoxContainer.defaultProps = {
+DutyLocationSearchBoxContainer.defaultProps = {
   displayAddress: true,
   title: 'Name of Duty Location:',
   errorMsg: '',
@@ -196,13 +196,13 @@ DutyStationSearchBoxContainer.defaultProps = {
 };
 
 DutyLocationSearchBoxComponent.propTypes = {
-  ...DutyStationSearchBoxContainer.propTypes,
+  ...DutyLocationSearchBoxContainer.propTypes,
   searchDutyLocations: PropTypes.func.isRequired,
   showAddress: PropTypes.func.isRequired,
 };
 
 DutyLocationSearchBoxComponent.defaultProps = {
-  ...DutyStationSearchBoxContainer.defaultProps,
+  ...DutyLocationSearchBoxContainer.defaultProps,
 };
 
-export default DutyStationSearchBoxContainer;
+export default DutyLocationSearchBoxContainer;

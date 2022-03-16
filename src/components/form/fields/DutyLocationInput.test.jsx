@@ -7,7 +7,7 @@ import { DutyLocationInput } from './DutyLocationInput';
 
 import {
   DutyLocationSearchBoxComponent,
-  DutyStationSearchBoxContainer,
+  DutyLocationSearchBoxContainer,
 } from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
 
 const mockOnChange = jest.fn();
@@ -45,12 +45,12 @@ describe('DutyStationInput', () => {
     const wrapper = shallow(<DutyLocationInput name="name" label="label" />);
 
     it('renders a Duty Station search input', () => {
-      const input = wrapper.find(DutyStationSearchBoxContainer);
+      const input = wrapper.find(DutyLocationSearchBoxContainer);
       expect(input.length).toBe(1);
     });
 
     it('triggers onChange properly', async () => {
-      const container = wrapper.find(DutyStationSearchBoxContainer).dive();
+      const container = wrapper.find(DutyLocationSearchBoxContainer).dive();
       const component = container.find(DutyLocationSearchBoxComponent).dive();
       const select = component.find(AsyncSelect);
       await select.simulate('change', { id: 1, address_id: 1 });

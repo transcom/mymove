@@ -2,7 +2,7 @@ import { useField } from 'formik';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import DutyStationSearchBox from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
+import DutyLocationSearchBox from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
 
 // TODO: refactor component when we can to make it more user friendly with Formik
 export const DutyLocationInput = (props) => {
@@ -12,7 +12,7 @@ export const DutyLocationInput = (props) => {
   const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
 
   return (
-    <DutyStationSearchBox
+    <DutyLocationSearchBox
       title={label}
       name={name}
       input={{
