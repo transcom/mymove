@@ -49,7 +49,9 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={() => validationSchema(maxAdvanceToRequest, mtoShipment?.ppmShipment?.estimatedIncentive)}
+      validationSchema={() =>
+        validationSchema(maxAdvanceToRequest, mtoShipment?.ppmShipment ? mtoShipment.ppmShipment.estimatedIncentive : 0)
+      }
       onSubmit={onSubmit}
     >
       {({ isValid, isSubmitting, handleSubmit, values }) => {

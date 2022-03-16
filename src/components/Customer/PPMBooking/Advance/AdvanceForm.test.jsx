@@ -34,7 +34,7 @@ describe('AdvanceForm component', () => {
     it('renders blank form on load', async () => {
       render(<AdvanceForm {...defaultProps} />);
       expect(
-        await screen.getByRole('heading', { level: 2, name: 'You can ask for up to $6,000 as an advance' }),
+        screen.getByRole('heading', { level: 2, name: 'You can ask for up to $6,000 as an advance' }),
       ).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
@@ -47,7 +47,7 @@ describe('AdvanceForm component', () => {
   describe('displays conditional inputs', () => {
     it('displays input for amount requested when advance requested is true', async () => {
       render(<AdvanceForm {...defaultProps} />);
-      const requestAdvance = await screen.getByLabelText('Yes');
+      const requestAdvance = screen.getByLabelText('Yes');
       expect(await screen.queryByLabelText('Amount requested')).toBeNull();
       expect(
         screen.queryByLabelText(
@@ -64,14 +64,6 @@ describe('AdvanceForm component', () => {
           ),
         ).toBeInstanceOf(HTMLInputElement);
       });
-    });
-  });
-
-  describe('pull values from the ppm shipment when available', () => {
-    it('renders prefilled form on load', async () => {
-      render(<AdvanceForm {...mtoShipmentProps} />);
-      expect(await screen.getByLabelText('Yes').value).toBe('true');
-      expect(screen.getByLabelText('Amount requested').value).toBe('300');
     });
 
     it('marks amount requested input as required when conditionally displayed', async () => {
@@ -116,6 +108,16 @@ describe('AdvanceForm component', () => {
         expect(requiredAlerts).toHaveTextContent(
           "The minimum advance request is $1. If you don't want an advance, select No.",
         );
+      });
+    });
+  });
+
+  describe('pull values from the ppm shipment when available', () => {
+    it('renders prefilled form on load', async () => {
+      render(<AdvanceForm {...mtoShipmentProps} />);
+      await waitFor(() => {
+        expect(screen.queryByLabelText('Yes').value).toBe('true');
+        expect(screen.getByLabelText('Amount requested').value).toBe('300');
       });
     });
   });
