@@ -246,7 +246,7 @@ export class Summary extends Component {
           <ProfileTable
             affiliation={serviceMember.affiliation}
             city={serviceMember.residential_address.city}
-            currentDutyStationName={currentOrders.origin_duty_location.name}
+            currentDutyLocationName={currentOrders.origin_duty_location.name}
             edipi={serviceMember.edipi}
             email={serviceMember.personal_email}
             firstName={serviceMember.first_name}
