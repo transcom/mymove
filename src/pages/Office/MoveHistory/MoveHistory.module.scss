@@ -1,0 +1,21 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/colors';
+
+.MoveHistoryTable {
+  td {
+    vertical-align: top;
+  }
+  .dateAndTime {
+    @include u-font-size('base', 3);
+    color: $base-dark;
+  }
+  .event {
+    @include u-font-size('base', 4);
+    color: $base-darker;
+    font-weight: bold;
+  }
+  .details {
+    @include u-font-size('base', 4);
+    color: $base-darker;
+  }
+}
