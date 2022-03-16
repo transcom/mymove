@@ -1,14 +1,5 @@
 import { ServicesCounselorOfficeUserType } from '../../../support/constants';
 
-/* TODO
-  For NTS-release tests:
-    - Duplicate this file
-    - Change moveLocator code to NTSRHG
-    - Update references to NTS to NTS-release
-    - Update addNTSShipment function to fill out facility information
-
-  */
-
 describe('Services counselor user', () => {
   before(() => {
     cy.prepareOfficeApp();
