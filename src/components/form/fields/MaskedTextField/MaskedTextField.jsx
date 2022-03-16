@@ -61,7 +61,7 @@ const MaskedTextField = ({
       )}
       {/* eslint-disable react/jsx-props-no-spreading */}
       {suffix || prefix ? (
-        <div className={suffix ? styles.hasSuffix : styles.hasPrefix}>
+        <div className={classnames(suffix && styles.hasSuffix, prefix && styles.hasPrefix)}>
           {prefix && <div className="prefix">{prefix}</div>}
           <IMaskInput
             className={classnames('usa-input', inputClassName)}
