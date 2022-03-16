@@ -36,22 +36,20 @@ const validationSchema = (maxAdvanceRequest, estimatedIncentive) => {
 };
 
 const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
-  const ppmShipmentAdvance = mtoShipment?.ppmShipment?.advance;
+  const { advance, estimatedIncentive } = mtoShipment?.ppmShipment || {};
   const initialValues = {
-    amountRequested: ppmShipmentAdvance ? formatCentsTruncateWhole(ppmShipmentAdvance) : '',
-    advanceRequested: ppmShipmentAdvance ? 'true' : 'false',
+    amountRequested: advance ? formatCentsTruncateWhole(advance) : '',
+    advanceRequested: advance ? 'true' : 'false',
     agreeToTerms: false,
   };
 
-  const maxAdvanceToRequest = maxAdvance(mtoShipment?.ppmShipment?.estimatedIncentive);
-  const formatedIncentive = formatCentsTruncateWhole(mtoShipment?.ppmShipment?.estimatedIncentive);
+  const maxAdvanceToRequest = maxAdvance(estimatedIncentive);
+  const formatedIncentive = formatCentsTruncateWhole(estimatedIncentive);
 
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={() =>
-        validationSchema(maxAdvanceToRequest, mtoShipment?.ppmShipment ? mtoShipment.ppmShipment.estimatedIncentive : 0)
-      }
+      validationSchema={() => validationSchema(maxAdvanceToRequest, estimatedIncentive || 0)}
       onSubmit={onSubmit}
     >
       {({ isValid, isSubmitting, handleSubmit, values }) => {
