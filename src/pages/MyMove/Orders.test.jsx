@@ -15,7 +15,7 @@ jest.mock('services/internalApi', () => ({
   patchOrders: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
-jest.mock('components/DutyStationSearchBox/api', () => ({
+jest.mock('components/DutyLocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
       city: 'Glendale Luke AFB',

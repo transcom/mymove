@@ -6,11 +6,11 @@ import AsyncSelect from 'react-select/async';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 
-import styles from './DutyStationSearchBox.module.scss';
+import styles from './DutyLocationSearchBox.module.scss';
 import { SearchDutyLocations, ShowAddress } from './api';
 
 import Hint from 'components/Hint';
-import { DutyStationShape } from 'types';
+import { DutyLocationShape } from 'types';
 
 const getOptionName = (option) => option.name;
 
@@ -76,7 +76,7 @@ const customStyles = {
   }),
 };
 
-export const DutyStationSearchBoxComponent = (props) => {
+export const DutyLocationSearchBoxComponent = (props) => {
   const { searchDutyLocations, showAddress, title, input, name, errorMsg, displayAddress, hint } = props;
   const { value, onChange, name: inputName } = input;
 
@@ -166,7 +166,7 @@ export const DutyStationSearchBoxComponent = (props) => {
 
 export const DutyStationSearchBoxContainer = (props) => {
   return (
-    <DutyStationSearchBoxComponent {...props} searchDutyLocations={SearchDutyLocations} showAddress={ShowAddress} />
+    <DutyLocationSearchBoxComponent {...props} searchDutyLocations={SearchDutyLocations} showAddress={ShowAddress} />
   );
 };
 
@@ -178,7 +178,7 @@ DutyStationSearchBoxContainer.propTypes = {
   input: PropTypes.shape({
     name: PropTypes.string,
     onChange: PropTypes.func,
-    value: DutyStationShape,
+    value: DutyLocationShape,
   }),
   hint: PropTypes.node,
 };
@@ -195,13 +195,13 @@ DutyStationSearchBoxContainer.defaultProps = {
   hint: '',
 };
 
-DutyStationSearchBoxComponent.propTypes = {
+DutyLocationSearchBoxComponent.propTypes = {
   ...DutyStationSearchBoxContainer.propTypes,
   searchDutyLocations: PropTypes.func.isRequired,
   showAddress: PropTypes.func.isRequired,
 };
 
-DutyStationSearchBoxComponent.defaultProps = {
+DutyLocationSearchBoxComponent.defaultProps = {
   ...DutyStationSearchBoxContainer.defaultProps,
 };
 

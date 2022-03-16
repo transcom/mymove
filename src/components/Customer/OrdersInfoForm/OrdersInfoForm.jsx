@@ -11,7 +11,7 @@ import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
 import { DropdownArrayOf } from 'types';
 import formStyles from 'styles/form.module.scss';
-import { DutyStationShape } from 'types/dutyStation';
+import { DutyLocationShape } from 'types/dutyLocation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
@@ -148,7 +148,7 @@ OrdersInfoForm.propTypes = {
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
-  currentStation: DutyStationShape.isRequired,
+  currentStation: DutyLocationShape.isRequired,
 };
 
 export default OrdersInfoForm;

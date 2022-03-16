@@ -5,7 +5,7 @@ import selectEvent from 'react-select-event';
 
 import ServiceInfoForm from './ServiceInfoForm';
 
-jest.mock('components/DutyStationSearchBox/api', () => ({
+jest.mock('components/DutyLocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
       city: 'Test City',

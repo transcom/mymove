@@ -24,7 +24,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
-import { DutyStationShape } from 'types';
+import { DutyLocationShape } from 'types';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 
 export class Orders extends Component {
@@ -162,7 +162,7 @@ Orders.propTypes = {
   currentOrders: OrdersShape,
   updateOrders: PropTypes.func.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
-  currentStation: DutyStationShape,
+  currentStation: DutyLocationShape,
 };
 
 Orders.defaultProps = {

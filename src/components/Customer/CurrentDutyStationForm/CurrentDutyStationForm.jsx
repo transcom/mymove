@@ -8,7 +8,7 @@ import { DutyLocationInput } from 'components/form/fields/DutyLocationInput';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
-import { DutyStationShape } from 'types/dutyStation';
+import { DutyLocationShape } from 'types/dutyLocation';
 
 const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocation }) => {
   const validationSchema = Yup.object().shape({
@@ -51,11 +51,11 @@ const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocati
 
 CurrentDutyStationForm.propTypes = {
   initialValues: shape({
-    current_location: DutyStationShape,
+    current_location: DutyLocationShape,
   }).isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-  newDutyLocation: DutyStationShape,
+  newDutyLocation: DutyLocationShape,
 };
 
 CurrentDutyStationForm.defaultProps = {

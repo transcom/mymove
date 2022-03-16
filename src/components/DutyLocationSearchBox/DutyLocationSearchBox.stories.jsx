@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
-import { DutyStationSearchBoxComponent } from './DutyStationSearchBox';
+import { DutyLocationSearchBoxComponent } from './DutyLocationSearchBox';
 
 export default {
   title: 'Components/Duty Station Search Box',
-  component: DutyStationSearchBoxComponent,
+  component: DutyLocationSearchBoxComponent,
 };
 
 const testAddress = {
@@ -145,7 +145,7 @@ export const Standard = () => {
   };
 
   return (
-    <DutyStationSearchBoxComponent
+    <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       name="test_component"
@@ -163,7 +163,7 @@ export const WithValue = () => {
   };
 
   return (
-    <DutyStationSearchBoxComponent
+    <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       displayAddress={false}
@@ -181,7 +181,7 @@ export const WithValueAndAddress = () => {
   };
 
   return (
-    <DutyStationSearchBoxComponent
+    <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       searchDutyLocations={mockSearchDutyStations}
@@ -198,7 +198,7 @@ export const WithErrorMessage = () => {
   };
 
   return (
-    <DutyStationSearchBoxComponent
+    <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       errorMsg="Something went wrong"
@@ -220,7 +220,7 @@ export const WithLocalError = () => {
   };
 
   return (
-    <DutyStationSearchBoxComponent
+    <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       searchDutyLocations={brokenSearchDutyStations}

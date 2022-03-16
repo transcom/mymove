@@ -14,7 +14,7 @@ import { documentSizeLimitMsg } from 'shared/constants';
 import profileImage from 'scenes/Review/images/profile.png';
 import Hint from 'components/Hint/index';
 import { DropdownArrayOf, ExistingUploadsShape } from 'types';
-import { DutyStationShape } from 'types/dutyStation';
+import { DutyLocationShape } from 'types/dutyLocation';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
@@ -203,7 +203,7 @@ EditOrdersForm.propTypes = {
     }),
     uploaded_orders: ExistingUploadsShape,
   }).isRequired,
-  currentStation: DutyStationShape.isRequired,
+  currentStation: DutyLocationShape.isRequired,
   onCancel: PropTypes.func.isRequired,
 };
 

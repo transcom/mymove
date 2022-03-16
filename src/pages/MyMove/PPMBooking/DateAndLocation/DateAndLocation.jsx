@@ -5,7 +5,7 @@ import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
-import { DutyStationShape } from 'types';
+import { DutyLocationShape } from 'types';
 import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
 import { validatePostalCode } from 'utils/validation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
@@ -123,7 +123,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
 DateAndLocation.propTypes = {
   mtoShipment: MtoShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
-  destinationDutyLocation: DutyStationShape.isRequired,
+  destinationDutyLocation: DutyLocationShape.isRequired,
 };
 
 DateAndLocation.defaultProps = {

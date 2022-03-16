@@ -9,7 +9,7 @@ import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/order
 import { formatDate, formatDateTime } from 'shared/formatters';
 import { editablePanelify, PanelField, PanelSwaggerField, RowBasedHeader } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
+import DutyStationSearchBox from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
 import { renderStatusIcon } from 'shared/utils';
 
 import './office.scss';

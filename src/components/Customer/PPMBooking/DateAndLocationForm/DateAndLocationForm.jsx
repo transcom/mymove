@@ -13,7 +13,7 @@ import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } f
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
-import { DutyStationShape } from 'types';
+import { DutyLocationShape } from 'types';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
 
@@ -335,7 +335,7 @@ const DateAndLocationForm = ({
 DateAndLocationForm.propTypes = {
   mtoShipment: MtoShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
-  destinationDutyStation: DutyStationShape.isRequired,
+  destinationDutyStation: DutyLocationShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
   postalCodeValidator: func.isRequired,

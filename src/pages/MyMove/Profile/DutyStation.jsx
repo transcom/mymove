@@ -13,7 +13,7 @@ import { profileStates } from 'constants/customerStates';
 import CurrentDutyStationForm from 'components/Customer/CurrentDutyStationForm/CurrentDutyStationForm';
 import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
-import { DutyStationShape } from 'types/dutyStation';
+import { DutyLocationShape } from 'types/dutyLocation';
 
 const dutyStationFormName = 'duty_station';
 
@@ -80,8 +80,8 @@ DutyStation.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   serviceMember: ServiceMemberShape.isRequired,
   push: PropTypes.func.isRequired,
-  existingStation: DutyStationShape,
-  newDutyLocation: DutyStationShape,
+  existingStation: DutyLocationShape,
+  newDutyLocation: DutyLocationShape,
 };
 
 DutyStation.defaultProps = {

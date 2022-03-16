@@ -14,7 +14,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { dropdownInputOptions } from 'shared/formatters';
 import formStyles from 'styles/form.module.scss';
-import { DutyStationShape } from 'types/dutyStation';
+import { DutyLocationShape } from 'types/dutyLocation';
 
 const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
@@ -116,11 +116,11 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation })
 
 ServiceInfoForm.propTypes = {
   initialValues: PropTypes.shape({
-    current_location: DutyStationShape,
+    current_location: DutyLocationShape,
   }).isRequired,
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  newDutyLocation: DutyStationShape,
+  newDutyLocation: DutyLocationShape,
 };
 
 ServiceInfoForm.defaultProps = {
