@@ -10,7 +10,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
 
-const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocation }) => {
+const CurrentDutyLocationForm = ({ initialValues, onBack, onSubmit, newDutyLocation }) => {
   const validationSchema = Yup.object().shape({
     current_location: Yup.object()
       .required('Required')
@@ -49,7 +49,7 @@ const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocati
   );
 };
 
-CurrentDutyStationForm.propTypes = {
+CurrentDutyLocationForm.propTypes = {
   initialValues: shape({
     current_location: DutyLocationShape,
   }).isRequired,
@@ -58,8 +58,8 @@ CurrentDutyStationForm.propTypes = {
   newDutyLocation: DutyLocationShape,
 };
 
-CurrentDutyStationForm.defaultProps = {
+CurrentDutyLocationForm.defaultProps = {
   newDutyLocation: {},
 };
 
-export default CurrentDutyStationForm;
+export default CurrentDutyLocationForm;

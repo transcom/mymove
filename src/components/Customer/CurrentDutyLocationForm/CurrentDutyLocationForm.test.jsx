@@ -2,7 +2,7 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import CurrentDutyLocationForm from './CurrentDutyStationForm';
+import CurrentDutyLocationForm from './CurrentDutyLocationForm';
 
 describe('CurrentDutyLocationForm component', () => {
   it('renders the form input', async () => {

@@ -10,7 +10,7 @@ import { updateServiceMember as updateServiceMemberAction } from 'store/entities
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
-import CurrentDutyStationForm from 'components/Customer/CurrentDutyStationForm/CurrentDutyStationForm';
+import CurrentDutyLocationForm from 'components/Customer/CurrentDutyLocationForm/CurrentDutyLocationForm';
 import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
 import { DutyLocationShape } from 'types/dutyLocation';
@@ -64,7 +64,7 @@ export const DutyStation = ({ serviceMember, existingStation, newDutyLocation, u
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <CurrentDutyStationForm
+          <CurrentDutyLocationForm
             onSubmit={handleSubmit}
             onBack={handleBack}
             initialValues={initialValues}
