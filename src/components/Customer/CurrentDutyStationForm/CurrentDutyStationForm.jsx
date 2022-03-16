@@ -4,7 +4,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 
 import { Form } from 'components/form/Form';
-import { DutyStationInput } from 'components/form/fields/DutyStationInput';
+import { DutyLocationInput } from 'components/form/fields/DutyLocationInput';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
@@ -28,7 +28,7 @@ const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocati
           <Form className={formStyles.form}>
             <h1>Current duty location</h1>
             <SectionWrapper className={formStyles.formSection}>
-              <DutyStationInput
+              <DutyLocationInput
                 label="What is your current duty location?"
                 name="current_location"
                 id="current_location"

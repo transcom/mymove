@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
 
 // TODO: refactor component when we can to make it more user friendly with Formik
-export const DutyStationInput = (props) => {
+export const DutyLocationInput = (props) => {
   const { label, name, displayAddress, hint } = props;
   const [field, meta, helpers] = useField(props);
 
@@ -27,7 +27,7 @@ export const DutyStationInput = (props) => {
   );
 };
 
-DutyStationInput.propTypes = {
+DutyLocationInput.propTypes = {
   // label displayed for input
   label: PropTypes.string.isRequired,
   // name is for the input
@@ -36,9 +36,9 @@ DutyStationInput.propTypes = {
   hint: PropTypes.node,
 };
 
-DutyStationInput.defaultProps = {
+DutyLocationInput.defaultProps = {
   displayAddress: true,
   hint: '',
 };
 
-export default DutyStationInput;
+export default DutyLocationInput;

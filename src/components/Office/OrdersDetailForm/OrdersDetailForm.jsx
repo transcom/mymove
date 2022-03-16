@@ -4,7 +4,7 @@ import { func, string, bool } from 'prop-types';
 import styles from './OrdersDetailForm.module.scss';
 
 import { formatLabelReportByDate } from 'utils/formatters';
-import { CheckboxField, DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
+import { CheckboxField, DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DropdownArrayOf } from 'types/form';
@@ -37,8 +37,8 @@ const OrdersDetailForm = ({
 
   return (
     <div className={styles.OrdersDetailForm}>
-      <DutyStationInput name="originDutyLocation" label="Current duty location" displayAddress={false} />
-      <DutyStationInput name="newDutyLocation" label={newDutyStationLabel} displayAddress={false} />
+      <DutyLocationInput name="originDutyLocation" label="Current duty location" displayAddress={false} />
+      <DutyLocationInput name="newDutyLocation" label={newDutyStationLabel} displayAddress={false} />
       <DatePickerInput name="issueDate" label="Date issued" />
       <DatePickerInput name="reportByDate" label={reportDateRowLabel} />
       {showDepartmentIndicator && (

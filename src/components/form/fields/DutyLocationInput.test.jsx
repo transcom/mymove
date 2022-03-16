@@ -3,7 +3,7 @@ import { mount, shallow } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 import AsyncSelect from 'react-select/async';
 
-import { DutyStationInput } from './DutyStationInput';
+import { DutyLocationInput } from './DutyLocationInput';
 
 import {
   DutyStationSearchBoxComponent,
@@ -42,7 +42,7 @@ jest.mock('components/DutyStationSearchBox/api', () => {
 
 describe('DutyStationInput', () => {
   describe('with all required props', () => {
-    const wrapper = shallow(<DutyStationInput name="name" label="label" />);
+    const wrapper = shallow(<DutyLocationInput name="name" label="label" />);
 
     it('renders a Duty Station search input', () => {
       const input = wrapper.find(DutyStationSearchBoxContainer);
@@ -58,7 +58,7 @@ describe('DutyStationInput', () => {
     });
 
     it('escapes regex special character input', async () => {
-      const mounted = mount(<DutyStationInput name="dutyStation" label="label" />);
+      const mounted = mount(<DutyLocationInput name="dutyStation" label="label" />);
 
       await act(async () => {
         // Only the hidden input that gets the final selected duty station has a name attribute

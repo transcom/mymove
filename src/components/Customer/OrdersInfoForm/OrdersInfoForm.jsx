@@ -6,7 +6,7 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 
 import styles from './OrdersInfoForm.module.scss';
 
-import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
+import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
 import { DropdownArrayOf } from 'types';
@@ -111,7 +111,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                       </USWDSLink>
                     </p>
                   </Callout>
-                  <DutyStationInput
+                  <DutyLocationInput
                     name="new_duty_location"
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
@@ -119,7 +119,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                   />
                 </>
               ) : (
-                <DutyStationInput name="new_duty_location" label="New duty location" displayAddress={false} />
+                <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
               )}
             </SectionWrapper>
 

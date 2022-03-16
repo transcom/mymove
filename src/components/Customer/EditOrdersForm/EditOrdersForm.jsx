@@ -15,7 +15,7 @@ import profileImage from 'scenes/Review/images/profile.png';
 import Hint from 'components/Hint/index';
 import { DropdownArrayOf, ExistingUploadsShape } from 'types';
 import { DutyStationShape } from 'types/dutyStation';
-import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
+import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { formatLabelReportByDate } from 'utils/formatters';
@@ -146,7 +146,7 @@ const EditOrdersForm = ({
                       </USWDSLink>
                     </p>
                   </Callout>
-                  <DutyStationInput
+                  <DutyLocationInput
                     name="new_duty_location"
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
@@ -154,7 +154,7 @@ const EditOrdersForm = ({
                   />
                 </>
               ) : (
-                <DutyStationInput name="new_duty_location" label="New duty location" displayAddress={false} />
+                <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
               )}
               <p>Uploads:</p>
               <UploadsTable uploads={initialValues.uploaded_orders} onDelete={onDelete} />

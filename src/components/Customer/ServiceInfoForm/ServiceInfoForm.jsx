@@ -9,7 +9,7 @@ import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
-import { DutyStationInput } from 'components/form/fields/DutyStationInput';
+import { DutyLocationInput } from 'components/form/fields/DutyLocationInput';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { dropdownInputOptions } from 'shared/formatters';
@@ -96,7 +96,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation })
                 </Grid>
               </Grid>
 
-              <DutyStationInput label="Current duty location" name="current_location" id="current_location" required />
+              <DutyLocationInput label="Current duty location" name="current_location" id="current_location" required />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
