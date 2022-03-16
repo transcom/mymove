@@ -26,7 +26,7 @@ const validationSchema = (maxAdvanceRequest, estimatedIncentive) => {
         schema
           .required('Required')
           .min(1, "The minimum advance request is $1. If you don't want an advance, select No.")
-          .max(estimatedIncentive / 100, `Your advance is limited to $${maxAdvanceRequest}`),
+          .max(estimatedIncentive / 100, `Enter an amount less than $${maxAdvanceRequest}`),
     }),
     agreeToTerms: Yup.boolean().when('advanceRequested', {
       is: true,
@@ -96,6 +96,16 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       prefix="$"
+                      warning={
+                        mtoShipment?.ppmShipment &&
+                        values.amountRequested > Math.floor((mtoShipment.ppmShipment.estimatedIncentive / 100) * 0.6) &&
+                        values.amountRequested <= Math.floor(mtoShipment.ppmShipment.estimatedIncentive / 100)
+                          ? `Reminder: your advance can not be more than ${Math.floor(
+                              (mtoShipment.ppmShipment.estimatedIncentive / 100) * 0.6,
+                            )}`
+                          : ''
+                      }
+                      hintClassName={ppmBookingStyles.innerHint}
                     />
                     <Hint>
                       Your move counselor will discuss next steps with you and let you know how you&apos;ll receive your
