@@ -34,6 +34,7 @@ const MaskedTextField = ({
   errorMessage,
   error,
   suffix,
+  prefix,
   ...props
 }) => {
   const [field, metaProps, helpers] = useField({ id, name, validate, ...props });
@@ -59,8 +60,9 @@ const MaskedTextField = ({
         </Hint>
       )}
       {/* eslint-disable react/jsx-props-no-spreading */}
-      {suffix ? (
-        <div className={suffix && styles.hasSuffix}>
+      {suffix || prefix ? (
+        <div className={classnames(suffix && styles.hasSuffix, prefix && styles.hasPrefix)}>
+          {prefix && <div className="prefix">{prefix}</div>}
           <IMaskInput
             className={classnames('usa-input', inputClassName)}
             data-testid={inputTestId}
@@ -117,6 +119,7 @@ MaskedTextField.propTypes = {
   id: PropTypes.string.isRequired,
   inputClassName: PropTypes.string,
   suffix: PropTypes.string,
+  prefix: PropTypes.string,
   label: PropTypes.string,
   labelClassName: PropTypes.string,
   labelHint: PropTypes.string,
@@ -140,6 +143,7 @@ MaskedTextField.defaultProps = {
   hintClassName: '',
   formGroupClassName: '',
   suffix: '',
+  prefix: '',
   inputClassName: '',
   label: '',
   labelClassName: '',
