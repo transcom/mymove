@@ -30,8 +30,8 @@
   }
 
   .header {
-    @include u-margin-top('1');
-    @include u-margin-bottom('0');
+    @include u-margin-top(1);
+    @include u-margin-bottom(0);
   }
 
   .top {
@@ -44,8 +44,8 @@
   }
 
   .body {
-    @include u-padding-y('3');
-    @include u-padding-x('4');
+    @include u-padding-y(3);
+    @include u-padding-x(4);
     background-color: $bg-gray;
     @include u-overflow-y('auto');
     flex: 1 1 0;
@@ -57,8 +57,8 @@
   }
 
   .bottom {
-    @include u-padding-x('3');
-    @include u-padding-y('1');
+    @include u-padding-x(3);
+    @include u-padding-y(1);
     @include u-bg('white');
 
     @include u-border-top('2px');

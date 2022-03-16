@@ -4,7 +4,7 @@
 
 .NeedsReview {
   @include u-bg('gray-5');
-  @include u-padding('2');
+  @include u-padding(2);
   @include u-radius('05');
   @include u-border('base-light');
   @include u-border('1px');
