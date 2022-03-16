@@ -45,6 +45,8 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
 
   const maxAdvanceToRequest = maxAdvance(estimatedIncentive);
   const formatedIncentive = formatCentsTruncateWhole(estimatedIncentive);
+  const nonFormattedIncentive = Math.floor(estimatedIncentive / 100);
+  const nonFormattedMaxToRequest = Math.floor(nonFormattedIncentive * 0.6);
 
   return (
     <Formik
@@ -98,11 +100,9 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                       prefix="$"
                       warning={
                         mtoShipment?.ppmShipment &&
-                        values.amountRequested > Math.floor((mtoShipment.ppmShipment.estimatedIncentive / 100) * 0.6) &&
-                        values.amountRequested <= Math.floor(mtoShipment.ppmShipment.estimatedIncentive / 100)
-                          ? `Reminder: your advance can not be more than ${Math.floor(
-                              (mtoShipment.ppmShipment.estimatedIncentive / 100) * 0.6,
-                            )}`
+                        values.amountRequested > nonFormattedMaxToRequest &&
+                        values.amountRequested <= nonFormattedIncentive
+                          ? `Reminder: your advance can not be more than $${maxAdvanceToRequest}`
                           : ''
                       }
                       hintClassName={ppmBookingStyles.innerHint}
