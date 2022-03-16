@@ -1,4 +1,4 @@
-import { hasShortHaulError, getIncentiveRange } from './incentives';
+import { hasShortHaulError, getIncentiveRange, maxAdvance } from './incentives';
 
 describe('hasShortHaulError', () => {
   it('should return true for 409 - move under 50 miles', () => {
@@ -43,5 +43,14 @@ describe('getIncentiveRange', () => {
         },
       ),
     ).toBe('');
+  });
+});
+
+describe('maxAdvance', () => {
+  it('should return the formatted range from the PPM if the PPM values exist', () => {
+    const amount = 600;
+    expect(maxAdvance(100000)).toBe(
+      amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+    );
   });
 });

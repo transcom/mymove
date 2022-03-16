@@ -5198,6 +5198,41 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 
 }
 
+func createNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, locator string) {
+	db := appCtx.DB()
+	submittedAt := time.Now()
+	ntsMoveType := models.SelectedMoveTypeNTS
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: true,
+		},
+		Order: models.Order{
+			OrdersType: ordersType,
+		},
+	})
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:          locator,
+			Status:           models.MoveStatusNeedsServiceCounseling,
+			SelectedMoveType: &ntsMoveType,
+			SubmittedAt:      &submittedAt,
+		},
+		Order: orders,
+	})
+
+	// Makes a basic NTS-R shipment with minimal info.
+	requestedDeliveryDate := time.Now().AddDate(0, 0, 14)
+	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+		},
+	})
+}
+
 func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 
