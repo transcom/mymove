@@ -12,9 +12,8 @@ import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 
-// update ppmShipment payload for AdvanceForm values
-// remove unnessary selectioins like order and service member
-// make testdatagen for advance user
+// view page locally with new testdatagen user
+// make styling changes
 // write test
 
 const Advance = () => {
@@ -32,15 +31,10 @@ const Advance = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
 
-    const hasProGear = values.hasProGear === 'true';
-
     const payload = {
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
-        estimatedWeight: Number(values.estimatedWeight),
-        hasProGear,
-        proGearWeight: hasProGear ? Number(values.proGearWeight) : null,
-        spouseProGearWeight: hasProGear ? Number(values.spouseProGearWeight) : null,
+        advance: Number(values.amountRequested) * 100,
       },
     };
 
