@@ -48,11 +48,11 @@ describe('ServiceInfoDisplay component', () => {
 
     expect(dodId.nextElementSibling.textContent).toBe(testProps.edipi);
 
-    const currentDutyStation = screen.getByText('Current duty location');
+    const currentDutyLocation = screen.getByText('Current duty location');
 
-    expect(currentDutyStation).toBeInTheDocument();
+    expect(currentDutyLocation).toBeInTheDocument();
 
-    expect(currentDutyStation.nextElementSibling.textContent).toBe(testProps.originDutyLocationName);
+    expect(currentDutyLocation.nextElementSibling.textContent).toBe(testProps.originDutyLocationName);
 
     const editLink = screen.getByText('Edit');
 

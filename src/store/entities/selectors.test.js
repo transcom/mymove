@@ -229,7 +229,7 @@ describe('selectServiceMemberProfileState', () => {
             telephone: '555-555-5556',
             email_is_preferred: false,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
               address: {
                 city: 'Colorado Springs',
                 country: 'United States',
@@ -269,7 +269,7 @@ describe('selectServiceMemberProfileState', () => {
             telephone: '555-555-5556',
             email_is_preferred: false,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
               address: {
                 city: 'Colorado Springs',
                 country: 'United States',
@@ -325,7 +325,7 @@ describe('selectServiceMemberProfileState', () => {
             telephone: '555-555-5556',
             email_is_preferred: false,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
               address: {
                 city: 'Colorado Springs',
                 country: 'United States',

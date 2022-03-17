@@ -18,7 +18,7 @@ const defaultProps = {
     push: mockPush,
   },
   submitHandler: jest.fn(),
-  newDutyStationAddress: {
+  newDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',

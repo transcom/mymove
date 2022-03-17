@@ -121,7 +121,7 @@ function mapStateToProps(state, ownProps) {
     orders: selectCurrentOrders(state) || {},
     mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
-    newDutyStationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
+    newDutyLocationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
   };
 
   return props;

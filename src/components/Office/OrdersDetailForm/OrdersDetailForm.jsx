@@ -31,14 +31,14 @@ const OrdersDetailForm = ({
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
   // The text is different if the customer is retiring or separating.
-  const newDutyStationLabel = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType)
+  const newDutyLocationLabel = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType)
     ? 'HOR, HOS or PLEAD'
     : 'New duty location';
 
   return (
     <div className={styles.OrdersDetailForm}>
       <DutyLocationInput name="originDutyLocation" label="Current duty location" displayAddress={false} />
-      <DutyLocationInput name="newDutyLocation" label={newDutyStationLabel} displayAddress={false} />
+      <DutyLocationInput name="newDutyLocation" label={newDutyLocationLabel} displayAddress={false} />
       <DatePickerInput name="issueDate" label="Date issued" />
       <DatePickerInput name="reportByDate" label={reportDateRowLabel} />
       {showDepartmentIndicator && (

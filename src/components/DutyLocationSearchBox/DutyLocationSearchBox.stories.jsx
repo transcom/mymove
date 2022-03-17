@@ -129,7 +129,7 @@ const baseValue = {
   address: { ...testAddress },
 };
 
-const mockSearchDutyStations = async () => {
+const mockSearchDutyLocations = async () => {
   return testStations;
 };
 
@@ -149,7 +149,7 @@ export const Standard = () => {
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       name="test_component"
-      searchDutyLocations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );
@@ -167,7 +167,7 @@ export const WithValue = () => {
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       displayAddress={false}
-      searchDutyLocations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );
@@ -184,7 +184,7 @@ export const WithValueAndAddress = () => {
     <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
-      searchDutyLocations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );
@@ -202,7 +202,7 @@ export const WithErrorMessage = () => {
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       errorMsg="Something went wrong"
-      searchDutyLocations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );
@@ -215,7 +215,7 @@ export const WithLocalError = () => {
     setValue(newValue);
   };
 
-  const brokenSearchDutyStations = async () => {
+  const brokenSearchDutyLocations = async () => {
     throw new Error('Artificial error message text');
   };
 
@@ -223,7 +223,7 @@ export const WithLocalError = () => {
     <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
-      searchDutyLocations={brokenSearchDutyStations}
+      searchDutyLocations={brokenSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );

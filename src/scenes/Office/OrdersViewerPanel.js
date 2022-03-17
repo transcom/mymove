@@ -16,7 +16,7 @@ import './office.scss';
 
 const OrdersViewerDisplay = (props) => {
   const orders = props.orders;
-  const currentDutyStation = get(props.serviceMember, 'current_location.name', '');
+  const currentDutyLocation = get(props.serviceMember, 'current_location.name', '');
   const uploads = get(orders, 'uploaded_orders.uploads', []);
   const ordersFieldsProps = {
     values: props.orders,
@@ -46,7 +46,7 @@ const OrdersViewerDisplay = (props) => {
 
         <PanelField title="Report by" required value={formatDate(orders.report_by_date)} />
 
-        <PanelField title="Current Duty Location" required value={currentDutyStation} />
+        <PanelField title="Current Duty Location" required value={currentDutyLocation} />
 
         <PanelField title="New Duty Location" required value={get(orders, 'new_duty_location.name', '')} />
 

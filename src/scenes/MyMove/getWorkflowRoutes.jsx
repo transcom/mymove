@@ -15,7 +15,7 @@ import Home from 'pages/MyMove/Home';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import DodInfo from 'pages/MyMove/Profile/DodInfo';
 import SMName from 'pages/MyMove/Profile/Name';
-import DutyStation from 'pages/MyMove/Profile/DutyLocation';
+import DutyLocation from 'pages/MyMove/Profile/DutyLocation';
 import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
@@ -125,7 +125,7 @@ const pages = {
     render:
       () =>
       ({ history }) =>
-        <DutyStation push={history.push} />,
+        <DutyLocation push={history.push} />,
     description: 'current duty station',
   },
   [customerRoutes.CURRENT_ADDRESS_PATH]: {

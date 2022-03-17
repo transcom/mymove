@@ -73,19 +73,19 @@ const getReactSelectFilterSettings = (data = []) => ({
 
 // lodash memoize will prevent unnecessary rendering with the same state
 // this will re-render if the state changes
-const destination = memoize((destinationDutyStations) =>
+const destination = memoize((destinationDutyLocations) =>
   createReactTableColumn('Destination', 'destination_duty_station_name', {
     Cell: (row) => <span>{row.value}</span>,
     filterable: true,
-    ...getReactSelectFilterSettings(destinationDutyStations),
+    ...getReactSelectFilterSettings(destinationDutyLocations),
   }),
 );
 
-const origin = memoize((originDutyStations) =>
+const origin = memoize((originDutyLocations) =>
   createReactTableColumn('Origin', 'origin_duty_station_name', {
     Cell: (row) => <span>{row.value}</span>,
     filterable: true,
-    ...getReactSelectFilterSettings(originDutyStations),
+    ...getReactSelectFilterSettings(originDutyLocations),
   }),
 );
 
@@ -167,8 +167,8 @@ export const defaultColumns = (component) => {
   return [
     status,
     customerName,
-    origin(component.getOriginDutyStations()),
-    destination(component.getDestinationDutyStations()),
+    origin(component.getOriginDutyLocations()),
+    destination(component.getDestinationDutyLocations()),
     dodId,
     locator,
     moveDate,
