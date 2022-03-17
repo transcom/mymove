@@ -19,7 +19,7 @@ import (
 func getMoveHistoryForTest() models.MoveHistory {
 	localUUID := uuid.Must(uuid.NewV4())
 	transactionID := int64(3281)
-	clientQuery := "UPDATE \"orders\" AS orders SET \"amended_orders_acknowledged_at\" = $1, \"department_indicator\" = $2, \"entitlement_id\" = $3, \"grade\" = $4, \"has_dependents\" = $5, \"issue_date\" = $6, \"new_duty_station_id\" = $7, \"nts_sac\" = $8, \"nts_tac\" = $9, \"orders_number\" = $10, \"orders_type\" = $11, \"orders_type_detail\" = $12, \"origin_duty_station_id\" = $13, \"report_by_date\" = $14, \"sac\" = $15, \"service_member_id\" = $16, \"spouse_has_pro_gear\" = $17, \"status\" = $18, \"tac\" = $19, \"updated_at\" = $20, \"uploaded_amended_orders_id\" = $21, \"uploaded_orders_id\" = $22 WHERE orders.id = $23"
+	clientQuery := "UPDATE \"orders\" AS orders SET \"amended_orders_acknowledged_at\" = $1, \"department_indicator\" = $2, \"entitlement_id\" = $3, \"grade\" = $4, \"has_dependents\" = $5, \"issue_date\" = $6, \"new_duty_location_id\" = $7, \"nts_sac\" = $8, \"nts_tac\" = $9, \"orders_number\" = $10, \"orders_type\" = $11, \"orders_type_detail\" = $12, \"origin_duty_location_id\" = $13, \"report_by_date\" = $14, \"sac\" = $15, \"service_member_id\" = $16, \"spouse_has_pro_gear\" = $17, \"status\" = $18, \"tac\" = $19, \"updated_at\" = $20, \"uploaded_amended_orders_id\" = $21, \"uploaded_orders_id\" = $22 WHERE orders.id = $23"
 	eventName := "apiEndpoint"
 	moveHistory := models.MoveHistory{
 		ID:          uuid.Must(uuid.NewV4()),
