@@ -7,7 +7,7 @@ const defaultProps = {
   orderType: 'Permanent change of station',
   issueDate: '11 June 2020',
   reportByDate: '11 Aug 2020',
-  newDutyStationName: 'Fort Knox',
+  newDutyLocationName: 'Fort Knox',
   hasDependents: true,
   uploads: [1, 2, 3],
 };
