@@ -61,7 +61,7 @@ export const indexServiceMemberBackupContacts = new schema.Array(backupContact);
 
 export const serviceMemberBackupContact = backupContact;
 
-// DutyStations and TransportationOffices
+// DutyLocations and TransportationOffices
 export const transportationOffice = new schema.Entity('transportationOffices');
 export const transportationOffices = new schema.Array(transportationOffice);
 export const dutyLocation = new schema.Entity('dutyLocations', {
