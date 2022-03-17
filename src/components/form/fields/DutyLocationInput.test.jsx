@@ -40,7 +40,7 @@ jest.mock('components/DutyLocationSearchBox/api', () => {
   };
 });
 
-describe('DutyStationInput', () => {
+describe('DutyLocationInput', () => {
   describe('with all required props', () => {
     const wrapper = shallow(<DutyLocationInput name="name" label="label" />);
 

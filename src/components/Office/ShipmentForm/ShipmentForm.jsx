@@ -41,7 +41,7 @@ import ShipmentVendor from 'components/Office/ShipmentVendor/ShipmentVendor';
 const ShipmentForm = ({
   match,
   history,
-  newDutyStationAddress,
+  newDutyLocationAddress,
   selectedMoveType,
   isCreatePage,
   isForServicesCounseling,
@@ -416,8 +416,8 @@ const ShipmentForm = ({
                             {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
                             <br />
                             <strong>
-                              {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                              {newDutyStationAddress.postalCode}{' '}
+                              {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
+                              {newDutyLocationAddress.postalCode}{' '}
                             </strong>
                           </p>
                         )}
@@ -486,7 +486,7 @@ ShipmentForm.propTypes = {
   isCreatePage: bool,
   isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
-  newDutyStationAddress: SimpleAddressShape,
+  newDutyLocationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: HhgShipmentShape,
   moveTaskOrderID: string.isRequired,
@@ -507,7 +507,7 @@ ShipmentForm.defaultProps = {
   isForServicesCounseling: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { push: () => {} },
-  newDutyStationAddress: {
+  newDutyLocationAddress: {
     city: '',
     state: '',
     postalCode: '',

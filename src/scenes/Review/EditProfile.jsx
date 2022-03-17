@@ -70,7 +70,7 @@ let EditProfileForm = (props) => {
                 <ServiceInfoDisplay
                   firstName={initialValues.first_name}
                   lastName={initialValues.last_name}
-                  originDutyStationName={currentStation.name}
+                  originDutyLocationName={currentStation.name}
                   originTransportationOfficeName={transportationOfficeName}
                   originTransportationOfficePhone={transportationOfficePhone}
                   affiliation={initialValues.affiliation}

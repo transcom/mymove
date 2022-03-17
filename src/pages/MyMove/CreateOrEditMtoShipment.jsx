@@ -60,7 +60,7 @@ export class CreateOrEditMtoShipment extends Component {
           selectedMoveType={type || mtoShipment.shipmentType}
           isCreatePage={!!type}
           currentResidence={currentResidence}
-          newDutyStationAddress={newDutyStationAddress}
+          newDutyLocationAddress={newDutyStationAddress}
           updateMTOShipment={updateMTOShipment}
           serviceMember={serviceMember}
           orders={orders}

@@ -6,7 +6,7 @@ import Contact from './index';
 
 export const Basic = () => (
   <Contact
-    dutyStationName={text('Duty Location Name', 'Fort Knox')}
+    dutyLocationName={text('Duty Location Name', 'Fort Knox')}
     header={text('Header', 'Contacts')}
     officeType={text('Office type', 'Origin Transportation Office')}
     telephone={text('Telephone', '(777) 777-7777')}
@@ -15,7 +15,7 @@ export const Basic = () => (
 
 export const missingPhone = () => (
   <Contact
-    dutyStationName={text('Duty Location Name', 'Fort Knox')}
+    dutyLocationName={text('Duty Location Name', 'Fort Knox')}
     header={text('Header', 'Contacts')}
     officeType={text('Office type', 'Origin Transportation Office')}
   />
@@ -24,7 +24,7 @@ export const missingPhone = () => (
 export const nonInstallation = () => (
   <Contact
     header={text('Header', 'Contacts')}
-    dutyStationName={text('Duty Station', '')}
+    dutyLocationName={text('Duty Station', '')}
     officeType={text('Office type', '')}
     telephone={text('Telephone', '')}
   />

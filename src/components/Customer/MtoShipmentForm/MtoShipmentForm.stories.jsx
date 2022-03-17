@@ -19,7 +19,7 @@ const defaultProps = {
   },
   history: { push: () => {}, goBack: () => {} },
   showLoggedInUser: () => {},
-  newDutyStationAddress: {
+  newDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',
