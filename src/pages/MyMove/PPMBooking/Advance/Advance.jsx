@@ -10,24 +10,19 @@ import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
-import {
-  selectCurrentOrders,
-  selectMTOShipmentById,
-  selectServiceMemberFromLoggedInUser,
-} from 'store/entities/selectors';
+import { selectMTOShipmentById } from 'store/entities/selectors';
 
 // update ppmShipment payload for AdvanceForm values
 // remove unnessary selectioins like order and service member
-// create a new advance route
-// use this component for the advance route
+// make testdatagen for advance user
+// write test
+
 const Advance = () => {
   const [errorMessage, setErrorMessage] = useState();
   const history = useHistory();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
 
-  const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
-  const orders = useSelector((state) => selectCurrentOrders(state));
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const handleBack = () => {
@@ -74,13 +69,7 @@ const Advance = () => {
                 {errorMessage}
               </Alert>
             )}
-            <AdvanceForm
-              orders={orders}
-              serviceMember={serviceMember}
-              mtoShipment={mtoShipment}
-              onSubmit={handleSubmit}
-              onBack={handleBack}
-            />
+            <AdvanceForm mtoShipment={mtoShipment} onSubmit={handleSubmit} onBack={handleBack} />
           </Grid>
         </Grid>
       </GridContainer>
