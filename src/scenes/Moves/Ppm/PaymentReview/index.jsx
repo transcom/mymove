@@ -41,7 +41,7 @@ class PaymentReview extends Component {
   };
 
   componentDidMount() {
-    const { originDutyStationZip, currentPPM, moveId } = this.props;
+    const { originDutyLocationZip, currentPPM, moveId } = this.props;
     const { original_move_date, pickup_postal_code } = currentPPM;
 
     getPPMsForMove(moveId)
@@ -57,7 +57,7 @@ class PaymentReview extends Component {
             calculatePPMEstimate(
               original_move_date,
               pickup_postal_code,
-              originDutyStationZip,
+              originDutyLocationZip,
               this.props.orders.id,
               netWeight,
             )
@@ -72,7 +72,7 @@ class PaymentReview extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { originDutyStationZip, currentPPM, moveDocuments } = this.props;
+    const { originDutyLocationZip, currentPPM, moveDocuments } = this.props;
     const { original_move_date, pickup_postal_code } = currentPPM;
     if (moveDocuments.weightTickets.length !== prevProps.moveDocuments.weightTickets.length) {
       if (!isEmpty(currentPPM)) {
@@ -84,7 +84,7 @@ class PaymentReview extends Component {
           calculatePPMEstimate(
             original_move_date,
             pickup_postal_code,
-            originDutyStationZip,
+            originDutyLocationZip,
             this.props.orders.id,
             netWeight,
           )
@@ -228,7 +228,7 @@ const mapStateToProps = (state, props) => {
     currentPPM: selectCurrentPPM(state) || {},
     incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
-    originDutyStationZip: serviceMember?.current_location?.address?.postalCode,
+    originDutyLocationZip: serviceMember?.current_location?.address?.postalCode,
     entitlement: loadEntitlementsFromState(state),
     orders: selectCurrentOrders(state) || {},
   };

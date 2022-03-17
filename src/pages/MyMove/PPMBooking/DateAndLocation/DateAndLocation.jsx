@@ -108,7 +108,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
             <DateAndLocationForm
               mtoShipment={mtoShipment}
               serviceMember={serviceMember}
-              destinationDutyStation={destinationDutyLocation}
+              destinationDutyLocation={destinationDutyLocation}
               onSubmit={handleSubmit}
               onBack={handleBack}
               postalCodeValidator={validatePostalCode}

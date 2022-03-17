@@ -36,8 +36,8 @@ const ShipmentDetails = ({
         shipment={shipment}
         entitilement={entitlement}
         dutyStationAddresses={{
-          originDutyStationAddress: originDutyLocation?.address,
-          destinationDutyStationAddress: destinationDutyLocation?.address,
+          originDutyLocationAddress: originDutyLocation?.address,
+          destinationDutyLocationAddress: destinationDutyLocation?.address,
         }}
         handleReviewSITExtension={handleReviewSITExtension}
         handleSubmitSITExtension={handleSubmitSITExtension}
