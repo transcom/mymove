@@ -12,3 +12,18 @@
         color: $base-darkest;
     }
 }
+
+.hasPrefix {
+    display: inline-block;
+    position: relative;
+
+    div {
+        position: absolute;
+        left: 10px;
+        bottom: 9px;
+        color: $base-darkest;
+    }
+    input {
+        padding-left: 25px;
+    }
+}

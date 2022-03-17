@@ -100,7 +100,7 @@ describe('TXO Move Info Container', () => {
       expect(wrapper.find('span.tab-title + span').at(0).exists()).toBe(false);
       expect(wrapper.find('span.tab-title').at(1).text()).toContain('Move task order');
       expect(wrapper.find('span.tab-title').at(2).text()).toContain('Payment requests');
-      expect(wrapper.find('span.tab-title').at(3).text()).toContain('History');
+      expect(wrapper.find('span.tab-title').at(3).text()).toContain('Move history');
 
       expect(wrapper.find('li.tabItem a').at(0).prop('href')).toEqual(`/moves/${testMoveCode}/details`);
       expect(wrapper.find('li.tabItem a').at(1).prop('href')).toEqual(`/moves/${testMoveCode}/mto`);

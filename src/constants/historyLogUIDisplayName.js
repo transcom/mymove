@@ -27,8 +27,8 @@ export function getHistoryLogEventNameDisplay({ eventName /* operationId */, cha
   switch (eventName) {
     case 'updateMTOServiceItemStatus': {
       // find 'columnName' with 'columnValue'
-      const status = changedValues.find((changedValue) => changedValue.columnName === 'status');
-      switch (status.columnValue) {
+      const status = changedValues?.find((changedValue) => changedValue?.columnName === 'status');
+      switch (status?.columnValue) {
         case 'APPROVED':
           return 'Approved service item';
         case 'REJECTED':
@@ -39,8 +39,8 @@ export function getHistoryLogEventNameDisplay({ eventName /* operationId */, cha
     }
     case 'updateMoveTaskOrderStatus': {
       // find 'columnName' with 'columnValue'
-      const status = changedValues.find((changedValue) => changedValue.columnName === 'status');
-      switch (status.columnValue) {
+      const status = changedValues?.find((changedValue) => changedValue?.columnName === 'status');
+      switch (status?.columnValue) {
         case 'APPROVED':
           return 'Move approved';
         case 'REJECTED':

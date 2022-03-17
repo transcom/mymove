@@ -1,0 +1,12 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/colors';
+
+.ModifiedBy {
+  @include u-font-size('base', 3);
+  .name {
+    color: $base-darkest;
+  }
+  .contactInfo {
+    color: $base-dark;
+  }
+}
