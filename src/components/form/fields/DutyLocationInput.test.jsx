@@ -58,13 +58,13 @@ describe('DutyLocationInput', () => {
     });
 
     it('escapes regex special character input', async () => {
-      const mounted = mount(<DutyLocationInput name="dutyStation" label="label" />);
+      const mounted = mount(<DutyLocationInput name="dutyLocation" label="label" />);
 
       await act(async () => {
         // Only the hidden input that gets the final selected duty station has a name attribute
         mounted
-          .find('input#dutyStation-input')
-          .simulate('change', { target: { id: 'dutyStation-input', value: '-][)(*+?.\\^$|' } });
+          .find('input#dutyLocation-input')
+          .simulate('change', { target: { id: 'dutyLocation-input', value: '-][)(*+?.\\^$|' } });
       });
       mounted.update();
 

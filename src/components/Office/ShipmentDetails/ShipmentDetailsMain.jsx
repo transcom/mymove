@@ -20,7 +20,7 @@ import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
 const ShipmentDetailsMain = ({
   className,
   shipment,
-  dutyStationAddresses,
+  dutyLocationAddresses,
   handleDivertShipment,
   handleRequestReweighModal,
   handleReviewSITExtension,
@@ -41,7 +41,7 @@ const ShipmentDetailsMain = ({
     shipmentType,
     storageFacility,
   } = shipment;
-  const { originDutyLocationAddress, destinationDutyLocationAddress } = dutyStationAddresses;
+  const { originDutyLocationAddress, destinationDutyLocationAddress } = dutyLocationAddresses;
 
   const [isReviewSITExtensionModalVisible, setIsReviewSITExtensionModalVisible] = useState(false);
   const [isSubmitITExtensionModalVisible, setIsSubmitITExtensionModalVisible] = useState(false);
@@ -166,7 +166,7 @@ const ShipmentDetailsMain = ({
 ShipmentDetailsMain.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
-  dutyStationAddresses: PropTypes.shape({
+  dutyLocationAddresses: PropTypes.shape({
     originDutyLocationAddress: AddressShape,
     destinationDutyLocationAddress: AddressShape,
   }).isRequired,

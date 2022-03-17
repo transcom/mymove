@@ -15,7 +15,7 @@ import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
 import { DutyLocationShape } from 'types/dutyLocation';
 
-const dutyStationFormName = 'duty_station';
+const dutyLocationFormName = 'duty_location';
 
 export const DutyLocation = ({ serviceMember, existingStation, newDutyLocation, updateServiceMember, push }) => {
   const [serverError, setServerError] = useState(null);
@@ -98,7 +98,7 @@ function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
-    values: getFormValues(dutyStationFormName)(state),
+    values: getFormValues(dutyLocationFormName)(state),
     existingStation: serviceMember?.current_location,
     serviceMember,
     newDutyLocation: orders?.new_duty_location,

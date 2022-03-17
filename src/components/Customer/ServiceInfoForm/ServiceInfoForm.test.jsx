@@ -193,9 +193,9 @@ describe('ServiceInfoForm', () => {
     );
 
     // Test Duty Station Search Box interaction
-    const dutyStationInput = await screen.getByLabelText('Current duty location');
-    fireEvent.change(dutyStationInput, { target: { value: 'AFB' } });
-    await selectEvent.select(dutyStationInput, /Luke/);
+    const dutyLocationInput = await screen.getByLabelText('Current duty location');
+    fireEvent.change(dutyLocationInput, { target: { value: 'AFB' } });
+    await selectEvent.select(dutyLocationInput, /Luke/);
 
     expect(await screen.findByRole('form')).toHaveFormValues({
       current_location: 'Luke AFB',

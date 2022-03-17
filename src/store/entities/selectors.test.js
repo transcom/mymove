@@ -430,7 +430,7 @@ describe('selectCurrentDutyLocation', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             current_location: {
-              id: 'dutyStationId890',
+              id: 'dutyLocationId890',
             },
           },
         },

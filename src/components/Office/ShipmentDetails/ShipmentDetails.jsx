@@ -35,7 +35,7 @@ const ShipmentDetails = ({
         handleRequestReweighModal={handleRequestReweighModal}
         shipment={shipment}
         entitilement={entitlement}
-        dutyStationAddresses={{
+        dutyLocationAddresses={{
           originDutyLocationAddress: originDutyLocation?.address,
           destinationDutyLocationAddress: destinationDutyLocation?.address,
         }}

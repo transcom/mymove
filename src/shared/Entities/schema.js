@@ -64,10 +64,10 @@ export const serviceMemberBackupContact = backupContact;
 // DutyStations and TransportationOffices
 export const transportationOffice = new schema.Entity('transportationOffices');
 export const transportationOffices = new schema.Array(transportationOffice);
-export const dutyStation = new schema.Entity('dutyStations', {
+export const dutyLocation = new schema.Entity('dutyLocations', {
   transportation_office: transportationOffice,
 });
-export const dutyStations = new schema.Array(dutyStation);
+export const dutyLocations = new schema.Array(dutyLocation);
 
 // Service Member
 export const serviceMember = new schema.Entity('serviceMembers', {
