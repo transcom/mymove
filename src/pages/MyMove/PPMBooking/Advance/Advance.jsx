@@ -12,10 +12,6 @@ import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 
-// view page locally with new testdatagen user
-// make styling changes
-// write test
-
 const Advance = () => {
   const [errorMessage, setErrorMessage] = useState();
   const history = useHistory();
@@ -34,17 +30,15 @@ const Advance = () => {
     const payload = {
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
-        advance: Number(1000),
+        advance: Number(values.amountRequested * 100),
       },
     };
 
     patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
       .then((response) => {
         setSubmitting(false);
-        console.log(response);
-        console.log(payload);
         dispatch(updateMTOShipment(response));
-        // history.push(generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId }));
+        history.push(generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId }));
       })
       .catch((err) => {
         setSubmitting(false);
