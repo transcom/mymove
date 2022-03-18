@@ -7,7 +7,7 @@ repos:
         language: script
         types: [go]
 
-  - repo: git://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
     hooks:
       - id: check-json
@@ -50,7 +50,7 @@ repos:
       - id: trailing-whitespace
         exclude: ^public/swagger-ui/
 
-  - repo: git://github.com/golangci/golangci-lint
+  - repo: https://github.com/golangci/golangci-lint
     rev: v1.44.2
     hooks:
       - id: golangci-lint
@@ -80,7 +80,7 @@ repos:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
 
-  - repo: git://github.com/detailyang/pre-commit-shell
+  - repo: https://github.com/detailyang/pre-commit-shell
     rev: 1.0.5
     hooks:
       - id: shell-lint
@@ -131,7 +131,7 @@ repos:
         files: go.mod
         pass_filenames: false
 
-  - repo: git://github.com/trussworks/pre-commit-hooks
+  - repo: https://github.com/trussworks/pre-commit-hooks
     rev: v1.1.1
     hooks:
       - id: gen-docs
