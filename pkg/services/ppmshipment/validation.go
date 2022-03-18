@@ -72,6 +72,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.NetWeight = services.SetNoNilOptionalPoundField(newPPMShipment.NetWeight, ppmShipment.NetWeight)
 	ppmShipment.ProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.ProGearWeight, ppmShipment.ProGearWeight)
 	ppmShipment.SpouseProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SpouseProGearWeight, ppmShipment.SpouseProGearWeight)
+	ppmShipment.Advance = services.SetOptionalCentsField(newPPMShipment.Advance, ppmShipment.Advance)
 
 	ppmShipment.EstimatedIncentive = services.SetNoNNilOptionalInt32Field(newPPMShipment.EstimatedIncentive, ppmShipment.EstimatedIncentive)
 

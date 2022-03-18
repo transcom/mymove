@@ -5294,9 +5294,7 @@ func init() {
           "x-omitempty": false
         },
         "advance": {
-          "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
-          "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -6468,6 +6466,13 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        },
+        "advance": {
+          "description": "The amount requested (in cents) by the service member as an advance\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "example": 3000
         },
         "destinationPostalCode": {
           "type": "string",
@@ -12247,9 +12252,7 @@ func init() {
           "x-omitempty": false
         },
         "advance": {
-          "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
-          "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -13425,6 +13428,13 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        },
+        "advance": {
+          "description": "The amount requested (in cents) by the service member as an advance\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "example": 3000
         },
         "destinationPostalCode": {
           "type": "string",

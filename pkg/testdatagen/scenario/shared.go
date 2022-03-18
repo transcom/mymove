@@ -724,7 +724,7 @@ func createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 			UserID:        uuid.Must(uuid.FromString(uuidStr)),
 			FirstName:     models.StringPointer("Minimal"),
 			LastName:      models.StringPointer("PPM"),
-			Edipi:         models.StringPointer("8738145769"),
+			Edipi:         models.StringPointer("8734145769"),
 			PersonalEmail: models.StringPointer(email),
 		},
 	})
@@ -745,10 +745,10 @@ func createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 	testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		PPMShipment: models.PPMShipment{
-			ID:                 uuid.Must(uuid.FromString("65eea403-89ac-4c2d-9b1c-0dcc8805258f")),
+			ID:                 uuid.Must(uuid.FromString("9160a396-9b60-41c2-af7a-aa03d5002c71")),
 			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
 			HasProGear:         models.BoolPointer(false),
-			EstimatedIncentive: models.Int32Pointer(int32(1000000)),
+			EstimatedIncentive: models.Int32Pointer(int32(10000000)),
 			Advance:            models.CentPointer(unit.Cents(30000)),
 		},
 	})

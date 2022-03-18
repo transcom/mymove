@@ -23,8 +23,7 @@ type PPMShipment struct {
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actualMoveDate"`
 
-	// The amount request for an advance, or null if no advance is requested
-	//
+	// advance
 	Advance *int64 `json:"advance"`
 
 	// approved at

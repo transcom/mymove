@@ -23,6 +23,11 @@ type UpdatePPMShipment struct {
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actualMoveDate,omitempty"`
 
+	// The amount requested (in cents) by the service member as an advance
+	//
+	// Example: 3000
+	Advance *int64 `json:"advance,omitempty"`
+
 	// ZIP
 	// Example: 90210
 	// Pattern: ^(\d{5})$
