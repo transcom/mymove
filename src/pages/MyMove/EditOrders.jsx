@@ -160,7 +160,7 @@ export const EditOrders = ({
                 onUploadComplete={handleUploadComplete}
                 onDelete={handleDeleteFile}
                 ordersTypeOptions={ordersTypeOptions}
-                currentStation={serviceMember.current_location}
+                currentDutyLocation={serviceMember.current_location}
                 onCancel={handleCancel}
               />
             </div>

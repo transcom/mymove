@@ -24,7 +24,7 @@ export const missingPhone = () => (
 export const nonInstallation = () => (
   <Contact
     header={text('Header', 'Contacts')}
-    dutyLocationName={text('Duty Station', '')}
+    dutyLocationName={text('Duty Location', '')}
     officeType={text('Office type', '')}
     telephone={text('Telephone', '')}
   />

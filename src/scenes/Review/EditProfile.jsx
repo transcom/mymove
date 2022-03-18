@@ -32,9 +32,9 @@ const editProfileFormName = 'edit_profile';
 
 let EditProfileForm = (props) => {
   const { schema, handleSubmit, submitting, valid, moveIsInDraft, initialValues, serviceMember } = props;
-  const currentStation = get(serviceMember, 'current_location');
-  const transportationOfficeName = get(currentStation, 'transportation_office.name');
-  const transportationOfficePhone = get(currentStation, 'transportation_office.phone_lines.0');
+  const currentDutyLocation = get(serviceMember, 'current_location');
+  const transportationOfficeName = get(currentDutyLocation, 'transportation_office.name');
+  const transportationOfficePhone = get(currentDutyLocation, 'transportation_office.phone_lines.0');
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -70,7 +70,7 @@ let EditProfileForm = (props) => {
                 <ServiceInfoDisplay
                   firstName={initialValues.first_name}
                   lastName={initialValues.last_name}
-                  originDutyLocationName={currentStation.name}
+                  originDutyLocationName={currentDutyLocation.name}
                   originTransportationOfficeName={transportationOfficeName}
                   originTransportationOfficePhone={transportationOfficePhone}
                   affiliation={initialValues.affiliation}

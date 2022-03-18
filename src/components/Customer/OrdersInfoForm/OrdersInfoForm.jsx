@@ -17,7 +17,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import Callout from 'components/Callout';
 import { formatLabelReportByDate } from 'utils/formatters';
 
-const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSubmit, onBack }) => {
+const OrdersInfoForm = ({ currentDutyLocation, ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -32,7 +32,7 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
     new_duty_location: Yup.object()
       .shape({
         name: Yup.string().notOneOf(
-          [currentStation?.name],
+          [currentDutyLocation?.name],
           'You entered the same duty location for your origin and destination. Please change one of them.',
         ),
       })
@@ -148,7 +148,7 @@ OrdersInfoForm.propTypes = {
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
-  currentStation: DutyLocationShape.isRequired,
+  currentDutyLocation: DutyLocationShape.isRequired,
 };
 
 export default OrdersInfoForm;

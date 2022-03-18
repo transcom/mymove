@@ -212,8 +212,8 @@ export class Summary extends Component {
     const { entitlementWarning, showModal } = this.state;
 
     const { moveId } = match.params;
-    const currentStation = get(serviceMember, 'current_location');
-    const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
+    const currentDutyLocation = get(serviceMember, 'current_location');
+    const officePhone = get(currentDutyLocation, 'transportation_office.phone_lines.0');
 
     const rootReviewAddressWithMoveId = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
@@ -307,8 +307,8 @@ export class Summary extends Component {
         )}
         {moveIsApproved && (
           <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office at {currentStation.name}{' '}
-            {stationPhone ? ` at ${stationPhone}` : ''}.
+            *To change these fields, contact your local PPPO office at {currentDutyLocation.name}{' '}
+            {officePhone ? ` at ${officePhone}` : ''}.
           </div>
         )}
         <ConnectedAddShipmentModal isOpen={showModal} closeModal={this.toggleModal} />

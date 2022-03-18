@@ -201,7 +201,7 @@ describe('Orders page', () => {
       userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
       userEvent.click(screen.getByLabelText('No'));
 
-      // Test Duty Station Search Box interaction
+      // Test Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
       const selectedOption = await screen.findByText(/Luke/);
       userEvent.click(selectedOption);

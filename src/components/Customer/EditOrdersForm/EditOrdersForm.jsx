@@ -29,7 +29,7 @@ const EditOrdersForm = ({
   filePondEl,
   onSubmit,
   ordersTypeOptions,
-  currentStation,
+  currentDutyLocation,
   onCancel,
 }) => {
   const validationSchema = Yup.object().shape({
@@ -46,7 +46,7 @@ const EditOrdersForm = ({
     new_duty_location: Yup.object()
       .shape({
         name: Yup.string().notOneOf(
-          [currentStation?.name],
+          [currentDutyLocation?.name],
           'You entered the same duty location for your origin and destination. Please change one of them.',
         ),
       })
@@ -203,7 +203,7 @@ EditOrdersForm.propTypes = {
     }),
     uploaded_orders: ExistingUploadsShape,
   }).isRequired,
-  currentStation: DutyLocationShape.isRequired,
+  currentDutyLocation: DutyLocationShape.isRequired,
   onCancel: PropTypes.func.isRequired,
 };
 

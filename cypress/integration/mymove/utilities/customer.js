@@ -49,7 +49,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
-  // duty station
+  // duty location
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.selectDutyLocation('Fort Carson', 'current_location');
 
