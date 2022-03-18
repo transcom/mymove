@@ -38,7 +38,6 @@ type Assertions struct {
 	BackupContact                            models.BackupContact
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
-	DestinationDutyStation                   models.DutyLocation
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
 	DutyLocation                             models.DutyLocation
