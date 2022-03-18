@@ -19,7 +19,9 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
   return (
     <div className={styles.EstimatedIncentiveDetails}>
       <div className="container">
-        <h2>${formatCentsTruncateWhole(estimatedIncentive)} is your estimated incentive</h2>
+        <h2 data-testid="ppm-estimated-incentive-amount-sentence">
+          ${formatCentsTruncateWhole(estimatedIncentive)} is your estimated incentive
+        </h2>
         <div className={styles.shipmentDetails}>
           <p>That&apos;s about how much you could earn for moving your PPM, based on what you&apos;ve entered:</p>
           <ul>

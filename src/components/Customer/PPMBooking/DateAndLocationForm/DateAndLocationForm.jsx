@@ -320,6 +320,7 @@ const DateAndLocationForm = ({
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}
+                  data-testid="ppm-date-and-location-submit"
                 >
                   Save & Continue
                 </Button>

@@ -35,10 +35,22 @@ const EstimatedIncentive = () => {
             <h1>Estimated incentive</h1>
             <EstimatedIncentiveDetails shipment={shipment} />
             <div className={ppmBookingStyles.buttonContainer}>
-              <Button className={ppmBookingStyles.backButton} type="button" onClick={handleBack} secondary outline>
+              <Button
+                data-testid="ppm-estimated-incentive-back"
+                className={ppmBookingStyles.backButton}
+                type="button"
+                onClick={handleBack}
+                secondary
+                outline
+              >
                 Back
               </Button>
-              <Button className={ppmBookingStyles.saveButton} type="button" onClick={handleNext}>
+              <Button
+                data-testid="ppm-estimated-incentive-next"
+                className={ppmBookingStyles.saveButton}
+                type="button"
+                onClick={handleNext}
+              >
                 Next
               </Button>
             </div>
