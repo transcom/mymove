@@ -206,7 +206,7 @@ describe('selectServiceMemberProfileState', () => {
     expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.CONTACT_INFO_COMPLETE);
   });
 
-  it('returns DUTY_STATION_COMPLETE if there is no address data', () => {
+  it('returns DUTY_LOCATION_COMPLETE if there is no address data', () => {
     const testState = {
       entities: {
         user: {
@@ -243,7 +243,7 @@ describe('selectServiceMemberProfileState', () => {
       },
     };
 
-    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.DUTY_STATION_COMPLETE);
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.DUTY_LOCATION_COMPLETE);
   });
 
   it('returns ADDRESS_COMPLETE if there is no backup address data', () => {

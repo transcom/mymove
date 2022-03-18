@@ -122,4 +122,4 @@ const mapStateToProps = (state) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(requireCustomerState(ResidentialAddress, profileStates.DUTY_STATION_COMPLETE));
+)(requireCustomerState(ResidentialAddress, profileStates.DUTY_LOCATION_COMPLETE));

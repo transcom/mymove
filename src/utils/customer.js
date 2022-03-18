@@ -12,7 +12,7 @@ export const findNextServiceMemberStep = (profileState) => {
       return customerRoutes.CONTACT_INFO_PATH;
     case profileStates.CONTACT_INFO_COMPLETE:
       return customerRoutes.CURRENT_DUTY_LOCATION_PATH;
-    case profileStates.DUTY_STATION_COMPLETE:
+    case profileStates.DUTY_LOCATION_COMPLETE:
       return customerRoutes.CURRENT_ADDRESS_PATH;
     case profileStates.ADDRESS_COMPLETE:
       return customerRoutes.BACKUP_ADDRESS_PATH;
