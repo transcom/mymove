@@ -137,7 +137,11 @@ func (hctx *handlerContext) AuditableAppContextFromRequest(
 		if err != nil {
 			return err
 		}
-		resp = handler(txnAppCtx)
+		// The txnAppCtx does produce the error that breaks the test (TestCreateUploadsHandlerFailure)
+		// resp = handler(txnAppCtx)
+
+		// The appCtx does not produce the error that breaks the test (TestCreateUploadsHandlerFailure)
+		resp = handler(appCtx)
 		return nil
 	})
 	if err != nil {
