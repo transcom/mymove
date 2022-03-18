@@ -127,7 +127,7 @@ export const DutyLocationSearchBoxComponent = (props) => {
   });
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
-  const hasStation = !!value && !!value.address;
+  const hasDutyLocation = !!value && !!value.address;
 
   return (
     <FormGroup>
@@ -149,12 +149,12 @@ export const DutyLocationSearchBoxComponent = (props) => {
           onChange={selectOption}
           onInputChange={changeInputText}
           placeholder="Start typing a duty location..."
-          value={hasStation ? value : null}
+          value={hasDutyLocation ? value : null}
           noOptionsMessage={noOptionsMessage}
           styles={customStyles}
         />
       </div>
-      {displayAddress && hasStation && (
+      {displayAddress && hasDutyLocation && (
         <p className={locationClasses}>
           {value.address.city}, {value.address.state} {value.address.postalCode}
         </p>

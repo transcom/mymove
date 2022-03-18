@@ -16,7 +16,7 @@ const testAddress = {
   streetAddress1: 'n/a',
 };
 
-const testStations = [
+const testLocations = [
   {
     address: {
       city: '',
@@ -125,12 +125,12 @@ const testStations = [
 ];
 
 const baseValue = {
-  ...testStations[2],
+  ...testLocations[2],
   address: { ...testAddress },
 };
 
 const mockSearchDutyLocations = async () => {
-  return testStations;
+  return testLocations;
 };
 
 const mockShowAddress = async () => {
