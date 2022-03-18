@@ -35,11 +35,9 @@
 
     .editBtn {
       display: inline-flex;
-      align-items: flex-start;
+      align-items: center;
       min-width: auto;
-      padding: 0;
-      width: 40px;
-      height: 42px;
+      @include u-padding-x(0);
       @include u-font('body', 'xs');
     }
   }
@@ -68,12 +66,12 @@
   dt {
     @include u-text('bold');
     @include u-text('base-darker');
-    width: 30%;
+    width: 40%;
   }
 
   dd {
     @include u-margin(0);
-    width: 70%;
+    width: 60%;
   }
 
   .subsectionHeader {
@@ -116,10 +114,17 @@
       @include u-border-bottom('base-lighter');
     }
 
+    &:last-of-type {
+      dt, dd {
+        border-bottom: none;
+      }
+    }
+
     .noBorder {
       @include u-border(0);
     }
   }
+
   .remarksRow {
     .remarksCell {
       @include u-font('body', 'xs');

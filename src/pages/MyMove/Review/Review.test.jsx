@@ -3,8 +3,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ConnectedReview from './index';
-
+import ConnectedReview from 'pages/MyMove/Review/Review';
 import { MockProviders } from 'testUtils';
 
 // Mock the summary part of the review page since we're just testing the

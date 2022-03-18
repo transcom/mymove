@@ -118,22 +118,19 @@ export class Summary extends Component {
     const { moveId } = match.params;
     const showEditBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
+    let ppmShipmentNumber = 0;
     return this.getSortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
 
       if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+        ppmShipmentNumber += 1;
         return (
           <PPMShipmentCard
             key={shipment.id}
-            destinationZIP={shipment.destination_postal_code}
-            moveId={moveId}
-            estimatedWeight="5,000"
-            expectedDepartureDate={shipment.original_move_date}
+            shipment={shipment}
+            shipmentNumber={ppmShipmentNumber}
             onEditClick={this.handleEditClick}
-            originZIP={shipment.pickup_postal_code}
-            shipmentId={shipment.id}
-            sitDays={shipment.has_sit ? shipment.days_in_storage : ''}
           />
         );
       }
