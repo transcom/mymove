@@ -6469,6 +6469,13 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -13425,6 +13432,13 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        },
+        "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "destinationPostalCode": {
           "type": "string",
