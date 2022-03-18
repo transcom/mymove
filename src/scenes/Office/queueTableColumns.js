@@ -74,7 +74,7 @@ const getReactSelectFilterSettings = (data = []) => ({
 // lodash memoize will prevent unnecessary rendering with the same state
 // this will re-render if the state changes
 const destination = memoize((destinationDutyLocations) =>
-  createReactTableColumn('Destination', 'destination_duty_station_name', {
+  createReactTableColumn('Destination', 'destination_duty_location_name', {
     Cell: (row) => <span>{row.value}</span>,
     filterable: true,
     ...getReactSelectFilterSettings(destinationDutyLocations),
@@ -82,7 +82,7 @@ const destination = memoize((destinationDutyLocations) =>
 );
 
 const origin = memoize((originDutyLocations) =>
-  createReactTableColumn('Origin', 'origin_duty_station_name', {
+  createReactTableColumn('Origin', 'origin_destination_duty_location_name_name', {
     Cell: (row) => <span>{row.value}</span>,
     filterable: true,
     ...getReactSelectFilterSettings(originDutyLocations),

@@ -116,7 +116,7 @@ const OrdersEdit = (props) => {
         </FormSection>
 
         <FormSection name="serviceMember">
-          <div className="duty-station">
+          <div className="duty-location">
             <Field
               name="current_location"
               component={DutyLocationSearchBox}
@@ -126,7 +126,7 @@ const OrdersEdit = (props) => {
         </FormSection>
 
         <FormSection name="orders">
-          <div className="duty-station">
+          <div className="duty-location">
             <Field name="new_duty_location" component={DutyLocationSearchBox} props={{ title: 'New Duty Location' }} />
           </div>
         </FormSection>

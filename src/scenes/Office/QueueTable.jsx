@@ -73,16 +73,16 @@ class QueueTable extends Component {
     // Catch any errors here and render an empty queue
     try {
       const body = await this.props.retrieveMoves(this.props.queueType);
-      // grab all destination duty station and remove duplicates
-      // this will build on top of the current duty stations list we see from the data
+      // grab all destination duty location and remove duplicates
+      // this will build on top of the current duty locations list we see from the data
       let origDutyLocationDataSet = new Set(this.getOriginDutyLocations());
       let destDutyLocationDataSet = new Set(this.getDestinationDutyLocations());
       body.forEach((value) => {
         if (value.origin_duty_location_name !== undefined && value.origin_duty_location_name !== '') {
           origDutyLocationDataSet.add(value.origin_duty_location_name);
         }
-        if (value.destination_duty_station_name !== undefined && value.destination_duty_station_name !== '') {
-          destDutyLocationDataSet.add(value.destination_duty_station_name);
+        if (value.destination_duty_location_name !== undefined && value.destination_duty_location_name !== '') {
+          destDutyLocationDataSet.add(value.destination_duty_location_name);
         }
       });
 

@@ -44,7 +44,7 @@ describe('DutyLocationInput', () => {
   describe('with all required props', () => {
     const wrapper = shallow(<DutyLocationInput name="name" label="label" />);
 
-    it('renders a Duty Station search input', () => {
+    it('renders a Duty Location search input', () => {
       const input = wrapper.find(DutyLocationSearchBoxContainer);
       expect(input.length).toBe(1);
     });
@@ -61,7 +61,7 @@ describe('DutyLocationInput', () => {
       const mounted = mount(<DutyLocationInput name="dutyLocation" label="label" />);
 
       await act(async () => {
-        // Only the hidden input that gets the final selected duty station has a name attribute
+        // Only the hidden input that gets the final selected duty location has a name attribute
         mounted
           .find('input#dutyLocation-input')
           .simulate('change', { target: { id: 'dutyLocation-input', value: '-][)(*+?.\\^$|' } });

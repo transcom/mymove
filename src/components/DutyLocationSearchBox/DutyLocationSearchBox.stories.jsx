@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { DutyLocationSearchBoxComponent } from './DutyLocationSearchBox';
 
 export default {
-  title: 'Components/Duty Station Search Box',
+  title: 'Components/Duty Location Search Box',
   component: DutyLocationSearchBoxComponent,
 };
 

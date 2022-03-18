@@ -176,7 +176,7 @@ describe('selectServiceMemberProfileState', () => {
     expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.NAME_COMPLETE);
   });
 
-  it('returns CONTACT_INFO_COMPLETE if there is no duty station data', () => {
+  it('returns CONTACT_INFO_COMPLETE if there is no duty location data', () => {
     const testState = {
       entities: {
         user: {

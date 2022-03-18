@@ -279,7 +279,7 @@ describe('when getting the next incomplete page', () => {
         expect(result).toEqual('/service-member/current-duty');
       });
     });
-    describe('when duty station is complete', () => {
+    describe('when duty location is complete', () => {
       it('returns the next page of the user profile', () => {
         const result = getNextIncompletePage({
           serviceMember: {

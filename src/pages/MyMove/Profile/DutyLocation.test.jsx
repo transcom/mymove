@@ -15,7 +15,7 @@ jest.mock('services/internalApi', () => ({
   patchServiceMember: jest.fn(),
 }));
 
-describe('Duty Station page', () => {
+describe('Duty Location page', () => {
   const testProps = {
     updateServiceMember: jest.fn(),
     push: jest.fn(),

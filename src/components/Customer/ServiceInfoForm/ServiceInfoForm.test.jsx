@@ -192,7 +192,7 @@ describe('ServiceInfoForm', () => {
       />,
     );
 
-    // Test Duty Station Search Box interaction
+    // Test Duty Location Search Box interaction
     const dutyLocationInput = await screen.getByLabelText('Current duty location');
     fireEvent.change(dutyLocationInput, { target: { value: 'AFB' } });
     await selectEvent.select(dutyLocationInput, /Luke/);

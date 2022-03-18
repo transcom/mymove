@@ -119,14 +119,14 @@ const pages = {
   [customerRoutes.CURRENT_DUTY_STATION_PATH]: {
     isInFlow: myFirstRodeo,
 
-    // api for duty station always returns an object, even when duty station is not set
-    // if there is no duty station, that object will have a null uuid
+    // api for duty location always returns an object, even when duty location is not set
+    // if there is no duty location, that object will have a null uuid
     isComplete: ({ sm }) => sm.is_profile_complete || get(sm, 'current_location.id', NULL_UUID) !== NULL_UUID,
     render:
       () =>
       ({ history }) =>
         <DutyLocation push={history.push} />,
-    description: 'current duty station',
+    description: 'current duty location',
   },
   [customerRoutes.CURRENT_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
