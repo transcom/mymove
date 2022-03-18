@@ -189,7 +189,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     push: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "DUTY STATION COMPLETE" state', async () => {
+  it('dispatches a redirect if the current state is earlier than the "DUTY LOCATION COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -229,7 +229,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     });
   });
 
-  it('does not redirect if the current state equals the "DUTY STATION COMPLETE" state', async () => {
+  it('does not redirect if the current state equals the "DUTY LOCATION COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -272,7 +272,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     });
   });
 
-  it('does not redirect if the current state is after the "DUTY STATION COMPLETE" state and profile is not complete', async () => {
+  it('does not redirect if the current state is after the "DUTY LOCATION COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {

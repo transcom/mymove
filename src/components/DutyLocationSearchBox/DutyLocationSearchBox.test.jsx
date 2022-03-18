@@ -13,7 +13,7 @@ const testAddress = {
   streetAddress1: 'n/a',
 };
 
-const testStations = [
+const testDutyLocations = [
   {
     address: {
       city: '',
@@ -131,7 +131,7 @@ jest.mock('./api.js', () => ({
       throw new Error('Server returned an error');
     }
 
-    return testStations;
+    return testDutyLocations;
   },
   ShowAddress: async () => {
     return testAddress;
@@ -168,7 +168,7 @@ describe('DutyLocationSearchBoxContainer', () => {
           input={{
             name: 'test_component',
             value: {
-              ...testStations[2],
+              ...testDutyLocations[2],
               address: testAddress,
             },
           }}
@@ -186,7 +186,7 @@ describe('DutyLocationSearchBoxContainer', () => {
           input={{
             name: 'test_component',
             value: {
-              ...testStations[2],
+              ...testDutyLocations[2],
               address: testAddress,
             },
           }}
@@ -246,7 +246,7 @@ describe('DutyLocationSearchBoxContainer', () => {
 
       await waitFor(() =>
         expect(onChange).toHaveBeenCalledWith({
-          ...testStations[2],
+          ...testDutyLocations[2],
           address: testAddress,
         }),
       );

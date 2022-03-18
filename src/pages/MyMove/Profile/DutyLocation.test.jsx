@@ -51,7 +51,7 @@ describe('Duty Location page', () => {
       suffix: 'Mr.',
     };
 
-    const testExistingStationValues = {
+    const testexistingDutyLocationValues = {
       address: {
         city: 'San Diego',
         state: 'CA',
@@ -68,7 +68,7 @@ describe('Duty Location page', () => {
       <DutyLocation
         {...testProps}
         serviceMember={testServiceMemberValues}
-        existingStation={testExistingStationValues}
+        existingDutyLocation={testexistingDutyLocationValues}
       />,
     );
 
@@ -93,7 +93,7 @@ describe('Duty Location page', () => {
       suffix: 'Mr.',
     };
 
-    const testExistingStationValues = {
+    const testexistingDutyLocationValues = {
       address: {
         city: 'San Diego',
         state: 'CA',
@@ -121,7 +121,7 @@ describe('Duty Location page', () => {
       <DutyLocation
         {...testProps}
         serviceMember={testServiceMemberValues}
-        existingStation={testExistingStationValues}
+        existingDutyLocation={testexistingDutyLocationValues}
       />,
     );
 
