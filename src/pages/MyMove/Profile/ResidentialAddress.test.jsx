@@ -80,7 +80,7 @@ describe('ResidentialAddress page', () => {
     expect(backButton).toBeInTheDocument();
     userEvent.click(backButton);
 
-    expect(testProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_STATION_PATH);
+    expect(testProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
   });
 
   it('next button submits the form and goes to the Backup address step', async () => {
@@ -225,7 +225,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockDispatch).toHaveBeenCalledWith(push(customerRoutes.CURRENT_DUTY_STATION_PATH));
+      expect(mockDispatch).toHaveBeenCalledWith(push(customerRoutes.CURRENT_DUTY_LOCATION_PATH));
     });
   });
 

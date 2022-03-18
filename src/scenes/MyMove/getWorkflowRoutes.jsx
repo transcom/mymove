@@ -116,7 +116,7 @@ const pages = {
       ({ history }) =>
         <ContactInfo push={history.push} />,
   },
-  [customerRoutes.CURRENT_DUTY_STATION_PATH]: {
+  [customerRoutes.CURRENT_DUTY_LOCATION_PATH]: {
     isInFlow: myFirstRodeo,
 
     // api for duty location always returns an object, even when duty location is not set

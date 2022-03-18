@@ -48,7 +48,7 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember, push })
   };
 
   const handleBack = () => {
-    push(customerRoutes.CURRENT_DUTY_STATION_PATH);
+    push(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
   };
 
   const handleNext = () => {
