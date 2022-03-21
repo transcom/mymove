@@ -17,7 +17,6 @@
 }
 
 .review-container {
-
   col:first-of-type {
     width: 40%;
   }
@@ -42,7 +41,7 @@
   }
 }
 
-.review-table {
+table.review-table {
   table-layout: fixed;
   border-collapse: separate;
   border-radius: 4px;
@@ -56,17 +55,20 @@
   th {
     font-weight: bold;
     color: $base-darker;
-  }
-
-  tbody tr:first-child {
-    th,
-    td {
-      border-top: none;
-    }
+    vertical-align: top;
   }
 
   @media (min-width: $tablet) {
     border-color: white;
+  }
+
+  @include at-media-max('tablet') {
+    // avoid double drawing of top border
+    tr:first-of-type {
+      th, td {
+        @include u-border-top(0);
+      }
+    }
   }
 }
 

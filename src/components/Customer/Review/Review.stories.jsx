@@ -70,7 +70,7 @@ const defaultProps = {
       state: 'NY',
       streetAddress1: '448 Washington Blvd NE',
     },
-    affiliation: 'Navy',
+    affiliation: 'NAVY',
     edipi: '1231231231',
     personal_email: 'test@example.com',
     first_name: 'Jason',
