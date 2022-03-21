@@ -3052,6 +3052,350 @@ func createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext, u
 	})
 }
 
+func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+		Creates a move for the TIO flow
+	*/
+	msCost := unit.Cents(10000)
+	dlhCost := unit.Cents(99999)
+	csCost := unit.Cents(25000)
+	fscCost := unit.Cents(55555)
+
+	ntsMove := testdatagen.MakeNTSMoveWithShipment(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Spaceman"),
+			LastName:  models.StringPointer("NTS"),
+		},
+	})
+
+	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-94e49e4600d2"),
+			MTOShipment:   ntsMove.MTOShipments[0],
+			MTOShipmentID: ntsMove.MTOShipments[0].ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	paymentRequestNTS := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("2c5b6e64-d7c3-413e-8c3c-813f83019dad"),
+			MoveTaskOrder:   ntsMove,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+		Move: ntsMove,
+	})
+
+	// for soft deleted proof of service docs
+	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
+		PaymentRequest: paymentRequestNTS,
+	})
+
+	deletedAt := time.Now()
+	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
+		PrimeUpload: models.PrimeUpload{
+			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
+			ProofOfServiceDoc:   proofOfService,
+			ProofOfServiceDocID: proofOfService.ID,
+			Contractor: models.Contractor{
+				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+			},
+			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
+			DeletedAt:    &deletedAt,
+		},
+	})
+
+	serviceItemMS := testdatagen.MakeMTOServiceItemBasic(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-19edf785df69"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move: ntsMove,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &msCost,
+		},
+		PaymentRequest: paymentRequestNTS,
+		MTOServiceItem: serviceItemMS,
+	})
+
+	// Shuttling service item
+	doshutCost := unit.Cents(623)
+	approvedAtTime := time.Now()
+	serviceItemDOSHUT := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24934894h"),
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedAtTime,
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
+		},
+		Move:        ntsMove,
+		MTOShipment: ntsMove.MTOShipments[0],
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("d979e8af-501a-44bb-8532-2799753a5810"), // DOSHUT - Dom Origin Shuttling
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &doshutCost,
+		},
+		PaymentRequest: paymentRequestNTS,
+		MTOServiceItem: serviceItemDOSHUT,
+	})
+
+	currentTime := time.Now()
+
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+	}
+
+	testdatagen.MakePaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDOSHUT,
+		basicPaymentServiceItemParams,
+		testdatagen.Assertions{
+			Move:           ntsMove,
+			MTOShipment:    ntsMove.MTOShipments[0],
+			PaymentRequest: paymentRequestNTS,
+		},
+	)
+
+	// Crating service item
+	dcrtCost := unit.Cents(623)
+	approvedAtTimeCRT := time.Now()
+	serviceItemDCRT := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24034894c"),
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedAtTimeCRT,
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
+		},
+		Move:        ntsMove,
+		MTOShipment: ntsMove.MTOShipments[0],
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Dom Crating
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dcrtCost,
+		},
+		PaymentRequest: paymentRequestNTS,
+		MTOServiceItem: serviceItemDCRT,
+	})
+
+	currentTimeDCRT := time.Now()
+
+	basicPaymentServiceItemParamsDCRT := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractYearName,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1.71",
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "4.00",
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "32210",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionHeight,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "10",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionLength,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "12",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionWidth,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "3",
+		},
+	}
+
+	testdatagen.MakePaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDCRT,
+		basicPaymentServiceItemParamsDCRT,
+		testdatagen.Assertions{
+			Move:           ntsMove,
+			MTOShipment:    ntsMove.MTOShipments[0],
+			PaymentRequest: paymentRequestNTS,
+		},
+	)
+
+	// Domestic line haul service item
+	serviceItemDLH := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("aab8df9a-bbc9-4f26-a3ab-d5dcf1c8c40f"),
+		},
+		Move: ntsMove,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dlhCost,
+		},
+		PaymentRequest: paymentRequestNTS,
+		MTOServiceItem: serviceItemDLH,
+	})
+
+	createdAtTime := time.Now().Add(time.Duration(time.Hour * -24))
+	additionalPaymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-bb3b0331ecf2"),
+			MoveTaskOrder:   ntsMove,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+			SequenceNumber:  2,
+			CreatedAt:       createdAtTime,
+		},
+		Move: ntsMove,
+	})
+
+	serviceItemCS := testdatagen.MakeMTOServiceItemBasic(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-f9e646083cec"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move: ntsMove,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &csCost,
+		},
+		PaymentRequest: additionalPaymentRequest,
+		MTOServiceItem: serviceItemCS,
+	})
+
+	ntsShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5"),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+		},
+		Move: ntsMove,
+	})
+	serviceItemFSC := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-1d1c3ae66b15"),
+		},
+		Move:        ntsMove,
+		MTOShipment: ntsShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &fscCost,
+		},
+		PaymentRequest: additionalPaymentRequest,
+		MTOServiceItem: serviceItemFSC,
+	})
+}
+
 // Run does that data load thing
 func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	moveRouter := moverouter.NewMoveRouter()
@@ -3165,6 +3509,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx, userUploader)
 	createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 	createUnsubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
+	createNTSMoveWithServiceItemsandPaymentRequests(appCtx, userUploader)
 
 	//Retiree, HOR, HHG
 	createMoveWithOptions(appCtx, testdatagen.Assertions{
