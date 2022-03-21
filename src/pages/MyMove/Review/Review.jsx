@@ -9,7 +9,7 @@ import styles from './Review.module.scss';
 import { MatchShape } from 'types/router';
 import ScrollToTop from 'components/ScrollToTop';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import ConnectedSummary from 'components/Customer/Review/Summary/index';
+import ConnectedSummary from 'components/Customer/Review/Summary/Summary';
 import 'scenes/Review/Review.css';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';

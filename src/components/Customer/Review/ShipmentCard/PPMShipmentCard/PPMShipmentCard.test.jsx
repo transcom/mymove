@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import PPMShipmentCard from '.';
+import PPMShipmentCard from './PPMShipmentCard';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 

@@ -17,12 +17,12 @@ import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import ProfileTable from 'components/Customer/Review/ProfileTable/ProfileTable';
 import OrdersTable from 'components/Customer/Review/OrdersTable/OrdersTable';
-import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard';
-import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard';
+import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
+import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard/HHGShipmentCard';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard';
-import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard';
-import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal';
+import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
+import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard/NTSRShipmentCard';
+import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal/AddShipmentModal';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import {
   selectServiceMemberFromLoggedInUser,

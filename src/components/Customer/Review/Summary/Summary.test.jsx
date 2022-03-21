@@ -2,8 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { Summary } from './index';
-
+import { Summary } from 'components/Customer/Review/Summary/Summary';
 import { MOVE_STATUSES } from 'shared/constants';
 
 const testProps = {

@@ -1,11 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
-import HHGShipmentCard from './HHGShipmentCard';
-import PPMShipmentCard from './PPMShipmentCard';
-import NTSShipmentCard from './NTSShipmentCard';
-import NTSRShipmentCard from './NTSRShipmentCard';
-
+import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard/HHGShipmentCard';
+import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
+import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
+import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard/NTSRShipmentCard';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {

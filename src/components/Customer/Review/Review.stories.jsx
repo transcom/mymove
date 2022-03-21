@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Summary } from './Summary';
-
+import { Summary } from 'components/Customer/Review/Summary/Summary';
 import { MOVE_STATUSES } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 
