@@ -1,9 +1,10 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Summary } from 'components/Customer/Review/Summary/Summary';
 import { MOVE_STATUSES } from 'shared/constants';
+import { renderWithRouter } from 'testUtils';
 
 const testProps = {
   serviceMember: {
@@ -103,7 +104,7 @@ const testProps = {
 describe('Summary page', () => {
   describe('if the user can add another shipment', () => {
     it('displays the Add Another Shipment section', () => {
-      render(<Summary {...testProps} />);
+      renderWithRouter(<Summary {...testProps} />);
 
       expect(screen.getByRole('link', { name: 'Add another shipment' })).toHaveAttribute(
         'href',
@@ -112,7 +113,7 @@ describe('Summary page', () => {
     });
 
     it('displays a button that opens a modal', () => {
-      render(<Summary {...testProps} />);
+      renderWithRouter(<Summary {...testProps} />);
 
       expect(
         screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
