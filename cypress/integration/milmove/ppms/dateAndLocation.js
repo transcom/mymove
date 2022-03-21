@@ -5,7 +5,6 @@ describe('PPM Onboarding - Add dates and location flow', function () {
 
   beforeEach(() => {
     cy.intercept('POST', '**/internal/mto_shipments').as('createShipment');
-    cy.logout();
   });
 
   // profile@comple.te
