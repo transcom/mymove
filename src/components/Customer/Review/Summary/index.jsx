@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { arrayOf, func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
-import { Button, Grid, Link } from '@trussworks/react-uswds';
+import { Button, Grid } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -219,7 +219,9 @@ export class Summary extends Component {
         {canAddAnotherShipment ? (
           <Grid row>
             <Grid col="fill" tablet={{ col: 'auto' }}>
-              <Link href={shipmentSelectionPath}>Add another shipment</Link>
+              <Link to={shipmentSelectionPath} className="usa-link">
+                Add another shipment
+              </Link>
             </Grid>
             <Grid col="auto" className={styles.buttonContainer}>
               <Button
