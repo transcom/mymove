@@ -11,7 +11,6 @@ import styles from './Summary.module.scss';
 
 import { customerRoutes } from 'constants/routes';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
-import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove } from 'shared/Entities/modules/moves';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -267,9 +266,6 @@ function mapStateToProps(state) {
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove: selectCurrentMove(state) || {},
     currentOrders: selectCurrentOrders(state) || {},
-    schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
-    schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
-    schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
     moveIsApproved: selectMoveIsApproved(state),
     lastMoveIsCanceled: selectHasCanceledMove(state),
     entitlement: loadEntitlementsFromState(state),

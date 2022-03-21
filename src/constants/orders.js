@@ -5,7 +5,7 @@ export const ORDERS_TYPE = {
 };
 
 export const ORDERS_TYPE_OPTIONS = {
-  PERMANENT_CHANGE_OF_STATION: 'Permanent Change Of Station (PCS)',
+  PERMANENT_CHANGE_OF_STATION: 'Permanent change of station (PCS)',
   RETIREMENT: 'Retirement',
   SEPARATION: 'Separation',
 };

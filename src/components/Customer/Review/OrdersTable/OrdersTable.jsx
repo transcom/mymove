@@ -1,11 +1,11 @@
-/* eslint-ignore */
 import React from 'react';
 import { string, arrayOf, bool, shape, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import reviewStyles from '../Review.module.scss';
 
-import { formatOrderType, formatLabelReportByDate } from 'utils/formatters';
+import { formatLabelReportByDate } from 'utils/formatters';
+import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 
 const OrdersTable = ({
   hasDependents,
@@ -36,7 +36,7 @@ const OrdersTable = ({
         <tbody>
           <tr>
             <th scope="row">Orders type</th>
-            <td style={{ wordBreak: 'break-word' }}>{formatOrderType(orderType)}</td>
+            <td style={{ wordBreak: 'break-word' }}>{ORDERS_TYPE_OPTIONS[orderType] || orderType}</td>
           </tr>
           <tr>
             <th scope="row">Orders date</th>

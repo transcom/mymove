@@ -8,7 +8,7 @@ import { MockProviders } from 'testUtils';
 
 // Mock the summary part of the review page since we're just testing the
 // navigation portion.
-jest.mock('components/Customer/Review/Summary/index', () => 'summary');
+jest.mock('components/Customer/Review/Summary/Summary', () => 'summary');
 
 describe('Review page', () => {
   const testProps = {
