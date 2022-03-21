@@ -73,6 +73,10 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.EstimatedIncentive = services.SetNoNNilOptionalInt32Field(newPPMShipment.EstimatedIncentive, ppmShipment.EstimatedIncentive)
 	ppmShipment.Advance = services.SetOptionalCentField(newPPMShipment.Advance, ppmShipment.Advance)
 
+	if newPPMShipment.Advance != nil {
+		ppmShipment.Advance = newPPMShipment.Advance
+	}
+
 	if !newPPMShipment.ExpectedDepartureDate.IsZero() {
 		ppmShipment.ExpectedDepartureDate = newPPMShipment.ExpectedDepartureDate
 	}

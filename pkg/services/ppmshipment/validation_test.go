@@ -25,8 +25,9 @@ func setupShipmentData() (data dataSetup) {
 		PickupPostalCode:      "90210",
 		DestinationPostalCode: "08004",
 		SitExpected:           false,
+		Advance:               nil,
 	}
-
+	advanceCents := unit.Cents(10000)
 	estimatedWeight := unit.Pound(4000)
 	proGearWeight := unit.Pound(1500)
 	spouseProGearWeight := unit.Pound(400)
@@ -35,6 +36,7 @@ func setupShipmentData() (data dataSetup) {
 		HasProGear:          models.BoolPointer(true),
 		ProGearWeight:       &proGearWeight,
 		SpouseProGearWeight: &spouseProGearWeight,
+		Advance:             &advanceCents,
 	}
 	return data
 }
