@@ -1,4 +1,5 @@
 import React from 'react';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import OrdersTable from './OrdersTable';
 
@@ -9,9 +10,13 @@ export default {
   component: OrdersTable,
   decorators: [
     (Story) => (
-      <div style={{ padding: 40 }}>
-        <Story />
-      </div>
+      <GridContainer>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Story />
+          </Grid>
+        </Grid>
+      </GridContainer>
     ),
   ],
   argTypes: {

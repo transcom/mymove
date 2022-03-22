@@ -37,7 +37,7 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditBtn, onEditClick })
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
         <div className={styles.ShipmentCardHeader}>
-          <div>
+          <div className={styles.shipmentTypeNumber}>
             <h3>
               {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
             </h3>

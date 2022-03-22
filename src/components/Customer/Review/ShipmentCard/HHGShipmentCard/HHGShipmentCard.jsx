@@ -39,7 +39,7 @@ const HHGShipmentCard = ({
     <div className={styles.ShipmentCard} data-testid="hhg-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
         <div className={styles.ShipmentCardHeader}>
-          <div>
+          <div className={styles.shipmentTypeNumber}>
             <h3>
               {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
             </h3>

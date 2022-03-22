@@ -4,7 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import reviewStyles from '../Review.module.scss';
 
-import { formatLabelReportByDate } from 'utils/formatters';
+import { formatCustomerDate, formatLabelReportByDate } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 
 const OrdersTable = ({
@@ -40,11 +40,11 @@ const OrdersTable = ({
           </tr>
           <tr>
             <th scope="row">Orders date</th>
-            <td>{issueDate}</td>
+            <td>{formatCustomerDate(issueDate)}</td>
           </tr>
           <tr>
             <th scope="row">{formatLabelReportByDate(orderType)}</th>
-            <td>{reportByDate}</td>
+            <td>{formatCustomerDate(reportByDate)}</td>
           </tr>
           <tr>
             <th scope="row">{isRetirementOrSeparation ? 'HOR, PLEAD or HOS' : 'New duty location'}</th>

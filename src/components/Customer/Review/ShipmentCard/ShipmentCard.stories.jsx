@@ -1,5 +1,5 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard/HHGShipmentCard';
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
@@ -11,9 +11,13 @@ export default {
   title: 'Customer Components / ShipmentCard',
   decorators: [
     (Story) => (
-      <div style={{ padding: 10 }}>
-        <Story />
-      </div>
+      <GridContainer>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Story />
+          </Grid>
+        </Grid>
+      </GridContainer>
     ),
   ],
 };

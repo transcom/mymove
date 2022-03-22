@@ -23,18 +23,23 @@
     @include u-border-bottom('1px');
     @include u-border-bottom('base-lighter');
 
-    h3 {
-      @include u-text('normal');
-      @include u-margin-bottom('05');
-      margin: 0;
-    }
-    p {
-      color: #92979b;
-      margin: 0;
+    .shipmentTypeNumber {
+      flex: 1;
+      h3 {
+        @include u-text('normal');
+        @include u-margin-bottom('05');
+        margin: 0;
+      }
+
+      p {
+        color: #92979b;
+        margin: 0;
+      }
     }
 
     .editBtn {
       display: inline-flex;
+      flex: 0;
       align-items: center;
       min-width: auto;
       @include u-padding-x(0);

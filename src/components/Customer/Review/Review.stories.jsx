@@ -1,11 +1,26 @@
 import React from 'react';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import { Summary } from 'components/Customer/Review/Summary/Summary';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Customer Components / Review Shipment',
+  component: Summary,
+  decorators: [
+    (Story) => (
+      <MockProviders>
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <Story />
+            </Grid>
+          </Grid>
+        </GridContainer>
+      </MockProviders>
+    ),
+  ],
 };
 
 const noop = () => {};
@@ -100,10 +115,19 @@ const HHGShipment = {
 
 const PPMShipment = {
   id: 'ppmShipmentUuid',
-  pickup_postal_code: '13643',
-  destination_postal_code: '91945',
-  original_move_date: '2021-06-23',
+  moveTaskOrderID: mtoUuid,
+  status: MOVE_STATUSES.DRAFT,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   created_at: '2020-09-01T22:00:00.000Z',
+  updated_at: '2020-09-01T22:30:00.000Z',
+  ppmShipment: {
+    expectedDepartureDate: '2021-06-23',
+    pickupPostalCode: '13643',
+    destinationPostalCode: '91945',
+    sitExpected: false,
+    estimatedWeight: 5000,
+    estimatedIncentive: 1000000,
+  },
 };
 
 export const WithNoShipments = () => {
@@ -130,7 +154,7 @@ export const WithHHGShipment = () => {
 export const WithPPM = () => {
   const props = {
     ...defaultProps,
-    currentPPM: PPMShipment,
+    mtoShipments: [PPMShipment],
   };
   return (
     <MockProviders>
@@ -142,12 +166,11 @@ export const WithPPM = () => {
 export const AsSubmitted = () => {
   const props = {
     ...defaultProps,
-    mtoShipments: [HHGShipment],
+    mtoShipments: [HHGShipment, PPMShipment],
     currentMove: {
       ...defaultProps.currentMove,
       status: MOVE_STATUSES.SUBMITTED,
     },
-    currentPPM: PPMShipment,
   };
 
   return (
@@ -167,7 +190,6 @@ export const AsApproved = () => {
     ...defaultProps,
     mtoShipments: [approvedShipment],
     moveIsApproved: true,
-    currentPPM: PPMShipment,
     currentMove: {
       ...defaultProps.currentMove,
       status: MOVE_STATUSES.SUBMITTED,
