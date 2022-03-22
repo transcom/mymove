@@ -88,6 +88,10 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.Advance = newPPMShipment.Advance
 	}
 
+	if !*newPPMShipment.AdvanceRequested {
+		newPPMShipment.Advance = nil
+	}
+
 	if !newPPMShipment.ExpectedDepartureDate.IsZero() {
 		ppmShipment.ExpectedDepartureDate = newPPMShipment.ExpectedDepartureDate
 	}
