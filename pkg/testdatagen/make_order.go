@@ -88,8 +88,6 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	order := models.Order{
 		ServiceMember:           sm,
 		ServiceMemberID:         sm.ID,
-		NewDutyStation:          station,
-		NewDutyStationID:        station.ID,
 		NewDutyLocation:         station,
 		NewDutyLocationID:       station.ID,
 		UploadedOrders:          document,
@@ -194,8 +192,6 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 	order := models.Order{
 		ServiceMember:        sm,
 		ServiceMemberID:      sm.ID,
-		NewDutyStation:       station,
-		NewDutyStationID:     station.ID,
 		NewDutyLocation:      station,
 		NewDutyLocationID:    station.ID,
 		UploadedOrders:       document,
