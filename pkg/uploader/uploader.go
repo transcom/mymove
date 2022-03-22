@@ -224,9 +224,8 @@ func (u *Uploader) CreateUpload(appCtx appcontext.AppContext, file File, allowed
 	}
 
 	var uploadError error
-
 	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		transactionError := errors.New("Rollback The transaction")
+		transactionError := errors.New("Rollback the transaction")
 		var responseCreateAndPushVerrs *validate.Errors
 		var responseCreateAndPushErr error
 		newUpload, responseCreateAndPushVerrs, responseCreateAndPushErr = u.createAndPushUploadToS3(txnAppCtx, file, newUpload)
