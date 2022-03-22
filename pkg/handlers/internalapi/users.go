@@ -73,11 +73,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 			// Load duty station and transportation office association
 			if serviceMember.DutyLocationID != nil {
 				// Fetch associations on duty station
-				dutyStation, dutyStationErr := models.FetchDutyLocation(appCtx.DB(), *serviceMember.DutyLocationID)
-				if dutyStationErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
+				dutyLocation, dutyLocationErr := models.FetchDutyLocation(appCtx.DB(), *serviceMember.DutyLocationID)
+				if dutyLocationErr != nil {
+					return handlers.ResponseForError(appCtx.Logger(), dutyLocationErr)
 				}
-				serviceMember.DutyLocation = dutyStation
+				serviceMember.DutyLocation = dutyLocation
 
 				// Fetch duty station transportation office
 				transportationOffice, tspErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), *serviceMember.DutyLocationID)
@@ -103,14 +103,14 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 				serviceMember.Orders[0] = orders
 
-				newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), orders.NewDutyLocationID)
-				if dutyStationErr != nil {
-					if errors.Cause(dutyStationErr) != models.ErrFetchNotFound {
+				newDutyLocationTransportationOffice, dutyLocationErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), orders.NewDutyLocationID)
+				if dutyLocationErr != nil {
+					if errors.Cause(dutyLocationErr) != models.ErrFetchNotFound {
 						// The absence of an office shouldn't render the entire request a 404
-						return handlers.ResponseForError(appCtx.Logger(), dutyStationErr)
+						return handlers.ResponseForError(appCtx.Logger(), dutyLocationErr)
 					}
 				}
-				serviceMember.Orders[0].NewDutyLocation.TransportationOffice = newDutyStationTransportationOffice
+				serviceMember.Orders[0].NewDutyLocation.TransportationOffice = newDutyLocationTransportationOffice
 
 				// Load associations on PPM if they exist
 				if len(serviceMember.Orders[0].Moves) > 0 {

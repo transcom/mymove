@@ -101,18 +101,18 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 			}
 
 			listPaymentRequestParams := services.FetchPaymentRequestListParams{
-				Branch:                 params.Branch,
-				Locator:                params.Locator,
-				DodID:                  params.DodID,
-				LastName:               params.LastName,
-				DestinationDutyStation: params.DestinationDutyLocation,
-				Status:                 params.Status,
-				Page:                   params.Page,
-				PerPage:                params.PerPage,
-				SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
-				Sort:                   params.Sort,
-				Order:                  params.Order,
-				OriginDutyLocation:     params.OriginDutyLocation,
+				Branch:                  params.Branch,
+				Locator:                 params.Locator,
+				DodID:                   params.DodID,
+				LastName:                params.LastName,
+				DestinationDutyLocation: params.DestinationDutyLocation,
+				Status:                  params.Status,
+				Page:                    params.Page,
+				PerPage:                 params.PerPage,
+				SubmittedAt:             handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
+				Sort:                    params.Sort,
+				Order:                   params.Order,
+				OriginDutyLocation:      params.OriginDutyLocation,
 			}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20

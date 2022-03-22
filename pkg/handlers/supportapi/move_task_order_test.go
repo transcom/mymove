@@ -217,16 +217,16 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 // moveTaskOrderPopulated function spot checks a few values in the Move, Orders, and Customer to
 // ensure they are populated.
 func (suite *HandlerSuite) moveTaskOrderPopulated(response *movetaskorderops.CreateMoveTaskOrderCreated,
-	destinationDutyStation *models.DutyLocation,
-	originDutyStation *models.DutyLocation) {
+	destinationDutyLocation *models.DutyLocation,
+	originDutyLocation *models.DutyLocation) {
 
 	responsePayload := response.Payload
 
 	suite.NotNil(responsePayload.MoveCode)
 	suite.NotNil(responsePayload.Order.Customer.FirstName)
 
-	suite.Equal(destinationDutyStation.Name, responsePayload.Order.DestinationDutyLocation.Name)
-	suite.Equal(originDutyStation.Name, responsePayload.Order.OriginDutyLocation.Name)
+	suite.Equal(destinationDutyLocation.Name, responsePayload.Order.DestinationDutyLocation.Name)
+	suite.Equal(originDutyLocation.Name, responsePayload.Order.OriginDutyLocation.Name)
 
 }
 
@@ -566,7 +566,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// We only provide an existing customerID not the whole object.
 		mtoPayload.Order.CustomerID = handlers.FmtUUID(dbCustomer.ID)
 
-		// Using a randomID as a dutyStationID should cause a query error
+		// Using a randomID as a dutyLocationID should cause a query error
 		mtoPayload.Order.OriginDutyLocationID = handlers.FmtUUID(uuid.Must(uuid.NewV4()))
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{

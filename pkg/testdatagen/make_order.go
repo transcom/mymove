@@ -179,9 +179,9 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 		entitlement = MakeEntitlement(db, assertions)
 	}
 
-	originDutyStation := assertions.OriginDutyLocation
-	if isZeroUUID(originDutyStation.ID) {
-		originDutyStation = MakeDutyLocation(db, assertions)
+	originDutyLocation := assertions.OriginDutyLocation
+	if isZeroUUID(originDutyLocation.ID) {
+		originDutyLocation = MakeDutyLocation(db, assertions)
 	}
 
 	var orderTypeDetail *internalmessages.OrdersTypeDetail
@@ -208,8 +208,8 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 		Grade:                &grade,
 		Entitlement:          &entitlement,
 		EntitlementID:        &entitlement.ID,
-		OriginDutyLocation:   &originDutyStation,
-		OriginDutyLocationID: &originDutyStation.ID,
+		OriginDutyLocation:   &originDutyLocation,
+		OriginDutyLocationID: &originDutyLocation.ID,
 		OrdersTypeDetail:     orderTypeDetail,
 	}
 

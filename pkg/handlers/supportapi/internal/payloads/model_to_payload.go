@@ -96,8 +96,8 @@ func Order(order *models.Order) *supportmessages.Order {
 	if order == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&order.NewDutyLocation)
-	originDutyLocation := DutyStation(order.OriginDutyLocation)
+	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
+	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	uploadedOrders := Document(&order.UploadedOrders)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
@@ -106,7 +106,7 @@ func Order(order *models.Order) *supportmessages.Order {
 	reportByDate := strfmt.Date(order.ReportByDate)
 	issueDate := strfmt.Date(order.IssueDate)
 	payload := supportmessages.Order{
-		DestinationDutyLocation:   destinationDutyStation,
+		DestinationDutyLocation:   destinationDutyLocation,
 		DestinationDutyLocationID: handlers.FmtUUID(order.NewDutyLocationID),
 		Entitlement:               Entitlement(order.Entitlement),
 		Customer:                  Customer(&order.ServiceMember),
@@ -178,16 +178,15 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 	}
 }
 
-// DutyStation converts Dutystation model to payload
+// DutyLocation converts Dutystation model to payload
 // Only includes ID and duty station name
-// TODO rename
-func DutyStation(dutyStation *models.DutyLocation) *supportmessages.DutyLocation {
-	if dutyStation == nil {
+func DutyLocation(dutyLocation *models.DutyLocation) *supportmessages.DutyLocation {
+	if dutyLocation == nil {
 		return nil
 	}
 	payload := supportmessages.DutyLocation{
-		ID:   strfmt.UUID(dutyStation.ID.String()),
-		Name: dutyStation.Name,
+		ID:   strfmt.UUID(dutyLocation.ID.String()),
+		Name: dutyLocation.Name,
 	}
 	return &payload
 }

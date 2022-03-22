@@ -5951,11 +5951,11 @@ func createRandomMove(
 			models.AffiliationMARINES}[randomAffiliation]
 	}
 
-	dutyStationCount := len(allDutyLocations)
+	dutyLocationCount := len(allDutyLocations)
 	if assertions.Order.OriginDutyLocationID == nil {
 		// We can pick any origin duty station not only one in the office user's GBLOC
 		if *assertions.ServiceMember.Affiliation == models.AffiliationMARINES {
-			randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
+			randDutyStaionIndex, err := random.GetRandomInt(dutyLocationCount)
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 			}
@@ -5972,7 +5972,7 @@ func createRandomMove(
 	}
 
 	if assertions.Order.NewDutyLocationID == uuid.Nil {
-		randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
+		randDutyStaionIndex, err := random.GetRandomInt(dutyLocationCount)
 		if err != nil {
 			log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
 		}

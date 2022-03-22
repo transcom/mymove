@@ -43,7 +43,7 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 	// OriginDutyLocation column. To mimic that and to surface any issues, we didn't
 	// update the testdatagen MakeOrder function so that new orders would have
 	// an empty OriginDutyLocation. During local testing in the office app, we
-	// noticed an exception due to trying to load empty OriginDutyStations.
+	// noticed an exception due to trying to load empty OriginDutyLocations.
 	// This was not caught by any tests, so we're adding one now.
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 

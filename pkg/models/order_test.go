@@ -329,7 +329,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 
 	orderUpdated, err := FetchOrder(suite.DB(), orderID)
 	suite.NoError(err)
-	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_station_id")
+	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_location_id")
 	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 
 	ppm, err := FetchPersonallyProcuredMoveByOrderID(suite.DB(), orderUpdated.ID)
@@ -384,6 +384,6 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 
 	orderUpdated, err := FetchOrder(suite.DB(), orderID)
 	suite.NoError(err)
-	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_station_id")
+	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_location_id")
 	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 }

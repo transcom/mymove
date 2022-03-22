@@ -279,10 +279,10 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		mock.Anything,
 	).Return(1234, nil)
 	originZip := "39574"
-	originDutyStationZip := "50309"
+	originDutyLocationZip := "50309"
 	destinationZip := "33633"
 	distanceMilesFromOriginPickupZip := 1044
-	distanceMilesFromDutyStationZip := 3300
+	distanceMilesFromDutyLocationZip := 3300
 	weight := unit.Pound(2000)
 
 	suite.Run("TestComputePPMMoveCosts with origin zip results in lower GCC", func() {
@@ -298,10 +298,10 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		)
 		suite.NoError(err)
 
-		ppmCostWithDutyStationZip, err := suite.computePPMIncludingLHRates(
-			originDutyStationZip,
+		ppmCostWithDutyLocationZip, err := suite.computePPMIncludingLHRates(
+			originDutyLocationZip,
 			destinationZip,
-			distanceMilesFromDutyStationZip,
+			distanceMilesFromDutyLocationZip,
 			weight,
 			planner,
 		)
@@ -311,30 +311,30 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 			suite.AppContextForTest(),
 			weight,
 			originZip,
-			originDutyStationZip,
+			originDutyLocationZip,
 			destinationZip,
 			distanceMilesFromOriginPickupZip,
-			distanceMilesFromDutyStationZip,
+			distanceMilesFromDutyLocationZip,
 			testdatagen.RateEngineDate,
 			0,
 		)
 		suite.NoError(err)
 
 		suite.True(costs["pickupLocation"].IsWinning)
-		suite.False(costs["originDutyStation"].IsWinning)
+		suite.False(costs["originDutyLocation"].IsWinning)
 		suite.True(costs["pickupLocation"].Cost.GCC > 0)
-		suite.True(costs["originDutyStation"].Cost.GCC > 0)
+		suite.True(costs["originDutyLocation"].Cost.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > 0)
-		suite.True(ppmCostWithDutyStationZip.GCC > 0)
+		suite.True(ppmCostWithDutyLocationZip.GCC > 0)
 		// PPMs estimates are being hardcoded because we are not loading tariff400ng data
 		// disable this check because it is failing and the check won't be correct because of the hardcoded PPM rate
-		// suite.True(ppmCostWithPickupZip.GCC < ppmCostWithDutyStationZip.GCC)
+		// suite.True(ppmCostWithPickupZip.GCC < ppmCostWithDutyLocationZip.GCC)
 
 		winningCost := GetWinningCostMove(costs)
 		nonWinningCost := GetNonWinningCostMove(costs)
 
 		suite.Equal(winningCost, ppmCostWithPickupZip)
-		suite.Equal(nonWinningCost, ppmCostWithDutyStationZip)
+		suite.Equal(nonWinningCost, ppmCostWithDutyLocationZip)
 	})
 
 	suite.Run("TestComputePPMMoveCosts when origin duty station results in lower GCC", func() {
@@ -342,9 +342,9 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		engine := NewRateEngine(move)
 
 		originZip := "50309"
-		originDutyStationZip := "39574"
+		originDutyLocationZip := "39574"
 		distanceMilesFromOriginPickupZip := 3300
-		distanceMilesFromDutyStationZip := 1044
+		distanceMilesFromDutyLocationZip := 1044
 
 		ppmCostWithPickupZip, err := suite.computePPMIncludingLHRates(
 			originZip,
@@ -355,10 +355,10 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		)
 		suite.NoError(err)
 
-		ppmCostWithDutyStationZip, err := suite.computePPMIncludingLHRates(
-			originDutyStationZip,
+		ppmCostWithDutyLocationZip, err := suite.computePPMIncludingLHRates(
+			originDutyLocationZip,
 			destinationZip,
-			distanceMilesFromDutyStationZip,
+			distanceMilesFromDutyLocationZip,
 			weight,
 			planner,
 		)
@@ -368,10 +368,10 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 			suite.AppContextForTest(),
 			weight,
 			originZip,
-			originDutyStationZip,
+			originDutyLocationZip,
 			destinationZip,
 			distanceMilesFromOriginPickupZip,
-			distanceMilesFromDutyStationZip,
+			distanceMilesFromDutyLocationZip,
 			testdatagen.RateEngineDate,
 			0,
 		)
@@ -380,16 +380,16 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		// PPMs estimates are being hardcoded because we are not loading tariff400ng data
 		// disable these 3 checks because it is failing and the check won't be correct because of the hardcoded PPM rate
 		// suite.False(costs["pickupLocation"].IsWinning)
-		// suite.True(costs["originDutyStation"].IsWinning)
+		// suite.True(costs["originDutyLocation"].IsWinning)
 		suite.True(costs["pickupLocation"].Cost.GCC > 0)
-		suite.True(costs["originDutyStation"].Cost.GCC > 0)
+		suite.True(costs["originDutyLocation"].Cost.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > 0)
-		suite.True(ppmCostWithDutyStationZip.GCC > 0)
-		// suite.True(ppmCostWithPickupZip.GCC > ppmCostWithDutyStationZip.GCC)
+		suite.True(ppmCostWithDutyLocationZip.GCC > 0)
+		// suite.True(ppmCostWithPickupZip.GCC > ppmCostWithDutyLocationZip.GCC)
 
 		winningCost := GetWinningCostMove(costs)
 		nonWinningCost := GetNonWinningCostMove(costs)
-		suite.Equal(winningCost, ppmCostWithDutyStationZip)
+		suite.Equal(winningCost, ppmCostWithDutyLocationZip)
 		suite.Equal(nonWinningCost, ppmCostWithPickupZip)
 	})
 }
