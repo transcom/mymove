@@ -527,7 +527,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
-	// Create a dutystation with ZANY GBLOC
+	// Create a dutyLocation with ZANY GBLOC
 	dutyLocationAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "Anchor 1212",

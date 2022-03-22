@@ -554,14 +554,14 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.IsType(&movetaskorderops.CreateMoveTaskOrderNotFound{}, response)
 	})
 
-	suite.T().Run("Failed createMoveTaskOrder 404 NotFound Bad Dutystation", func(t *testing.T) {
+	suite.T().Run("Failed createMoveTaskOrder 404 NotFound Bad DutyLocation", func(t *testing.T) {
 		// TESTCASE SCENARIO
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder, order, and existing customer.
 		//             The order has a bad duty station ID.
 		// Expected outcome:
-		//             Failure of 404 Not Found since the dutystation is not found.
+		//             Failure of 404 Not Found since the dutyLocation is not found.
 
 		// We only provide an existing customerID not the whole object.
 		mtoPayload.Order.CustomerID = handlers.FmtUUID(dbCustomer.ID)

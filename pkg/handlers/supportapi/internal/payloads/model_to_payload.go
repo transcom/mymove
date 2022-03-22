@@ -178,8 +178,8 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 	}
 }
 
-// DutyLocation converts Dutystation model to payload
-// Only includes ID and duty station name
+// DutyLocation converts DutyLocation model to payload
+// Only includes ID and duty location name
 func DutyLocation(dutyLocation *models.DutyLocation) *supportmessages.DutyLocation {
 	if dutyLocation == nil {
 		return nil
