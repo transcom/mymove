@@ -84,7 +84,8 @@
     "webpack": "4.44.2",
     "eslint-plugin-react": "^7.28",
     "**/ua-parser-js": "0.7.28",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "minimist": "^1.2.6"
   },
   "name": "client",
   "private": true,
