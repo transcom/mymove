@@ -17,7 +17,6 @@ type dataSetup struct {
 func setupShipmentData() (data dataSetup) {
 	id := uuid.Must(uuid.NewV4())
 	shipmentID := uuid.Must(uuid.NewV4())
-
 	data.old = models.PPMShipment{
 		ID:                    id,
 		ShipmentID:            shipmentID,
@@ -26,6 +25,7 @@ func setupShipmentData() (data dataSetup) {
 		DestinationPostalCode: "08004",
 		SitExpected:           false,
 		Advance:               nil,
+		AdvanceRequested:      models.BoolPointer(false),
 	}
 	advanceCents := unit.Cents(10000)
 	estimatedWeight := unit.Pound(4000)
@@ -37,6 +37,7 @@ func setupShipmentData() (data dataSetup) {
 		ProGearWeight:       &proGearWeight,
 		SpouseProGearWeight: &spouseProGearWeight,
 		Advance:             &advanceCents,
+		AdvanceRequested:    models.BoolPointer(true),
 	}
 	return data
 }
@@ -54,6 +55,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		suite.Equal(*newPPMShipment.HasProGear, *mergedPPMShipment.HasProGear)
 		suite.Equal(*newPPMShipment.ProGearWeight, *mergedPPMShipment.ProGearWeight)
 		suite.Equal(*newPPMShipment.SpouseProGearWeight, *mergedPPMShipment.SpouseProGearWeight)
+		suite.NotEqual(*newPPMShipment.AdvanceRequested, *mergedPPMShipment.AdvanceRequested)
 
 		// Check if old fields are not changed
 		suite.Equal(oldPPMShipment.ID, mergedPPMShipment.ID)

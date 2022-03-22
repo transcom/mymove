@@ -66,17 +66,11 @@ func SetOptionalPoundField(newWeight *unit.Pound, oldWeight *unit.Pound) *unit.P
 	return newWeight // return the new intended value
 }
 
-// SetOptionalCentField sets the correct new value for the updated cent field. Can be nil.
-func SetOptionalCentField(newCent *unit.Cents, oldCent *unit.Cents) *unit.Cents {
+// SetNoNilOptionalCentField sets the correct new value for the updated cent field. Can be nil.
+func SetNoNilOptionalCentField(newCent *unit.Cents, oldCent *unit.Cents) *unit.Cents {
 	// check if the user wanted to keep this field the same:
 	if newCent == nil {
 		return oldCent
-	}
-
-	// check if the user wanted to nullify the value in this field:
-	// TODO: Find a null value for cents
-	if *newCent == 0 {
-		return nil
 	}
 
 	return newCent // return the new intended value
