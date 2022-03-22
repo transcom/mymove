@@ -488,8 +488,6 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
-		//TacType:					 nullable.NewString(string(*mtoShipment.TACType)),
-		//SacType:                     nullable.NewString(string(*mtoShipment.SACType)),
 	}
 
 	if sitStatusPayload != nil {

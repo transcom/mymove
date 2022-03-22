@@ -1,5 +1,4 @@
 description: The Line of accounting (TAC/SAC) type that will be used for the shipment
-#$ref: #/NullableString.yaml
 type: string
 x-go-type:
   import:
@@ -9,4 +8,3 @@ example: HHG
 enum:
   - HHG
   - NTS
-  - null

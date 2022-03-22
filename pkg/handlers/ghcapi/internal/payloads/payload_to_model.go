@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -171,22 +170,14 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 
 	var tacType *models.LOAType
 	if mtoShipment.TacType.Present {
-		if mtoShipment.TacType.Value != nil && *mtoShipment.TacType.Value == "" {
-			tacType = nil
-		} else {
-			tt := models.LOAType(*mtoShipment.TacType.Value)
-			tacType = &tt
-		}
+		tt := models.LOAType(*mtoShipment.TacType.Value)
+		tacType = &tt
 	}
 
 	var sacType *models.LOAType
 	if mtoShipment.SacType.Present {
-		if mtoShipment.SacType.Value != nil && *mtoShipment.SacType.Value == "" {
-			sacType = nil
-		} else {
-			tt := models.LOAType(*mtoShipment.SacType.Value)
-			sacType = &tt
-		}
+		tt := models.LOAType(*mtoShipment.SacType.Value)
+		sacType = &tt
 	}
 
 	var usesExternalVendor bool
@@ -273,27 +264,14 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 
 	var tacType *models.LOAType
 	if mtoShipment.TacType.Present {
-		//if mtoShipment.TacType.Value != nil && *mtoShipment.TacType.Value == "" {
-		//	tacType = nil
-		//} else {
 		tt := models.LOAType(*mtoShipment.TacType.Value)
 		tacType = &tt
-		//}
 	}
 
 	var sacType *models.LOAType
 	if mtoShipment.SacType.Present {
-		fmt.Printf("\n\n😱😱😱😱😱😱😱😱😱😱😱😱\n%v\n", mtoShipment.SacType)
-		fmt.Printf("\n\n😱😱😱😱😱😱😱😱😱😱😱😱\n%v\n", mtoShipment.SacType.Present)
-		fmt.Printf("\n\n😱😱😱😱😱😱😱😱😱😱😱😱\n%v\n", *mtoShipment.SacType.Value)
 		tt := models.LOAType(*mtoShipment.SacType.Value)
 		sacType = &tt
-		//if mtoShipment.SacType.Value != nil && *mtoShipment.SacType.Value == "" {
-		//	sacType = nil
-		//} else {
-		//	tt := models.LOAType(*mtoShipment.SacType.Value)
-		//	sacType = &tt
-		//}
 	}
 
 	var usesExternalVendor bool

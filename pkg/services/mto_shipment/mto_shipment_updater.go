@@ -148,15 +148,11 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.BillableWeightJustification = requestedUpdatedShipment.BillableWeightJustification
 	}
 
-	if requestedUpdatedShipment.TACType != nil && *requestedUpdatedShipment.TACType == "" {
-		dbShipment.TACType = requestedUpdatedShipment.TACType
-	} else if requestedUpdatedShipment.TACType != nil {
+	if requestedUpdatedShipment.TACType != nil {
 		dbShipment.TACType = requestedUpdatedShipment.TACType
 	}
 
-	if requestedUpdatedShipment.SACType != nil && *requestedUpdatedShipment.SACType == "" {
-		dbShipment.SACType = requestedUpdatedShipment.SACType
-	} else if requestedUpdatedShipment.SACType != nil {
+	if requestedUpdatedShipment.SACType != nil {
 		dbShipment.SACType = requestedUpdatedShipment.SACType
 	}
 
