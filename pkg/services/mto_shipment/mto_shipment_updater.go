@@ -148,11 +148,15 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.BillableWeightJustification = requestedUpdatedShipment.BillableWeightJustification
 	}
 
-	if requestedUpdatedShipment.TACType != nil {
+	if requestedUpdatedShipment.TACType != nil && *requestedUpdatedShipment.TACType == "" {
+		dbShipment.TACType = requestedUpdatedShipment.TACType
+	} else if requestedUpdatedShipment.TACType != nil {
 		dbShipment.TACType = requestedUpdatedShipment.TACType
 	}
 
-	if requestedUpdatedShipment.SACType != nil {
+	if requestedUpdatedShipment.SACType != nil && *requestedUpdatedShipment.SACType == "" {
+		dbShipment.SACType = requestedUpdatedShipment.SACType
+	} else if requestedUpdatedShipment.SACType != nil {
 		dbShipment.SACType = requestedUpdatedShipment.SACType
 	}
 
@@ -567,6 +571,18 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					return err
 				}
 			}
+		}
+
+		if newShipment.TACType != nil && *newShipment.TACType == "" {
+			newShipment.TACType = nil
+		} else if newShipment.TACType == nil {
+			newShipment.TACType = dbShipment.TACType
+		}
+
+		if newShipment.SACType != nil && *newShipment.SACType == "" {
+			newShipment.SACType = nil
+		} else if newShipment.SACType == nil {
+			newShipment.SACType = dbShipment.SACType
 		}
 
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {

@@ -3447,14 +3447,7 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOAType"
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -3468,14 +3461,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOAType"
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -3862,8 +3848,15 @@ func init() {
       "type": "string",
       "enum": [
         "HHG",
-        "NTS"
+        "NTS",
+        null
       ],
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      },
       "example": "HHG"
     },
     "MTOAgent": {
@@ -4278,14 +4271,7 @@ func init() {
           "$ref": "#/definitions/Reweigh"
         },
         "sacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOAType"
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -4325,14 +4311,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOAType"
         },
         "updatedAt": {
           "type": "string",
@@ -5930,14 +5909,7 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOAType"
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -5951,15 +5923,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ],
-          "x-nullable": true
+          "$ref": "#/definitions/LOAType"
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -10341,14 +10305,7 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOAType"
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -10362,14 +10319,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOAType"
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -10756,8 +10706,15 @@ func init() {
       "type": "string",
       "enum": [
         "HHG",
-        "NTS"
+        "NTS",
+        null
       ],
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      },
       "example": "HHG"
     },
     "MTOAgent": {
@@ -11172,14 +11129,7 @@ func init() {
           "$ref": "#/definitions/Reweigh"
         },
         "sacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOAType"
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -11219,14 +11169,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOAType"
         },
         "updatedAt": {
           "type": "string",
@@ -12831,14 +12774,7 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOAType"
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -12852,15 +12788,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ],
-          "x-nullable": true
+          "$ref": "#/definitions/LOAType"
         },
         "usesExternalVendor": {
           "type": "boolean",

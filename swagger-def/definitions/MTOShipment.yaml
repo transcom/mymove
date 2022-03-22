@@ -122,13 +122,9 @@ properties:
     example: more weight than expected
     x-nullable: true
   tacType:
-    allOf:
-      - $ref: 'LOAType.yaml'
-      - x-nullable: true
+    $ref: 'LOAType.yaml'
   sacType:
-    allOf:
-      - $ref: 'LOAType.yaml'
-      - x-nullable: true
+    $ref: 'LOAType.yaml'
   usesExternalVendor:
     type: boolean
     example: false

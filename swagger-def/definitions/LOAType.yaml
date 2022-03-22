@@ -1,6 +1,12 @@
 description: The Line of accounting (TAC/SAC) type that will be used for the shipment
+#$ref: #/NullableString.yaml
 type: string
+x-go-type:
+  import:
+    package: github.com/transcom/mymove/pkg/swagger/nullable
+  type: String
 example: HHG
 enum:
   - HHG
   - NTS
+  - null

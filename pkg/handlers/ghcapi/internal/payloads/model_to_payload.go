@@ -5,6 +5,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/transcom/mymove/pkg/swagger/nullable"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
@@ -486,6 +488,8 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
+		//TacType:					 nullable.NewString(string(*mtoShipment.TACType)),
+		//SacType:                     nullable.NewString(string(*mtoShipment.SACType)),
 	}
 
 	if sitStatusPayload != nil {
@@ -529,14 +533,16 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		payload.SitStatus = sitStatusPayload
 	}
 
-	if mtoShipment.TACType != nil {
-		tt := ghcmessages.LOAType(*mtoShipment.TACType)
-		payload.TacType = &tt
+	if mtoShipment.TACType == nil || *mtoShipment.TACType == "" {
+		payload.TacType = nullable.NewString("")
+	} else {
+		payload.TacType = nullable.NewString(string(*mtoShipment.TACType))
 	}
 
-	if mtoShipment.SACType != nil {
-		st := ghcmessages.LOAType(*mtoShipment.SACType)
-		payload.SacType = &st
+	if mtoShipment.SACType == nil || *mtoShipment.SACType == "" {
+		payload.SacType = nullable.NewString("")
+	} else {
+		payload.SacType = nullable.NewString(string(*mtoShipment.SACType))
 	}
 
 	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()
