@@ -2,6 +2,8 @@ import React from 'react';
 
 import OrdersTable from './OrdersTable';
 
+import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
+
 export default {
   title: 'Customer Components / OrdersTable',
   component: OrdersTable,
@@ -19,7 +21,7 @@ export default {
 
 const defaultProps = {
   moveId: 'abc123',
-  orderType: 'Permanent change of station',
+  orderType: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION,
   issueDate: '11 June 2020',
   reportByDate: '11 Aug 2020',
   newDutyStationName: 'Fort Knox',
