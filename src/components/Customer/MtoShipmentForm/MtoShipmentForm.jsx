@@ -143,8 +143,6 @@ class MtoShipmentForm extends Component {
 
     const { errorMessage } = this.state;
 
-    const isRetireeSeparatee = orders.orders_type !== 'PERMANENT_CHANGE_OF_STATION';
-
     const shipmentType = mtoShipment.shipmentType || selectedMoveType;
     const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, roleTypes.CUSTOMER);
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
@@ -306,8 +304,8 @@ class MtoShipmentForm extends Component {
                           {showPickupFields && <h2>Destination info</h2>}
                           <Fieldset legend="Date">
                             <Hint>
-                              You’ll finalize an actual delivery date later by talking with your movers once the
-                              shipment is underway.
+                              If you’re not sure, use your report-by date. You’ll finalize an actual delivery date later
+                              by talking with your movers once the shipment is underway.
                             </Hint>
                             <DatePickerInput
                               name="delivery.requestedDate"
@@ -385,31 +383,16 @@ class MtoShipmentForm extends Component {
                                 )}
                               />
                             ) : (
-                              // eslint-disable-next-line react/jsx-no-useless-fragment
-                              <>
-                                {isRetireeSeparatee ? (
-                                  <p>
-                                    We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
-                                    <br />
-                                    <strong>
-                                      {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                                      {newDutyStationAddress.postalCode}{' '}
-                                    </strong>
-                                    <br />
-                                  </p>
-                                ) : (
-                                  <p>
-                                    We can use the zip of your new duty location.
-                                    <br />
-                                    <strong>
-                                      {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                                      {newDutyStationAddress.postalCode}{' '}
-                                    </strong>
-                                    <br />
-                                    You can add the specific delivery address later, once you know it.
-                                  </p>
-                                )}
-                              </>
+                              <p>
+                                We can use the zip of your new duty location.
+                                <br />
+                                <strong>
+                                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                                  {newDutyStationAddress.postalCode}{' '}
+                                </strong>
+                                <br />
+                                You can add the specific delivery address later, once you know it.
+                              </p>
                             )}
                           </Fieldset>
 
@@ -450,7 +433,12 @@ class MtoShipmentForm extends Component {
                           <Callout>
                             Examples
                             <ul>
-                              {isNTSR && <li>The storage facility or address where your items are currently stored</li>}
+                              {isNTSR && (
+                                <li>
+                                  Details about the facility where your things are now, including the name or address
+                                  (if you know them)
+                                </li>
+                              )}
                               <li>Large, bulky, or fragile items</li>
                               <li>Access info for your origin or destination address</li>
                               <li>You’re shipping weapons or alcohol</li>
