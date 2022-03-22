@@ -6,6 +6,7 @@ export function customerChoosesAPPMMove() {
   cy.nextPage();
 }
 
+// used for creating a new shipment
 export function submitsDateAndLocation() {
   cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
 
