@@ -5300,6 +5300,12 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -6475,6 +6481,11 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
         },
         "destinationPostalCode": {
           "type": "string",
@@ -12260,6 +12271,12 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -13439,6 +13456,11 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
         },
         "destinationPostalCode": {
           "type": "string",

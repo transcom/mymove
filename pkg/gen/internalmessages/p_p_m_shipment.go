@@ -27,6 +27,10 @@ type PPMShipment struct {
 	//
 	Advance *int64 `json:"advance"`
 
+	// Indicates whether an advance has been requested for the PPM shipment.
+	//
+	AdvanceRequested *bool `json:"advanceRequested"`
+
 	// approved at
 	// Format: date-time
 	ApprovedAt *strfmt.DateTime `json:"approvedAt"`

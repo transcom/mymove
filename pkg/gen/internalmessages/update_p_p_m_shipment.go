@@ -27,6 +27,10 @@ type UpdatePPMShipment struct {
 	//
 	Advance *int64 `json:"advance"`
 
+	// Indicates whether an advance has been requested for the PPM shipment.
+	//
+	AdvanceRequested *bool `json:"advanceRequested,omitempty"`
+
 	// ZIP
 	// Example: 90210
 	// Pattern: ^(\d{5})$
