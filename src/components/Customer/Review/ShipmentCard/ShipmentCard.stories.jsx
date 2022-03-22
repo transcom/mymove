@@ -129,6 +129,25 @@ const ppmShipmentSecondaryZIPProps = {
   },
 };
 
+const ppmShipmentProGearProps = {
+  shipment: {
+    moveTaskOrderID: 'testMove123',
+    id: '93964f85-ae24-44a5-9e5b-73d1bc521e69',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
+    ppmShipment: {
+      pickupPostalCode: '00000',
+      destinationPostalCode: '11111',
+      estimatedWeight: 5000,
+      hasProGear: true,
+      proGearWeight: 1299,
+      spouseProGearWeight: 366,
+      expectedDepartureDate: new Date('01/01/2020').toISOString(),
+      sitExpected: true,
+      estimatedIncentive: 1000000,
+    },
+  },
+};
+
 const ppmShipmentIncompleteProps = {
   shipment: {
     moveTaskOrderID: 'testMove123',
@@ -214,6 +233,12 @@ export const PPMShipmentWithSecondaryZIPs = PPMTemplate.bind({});
 PPMShipmentWithSecondaryZIPs.args = {
   ...ppmDefaultProps,
   ...ppmShipmentSecondaryZIPProps,
+};
+
+export const PPMShipmentWithProGear = PPMTemplate.bind({});
+PPMShipmentWithProGear.args = {
+  ...ppmDefaultProps,
+  ...ppmShipmentProGearProps,
 };
 
 export const PPMShipmentIncomplete = PPMTemplate.bind({});
