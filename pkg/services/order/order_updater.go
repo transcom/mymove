@@ -492,8 +492,10 @@ func (f *orderUpdater) updateOrderAsTOO(appCtx appcontext.AppContext, order mode
 }
 
 func (f *orderUpdater) updateMoveInTx(appCtx appcontext.AppContext, move models.Move) error {
-	if _, err := f.moveRouter.ApproveOrRequestApproval(appCtx, move); err != nil {
-		return err
+	if move.Status == models.MoveStatusAPPROVALSREQUESTED {
+		if _, err := f.moveRouter.ApproveOrRequestApproval(appCtx, move); err != nil {
+			return err
+		}
 	}
 
 	return nil
