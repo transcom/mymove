@@ -1,3 +1,5 @@
+import { submitsEstimatedWeights, submitsEstimatedWeightsAndProgear } from '../../../support/ppmShared';
+
 describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -8,24 +10,19 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
   });
 
-  // dates_and_locations@ppm.unsubmitted
-  const userId = 'bbb469f3-f4bc-420d-9755-b9569f81715e';
   it('doesn’t allow SM to progress if form is in an invalid state', () => {
-    cy.apiSignInAsUser(userId);
-    cy.get('[data-testid="shipment-list-item-container"]').click();
-    cy.get('button').contains('Save & Continue').click();
+    // For this invalid tests we don't need to wait for the API calls, prioritizing consistency over performance
+    getToEstimatedWeightsPage();
     invalidInputs();
   });
 
   it('can continue to next page', () => {
-    cy.apiSignInAsUser(userId);
-    cy.wait('@getShipment');
+    getToEstimatedWeightsPage();
     submitsEstimatedWeights();
   });
 
   it('can continue to next page with progear added', () => {
-    cy.apiSignInAsUser(userId);
-    cy.wait('@getShipment');
+    getToEstimatedWeightsPage();
     submitsEstimatedWeightsAndProgear();
   });
 });
@@ -80,38 +77,14 @@ function invalidInputs() {
   cy.get('@errorMessage').should('not.exist');
 }
 
-function submitsEstimatedWeightsAndProgear() {
+function getToEstimatedWeightsPage() {
+  // dates_and_locations@ppm.unsubmitted
+  const userId = 'bbb469f3-f4bc-420d-9755-b9569f81715e';
+  cy.apiSignInAsUser(userId);
+  cy.wait('@getShipment');
+
   cy.get('[data-testid="shipment-list-item-container"]').click();
   cy.wait('@getShipment');
   cy.get('button').contains('Save & Continue').click();
   cy.wait('@patchShipment');
-
-  cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
-  cy.get('input[name="hasProGear"][value="true"]').check({ force: true });
-  cy.get('input[name="proGearWeight"]').clear().type(500).blur();
-  cy.get('button').contains('Save & Continue').should('be.enabled');
-
-  cy.get('button').contains('Save & Continue').click();
-  cy.wait('@patchShipment');
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
-  });
-}
-
-function submitsEstimatedWeights() {
-  cy.get('[data-testid="shipment-list-item-container"]').click();
-  cy.wait('@getShipment');
-  cy.get('button').contains('Save & Continue').click();
-  cy.wait('@patchShipment');
-
-  cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
-  cy.get('button').contains('Save & Continue').should('be.enabled');
-
-  cy.get('button').contains('Save & Continue').click();
-  cy.wait('@patchShipment');
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
-  });
 }
