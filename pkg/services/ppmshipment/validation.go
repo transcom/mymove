@@ -42,7 +42,17 @@ func validatePPMShipment(
 	if verrs.HasAny() {
 		result = apperror.NewInvalidInputError(newPPMShipment.ID, nil, verrs, "Invalid input found while validating the PPM shipment.")
 	}
+	if float64(*newPPMShipment.Advance) > float64(*newPPMShipment.EstimatedIncentive)*0.6 {
+		result = apperror.NewInvalidInputError(newPPMShipment.ID, nil, verrs, "Advance can not be greater than 60% of the estimated incentive")
+	}
 
+	if float64(*newPPMShipment.Advance) < float64(1) {
+		result = apperror.NewInvalidInputError(newPPMShipment.ID, nil, verrs, "Advance can not be  value less than 1")
+	}
+
+	if *newPPMShipment.AdvanceRequested && *newPPMShipment.Advance == 0 {
+		result = apperror.NewInvalidInputError(newPPMShipment.ID, nil, verrs, "An advance amount is required")
+	}
 	return result
 }
 
@@ -72,6 +82,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.SpouseProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SpouseProGearWeight, ppmShipment.SpouseProGearWeight)
 	ppmShipment.EstimatedIncentive = services.SetNoNNilOptionalInt32Field(newPPMShipment.EstimatedIncentive, ppmShipment.EstimatedIncentive)
 	ppmShipment.Advance = services.SetNoNilOptionalCentField(newPPMShipment.Advance, ppmShipment.Advance)
+	ppmShipment.AdvanceRequested = services.SetNoNilOptionalBoolField(newPPMShipment.AdvanceRequested, ppmShipment.AdvanceRequested)
 
 	if newPPMShipment.Advance != nil {
 		ppmShipment.Advance = newPPMShipment.Advance
