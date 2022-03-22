@@ -17,35 +17,55 @@ describe('Entire PPM onboarding flow', function () {
   });
 
   it('happy path with new shipment', () => {
-    // TODO: need to change id + add email associated with user
-    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
-    cy.apiSignInAsUser(userId);
-    cy.wait('@getShipment');
-    customerChoosesAPPMMove();
-    submitsDateAndLocation();
-    submitsEstimatedWeightsAndProgear();
-    verifyEstimatedIncentivePage();
+    // profile_full_ppm@move.draft
+    const userId = '9b9ce6ed-70ba-4edf-b016-488c87fc1250';
+    navigateHappyPath(userId, false);
+  });
+
+  it('mobile - happy path with new shipment', () => {
+    // full_ppm_mobile@complete.profile
+    const userId = '4fd6726d-2d05-4640-96dd-983bec236a9c';
+    cy.viewport(479, 875);
+    navigateHappyPath(userId, true);
   });
 
   it('happy path with edits and backs', () => {
-    // TODO: need to change id + add email associated with user
-    const userId = '4512dc8c-c777-444e-b6dc-7971e398f2dc';
-    cy.apiSignInAsUser(userId);
-    cy.wait('@getShipment');
+    navigateHappyPathWithEditsAndBacks(false);
+  });
 
-    // navigate to existing shipment
-    cy.get('[data-testid="shipment-list-item-container"]').click();
-    cy.wait('@getShipment');
-
-    submitAndVerifyUpdateDateAndLocation();
-
-    submitsEstimatedWeightsAndProgear();
-    verifyEstimatedWeightsAndProgear();
-
-    verifySummaryInfoOnEstimatedIncentivePage();
-    verifyEstimatedIncentivePage();
+  it('mobile - happy path with edits and backs', () => {
+    cy.viewport(479, 875);
+    navigateHappyPathWithEditsAndBacks(true);
   });
 });
+
+function navigateHappyPath(userId, isMobile = false) {
+  cy.apiSignInAsUser(userId);
+  cy.wait('@getShipment');
+  customerChoosesAPPMMove();
+  submitsDateAndLocation();
+  submitsEstimatedWeightsAndProgear();
+  verifyEstimatedIncentivePage(isMobile);
+}
+
+function navigateHappyPathWithEditsAndBacks(isMobile = false) {
+  // TODO: need to change id to be unique + add email associated with user
+  const userId = '4512dc8c-c777-444e-b6dc-7971e398f2dc';
+  cy.apiSignInAsUser(userId);
+  cy.wait('@getShipment');
+
+  // navigate to existing shipment
+  cy.get('[data-testid="shipment-list-item-container"]').click();
+  cy.wait('@getShipment');
+
+  submitAndVerifyUpdateDateAndLocation();
+
+  submitsEstimatedWeightsAndProgear();
+  verifyEstimatedWeightsAndProgear();
+
+  verifySummaryInfoOnEstimatedIncentivePage();
+  verifyEstimatedIncentivePage(isMobile);
+}
 
 // update the form values by submitting and then return to the page to verify if the values persist and then return to the next page
 function submitAndVerifyUpdateDateAndLocation() {
