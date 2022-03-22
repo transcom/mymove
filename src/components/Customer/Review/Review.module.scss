@@ -59,7 +59,7 @@
 
     td {
       vertical-align: top;
-      word-break: break-word;
+      overflow-wrap: break-word;
     }
 
     @media (min-width: $tablet) {

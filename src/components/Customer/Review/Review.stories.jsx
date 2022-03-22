@@ -4,6 +4,7 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { Summary } from 'components/Customer/Review/Summary/Summary';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
+import { shipmentStatuses } from 'constants/shipments';
 
 export default {
   title: 'Customer Components / Review Shipment',
@@ -181,18 +182,23 @@ export const AsSubmitted = () => {
 };
 
 export const AsApproved = () => {
-  const approvedShipment = {
+  const approvedHHGShipment = {
     ...HHGShipment,
-    status: MOVE_STATUSES.SUBMITTED,
+    status: shipmentStatuses.APPROVED,
+  };
+
+  const approvedPPMShipment = {
+    ...PPMShipment,
+    status: shipmentStatuses.APPROVED,
   };
 
   const props = {
     ...defaultProps,
-    mtoShipments: [approvedShipment],
+    mtoShipments: [approvedHHGShipment, approvedPPMShipment],
     moveIsApproved: true,
     currentMove: {
       ...defaultProps.currentMove,
-      status: MOVE_STATUSES.SUBMITTED,
+      status: MOVE_STATUSES.APPROVED,
     },
   };
 
