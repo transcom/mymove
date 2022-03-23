@@ -824,7 +824,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 
 	// unfortunately, what we return and what our swagger definition
 	// says are pretty far apart
-	// we don't return the associated addresses for the locations
+	// we don't return the associated addresses for the duty locations
 	// and the status returned is from the query string not the
 	// defined PaymentRequestStatus enum as indicated in the swagger
 	// definition
@@ -1085,7 +1085,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
-	// Create a move with an origin location outside of office user GBLOC	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "30813", "AGFM")
+	// Create a move with an origin duty location outside of office user GBLOC
 	dutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "Fort Gordon",
