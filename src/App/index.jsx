@@ -36,7 +36,7 @@ const adminContext = { ...defaultAdminContext, flags };
 const officeQueryConfig = {
   queries: {
     retry: false, // default to no retries for now
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     // onError: noop, // TODO - log errors?
   },
   mutations: {
