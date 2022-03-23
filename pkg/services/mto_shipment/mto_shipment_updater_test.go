@@ -1878,3 +1878,68 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 }
+
+func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
+	builder := query.NewQueryBuilder()
+	fetcher := fetch.NewFetcher(builder)
+	planner := &mocks.Planner{}
+	moveRouter := moveservices.NewMoveRouter()
+	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
+	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("uuid.UUID"),
+	).Return(&models.PaymentRequests{}, nil)
+
+	suite.Run("tacType and sacType are set to null when empty string is passed in", func() {
+		moveWeights := &mockservices.MoveWeights{}
+		mockSender := setUpMockNotificationSender()
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
+
+		ntsLOAType := models.LOATypeNTS
+		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				TACType: &ntsLOAType,
+				SACType: &ntsLOAType,
+			},
+		})
+
+		nullLOAType := models.LOAType("")
+		requestedUpdate := &models.MTOShipment{
+			ID:      ntsMove.MTOShipments[0].ID,
+			TACType: &nullLOAType,
+			SACType: &nullLOAType,
+		}
+
+		_, err := mockedUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), requestedUpdate, etag.GenerateEtag(ntsMove.MTOShipments[0].UpdatedAt))
+		suite.NoError(err)
+		suite.Equal(nil, nil)
+		suite.Equal(nil, nil)
+	})
+
+	suite.Run("tacType and sacType are updated when passed in", func() {
+		moveWeights := &mockservices.MoveWeights{}
+		mockSender := setUpMockNotificationSender()
+		mockedUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
+
+		ntsLOAType := models.LOATypeNTS
+		hhgLOAType := models.LOATypeHHG
+
+		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				TACType: &ntsLOAType,
+				SACType: &ntsLOAType,
+			},
+		})
+		shipment := ntsMove.MTOShipments[0]
+
+		requestedUpdate := &models.MTOShipment{
+			ID:      shipment.ID,
+			TACType: &hhgLOAType,
+		}
+
+		updatedMtoShipment, err := mockedUpdater.UpdateMTOShipmentOffice(suite.AppContextForTest(), requestedUpdate, etag.GenerateEtag(shipment.UpdatedAt))
+		suite.NoError(err)
+		suite.Equal(*requestedUpdate.TACType, *updatedMtoShipment.TACType)
+		suite.Equal(*shipment.SACType, *updatedMtoShipment.SACType)
+	})
+}

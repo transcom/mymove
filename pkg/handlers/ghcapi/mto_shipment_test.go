@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/swagger/nullable"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -2200,6 +2202,8 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 		CustomerRemarks:             &customerRemarks,
 		CounselorRemarks:            &counselorRemarks,
 		Agents:                      agents,
+		TacType:                     nullable.NewString("NTS"),
+		SacType:                     nullable.NewString(""),
 	}
 	payload.DestinationAddress.Address = ghcmessages.Address{
 		City:           &destinationAddress.City,
@@ -2258,10 +2262,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
+		hhgLOAType := models.LOATypeHHG
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status:             models.MTOShipmentStatusSubmitted,
 				UsesExternalVendor: true,
+				TACType:            &hhgLOAType,
 			},
 		})
 		params := suite.getUpdateShipmentParams(oldShipment)
@@ -2290,6 +2296,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.NotEmpty(updatedShipment.MtoAgents[0].ID)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
 		suite.Equal(oldShipment.UsesExternalVendor, updatedShipment.UsesExternalVendor)
+		suite.Equal(params.Body.TacType.Value, updatedShipment.TacType.Value)
+		suite.Equal(params.Body.SacType.Value, updatedShipment.SacType.Value)
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {

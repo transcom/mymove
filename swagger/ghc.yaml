@@ -4133,7 +4133,6 @@ definitions:
     enum:
       - HHG
       - NTS
-      - null
   StorageFacility:
     description: The Storage Facility information for the shipment
     type: object

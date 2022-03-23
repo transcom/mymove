@@ -3848,8 +3848,7 @@ func init() {
       "type": "string",
       "enum": [
         "HHG",
-        "NTS",
-        null
+        "NTS"
       ],
       "x-go-type": {
         "import": {
@@ -10706,8 +10705,7 @@ func init() {
       "type": "string",
       "enum": [
         "HHG",
-        "NTS",
-        null
+        "NTS"
       ],
       "x-go-type": {
         "import": {
