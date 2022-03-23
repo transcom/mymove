@@ -31,6 +31,7 @@ const Advance = () => {
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
         advance: Number(values.amountRequested * 100),
+        advanceRequested: Boolean(values.advanceRequested),
       },
     };
 

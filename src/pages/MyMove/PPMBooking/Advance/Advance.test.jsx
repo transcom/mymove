@@ -42,6 +42,7 @@ const mockMTOShipment = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
+    advanceRequested: null,
   },
   eTag: btoa(new Date()),
 };
@@ -51,6 +52,7 @@ const mockMTOShipmentWithAdvance = {
   ppmShipment: {
     ...mockMTOShipment.ppmShipment,
     advance: 40000,
+    advanceRequested: true,
     eTag: btoa(new Date()),
   },
   eTag: btoa(new Date()),
@@ -188,6 +190,7 @@ describe('Advance page', () => {
     const expectedPayload = {
       ppmShipment: {
         advance: 400000,
+        advanceRequested: true,
         id: mockMTOShipment.ppmShipment.id,
       },
     };
