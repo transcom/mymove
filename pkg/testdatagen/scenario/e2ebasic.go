@@ -3058,8 +3058,6 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 	*/
 	msCost := unit.Cents(10000)
 	dlhCost := unit.Cents(99999)
-	csCost := unit.Cents(25000)
-	fscCost := unit.Cents(55555)
 
 	serviceMemberID := "f0d00265-e1e3-4fc7-aefd-a8dbfc774c06"
 	serviceMember := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
@@ -3075,6 +3073,8 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(serviceMemberID),
 			ServiceMember:   serviceMember,
+			NtsTAC:          models.StringPointer("E19A"),
+			NtsSAC:          models.StringPointer("3L988AS098F"),
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("f38c4257-c8fe-4cbc-a112-d9e24b5b5b49"),
@@ -3357,58 +3357,6 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		},
 		PaymentRequest: paymentRequestNTS,
 		MTOServiceItem: serviceItemDLH,
-	})
-
-	createdAtTime := time.Now().Add(time.Duration(time.Hour * -24))
-	additionalPaymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.FromStringOrNil("22946d78-d825-45be-9b41-310edcd4dd74"),
-			MoveTaskOrder:   move,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
-			SequenceNumber:  2,
-			CreatedAt:       createdAtTime,
-		},
-		Move: move,
-	})
-
-	serviceItemCS := testdatagen.MakeMTOServiceItemBasic(appCtx.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("11b1fef5-bb8f-4a5a-a646-7a8ad9116742"),
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		Move: move,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
-		},
-	})
-
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &csCost,
-		},
-		PaymentRequest: additionalPaymentRequest,
-		MTOServiceItem: serviceItemCS,
-	})
-
-	serviceItemFSC := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("5fa496da-5d9b-4dab-b37b-aa82fb16e106"),
-		},
-		Move:        move,
-		MTOShipment: ntsShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
-		},
-	})
-
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &fscCost,
-		},
-		PaymentRequest: additionalPaymentRequest,
-		MTOServiceItem: serviceItemFSC,
 	})
 }
 

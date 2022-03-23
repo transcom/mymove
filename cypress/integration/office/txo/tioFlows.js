@@ -1,3 +1,4 @@
+import numeral from 'numeral';
 import { TIOOfficeUserType } from '../../../support/constants';
 
 const completeServiceItemCard = ($serviceItem, approve = false) => {
@@ -33,11 +34,13 @@ describe('TIO user', () => {
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('**/ghc/v1/orders/**').as('getOrders');
     cy.intercept('**/ghc/v1/documents/**').as('getDocuments');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMtoShipments');
 
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
       'patchPaymentServiceItemStatus',
     );
     cy.intercept('PATCH', '**/ghc/v1/payment-requests/**/status').as('patchPaymentRequestStatus');
+    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('patchMtoShipment');
     cy.intercept('**/ghc/v1/moves/**/financial-review-flag').as('financialReviewFlagCompleted');
 
     const userId = '3b2cc1b0-31a2-4d1b-874f-0591f9127374';
@@ -274,5 +277,68 @@ describe('TIO user', () => {
 
     // Verify sucess alert and tag
     cy.contains('Move unflagged for financial review.');
+  });
+
+  it('can add/edit TAC/SAC', () => {
+    // TIO Payment Requests queue
+    cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
+    cy.get('#locator').type('NTSTIO');
+    cy.get('th[data-testid="locator"]').first().click();
+    cy.get('[data-testid="locator-0"]').click();
+
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    cy.get('button').contains('Edit').click();
+    cy.get('input#tacType-NTS').check({ force: true });
+    cy.get('input#sacType-NTS').check({ force: true });
+    cy.get('button[type="submit"]').click();
+    cy.wait(['@patchMtoShipment', '@getMtoShipments']);
+
+    cy.get('[data-testid="tac"]').contains('E19A (NTS)');
+    cy.get('[data-testid="sac"]').contains('3L988AS098F (NTS)');
+  });
+
+  it('can view and approve service items', () => {
+    // TIO Payment Requests queue
+    cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
+    cy.get('#locator').type('NTSTIO');
+    cy.get('th[data-testid="locator"]').first().click();
+    cy.get('[data-testid="locator-0"]').click();
+
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    cy.get('[test-dataid="reviewBtn"]').click();
+
+    cy.get('[data-testid="serviceItemName"]').contains('Move management');
+    cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.get('button').contains('Next').click();
+
+    cy.get('[data-testid="serviceItemName"]').contains('Domestic origin shuttle service');
+    cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.get('button').contains('Next').click();
+
+    cy.get('[data-testid="serviceItemName"]').contains('Domestic origin shuttle service');
+    cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.get('button').contains('Next').click();
+
+    cy.get('[data-testid="serviceItemName"]').contains('Domestic crating');
+    cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.get('button').contains('Next').click();
+
+    cy.get('[data-testid="serviceItemName"]').contains('Domestic crating');
+    cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.get('button').contains('Next').click();
+
+    cy.get('[data-testid="serviceItemName"]').contains('Domestic linehaul');
+    cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.get('button').contains('Next').click();
+
+    cy.get('[data-testid="accepted"]').contains(numeral(100 + 6.23 + 8.88 + 6.23 + 8.88 + 999.99).format('$0,0.00'));
+    cy.get('button').contains('Authorize payment').click();
+    cy.wait(['@getMovePaymentRequests']);
+
+    cy.get('[data-testid="tag"]').contains('Reviewed');
   });
 });
