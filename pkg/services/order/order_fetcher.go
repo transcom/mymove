@@ -66,11 +66,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	}
 
 	// We need to use two different GBLOC filter queries because:
-	//  - The Services Counselor queue filters based on the GBLOC of the origin duty station's
+	//  - The Services Counselor queue filters based on the GBLOC of the origin duty location's
 	//    transportation office
 	//  - The TOO queue uses the GBLOC we get from examining the postal code of the first shipment's
 	//    pickup address. However, if that shipment happens to be an NTS-Release, we instead drop
-	//    back to the GBLOC of the origin duty station's transportation office since an NTS-Release
+	//    back to the GBLOC of the origin duty location's transportation office since an NTS-Release
 	//    does not populate the pickup address field.
 	var gblocQuery QueryOption
 	if needsCounseling {
@@ -311,7 +311,7 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 }
 
 func gblocFilterForSC(gbloc *string) QueryOption {
-	// The SC should only see moves where the origin duty station's GBLOC matches the given GBLOC.
+	// The SC should only see moves where the origin duty location's GBLOC matches the given GBLOC.
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			query.Where("o_gbloc.gbloc = ?", *gbloc)
@@ -322,7 +322,7 @@ func gblocFilterForSC(gbloc *string) QueryOption {
 func gblocFilterForTOO(gbloc *string) QueryOption {
 	// The TOO should only see moves where the GBLOC for the first shipment's pickup address matches the given GBLOC
 	// unless we're dealing with an NTS-Release shipment. For NTS-Release shipments, we drop back to looking at the
-	// origin duty station's GBLOC since an NTS-Release does not populate the pickup address.
+	// origin duty location's GBLOC since an NTS-Release does not populate the pickup address.
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			// Note: extra parens necessary to keep precedence correct when AND'ing all filters together.

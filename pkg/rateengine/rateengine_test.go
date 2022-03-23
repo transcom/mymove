@@ -337,7 +337,7 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		suite.Equal(nonWinningCost, ppmCostWithDutyLocationZip)
 	})
 
-	suite.Run("TestComputePPMMoveCosts when origin duty station results in lower GCC", func() {
+	suite.Run("TestComputePPMMoveCosts when origin duty location results in lower GCC", func() {
 		suite.setupRateEngineTest()
 		engine := NewRateEngine(move)
 

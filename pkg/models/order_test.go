@@ -307,7 +307,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 	}
 	suite.MustSave(&address)
 
-	stationName := "New Duty Station"
+	stationName := "New Duty Location"
 	location := DutyLocation{
 		Name:      stationName,
 		AddressID: address.ID,
@@ -365,7 +365,7 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	}
 	suite.MustSave(&address)
 
-	stationName := "New Duty Station"
+	stationName := "New Duty Location"
 	location := DutyLocation{
 		Name:      stationName,
 		AddressID: address.ID,

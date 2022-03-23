@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
-	suite.T().Run("current duty station missing", func(t *testing.T) {
+	suite.T().Run("current duty location missing", func(t *testing.T) {
 		sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 
 		// Remove transportation office info from current station
@@ -138,7 +138,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("new duty station missing", func(t *testing.T) {
+	suite.T().Run("new duty location missing", func(t *testing.T) {
 		// add orders
 		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 

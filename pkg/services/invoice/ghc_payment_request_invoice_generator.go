@@ -391,7 +391,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 
 	originTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
 	if err != nil {
-		return apperror.NewInvalidInputError(originDutyLocation.ID, err, nil, "unable to find origin duty station")
+		return apperror.NewInvalidInputError(originDutyLocation.ID, err, nil, "unable to find origin duty location")
 	}
 
 	// buyer organization name
@@ -419,7 +419,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	if orders.NewDutyLocationID != uuid.Nil {
 		destinationDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), orders.NewDutyLocationID)
 		if err != nil {
-			return apperror.NewInvalidInputError(orders.NewDutyLocationID, err, nil, "unable to find new duty station")
+			return apperror.NewInvalidInputError(orders.NewDutyLocationID, err, nil, "unable to find new duty location")
 		}
 	} else {
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have NewDutyLocation")
@@ -427,7 +427,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 
 	destTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), destinationDutyLocation.ID)
 	if err != nil {
-		return apperror.NewInvalidInputError(destinationDutyLocation.ID, err, nil, "unable to find destination duty station")
+		return apperror.NewInvalidInputError(destinationDutyLocation.ID, err, nil, "unable to find destination duty location")
 	}
 
 	// destination name
@@ -475,7 +475,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	if len(destPhoneLines) > 0 {
 		digits, digitsErr := g.getPhoneNumberDigitsOnly(destPhoneLines[0])
 		if digitsErr != nil {
-			return apperror.NewInvalidInputError(destinationDutyLocation.ID, digitsErr, nil, "unable to get destination duty station phone number")
+			return apperror.NewInvalidInputError(destinationDutyLocation.ID, digitsErr, nil, "unable to get destination duty location phone number")
 		}
 		destinationPhone := edisegment.PER{
 			ContactFunctionCode:          "CN",
@@ -500,7 +500,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 
 	originTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
 	if err != nil {
-		return apperror.NewInvalidInputError(originDutyLocation.ID, err, nil, "unable to find transportation office of origin duty station")
+		return apperror.NewInvalidInputError(originDutyLocation.ID, err, nil, "unable to find transportation office of origin duty location")
 	}
 
 	header.OriginName = edisegment.N1{
@@ -547,7 +547,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	if len(originPhoneLines) > 0 {
 		digits, digitsErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
 		if digitsErr != nil {
-			return apperror.NewInvalidInputError(originDutyLocation.ID, digitsErr, nil, "unable to get origin duty station phone number")
+			return apperror.NewInvalidInputError(originDutyLocation.ID, digitsErr, nil, "unable to get origin duty location phone number")
 		}
 		originPhone := edisegment.PER{
 			ContactFunctionCode:          "CN",

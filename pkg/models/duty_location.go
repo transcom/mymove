@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// DutyLocation represents a military duty station for a specific affiliation
+// DutyLocation represents a military duty location for a specific affiliation
 type DutyLocation struct {
 	ID                         uuid.UUID                     `json:"id" db:"id"`
 	CreatedAt                  time.Time                     `json:"created_at" db:"created_at"`
@@ -58,7 +58,7 @@ type DutyLocationTransportInfo struct {
 	PhoneLine string `db:"number"`
 }
 
-// FetchDLContactInfo loads a duty station's associated transportation office and its first listed office phone number.
+// FetchDLContactInfo loads a duty location's associated transportation office and its first listed office phone number.
 func FetchDLContactInfo(db *pop.Connection, dutyLocationID *uuid.UUID) (*DutyLocationTransportInfo, error) {
 	if dutyLocationID == nil {
 		return nil, ErrFetchNotFound
@@ -147,7 +147,7 @@ limit 7`
 	return locations, nil
 }
 
-// FetchDutyLocationTransportationOffice returns a transportation office for a duty station
+// FetchDutyLocationTransportationOffice returns a transportation office for a duty location
 func FetchDutyLocationTransportationOffice(db *pop.Connection, dutyLocationID uuid.UUID) (TransportationOffice, error) {
 	var dutyLocation DutyLocation
 

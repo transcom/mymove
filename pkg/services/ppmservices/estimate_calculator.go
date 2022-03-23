@@ -53,7 +53,7 @@ func (e *estimateCalculator) CalculateEstimates(appCtx appcontext.AppContext, pp
 
 	distanceMilesFromOriginDutyLocationZip, err := e.planner.Zip5TransitDistanceLineHaul(appCtx, originDutyLocationZip, destinationDutyLocationZip)
 	if err != nil {
-		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin duty station to destination: %w", err)
+		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin duty location to destination: %w", err)
 	}
 
 	costDetails, err := re.ComputePPMMoveCosts(

@@ -72,7 +72,7 @@ func (m MoveCanceled) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 	}
 
 	if orders.NewDutyLocation.Name == "" {
-		return emails, fmt.Errorf("missing new duty station for service member")
+		return emails, fmt.Errorf("missing new duty location for service member")
 	}
 
 	// Set up various text segments. Copy comes from here:

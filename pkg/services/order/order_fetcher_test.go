@@ -357,7 +357,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 	// CREATE EXPECTED MOVES
 	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-		// Default New Duty Station name is Fort Gordon
+		// Default New Duty Location name is Fort Gordon
 		Move: models.Move{
 			Status:  models.MoveStatusAPPROVED,
 			Locator: "AA1234",
@@ -440,7 +440,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
 	})
 
-	suite.T().Run("Sort by destination duty station", func(t *testing.T) {
+	suite.T().Run("Sort by destination duty location", func(t *testing.T) {
 		params := services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
@@ -514,7 +514,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 	// Create a services counselor with defauult GBLOC, LKNQ
 	officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
 
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
 	lknqMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{

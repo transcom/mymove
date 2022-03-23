@@ -268,7 +268,7 @@ func (re *RateEngine) computePPMIncludingLHDiscount(appCtx appcontext.AppContext
 	return cost, nil
 }
 
-// ComputePPMMoveCosts uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty station zip - and returns both calcs.
+// ComputePPMMoveCosts uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty location zip - and returns both calcs.
 func (re *RateEngine) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (costDetails CostDetails, err error) {
 	costFromOriginPickupZip, err := re.computePPMIncludingLHDiscount(
 		appCtx,
@@ -313,7 +313,7 @@ func (re *RateEngine) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight u
 	if costFromOriginPickupZip.GCC > costFromOriginDutyLocationZip.GCC {
 		costDetails["originDutyLocation"].IsWinning = true
 		originZipCode = originDutyLocationZip5
-		originZipLocation = "Origin duty station"
+		originZipLocation = "Origin duty location"
 	} else {
 		costDetails["pickupLocation"].IsWinning = true
 	}

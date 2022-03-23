@@ -521,7 +521,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 
 	serviceMember1 := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
 		Stub: true,
@@ -785,7 +785,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 	hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
 	// we need a mapping for the pickup address postal code to our user's gbloc
@@ -824,7 +824,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 
 	// unfortunately, what we return and what our swagger definition
 	// says are pretty far apart
-	// we don't return the associated addresses for the duty stations
+	// we don't return the associated addresses for the locations
 	// and the status returned is from the query string not the
 	// defined PaymentRequestStatus enum as indicated in the swagger
 	// definition
@@ -1085,7 +1085,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
-	// Create a move with an origin duty station outside of office user GBLOC	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "30813", "AGFM")
+	// Create a move with an origin location outside of office user GBLOC	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "30813", "AGFM")
 	dutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "Fort Gordon",

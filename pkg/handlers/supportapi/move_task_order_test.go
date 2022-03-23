@@ -284,9 +284,9 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder and order associated with an existing customer,
-		//             existing duty stations and existing uploaded orders document
+		//             existing duty locations and existing uploaded orders document
 		// Expected outcome:
-		//             New MTO and orders are created. Customer data and duty station data are pulled in.
+		//             New MTO and orders are created. Customer data and duty location data are pulled in.
 		//			   Status should be default value which is DRAFT
 
 		// We only provide an existing customerID not the whole object.
@@ -387,10 +387,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder and order associated with an existing customer,
-		//             existing duty stations and existing uploaded orders document.
+		//             existing duty locations and existing uploaded orders document.
 		//             The status is canceled.
 		// Expected outcome:
-		//             New MTO and orders are created. Customer data and duty station data are pulled in.
+		//             New MTO and orders are created. Customer data and duty location data are pulled in.
 		//             Status is canceled.
 
 		// We only provide an existing customerID not the whole object.
@@ -427,7 +427,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder, order, and new customer.
-		//             The order is associated with existing duty stations.
+		//             The order is associated with existing duty locations.
 		// Expected outcome:
 		//             New MTO, orders and customer are created.
 
@@ -559,7 +559,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder, order, and existing customer.
-		//             The order has a bad duty station ID.
+		//             The order has a bad duty location ID.
 		// Expected outcome:
 		//             Failure of 404 Not Found since the dutyLocation is not found.
 

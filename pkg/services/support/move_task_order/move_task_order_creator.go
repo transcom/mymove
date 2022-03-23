@@ -99,7 +99,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	// Order model will also contain the entitlement
 	order := OrderModel(orderPayload)
 
-	// Check that the order destination duty station exists, then hook up to order
+	// Check that the order destination duty location exists, then hook up to order
 	// It's required in the payload
 	destinationDutyLocation := models.DutyLocation{}
 	destinationDutyLocationID := uuid.FromStringOrNil(orderPayload.DestinationDutyLocationID.String())
@@ -115,7 +115,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	}
 	order.NewDutyLocation = destinationDutyLocation
 	order.NewDutyLocationID = destinationDutyLocationID
-	// Check that if provided, the origin duty station exists, then hook up to order
+	// Check that if provided, the origin duty location exists, then hook up to order
 	var originDutyLocation *models.DutyLocation
 	if orderPayload.OriginDutyLocationID != nil {
 		originDutyLocation = &models.DutyLocation{}
@@ -262,7 +262,7 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 }
 
 // OrderModel converts payload to model - it does not convert nested
-// duty stations but will preserve the ID if provided.
+// duty locations but will preserve the ID if provided.
 // It will create nested customer and entitlement models
 // if those are provided in the payload
 func OrderModel(orderPayload *supportmessages.Order) *models.Order {

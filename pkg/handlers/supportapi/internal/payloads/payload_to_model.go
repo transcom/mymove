@@ -33,7 +33,7 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 }
 
 // OrderModel converts payload to model - it does not convert nested
-// duty stations but will preserve the ID if provided.
+// duty locations but will preserve the ID if provided.
 // It will create nested customer and entitlement models
 // if those are provided in the payload
 func OrderModel(orderPayload *supportmessages.Order) *models.Order {
