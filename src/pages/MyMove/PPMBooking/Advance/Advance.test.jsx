@@ -46,31 +46,12 @@ const mockMTOShipment = {
   eTag: btoa(new Date()),
 };
 
-const mockPreExistingShipment = {
+const mockMTOShipmentWithAdvance = {
   ...mockMTOShipment,
   ppmShipment: {
     ...mockMTOShipment.ppmShipment,
-    estimatedWeight: 4000,
-    hasProGear: false,
-    proGearWeight: null,
-    spouseProGearWeight: null,
-    eTag: btoa(new Date()),
-    estimatedIncentive: 1000000,
-  },
-  eTag: btoa(new Date()),
-};
-
-const mockPreExistingShipmentWithAdvance = {
-  ...mockMTOShipment,
-  ppmShipment: {
-    ...mockMTOShipment.ppmShipment,
-    estimatedWeight: 4000,
     advance: 40000,
-    hasProGear: false,
-    proGearWeight: null,
-    spouseProGearWeight: null,
     eTag: btoa(new Date()),
-    estimatedIncentive: 1000000,
   },
   eTag: btoa(new Date()),
 };
@@ -134,8 +115,8 @@ describe('Advance page', () => {
     expect(saveButton).not.toBeDisabled();
   });
 
-  it.each([[mockPreExistingShipment], [mockPreExistingShipmentWithAdvance]])(
-    'renders the form pre-filled when advance info has been entered previously',
+  it.each([[mockMTOShipment], [mockMTOShipmentWithAdvance]])(
+    'renders the form with and without previously filled in amount requested for an advance',
     async (preExistingShipment) => {
       selectMTOShipmentById.mockImplementationOnce(() => preExistingShipment);
 
@@ -217,7 +198,7 @@ describe('Advance page', () => {
   });
 
   it('updates the state if shipment patch is successful', async () => {
-    patchMTOShipment.mockResolvedValue(mockPreExistingShipment);
+    patchMTOShipment.mockResolvedValue(mockMTOShipment);
 
     render(<Advance />, { wrapper: MockProviders });
 
@@ -234,10 +215,10 @@ describe('Advance page', () => {
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     userEvent.click(saveButton);
 
-    await waitFor(() => expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment(mockPreExistingShipment)));
+    await waitFor(() => expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment(mockMTOShipment)));
   });
 
-  it('routes to the estimated incentive page when the user clicks save & continue', async () => {
+  it('routes to the review page when the user clicks save & continue', async () => {
     patchMTOShipment.mockResolvedValue({});
 
     render(<Advance />, { wrapper: MockProviders });
