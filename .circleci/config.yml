@@ -40,7 +40,7 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for exp deploys. See the branch settings below.
-  exp-branch: &exp-branch placeholder_branch_name
+  exp-branch: &exp-branch sheena-exp-cleanup
 
   # set acceptance-branch to the branch you want to ENABLE acceptance
   # tests, or `placeholder_branch_name` if you don't want to run them
