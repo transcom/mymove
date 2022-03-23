@@ -183,7 +183,6 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}
-                  data-testid="ppm-estimated-weights-submit"
                 >
                   Save & Continue
                 </Button>
