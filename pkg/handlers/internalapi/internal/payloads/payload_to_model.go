@@ -136,7 +136,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	}
 
 	// Temporarily hard code this value, until we determine this
-	estimatedIncentive := int32(10000)
+	estimatedIncentive := int32(1000000)
 
 	ppmModel := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
