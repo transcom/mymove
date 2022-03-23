@@ -84,12 +84,8 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.Advance = services.SetNoNilOptionalCentField(newPPMShipment.Advance, ppmShipment.Advance)
 	ppmShipment.AdvanceRequested = services.SetNoNilOptionalBoolField(newPPMShipment.AdvanceRequested, ppmShipment.AdvanceRequested)
 
-	if newPPMShipment.Advance != nil {
-		ppmShipment.Advance = newPPMShipment.Advance
-	}
-
-	if !*newPPMShipment.AdvanceRequested {
-		newPPMShipment.Advance = nil
+	if ppmShipment.AdvanceRequested == nil && !*ppmShipment.AdvanceRequested {
+		ppmShipment.Advance = nil
 	}
 
 	if !newPPMShipment.ExpectedDepartureDate.IsZero() {
