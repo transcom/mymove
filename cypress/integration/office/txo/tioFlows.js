@@ -1,4 +1,3 @@
-import numeral from 'numeral';
 import { TIOOfficeUserType } from '../../../support/constants';
 
 const completeServiceItemCard = ($serviceItem, approve = false) => {
@@ -335,7 +334,7 @@ describe('TIO user', () => {
     cy.get('[data-testid="approveRadio"]').click({ force: true });
     cy.get('button').contains('Next').click();
 
-    cy.get('[data-testid="accepted"]').contains(numeral(100 + 6.23 + 8.88 + 6.23 + 8.88 + 999.99).format('$0,0.00'));
+    cy.get('[data-testid="accepted"]').contains('$1,130.21');
     cy.get('button').contains('Authorize payment').click();
     cy.wait(['@getMovePaymentRequests']);
 
