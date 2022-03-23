@@ -711,5 +711,6 @@
 20220304192644_archive-reimbursements-table.up.sql
 20220308211442_update_origin_duty_location_to_gbloc_view.up.sql
 20220308221248_fix_duty_station_triggers.up.sql
+20220315231205_duty_station_rename_cleanup.up.sql
 20220321142756_remove_cac_jacquelineio_jaynawallacetruss.up.sql
 20220323190113_add_comment_for_audit_history_client_query_column.up.sql
