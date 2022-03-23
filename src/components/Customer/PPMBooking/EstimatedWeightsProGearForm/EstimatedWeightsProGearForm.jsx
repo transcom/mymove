@@ -175,14 +175,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                 )}
               </SectionWrapper>
               <div className={ppmBookingStyles.buttonContainer}>
-                <Button
-                  className={ppmBookingStyles.backButton}
-                  type="button"
-                  onClick={onBack}
-                  secondary
-                  outline
-                  data-testid="ppm-estimated-weights-back"
-                >
+                <Button className={ppmBookingStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
                 <Button

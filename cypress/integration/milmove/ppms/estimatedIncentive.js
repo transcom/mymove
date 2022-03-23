@@ -1,4 +1,4 @@
-import { verifyEstimatedIncentivePage } from '../../../support/ppmShared';
+import { generalVerifyEstimatedIncentivePage } from '../../../support/ppmShared';
 
 describe('PPM Onboarding - Estimated Incentive', function () {
   before(() => {
@@ -12,13 +12,15 @@ describe('PPM Onboarding - Estimated Incentive', function () {
 
   it('go to estimated incentives page', () => {
     navigateToEstimatedIncentivePage();
-    verifyEstimatedIncentivePage(false);
+    verifyShipmentSpecificInfo();
+    generalVerifyEstimatedIncentivePage(false);
   });
 
   it('mobile - go to estimated incentives page', () => {
     cy.viewport(479, 875);
     navigateToEstimatedIncentivePage();
-    verifyEstimatedIncentivePage(true);
+    verifyShipmentSpecificInfo();
+    generalVerifyEstimatedIncentivePage(true);
   });
 });
 
@@ -39,7 +41,8 @@ function navigateToEstimatedIncentivePage() {
   cy.get('h1').should('contain', 'Estimated weight');
   cy.get('button').contains('Save & Continue').should('not.be.disabled').click();
   cy.wait('@patchShipment');
+}
 
-  cy.get('h1').should('contain', 'Estimated incentive');
+function verifyShipmentSpecificInfo() {
   cy.get('.container h2').contains('$100');
 }

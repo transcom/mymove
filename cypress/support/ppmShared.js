@@ -47,9 +47,11 @@ export function submitsEstimatedWeights() {
   });
 }
 
-export function verifyEstimatedIncentivePage(isMobile = false) {
+export function generalVerifyEstimatedIncentivePage(isMobile = false) {
+  cy.get('h1').should('contain', 'Estimated incentive');
+
   // checks the format of the incentive amount statment is `$<some comma-separated number without decimals> is`
-  cy.get('[data-testid="ppm-estimated-incentive-amount-sentence"]').contains(/\$\d{1,3}(?:,\d{3})*? is/);
+  cy.get('.container h2').contains(/\$\d{1,3}(?:,\d{3})*? is/);
 
   if (!isMobile) {
     cy.get('button').contains('Next').should('not.be.disabled');

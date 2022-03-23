@@ -2,7 +2,7 @@ import {
   customerChoosesAPPMMove,
   submitsDateAndLocation,
   submitsEstimatedWeightsAndProgear,
-  verifyEstimatedIncentivePage,
+  generalVerifyEstimatedIncentivePage,
 } from '../../../support/ppmShared';
 
 describe('Entire PPM onboarding flow', function () {
@@ -45,7 +45,7 @@ function navigateHappyPath(userId, isMobile = false) {
   customerChoosesAPPMMove();
   submitsDateAndLocation();
   submitsEstimatedWeightsAndProgear();
-  verifyEstimatedIncentivePage(isMobile);
+  generalVerifyEstimatedIncentivePage(isMobile);
 }
 
 function navigateHappyPathWithEditsAndBacks(isMobile = false) {
@@ -63,8 +63,8 @@ function navigateHappyPathWithEditsAndBacks(isMobile = false) {
   submitsEstimatedWeightsAndProgear();
   verifyEstimatedWeightsAndProgear();
 
-  verifySummaryInfoOnEstimatedIncentivePage();
-  verifyEstimatedIncentivePage(isMobile);
+  verifyShipmentSpecificInfoOnEstimatedIncentivePage();
+  generalVerifyEstimatedIncentivePage(isMobile);
 }
 
 // update the form values by submitting and then return to the page to verify if the values persist and then return to the next page
@@ -74,10 +74,11 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
   cy.get('input[name="expectedDepartureDate"]').clear().type('15 Apr 2022').blur();
 
-  cy.get('[data-testid="ppm-date-and-location-submit"]').contains('Save & Continue').click();
+  cy.get('button').contains('Save & Continue').click();
   cy.wait('@patchShipment');
 
-  cy.get('[data-testid="ppm-estimated-weights-back"]').click();
+  cy.get('h1').should('contain', 'Estimated weight');
+  cy.get('button').contains('Back').click();
 
   // verify values
   cy.get('input[name="pickupPostalCode"]').should('have.value', '90210');
@@ -89,25 +90,26 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="sitExpected"]').eq(1).should('be.checked').and('have.value', 'false');
 
   // go to next page
-  cy.get('[data-testid="ppm-date-and-location-submit"]').click();
+  cy.get('button').contains('Save & Continue').click();
   cy.wait('@patchShipment');
 }
 
 // verify page and submit to go to next page
 function verifyEstimatedWeightsAndProgear() {
-  cy.get('[data-testid="ppm-estimated-incentive-back"]').click();
+  cy.get('h1').should('contain', 'Estimated incentive');
+  cy.get('button').contains('Back').click();
   cy.get('input[name="estimatedWeight"]').should('have.value', '500');
   cy.get('input[name="hasProGear"][value="true"]').should('be.checked');
   cy.get('input[name="proGearWeight"]').should('be.visible').and('have.value', '500');
   cy.get('input[name="spouseProGearWeight"]').should('be.visible').and('have.value', '0');
 
   // go to next page
-  cy.get('[data-testid="ppm-estimated-weights-submit"]').click();
+  cy.get('button').contains('Save & Continue').click();
   cy.wait('@patchShipment');
 }
 
-function verifySummaryInfoOnEstimatedIncentivePage() {
-  cy.get('[data-testid="ppm-estimated-incentive-relevant-fields"]')
+function verifyShipmentSpecificInfoOnEstimatedIncentivePage() {
+  cy.get('.container li')
     .should('contain', '500 lbs')
     .and('contain', '90210')
     .and('contain', '76127')

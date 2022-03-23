@@ -22,7 +22,7 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
         <h2>${formatCentsTruncateWhole(estimatedIncentive)} is your estimated incentive</h2>
         <div className={styles.shipmentDetails}>
           <p>That&apos;s about how much you could earn for moving your PPM, based on what you&apos;ve entered:</p>
-          <ul data-testid="ppm-estimated-incentive-relevant-fields">
+          <ul>
             <li>{formatWeight(estimatedWeight)} estimated weight</li>
             <li>Starting from {pickupPostalCode}</li>
             {secondaryPickupPostalCode && <li>Picking up things in {secondaryPickupPostalCode}</li>}
