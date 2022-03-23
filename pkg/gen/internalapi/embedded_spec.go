@@ -5297,14 +5297,12 @@ func init() {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
+          "x-nullable": true
         },
         "advanceRequested": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+          "x-nullable": true
         },
         "approvedAt": {
           "type": "string",
@@ -6479,8 +6477,7 @@ func init() {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
+          "x-nullable": true
         },
         "advanceRequested": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
@@ -12268,14 +12265,12 @@ func init() {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
+          "x-nullable": true
         },
         "advanceRequested": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+          "x-nullable": true
         },
         "approvedAt": {
           "type": "string",
@@ -13454,8 +13449,7 @@ func init() {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
+          "x-nullable": true
         },
         "advanceRequested": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
