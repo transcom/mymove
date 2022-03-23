@@ -24,7 +24,7 @@ if [ -n "${CIRCLECI+x}" ]; then
 else
   # Locally we need to download the docker image to get the binary
   echo "RUNNING LOCALLY"
-  image=milmove/circleci-docker:milmove-app-03964d7db55c2692d8a9ae89f81ee76c520b33c1
+  image=milmove/circleci-docker:milmove-app-e822adea8f203ff4b5f0a60939683e39376eb690
   docker pull -q "${image}"
   docker run -it --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" go-bindata -modtime "${modtime}" -o "${output_file}" -pkg "${package_name}" "${input_dirs[@]}"
 fi
