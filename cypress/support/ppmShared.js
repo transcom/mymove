@@ -52,12 +52,12 @@ export function verifyEstimatedIncentivePage(isMobile = false) {
   cy.get('[data-testid="ppm-estimated-incentive-amount-sentence"]').contains(/\$\d{1,3}(?:,\d{3})*? is/);
 
   if (!isMobile) {
-    cy.get('[data-testid="ppm-estimated-incentive-next"]').should('not.be.disabled');
+    cy.get('button').contains('Next').should('not.be.disabled');
   } else {
-    cy.get('[data-testid="ppm-estimated-incentive-next"]').should('not.be.disabled').should('have.css', 'order', '1');
+    cy.get('button').contains('Next').should('not.be.disabled').should('have.css', 'order', '1');
   }
 
-  cy.get('[data-testid="ppm-estimated-incentive-next"]').should('be.enabled').click();
+  cy.get('button').contains('Next').should('be.enabled').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/advances/);
   });

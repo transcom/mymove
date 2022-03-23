@@ -32,9 +32,14 @@ function navigateToEstimatedIncentivePage() {
   cy.get('[data-testid="shipment-list-item-container"]').click();
   cy.wait('@getShipment');
 
-  cy.get('[data-testid="ppm-date-and-location-submit"]').should('not.be.disabled').click();
+  cy.get('h1').should('contain', 'PPM date & location');
+  cy.get('button').contains('Save & Continue').should('not.be.disabled').click();
   cy.wait('@patchShipment');
 
-  cy.get('[data-testid="ppm-estimated-weights-submit"]').should('not.be.disabled').click();
+  cy.get('h1').should('contain', 'Estimated weight');
+  cy.get('button').contains('Save & Continue').should('not.be.disabled').click();
   cy.wait('@patchShipment');
+
+  cy.get('h1').should('contain', 'Estimated incentive');
+  cy.get('.container h2').contains('$100');
 }
