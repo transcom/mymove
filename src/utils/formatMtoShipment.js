@@ -237,8 +237,8 @@ export function formatMtoShipmentForAPI({
     counselorRemarks,
     agents: [],
     destinationType,
-    sacType: typeof sacType === 'undefined' ? null : sacType,
-    tacType: typeof tacType === 'undefined' ? null : tacType,
+    sacType: typeof sacType === 'undefined' ? '' : sacType,
+    tacType: typeof tacType === 'undefined' ? '' : tacType,
   };
 
   if (pickup?.requestedDate && pickup.requestedDate !== '') {

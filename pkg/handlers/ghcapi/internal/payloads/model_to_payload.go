@@ -5,8 +5,6 @@ import (
 	"math"
 	"time"
 
-	"github.com/transcom/mymove/pkg/swagger/nullable"
-
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
@@ -531,16 +529,14 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		payload.SitStatus = sitStatusPayload
 	}
 
-	if mtoShipment.TACType == nil || *mtoShipment.TACType == "" {
-		payload.TacType = nullable.NewString("")
-	} else {
-		payload.TacType = nullable.NewString(string(*mtoShipment.TACType))
+	if mtoShipment.TACType != nil {
+		tt := string(*mtoShipment.TACType)
+		payload.TacType = &tt
 	}
 
-	if mtoShipment.SACType == nil || *mtoShipment.SACType == "" {
-		payload.SacType = nullable.NewString("")
-	} else {
-		payload.SacType = nullable.NewString(string(*mtoShipment.SACType))
+	if mtoShipment.SACType != nil {
+		st := string(*mtoShipment.SACType)
+		payload.SacType = &st
 	}
 
 	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()

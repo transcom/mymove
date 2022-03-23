@@ -2296,8 +2296,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.NotEmpty(updatedShipment.MtoAgents[0].ID)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
 		suite.Equal(oldShipment.UsesExternalVendor, updatedShipment.UsesExternalVendor)
-		suite.Equal(params.Body.TacType.Value, updatedShipment.TacType.Value)
-		suite.Equal(params.Body.SacType.Value, updatedShipment.SacType.Value)
+		suite.Equal(params.Body.TacType.Value, updatedShipment.TacType)
+		suite.Nil(updatedShipment.SacType)
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {

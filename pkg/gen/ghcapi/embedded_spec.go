@@ -4270,7 +4270,10 @@ func init() {
           "$ref": "#/definitions/Reweigh"
         },
         "sacType": {
-          "$ref": "#/definitions/LOAType"
+          "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+          "type": "string",
+          "x-nullable": true,
+          "example": "NTS"
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -4310,7 +4313,10 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "$ref": "#/definitions/LOAType"
+          "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+          "type": "string",
+          "x-nullable": true,
+          "example": "HHG"
         },
         "updatedAt": {
           "type": "string",
@@ -11127,7 +11133,10 @@ func init() {
           "$ref": "#/definitions/Reweigh"
         },
         "sacType": {
-          "$ref": "#/definitions/LOAType"
+          "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+          "type": "string",
+          "x-nullable": true,
+          "example": "NTS"
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -11167,7 +11176,10 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "$ref": "#/definitions/LOAType"
+          "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+          "type": "string",
+          "x-nullable": true,
+          "example": "HHG"
         },
         "updatedAt": {
           "type": "string",

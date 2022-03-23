@@ -122,9 +122,15 @@ properties:
     example: more weight than expected
     x-nullable: true
   tacType:
-    $ref: 'LOAType.yaml'
+    type: string
+    description: The Line of accounting (TAC/SAC) type that will be used for the shipment
+    example: HHG
+    x-nullable: true
   sacType:
-    $ref: 'LOAType.yaml'
+    type: string
+    description: The Line of accounting (TAC/SAC) type that will be used for the shipment
+    example: NTS
+    x-nullable: true
   usesExternalVendor:
     type: boolean
     example: false

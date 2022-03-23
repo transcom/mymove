@@ -4437,9 +4437,19 @@ definitions:
         example: more weight than expected
         x-nullable: true
       tacType:
-        $ref: '#/definitions/LOAType'
+        type: string
+        description: >-
+          The Line of accounting (TAC/SAC) type that will be used for the
+          shipment
+        example: HHG
+        x-nullable: true
       sacType:
-        $ref: '#/definitions/LOAType'
+        type: string
+        description: >-
+          The Line of accounting (TAC/SAC) type that will be used for the
+          shipment
+        example: NTS
+        x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
