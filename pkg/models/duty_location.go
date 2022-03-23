@@ -88,16 +88,16 @@ func FetchDLContactInfo(db *pop.Connection, dutyLocationID *uuid.UUID) (*DutyLoc
 
 // FetchDutyLocation returns a DutyLocation for a given id
 func FetchDutyLocation(tx *pop.Connection, id uuid.UUID) (DutyLocation, error) {
-	var station DutyLocation
-	err := tx.Q().Eager("Address").Find(&station, id)
-	return station, err
+	var dutyLocation DutyLocation
+	err := tx.Q().Eager("Address").Find(&dutyLocation, id)
+	return dutyLocation, err
 }
 
 // FetchDutyLocationByName returns a DutyLocation for a given unique name
 func FetchDutyLocationByName(tx *pop.Connection, name string) (DutyLocation, error) {
-	var station DutyLocation
-	err := tx.Where("name = ?", name).Eager("Address").First(&station)
-	return station, err
+	var dutyLocation DutyLocation
+	err := tx.Where("name = ?", name).Eager("Address").First(&dutyLocation)
+	return dutyLocation, err
 }
 
 // FindDutyLocations returns all duty locations matching a search query
@@ -163,7 +163,7 @@ func FetchDutyLocationTransportationOffice(db *pop.Connection, dutyLocationID uu
 	return dutyLocation.TransportationOffice, nil
 }
 
-// FetchDutyLocationsByPostalCode returns a station for a given postal code
+// FetchDutyLocationsByPostalCode returns a duty location for a given postal code
 func FetchDutyLocationsByPostalCode(tx *pop.Connection, postalCode string) (DutyLocations, error) {
 	var locations DutyLocations
 	query := tx.

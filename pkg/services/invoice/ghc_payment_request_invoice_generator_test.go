@@ -461,9 +461,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.NoError(err)
 		suite.Equal(*countryCode, n4.CountryCode)
 		// Office Phone
-		destinationStationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
+		destinationDutyLocationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
 		var destPhoneLines []string
-		for _, phoneLine := range destinationStationPhoneLines {
+		for _, phoneLine := range destinationDutyLocationPhoneLines {
 			if phoneLine.Type == "voice" {
 				destPhoneLines = append(destPhoneLines, phoneLine.Number)
 			}
@@ -509,9 +509,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.NoError(err)
 		suite.Equal(*countryCode, n4.CountryCode)
 		// Office Phone
-		originStationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
+		originDutyLocationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
 		var originPhoneLines []string
-		for _, phoneLine := range originStationPhoneLines {
+		for _, phoneLine := range originDutyLocationPhoneLines {
 			if phoneLine.Type == "voice" {
 				originPhoneLines = append(originPhoneLines, phoneLine.Number)
 			}

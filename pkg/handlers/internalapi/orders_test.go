@@ -23,7 +23,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateOrder() {
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
-	station := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
 	testdatagen.MakeDefaultContractor(suite.DB())
 
 	req := httptest.NewRequest("POST", "/orders", nil)
@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		IssueDate:           handlers.FmtDate(issueDate),
 		ReportByDate:        handlers.FmtDate(reportByDate),
 		OrdersType:          internalmessages.NewOrdersType(ordersType),
-		NewDutyLocationID:   handlers.FmtUUID(station.ID),
+		NewDutyLocationID:   handlers.FmtUUID(dutyLocation.ID),
 		ServiceMemberID:     handlers.FmtUUID(sm.ID),
 		OrdersNumber:        handlers.FmtString("123456"),
 		Tac:                 handlers.FmtString("E19A"),

@@ -18,10 +18,10 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		sm = MakeExtendedServiceMember(db, assertions)
 	}
 
-	station := assertions.Order.NewDutyLocation
+	dutyLocation := assertions.Order.NewDutyLocation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyLocationID) {
-		station = FetchOrMakeDefaultNewOrdersDutyLocation(db)
+		dutyLocation = FetchOrMakeDefaultNewOrdersDutyLocation(db)
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -85,8 +85,8 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	order := models.Order{
 		ServiceMember:           sm,
 		ServiceMemberID:         sm.ID,
-		NewDutyLocation:         station,
-		NewDutyLocationID:       station.ID,
+		NewDutyLocation:         dutyLocation,
+		NewDutyLocationID:       dutyLocation.ID,
 		UploadedOrders:          document,
 		UploadedOrdersID:        document.ID,
 		UploadedAmendedOrders:   assertions.Order.UploadedAmendedOrders,
@@ -125,10 +125,10 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 		sm = MakeExtendedServiceMember(db, assertions)
 	}
 
-	station := assertions.Order.NewDutyLocation
+	dutyLocation := assertions.Order.NewDutyLocation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyLocationID) {
-		station = FetchOrMakeDefaultNewOrdersDutyLocation(db)
+		dutyLocation = FetchOrMakeDefaultNewOrdersDutyLocation(db)
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -189,8 +189,8 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 	order := models.Order{
 		ServiceMember:        sm,
 		ServiceMemberID:      sm.ID,
-		NewDutyLocation:      station,
-		NewDutyLocationID:    station.ID,
+		NewDutyLocation:      dutyLocation,
+		NewDutyLocationID:    dutyLocation.ID,
 		UploadedOrders:       document,
 		UploadedOrdersID:     document.ID,
 		IssueDate:            time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),

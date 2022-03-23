@@ -464,9 +464,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	}
 
 	// Destination PER
-	destinationStationPhoneLines := destTransportationOffice.PhoneLines
+	destinationDutyLocationPhoneLines := destTransportationOffice.PhoneLines
 	var destPhoneLines []string
-	for _, phoneLine := range destinationStationPhoneLines {
+	for _, phoneLine := range destinationDutyLocationPhoneLines {
 		if phoneLine.Type == "voice" {
 			destPhoneLines = append(destPhoneLines, phoneLine.Number)
 		}
@@ -486,7 +486,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	}
 
 	// ========  ORIGIN ========= //
-	// origin station name
+	// origin duty location name
 	var originDutyLocation models.DutyLocation
 
 	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
@@ -535,10 +535,10 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		header.OriginPostalDetails.CountryCode = string(*countryCode)
 	}
 
-	// Origin Station Phone
-	originStationPhoneLines := originTransportationOffice.PhoneLines
+	// Origin Duty Location Phone
+	originDutyLocationPhoneLines := originTransportationOffice.PhoneLines
 	var originPhoneLines []string
-	for _, phoneLine := range originStationPhoneLines {
+	for _, phoneLine := range originDutyLocationPhoneLines {
 		if phoneLine.Type == "voice" {
 			originPhoneLines = append(originPhoneLines, phoneLine.Number)
 		}
