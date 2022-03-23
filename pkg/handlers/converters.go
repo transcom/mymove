@@ -81,16 +81,6 @@ func FmtPoundPtr(weight *unit.Pound) *int64 {
 	return &value
 }
 
-// PoundPtrFromInt64Ptr converts go-swagger type to pop type
-func PoundPtrFromInt64Ptr(num *int64) *unit.Pound {
-	if num == nil {
-		return nil
-	}
-	value := int(*num)
-	pound := unit.Pound(value)
-	return &pound
-}
-
 // FmtURI converts pop type to go-swagger type
 func FmtURI(uri string) *strfmt.URI {
 	fmtURI := strfmt.URI(uri)

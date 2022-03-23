@@ -66,3 +66,13 @@ func FmtUUIDToPop(u strfmt.UUID) uuid.UUID {
 	fmtUUID := uuid.FromStringOrNil(u.String())
 	return fmtUUID
 }
+
+// PoundPtrFromInt64Ptr converts go-swagger type to pop type
+func PoundPtrFromInt64Ptr(num *int64) *unit.Pound {
+	if num == nil {
+		return nil
+	}
+	value := int(*num)
+	pound := unit.Pound(value)
+	return &pound
+}
