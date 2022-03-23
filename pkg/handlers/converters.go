@@ -190,15 +190,6 @@ func FmtCost(c *unit.Cents) *int64 {
 	return &cost
 }
 
-// FmtCostToInt64 converts pop type to go-swagger type
-func FmtCostToInt64(c *int64) *unit.Cents {
-	if c == nil {
-		return nil
-	}
-	cost := unit.Cents(*c)
-	return &cost
-}
-
 // FmtMilliCentsPtr converts pop type to go-swagger type
 func FmtMilliCentsPtr(c *unit.Millicents) *int64 {
 	if c == nil {
