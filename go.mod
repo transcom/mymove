@@ -7,7 +7,7 @@ require (
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.6
 	github.com/DATA-DOG/go-txdb v0.1.5
-	github.com/XSAM/otelsql v0.11.0
+	github.com/XSAM/otelsql v0.12.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/aws/aws-sdk-go v1.43.23
