@@ -101,6 +101,7 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		SessionUserEmail:     auditHistory.SessionUserEmail,
 		SessionUserTelephone: auditHistory.SessionUserTelephone,
 		Context:              auditHistory.Context,
+		ContextID:            auditHistory.ContextID,
 		StatementOnly:        auditHistory.StatementOnly,
 		TableName:            auditHistory.TableName,
 		SchemaName:           auditHistory.SchemaName,

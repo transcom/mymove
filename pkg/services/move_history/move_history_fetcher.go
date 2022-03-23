@@ -28,15 +28,6 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 			moves
 		WHERE locator = $1
 	),
-	changed_addresses AS (
-		SELECT DISTINCT
-			unnest(ARRAY [old_data->>'pickup_address_id',
-										   old_data->>'destination_address_id']) AS ID
-		FROM
-			audit_history
-			JOIN moves ON audit_history.table_name = 'mto_shipments'
-				AND audit_history.old_data ->> 'move_id' = moves.id::text
-	),
 	shipments AS (
 		SELECT
 			mto_shipments.*
@@ -46,16 +37,18 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 	shipment_logs AS (
 		SELECT
 			audit_history.*,
-			'shipments' AS context
+			'shipments' AS context,
+			NULL AS context_id
 		FROM
 			audit_history
-		JOIN shipments ON shipments.id = audit_history.object_id
-			AND audit_history. "table_name" = 'mto_shipments'
+			JOIN shipments ON shipments.id = audit_history.object_id
+				AND audit_history. "table_name" = 'mto_shipments'
 	),
 	move_logs AS (
 		SELECT
 			audit_history.*,
-			'moves' AS context
+			'moves' AS context,
+			NULL AS context_id
 		FROM
 			audit_history
 		JOIN moves ON audit_history.table_name = 'moves'
@@ -64,7 +57,8 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 	pickup_address_logs AS (
 		SELECT
 			audit_history.*,
-			'pickup_address' AS context
+			'pickup_address' AS context,
+			shipments.id::text AS context_id
 		FROM
 			audit_history
 		JOIN shipments ON shipments.pickup_address_id = audit_history.object_id
@@ -73,7 +67,8 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 	destination_address_logs AS (
 		SELECT
 			audit_history.*,
-			'destination_address' AS context
+			'destination_address' AS context,
+			shipments.id::text AS context_id
 		FROM
 			audit_history
 		JOIN shipments ON shipments.destination_address_id = audit_history.object_id
@@ -99,8 +94,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 			*
 		FROM
 			move_logs
-	)
-	SELECT DISTINCT
+	) SELECT DISTINCT
 		combined_logs.*,
 		office_users.first_name AS session_user_first_name,
 		office_users.last_name AS session_user_last_name,
@@ -116,7 +110,8 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 				OR role_type = 'services_counselor'
 				OR role_type = 'contracting_officer')
 		LEFT JOIN office_users ON office_users.user_id = session_userid
-		ORDER BY action_tstamp_tx desc;`
+	ORDER BY
+		action_tstamp_tx DESC;`
 	audits := &models.AuditHistories{}
 	err := appCtx.DB().RawQuery(query, locator).All(audits)
 	if err != nil {
