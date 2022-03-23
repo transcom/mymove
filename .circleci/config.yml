@@ -765,7 +765,7 @@ jobs:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+            - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run:
           name: Output processes and resource usage every 5 seconds while job is running
           command: |
@@ -806,13 +806,13 @@ jobs:
       - run:
           name: Run DangerJS checks
           command: yarn danger ci --failOnErrors
-      # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
+      # `v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - run:
           name: Output maximum memory usage in Bytes
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
           when: always
       - save_cache:
-          key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+          key: v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
       - store_artifacts:
