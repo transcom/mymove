@@ -3092,7 +3092,7 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
 			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+			Status:               models.MTOShipmentStatusApproved,
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
 		},
