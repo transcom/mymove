@@ -10,8 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// These functions facilitate converting from the go types the db uses
-// into the strfmt types that go-swagger uses for payloads.
+// These functions facilitate converting from strfmt types that go-swagger uses for payloads
+//to the go types the db uses.
 
 // FmtDatePtrToPopPtr converts go-swagger type to pop type
 func FmtDatePtrToPopPtr(date *strfmt.Date) *time.Time {

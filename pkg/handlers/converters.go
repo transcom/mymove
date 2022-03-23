@@ -81,7 +81,7 @@ func FmtPoundPtr(weight *unit.Pound) *int64 {
 	return &value
 }
 
-// PoundPtrFromInt64Ptr converts pop type to go-swagger type
+// PoundPtrFromInt64Ptr converts go-swagger type to pop type
 func PoundPtrFromInt64Ptr(num *int64) *unit.Pound {
 	if num == nil {
 		return nil
