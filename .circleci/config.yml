@@ -13,10 +13,10 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-e822adea8f203ff4b5f0a60939683e39376eb690
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-64b1fa9ea8c2c7ed8d5773829c142c30190bc2fb
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-e822adea8f203ff4b5f0a60939683e39376eb690
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-64b1fa9ea8c2c7ed8d5773829c142c30190bc2fb
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres circleci/postgres:12.7-ram
