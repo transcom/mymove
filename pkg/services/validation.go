@@ -73,11 +73,6 @@ func SetOptionalCentsField(newValue *unit.Cents, oldValue *unit.Cents) *unit.Cen
 		return oldValue
 	}
 
-	// check if the user wanted to nullify the value in this field:
-	if *newValue == 0 {
-		return nil
-	}
-
 	return newValue // return the new intended value
 }
 
