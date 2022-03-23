@@ -5294,9 +5294,15 @@ func init() {
           "x-omitempty": false
         },
         "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
+          "format": "cents",
+          "x-nullable": true
+        },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
         },
         "approvedAt": {
           "type": "string",
@@ -6468,11 +6474,15 @@ func init() {
           "x-nullable": true
         },
         "advance": {
-          "description": "The amount requested (in cents) by the service member as an advance\n",
+          "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true,
-          "example": 3000
+          "x-nullable": true
+        },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
         },
         "destinationPostalCode": {
           "type": "string",
@@ -12252,9 +12262,15 @@ func init() {
           "x-omitempty": false
         },
         "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
+          "format": "cents",
+          "x-nullable": true
+        },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
         },
         "approvedAt": {
           "type": "string",
@@ -13430,11 +13446,15 @@ func init() {
           "x-nullable": true
         },
         "advance": {
-          "description": "The amount requested (in cents) by the service member as an advance\n",
+          "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true,
-          "example": 3000
+          "x-nullable": true
+        },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
         },
         "destinationPostalCode": {
           "type": "string",

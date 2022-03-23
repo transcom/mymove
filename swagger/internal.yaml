@@ -2547,9 +2547,16 @@ definitions:
         x-nullable: true
         x-omitempty: false
       advance:
+        description: |
+          The amount request for an advance, or null if no advance is requested
         type: integer
+        format: cents
         x-nullable: true
-        x-omitempty: false
+      advanceRequested:
+        description: |
+          Indicates whether an advance has been requested for the PPM shipment.
+        type: boolean
+        x-nullable: true
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -2664,13 +2671,6 @@ definitions:
         type: integer
         example: 4300
         x-nullable: true
-      advance:
-        description: |
-          The amount requested (in cents) by the service member as an advance
-        type: integer
-        format: cents
-        example: 3000
-        x-nullable: true
       hasProGear:
         description: |
           Indicates whether PPM shipment has pro gear.
@@ -2684,6 +2684,17 @@ definitions:
         x-nullable: true
       estimatedIncentive:
         type: integer
+        x-nullable: true
+      advance:
+        description: |
+          The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      advanceRequested:
+        description: |
+          Indicates whether an advance has been requested for the PPM shipment.
+        type: boolean
         x-nullable: true
   UpdateShipment:
     type: object
