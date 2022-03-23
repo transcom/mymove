@@ -592,6 +592,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	logger.Debug("Server DOD Key Pair Loaded")
+	// RA Summary: staticcheck - SA1019 - Using a deprecated function, variable, constant or field
+	// RA: Linter is flagging: rootCAs.Subjects is deprecated: if s was returned by SystemCertPool, Subjects will not include the system roots.
+	// RA: Why code valuable: It allows us to log the root CA subjects that are being trusted.
+	// RA: Mitigation: The deprecation notes this is a problem when reading SystemCertPool, but we do not use this here and are building our own cert pool instead.
+	// RA Developer Status: Mitigated
+	// RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	// RA Validator:
+	// RA Modified Severity:
+	// nolint:staticcheck
 	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
 
 	// Get route planner for handlers to calculate transit distances
