@@ -29,6 +29,10 @@ import (
 type HandlerContext interface {
 	AppContextFromRequest(*http.Request) appcontext.AppContext
 	AuditableAppContextFromRequest(*http.Request, func(appCtx appcontext.AppContext) middleware.Responder) middleware.Responder
+	AuditableAppContextFromRequestWithErrors(
+		*http.Request,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error),
+	) middleware.Responder
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
@@ -128,6 +132,40 @@ func (hctx *handlerContext) AuditableAppContextFromRequest(r *http.Request, hand
 		}
 		resp = handler(txnAppCtx)
 		return nil
+	})
+	if err != nil {
+		return resp
+	}
+	return resp
+}
+
+// AuditableAppContextFromRequestWithErrors creates a transaction and sets local
+// variables for use by the auditable trigger and also allows handlers to return errors.
+func (hctx *handlerContext) AuditableAppContextFromRequestWithErrors(
+	r *http.Request,
+	handler func(appCtx appcontext.AppContext) (middleware.Responder, error),
+) middleware.Responder {
+	// use LoggerFromRequest to get the most specific logger
+	var resp middleware.Responder
+	appCtx := hctx.AppContextFromRequest(r)
+	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		var userID uuid.UUID
+		if txnAppCtx.Session() != nil {
+			userID = txnAppCtx.Session().UserID
+		}
+		// not sure why, but using RawQuery("SET LOCAL foo = ?",
+		// thing) did not work
+		err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + userID.String() + "'").Exec()
+		if err != nil {
+			return err
+		}
+		eventName := audit.EventNameFromContext(r.Context())
+		err = txnAppCtx.DB().RawQuery("SET LOCAL audit.current_event_name = '" + eventName + "'").Exec()
+		if err != nil {
+			return err
+		}
+		resp, err = handler(txnAppCtx)
+		return err
 	})
 	if err != nil {
 		return resp
