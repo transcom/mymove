@@ -3082,7 +3082,7 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 	})
 
 	estimatedNTSWeight := unit.Pound(1400)
-	actualNTSWeight := unit.Pound(2000)
+	actualNTSWeight := unit.Pound(1000)
 	ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("c37464ff-acf5-4113-9364-7d84de8aeaf9"),
