@@ -7,19 +7,19 @@
   @include u-margin-bottom(1 !important);
 }
 
-.buttonRight {
-  justify-content: flex-end;
-  padding: 0;
-  vertical-align: baseline;
-
-  @media (min-width: $tablet) {
-    justify-content: center;
-  }
-}
-
 .buttonContainer {
   display: flex;
   align-items: center;
+
+  .buttonRight {
+    justify-content: flex-end;
+    padding: 0;
+    vertical-align: baseline;
+
+    @media (min-width: $tablet) {
+      justify-content: center;
+    }
+  }
 }
 
 .SummarySectionWrapper {

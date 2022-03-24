@@ -16,7 +16,11 @@ import (
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
-func payloadForUploadModel(storer storage.FileStorer, upload models.Upload, url string) *internalmessages.UploadPayload {
+func payloadForUploadModel(
+	storer storage.FileStorer,
+	upload models.Upload,
+	url string,
+) *internalmessages.UploadPayload {
 	uploadPayload := &internalmessages.UploadPayload{
 		ID:          handlers.FmtUUID(upload.ID),
 		Filename:    swag.String(upload.Filename),
@@ -119,7 +123,10 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err)
 			}
 
-			userUploader, err := uploaderpkg.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
+			userUploader, err := uploaderpkg.NewUserUploader(
+				h.FileStorer(),
+				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+			)
 			if err != nil {
 				appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
 			}
@@ -140,7 +147,10 @@ type DeleteUploadsHandler struct {
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequest(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) middleware.Responder {
-			userUploader, err := uploaderpkg.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
+			userUploader, err := uploaderpkg.NewUserUploader(
+				h.FileStorer(),
+				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+			)
 			if err != nil {
 				appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
 			}

@@ -8,14 +8,11 @@ import styles from './Review.module.scss';
 
 import { MatchShape } from 'types/router';
 import ScrollToTop from 'components/ScrollToTop';
-import { hasShortHaulError } from 'utils/incentives';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import ConnectedSummary from 'components/Customer/Review/Summary/index';
+import ConnectedSummary from 'components/Customer/Review/Summary/Summary';
 import 'scenes/Review/Review.css';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 
 const Review = ({ push, canMoveNext, match }) => {
@@ -68,19 +65,9 @@ Review.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const ppmEstimateError = selectPPMEstimateError(state);
-
-  const ppmEstimate = {
-    hasEstimateError: !!ppmEstimateError,
-    rateEngineError: ppmEstimateError,
-    originDutyStationZip: serviceMember?.current_location?.address?.postalCode,
-  };
-
   return {
     ...ownProps,
-    ppmEstimate,
-    canMoveNext: !hasShortHaulError(ppmEstimateError),
+    canMoveNext: true, // TODO: prevent incomplete PPM submission?
   };
 };
 
