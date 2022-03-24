@@ -146,6 +146,13 @@ const ShipmentForm = ({
       delete deliveryDetails.address;
     }
 
+    let nullableSacType = sacType;
+    let nullableTacType = tacType;
+    if (!showAccountingCodes) {
+      nullableSacType = typeof sacType === 'undefined' ? '' : sacType;
+      nullableTacType = typeof tacType === 'undefined' ? '' : tacType;
+    }
+
     const pendingMtoShipment = formatMtoShipmentForAPI({
       shipmentType: shipmentOption || selectedMoveType,
       moveCode,
@@ -154,8 +161,8 @@ const ShipmentForm = ({
       pickup,
       delivery: deliveryDetails,
       ntsRecordedWeight,
-      tacType,
-      sacType,
+      nullableSacType,
+      nullableTacType,
       serviceOrderNumber,
       storageFacility,
       usesExternalVendor,
