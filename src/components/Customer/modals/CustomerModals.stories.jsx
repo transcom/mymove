@@ -3,7 +3,7 @@ import React from 'react';
 import { StorageInfoModal } from './StorageInfoModal/StorageInfoModal';
 import { MoveInfoModal } from './MoveInfoModal/MoveInfoModal';
 
-import { AddShipmentModal } from 'components/Customer/Review/AddShipmentModal';
+import { AddShipmentModal } from 'components/Customer/Review/AddShipmentModal/AddShipmentModal';
 
 export default {
   title: 'Customer Components/Modals',
