@@ -3810,6 +3810,19 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "S3PAR3")
 
 	createBasicNTSMove(appCtx, userUploader)
+
+	// Create a move with an HHG and NTS prime-handled shipment
+	createMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
+
+	// Create a move with an HHG and NTS external vendor-handled shipment
+	createMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
+
+	// Create a move with an HHG and NTS external vendor-handled shipment
+	createMoveWithNTSShipment(appCtx, "EXTNTS", true)
+
+	// Create a move with only an NTS external vendor-handled shipment
+	createMoveWithNTSShipment(appCtx, "NTSNTS", true)
+
 	createBasicMovePPM01(appCtx, userUploader)
 	createBasicMovePPM02(appCtx, userUploader)
 	createBasicMovePPM03(appCtx, userUploader)
