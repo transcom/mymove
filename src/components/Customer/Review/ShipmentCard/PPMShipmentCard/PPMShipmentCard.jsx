@@ -43,12 +43,7 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditBtn, onEditClick })
             <p>#{id.substring(0, 8).toUpperCase()}</p>
           </div>
           {showEditBtn && (
-            <Button
-              className={styles.editBtn}
-              data-testid="edit-ppm-dates"
-              onClick={() => onEditClick(editPath)}
-              unstyled
-            >
+            <Button className={styles.editBtn} onClick={() => onEditClick(editPath)} unstyled>
               Edit
             </Button>
           )}
@@ -81,7 +76,7 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditBtn, onEditClick })
           )}
           <div className={styles.row}>
             <dt>Storage expected? (SIT)</dt>
-            <dd data-testid="sit-display">{sitExpected ? 'Yes' : 'No'}</dd>
+            <dd>{sitExpected ? 'Yes' : 'No'}</dd>
           </div>
           <div className={styles.row}>
             <dt>Estimated weight</dt>
