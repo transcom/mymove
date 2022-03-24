@@ -38,7 +38,7 @@ COPY pkg /build/pkg
 RUN mkdir /build/src
 
 RUN set -x \
-  && make bin/rds-ca-2019-root.pem \
+  && make bin/rds-ca-rsa4096-g1.pem \
   && rm -f pkg/assets/assets.go && make pkg/assets/assets.go \
   && scripts/gen-server \
   && rm -f bin/milmove && make bin/milmove \
@@ -47,7 +47,7 @@ RUN set -x \
 # define migrations before client build since it doesn't need client
 FROM alpine:3.15.2 as migrate
 
-COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY --from=server_builder /build/bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 COPY --from=server_builder /build/bin/milmove /bin/milmove
 COPY --from=server_builder /build/bin/generate-test-data /bin/generate-test-data
 
@@ -106,7 +106,7 @@ RUN set -x \
 # hadolint ignore=DL3007
 FROM gcr.io/distroless/base:latest as milmove
 
-COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY --from=server_builder /build/bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 COPY --from=server_builder /build/bin/milmove /bin/milmove
 COPY --from=server_builder /build/swagger /swagger
 

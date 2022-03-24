@@ -17,7 +17,8 @@ COPY --chown=circleci:circleci . /home/circleci/project
 WORKDIR /home/circleci/project
 
 RUN make clean
-RUN make bin/rds-ca-us-gov-west-1-2017-root.pem
+RUN make bin/rds-ca-rsa4096-g1.pem
+
 RUN make bin/webhook-client
 
 #########
@@ -35,7 +36,7 @@ COPY --from=builder --chown=root:root /home/circleci/project/config/tls/devlocal
 COPY --from=builder --chown=root:root /home/circleci/project/config/tls/devlocal-mtls.key /config/tls/devlocal-mtls.key
 
 # Public root certificate for RDS in us-gov-west-1.
-COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
+COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 
 # The main webhook-client binary.
 COPY --from=builder --chown=root:root /home/circleci/project/bin/webhook-client /bin/webhook-client
