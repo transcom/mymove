@@ -63,7 +63,6 @@ export const eventNamesWithServiceItemDetails = {
 };
 
 export const eventNamesWithEmptyDetails = {
-  updateMoveTaskOrderStatus: 'Move task order status', // ghc.yaml Need to check status as well
   createOrders: 'Submitted orders', // internal.yaml
   uploadAmendedOrders: 'Updated orders', // internal.yaml
   submitMoveForApproval: 'Submitted move', // internal.yaml
@@ -83,6 +82,10 @@ export const eventNamePlainTextToDisplay = {
     return financialReviewFlag === 'true' ? 'Move flagged for financial review' : 'Move unflagged for financial review';
   },
   requestShipmentCancellation: () => 'Shipment cancelled',
+  updateMoveTaskOrderStatus: (changedValues) => {
+    const status = retrieveValue('status', changedValues);
+    return status === 'APPROVED' ? 'Created Move Task Order (MTO)' : 'Rejected Move Task Order (MTO)';
+  },
 };
 
 export const eventNamesWithPlainTextDetails = {
@@ -91,6 +94,7 @@ export const eventNamesWithPlainTextDetails = {
   updateMTOServiceItemStatus: 'Service item status', // ghc.yaml Need to check status as well
   setFinancialReviewFlag: 'Flagged move', // ghc.yaml
   requestShipmentCancellation: 'Updated shipment', // ghc.yaml
+  updateMoveTaskOrderStatus: 'Move task order status', // ghc.yaml Need to check status as well
 };
 
 export const historyLogEventNameDisplay = {

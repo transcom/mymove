@@ -15,7 +15,6 @@ describe('MoveHistoryDetailsSelector', () => {
     ['requestShipmentDiversion', 'Requested diversion'],
     ['updateMTOServiceItem', 'Service Items'],
     ['updateMTOServiceItemStatus', 'Service item status'],
-    ['updateMoveTaskOrderStatus', '-'],
     ['requestShipmentCancellation', 'Shipment cancelled'],
     ['createOrders', '-'],
     ['updateOrders', 'Labelled'],
@@ -43,6 +42,8 @@ describe('MoveHistoryDetailsSelector', () => {
       'Move unflagged for financial review',
       [{ columnName: 'financial_review_flag', columnValue: 'false' }],
     ],
+    ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', [{ columnName: 'status', columnValue: 'APPROVED' }]],
+    ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', [{ columnName: 'status', columnValue: 'APPROVED' }]],
   ])('for event name %s it renders %s', (eventName, text, changedValues) => {
     render(<MoveHistoryDetailsSelector eventName={eventName} changedValues={changedValues} />);
 
