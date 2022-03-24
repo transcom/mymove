@@ -76,3 +76,36 @@ func checkRequiredFields() ppmShipmentValidator {
 		return verrs
 	})
 }
+
+// check Advance checks that the advance fields are updated appropriately
+func checkAdvance() ppmShipmentValidator {
+	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+
+		if newPPMShipment.AdvanceRequested == nil && newPPMShipment.Advance == nil {
+			return verrs
+		}
+
+		if !*newPPMShipment.AdvanceRequested && newPPMShipment.Advance == nil {
+			return verrs
+		}
+
+		if !*newPPMShipment.AdvanceRequested && newPPMShipment.Advance != nil {
+			verrs.Add("advance", "Advance must be nil if advance requested is false")
+		}
+
+		if float64(*newPPMShipment.Advance) > float64(*newPPMShipment.EstimatedIncentive)*0.6 {
+			verrs.Add("advance", "Advance can not be greater than 60% of the estimated incentive")
+		}
+
+		if float64(*newPPMShipment.Advance) < float64(1) {
+			verrs.Add("advance", "Advance can not be  value less than 1")
+		}
+
+		if *newPPMShipment.AdvanceRequested && *newPPMShipment.Advance == 0 {
+			verrs.Add("advance", "An advance amount is required")
+		}
+
+		return verrs
+	})
+}

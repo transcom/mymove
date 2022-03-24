@@ -55,7 +55,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		suite.Equal(*newPPMShipment.HasProGear, *mergedPPMShipment.HasProGear)
 		suite.Equal(*newPPMShipment.ProGearWeight, *mergedPPMShipment.ProGearWeight)
 		suite.Equal(*newPPMShipment.SpouseProGearWeight, *mergedPPMShipment.SpouseProGearWeight)
-		suite.NotEqual(*newPPMShipment.AdvanceRequested, *mergedPPMShipment.AdvanceRequested)
+		suite.Equal(*newPPMShipment.AdvanceRequested, *mergedPPMShipment.AdvanceRequested)
 
 		// Check if old fields are not changed
 		suite.Equal(oldPPMShipment.ID, mergedPPMShipment.ID)
