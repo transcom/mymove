@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import PlainTextDetails from './PlainTextDetails';
+
 import {
   eventNamesWithLabelledDetails,
   eventNamesWithServiceItemDetails,
@@ -8,11 +10,11 @@ import {
   HistoryLogValuesShape,
 } from 'constants/historyLogUIDisplayName';
 
-const formatChangedValues = (changedValues) => {
-  return changedValues
-    ? changedValues.map((changedValue) => (
-        <div key={`${changedValue.columnName}-${changedValue.columnValue}`}>
-          {changedValue.columnName}: {changedValue.columnValue}
+const formatChangedValues = (values) => {
+  return values
+    ? values.map((value) => (
+        <div key={`${value.columnName}-${value.columnValue}`}>
+          {value.columnName}: {value.columnValue}
         </div>
       ))
     : '';
@@ -43,13 +45,7 @@ const MoveHistoryDetailsSelector = ({ eventName, oldValues, changedValues }) => 
   }
 
   if (eventNamesWithPlainTextDetails[eventName]) {
-    return (
-      <div>
-        Plain Text {eventName}
-        <div>old Values {formatChangedValues(oldValues)}</div>
-        <div>changed values {formatChangedValues(changedValues)}</div>
-      </div>
-    );
+    return <PlainTextDetails eventName={eventName} changedValues={changedValues} />;
   }
 
   return (

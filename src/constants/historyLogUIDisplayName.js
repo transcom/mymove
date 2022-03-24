@@ -70,6 +70,21 @@ export const eventNamesWithEmptyDetails = {
   createMTOShipment: 'Submitted/Requested shipments', // internal.yaml prime.yaml
 };
 
+export const retrieveValue = (nameToFind, values) => {
+  return values.find((value) => value.columnName === nameToFind).columnValue;
+};
+
+export const eventNamePlainTextToDisplay = {
+  approveShipment: () => 'Approved shipment',
+  updateMTOServiceItemStatus: () => 'Service item status', // ghc.yaml Need to check status as well
+  requestShipmentDiversion: () => 'Requested diversion', // ghc.yaml
+  setFinancialReviewFlag: (changedValues) => {
+    const financialReviewFlag = retrieveValue('financial_review_flag', changedValues);
+    return financialReviewFlag === 'true' ? 'Move flagged for financial review' : 'Move unflagged for financial review';
+  },
+  requestShipmentCancellation: () => 'Shipment cancelled',
+};
+
 export const eventNamesWithPlainTextDetails = {
   approveShipment: 'Approved shipment', // ghc.yaml
   requestShipmentDiversion: 'Requested diversion', // ghc.yaml
@@ -78,7 +93,7 @@ export const eventNamesWithPlainTextDetails = {
   requestShipmentCancellation: 'Updated shipment', // ghc.yaml
 };
 
-const historyLogEventNameDisplay = {
+export const historyLogEventNameDisplay = {
   // operationId, UI Display
   counselingUpdateOrder: 'Updated orders', // ghc.yaml
   updateOrder: 'Updated orders', // ghc.yaml
