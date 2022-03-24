@@ -3073,8 +3073,6 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(serviceMemberID),
 			ServiceMember:   serviceMember,
-			NtsTAC:          models.StringPointer("E19A"),
-			NtsSAC:          models.StringPointer("3L988AS098F"),
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("f38c4257-c8fe-4cbc-a112-d9e24b5b5b49"),

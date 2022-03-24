@@ -289,8 +289,22 @@ describe('TIO user', () => {
     cy.get('[data-testid="MovePaymentRequests"]');
 
     cy.get('button').contains('Edit').click();
-    cy.get('input#tacType-NTS').check({ force: true });
-    cy.get('input#sacType-NTS').check({ force: true });
+    cy.get('button').contains('Add or edit codes').click();
+    cy.url().should('include', `/moves/NTSTIO/orders`);
+
+    cy.get('form').within(() => {
+      cy.get('input[data-testid="ntsTacInput"]').click().clear().type('E19A');
+      cy.get('input[data-testid="ntsSacInput"]').click().clear().type('3L988AS098F');
+      // Edit orders page | Save
+      cy.get('button').contains('Save').click();
+    });
+    cy.url().should('include', `/moves/NTSTIO/details`);
+    cy.contains('Payment requests').click();
+    cy.url().should('include', `/payment-requests`);
+    cy.get('button').contains('Edit').click();
+
+    cy.get('input#tacType-NTS').click({ force: true });
+    cy.get('input#sacType-NTS').click({ force: true });
     cy.get('button[type="submit"]').click();
     cy.wait(['@patchMtoShipment', '@getMtoShipments']);
 
