@@ -27,11 +27,13 @@ const Advance = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
 
+    const advanceRequested = values.advanceRequested === 'true';
+
     const payload = {
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
-        advance: Number(values.amountRequested * 100),
-        advanceRequested: Boolean(values.advanceRequested),
+        advance: values.amountRequested ? values.amountRequested * 100 : null,
+        advanceRequested,
       },
     };
 
