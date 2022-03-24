@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -46,13 +48,14 @@ type CreateUploadHandler struct {
 
 // Handle creates a new UserUpload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			rollbackErr := fmt.Errorf("Error creating upload")
 
 			file, ok := params.File.(*runtime.File)
 			if !ok {
 				appCtx.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
-				return uploadop.NewCreateUploadInternalServerError()
+				return uploadop.NewCreateUploadInternalServerError(), rollbackErr
 			}
 
 			appCtx.Logger().Info(
@@ -69,13 +72,13 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				documentID, err := uuid.FromString(params.DocumentID.String())
 				if err != nil {
 					appCtx.Logger().Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
-					return uploadop.NewCreateUploadBadRequest()
+					return uploadop.NewCreateUploadBadRequest(), rollbackErr
 				}
 
 				// Fetch document to ensure user has access to it
 				document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, true)
 				if docErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), docErr)
+					return handlers.ResponseForError(appCtx.Logger(), docErr), rollbackErr
 				}
 				docID = &document.ID
 			}
@@ -94,18 +97,18 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 				switch createErr.(type) {
 				case uploaderpkg.ErrTooLarge:
-					return uploadop.NewCreateUploadRequestEntityTooLarge()
+					return uploadop.NewCreateUploadRequestEntityTooLarge(), rollbackErr
 				case uploaderpkg.ErrFile:
-					return uploadop.NewCreateUploadInternalServerError()
+					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
 				case uploaderpkg.ErrFailedToInitUploader:
-					return uploadop.NewCreateUploadInternalServerError()
+					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
 				default:
-					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr)
+					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), rollbackErr
 				}
 			}
 
 			uploadPayload := payloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
-			return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
+			return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload), nil
 		})
 }
 
