@@ -29,9 +29,7 @@ $z-index-back: -100;
 }
 
 @mixin cont-border-top($color) {
-  border-top-width: 8px;
-  border-top-style: solid;
-  border-color: $color;
+  border-top: 8px solid $color;
   @include u-shadow(2);
 }
 
