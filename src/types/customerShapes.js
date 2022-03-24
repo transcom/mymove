@@ -106,6 +106,7 @@ export const PPMShipmentShape = shape({
   estimatedWeight: number,
   estimatedIncentive: number,
   advance: number,
+  advanceRequested: bool,
 });
 
 export const MtoShipmentShape = shape({

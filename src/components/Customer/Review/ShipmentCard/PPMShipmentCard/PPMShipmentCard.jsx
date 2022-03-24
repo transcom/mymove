@@ -34,7 +34,7 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditBtn, onEditClick })
   })}?shipmentNumber=${shipmentNumber}`;
 
   return (
-    <div className={styles.ShipmentCard} data-testid="shipment-display">
+    <div className={styles.ShipmentCard}>
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>

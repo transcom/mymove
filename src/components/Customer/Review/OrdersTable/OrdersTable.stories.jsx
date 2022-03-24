@@ -27,8 +27,8 @@ export default {
 const defaultProps = {
   moveId: 'abc123',
   orderType: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION,
-  issueDate: '11 June 2020',
-  reportByDate: '11 Aug 2020',
+  issueDate: '2020-06-11',
+  reportByDate: '2020-08-11',
   newDutyStationName: 'Fort Knox',
   hasDependents: true,
   uploads: [{ id: 1 }, { id: 2 }, { id: 3 }],

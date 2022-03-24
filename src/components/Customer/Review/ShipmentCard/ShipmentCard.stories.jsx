@@ -233,8 +233,8 @@ const PPMTemplate = (args) => <PPMShipmentCard {...args} />;
 export const PPMShipment = PPMTemplate.bind({});
 PPMShipment.args = ppmDefaultProps;
 
-export const PPMShipmentWithSecondaryZIPs = PPMTemplate.bind({});
-PPMShipmentWithSecondaryZIPs.args = {
+export const PPMShipmentWithSecondaryPostalCodes = PPMTemplate.bind({});
+PPMShipmentWithSecondaryPostalCodes.args = {
   ...ppmDefaultProps,
   ...ppmShipmentSecondaryZIPProps,
 };

@@ -63,15 +63,18 @@ const defaultProps = {
     },
   },
   history: {
-    back: noop,
+    goBack: noop,
     push: noop,
   },
   match: {
-    url: `/moves/${mtoLocator}/review`,
+    url: `/moves/${mtoUuid}/review`,
     params: {
-      moveId: mtoLocator,
+      moveId: mtoUuid,
     },
+    isExact: true,
+    path: '/moves/:moveId/review',
   },
+  onDidMount: noop,
   moveIsApproved: false,
   mtoShipments: [],
   serviceMember: {
