@@ -16,7 +16,7 @@ const DeliveryDisplay = ({
   requestedDeliveryDate,
 }) => {
   return (
-    <div>
+    <>
       <div className={styles.row}>
         <dt>Requested delivery date</dt>
         <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
@@ -50,7 +50,7 @@ const DeliveryDisplay = ({
           </dd>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
