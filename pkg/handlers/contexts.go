@@ -137,7 +137,7 @@ func (hctx *handlerContext) AuditableAppContextFromRequest(
 		if err != nil {
 			return err
 		}
-		resp = handler(txnAppCtx)
+		resp = handler(appCtx)
 		return nil
 	})
 	if err != nil {
