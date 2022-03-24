@@ -10,7 +10,7 @@ require (
 	github.com/XSAM/otelsql v0.12.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.43.23
+	github.com/aws/aws-sdk-go v1.43.25
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -84,7 +84,7 @@ require (
 )
 
 require (
-	github.com/golang-jwt/jwt/v4 v4.3.0
+	github.com/golang-jwt/jwt/v4 v4.4.0
 	github.com/rickar/cal/v2 v2.1.3
 	github.com/trussworks/otelhttp v0.0.0-20211201183707-a6d8db57ed9b
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.5.0
