@@ -28,7 +28,10 @@ import (
 //go:generate mockery --name HandlerContext --disable-version-string
 type HandlerContext interface {
 	AppContextFromRequest(*http.Request) appcontext.AppContext
-	AuditableAppContextFromRequest(*http.Request, func(appCtx appcontext.AppContext) middleware.Responder) middleware.Responder
+	AuditableAppContextFromRequest(
+		*http.Request,
+		func(appCtx appcontext.AppContext) middleware.Responder,
+	) middleware.Responder
 	AuditableAppContextFromRequestWithErrors(
 		*http.Request,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error),
@@ -100,7 +103,7 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 }
 
 // AppContextFromRequest builds an AppContext from the http request
-// this should eventually go away and all handlers should use AuditableAppContextFromRequest
+// TODO: This should eventually go away and all handlers should use AuditableAppContextFromRequest
 func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
 	return appcontext.NewAppContext(
 		hctx.dBFromContext(r.Context()),
@@ -110,7 +113,11 @@ func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.Ap
 
 // AuditableAppContextFromRequest creates a transaction and sets local
 // variables for use by the auditable trigger
-func (hctx *handlerContext) AuditableAppContextFromRequest(r *http.Request, handler func(appCtx appcontext.AppContext) middleware.Responder) middleware.Responder {
+// TODO: This should eventually go away and all handlers should use AuditableAppContextFromRequestWithErrors
+func (hctx *handlerContext) AuditableAppContextFromRequest(
+	r *http.Request,
+	handler func(appCtx appcontext.AppContext) middleware.Responder,
+) middleware.Responder {
 	// use LoggerFromRequest to get the most specific logger
 	var resp middleware.Responder
 	appCtx := hctx.AppContextFromRequest(r)
