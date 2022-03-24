@@ -3,9 +3,8 @@ import { bool, func, number } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
-import ShipmentContainer from '../../../../Office/ShipmentContainer/ShipmentContainer';
-import styles from '../ShipmentCard.module.scss';
-
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
+import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { MtoShipmentShape } from 'types/customerShapes';
