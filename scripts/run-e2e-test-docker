@@ -40,8 +40,6 @@ docker run \
        make pkg/assets/assets.go \
        server_build \
        bin/generate-test-data \
-       bin/rds-ca-2019-root.pem \
-       bin/rds-ca-us-gov-west-1-2017-root.pem \
        bin/rds-ca-rsa4096-g1.pem
 docker build -t milmove_e2e:local -f Dockerfile.e2e .
 
