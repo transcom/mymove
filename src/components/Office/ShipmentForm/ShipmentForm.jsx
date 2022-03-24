@@ -146,11 +146,11 @@ const ShipmentForm = ({
       delete deliveryDetails.address;
     }
 
-    let nullableSacType = sacType;
     let nullableTacType = tacType;
+    let nullableSacType = sacType;
     if (showAccountingCodes) {
-      nullableSacType = typeof sacType === 'undefined' ? '' : sacType;
       nullableTacType = typeof tacType === 'undefined' ? '' : tacType;
+      nullableSacType = typeof sacType === 'undefined' ? '' : sacType;
     }
 
     const pendingMtoShipment = formatMtoShipmentForAPI({
