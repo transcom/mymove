@@ -350,4 +350,55 @@ describe('TIO user', () => {
     cy.get('a[title="Home"]').click();
     cy.contains('Payment requests', { matchCase: false });
   });
+
+  it('can reject a NTS-R', () => {
+    cy.wait(['@getGHCClient', '@getPaymentRequests']);
+
+    // Go to known NTS-R move
+    cy.get('#locator').type('NTSRT3');
+    cy.get('th[data-testid="locator"]').first().click();
+    cy.get('[data-testid="locator-0"]').click();
+
+    // Verify we are on the Payment Requests page
+    cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    // Verify payment request status
+    const prSection = '#payment-requests';
+    cy.get(prSection).contains('Needs review');
+    cy.get(prSection).contains('Reviewed').should('not.exist');
+    cy.get(prSection).contains('Rejected').should('not.exist');
+
+    // Review Weights
+    cy.get('#billable-weights').contains('Review weights').click();
+    cy.get('[data-testid="closeSidebar"]').click();
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+
+    // Start reviewing service items
+    cy.contains('Review service items').click();
+    cy.wait(['@getPaymentRequest']);
+
+    // Reject the service item
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, false);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.get('[data-testid=nextServiceItem]').click();
+
+    // Reject the Request
+    cy.contains('Review details');
+    cy.contains('Reject request').click();
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    // Should now have 'Rejected' Tag
+    cy.get(prSection).contains('Rejected');
+    cy.get(prSection).contains('Needs Review').should('not.exist');
+    cy.get(prSection).contains('Reviewed').should('not.exist');
+
+    // Go back home
+    cy.get('a[title="Home"]').click();
+    cy.contains('Payment requests', { matchCase: false });
+  });
 });
