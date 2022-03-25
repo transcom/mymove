@@ -71,7 +71,6 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				appCtx.Session().OfficeUserID,
 				&ListOrderParams,
 			)
-
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching list of moves for office user", zap.Error(err))
