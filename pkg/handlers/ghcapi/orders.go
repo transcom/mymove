@@ -441,7 +441,12 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(
 		})
 }
 
-func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateOrderParams) {
+func (h UpdateOrderHandler) triggerUpdateOrderEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.UpdateOrderParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateOrderEndpointKey,
 		// Endpoint that is being handled
@@ -451,14 +456,18 @@ func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateOrderHandler could not generate the event")
 	}
 }
 
-func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.CounselingUpdateOrderParams) {
+func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.CounselingUpdateOrderParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcCounselingUpdateOrderEndpointKey,
 		// Endpoint that is being handled
@@ -468,14 +477,18 @@ func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(appCtx a
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateAllowanceHandler could not generate the event")
 	}
 }
 
-func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateAllowanceParams) {
+func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.UpdateAllowanceParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateAllowanceEndpointKey,
 		// Endpoint that is being handled
@@ -485,14 +498,18 @@ func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(appCtx appcontext.A
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateAllowanceHandler could not generate the event")
 	}
 }
 
-func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.CounselingUpdateAllowanceParams) {
+func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.CounselingUpdateAllowanceParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcCounselingUpdateAllowanceEndpointKey,
 		// Endpoint that is being handled
@@ -502,14 +519,19 @@ func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		appCtx.Logger().Error("ghcapi.CounselingUpdateAllowanceHandler could not generate the event")
+		appCtx.Logger().
+			Error("ghcapi.CounselingUpdateAllowanceHandler could not generate the event")
 	}
 }
 
-func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateBillableWeightParams) {
+func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.UpdateBillableWeightParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateBillableWeightEndpointKey,
 		// Endpoint that is being handled
@@ -519,14 +541,18 @@ func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(appCtx ap
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateBillableWeightHandler could not generate the event")
 	}
 }
 
-func (h UpdateMaxBillableWeightAsTIOHandler) triggerUpdatedMaxBillableWeightAsTIOEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateMaxBillableWeightAsTIOParams) {
+func (h UpdateMaxBillableWeightAsTIOHandler) triggerUpdatedMaxBillableWeightAsTIOEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.UpdateMaxBillableWeightAsTIOParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateMaxBillableWeightAsTIOEndpointKey,
 		// Endpoint that is being handled
@@ -536,14 +562,18 @@ func (h UpdateMaxBillableWeightAsTIOHandler) triggerUpdatedMaxBillableWeightAsTI
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		appCtx.Logger().Error("ghcapi.UpdateMaxBillableWeightAsTIOHandler could not generate the event")
+		appCtx.Logger().
+			Error("ghcapi.UpdateMaxBillableWeightAsTIOHandler could not generate the event")
 	}
 }
 
-func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEvent(appCtx appcontext.AppContext, moveID uuid.UUID, params orderop.AcknowledgeExcessWeightRiskParams) {
+func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEvent(
+	appCtx appcontext.AppContext,
+	moveID uuid.UUID,
+	params orderop.AcknowledgeExcessWeightRiskParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcAcknowledgeExcessWeightRiskEndpointKey,
 		// Endpoint that is being handled
@@ -553,7 +583,6 @@ func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEv
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateBillableWeightHandler could not generate the event")
