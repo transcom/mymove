@@ -394,7 +394,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('000012345 (HHG)')).toBeChecked();
     });
 
-    it('sends an empty string when clearing LOA types', async () => {
+    it('sends an empty string when clearing LOA types when updating a shipment', async () => {
       const mockSubmitHandler = jest.fn().mockResolvedValue(null);
 
       render(
@@ -421,6 +421,37 @@ describe('ShipmentForm component', () => {
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
           expect.objectContaining({ body: expect.objectContaining({ tacType: 'NTS', sacType: '' }) }),
+        );
+      });
+    });
+
+    it('does not send undefined LOA types when creating shipment', async () => {
+      const mockSubmitHandler = jest.fn().mockResolvedValue(null);
+
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          mtoShipment={{
+            ...mockMtoShipment,
+          }}
+          selectedMoveType={SHIPMENT_OPTIONS.NTS}
+          submitHandler={mockSubmitHandler}
+          isCreatePage
+        />,
+      );
+
+      userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2022');
+      userEvent.click(screen.getByTestId('useCurrentResidence'));
+
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      expect(saveButton).not.toBeDisabled();
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockSubmitHandler).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.not.objectContaining({ tacType: expect.any(String), sacType: expect.any(String) }),
+          }),
         );
       });
     });

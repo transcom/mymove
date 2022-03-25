@@ -148,7 +148,7 @@ const ShipmentForm = ({
 
     let nullableTacType = tacType;
     let nullableSacType = sacType;
-    if (showAccountingCodes) {
+    if (showAccountingCodes && !isCreatePage) {
       nullableTacType = typeof tacType === 'undefined' ? '' : tacType;
       nullableSacType = typeof sacType === 'undefined' ? '' : sacType;
     }
