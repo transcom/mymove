@@ -292,3 +292,20 @@ func (e EventError) Error() string {
 func (e EventError) Unwrap() error {
 	return e.error
 }
+
+// We should log Session Errors generated in the Handlers
+type SessionError struct {
+	message string
+}
+
+// NewSessionError returns a new SessionError
+func NewSessionError(message string) SessionError {
+	return SessionError{
+		message: message,
+	}
+}
+
+// Error is the string representation of the SessionError
+func (e SessionError) Error() string {
+	return e.message
+}
