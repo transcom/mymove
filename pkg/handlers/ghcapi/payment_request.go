@@ -34,30 +34,43 @@ type GetPaymentRequestForMoveHandler struct {
 }
 
 // Handle handles the HTTP handling for GetPaymentRequestForMoveHandler
-func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPaymentRequestsForMoveParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-				appCtx.Logger().Error("user is not authenticated with TIO office role")
-				return paymentrequestop.NewGetPaymentRequestsForMoveForbidden()
+func (h GetPaymentRequestForMoveHandler) Handle(
+	params paymentrequestop.GetPaymentRequestsForMoveParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with TIO office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return paymentrequestop.NewGetPaymentRequestsForMoveForbidden(), forbiddenErr
 			}
 
 			locator := params.Locator
 
-			paymentRequests, err := h.FetchPaymentRequestListByMove(appCtx, appCtx.Session().OfficeUserID, locator)
+			paymentRequests, err := h.FetchPaymentRequestListByMove(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				locator,
+			)
 			if err != nil {
-				appCtx.Logger().Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
-				return paymentrequestop.NewGetPaymentRequestNotFound()
+				appCtx.Logger().
+					Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
+				return paymentrequestop.NewGetPaymentRequestNotFound(), err
 			}
 
 			returnPayload, err := payloads.PaymentRequests(paymentRequests, h.FileStorer())
-
 			if err != nil {
-				appCtx.Logger().Error(fmt.Sprintf("Error building payment requests payload for locator: %s", locator), zap.Error(err))
-				return paymentrequestop.NewGetPaymentRequestsForMoveInternalServerError()
+				appCtx.Logger().
+					Error(fmt.Sprintf("Error building payment requests payload for locator: %s", locator), zap.Error(err))
+				return paymentrequestop.NewGetPaymentRequestsForMoveInternalServerError(), err
 			}
 
-			return paymentrequestop.NewGetPaymentRequestsForMoveOK().WithPayload(*returnPayload)
+			return paymentrequestop.NewGetPaymentRequestsForMoveOK().
+					WithPayload(*returnPayload),
+				nil
 		})
 }
 
