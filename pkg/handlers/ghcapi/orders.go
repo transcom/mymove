@@ -318,35 +318,46 @@ type UpdateMaxBillableWeightAsTIOHandler struct {
 }
 
 // Handle ... updates the authorized weight
-func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBillableWeightAsTIOParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+func (h UpdateMaxBillableWeightAsTIOHandler) Handle(
+	params orderop.UpdateMaxBillableWeightAsTIOParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return orderop.NewUpdateMaxBillableWeightAsTIONotFound()
+					return orderop.NewUpdateMaxBillableWeightAsTIONotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-					return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload)
+					return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return orderop.NewUpdateMaxBillableWeightAsTIOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateMaxBillableWeightAsTIOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError()
+					return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError(), err
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
 				return handleError(apperror.NewForbiddenError("is not a TIO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
 			dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
 			remarks := params.Body.TioRemarks
-			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(appCtx, orderID, dbAuthorizedWeight, remarks, params.IfMatch)
+			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(
+				appCtx,
+				orderID,
+				dbAuthorizedWeight,
+				remarks,
+				params.IfMatch,
+			)
 			if err != nil {
 				return handleError(err)
 			}
@@ -355,7 +366,7 @@ func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBill
 
 			orderPayload := payloads.Order(updatedOrder)
 
-			return orderop.NewUpdateMaxBillableWeightAsTIOOK().WithPayload(orderPayload)
+			return orderop.NewUpdateMaxBillableWeightAsTIOOK().WithPayload(orderPayload), nil
 		})
 }
 
