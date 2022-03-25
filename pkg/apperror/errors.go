@@ -309,3 +309,20 @@ func NewSessionError(message string) SessionError {
 func (e SessionError) Error() string {
 	return e.message
 }
+
+// We should log Unprocessable Entity Errors generated in the Handlers
+type UnprocessableEntityError struct {
+	message string
+}
+
+// NewUnprocessableEntityError returns a new UnprocessableEntityError
+func NewUnprocessableEntityError(message string) UnprocessableEntityError {
+	return UnprocessableEntityError{
+		message: message,
+	}
+}
+
+// Error is the string representation of the UnprocessableEntityError
+func (e UnprocessableEntityError) Error() string {
+	return e.message
+}
