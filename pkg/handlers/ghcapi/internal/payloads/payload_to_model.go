@@ -169,15 +169,15 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	}
 
 	var tacType *models.LOAType
-	if mtoShipment.TacType.Present {
-		tt := models.LOAType(*mtoShipment.TacType.Value)
+	if mtoShipment.TacType != nil {
+		tt := models.LOAType(*mtoShipment.TacType)
 		tacType = &tt
 	}
 
 	var sacType *models.LOAType
-	if mtoShipment.SacType.Present {
-		tt := models.LOAType(*mtoShipment.SacType.Value)
-		sacType = &tt
+	if mtoShipment.SacType != nil {
+		st := models.LOAType(*mtoShipment.SacType)
+		sacType = &st
 	}
 
 	var usesExternalVendor bool

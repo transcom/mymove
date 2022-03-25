@@ -3447,7 +3447,14 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -3461,7 +3468,14 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -3844,6 +3858,15 @@ func init() {
       "x-nullable": true
     },
     "LOAType": {
+      "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+      "type": "string",
+      "enum": [
+        "HHG",
+        "NTS"
+      ],
+      "example": "HHG"
+    },
+    "LOATypeNullable": {
       "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
       "type": "string",
       "enum": [
@@ -4270,10 +4293,14 @@ func init() {
           "$ref": "#/definitions/Reweigh"
         },
         "sacType": {
-          "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
-          "type": "string",
-          "x-nullable": true,
-          "example": "NTS"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -4313,10 +4340,14 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
-          "type": "string",
-          "x-nullable": true,
-          "example": "HHG"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "updatedAt": {
           "type": "string",
@@ -5914,7 +5945,7 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "$ref": "#/definitions/LOAType"
+          "$ref": "#/definitions/LOATypeNullable"
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -5928,7 +5959,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "$ref": "#/definitions/LOAType"
+          "$ref": "#/definitions/LOATypeNullable"
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -10310,7 +10341,14 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -10324,7 +10362,14 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "$ref": "#/definitions/LOAType"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -10707,6 +10752,15 @@ func init() {
       "x-nullable": true
     },
     "LOAType": {
+      "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+      "type": "string",
+      "enum": [
+        "HHG",
+        "NTS"
+      ],
+      "example": "HHG"
+    },
+    "LOATypeNullable": {
       "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
       "type": "string",
       "enum": [
@@ -11133,10 +11187,14 @@ func init() {
           "$ref": "#/definitions/Reweigh"
         },
         "sacType": {
-          "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
-          "type": "string",
-          "x-nullable": true,
-          "example": "NTS"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -11176,10 +11234,14 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
-          "type": "string",
-          "x-nullable": true,
-          "example": "HHG"
+          "allOf": [
+            {
+              "$ref": "#/definitions/LOAType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "updatedAt": {
           "type": "string",
@@ -12784,7 +12846,7 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "$ref": "#/definitions/LOAType"
+          "$ref": "#/definitions/LOATypeNullable"
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -12798,7 +12860,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "$ref": "#/definitions/LOAType"
+          "$ref": "#/definitions/LOATypeNullable"
         },
         "usesExternalVendor": {
           "type": "boolean",

@@ -2296,7 +2296,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.NotEmpty(updatedShipment.MtoAgents[0].ID)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
 		suite.Equal(oldShipment.UsesExternalVendor, updatedShipment.UsesExternalVendor)
-		suite.Equal(params.Body.TacType.Value, updatedShipment.TacType)
+		suite.Equal(*params.Body.TacType.Value, string(*updatedShipment.TacType))
 		suite.Nil(updatedShipment.SacType)
 	})
 

@@ -121,9 +121,8 @@ type MTOShipment struct {
 	// reweigh
 	Reweigh *Reweigh `json:"reweigh,omitempty"`
 
-	// The Line of accounting (TAC/SAC) type that will be used for the shipment
-	// Example: NTS
-	SacType *string `json:"sacType,omitempty"`
+	// sac type
+	SacType *LOAType `json:"sacType,omitempty"`
 
 	// scheduled pickup date
 	// Format: date
@@ -156,9 +155,8 @@ type MTOShipment struct {
 	// storage facility
 	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
 
-	// The Line of accounting (TAC/SAC) type that will be used for the shipment
-	// Example: HHG
-	TacType *string `json:"tacType,omitempty"`
+	// tac type
+	TacType *LOAType `json:"tacType,omitempty"`
 
 	// updated at
 	// Format: date-time
@@ -229,6 +227,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSacType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateScheduledPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -258,6 +260,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStorageFacility(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTacType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -477,6 +483,25 @@ func (m *MTOShipment) validateReweigh(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateSacType(formats strfmt.Registry) error {
+	if swag.IsZero(m.SacType) { // not required
+		return nil
+	}
+
+	if m.SacType != nil {
+		if err := m.SacType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sacType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ScheduledPickupDate) { // not required
 		return nil
@@ -616,6 +641,25 @@ func (m *MTOShipment) validateStorageFacility(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateTacType(formats strfmt.Registry) error {
+	if swag.IsZero(m.TacType) { // not required
+		return nil
+	}
+
+	if m.TacType != nil {
+		if err := m.TacType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tacType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -660,6 +704,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSacType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -685,6 +733,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateStorageFacility(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTacType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -795,6 +847,22 @@ func (m *MTOShipment) contextValidateReweigh(ctx context.Context, formats strfmt
 	return nil
 }
 
+func (m *MTOShipment) contextValidateSacType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SacType != nil {
+		if err := m.SacType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sacType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SecondaryDeliveryAddress != nil {
@@ -893,6 +961,22 @@ func (m *MTOShipment) contextValidateStorageFacility(ctx context.Context, format
 				return ve.ValidateName("storageFacility")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("storageFacility")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateTacType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TacType != nil {
+		if err := m.TacType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tacType")
 			}
 			return err
 		}

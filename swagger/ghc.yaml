@@ -3280,9 +3280,9 @@ definitions:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
       tacType:
-        $ref: '#/definitions/LOAType'
+        $ref: '#/definitions/LOATypeNullable'
       sacType:
-        $ref: '#/definitions/LOAType'
+        $ref: '#/definitions/LOATypeNullable'
       usesExternalVendor:
         type: boolean
         example: false
@@ -3372,9 +3372,13 @@ definitions:
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       tacType:
-        $ref: '#/definitions/LOAType'
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
       sacType:
-        $ref: '#/definitions/LOAType'
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
@@ -4125,10 +4129,6 @@ definitions:
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
-    x-go-type:
-      import:
-        package: github.com/transcom/mymove/pkg/swagger/nullable
-      type: String
     example: HHG
     enum:
       - HHG
@@ -4437,19 +4437,13 @@ definitions:
         example: more weight than expected
         x-nullable: true
       tacType:
-        type: string
-        description: >-
-          The Line of accounting (TAC/SAC) type that will be used for the
-          shipment
-        example: HHG
-        x-nullable: true
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
       sacType:
-        type: string
-        description: >-
-          The Line of accounting (TAC/SAC) type that will be used for the
-          shipment
-        example: NTS
-        x-nullable: true
+        allOf:
+          - $ref: '#/definitions/LOAType'
+          - x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false
@@ -4459,6 +4453,17 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
+  LOATypeNullable:
+    description: The Line of accounting (TAC/SAC) type that will be used for the shipment
+    type: string
+    x-go-type:
+      import:
+        package: github.com/transcom/mymove/pkg/swagger/nullable
+      type: String
+    example: HHG
+    enum:
+      - HHG
+      - NTS
   ServiceItemParamName:
     type: string
     enum:

@@ -3165,9 +3165,9 @@ definitions:
         $ref: 'definitions/MTOAgents.yaml'
         x-nullable: true
       tacType:
-        $ref: 'definitions/LOAType.yaml'
+        $ref: 'definitions/LOATypeNullable.yaml'
       sacType:
-        $ref: 'definitions/LOAType.yaml'
+        $ref: 'definitions/LOATypeNullable.yaml'
       usesExternalVendor:
         type: boolean
         example: false
@@ -3248,9 +3248,13 @@ definitions:
       shipmentType:
         $ref: 'definitions/MTOShipmentType.yaml'
       tacType:
-        $ref: 'definitions/LOAType.yaml'
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
       sacType:
-        $ref: 'definitions/LOAType.yaml'
+        allOf:
+          - $ref: 'definitions/LOAType.yaml'
+          - x-nullable: true
       usesExternalVendor:
         type: boolean
         example: false

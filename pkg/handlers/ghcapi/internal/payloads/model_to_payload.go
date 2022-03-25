@@ -530,12 +530,12 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 	}
 
 	if mtoShipment.TACType != nil {
-		tt := string(*mtoShipment.TACType)
+		tt := ghcmessages.LOAType(*mtoShipment.TACType)
 		payload.TacType = &tt
 	}
 
 	if mtoShipment.SACType != nil {
-		st := string(*mtoShipment.SACType)
+		st := ghcmessages.LOAType(*mtoShipment.SACType)
 		payload.SacType = &st
 	}
 

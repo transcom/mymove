@@ -12,7 +12,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-	"github.com/transcom/mymove/pkg/swagger/nullable"
 )
 
 // CreateMTOShipment create m t o shipment
@@ -82,7 +81,7 @@ type CreateMTOShipment struct {
 	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// sac type
-	SacType nullable.String `json:"sacType,omitempty"`
+	SacType *LOAType `json:"sacType,omitempty"`
 
 	// service order number
 	ServiceOrderNumber *string `json:"serviceOrderNumber,omitempty"`
@@ -94,7 +93,7 @@ type CreateMTOShipment struct {
 	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
 
 	// tac type
-	TacType nullable.String `json:"tacType,omitempty"`
+	TacType *LOAType `json:"tacType,omitempty"`
 
 	// uses external vendor
 	// Example: false
@@ -264,13 +263,15 @@ func (m *CreateMTOShipment) validateSacType(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.SacType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("sacType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("sacType")
+	if m.SacType != nil {
+		if err := m.SacType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sacType")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -317,13 +318,15 @@ func (m *CreateMTOShipment) validateTacType(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.TacType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("tacType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("tacType")
+	if m.TacType != nil {
+		if err := m.TacType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tacType")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -431,13 +434,15 @@ func (m *CreateMTOShipment) contextValidatePickupAddress(ctx context.Context, fo
 
 func (m *CreateMTOShipment) contextValidateSacType(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.SacType.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("sacType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("sacType")
+	if m.SacType != nil {
+		if err := m.SacType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sacType")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -475,13 +480,15 @@ func (m *CreateMTOShipment) contextValidateStorageFacility(ctx context.Context, 
 
 func (m *CreateMTOShipment) contextValidateTacType(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.TacType.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("tacType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("tacType")
+	if m.TacType != nil {
+		if err := m.TacType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tacType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tacType")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
