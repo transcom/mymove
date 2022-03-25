@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import PlainTextDetails from './PlainTextDetails';
 
 import {
-  eventNamesWithLabelledDetails,
+  eventNamesWithLabeledDetails,
   eventNamesWithServiceItemDetails,
   eventNamesWithPlainTextDetails,
   HistoryLogValuesShape,
@@ -21,13 +21,10 @@ const formatChangedValues = (values) => {
 };
 
 const MoveHistoryDetailsSelector = ({ eventName, oldValues, changedValues }) => {
-  /**
-   * Inside the component, we should map oldValues and changedValues into an object so the ordering can be consistent.
-   */
-  if (eventNamesWithLabelledDetails[eventName]) {
+  if (eventNamesWithLabeledDetails[eventName]) {
     return (
       <div>
-        Labelled {eventName}
+        Labeled {eventName}
         <div>old Values {formatChangedValues(oldValues)}</div>
         <div>changed values {formatChangedValues(changedValues)}</div>
       </div>

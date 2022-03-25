@@ -45,7 +45,7 @@ const dbFieldsToModel = {
 };
 */
 
-export const eventNamesWithLabelledDetails = {
+export const eventNamesWithLabeledDetails = {
   counselingUpdateOrder: 'Updated orders', // ghc.yaml
   updateOrder: 'Updated orders', // ghc.yaml
   updateAllowance: 'Updated allowances', // ghc.yaml
