@@ -37,18 +37,18 @@ type ListMTOShipmentsHandler struct {
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			handleError := func(err error) middleware.Responder {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ListMTOShipmentsHandler error", zap.Error(err))
 				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return mtoshipmentops.NewListMTOShipmentsNotFound().WithPayload(payload)
+					return mtoshipmentops.NewListMTOShipmentsNotFound().WithPayload(payload), err
 				case apperror.ForbiddenError:
-					return mtoshipmentops.NewListMTOShipmentsForbidden().WithPayload(payload)
+					return mtoshipmentops.NewListMTOShipmentsForbidden().WithPayload(payload), err
 				case apperror.QueryError:
-					return mtoshipmentops.NewListMTOShipmentsInternalServerError()
+					return mtoshipmentops.NewListMTOShipmentsInternalServerError(), err
 				default:
-					return mtoshipmentops.NewListMTOShipmentsInternalServerError()
+					return mtoshipmentops.NewListMTOShipmentsInternalServerError(), err
 				}
 			}
 
@@ -56,14 +56,14 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) &&
 					!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) &&
 					!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
-				handleError(apperror.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
+				return handleError(apperror.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
 			}
 
 			moveID := uuid.FromStringOrNil(params.MoveTaskOrderID.String())
 
 			shipments, err := h.ListMTOShipments(appCtx, moveID)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 			mtoShipments := models.MTOShipments(shipments)
 
@@ -218,12 +218,12 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 			mtoShipment.ID = shipmentID
 
-			handleError := func(err error) middleware.Responder {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+					return mtoshipmentops.NewUpdateMTOShipmentNotFound(), err
 				case apperror.InvalidInputError:
 					return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(
 						payloadForValidationError(
@@ -232,12 +232,12 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 							h.GetTraceIDFromRequest(params.HTTPRequest),
 							e.ValidationErrors,
 						),
-					)
+					), err
 				case apperror.PreconditionFailedError:
 					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
 					return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(
 						&ghcmessages.Error{Message: &msg},
-					)
+					), err
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
@@ -248,18 +248,18 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 					return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
 						&ghcmessages.Error{Message: &msg},
-					)
+					), err
 				default:
 					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
 
 					return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
 						&ghcmessages.Error{Message: &msg},
-					)
+					), err
 				}
 			}
 			updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(appCtx, mtoShipment, params.IfMatch)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 
 			_, err = event.TriggerEvent(event.Event{
@@ -278,7 +278,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
@@ -371,34 +371,35 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 			eTag := params.IfMatch
 
-			handleError := func(err error) middleware.Responder {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.ApproveShipmentHandler", zap.Error(err))
 
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return shipmentops.NewApproveShipmentNotFound()
+					return shipmentops.NewApproveShipmentNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError("Validation errors", "ApproveShipment", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-					return shipmentops.NewApproveShipmentUnprocessableEntity().WithPayload(payload)
+					return shipmentops.NewApproveShipmentUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return shipmentops.NewApproveShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return shipmentops.NewApproveShipmentPreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ConflictError, mtoshipment.ConflictStatusError:
-					return shipmentops.NewApproveShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return shipmentops.NewApproveShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return shipmentops.NewApproveShipmentInternalServerError()
+					return shipmentops.NewApproveShipmentInternalServerError(), err
 				}
 			}
 
 			shipment, err := h.ApproveShipment(appCtx, shipmentID, eTag)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 
 			h.triggerShipmentApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
@@ -446,40 +447,40 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 			eTag := params.IfMatch
 
-			handleError := func(err error) middleware.Responder {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.RequestShipmentDiversionHandler", zap.Error(err))
 
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return shipmentops.NewRequestShipmentDiversionNotFound()
+					return shipmentops.NewRequestShipmentDiversionNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(
 						"Validation errors",
 						"RequestShipmentDiversion",
 						h.GetTraceIDFromRequest(params.HTTPRequest),
 						e.ValidationErrors)
-					return shipmentops.NewRequestShipmentDiversionUnprocessableEntity().WithPayload(payload)
+					return shipmentops.NewRequestShipmentDiversionUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
 					return shipmentops.NewRequestShipmentDiversionPreconditionFailed().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case mtoshipment.ConflictStatusError:
 					return shipmentops.NewRequestShipmentDiversionConflict().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return shipmentops.NewRequestShipmentDiversionInternalServerError()
+					return shipmentops.NewRequestShipmentDiversionInternalServerError(), err
 				}
 			}
 
 			shipment, err := h.RequestShipmentDiversion(appCtx, shipmentID, eTag)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 
 			h.triggerRequestShipmentDiversionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
@@ -527,40 +528,40 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 			eTag := params.IfMatch
 
-			handleError := func(err error) middleware.Responder {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.ApproveShipmentDiversionHandler", zap.Error(err))
 
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return shipmentops.NewApproveShipmentDiversionNotFound()
+					return shipmentops.NewApproveShipmentDiversionNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(
 						"Validation errors",
 						"ApproveShipmentDiversion",
 						h.GetTraceIDFromRequest(params.HTTPRequest),
 						e.ValidationErrors)
-					return shipmentops.NewApproveShipmentDiversionUnprocessableEntity().WithPayload(payload)
+					return shipmentops.NewApproveShipmentDiversionUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
 					return shipmentops.NewApproveShipmentDiversionPreconditionFailed().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case mtoshipment.ConflictStatusError:
 					return shipmentops.NewApproveShipmentDiversionConflict().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return shipmentops.NewApproveShipmentDiversionInternalServerError()
+					return shipmentops.NewApproveShipmentDiversionInternalServerError(), err
 				}
 			}
 
 			shipment, err := h.ApproveShipmentDiversion(appCtx, shipmentID, eTag)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 
 			h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
@@ -680,40 +681,40 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 			eTag := params.IfMatch
 
-			handleError := func(err error) middleware.Responder {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.RequestShipmentCancellationHandler", zap.Error(err))
 
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return shipmentops.NewRequestShipmentCancellationNotFound()
+					return shipmentops.NewRequestShipmentCancellationNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(
 						"Validation errors",
 						"RequestShipmentCancellation",
 						h.GetTraceIDFromRequest(params.HTTPRequest),
 						e.ValidationErrors)
-					return shipmentops.NewRequestShipmentCancellationUnprocessableEntity().WithPayload(payload)
+					return shipmentops.NewRequestShipmentCancellationUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
 					return shipmentops.NewRequestShipmentCancellationPreconditionFailed().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case mtoshipment.ConflictStatusError:
 					return shipmentops.NewRequestShipmentCancellationConflict().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return shipmentops.NewRequestShipmentCancellationInternalServerError()
+					return shipmentops.NewRequestShipmentCancellationInternalServerError(), err
 				}
 			}
 
 			shipment, err := h.RequestShipmentCancellation(appCtx, shipmentID, eTag)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 
 			h.triggerRequestShipmentCancellationEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
@@ -776,8 +777,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 					return shipmentops.NewRequestShipmentReweighUnprocessableEntity().WithPayload(payload), err
 				case apperror.ConflictError:
 					return shipmentops.NewRequestShipmentReweighConflict().
-							WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}),
-						err
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
 					return shipmentops.NewRequestShipmentReweighInternalServerError(), err
 				}
@@ -855,26 +855,32 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error approving SIT extension", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return shipmentops.NewApproveSITExtensionNotFound()
+					return shipmentops.NewApproveSITExtensionNotFound(), err
 				case apperror.InvalidInputError:
-					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-					return shipmentops.NewApproveSITExtensionUnprocessableEntity().WithPayload(payload)
+					payload := payloadForValidationError(
+						handlers.ValidationErrMessage,
+						err.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors)
+					return shipmentops.NewApproveSITExtensionUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return shipmentops.NewApproveSITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return shipmentops.NewApproveSITExtensionPreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return shipmentops.NewApproveSITExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return shipmentops.NewApproveSITExtensionForbidden().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return shipmentops.NewApproveSITExtensionInternalServerError()
+					return shipmentops.NewApproveSITExtensionInternalServerError(), err
 				}
 			}
 
 			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("is not a TOO")
-				return handleError(forbiddenError), forbiddenError
+				return handleError(forbiddenError)
 			}
 
 			shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
@@ -883,12 +889,12 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 			officeRemarks := params.Body.OfficeRemarks
 			updatedShipment, err := h.SITExtensionApprover.ApproveSITExtension(appCtx, shipmentID, sitExtensionID, approvedDays, officeRemarks, params.IfMatch)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 
 			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 
@@ -929,26 +935,32 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error denying SIT extension", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return shipmentops.NewDenySITExtensionNotFound()
+					return shipmentops.NewDenySITExtensionNotFound(), err
 				case apperror.InvalidInputError:
-					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-					return shipmentops.NewDenySITExtensionUnprocessableEntity().WithPayload(payload)
+					payload := payloadForValidationError(
+						handlers.ValidationErrMessage,
+						err.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors)
+					return shipmentops.NewDenySITExtensionUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return shipmentops.NewDenySITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return shipmentops.NewDenySITExtensionPreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return shipmentops.NewDenySITExtensionForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return shipmentops.NewDenySITExtensionForbidden().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return shipmentops.NewDenySITExtensionInternalServerError()
+					return shipmentops.NewDenySITExtensionInternalServerError(), err
 				}
 			}
 
 			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("is not a TOO")
-				return handleError(forbiddenError), forbiddenError
+				return handleError(forbiddenError)
 			}
 
 			shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
@@ -956,12 +968,12 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 			officeRemarks := params.Body.OfficeRemarks
 			updatedShipment, err := h.SITExtensionDenier.DenySITExtension(appCtx, shipmentID, sitExtensionID, officeRemarks, params.IfMatch)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 
 			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
@@ -1006,45 +1018,51 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 			payload := params.Body
 			shipmentID := params.ShipmentID
 
-			handleError := func(err error) middleware.Responder {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.CreateApprovedSITExtension error", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
 					payload := ghcmessages.Error{
 						Message: handlers.FmtString(err.Error()),
 					}
-					return shipmentops.NewCreateSITExtensionAsTOONotFound().WithPayload(&payload)
+					return shipmentops.NewCreateSITExtensionAsTOONotFound().WithPayload(&payload), err
 				case apperror.InvalidInputError:
-					payload := payloadForValidationError("Validation errors", "CreateApprovedSITExtension", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-					return shipmentops.NewCreateSITExtensionAsTOOUnprocessableEntity().WithPayload(payload)
+					payload := payloadForValidationError(
+						"Validation errors",
+						"CreateApprovedSITExtension",
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors)
+					return shipmentops.NewCreateSITExtensionAsTOOUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return shipmentops.NewDenySITExtensionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return shipmentops.NewDenySITExtensionPreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
 						appCtx.Logger().Error("ghcapi.CreateApprovedSITExtension query error", zap.Error(e.Unwrap()))
 					}
-					return shipmentops.NewCreateSITExtensionAsTOOInternalServerError()
+					return shipmentops.NewCreateSITExtensionAsTOOInternalServerError(), err
 				case apperror.ForbiddenError:
-					return shipmentops.NewCreateSITExtensionAsTOOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return shipmentops.NewCreateSITExtensionAsTOOForbidden().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return shipmentops.NewCreateSITExtensionAsTOOInternalServerError()
+					return shipmentops.NewCreateSITExtensionAsTOOInternalServerError(), err
 				}
 			}
 
 			sitExtension := payloads.ApprovedSITExtensionFromCreate(payload, shipmentID)
 			shipment, err := h.SITExtensionCreatorAsTOO.CreateSITExtensionAsTOO(appCtx, sitExtension, sitExtension.MTOShipmentID, params.IfMatch)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 
 			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				return handleError(apperror.NewForbiddenError("is not a TOO")), err
+				return handleError(apperror.NewForbiddenError("is not a TOO"))
 			}
 
 			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
-				return handleError(err), err
+				return handleError(err)
 			}
 
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
