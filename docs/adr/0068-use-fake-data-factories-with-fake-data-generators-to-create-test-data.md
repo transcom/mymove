@@ -55,7 +55,7 @@ AppEng would own this since it's related to the way we test our application code
 1. Create factories on the FE (using a package), replace the factories on the BE with a package, and use fake data generators for both the BE and FE.
 1. Create factories on the FE (using a package) and use fake data generators for both the BE and FE.
 1. Start using fake data generators for the BE/FE, but don't implement factories for FE.
-1. Create factorise on the FE, but don't use fake data generators for FE or BE.
+1. Create factories on the FE, but don't use fake data generators for FE or BE.
 1. Leave things as they are.
 
 Each of the options that has us creating factories for the FE could also have an alternative of us creating the
