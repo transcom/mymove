@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -20,15 +21,16 @@ type TacValidationHandler struct {
 
 // Handle accepts the TAC value and returns a payload showing if it is valid
 func (h TacValidationHandler) Handle(params tacop.TacValidationParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			rollbackErr := fmt.Errorf("TAC validation error")
 
 			if appCtx.Session() == nil {
-				return tacop.NewTacValidationUnauthorized()
+				return tacop.NewTacValidationUnauthorized(), rollbackErr
 			}
 
 			if !appCtx.Session().IsOfficeApp() || !appCtx.Session().IsOfficeUser() {
-				return tacop.NewTacValidationForbidden()
+				return tacop.NewTacValidationForbidden(), rollbackErr
 			}
 
 			db := appCtx.DB()
@@ -36,13 +38,13 @@ func (h TacValidationHandler) Handle(params tacop.TacValidationParams) middlewar
 
 			if err != nil {
 				appCtx.Logger().Error("Error looking for transportation accounting code", zap.Error(err))
-				return tacop.NewTacValidationInternalServerError()
+				return tacop.NewTacValidationInternalServerError(), rollbackErr
 			}
 
 			tacValidationPayload := &ghcmessages.TacValid{
 				IsValid: &isValid,
 			}
 
-			return tacop.NewTacValidationOK().WithPayload(tacValidationPayload)
+			return tacop.NewTacValidationOK().WithPayload(tacValidationPayload), nil
 		})
 }
