@@ -167,13 +167,18 @@ type GetServicesCounselingQueueHandler struct {
 }
 
 // Handle returns the paginated list of moves for the services counselor
-func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
-
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-				appCtx.Logger().Error("user is not authenticated with an office role")
-				return queues.NewGetServicesCounselingQueueForbidden()
+func (h GetServicesCounselingQueueHandler) Handle(
+	params queues.GetServicesCounselingQueueParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with an office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetServicesCounselingQueueForbidden(), forbiddenErr
 			}
 
 			ListOrderParams := services.ListOrderParams{
@@ -212,10 +217,10 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 				appCtx.Session().OfficeUserID,
 				&ListOrderParams,
 			)
-
 			if err != nil {
-				appCtx.Logger().Error("error fetching list of moves for office user", zap.Error(err))
-				return queues.NewGetServicesCounselingQueueInternalServerError()
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
@@ -227,6 +232,6 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 				QueueMoves: *queueMoves,
 			}
 
-			return queues.NewGetServicesCounselingQueueOK().WithPayload(result)
+			return queues.NewGetServicesCounselingQueueOK().WithPayload(result), nil
 		})
 }
