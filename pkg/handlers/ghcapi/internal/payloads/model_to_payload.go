@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -88,8 +87,8 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		ActionTstampClk:      strfmt.DateTime(auditHistory.ActionTstampClk),
 		ActionTstampStm:      strfmt.DateTime(auditHistory.ActionTstampStm),
 		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
-		ChangedValues:        moveHistoryValues(auditHistory.ChangedData, "changed_data"),
-		OldValues:            moveHistoryValues(auditHistory.OldData, "old_values"),
+		ChangedValues:        auditHistory.ChangedData,
+		OldValues:            auditHistory.OldData,
 		ClientQuery:          auditHistory.ClientQuery,
 		EventName:            auditHistory.EventName,
 		ID:                   strfmt.UUID(auditHistory.ID.String()),
@@ -110,25 +109,27 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 	return payload
 }
 
-func moveHistoryValues(data *models.JSONMap, fieldName string) ghcmessages.MoveAuditHistoryItems {
-	if data == nil {
-		return ghcmessages.MoveAuditHistoryItems{}
-	}
+// func moveHistoryValues(data *models.JSONMap, fieldName string) ghcmessages.MoveAuditHistoryItems {
+// 	if data == nil {
+// 		return ghcmessages.MoveAuditHistoryItems{}
+// 	}
 
-	payload := ghcmessages.MoveAuditHistoryItems{}
+// 	payload := ghcmessages.MoveAuditHistoryItems{}
+// 	// fmt.Print("here \n \n")
+// 	// fmt.Print(*data)
+// 	// fmt.Print("\n \n")
+// 	for k, v := range *data {
+// 		if v != nil {
+// 			item := ghcmessages.MoveAuditHistoryItem{
+// 				ColumnName:  k,
+// 				ColumnValue: fmt.Sprint(v),
+// 			}
+// 			payload = append(payload, &item)
+// 		}
+// 	}
 
-	for k, v := range *data {
-		if v != nil {
-			item := ghcmessages.MoveAuditHistoryItem{
-				ColumnName:  k,
-				ColumnValue: fmt.Sprint(v),
-			}
-			payload = append(payload, &item)
-		}
-	}
-
-	return payload
-}
+// 	return payload
+// }
 
 func moveHistoryRecords(auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
 	payload := make(ghcmessages.MoveAuditHistories, len(auditHistories))
