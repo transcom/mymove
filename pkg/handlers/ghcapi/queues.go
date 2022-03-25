@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -30,12 +31,15 @@ type FilterOption func(*pop.Query)
 
 // Handle returns the paginated list of moves for the TOO user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
-
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				appCtx.Logger().Error("user is not authenticated with TOO office role")
-				return queues.NewGetMovesQueueForbidden()
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with TOO office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetMovesQueueForbidden(), forbiddenErr
 			}
 
 			ListOrderParams := services.ListOrderParams{
@@ -69,8 +73,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			)
 
 			if err != nil {
-				appCtx.Logger().Error("error fetching list of moves for office user", zap.Error(err))
-				return queues.NewGetMovesQueueInternalServerError()
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
@@ -82,7 +87,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				QueueMoves: *queueMoves,
 			}
 
-			return queues.NewGetMovesQueueOK().WithPayload(result)
+			return queues.NewGetMovesQueueOK().WithPayload(result), nil
 		})
 }
 
