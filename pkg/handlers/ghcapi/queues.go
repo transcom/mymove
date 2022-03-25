@@ -98,11 +98,17 @@ type GetPaymentRequestsQueueHandler struct {
 }
 
 // Handle returns the paginated list of payment requests for the TIO user
-func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+func (h GetPaymentRequestsQueueHandler) Handle(
+	params queues.GetPaymentRequestsQueueParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-				return queues.NewGetPaymentRequestsQueueForbidden()
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with TIO office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetPaymentRequestsQueueForbidden(), forbiddenErr
 			}
 
 			listPaymentRequestParams := services.FetchPaymentRequestListParams{
@@ -136,8 +142,9 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 				&listPaymentRequestParams,
 			)
 			if err != nil {
-				appCtx.Logger().Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
-				return queues.NewGetPaymentRequestsQueueInternalServerError()
+				appCtx.Logger().
+					Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
+				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
 			}
 
 			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
@@ -149,7 +156,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 				QueuePaymentRequests: *queuePaymentRequests,
 			}
 
-			return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+			return queues.NewGetPaymentRequestsQueueOK().WithPayload(result), nil
 		})
 }
 
