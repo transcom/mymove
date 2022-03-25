@@ -3,13 +3,12 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ConnectedReview from './index';
-
+import ConnectedReview from 'pages/MyMove/Review/Review';
 import { MockProviders } from 'testUtils';
 
 // Mock the summary part of the review page since we're just testing the
 // navigation portion.
-jest.mock('components/Customer/Review/Summary/index', () => 'summary');
+jest.mock('components/Customer/Review/Summary/Summary', () => 'summary');
 
 describe('Review page', () => {
   const testProps = {

@@ -23,23 +23,26 @@
     @include u-border-bottom('1px');
     @include u-border-bottom('base-lighter');
 
-    h3 {
-      @include u-text('normal');
-      @include u-margin-bottom('05');
-      margin: 0;
-    }
-    p {
-      color: #92979b;
-      margin: 0;
+    .shipmentTypeNumber {
+      flex: 1;
+      h3 {
+        @include u-text('normal');
+        @include u-margin-bottom('05');
+        margin: 0;
+      }
+
+      p {
+        color: #92979b;
+        margin: 0;
+      }
     }
 
     .editBtn {
       display: inline-flex;
-      align-items: flex-start;
+      flex: 0;
+      align-items: center;
       min-width: auto;
-      padding: 0;
-      width: 40px;
-      height: 42px;
+      @include u-padding-x(0);
       @include u-font('body', 'xs');
     }
   }
@@ -68,12 +71,13 @@
   dt {
     @include u-text('bold');
     @include u-text('base-darker');
-    width: 30%;
+    width: 40%;
   }
 
   dd {
     @include u-margin(0);
-    width: 70%;
+    width: 60%;
+    overflow-wrap: break-word;
   }
 
   .subsectionHeader {
@@ -116,10 +120,17 @@
       @include u-border-bottom('base-lighter');
     }
 
+    &:last-of-type {
+      dt, dd {
+        border-bottom: none;
+      }
+    }
+
     .noBorder {
       @include u-border(0);
     }
   }
+
   .remarksRow {
     .remarksCell {
       @include u-font('body', 'xs');
