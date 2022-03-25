@@ -11,7 +11,6 @@ import styles from './Summary.module.scss';
 
 import { customerRoutes } from 'constants/routes';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
-import { loadMove } from 'shared/Entities/modules/moves';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import ProfileTable from 'components/Customer/Review/ProfileTable/ProfileTable';
@@ -272,15 +271,8 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    onDidMount() {
-      const moveID = ownProps.match.params.moveId;
-      dispatch(loadMove(moveID, 'Summary.getMove'));
-      dispatch(showLoggedInUserAction());
-    },
-    showLoggedInUser: showLoggedInUserAction,
-  };
-}
+const mapDispatchToProps = {
+  showLoggedInUser: showLoggedInUserAction,
+};
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));
