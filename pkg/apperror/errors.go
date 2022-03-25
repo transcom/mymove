@@ -326,3 +326,20 @@ func NewUnprocessableEntityError(message string) UnprocessableEntityError {
 func (e UnprocessableEntityError) Error() string {
 	return e.message
 }
+
+// Generic InternalServerError for internal errors that aren't covered by other, more specific errors
+type InternalServerError struct {
+	message string
+}
+
+// NewSessionError returns a new InternalServerError
+func NewInternalServerError(message string) InternalServerError {
+	return InternalServerError{
+		message: message,
+	}
+}
+
+// Error is the string representation of the InternalServerError
+func (e InternalServerError) Error() string {
+	return e.message
+}
