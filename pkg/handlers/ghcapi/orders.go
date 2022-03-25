@@ -56,34 +56,42 @@ type UpdateOrderHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error updating order", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return orderop.NewUpdateOrderNotFound()
+					return orderop.NewUpdateOrderNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-					return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
+					return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload), err
 				case apperror.ConflictError:
-					return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.PreconditionFailedError:
-					return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return orderop.NewUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return orderop.NewUpdateOrderInternalServerError()
+					return orderop.NewUpdateOrderInternalServerError(), err
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || (!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
+			if !appCtx.Session().IsOfficeUser() ||
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
 				return handleError(apperror.NewForbiddenError("is not a TXO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
-			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
+			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(
+				appCtx,
+				orderID,
+				*params.Body,
+				params.IfMatch,
+			)
 			if err != nil {
 				return handleError(err)
 			}
@@ -92,7 +100,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 
 			orderPayload := payloads.Order(updatedOrder)
 
-			return orderop.NewUpdateOrderOK().WithPayload(orderPayload)
+			return orderop.NewUpdateOrderOK().WithPayload(orderPayload), nil
 		})
 }
 
