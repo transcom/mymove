@@ -377,33 +377,42 @@ type AcknowledgeExcessWeightRiskHandler struct {
 }
 
 // Handle ... updates the authorized weight
-func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExcessWeightRiskParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+func (h AcknowledgeExcessWeightRiskHandler) Handle(
+	params orderop.AcknowledgeExcessWeightRiskParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error acknowledging excess weight risk", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return orderop.NewAcknowledgeExcessWeightRiskNotFound()
+					return orderop.NewAcknowledgeExcessWeightRiskNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-					return orderop.NewAcknowledgeExcessWeightRiskUnprocessableEntity().WithPayload(payload)
+					return orderop.NewAcknowledgeExcessWeightRiskUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return orderop.NewAcknowledgeExcessWeightRiskPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewAcknowledgeExcessWeightRiskPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return orderop.NewAcknowledgeExcessWeightRiskForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewAcknowledgeExcessWeightRiskForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return orderop.NewAcknowledgeExcessWeightRiskInternalServerError()
+					return orderop.NewAcknowledgeExcessWeightRiskInternalServerError(), err
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 				return handleError(apperror.NewForbiddenError("is not a TOO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
-			updatedMove, err := h.excessWeightRiskManager.AcknowledgeExcessWeightRisk(appCtx, orderID, params.IfMatch)
+			updatedMove, err := h.excessWeightRiskManager.AcknowledgeExcessWeightRisk(
+				appCtx,
+				orderID,
+				params.IfMatch,
+			)
 			if err != nil {
 				return handleError(err)
 			}
@@ -412,7 +421,7 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExc
 
 			movePayload := payloads.Move(updatedMove)
 
-			return orderop.NewAcknowledgeExcessWeightRiskOK().WithPayload(movePayload)
+			return orderop.NewAcknowledgeExcessWeightRiskOK().WithPayload(movePayload), nil
 		})
 }
 
