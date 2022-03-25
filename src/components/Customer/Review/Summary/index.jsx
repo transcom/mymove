@@ -15,7 +15,6 @@ import { ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { validateEntitlement } from 'services/internalApi';
 import ConnectedPPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
-import { loadMove } from 'shared/Entities/modules/moves';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
@@ -349,15 +348,8 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    onDidMount() {
-      const moveID = ownProps.match.params.moveId;
-      dispatch(loadMove(moveID, 'Summary.getMove'));
-      dispatch(showLoggedInUserAction());
-    },
-    showLoggedInUser: showLoggedInUserAction,
-  };
-}
+const mapDispatchToProps = {
+  showLoggedInUser: showLoggedInUserAction,
+};
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));
