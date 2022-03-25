@@ -40,8 +40,8 @@ func (h TacValidationHandler) Handle(params tacop.TacValidationParams) middlewar
 			}
 
 			db := appCtx.DB()
-			isValid, err := db.Where("tac = $1", strings.ToUpper(params.Tac)).Exists(&models.TransportationAccountingCode{})
-
+			isValid, err := db.Where("tac = $1", strings.ToUpper(params.Tac)).
+				Exists(&models.TransportationAccountingCode{})
 			if err != nil {
 				appCtx.Logger().
 					Error("Error looking for transportation accounting code", zap.Error(err))
