@@ -99,6 +99,10 @@ const defaultPropsSeparation = {
 };
 
 describe('ShipmentForm component', () => {
+  beforeEach(() => {
+    defaultProps.history.push.mockReset();
+  });
+
   describe('when creating a new shipment', () => {
     it('does not show the delete shipment button', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
@@ -389,6 +393,37 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
       expect(screen.getByLabelText('000012345 (HHG)')).toBeChecked();
     });
+
+    it('sends an empty string when clearing LOA types', async () => {
+      const mockSubmitHandler = jest.fn().mockResolvedValue(null);
+
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          mtoShipment={{
+            ...mockMtoShipment,
+            tacType: 'NTS',
+            sacType: 'HHG',
+          }}
+          TACs={{ HHG: '1234', NTS: '5678' }}
+          SACs={{ HHG: '000012345', NTS: '2222' }}
+          selectedMoveType={SHIPMENT_OPTIONS.NTS}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
+      );
+
+      userEvent.click(screen.getByTestId('clearSelection-sacType'));
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      expect(saveButton).not.toBeDisabled();
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockSubmitHandler).toHaveBeenCalledWith(
+          expect.objectContaining({ body: expect.objectContaining({ tacType: 'NTS', sacType: '' }) }),
+        );
+      });
+    });
   });
 
   describe('creating a new NTS-release shipment', () => {
@@ -544,7 +579,7 @@ describe('ShipmentForm component', () => {
           ],
           requestedDeliveryDate: '2020-03-30',
           requestedPickupDate: '2020-03-01',
-          shipmentType: 'HHG',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
         },
         shipmentID: 'shipment123',
         moveTaskOrderID: 'mock move id',
