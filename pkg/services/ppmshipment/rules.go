@@ -86,6 +86,12 @@ func checkAdvance() ppmShipmentValidator {
 			return verrs
 		}
 
+		// This check will return so that if there is a nil pointer dereference it is caught and returns the error right away
+		if newPPMShipment.AdvanceRequested == nil && newPPMShipment.Advance != nil {
+			verrs.Add("advance", "Advance must be nil if advance requested is nil")
+			return verrs
+		}
+
 		if !*newPPMShipment.AdvanceRequested && newPPMShipment.Advance == nil {
 			return verrs
 		}
