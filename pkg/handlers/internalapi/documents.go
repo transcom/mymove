@@ -90,24 +90,24 @@ type ShowDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			documentID, err := uuid.FromString(params.DocumentID.String())
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			document, err := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, false)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			return documentop.NewShowDocumentOK().WithPayload(documentPayload)
+			return documentop.NewShowDocumentOK().WithPayload(documentPayload), nil
 		})
 }
