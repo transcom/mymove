@@ -1,10 +1,9 @@
 import React from 'react';
-import { string, shape, number, func, bool } from 'prop-types';
+import { string, shape, func, bool } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
 import styles from '../ShipmentCard.module.scss';
-import PickupDisplay from '../PickupDisplay';
 import DeliveryDisplay from '../DeliveryDisplay';
 
 import { AddressShape } from 'types/address';
@@ -12,43 +11,36 @@ import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 
-const HHGShipmentCard = ({
+const NTSRShipmentCard = ({
   destinationLocation,
   destinationZIP,
   secondaryDeliveryAddress,
-  moveId,
-  onEditClick,
-  pickupLocation,
-  secondaryPickupAddress,
   receivingAgent,
-  releasingAgent,
   remarks,
   requestedDeliveryDate,
-  requestedPickupDate,
+  moveId,
+  onEditClick,
   shipmentId,
-  shipmentNumber,
   shipmentType,
   showEditBtn,
 }) => {
-  const editPath = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+  const editPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
     moveId,
     mtoShipmentId: shipmentId,
-  })}?shipmentNumber=${shipmentNumber}`;
+  });
 
   return (
-    <div className={styles.ShipmentCard} data-testid="hhg-summary">
+    <div className={styles.ShipmentCard} data-testid="ntsr-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
         <div className={styles.ShipmentCardHeader}>
-          <div>
-            <h3>
-              {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
-            </h3>
+          <div className={styles.shipmentTypeNumber}>
+            <h3>{getShipmentTypeLabel(shipmentType)}</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
           {showEditBtn && (
             <Button
               className={styles.editBtn}
-              data-testid="edit-shipment-btn"
+              data-testid="edit-ntsr-shipment-btn"
               onClick={() => onEditClick(editPath)}
               unstyled
             >
@@ -57,55 +49,35 @@ const HHGShipmentCard = ({
           )}
         </div>
         <dl className={styles.shipmentCardSubsection}>
-          <PickupDisplay
-            shipmentId={shipmentId}
-            shipmentType={shipmentType}
-            requestedPickupDate={requestedPickupDate}
-            pickupLocation={pickupLocation}
-            secondaryPickupAddress={secondaryPickupAddress}
-            releasingAgent={releasingAgent}
-          />
           <DeliveryDisplay
             shipmentId={shipmentId}
             shipmentType={shipmentType}
             requestedDeliveryDate={requestedDeliveryDate}
             destinationLocation={destinationLocation}
-            secondaryDeliveryAddress={secondaryDeliveryAddress}
             destinationZIP={destinationZIP}
+            secondaryDeliveryAddress={secondaryDeliveryAddress}
             receivingAgent={receivingAgent}
           />
-          {remarks && (
-            <div className={`${styles.row} ${styles.remarksRow}`}>
-              <dt>Remarks</dt>
-              <dd className={styles.remarksCell}>{remarks}</dd>
-            </div>
-          )}
+          <div className={`${styles.row} ${styles.remarksRow}`}>
+            <dt>Remarks</dt>
+            <dd className={styles.remarksCell}>{remarks || '—'}</dd>
+          </div>
         </dl>
       </ShipmentContainer>
     </div>
   );
 };
 
-HHGShipmentCard.propTypes = {
-  moveId: string.isRequired,
-  shipmentNumber: number.isRequired,
-  shipmentType: string.isRequired,
-  shipmentId: string.isRequired,
-  showEditBtn: bool.isRequired,
-  requestedPickupDate: string.isRequired,
-  pickupLocation: AddressShape.isRequired,
-  secondaryPickupAddress: AddressShape,
+NTSRShipmentCard.propTypes = {
   destinationLocation: AddressShape,
-  secondaryDeliveryAddress: AddressShape,
-  releasingAgent: shape({
-    firstName: string,
-    lastName: string,
-    phone: string,
-    email: string,
-  }),
-  requestedDeliveryDate: string.isRequired,
   destinationZIP: string.isRequired,
+  secondaryDeliveryAddress: AddressShape,
+  moveId: string.isRequired,
   onEditClick: func.isRequired,
+  requestedDeliveryDate: string.isRequired,
+  showEditBtn: bool.isRequired,
+  shipmentId: string.isRequired,
+  shipmentType: string.isRequired,
   receivingAgent: shape({
     firstName: string,
     lastName: string,
@@ -115,13 +87,11 @@ HHGShipmentCard.propTypes = {
   remarks: string,
 };
 
-HHGShipmentCard.defaultProps = {
+NTSRShipmentCard.defaultProps = {
   destinationLocation: null,
-  secondaryPickupAddress: null,
-  secondaryDeliveryAddress: null,
-  releasingAgent: null,
   receivingAgent: null,
   remarks: '',
+  secondaryDeliveryAddress: null,
 };
 
-export default HHGShipmentCard;
+export default NTSRShipmentCard;
