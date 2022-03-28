@@ -188,35 +188,34 @@ type IndexMoveDocumentsHandler struct {
 
 // Handle handles the request
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID, err := uuid.FromString(params.MoveID.String())
 
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			// Validate that this move belongs to the current user
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			moveDocs, err := move.FetchAllMoveDocumentsForMove(appCtx.DB(), false)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			moveDocumentsPayload := make(internalmessages.MoveDocuments, len(moveDocs))
 			for i, doc := range moveDocs {
 				moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
 				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err)
+					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}
 				moveDocumentsPayload[i] = moveDocumentPayload
 			}
 
-			response := movedocop.NewIndexMoveDocumentsOK().WithPayload(moveDocumentsPayload)
-			return response
+			return movedocop.NewIndexMoveDocumentsOK().WithPayload(moveDocumentsPayload), nil
 		})
 }
 
