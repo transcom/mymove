@@ -281,14 +281,14 @@ func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, mo
 
 // Handle returns a generated PDF
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			moveID, _ := uuid.FromString(params.MoveID.String())
 
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
@@ -297,20 +297,20 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 			ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
 				logger.Error("Error fetching data for SSW", zap.Error(err))
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
 
 			ssfd.PreparationDate = time.Time(params.PreparationDate)
 			ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, h.Planner())
 			if err != nil {
 				logger.Error("Error calculating obligations ", zap.Error(err))
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
 
 			page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
 
 			if err != nil {
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
 
 			formFiller := paperwork.NewFormFiller()
@@ -321,14 +321,14 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 			if err != nil {
 				appCtx.Logger().Error("Error reading page 1 template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
 			}
 
 			page1Reader := bytes.NewReader(page1Template)
 			err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
 			if err != nil {
 				appCtx.Logger().Error("Error appending page 1 to PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
 			}
 
 			// page 2
@@ -337,14 +337,14 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 			if err != nil {
 				appCtx.Logger().Error("Error reading page 2 template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
 			}
 
 			page2Reader := bytes.NewReader(page2Template)
 			err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
 			if err != nil {
 				appCtx.Logger().Error("Error appending 2 page to PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
 			}
 
 			// page 3
@@ -353,27 +353,27 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 			if err != nil {
 				appCtx.Logger().Error("Error reading page 3 template file", zap.String("asset", page3Layout.TemplateImagePath), zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
 			}
 
 			page3Reader := bytes.NewReader(page3Template)
 			err = formFiller.AppendPage(page3Reader, page3Layout.FieldsLayout, page3Data)
 			if err != nil {
 				appCtx.Logger().Error("Error appending page 3 to PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
 			}
 
 			buf := new(bytes.Buffer)
 			err = formFiller.Output(buf)
 			if err != nil {
 				appCtx.Logger().Error("Error writing out PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
 			}
 
 			payload := ioutil.NopCloser(buf)
 			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
 
-			return moveop.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload)
+			return moveop.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
 }
 
