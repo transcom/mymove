@@ -3,22 +3,13 @@ import { string } from 'prop-types';
 
 import styles from './MoveHistory.module.scss';
 import ModifiedBy from './ModifiedBy';
+import MoveHistoryDetailsSelector from './MoveHistoryDetailsSelector';
 
 import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
 import { useGHCGetMoveHistory } from 'hooks/queries';
 import { formatDateFromIso } from 'shared/formatters';
 import { getHistoryLogEventNameDisplay } from 'constants/historyLogUIDisplayName';
-
-const formatChangedValues = (changedValues) => {
-  return changedValues
-    ? changedValues.map((changedValue) => (
-        <div key={`${changedValue.columnName}-${changedValue.columnValue}`}>
-          {changedValue.columnName}: {changedValue.columnValue}
-        </div>
-      ))
-    : '';
-};
 
 const columns = [
   createHeader(
@@ -38,7 +29,13 @@ const columns = [
   createHeader(
     'Details',
     (row) => {
-      return <div className={styles.details}>{formatChangedValues(row.changedValues)}</div>;
+      return (
+        <MoveHistoryDetailsSelector
+          eventName={row.eventName}
+          oldValues={row.oldValues}
+          changedValues={row.changedValues}
+        />
+      );
     },
     { id: 'move-history-details' },
   ),
