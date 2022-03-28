@@ -49,11 +49,15 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 		return accesscodeop.NewFetchAccessCodeOK().WithPayload(&internalmessages.AccessCode{})
 	}
 
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if appCtx.Session() == nil {
-				return accesscodeop.NewFetchAccessCodeUnauthorized()
+				sessionErr := apperror.NewSessionError(
+					"user is not authorized",
+				)
+				appCtx.Logger().Error(sessionErr.Error())
+				return accesscodeop.NewFetchAccessCodeUnauthorized(), sessionErr
 			}
 
 			// Fetch access code
@@ -62,12 +66,12 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving access_code for service member", zap.Error(err))
-				return accesscodeop.NewFetchAccessCodeNotFound()
+				return accesscodeop.NewFetchAccessCodeNotFound(), err
 			}
 
 			fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
-			return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
+			return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload), nil
 		})
 }
 
