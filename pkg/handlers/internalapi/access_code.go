@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/cli"
 	accesscodeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -78,11 +79,15 @@ type ValidateAccessCodeHandler struct {
 
 // Handle accepts the code - validates the access code
 func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCodeParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if appCtx.Session() == nil {
-				return accesscodeop.NewValidateAccessCodeUnauthorized()
+				sessionErr := apperror.NewSessionError(
+					"user is not authorized",
+				)
+				appCtx.Logger().Error(sessionErr.Error())
+				return accesscodeop.NewValidateAccessCodeUnauthorized(), sessionErr
 			}
 
 			splitParams := strings.Split(*params.Code, "-")
@@ -94,12 +99,12 @@ func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCode
 			if !valid {
 				appCtx.Logger().Warn("Access code not valid")
 				validateAccessCodePayload = &internalmessages.AccessCode{}
-				return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+				return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload), nil
 			}
 
 			validateAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
-			return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+			return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload), nil
 		})
 }
 
