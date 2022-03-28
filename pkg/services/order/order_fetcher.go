@@ -66,11 +66,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	}
 
 	// We need to use two different GBLOC filter queries because:
-	//  - The Services Counselor queue filters based on the GBLOC of the origin duty station's
+	//  - The Services Counselor queue filters based on the GBLOC of the origin duty location's
 	//    transportation office
 	//  - The TOO queue uses the GBLOC we get from examining the postal code of the first shipment's
 	//    pickup address. However, if that shipment happens to be an NTS-Release, we instead drop
-	//    back to the GBLOC of the origin duty station's transportation office since an NTS-Release
+	//    back to the GBLOC of the origin duty location's transportation office since an NTS-Release
 	//    does not populate the pickup address field.
 	var gblocQuery QueryOption
 	if needsCounseling {
@@ -81,14 +81,14 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
-	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyLocation)
+	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, originDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
+	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, originDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
 
 	query := appCtx.DB().Q().EagerPreload(
 		"Orders.ServiceMember",
@@ -253,10 +253,10 @@ func locatorFilter(locator *string) QueryOption {
 	}
 }
 
-func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
+func destinationDutyLocationFilter(destinationDutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
-		if destinationDutyStation != nil {
-			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
+		if destinationDutyLocation != nil {
+			nameSearch := fmt.Sprintf("%s%%", *destinationDutyLocation)
 			query.Where("dest_dl.name ILIKE ?", nameSearch)
 		}
 	}
@@ -311,7 +311,7 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 }
 
 func gblocFilterForSC(gbloc *string) QueryOption {
-	// The SC should only see moves where the origin duty station's GBLOC matches the given GBLOC.
+	// The SC should only see moves where the origin duty location's GBLOC matches the given GBLOC.
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			query.Where("o_gbloc.gbloc = ?", *gbloc)
@@ -322,7 +322,7 @@ func gblocFilterForSC(gbloc *string) QueryOption {
 func gblocFilterForTOO(gbloc *string) QueryOption {
 	// The TOO should only see moves where the GBLOC for the first shipment's pickup address matches the given GBLOC
 	// unless we're dealing with an NTS-Release shipment. For NTS-Release shipments, we drop back to looking at the
-	// origin duty station's GBLOC since an NTS-Release does not populate the pickup address.
+	// origin duty location's GBLOC since an NTS-Release does not populate the pickup address.
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			// Note: extra parens necessary to keep precedence correct when AND'ing all filters together.

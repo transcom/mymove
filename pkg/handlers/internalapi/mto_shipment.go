@@ -221,6 +221,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 
 			queryFilters = []services.QueryFilter{
 				query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
+				query.NewQueryFilter("deleted_at", "IS NULL", nil),
 			}
 
 			// TODO: In some places, we used this unbound eager call accidentally and loaded all associations when the

@@ -18,13 +18,10 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		sm = MakeExtendedServiceMember(db, assertions)
 	}
 
-	station := assertions.Order.NewDutyLocation
+	dutyLocation := assertions.Order.NewDutyLocation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyLocationID) {
-		station = FetchOrMakeDefaultNewOrdersDutyLocation(db)
-	} else {
-		// This can be removed once models.Order.NewDutyStation has been phased out
-		station.ID = assertions.Order.NewDutyLocationID
+		dutyLocation = FetchOrMakeDefaultNewOrdersDutyLocation(db)
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -88,8 +85,8 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	order := models.Order{
 		ServiceMember:           sm,
 		ServiceMemberID:         sm.ID,
-		NewDutyLocation:         station,
-		NewDutyLocationID:       station.ID,
+		NewDutyLocation:         dutyLocation,
+		NewDutyLocationID:       dutyLocation.ID,
 		UploadedOrders:          document,
 		UploadedOrdersID:        document.ID,
 		UploadedAmendedOrders:   assertions.Order.UploadedAmendedOrders,
@@ -128,10 +125,10 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 		sm = MakeExtendedServiceMember(db, assertions)
 	}
 
-	station := assertions.Order.NewDutyLocation
+	dutyLocation := assertions.Order.NewDutyLocation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyLocationID) {
-		station = FetchOrMakeDefaultNewOrdersDutyLocation(db)
+		dutyLocation = FetchOrMakeDefaultNewOrdersDutyLocation(db)
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -179,9 +176,9 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 		entitlement = MakeEntitlement(db, assertions)
 	}
 
-	originDutyStation := assertions.OriginDutyLocation
-	if isZeroUUID(originDutyStation.ID) {
-		originDutyStation = MakeDutyLocation(db, assertions)
+	originDutyLocation := assertions.OriginDutyLocation
+	if isZeroUUID(originDutyLocation.ID) {
+		originDutyLocation = MakeDutyLocation(db, assertions)
 	}
 
 	var orderTypeDetail *internalmessages.OrdersTypeDetail
@@ -192,8 +189,8 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 	order := models.Order{
 		ServiceMember:        sm,
 		ServiceMemberID:      sm.ID,
-		NewDutyLocation:      station,
-		NewDutyLocationID:    station.ID,
+		NewDutyLocation:      dutyLocation,
+		NewDutyLocationID:    dutyLocation.ID,
 		UploadedOrders:       document,
 		UploadedOrdersID:     document.ID,
 		IssueDate:            time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
@@ -208,8 +205,8 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 		Grade:                &grade,
 		Entitlement:          &entitlement,
 		EntitlementID:        &entitlement.ID,
-		OriginDutyLocation:   &originDutyStation,
-		OriginDutyLocationID: &originDutyStation.ID,
+		OriginDutyLocation:   &originDutyLocation,
+		OriginDutyLocationID: &originDutyLocation.ID,
 		OrdersTypeDetail:     orderTypeDetail,
 	}
 

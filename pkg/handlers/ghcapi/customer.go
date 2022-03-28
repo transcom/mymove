@@ -29,21 +29,22 @@ type GetCustomerHandler struct {
 
 // Handle getting the information of a specific customer
 func (h GetCustomerHandler) Handle(params customercodeop.GetCustomerParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
 			customerID, _ := uuid.FromString(params.CustomerID.String())
 			customer, err := h.FetchCustomer(appCtx, customerID)
 			if err != nil {
 				appCtx.Logger().Error("Loading Customer Info", zap.Error(err))
 				switch err {
 				case sql.ErrNoRows:
-					return customercodeop.NewGetCustomerNotFound()
+					return customercodeop.NewGetCustomerNotFound(), err
 				default:
-					return customercodeop.NewGetCustomerInternalServerError()
+					return customercodeop.NewGetCustomerInternalServerError(), err
 				}
 			}
 			customerInfoPayload := payloads.Customer(customer)
-			return customercodeop.NewGetCustomerOK().WithPayload(customerInfoPayload)
+			return customercodeop.NewGetCustomerOK().WithPayload(customerInfoPayload), nil
 		})
 }
 
@@ -55,18 +56,19 @@ type UpdateCustomerHandler struct {
 
 // Handle updates a customer from a request payload
 func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-				appCtx.Logger().Error("user is not authenticated with service counselor office role")
-				return customercodeop.NewUpdateCustomerForbidden()
+				forbiddenError := apperror.NewForbiddenError("user is not authenticated with service counselor office role")
+				appCtx.Logger().Error(forbiddenError.Error())
+				return customercodeop.NewUpdateCustomerForbidden(), forbiddenError
 			}
 
 			customerID, err := uuid.FromString(params.CustomerID.String())
 			if err != nil {
 				appCtx.Logger().Error("unable to parse customer id param to uuid", zap.Error(err))
-				return customercodeop.NewUpdateCustomerBadRequest()
+				return customercodeop.NewUpdateCustomerBadRequest(), err
 			}
 
 			newCustomer := payloads.CustomerToServiceMember(*params.Body)
@@ -78,19 +80,19 @@ func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams
 				appCtx.Logger().Error("error updating customer", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return customercodeop.NewGetCustomerNotFound()
+					return customercodeop.NewGetCustomerNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-					return customercodeop.NewUpdateCustomerUnprocessableEntity().WithPayload(payload)
+					return customercodeop.NewUpdateCustomerUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return customercodeop.NewUpdateCustomerPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return customercodeop.NewUpdateCustomerPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return customercodeop.NewUpdateCustomerInternalServerError()
+					return customercodeop.NewUpdateCustomerInternalServerError(), err
 				}
 			}
 
 			customerPayload := payloads.Customer(updatedCustomer)
 
-			return customercodeop.NewUpdateCustomerOK().WithPayload(customerPayload)
+			return customercodeop.NewUpdateCustomerOK().WithPayload(customerPayload), nil
 		})
 }
