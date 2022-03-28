@@ -148,6 +148,7 @@ class MtoShipmentForm extends Component {
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;
+    const isRetireeSeparatee = orders.orders_type !== 'PERMANENT_CHANGE_OF_STATION';
 
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
@@ -341,7 +342,7 @@ class MtoShipmentForm extends Component {
                                 </div>
                               </FormGroup>
                             )}
-                            {hasDeliveryAddress === 'yes' || isNTSR ? (
+                            {(hasDeliveryAddress === 'yes' || isNTSR) && (
                               <AddressFields
                                 name="delivery.address"
                                 render={(fields) => (
@@ -382,7 +383,8 @@ class MtoShipmentForm extends Component {
                                   </>
                                 )}
                               />
-                            ) : (
+                            )}
+                            {hasDeliveryAddress === 'no' && !isRetireeSeparatee && (
                               <p>
                                 We can use the zip of your new duty location.
                                 <br />
@@ -392,6 +394,17 @@ class MtoShipmentForm extends Component {
                                 </strong>
                                 <br />
                                 You can add the specific delivery address later, once you know it.
+                              </p>
+                            )}
+                            {hasDeliveryAddress === 'no' && isRetireeSeparatee && (
+                              <p>
+                                We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
+                                <br />
+                                <strong>
+                                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                                  {newDutyStationAddress.postalCode}{' '}
+                                </strong>
+                                <br />
                               </p>
                             )}
                           </Fieldset>
