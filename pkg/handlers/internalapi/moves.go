@@ -83,27 +83,27 @@ type ShowMoveHandler struct {
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID, _ := uuid.FromString(params.MoveID.String())
 
 			// Validate that this move belongs to the current user
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			// Fetch orders for authorized user
 			orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			return moveop.NewShowMoveOK().WithPayload(movePayload)
+			return moveop.NewShowMoveOK().WithPayload(movePayload), nil
 		})
 }
 
