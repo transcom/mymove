@@ -70,13 +70,13 @@ type IndexBackupContactsHandler struct {
 
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBackupContactsParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			contacts := serviceMember.BackupContacts
@@ -87,7 +87,7 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 				contactPayloads[i] = &contactPayload
 			}
 
-			return backupop.NewIndexServiceMemberBackupContactsOK().WithPayload(contactPayloads)
+			return backupop.NewIndexServiceMemberBackupContactsOK().WithPayload(contactPayloads), nil
 		})
 }
 
