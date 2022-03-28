@@ -119,12 +119,12 @@ type UpdateBackupContactHandler struct {
 
 // Handle ... updates a BackupContact from a request payload
 func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBackupContactParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			contactID, _ := uuid.FromString(params.BackupContactID.String())
 			contact, err := models.FetchBackupContact(appCtx.DB(), appCtx.Session(), contactID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
@@ -135,10 +135,10 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 			}
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
-				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 
 			contactPayload := payloadForBackupContactModel(contact)
-			return backupop.NewUpdateServiceMemberBackupContactCreated().WithPayload(&contactPayload)
+			return backupop.NewUpdateServiceMemberBackupContactCreated().WithPayload(&contactPayload), nil
 		})
 }
