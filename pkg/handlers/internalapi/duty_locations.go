@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
@@ -43,13 +44,14 @@ type SearchDutyLocationsHandler struct {
 
 // Handle returns a list of locations based on the search query
 func (h SearchDutyLocationsHandler) Handle(params stationop.SearchDutyLocationsParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			locations, err := models.FindDutyLocations(appCtx.DB(), params.Search)
 			if err != nil {
-				appCtx.Logger().Error("Finding duty locations", zap.Error(err))
-				return stationop.NewSearchDutyLocationsInternalServerError()
+				dutyLocationErr := apperror.NewNotFoundError(uuid.Nil, "Finding duty locations")
+				appCtx.Logger().Error(dutyLocationErr.Error(), zap.Error(err))
+				return stationop.NewSearchDutyLocationsInternalServerError(), dutyLocationErr
 
 			}
 
@@ -58,6 +60,6 @@ func (h SearchDutyLocationsHandler) Handle(params stationop.SearchDutyLocationsP
 				locationPayload := payloadForDutyLocationModel(location)
 				locationPayloads[i] = locationPayload
 			}
-			return stationop.NewSearchDutyLocationsOK().WithPayload(locationPayloads)
+			return stationop.NewSearchDutyLocationsOK().WithPayload(locationPayloads), nil
 		})
 }
