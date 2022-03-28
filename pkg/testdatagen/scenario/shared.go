@@ -742,7 +742,6 @@ func createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 		},
 	})
 
-	advanceRequested := true
 	testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		PPMShipment: models.PPMShipment{
@@ -751,7 +750,7 @@ func createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 			HasProGear:         models.BoolPointer(false),
 			EstimatedIncentive: models.Int32Pointer(int32(10000000)),
 			Advance:            models.CentPointer(unit.Cents(30000)),
-			AdvanceRequested:   &advanceRequested,
+			AdvanceRequested:   models.BoolPointer(true),
 		},
 	})
 }
