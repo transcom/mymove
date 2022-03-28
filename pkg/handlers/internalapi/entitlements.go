@@ -37,8 +37,8 @@ type IndexEntitlementsHandler struct {
 
 // Handle is the handler
 func (h IndexEntitlementsHandler) Handle(params entitlementop.IndexEntitlementsParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			entitlements := models.AllWeightAllotments()
 			payload := make(map[string]internalmessages.WeightAllotment)
 			for k, v := range entitlements {
@@ -46,7 +46,7 @@ func (h IndexEntitlementsHandler) Handle(params entitlementop.IndexEntitlementsP
 				allotment := payloadForEntitlementModel(v)
 				payload[rank] = allotment
 			}
-			return entitlementop.NewIndexEntitlementsOK().WithPayload(payload)
+			return entitlementop.NewIndexEntitlementsOK().WithPayload(payload), nil
 		})
 }
 
