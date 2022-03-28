@@ -43,27 +43,27 @@ func (e *estimateCalculator) CalculateEstimates(appCtx appcontext.AppContext, pp
 		daysInSIT = int(*ppm.DaysInStorage)
 	}
 
-	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyLocation.Address.PostalCode
-	destinationDutyStationZip := ppm.Move.Orders.NewDutyLocation.Address.PostalCode
+	originDutyLocationZip := ppm.Move.Orders.ServiceMember.DutyLocation.Address.PostalCode
+	destinationDutyLocationZip := ppm.Move.Orders.NewDutyLocation.Address.PostalCode
 
-	distanceMilesFromOriginPickupZip, err := e.planner.Zip5TransitDistanceLineHaul(appCtx, *ppm.PickupPostalCode, destinationDutyStationZip)
+	distanceMilesFromOriginPickupZip, err := e.planner.Zip5TransitDistanceLineHaul(appCtx, *ppm.PickupPostalCode, destinationDutyLocationZip)
 	if err != nil {
 		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin pickup to destination: %w", err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := e.planner.Zip5TransitDistanceLineHaul(appCtx, originDutyStationZip, destinationDutyStationZip)
+	distanceMilesFromOriginDutyLocationZip, err := e.planner.Zip5TransitDistanceLineHaul(appCtx, originDutyLocationZip, destinationDutyLocationZip)
 	if err != nil {
-		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin duty station to destination: %w", err)
+		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin duty location to destination: %w", err)
 	}
 
 	costDetails, err := re.ComputePPMMoveCosts(
 		appCtx,
 		*ppm.WeightEstimate,
 		*ppm.PickupPostalCode,
-		originDutyStationZip,
-		destinationDutyStationZip,
+		originDutyLocationZip,
+		destinationDutyLocationZip,
 		distanceMilesFromOriginPickupZip,
-		distanceMilesFromOriginDutyStationZip,
+		distanceMilesFromOriginDutyLocationZip,
 		*ppm.OriginalMoveDate,
 		daysInSIT,
 	)
@@ -74,7 +74,7 @@ func (e *estimateCalculator) CalculateEstimates(appCtx appcontext.AppContext, pp
 	// get the SIT charge
 	cost = rateengine.GetWinningCostMove(costDetails)
 	cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
-	sitZip3 := rateengine.Zip5ToZip3(destinationDutyStationZip)
+	sitZip3 := rateengine.Zip5ToZip3(destinationDutyLocationZip)
 	if !*ppm.HasSit {
 		return sitCharge, cost, nil
 	}

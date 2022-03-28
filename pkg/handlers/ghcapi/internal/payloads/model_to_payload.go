@@ -191,7 +191,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		return nil
 	}
 
-	destinationDutyStation := DutyLocation(&order.NewDutyLocation)
+	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
@@ -226,7 +226,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	payload := ghcmessages.Order{
-		DestinationDutyLocation:     destinationDutyStation,
+		DestinationDutyLocation:     destinationDutyLocation,
 		Entitlement:                 entitlements,
 		Grade:                       &grade,
 		OrderNumber:                 order.OrdersNumber,

@@ -39,7 +39,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when origin duty station is not found", func(t *testing.T) {
+	suite.T().Run("Returns an error when origin duty location is not found", func(t *testing.T) {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
@@ -58,7 +58,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when new duty station is not found", func(t *testing.T) {
+	suite.T().Run("Returns an error when new duty location is not found", func(t *testing.T) {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
