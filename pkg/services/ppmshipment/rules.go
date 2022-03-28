@@ -100,7 +100,7 @@ func checkAdvance() ppmShipmentValidator {
 			verrs.Add("advance", "Advance must be nil if advance requested is false")
 		}
 
-		if float64(*newPPMShipment.Advance) > float64(*newPPMShipment.EstimatedIncentive)*0.6 {
+		if float64(*newPPMShipment.Advance) > float64(*newPPMShipment.EstimatedIncentive) * 0.6 {
 			verrs.Add("advance", "Advance can not be greater than 60% of the estimated incentive")
 		}
 
