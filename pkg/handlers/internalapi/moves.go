@@ -160,19 +160,19 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move to TOO for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			moveID, _ := uuid.FromString(params.MoveID.String())
 
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 			err = h.MoveRouter.Submit(appCtx, move)
 			if err != nil {
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
 
 			certificateParams := certop.NewCreateSignedCertificationParams()
@@ -182,7 +182,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 			// Transaction to save move and dependencies
 			verrs, err := h.saveMoveDependencies(appCtx, move, certificateParams, appCtx.Session().UserID)
 			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(logger, verrs, err)
+				return handlers.ResponseForVErrors(logger, verrs, err), err
 			}
 
 			err = h.NotificationSender().SendNotification(appCtx,
@@ -190,14 +190,14 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 			)
 			if err != nil {
 				logger.Error("problem sending email to user", zap.Error(err))
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
 
 			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
 			if err != nil {
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
-			return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
+			return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload), nil
 		})
 }
 
