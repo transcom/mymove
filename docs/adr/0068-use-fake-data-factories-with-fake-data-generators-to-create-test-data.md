@@ -24,31 +24,40 @@ non-hard-coded data.
 
 As for the frontend, we tend to create fake objects that kind of look like the data within each test file, which again
 goes back to the issue of needing to understand what the data _should_ look like. We end up with many tests that have
-fake objects that don't really look like the data will, e.g. many tests have IDs for objects that are just a few digits
-rather than a UUID. There are plenty of times that it doesn't matter too much, but it can make it that much harder for
-someone that is looking at existing tests as examples in order to write new tests, but the new tests need more realistic
-data.
+fake objects that don't really look like what the data actually looks like, e.g. many tests have IDs for objects that
+are just a few digits rather than a UUID. There are plenty of times that it doesn't matter too much, but it can make it
+that much harder for someone that is looking at existing tests as examples in order to write new tests, especially when
+those new tests need more realistic data.
 
 ## Measuring success
 
-Initial success would probably look like us having a decent number of core factories set up and team members feeling
-comfortable using them in their tests.
+Initial success would be:
 
-Long-term, we would ideally have replaced our standalone fake objects in FE tests as well as improved our `testadagen`
-functions that we use for BE and e2e tests.
+* have FE factories set up for our core objects, namely: moves, orders, service members, and shipments.
+* FE factories use fake data generators
+* corresponding core BE factories use fake data generators
+* team members know to use the core factories when available in their tests
+
+Long-term, we would ideally:
+
+* have factories for all the data objects we need on the FE
+* replace our standalone fake objects in FE tests
+* update all `testadagen` functions that we use for BE and e2e tests to use fake data generators (while still allowing overrides)
+* have team members use factories whenever possible and add/update factories as objects are added/changed
 
 ### Observability
 
 _How will this change be observed by other team members?_
 
-I'm not 100% sure what this section means...like does this mean how would others keep in line with this ADR? If so, I
-think that would look like people creating/updating factories when models are created/updated. Also updating factories
-for different states of things, e.g. what a service member looks like a different stages of on-boarding, or what a
-shipment looks like at different stages of the move process.
+This ADR will be announced in meetings where most of the MilMove team is present. If approved, as core factories are set
+up, they could be announced at demos or FE check in meetings.
 
 ### Ownership
 
 AppEng would own this since it's related to the way we test our application code.
+
+As we start having more factories, it would be up to the person writing tests and reviewers to ensure factories are
+being used, added, and updated.
 
 ## Considered Alternatives
 
