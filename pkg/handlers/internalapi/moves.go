@@ -384,8 +384,8 @@ type ShowMoveDatesSummaryHandler struct {
 
 // Handle returns a summary of the dates in the move process.
 func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			moveDate := time.Time(params.MoveDate)
 			moveID, _ := uuid.FromString(params.MoveID.String())
@@ -393,7 +393,7 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 			// Validate that this move belongs to the current user
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			// Attach move locator to logger
@@ -401,7 +401,7 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 
 			summary, err := calculateMoveDatesFromMove(appCtx, h.Planner(), moveID, moveDate)
 			if err != nil {
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
 
 			moveDatesSummary := &internalmessages.MoveDatesSummary{
@@ -415,7 +415,7 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 				Report:   handlers.FmtDateSlice(summary.ReportDays),
 			}
 
-			return moveop.NewShowMoveDatesSummaryOK().WithPayload(moveDatesSummary)
+			return moveop.NewShowMoveDatesSummaryOK().WithPayload(moveDatesSummary), nil
 		})
 }
 
