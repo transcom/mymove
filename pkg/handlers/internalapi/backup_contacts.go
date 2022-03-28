@@ -35,17 +35,18 @@ type CreateBackupContactHandler struct {
 
 // Handle ... creates a new BackupContact from a request payload
 func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBackupContactParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			if params.CreateBackupContactPayload.Permission == nil {
-				return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: Permission"))
+				err = errors.New("missing required field: Permission")
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			newContact, verrs, err := serviceMember.CreateBackupContact(appCtx.DB(),
@@ -54,11 +55,11 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 				params.CreateBackupContactPayload.Telephone,
 				models.BackupContactPermission(*params.CreateBackupContactPayload.Permission))
 			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 
 			contactPayload := payloadForBackupContactModel(newContact)
-			return backupop.NewCreateServiceMemberBackupContactCreated().WithPayload(&contactPayload)
+			return backupop.NewCreateServiceMemberBackupContactCreated().WithPayload(&contactPayload), nil
 		})
 }
 
