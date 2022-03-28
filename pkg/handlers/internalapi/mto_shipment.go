@@ -36,18 +36,20 @@ type CreateMTOShipmentHandler struct {
 
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if appCtx.Session() == nil || (!appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil) {
-				return mtoshipmentops.NewCreateMTOShipmentUnauthorized()
+				noSessionErr := apperror.NewSessionError("No service member ID")
+				return mtoshipmentops.NewCreateMTOShipmentUnauthorized(), noSessionErr
 			}
 
 			payload := params.Body
 			if payload == nil {
-				appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
+				noBodyErr := apperror.NewBadDataError("Invalid mto shipment: params Body is nil")
+				appCtx.Logger().Error(noBodyErr.Error())
 				return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-					"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest)))
+					"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest))), noBodyErr
 			}
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 			var err error
@@ -66,17 +68,46 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
+					return mtoshipmentops.
+						NewCreateMTOShipmentNotFound().
+						WithPayload(
+							payloads.ClientError(
+								handlers.NotFoundMessage,
+								err.Error(),
+								h.GetTraceIDFromRequest(params.HTTPRequest),
+							),
+						), err
 				case apperror.InvalidInputError:
-					return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
+					return mtoshipmentops.
+						NewCreateMTOShipmentUnprocessableEntity().
+						WithPayload(
+							payloads.ValidationError(
+								handlers.ValidationErrMessage,
+								h.GetTraceIDFromRequest(params.HTTPRequest),
+								e.ValidationErrors,
+							),
+						), err
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
 						appCtx.Logger().Error("internalapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
 					}
-					return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
+					return mtoshipmentops.
+						NewCreateMTOShipmentInternalServerError().
+						WithPayload(
+							payloads.InternalServerError(
+								nil,
+								h.GetTraceIDFromRequest(params.HTTPRequest),
+							),
+						), err
 				default:
-					return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
+					return mtoshipmentops.NewCreateMTOShipmentInternalServerError().
+						WithPayload(
+							payloads.InternalServerError(
+								nil,
+								h.GetTraceIDFromRequest(params.HTTPRequest),
+							),
+						), err
 				}
 			}
 
@@ -85,7 +116,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				mtoShipment = &ppmShipment.Shipment
 			}
 			returnPayload := payloads.MTOShipment(mtoShipment)
-			return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+			return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload), nil
 		})
 }
 
