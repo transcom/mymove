@@ -3,8 +3,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 
-import HHGShipmentCard from './index';
-
+import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard/HHGShipmentCard';
 import { formatCustomerDate } from 'utils/formatters';
 
 const defaultProps = {
