@@ -373,6 +373,61 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
 	})
+
+	suite.Run("Does not update move status if move status is not APPROVALS_REQUESTED", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		subtestData := suite.makeUpdateOrderHandlerSubtestData()
+		move := subtestData.move
+		order := subtestData.move.Orders
+		destinationDutyStation := order.NewDutyLocation
+		originDutyStation := order.OriginDutyLocation
+
+		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		unacknowledgedOrders := false
+		body := &ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator:   &deptIndicator,
+			IssueDate:             handlers.FmtDatePtr(&issueDate),
+			ReportByDate:          handlers.FmtDatePtr(&reportByDate),
+			OrdersType:            ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
+			OrdersTypeDetail:      &ordersTypeDetail,
+			OrdersNumber:          handlers.FmtString("ORDER100"),
+			NewDutyLocationID:     handlers.FmtUUID(destinationDutyStation.ID),
+			OriginDutyLocationID:  handlers.FmtUUID(originDutyStation.ID),
+			Tac:                   handlers.FmtString("E19A"),
+			Sac:                   nullable.NewString("987654321"),
+			NtsTac:                nullable.NewString("E19A"),
+			NtsSac:                nullable.NewString("987654321"),
+			OrdersAcknowledgement: &unacknowledgedOrders,
+		}
+
+		params := orderop.UpdateOrderParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		orderUpdater := orderservice.NewOrderUpdater(moveRouter)
+		handler := UpdateOrderHandler{
+			context,
+			orderUpdater,
+			moveTaskOrderUpdater,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+
+		var moveInDB models.Move
+		err := suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+		suite.Equal(move.Status, moveInDB.Status)
+	})
 }
 
 type updateOrderHandlerSubtestData struct {

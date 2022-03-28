@@ -94,7 +94,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	suite.T().Run("Updates the order when all fields are valid", func(t *testing.T) {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
-		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
+		move := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
+		order := move.Orders
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
@@ -142,6 +143,11 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.EqualValues(&updatedOriginDutyLocation.ID, fetchedSM.DutyLocationID)
 		suite.EqualValues(updatedOriginDutyLocation.ID, fetchedSM.DutyLocation.ID)
 		suite.EqualValues(updatedOriginDutyLocation.Name, fetchedSM.DutyLocation.Name)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+		suite.Equal(move.Status, moveInDB.Status)
 	})
 
 	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {

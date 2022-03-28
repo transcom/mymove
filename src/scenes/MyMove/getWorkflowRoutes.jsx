@@ -24,7 +24,7 @@ import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import BackupMailingAddress from 'pages/MyMove/Profile/BackupMailingAddress';
 import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress';
-import Review from 'pages/MyMove/Review';
+import Review from 'pages/MyMove/Review/Review';
 import Agreement from 'pages/MyMove/Agreement';
 
 const PageNotInFlow = ({ location }) => (

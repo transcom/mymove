@@ -3,8 +3,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 
-import NTSRShipmentCard from './index';
-
+import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard/NTSRShipmentCard';
 import { formatCustomerDate } from 'utils/formatters';
 
 const defaultProps = {
