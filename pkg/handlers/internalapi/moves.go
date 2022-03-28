@@ -114,22 +114,22 @@ type PatchMoveHandler struct {
 
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			moveID, _ := uuid.FromString(params.MoveID.String())
 
 			// Validate that this move belongs to the current user
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
 			// Fetch orders for authorized user
 			orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
 			if err != nil {
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
 			payload := params.PatchMovePayload
 			newSelectedMoveType := payload.SelectedMoveType
@@ -141,14 +141,14 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 
 			verrs, err := appCtx.DB().ValidateAndUpdate(move)
 			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(logger, verrs, err)
+				return handlers.ResponseForVErrors(logger, verrs, err), err
 			}
 			movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
 			if err != nil {
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
 
-			return moveop.NewPatchMoveCreated().WithPayload(movePayload)
+			return moveop.NewPatchMoveCreated().WithPayload(movePayload), nil
 		})
 }
 
