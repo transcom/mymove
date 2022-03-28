@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -56,27 +57,27 @@ type ValidateEntitlementHandler struct {
 
 // Handle is the handler
 func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlementParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID, _ := uuid.FromString(params.MoveID.String())
 
 			// Fetch move, orders, serviceMember and PPM
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), orders.ServiceMemberID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			// Return 404 if there's no PPM or Shipment,  or if there is no Rank
 			if (len(move.PersonallyProcuredMoves) < 1) || serviceMember.Rank == nil {
-				return entitlementop.NewValidateEntitlementNotFound()
+				return entitlementop.NewValidateEntitlementNotFound(), err
 			}
 			var weightEstimate int64
 			if len(move.PersonallyProcuredMoves) >= 1 {
@@ -92,12 +93,20 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 
 			smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			if weightEstimate > int64(smEntitlement) {
-				return handlers.ResponseForConflictErrors(appCtx.Logger(), fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
+				weightErr := apperror.NewConflictError(
+					moveID,
+					fmt.Sprintf(
+						"your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement",
+						humanize.Comma(weightEstimate),
+						humanize.Comma(int64(smEntitlement)),
+					),
+				)
+				return handlers.ResponseForConflictErrors(appCtx.Logger(), weightErr), weightErr
 			}
 
-			return entitlementop.NewValidateEntitlementOK()
+			return entitlementop.NewValidateEntitlementOK(), nil
 		})
 }
