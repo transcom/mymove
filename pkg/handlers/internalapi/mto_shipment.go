@@ -270,11 +270,12 @@ type ListMTOShipmentsHandler struct {
 
 // Handle listing mto shipments for the move task order
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if appCtx.Session() == nil || (!appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil) {
-				return mtoshipmentops.NewListMTOShipmentsUnauthorized()
+				noSessionErr := apperror.NewSessionError("No session or service memeber ID")
+				return mtoshipmentops.NewListMTOShipmentsUnauthorized(), noSessionErr
 			}
 
 			moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
@@ -282,7 +283,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			if err != nil {
 				appCtx.Logger().Error("Invalid request: move task order ID not valid")
 				return mtoshipmentops.NewListMTOShipmentsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-					"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest)))
+					"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
 			// check if move task order exists first
@@ -295,7 +296,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
-				return mtoshipmentops.NewListMTOShipmentsNotFound()
+				return mtoshipmentops.NewListMTOShipmentsNotFound(), err
 			}
 
 			queryFilters = []services.QueryFilter{
@@ -318,10 +319,10 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			if err != nil {
 				appCtx.Logger().Error("Error fetching mto shipments : ", zap.Error(err))
 
-				return mtoshipmentops.NewListMTOShipmentsInternalServerError()
+				return mtoshipmentops.NewListMTOShipmentsInternalServerError(), err
 			}
 
 			payload := payloads.MTOShipments(&shipments)
-			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
+			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil
 		})
 }
