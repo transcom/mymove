@@ -195,16 +195,16 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 	name := "TEST PPPO"
 	phone := "555-555-5555"
 	s := PaymentReminderEmailData{
-		DestinationDutyStation: "DestDutyStation",
-		WeightEstimate:         "1500",
-		IncentiveEstimateMin:   "500",
-		IncentiveEstimateMax:   "1000",
-		IncentiveTxt:           "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                 &name,
-		TOPhone:                &phone,
-		Locator:                "abc123",
+		DestinationDutyLocation: "DestDutyLocation",
+		WeightEstimate:          "1500",
+		IncentiveEstimateMin:    "500",
+		IncentiveEstimateMax:    "1000",
+		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
+		TOName:                  &name,
+		TOPhone:                 &phone,
+		Locator:                 "abc123",
 	}
-	expectedHTMLContent := `<p>We hope your move to DestDutyStation went well.</p>
+	expectedHTMLContent := `<p>We hope your move to DestDutyLocation went well.</p>
 
 <p>It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.</p>
 
@@ -252,21 +252,21 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 
 }
 
-func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDutyStation() {
+func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDutyLocation() {
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 
 	s := PaymentReminderEmailData{
-		DestinationDutyStation: "DestDutyStation",
-		WeightEstimate:         "1500",
-		IncentiveEstimateMin:   "500",
-		IncentiveEstimateMax:   "1000",
-		IncentiveTxt:           "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                 nil,
-		TOPhone:                nil,
-		Locator:                "abc123",
+		DestinationDutyLocation: "DestDutyLocation",
+		WeightEstimate:          "1500",
+		IncentiveEstimateMin:    "500",
+		IncentiveEstimateMax:    "1000",
+		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
+		TOName:                  nil,
+		TOPhone:                 nil,
+		Locator:                 "abc123",
 	}
-	expectedHTMLContent := `<p>We hope your move to DestDutyStation went well.</p>
+	expectedHTMLContent := `<p>We hope your move to DestDutyLocation went well.</p>
 
 <p>It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.</p>
 
@@ -321,16 +321,16 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 	name := "TEST PPPO"
 	phone := "555-555-5555"
 	s := PaymentReminderEmailData{
-		DestinationDutyStation: "DestDutyStation",
-		WeightEstimate:         "1500",
-		IncentiveEstimateMin:   "500",
-		IncentiveEstimateMax:   "1000",
-		IncentiveTxt:           "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                 &name,
-		TOPhone:                &phone,
-		Locator:                "abc123",
+		DestinationDutyLocation: "DestDutyLocation",
+		WeightEstimate:          "1500",
+		IncentiveEstimateMin:    "500",
+		IncentiveEstimateMax:    "1000",
+		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
+		TOName:                  &name,
+		TOPhone:                 &phone,
+		Locator:                 "abc123",
 	}
-	expectedTextContent := `We hope your move to DestDutyStation went well.
+	expectedTextContent := `We hope your move to DestDutyLocation went well.
 
 It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.
 
@@ -454,14 +454,14 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		emailInfo := emailInfos[i]
 
 		data := PaymentReminderEmailData{
-			DestinationDutyStation: emailInfo.NewDutyLocationName,
-			WeightEstimate:         fmt.Sprintf("%d", emailInfo.WeightEstimate.Int()),
-			IncentiveEstimateMin:   emailInfo.IncentiveEstimateMin.ToDollarString(),
-			IncentiveEstimateMax:   emailInfo.IncentiveEstimateMax.ToDollarString(),
-			IncentiveTxt:           emailInfo.IncentiveTxt,
-			TOName:                 emailInfo.TOName,
-			TOPhone:                emailInfo.TOPhone,
-			Locator:                emailInfo.Locator,
+			DestinationDutyLocation: emailInfo.NewDutyLocationName,
+			WeightEstimate:          fmt.Sprintf("%d", emailInfo.WeightEstimate.Int()),
+			IncentiveEstimateMin:    emailInfo.IncentiveEstimateMin.ToDollarString(),
+			IncentiveEstimateMax:    emailInfo.IncentiveEstimateMax.ToDollarString(),
+			IncentiveTxt:            emailInfo.IncentiveTxt,
+			TOName:                  emailInfo.TOName,
+			TOPhone:                 emailInfo.TOPhone,
+			Locator:                 emailInfo.Locator,
 		}
 		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)

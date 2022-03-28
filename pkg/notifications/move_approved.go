@@ -61,15 +61,15 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 		return emails, err
 	}
 
-	var originDutyStation, originDutyStationPhoneLine *string
+	var originDutyLocation, originDutyLocationPhoneLine *string
 	dsTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyLocationID)
 	if err != nil {
 		return emails, err
 	}
 
 	if dsTransportInfo != nil {
-		originDutyStation = &dsTransportInfo.Name
-		originDutyStationPhoneLine = &dsTransportInfo.PhoneLine
+		originDutyLocation = &dsTransportInfo.Name
+		originDutyLocationPhoneLine = &dsTransportInfo.PhoneLine
 	}
 
 	if serviceMember.PersonalEmail == nil {
@@ -86,11 +86,11 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveApprovedEmailData{
-		Link:                       ppmInfoSheetURL.String(),
-		OriginDutyStation:          originDutyStation,
-		DestinationDutyStation:     orders.NewDutyLocation.Name,
-		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
-		Locator:                    move.Locator,
+		Link:                        ppmInfoSheetURL.String(),
+		OriginDutyLocation:          originDutyLocation,
+		DestinationDutyLocation:     orders.NewDutyLocation.Name,
+		OriginDutyLocationPhoneLine: originDutyLocationPhoneLine,
+		Locator:                     move.Locator,
 	})
 
 	if err != nil {
@@ -127,11 +127,11 @@ func (m MoveApproved) renderTemplates(appCtx appcontext.AppContext, data moveApp
 
 // moveApprovedEmailData has content for email template
 type moveApprovedEmailData struct {
-	Link                       string
-	OriginDutyStation          *string
-	DestinationDutyStation     string
-	OriginDutyStationPhoneLine *string
-	Locator                    string
+	Link                        string
+	OriginDutyLocation          *string
+	DestinationDutyLocation     string
+	OriginDutyLocationPhoneLine *string
+	Locator                     string
 }
 
 // RenderHTML renders the html for the email

@@ -1,15 +1,15 @@
 <p>
-  Upon review, the office has determined that MilMove can’t handle your move {{if .OriginDutyStation}}from {{.OriginDutyStation}} {{end}}to
-  {{.DestinationDutyStation}}, and canceled it in the system. You’re still moving, but we’ll need to manage your move
+  Upon review, the office has determined that MilMove can’t handle your move {{if .OriginDutyLocation}}from {{.OriginDutyLocation}} {{end}}to
+  {{.DestinationDutyLocation}}, and canceled it in the system. You’re still moving, but we’ll need to manage your move
   with a different system.
 </p>
 
-{{ if .OriginDutyStation }}
+{{ if .OriginDutyLocation }}
 <p>
-  Please call the PPPO at {{.OriginDutyStation}} at {{.OriginDutyStationPhoneLine}} and they’ll help you figure out what
+  Please call the PPPO at {{.OriginDutyLocation}} at {{.OriginDutyLocationPhoneLine}} and they’ll help you figure out what
   to do next.
 </p>
 {{ end }}
-{{ if not .OriginDutyStation }}
+{{ if not .OriginDutyLocation }}
 <p>To talk with someone on what to do next, consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to find your best contact and reference move code {{.Locator}}.</p>
 {{ end }}

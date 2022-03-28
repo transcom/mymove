@@ -26,9 +26,9 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	originDutyStationZip := "94540"
-	destDutyStationZip := "95632"
-	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+	originDutyLocationZip := "94540"
+	destDutyLocationZip := "95632"
+	move := suite.setupCalculateEstimateTest(moveID, originDutyLocationZip, destDutyLocationZip)
 	weightEstimate := unit.Pound(7500)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
@@ -63,9 +63,9 @@ func (suite *PPMServiceSuite) TestCalculateEstimateNoSITSuccess() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	originDutyStationZip := "94540"
-	destDutyStationZip := "95632"
-	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+	originDutyLocationZip := "94540"
+	destDutyLocationZip := "95632"
+	move := suite.setupCalculateEstimateTest(moveID, originDutyLocationZip, destDutyLocationZip)
 	weightEstimate := unit.Pound(7500)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
@@ -103,9 +103,9 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 	}
 
 	pickupZip := "94540"
-	originDutyStationZip := "94540"
-	destDutyStationZip := "95632"
-	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+	originDutyLocationZip := "94540"
+	destDutyLocationZip := "95632"
+	move := suite.setupCalculateEstimateTest(moveID, originDutyLocationZip, destDutyLocationZip)
 
 	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
@@ -145,9 +145,9 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 // 	}
 
 // 	invalidPickupZip := "11111"
-// 	originDutyStationZip := "94540"
-// 	destDutyStationZip := "95632"
-// 	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+// 	originDutyLocationZip := "94540"
+// 	destDutyLocationZip := "95632"
+// 	move := suite.setupCalculateEstimateTest(moveID, originDutyLocationZip, destDutyLocationZip)
 
 // 	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
 // 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
@@ -175,16 +175,16 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 //
 // PPMs estimates are being hardcoded because we are not loading tariff400ng data
 // bypass tests as we are returning hard coded values and not checking zips right now
-// func (suite *PPMServiceSuite) TestCalculateEstimateNewDutyStationZipFails() {
+// func (suite *PPMServiceSuite) TestCalculateEstimateNewDutyLocationZipFails() {
 // 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
 //  appCtx := suite.AppContextForTest()
 // 	if err := scenario.RunRateEngineScenario2(appCtx); err != nil {
 // 		suite.FailNow("failed to run scenario 2: %+v", err)
 // 	}
-// 	originDutyStationZip := "94540"
-// 	invalidDestDutyStationZip := "00000"
+// 	originDutyLocationZip := "94540"
+// 	invalidDestDutyLocationZip := "00000"
 // 	pickupZip := "94540"
-// 	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, invalidDestDutyStationZip)
+// 	move := suite.setupCalculateEstimateTest(moveID, originDutyLocationZip, invalidDestDutyLocationZip)
 
 // 	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
 // 	weightEstimate := unit.Pound(7500)
@@ -217,10 +217,10 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 // 		suite.FailNow("failed to run scenario 2: %+v", err)
 // 	}
 
-// 	originDutyStationZip := "94540"
-// 	destDutyStationZip := "95632"
+// 	originDutyLocationZip := "94540"
+// 	destDutyLocationZip := "95632"
 // 	pickupZip := "94540"
-// 	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+// 	move := suite.setupCalculateEstimateTest(moveID, originDutyLocationZip, destDutyLocationZip)
 
 // 	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
 // 	weightEstimate := unit.Pound(0)
@@ -244,7 +244,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 // 	suite.Error(err)
 // }
 
-func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, originDutyStationZip string, newDutyStationZip string) models.Move {
+func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, originDutyLocationZip string, newDutyLocationZip string) models.Move {
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "503",
 		BasepointCity: "Des Moines",
@@ -365,7 +365,7 @@ func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, origi
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
-		PostalCode:     originDutyStationZip,
+		PostalCode:     originDutyLocationZip,
 	}
 	suite.MustSave(&address1)
 
@@ -383,7 +383,7 @@ func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, origi
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
-		PostalCode:     newDutyStationZip,
+		PostalCode:     newDutyLocationZip,
 	}
 	suite.MustSave(&address2)
 	locationName = "New Duty Location"
