@@ -227,19 +227,19 @@ type UpdateMoveDocumentHandler struct {
 
 // Handle ... updates a move document from a request payload
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
 			moveDoc, verrs, err := h.moveDocumentUpdater.Update(appCtx, params.UpdateMoveDocument, moveDocID)
 			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 			moveDocPayload, err := payloadForMoveDocument(h.FileStorer(), *moveDoc)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
+			return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload), nil
 		})
 }
 
