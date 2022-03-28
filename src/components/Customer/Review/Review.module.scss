@@ -17,7 +17,6 @@
 }
 
 .review-container {
-
   col:first-of-type {
     width: 40%;
   }
@@ -40,34 +39,43 @@
       padding: 0px;
     }
   }
-}
 
-.review-table {
-  table-layout: fixed;
-  border-collapse: separate;
-  border-radius: 4px;
-  border: 1px solid $base-lighter;
-  border-spacing: 0;
-  width: 100%;
-  @include u-bg('white');
-  @include u-padding-left('05');
-  @include u-padding-right('05');
+  table.review-table {
+    table-layout: fixed;
+    border-collapse: separate;
+    border-radius: 4px;
+    border: 1px solid $base-lighter;
+    border-spacing: 0;
+    width: 100%;
+    @include u-bg('white');
+    @include u-padding-left('05');
+    @include u-padding-right('05');
 
-  th {
-    font-weight: bold;
-    color: $base-darker;
-  }
+    th {
+      font-weight: bold;
+      color: $base-darker;
+      vertical-align: top;
+    }
 
-  tbody tr:first-child {
-    th,
     td {
-      border-top: none;
+      vertical-align: top;
+      overflow-wrap: break-word;
+    }
+
+    @media (min-width: $tablet) {
+      border-color: white;
+    }
+
+    @include at-media-max('tablet') {
+      // avoid double drawing of top border
+      tr:first-of-type {
+        th, td {
+          @include u-border-top(0);
+        }
+      }
     }
   }
 
-  @media (min-width: $tablet) {
-    border-color: white;
-  }
 }
 
 .table-divider-top {

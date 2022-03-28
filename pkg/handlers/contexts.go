@@ -28,7 +28,14 @@ import (
 //go:generate mockery --name HandlerContext --disable-version-string
 type HandlerContext interface {
 	AppContextFromRequest(*http.Request) appcontext.AppContext
-	AuditableAppContextFromRequest(*http.Request, func(appCtx appcontext.AppContext) middleware.Responder) middleware.Responder
+	AuditableAppContextFromRequest(
+		*http.Request,
+		func(appCtx appcontext.AppContext) middleware.Responder,
+	) middleware.Responder
+	AuditableAppContextFromRequestWithErrors(
+		*http.Request,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error),
+	) middleware.Responder
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
@@ -96,7 +103,7 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 }
 
 // AppContextFromRequest builds an AppContext from the http request
-// this should eventually go away and all handlers should use AuditableAppContextFromRequest
+// TODO: This should eventually go away and all handlers should use AuditableAppContextFromRequest
 func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
 	return appcontext.NewAppContext(
 		hctx.dBFromContext(r.Context()),
@@ -106,7 +113,11 @@ func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.Ap
 
 // AuditableAppContextFromRequest creates a transaction and sets local
 // variables for use by the auditable trigger
-func (hctx *handlerContext) AuditableAppContextFromRequest(r *http.Request, handler func(appCtx appcontext.AppContext) middleware.Responder) middleware.Responder {
+// TODO: This should eventually go away and all handlers should use AuditableAppContextFromRequestWithErrors
+func (hctx *handlerContext) AuditableAppContextFromRequest(
+	r *http.Request,
+	handler func(appCtx appcontext.AppContext) middleware.Responder,
+) middleware.Responder {
 	// use LoggerFromRequest to get the most specific logger
 	var resp middleware.Responder
 	appCtx := hctx.AppContextFromRequest(r)
@@ -126,8 +137,42 @@ func (hctx *handlerContext) AuditableAppContextFromRequest(r *http.Request, hand
 		if err != nil {
 			return err
 		}
-		resp = handler(txnAppCtx)
+		resp = handler(appCtx)
 		return nil
+	})
+	if err != nil {
+		return resp
+	}
+	return resp
+}
+
+// AuditableAppContextFromRequestWithErrors creates a transaction and sets local
+// variables for use by the auditable trigger and also allows handlers to return errors.
+func (hctx *handlerContext) AuditableAppContextFromRequestWithErrors(
+	r *http.Request,
+	handler func(appCtx appcontext.AppContext) (middleware.Responder, error),
+) middleware.Responder {
+	// use LoggerFromRequest to get the most specific logger
+	var resp middleware.Responder
+	appCtx := hctx.AppContextFromRequest(r)
+	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		var userID uuid.UUID
+		if txnAppCtx.Session() != nil {
+			userID = txnAppCtx.Session().UserID
+		}
+		// not sure why, but using RawQuery("SET LOCAL foo = ?",
+		// thing) did not work
+		err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + userID.String() + "'").Exec()
+		if err != nil {
+			return err
+		}
+		eventName := audit.EventNameFromContext(r.Context())
+		err = txnAppCtx.DB().RawQuery("SET LOCAL audit.current_event_name = '" + eventName + "'").Exec()
+		if err != nil {
+			return err
+		}
+		resp, err = handler(txnAppCtx)
+		return err
 	})
 	if err != nil {
 		return resp

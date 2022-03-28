@@ -29,8 +29,8 @@ type GetMoveTaskOrderHandler struct {
 
 // Handle fetches a single MoveTaskOrder
 func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
 			searchParams := services.MoveTaskOrderFetcherParams{
@@ -42,15 +42,15 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 				appCtx.Logger().Error("ghcapi.GetMoveTaskOrderHandler error", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return movetaskorderops.NewGetMoveTaskOrderNotFound()
+					return movetaskorderops.NewGetMoveTaskOrderNotFound(), err
 				case apperror.InvalidInputError:
-					return movetaskorderops.NewGetMoveTaskOrderBadRequest()
+					return movetaskorderops.NewGetMoveTaskOrderBadRequest(), err
 				default:
-					return movetaskorderops.NewGetMoveTaskOrderInternalServerError()
+					return movetaskorderops.NewGetMoveTaskOrderInternalServerError(), err
 				}
 			}
 			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
-			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
+			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
 		})
 }
 
@@ -62,8 +62,8 @@ type UpdateMoveTaskOrderStatusHandlerFunc struct {
 
 // Handle updates the status of a MoveTaskOrder
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			eTag := params.IfMatch
 
 			// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
@@ -82,16 +82,22 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 				appCtx.Logger().Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc error", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound(), err
 				case apperror.InvalidInputError:
-					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-					return movetaskorderops.NewUpdateMoveTaskOrderStatusUnprocessableEntity().WithPayload(payload)
+					payload := payloadForValidationError(
+						"Unable to complete request",
+						err.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						validate.NewErrors())
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ConflictError:
-					return movetaskorderops.NewUpdateMoveTaskOrderStatusConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusConflict().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
 				}
 			}
 
@@ -101,7 +107,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
 			if err != nil {
 				appCtx.Logger().Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
-				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
+				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
 			}
 
 			_, err = event.TriggerEvent(event.Event{
@@ -116,7 +122,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 				appCtx.Logger().Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc could not generate the event")
 			}
 
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload), nil
 		})
 }
 
@@ -129,8 +135,8 @@ type UpdateMTOStatusServiceCounselingCompletedHandlerFunc struct {
 // Handle updates the status of a Move (MoveTaskOrder). Slightly different from UpdateMoveTaskOrderStatusHandlerFunc,
 // this handler will update the Move status without making it available to the Prime and without creating basic service items.
 func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params movetaskorderops.UpdateMTOStatusServiceCounselingCompletedParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			eTag := params.IfMatch
 
 			// TODO - Revisit authorization for Service Counselor role
@@ -142,16 +148,22 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 				appCtx.Logger().Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc error", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedNotFound()
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedNotFound(), err
 				case apperror.InvalidInputError:
-					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedUnprocessableEntity().WithPayload(payload)
+					payload := payloadForValidationError(
+						"Unable to complete request",
+						err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest),
+						validate.NewErrors())
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedUnprocessableEntity().
+						WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedPreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ConflictError:
-					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedConflict().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedInternalServerError()
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedInternalServerError(), err
 				}
 			}
 
@@ -161,7 +173,7 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
 			if err != nil {
 				appCtx.Logger().Error("Auditing service error for transitioning Move status to Service Counseling Completed.", zap.Error(err))
-				return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedInternalServerError()
+				return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedInternalServerError(), err
 			}
 
 			_, err = event.TriggerEvent(event.Event{
@@ -176,7 +188,7 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 				appCtx.Logger().Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc could not generate the event")
 			}
 
-			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedOK().WithPayload(moveTaskOrderPayload)
+			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedOK().WithPayload(moveTaskOrderPayload), nil
 		})
 }
 
@@ -188,8 +200,8 @@ type UpdateMTOReviewedBillableWeightsAtHandlerFunc struct {
 
 // Handle updates the timestamp for a Move's (MoveTaskOrder's) ReviewedBillableWeightsAt field
 func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskorderops.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			eTag := params.IfMatch
 
 			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
@@ -200,16 +212,21 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 				appCtx.Logger().Error("ghcapi.UpdateMTOReviewedBillableWeightsAtHandlerFunc error", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtNotFound()
+					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtNotFound(), err
 				case apperror.InvalidInputError:
-					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtUnprocessableEntity().WithPayload(payload)
+					payload := payloadForValidationError("Unable to complete request", err.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtPreconditionFailed().
+							WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}),
+						err
 				case apperror.ConflictError:
-					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtConflict().
+							WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}),
+						err
 				default:
-					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError()
+					return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError(), err
 				}
 			}
 
@@ -219,7 +236,7 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
 			if err != nil {
 				appCtx.Logger().Error("Auditing service error updating the move's billableWeightsReviewedAt field.", zap.Error(err))
-				return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError()
+				return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtInternalServerError(), err
 			}
 
 			_, err = event.TriggerEvent(event.Event{
@@ -234,7 +251,7 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 				appCtx.Logger().Error("ghcapi.UpdateMTOReviewedBillableWeightsAtHandlerFunc could not generate the event")
 			}
 
-			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtOK().WithPayload(moveTaskOrderPayload)
+			return movetaskorderops.NewUpdateMTOReviewedBillableWeightsAtOK().WithPayload(moveTaskOrderPayload), nil
 		})
 }
 
@@ -246,8 +263,8 @@ type UpdateMoveTIORemarksHandlerFunc struct {
 
 // Handle updates a Move's (MoveTaskOrder's) TIORemarks field
 func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMoveTIORemarksParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			eTag := params.IfMatch
 
 			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
@@ -259,11 +276,12 @@ func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMo
 				appCtx.Logger().Error("ghcapi.UpdateMoveTIORemarksHandlerFunc error", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return movetaskorderops.NewUpdateMoveTIORemarksNotFound()
+					return movetaskorderops.NewUpdateMoveTIORemarksNotFound(), err
 				case apperror.PreconditionFailedError:
-					return movetaskorderops.NewUpdateMoveTIORemarksPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return movetaskorderops.NewUpdateMoveTIORemarksPreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return movetaskorderops.NewUpdateMoveTIORemarksInternalServerError()
+					return movetaskorderops.NewUpdateMoveTIORemarksInternalServerError(), err
 				}
 			}
 
@@ -273,7 +291,7 @@ func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMo
 			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
 			if err != nil {
 				appCtx.Logger().Error("Auditing service error updating the move's TioRemarks field.", zap.Error(err))
-				return movetaskorderops.NewUpdateMoveTIORemarksInternalServerError()
+				return movetaskorderops.NewUpdateMoveTIORemarksInternalServerError(), err
 			}
 
 			_, err = event.TriggerEvent(event.Event{
@@ -288,6 +306,6 @@ func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMo
 				appCtx.Logger().Error("ghcapi.UpdateMoveTIORemarksHandlerFunc could not generate the event")
 			}
 
-			return movetaskorderops.NewUpdateMoveTIORemarksOK().WithPayload(moveTaskOrderPayload)
+			return movetaskorderops.NewUpdateMoveTIORemarksOK().WithPayload(moveTaskOrderPayload), nil
 		})
 }
