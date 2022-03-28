@@ -1,3 +1,5 @@
+import { generalVerifyEstimatedIncentivePage } from '../../../support/ppmShared';
+
 describe('PPM Onboarding - Estimated Incentive', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -9,21 +11,26 @@ describe('PPM Onboarding - Estimated Incentive', function () {
   });
 
   it('go to estimated incentives page', () => {
-    navigateToEstimatedIncentivePageAndVerifyFields(false);
+    navigateToEstimatedIncentivePage();
+    verifyShipmentSpecificInfo();
+    generalVerifyEstimatedIncentivePage(false);
   });
 
   it('mobile - go to estimated incentives page', () => {
     cy.viewport(479, 875);
-    navigateToEstimatedIncentivePageAndVerifyFields(true);
+    navigateToEstimatedIncentivePage();
+    verifyShipmentSpecificInfo();
+    generalVerifyEstimatedIncentivePage(true);
   });
 });
 
-function navigateToEstimatedIncentivePageAndVerifyFields(isMobile = false) {
+function navigateToEstimatedIncentivePage() {
   // estimated_weights@ppm.unsubmitted
   const userId = '4512dc8c-c777-444e-b6dc-7971e398f2dc';
   cy.apiSignInAsUser(userId);
   cy.wait('@getShipment');
 
+  // navigate to existing shipment
   cy.get('[data-testid="shipment-list-item-container"]').click();
   cy.wait('@getShipment');
 
@@ -34,19 +41,8 @@ function navigateToEstimatedIncentivePageAndVerifyFields(isMobile = false) {
   cy.get('h1').should('contain', 'Estimated weight');
   cy.get('button').contains('Save & Continue').should('not.be.disabled').click();
   cy.wait('@patchShipment');
+}
 
-  cy.get('h1').should('contain', 'Estimated incentive');
-  cy.get('.container h2').contains(/\$\d{1,3}(?:,\d{3})*? is/);
+function verifyShipmentSpecificInfo() {
   cy.get('.container h2').contains('$100');
-
-  if (!isMobile) {
-    cy.get('button').contains('Next').should('not.be.disabled');
-  } else {
-    cy.get('button').contains('Next').should('not.be.disabled').should('have.css', 'order', '1');
-  }
-
-  cy.get('button').contains('Next').should('be.enabled').click();
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/advances/);
-  });
 }
