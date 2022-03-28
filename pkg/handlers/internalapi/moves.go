@@ -432,21 +432,21 @@ type SubmitAmendedOrdersHandler struct {
 
 // Handle ... submit a move to TOO for approval
 func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			moveID, _ := uuid.FromString(params.MoveID.String())
 
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
 			err = h.MoveRouter.Submit(appCtx, move)
 			if err != nil {
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
 
 			responseVErrors := validate.NewErrors()
@@ -458,13 +458,13 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 			}
 
 			if responseVErrors.HasAny() {
-				return handlers.ResponseForVErrors(logger, responseVErrors, responseError)
+				return handlers.ResponseForVErrors(logger, responseVErrors, responseError), responseError
 			}
 
 			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
 			if err != nil {
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, err), err
 			}
-			return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload)
+			return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload), nil
 		})
 }
