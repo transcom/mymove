@@ -17,6 +17,61 @@ const completeServiceItemCard = ($serviceItem, approve = false) => {
   }
 };
 
+const approveCurrentServiceItem = () => {
+  // Approve the service item
+  cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+    completeServiceItemCard(el, true);
+  });
+
+  // Go to next service item
+  cy.get('[data-testid=nextServiceItem]').click();
+};
+
+const validateDLCalcValues = () => {
+  cy.get('[data-testid="ServiceItemCalculations"]')
+    .children()
+    .should('contain', '14 cwt')
+    .and('contain', '354')
+    .and('contain', 'ZIP 803 to ZIP 805')
+    .and('contain', '21')
+    .and('contain', 'Domestic non-peak')
+    .and('contain', 'Origin service area: 144')
+    .and('contain', '1.01000')
+    .and('contain', '$800.00');
+};
+const validateFSCalcValues = () => {
+  cy.get('[data-testid="ServiceItemCalculations"]')
+    .children()
+    .should('contain', '14 cwt')
+    .and('contain', '354')
+    .and('contain', 'ZIP 803 to ZIP 805')
+    .and('contain', '0.15')
+    .and('contain', 'EIA diesel: $2.81')
+    .and('contain', 'Weight-based distance multiplier: 0.0004170')
+    .and('contain', '$107.00');
+};
+const validateDUCalcValues = () => {
+  cy.get('[data-testid="ServiceItemCalculations"]')
+    .children()
+    .should('contain', '43 cwt')
+    .and('contain', '5.79')
+    .and('contain', 'Destination service schedule: 1')
+    .and('contain', 'Domestic non-peak')
+    .and('contain', '1.04071')
+    .and('contain', 'Base year: DUPK Test Year')
+    .and('contain', '$459.00');
+};
+const validateDXCalcValues = () => {
+  cy.get('[data-testid="ServiceItemCalculations"]')
+    .children()
+    .should('contain', '43 cwt')
+    .and('contain', '6.25')
+    .and('contain', 'service area: 144')
+    .and('contain', 'Domestic non-peak')
+    .and('contain', '1.04071')
+    .and('contain', '$150.00');
+};
+
 describe('TIO user', () => {
   before(() => {
     cy.prepareOfficeApp();
@@ -327,11 +382,7 @@ describe('TIO user', () => {
     cy.wait(['@getPaymentRequest']);
 
     // Approve the service item
-    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
-      completeServiceItemCard(el, true);
-    });
-    cy.wait('@patchPaymentServiceItemStatus');
-    cy.get('[data-testid=nextServiceItem]').click();
+    approveCurrentServiceItem();
 
     // Complete Request
     cy.contains('Complete request');
@@ -424,106 +475,33 @@ describe('TIO user', () => {
     cy.contains('Review service items').click();
     cy.wait(['@getPaymentRequest', '@getMoves', '@getOrders']);
 
-    // Look at domestic linehaul calculations
+    // Verify at domestic linehaul calculations
     cy.get('[data-testid=toggleCalculations]').click();
-    cy.get('[data-testid="ServiceItemCalculations"]')
-      .children()
-      .should('contain', '14 cwt')
-      .and('contain', '354')
-      .and('contain', 'ZIP 803 to ZIP 805')
-      .and('contain', '21')
-      .and('contain', 'Domestic non-peak')
-      .and('contain', 'Origin service area: 144')
-      .and('contain', '1.01000')
-      .and('contain', '$800.00');
+    validateDLCalcValues();
+    approveCurrentServiceItem();
 
-    // Approve the first service item
-    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
-      completeServiceItemCard(el, true);
-    });
-
-    cy.get('[data-testid=nextServiceItem]').click();
-    cy.wait('@getPaymentRequest');
-
-    // Look at fuel surcharge calculations
+    // Verify at fuel surcharge calculations
     cy.get('[data-testid=toggleCalculations]').click();
-    cy.get('[data-testid="ServiceItemCalculations"]')
-      .children()
-      .should('contain', '14 cwt')
-      .and('contain', '354')
-      .and('contain', 'ZIP 803 to ZIP 805')
-      .and('contain', '0.15')
-      .and('contain', 'EIA diesel: $2.81')
-      .and('contain', 'Weight-based distance multiplier: 0.0004170')
-      .and('contain', '$107.00');
+    validateFSCalcValues();
+    approveCurrentServiceItem();
 
-    // Approve second
-    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
-      completeServiceItemCard(el, true);
-    });
-
-    cy.get('[data-testid=nextServiceItem]').click();
-
-    // Look at domestic origin calculations
+    // Verify at domestic origin calculations
     cy.get('[data-testid=toggleCalculations]').click();
-    cy.get('[data-testid="ServiceItemCalculations"]')
-      .children()
-      .should('contain', '43 cwt')
-      .and('contain', '6.25')
-      .and('contain', 'Origin service area: 144')
-      .and('contain', 'Domestic non-peak')
-      .and('contain', '1.04071')
-      .and('contain', 'Base year: DO Test Year')
-      .and('contain', '$150.00');
+    validateDXCalcValues();
+    approveCurrentServiceItem();
 
-    // Approve 3rd
-    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
-      completeServiceItemCard(el, true);
-    });
-
-    cy.get('[data-testid=nextServiceItem]').click();
-
-    // Look at domestic destination calculations
+    // Verify at domestic destination calculations
     cy.get('[data-testid=toggleCalculations]').click();
-    cy.get('[data-testid="ServiceItemCalculations"]')
-      .children()
-      .should('contain', '43 cwt')
-      .and('contain', '6.25')
-      .and('contain', 'Destination service area: 144')
-      .and('contain', 'Domestic non-peak')
-      .and('contain', '1.04071')
-      .and('contain', 'Base year: DDP Test Year')
-      .and('contain', '$150.00');
+    validateDXCalcValues();
+    approveCurrentServiceItem();
 
-    // Approve 4th
-    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
-      completeServiceItemCard(el, true);
-    });
-
-    cy.get('[data-testid=nextServiceItem]').click();
-
-    // Look at domestic unpacking calculations
+    // Verify at domestic unpacking calculations
     cy.get('[data-testid=toggleCalculations]').click();
-    cy.get('[data-testid="ServiceItemCalculations"]')
-      .children()
-      .should('contain', '43 cwt')
-      .and('contain', '5.79')
-      .and('contain', 'Destination service schedule: 1')
-      .and('contain', 'Domestic non-peak')
-      .and('contain', '1.04071')
-      .and('contain', 'Base year: DUPK Test Year')
-      .and('contain', '$459.00');
-
-    // Approve 5th
-    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
-      completeServiceItemCard(el, true);
-    });
-
-    cy.get('[data-testid=nextServiceItem]').click();
+    validateDUCalcValues();
+    approveCurrentServiceItem();
 
     // Complete Request
     cy.contains('Complete request');
-
     cy.contains('Authorize payment').click();
 
     // Return to payment requests overview for move
@@ -535,64 +513,28 @@ describe('TIO user', () => {
 
     // Verify domestic linehaul cacls on payment request
     cy.contains('Domestic linehaul').click();
-    cy.get('[data-testid="ServiceItemCalculations"]')
-      .children()
-      .should('contain', '14 cwt')
-      .and('contain', '354')
-      .and('contain', 'ZIP 803 to ZIP 805')
-      .and('contain', '21')
-      .and('contain', 'Domestic non-peak')
-      .and('contain', 'Origin service area: 144')
-      .and('contain', '1.01000')
-      .and('contain', '$800.00');
+    validateDLCalcValues();
+    cy.contains('Domestic linehaul').click();
 
     // Verify fuel surcharge calcs on payment request
     cy.contains('Fuel surcharge').click();
-    cy.get('[data-testid="ServiceItemCalculations"]')
-      .children()
-      .should('contain', '14 cwt')
-      .and('contain', '354')
-      .and('contain', 'ZIP 803 to ZIP 805')
-      .and('contain', '0.15')
-      .and('contain', 'EIA diesel: $2.81')
-      .and('contain', 'Weight-based distance multiplier: 0.0004170')
-      .and('contain', '$107.00');
+    validateFSCalcValues();
+    cy.contains('Fuel surcharge').click();
 
     // Verify Domestic origin price cacls on payment request
     cy.contains('Domestic origin price').click();
-    cy.get('[data-testid="ServiceItemCalculations"]')
-      .children()
-      .should('contain', '43 cwt')
-      .and('contain', '6.25')
-      .and('contain', 'Origin service area: 144')
-      .and('contain', 'Domestic non-peak')
-      .and('contain', '1.04071')
-      .and('contain', 'Base year: DO Test Year')
-      .and('contain', '$150.00');
+    validateDXCalcValues();
+    cy.contains('Domestic origin price').click();
 
     // Verify domestic destination price cacls on payment request
     cy.contains('Domestic destination price').click();
-    cy.get('[data-testid="ServiceItemCalculations"]')
-      .children()
-      .should('contain', '43 cwt')
-      .and('contain', '6.25')
-      .and('contain', 'Destination service area: 144')
-      .and('contain', 'Domestic non-peak')
-      .and('contain', '1.04071')
-      .and('contain', 'Base year: DDP Test Year')
-      .and('contain', '$150.00');
+    validateDXCalcValues();
+    cy.contains('Domestic destination price').click();
 
     // Verify domestic unpacking cacls on payment request
     cy.contains('Domestic unpacking').click();
-    cy.get('[data-testid="ServiceItemCalculations"]')
-      .children()
-      .should('contain', '43 cwt')
-      .and('contain', '6.25')
-      .and('contain', 'Destination service area: 144')
-      .and('contain', 'Domestic non-peak')
-      .and('contain', '1.04071')
-      .and('contain', 'Base year: DDP Test Year')
-      .and('contain', '$150.00');
+    validateDUCalcValues();
+    cy.contains('Domestic unpacking').click();
 
     // calcs are good, go home
     cy.get('a[title="Home"]').click();
