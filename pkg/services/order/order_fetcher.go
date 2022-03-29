@@ -81,14 +81,13 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
-	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, originDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
+	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
 
 	query := appCtx.DB().Q().EagerPreload(
 		"Orders.ServiceMember",
@@ -130,10 +129,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	var groupByColumms []string
 	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_dl.id")
-
-	if params.Sort != nil && *params.Sort == "destinationDutyLocation" {
-		groupByColumms = append(groupByColumms, "dest_dl.name")
-	}
 
 	if params.Sort != nil && *params.Sort == "originDutyLocation" {
 		groupByColumms = append(groupByColumms, "origin_dl.name")
@@ -253,15 +248,6 @@ func locatorFilter(locator *string) QueryOption {
 	}
 }
 
-func destinationDutyLocationFilter(destinationDutyLocation *string) QueryOption {
-	return func(query *pop.Query) {
-		if destinationDutyLocation != nil {
-			nameSearch := fmt.Sprintf("%s%%", *destinationDutyLocation)
-			query.Where("dest_dl.name ILIKE ?", nameSearch)
-		}
-	}
-}
-
 func originDutyLocationFilter(originDutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
 		if originDutyLocation != nil {
@@ -334,16 +320,15 @@ func gblocFilterForTOO(gbloc *string) QueryOption {
 
 func sortOrder(sort *string, order *string) QueryOption {
 	parameters := map[string]string{
-		"lastName":                "service_members.last_name",
-		"dodID":                   "service_members.edipi",
-		"branch":                  "service_members.affiliation",
-		"locator":                 "moves.locator",
-		"status":                  "moves.status",
-		"submittedAt":             "moves.submitted_at",
-		"destinationDutyLocation": "dest_dl.name",
-		"originDutyLocation":      "origin_dl.name",
-		"requestedMoveDate":       "min(mto_shipments.requested_pickup_date)",
-		"originGBLOC":             "origin_to.gbloc",
+		"lastName":           "service_members.last_name",
+		"dodID":              "service_members.edipi",
+		"branch":             "service_members.affiliation",
+		"locator":            "moves.locator",
+		"status":             "moves.status",
+		"submittedAt":        "moves.submitted_at",
+		"originDutyLocation": "origin_dl.name",
+		"requestedMoveDate":  "min(mto_shipments.requested_pickup_date)",
+		"originGBLOC":        "origin_to.gbloc",
 	}
 
 	return func(query *pop.Query) {

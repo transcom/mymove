@@ -347,14 +347,6 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	affiliation := models.AffiliationNAVY
 	edipi := "9999999999"
 
-	// SET UP: New Duty Location for sorting by destination duty location
-	newDutyLocationName := "Ze Duty Location"
-	newDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			Name: newDutyLocationName,
-		},
-	})
-
 	// CREATE EXPECTED MOVES
 	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 		// Default New Duty Location name is Fort Gordon
@@ -372,10 +364,6 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		},
 		// Lea Spacemen
 		ServiceMember: models.ServiceMember{Affiliation: &affiliation, FirstName: &serviceMemberFirstName, Edipi: &edipi},
-		Order: models.Order{
-			NewDutyLocation:   newDutyLocation2,
-			NewDutyLocationID: newDutyLocation2.ID,
-		},
 		MTOShipment: models.MTOShipment{
 			RequestedPickupDate: &requestedMoveDate2,
 		},
@@ -438,22 +426,6 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(2, len(moves))
 		suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
 		suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
-	})
-
-	suite.T().Run("Sort by destination duty location", func(t *testing.T) {
-		params := services.ListOrderParams{Sort: swag.String("destinationDutyLocation"), Order: swag.String("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
-		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove1.Orders.NewDutyLocation.Name, moves[0].Orders.NewDutyLocation.Name)
-		suite.Equal(expectedMove2.Orders.NewDutyLocation.Name, moves[1].Orders.NewDutyLocation.Name)
-
-		params = services.ListOrderParams{Sort: swag.String("destinationDutyLocation"), Order: swag.String("desc")}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
-		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove2.Orders.NewDutyLocation.Name, moves[0].Orders.NewDutyLocation.Name)
-		suite.Equal(expectedMove1.Orders.NewDutyLocation.Name, moves[1].Orders.NewDutyLocation.Name)
 	})
 
 	suite.T().Run("Sort by request move date", func(t *testing.T) {
