@@ -32,7 +32,7 @@ const defaultProps = {
   showLoggedInUser: jest.fn(),
   createMTOShipment: jest.fn(),
   updateMTOShipment: jest.fn(),
-  newDutyStationAddress: {
+  newDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',

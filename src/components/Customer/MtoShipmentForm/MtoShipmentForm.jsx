@@ -132,7 +132,7 @@ class MtoShipmentForm extends Component {
     const {
       match,
       history,
-      newDutyStationAddress,
+      newDutyLocationAddress,
       selectedMoveType,
       isCreatePage,
       mtoShipment,
@@ -389,8 +389,8 @@ class MtoShipmentForm extends Component {
                                 We can use the zip of your new duty location.
                                 <br />
                                 <strong>
-                                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                                  {newDutyStationAddress.postalCode}{' '}
+                                  {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
+                                  {newDutyLocationAddress.postalCode}{' '}
                                 </strong>
                                 <br />
                                 You can add the specific delivery address later, once you know it.
@@ -401,8 +401,8 @@ class MtoShipmentForm extends Component {
                                 We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
                                 <br />
                                 <strong>
-                                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                                  {newDutyStationAddress.postalCode}{' '}
+                                  {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
+                                  {newDutyLocationAddress.postalCode}{' '}
                                 </strong>
                                 <br />
                               </p>
@@ -504,7 +504,7 @@ MtoShipmentForm.propTypes = {
   updateMTOShipment: func.isRequired,
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
-  newDutyStationAddress: SimpleAddressShape,
+  newDutyLocationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: HhgShipmentShape,
   serviceMember: shape({
@@ -519,7 +519,7 @@ MtoShipmentForm.defaultProps = {
   isCreatePage: false,
   match: { isExact: false, params: { moveID: '' } },
   history: { goBack: () => {}, push: () => {} },
-  newDutyStationAddress: {
+  newDutyLocationAddress: {
     city: '',
     state: '',
     postalCode: '',
