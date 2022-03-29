@@ -304,17 +304,10 @@ class MtoShipmentForm extends Component {
                         <SectionWrapper className={formStyles.formSection}>
                           {showPickupFields && <h2>Destination info</h2>}
                           <Fieldset legend="Date">
-                            {hasDeliveryAddress === 'yes' ? (
-                              <Hint>
-                                You’ll finalize an actual delivery date later by talking with your movers once the
-                                shipment is underway.
-                              </Hint>
-                            ) : (
-                              <Hint>
-                                If you’re not sure, use your report-by date. You’ll finalize an actual delivery date
-                                later by talking with your movers once the shipment is underway.
-                              </Hint>
-                            )}
+                            <Hint>
+                              You’ll finalize an actual delivery date later by talking with your movers once the
+                              shipment is underway.
+                            </Hint>
                             <DatePickerInput
                               name="delivery.requestedDate"
                               label="Preferred delivery date"
