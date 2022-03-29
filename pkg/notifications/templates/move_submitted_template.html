@@ -1,5 +1,5 @@
 <p>
-  This is a confirmation that you’ve submitted the details for your move {{if .OriginDutyStation}}from {{.OriginDutyStation}} {{ end }}to {{.DestinationDutyStation}}.
+  This is a confirmation that you’ve submitted the details for your move {{if .OriginDutyLocation}}from {{.OriginDutyLocation}} {{ end }}to {{.DestinationDutyLocation}}.
 </p>
 
 <p>
@@ -50,13 +50,13 @@
     payment
   </li>
 </ul>
-{{ if .OriginDutyStation }}
+{{ if .OriginDutyLocation }}
 <p>
-  If you have any questions about the PPM part of your move, call the {{.OriginDutyStation}} PPPO at
-  {{.OriginDutyStationPhoneLine}} and reference move code {{.Locator}}.
+  If you have any questions about the PPM part of your move, call the {{.OriginDutyLocation}} PPPO at
+  {{.OriginDutyLocationPhoneLine}} and reference move code {{.Locator}}.
 </p>
 {{- end }}
-{{- if not .OriginDutyStation }}
+{{- if not .OriginDutyLocation }}
 <p>If you have any questions about the PPM part of your move, consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to best contact and reference move code {{.Locator}}.</p>
 {{- end }}
 
@@ -94,4 +94,4 @@
 
 <p>If any information about your move changes at any point during the move, let your movers know.</p>
 
-<p>Good luck on your move to {{.DestinationDutyStation}}!</p>
+<p>Good luck on your move to {{.DestinationDutyLocation}}!</p>

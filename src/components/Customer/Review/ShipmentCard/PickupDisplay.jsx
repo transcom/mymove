@@ -9,7 +9,7 @@ import { formatCustomerDate } from 'utils/formatters';
 
 const PickupDisplay = ({ pickupLocation, secondaryPickupAddress, releasingAgent, requestedPickupDate }) => {
   return (
-    <div>
+    <>
       <div className={styles.row}>
         <dt>Requested pickup date</dt>
         <dd>{formatCustomerDate(requestedPickupDate)}</dd>
@@ -52,7 +52,7 @@ const PickupDisplay = ({ pickupLocation, secondaryPickupAddress, releasingAgent,
           </dd>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

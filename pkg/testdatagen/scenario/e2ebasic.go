@@ -1523,48 +1523,70 @@ func serviceMemberWithOrdersAndPPMMove04(appCtx appcontext.AppContext, userUploa
 }
 
 func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
+	email := "profile_full_ppm@move.draft"
+	uuidStr := "9b9ce6ed-70ba-4edf-b016-488c87fc1250"
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
 		},
-	})
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67e4"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-		},
-		UserUploader: userUploader,
 	})
 
 	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:       uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30e8"),
-			OrdersID: orders.ID,
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("6796979019"),
+			PersonalEmail: models.StringPointer(email),
 		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30e8"),
+			Locator: "PPMFUL",
+		},
+		UserUploader: userUploader,
 	})
 }
 
 func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
+	email := "full_ppm_mobile@complete.profile"
+	uuidStr := "4fd6726d-2d05-4640-96dd-983bec236a9c"
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
 		},
-	})
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("eb6b0c75-3972-4a09-a453-3a7b257aa7f7"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-		},
-		UserUploader: userUploader,
 	})
 
 	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:       uuid.FromStringOrNil("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
-			OrdersID: orders.ID,
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Complete"),
+			LastName:      models.StringPointer("Profile"),
+			Edipi:         models.StringPointer("6796979019"),
+			PersonalEmail: models.StringPointer(email),
 		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
+			Locator: "PPMMOB",
+		},
+		UserUploader: userUploader,
 	})
 }
 
@@ -3055,7 +3077,7 @@ func createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext, u
 // Run does that data load thing
 func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	moveRouter := moverouter.NewMoveRouter()
-	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
+	// Testdatagen factories will create new random duty locations so let's get the standard ones in the migrations
 	var allDutyLocations []models.DutyLocation
 	appCtx.DB().All(&allDutyLocations)
 

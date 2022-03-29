@@ -30,7 +30,7 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 	db := appCtx.DB()
 	moveRouter := moverouter.NewMoveRouter()
 
-	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
+	// Testdatagen factories will create new random duty locations so let's get the standard ones in the migrations
 	var allDutyLocations []models.DutyLocation
 	db.All(&allDutyLocations)
 

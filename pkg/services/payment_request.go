@@ -68,18 +68,18 @@ type PaymentRequestReviewedProcessor interface {
 
 // FetchPaymentRequestListParams is a public struct that's used to pass filter arguments to FetchPaymentRequestList
 type FetchPaymentRequestListParams struct {
-	Branch                 *string
-	Locator                *string
-	DodID                  *string
-	LastName               *string
-	DestinationDutyStation *string
-	Status                 []string
-	Page                   *int64
-	PerPage                *int64
-	SubmittedAt            *time.Time
-	Sort                   *string
-	Order                  *string
-	OriginDutyLocation     *string
+	Branch                  *string
+	Locator                 *string
+	DodID                   *string
+	LastName                *string
+	DestinationDutyLocation *string
+	Status                  []string
+	Page                    *int64
+	PerPage                 *int64
+	SubmittedAt             *time.Time
+	Sort                    *string
+	Order                   *string
+	OriginDutyLocation      *string
 }
 
 // ShipmentPaymentSITBalance is a public struct that's used to return current SIT balances to the TIO for a payment

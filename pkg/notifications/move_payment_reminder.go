@@ -134,14 +134,14 @@ func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentRemin
 		}
 
 		htmlBody, textBody, err := m.renderTemplates(appCtx, PaymentReminderEmailData{
-			DestinationDutyStation: PaymentReminderEmailInfo.NewDutyLocationName,
-			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderEmailInfo.WeightEstimate.Int()),
-			IncentiveEstimateMin:   PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(),
-			IncentiveEstimateMax:   PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString(),
-			IncentiveTxt:           incentiveTxt,
-			TOName:                 toName,
-			TOPhone:                toPhone,
-			Locator:                PaymentReminderEmailInfo.Locator,
+			DestinationDutyLocation: PaymentReminderEmailInfo.NewDutyLocationName,
+			WeightEstimate:          fmt.Sprintf("%d", PaymentReminderEmailInfo.WeightEstimate.Int()),
+			IncentiveEstimateMin:    PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(),
+			IncentiveEstimateMax:    PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString(),
+			IncentiveTxt:            incentiveTxt,
+			TOName:                  toName,
+			TOPhone:                 toPhone,
+			Locator:                 PaymentReminderEmailInfo.Locator,
 		})
 		if err != nil {
 			appCtx.Logger().Error("error rendering template", zap.Error(err))
@@ -201,14 +201,14 @@ func (m PaymentReminder) OnSuccess(appCtx appcontext.AppContext, PaymentReminder
 
 // PaymentReminderEmailData is used to render an email template
 type PaymentReminderEmailData struct {
-	DestinationDutyStation string
-	WeightEstimate         string
-	IncentiveEstimateMin   string
-	IncentiveEstimateMax   string
-	IncentiveTxt           string
-	TOName                 *string
-	TOPhone                *string
-	Locator                string
+	DestinationDutyLocation string
+	WeightEstimate          string
+	IncentiveEstimateMin    string
+	IncentiveEstimateMax    string
+	IncentiveTxt            string
+	TOName                  *string
+	TOPhone                 *string
+	Locator                 string
 }
 
 // RenderHTML renders the html for the email

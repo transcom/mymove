@@ -441,7 +441,7 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		// be changed to an HHG move in SUBMITTED status to reflect reality.
 		createMoveWithServiceItems(appCtx, userUploader)
 		createMoveWithBasicServiceItems(appCtx, userUploader)
-		// Sets up a move with a non-default destination duty station address
+		// Sets up a move with a non-default destination duty location address
 		// (to more easily spot issues with addresses being overwritten).
 		createMoveWithUniqueDestinationAddress(appCtx)
 		// Creates a move that has multiple orders uploaded
