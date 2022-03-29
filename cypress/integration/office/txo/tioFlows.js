@@ -17,6 +17,61 @@ const completeServiceItemCard = ($serviceItem, approve = false) => {
   }
 };
 
+const approveCurrentServiceItem = () => {
+  // Approve the service item
+  cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+    completeServiceItemCard(el, true);
+  });
+
+  // Go to next service item
+  cy.get('[data-testid=nextServiceItem]').click();
+};
+
+const validateDLCalcValues = () => {
+  cy.get('[data-testid="ServiceItemCalculations"]')
+    .children()
+    .should('contain', '14 cwt')
+    .and('contain', '354')
+    .and('contain', 'ZIP 803 to ZIP 805')
+    .and('contain', '21')
+    .and('contain', 'Domestic non-peak')
+    .and('contain', 'Origin service area: 144')
+    .and('contain', '1.01000')
+    .and('contain', '$800.00');
+};
+const validateFSCalcValues = () => {
+  cy.get('[data-testid="ServiceItemCalculations"]')
+    .children()
+    .should('contain', '14 cwt')
+    .and('contain', '354')
+    .and('contain', 'ZIP 803 to ZIP 805')
+    .and('contain', '0.15')
+    .and('contain', 'EIA diesel: $2.81')
+    .and('contain', 'Weight-based distance multiplier: 0.0004170')
+    .and('contain', '$107.00');
+};
+const validateDUCalcValues = () => {
+  cy.get('[data-testid="ServiceItemCalculations"]')
+    .children()
+    .should('contain', '43 cwt')
+    .and('contain', '5.79')
+    .and('contain', 'Destination service schedule: 1')
+    .and('contain', 'Domestic non-peak')
+    .and('contain', '1.04071')
+    .and('contain', 'Base year: DUPK Test Year')
+    .and('contain', '$459.00');
+};
+const validateDXCalcValues = () => {
+  cy.get('[data-testid="ServiceItemCalculations"]')
+    .children()
+    .should('contain', '43 cwt')
+    .and('contain', '6.25')
+    .and('contain', 'service area: 144')
+    .and('contain', 'Domestic non-peak')
+    .and('contain', '1.04071')
+    .and('contain', '$150.00');
+};
+
 describe('TIO user', () => {
   before(() => {
     cy.prepareOfficeApp();
@@ -274,5 +329,215 @@ describe('TIO user', () => {
 
     // Verify sucess alert and tag
     cy.contains('Move unflagged for financial review.');
+  });
+
+  it('can review a NTS-R', () => {
+    cy.wait(['@getGHCClient', '@getPaymentRequests']);
+
+    // Go to known NTS-R move
+    cy.get('#locator').type('NTSRT2');
+    cy.get('th[data-testid="locator"]').first().click();
+    cy.get('[data-testid="locator-0"]').click();
+
+    // Verify we are on the Payment Requests page
+    cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    // Verify weight info
+    const weightSection = '#billable-weights';
+    cy.get(weightSection).contains('Billable weights');
+    cy.get(weightSection).contains('8,000 lbs');
+    cy.get(weightSection).contains('2,000 lbs');
+
+    // Verify External Shipment shown
+    cy.get(weightSection).contains('1 other shipment:');
+    cy.get(weightSection).contains('0 lbs');
+    cy.get(weightSection).contains('View move details').should('have.attr', 'href');
+
+    // Verify relevant payment request info
+    const prSection = '#payment-requests';
+    cy.get(prSection).contains('Needs review');
+    cy.get(prSection).contains('Reviewed').should('not.exist');
+    cy.get(prSection).contains('Rejected').should('not.exist');
+
+    cy.get(prSection).contains('$324.00');
+    cy.get(prSection).contains('HTC111-11-1-1111');
+    cy.get(prSection).contains('Non-temp storage release');
+    cy.get('[data-testid="pickup-to-destination').should('exist');
+    cy.get(prSection).contains('1111 (HHG)');
+
+    // Verify Service Item
+    cy.get('[data-testid="serviceItemName"]').contains('Counseling');
+    cy.get('[data-testid="serviceItemAmount"]').contains('$324.00');
+
+    // Review Weights
+    cy.get(weightSection).contains('Review weights').click();
+    cy.contains('Edit max billable weight');
+    cy.get('[data-testid="closeSidebar"]').click();
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+
+    // Review service items
+    cy.contains('Review service items').click();
+    cy.wait(['@getPaymentRequest']);
+
+    // Approve the service item
+    approveCurrentServiceItem();
+
+    // Complete Request
+    cy.contains('Complete request');
+
+    cy.contains('Authorize payment').click();
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+    cy.contains('Accepted');
+
+    // Should now have 'Reviewed' Tag
+    cy.get(prSection).contains('Reviewed');
+    cy.get(prSection).contains('Needs Review').should('not.exist');
+    cy.get(prSection).contains('Rejected').should('not.exist');
+
+    // Go back home
+    cy.get('a[title="Home"]').click();
+    cy.contains('Payment requests', { matchCase: false });
+  });
+
+  it('can reject a NTS-R', () => {
+    cy.wait(['@getGHCClient', '@getPaymentRequests']);
+
+    // Go to known NTS-R move
+    cy.get('#locator').type('NTSRT3');
+    cy.get('th[data-testid="locator"]').first().click();
+    cy.get('[data-testid="locator-0"]').click();
+
+    // Verify we are on the Payment Requests page
+    cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    // Verify payment request status
+    const prSection = '#payment-requests';
+    cy.get(prSection).contains('Needs review');
+    cy.get(prSection).contains('Reviewed').should('not.exist');
+    cy.get(prSection).contains('Rejected').should('not.exist');
+
+    // Review Weights
+    cy.get('#billable-weights').contains('Review weights').click();
+    cy.get('[data-testid="closeSidebar"]').click();
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+
+    // Start reviewing service items
+    cy.contains('Review service items').click();
+    cy.wait(['@getPaymentRequest']);
+
+    // Reject the service item
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, false);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.get('[data-testid=nextServiceItem]').click();
+
+    // Reject the Request
+    cy.contains('Review details');
+    cy.contains('Reject request').click();
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    // Should now have 'Rejected' Tag
+    cy.get(prSection).contains('Rejected');
+    cy.get(prSection).contains('Needs Review').should('not.exist');
+    cy.get(prSection).contains('Reviewed').should('not.exist');
+
+    // Go back home
+    cy.get('a[title="Home"]').click();
+    cy.contains('Payment requests', { matchCase: false });
+  });
+
+  it('can view calculation factors', () => {
+    cy.wait(['@getGHCClient', '@getPaymentRequests']);
+
+    // Go to known NTS-R move as TIO
+    cy.get('#locator').type('NTSRT1');
+    cy.get('th[data-testid="locator"]').first().click();
+    cy.get('[data-testid="locator-0"]').click();
+
+    // Verify we are on the Payment Requests page
+    cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    // Review Weights
+    cy.get('#billable-weights').contains('Review weights').click();
+    cy.get('[data-testid="closeSidebar"]').click();
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+
+    // Review service items
+    cy.contains('Review service items').click();
+    cy.wait(['@getPaymentRequest', '@getMoves', '@getOrders']);
+
+    // Verify at domestic linehaul calculations
+    cy.get('[data-testid=toggleCalculations]').click();
+    validateDLCalcValues();
+    approveCurrentServiceItem();
+
+    // Verify at fuel surcharge calculations
+    cy.get('[data-testid=toggleCalculations]').click();
+    validateFSCalcValues();
+    approveCurrentServiceItem();
+
+    // Verify at domestic origin calculations
+    cy.get('[data-testid=toggleCalculations]').click();
+    validateDXCalcValues();
+    approveCurrentServiceItem();
+
+    // Verify at domestic destination calculations
+    cy.get('[data-testid=toggleCalculations]').click();
+    validateDXCalcValues();
+    approveCurrentServiceItem();
+
+    // Verify at domestic unpacking calculations
+    cy.get('[data-testid=toggleCalculations]').click();
+    validateDUCalcValues();
+    approveCurrentServiceItem();
+
+    // Complete Request
+    cy.contains('Complete request');
+    cy.contains('Authorize payment').click();
+
+    // Return to payment requests overview for move
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    // Verify Service Item Calcs now that approved and visable
+    cy.contains('Accepted');
+
+    // Verify domestic linehaul cacls on payment request
+    cy.contains('Domestic linehaul').click();
+    validateDLCalcValues();
+    cy.contains('Domestic linehaul').click();
+
+    // Verify fuel surcharge calcs on payment request
+    cy.contains('Fuel surcharge').click();
+    validateFSCalcValues();
+    cy.contains('Fuel surcharge').click();
+
+    // Verify Domestic origin price cacls on payment request
+    cy.contains('Domestic origin price').click();
+    validateDXCalcValues();
+    cy.contains('Domestic origin price').click();
+
+    // Verify domestic destination price cacls on payment request
+    cy.contains('Domestic destination price').click();
+    validateDXCalcValues();
+    cy.contains('Domestic destination price').click();
+
+    // Verify domestic unpacking cacls on payment request
+    cy.contains('Domestic unpacking').click();
+    validateDUCalcValues();
+    cy.contains('Domestic unpacking').click();
+
+    // calcs are good, go home
+    cy.get('a[title="Home"]').click();
+    cy.contains('Payment requests', { matchCase: false });
   });
 });
