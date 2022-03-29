@@ -1,4 +1,4 @@
-export function customerChoosesAPPMMove() {
+export function customerStartsAddingAPPMShipment() {
   cy.get('button[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
 
@@ -21,7 +21,7 @@ export function submitsDateAndLocation() {
   });
 }
 
-export function submitsEstimatedWeightsAndProgear() {
+export function submitsEstimatedWeightsAndProGear() {
   cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
   cy.get('input[name="hasProGear"][value="true"]').check({ force: true });
   cy.get('input[name="proGearWeight"]').clear().type(500).blur();
@@ -60,6 +60,7 @@ export function generalVerifyEstimatedIncentivePage(isMobile = false) {
   }
 
   cy.get('button').contains('Next').should('be.enabled').click();
+
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/advances/);
   });

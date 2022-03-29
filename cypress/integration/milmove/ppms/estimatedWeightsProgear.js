@@ -1,4 +1,4 @@
-import { submitsEstimatedWeights, submitsEstimatedWeightsAndProgear } from '../../../support/ppmShared';
+import { submitsEstimatedWeights, submitsEstimatedWeightsAndProGear } from '../../../support/ppmShared';
 
 describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   before(() => {
@@ -23,7 +23,7 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
 
   it('can continue to next page with progear added', () => {
     getToEstimatedWeightsPage();
-    submitsEstimatedWeightsAndProgear();
+    submitsEstimatedWeightsAndProGear();
   });
 });
 

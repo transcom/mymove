@@ -1,7 +1,7 @@
 import {
-  customerChoosesAPPMMove,
+  customerStartsAddingAPPMShipment,
   submitsDateAndLocation,
-  submitsEstimatedWeightsAndProgear,
+  submitsEstimatedWeightsAndProGear,
   generalVerifyEstimatedIncentivePage,
 } from '../../../support/ppmShared';
 
@@ -42,9 +42,9 @@ describe('Entire PPM onboarding flow', function () {
 function navigateHappyPath(userId, isMobile = false) {
   cy.apiSignInAsUser(userId);
   cy.wait('@getShipment');
-  customerChoosesAPPMMove();
+  customerStartsAddingAPPMShipment();
   submitsDateAndLocation();
-  submitsEstimatedWeightsAndProgear();
+  submitsEstimatedWeightsAndProGear();
   generalVerifyEstimatedIncentivePage(isMobile);
 }
 
@@ -60,8 +60,8 @@ function navigateHappyPathWithEditsAndBacks(isMobile = false) {
 
   submitAndVerifyUpdateDateAndLocation();
 
-  submitsEstimatedWeightsAndProgear();
-  verifyEstimatedWeightsAndProgear();
+  submitsEstimatedWeightsAndProGear();
+  verifyEstimatedWeightsAndProGear();
 
   verifyShipmentSpecificInfoOnEstimatedIncentivePage();
   generalVerifyEstimatedIncentivePage(isMobile);
@@ -95,7 +95,7 @@ function submitAndVerifyUpdateDateAndLocation() {
 }
 
 // verify page and submit to go to next page
-function verifyEstimatedWeightsAndProgear() {
+function verifyEstimatedWeightsAndProGear() {
   cy.get('h1').should('contain', 'Estimated incentive');
   cy.get('button').contains('Back').click();
   cy.get('input[name="estimatedWeight"]').should('have.value', '500');
