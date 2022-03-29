@@ -384,7 +384,7 @@ class MtoShipmentForm extends Component {
                                 )}
                               />
                             )}
-                            {hasDeliveryAddress === 'no' && !isRetireeSeparatee && hasSecondaryDelivery === 'no' && (
+                            {hasDeliveryAddress === 'no' && !isRetireeSeparatee && !isNTSR && (
                               <p>
                                 We can use the zip of your new duty location.
                                 <br />
@@ -396,7 +396,7 @@ class MtoShipmentForm extends Component {
                                 You can add the specific delivery address later, once you know it.
                               </p>
                             )}
-                            {hasDeliveryAddress === 'no' && isRetireeSeparatee && (
+                            {hasDeliveryAddress === 'no' && isRetireeSeparatee && !isNTSR && (
                               <p>
                                 We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
                                 <br />
