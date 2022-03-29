@@ -5951,20 +5951,20 @@ func createRandomMove(
 			models.AffiliationMARINES}[randomAffiliation]
 	}
 
-	dutyStationCount := len(allDutyLocations)
+	dutyLocationCount := len(allDutyLocations)
 	if assertions.Order.OriginDutyLocationID == nil {
-		// We can pick any origin duty station not only one in the office user's GBLOC
+		// We can pick any origin duty location not only one in the office user's GBLOC
 		if *assertions.ServiceMember.Affiliation == models.AffiliationMARINES {
-			randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
+			randDutyStaionIndex, err := random.GetRandomInt(dutyLocationCount)
 			if err != nil {
-				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
+				log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
 			}
 			assertions.Order.OriginDutyLocation = &allDutyLocations[randDutyStaionIndex]
 			assertions.Order.OriginDutyLocationID = &assertions.Order.OriginDutyLocation.ID
 		} else {
 			randDutyStaionIndex, err := random.GetRandomInt(len(dutyLocationsInGBLOC))
 			if err != nil {
-				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
+				log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
 			}
 			assertions.Order.OriginDutyLocation = &dutyLocationsInGBLOC[randDutyStaionIndex]
 			assertions.Order.OriginDutyLocationID = &assertions.Order.OriginDutyLocation.ID
@@ -5972,9 +5972,9 @@ func createRandomMove(
 	}
 
 	if assertions.Order.NewDutyLocationID == uuid.Nil {
-		randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
+		randDutyStaionIndex, err := random.GetRandomInt(dutyLocationCount)
 		if err != nil {
-			log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
+			log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
 		}
 		assertions.Order.NewDutyLocation = allDutyLocations[randDutyStaionIndex]
 		assertions.Order.NewDutyLocationID = assertions.Order.NewDutyLocation.ID

@@ -1,7 +1,7 @@
-Upon review, the office has determined that MilMove can’t handle your move {{if .OriginDutyStation}}from {{.OriginDutyStation}} {{end}}to {{.DestinationDutyStation}}, and canceled it in the system. You’re still moving, but we’ll need to manage your move with a different system.
+Upon review, the office has determined that MilMove can’t handle your move {{if .OriginDutyLocation}}from {{.OriginDutyLocation}} {{end}}to {{.DestinationDutyLocation}}, and canceled it in the system. You’re still moving, but we’ll need to manage your move with a different system.
 
-{{if .OriginDutyStation}}
-Please call the PPPO at {{.OriginDutyStation}} at {{.OriginDutyStationPhoneLine}} and they’ll help you figure out what to do next.
+{{if .OriginDutyLocation}}
+Please call the PPPO at {{.OriginDutyLocation}} at {{.OriginDutyLocationPhoneLine}} and they’ll help you figure out what to do next.
 {{ else }}
 To talk with someone on what to do next, consult Military OneSource's directory of PCS-related contacts to find your best contact and reference move code {{.Locator}}.
 {{end}}
