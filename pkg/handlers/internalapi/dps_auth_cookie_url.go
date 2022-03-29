@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -32,8 +33,8 @@ type DPSAuthGetCookieURLHandler struct {
 
 // Handle generates the URL to redirect to that begins the authentication process for DPS
 func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			// TODO: Currently, only whitelisted DPS users can access this endpoint because
 			//   1. The /dps_cookie page is ungated on the front-end. The restriction here will prevent
 			//      people from actually doing anything useful with that page.
@@ -43,17 +44,20 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 			// Important: Only DPS users should ever be allowed to set parameters though (for testing).
 			// Service members should never be allowed to set params and only be allowed to use the default params.
 			if !appCtx.Session().IsDpsUser() {
-				return dps_auth.NewGetCookieURLForbidden()
+				sessionDPSErr := apperror.NewSessionError("User is not a DPS user")
+				appCtx.Logger().Error(sessionDPSErr.Error(), zap.Error(sessionDPSErr))
+				return dps_auth.NewGetCookieURLForbidden(), sessionDPSErr
 			}
 
 			dpsParams := h.DPSAuthParams()
 			url, err := url.Parse(fmt.Sprintf("%s://%s:%d%s", dpsParams.SDDCProtocol, dpsParams.SDDCHostname, dpsParams.SDDCPort, dpsauth.SetCookiePath))
 			if err != nil {
-				appCtx.Logger().Error("Parsing cookie URL", zap.Error(err))
-				return dps_auth.NewGetCookieURLInternalServerError()
+				parseCookieErr := apperror.NewUnprocessableEntityError("Parsing cookie URL")
+				appCtx.Logger().Error(parseCookieErr.Error(), zap.Error(err))
+				return dps_auth.NewGetCookieURLInternalServerError(), parseCookieErr
 			}
 
-			token, err := h.generateToken(params)
+			token, err := h.generateToken(params, appCtx)
 			if err != nil {
 				switch e := err.(type) {
 				case *errUserMissing:
@@ -62,7 +66,7 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 					appCtx.Logger().Error("Generating token for cookie URL", zap.Error(err))
 				}
 
-				return dps_auth.NewGetCookieURLInternalServerError()
+				return dps_auth.NewGetCookieURLInternalServerError(), err
 			}
 
 			q := url.Query()
@@ -70,12 +74,11 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 			url.RawQuery = q.Encode()
 
 			payload := internalmessages.DPSAuthCookieURLPayload{CookieURL: strfmt.URI(url.String())}
-			return dps_auth.NewGetCookieURLOK().WithPayload(&payload)
+			return dps_auth.NewGetCookieURLOK().WithPayload(&payload), nil
 		})
 }
 
-func (h DPSAuthGetCookieURLHandler) generateToken(params dps_auth.GetCookieURLParams) (string, error) {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+func (h DPSAuthGetCookieURLHandler) generateToken(params dps_auth.GetCookieURLParams, appCtx appcontext.AppContext) (string, error) {
 	dpsParams := h.DPSAuthParams()
 	cookieName := dpsParams.CookieName
 	if params.CookieName != nil {

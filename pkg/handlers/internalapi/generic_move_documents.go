@@ -1,12 +1,11 @@
 package internalapi
 
 import (
-	"errors"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -43,17 +42,17 @@ type CreateGenericMoveDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID, err := uuid.FromString(params.MoveID.String())
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			// Validate that this move belongs to the current user
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			payload := params.CreateGenericMoveDocumentPayload
@@ -61,7 +60,8 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 			// Fetch uploads to confirm ownership
 			uploadIds := payload.UploadIds
 			if len(uploadIds) == 0 {
-				return movedocop.NewCreateGenericMoveDocumentBadRequest()
+				badRequestErr := apperror.NewUnprocessableEntityError("There are no upload IDs")
+				return movedocop.NewCreateGenericMoveDocumentBadRequest(), badRequestErr
 			}
 
 			userUploads := models.UserUploads{}
@@ -69,7 +69,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 				convertedUploadID := uuid.Must(uuid.FromString(id.String()))
 				userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), convertedUploadID)
 				if fetchUploadErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), fetchUploadErr)
+					return handlers.ResponseForError(appCtx.Logger(), fetchUploadErr), fetchUploadErr
 				}
 				userUploads = append(userUploads, userUpload)
 			}
@@ -81,17 +81,19 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 				// Enforce that the ppm's move_id matches our move
 				ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), id)
 				if fetchPPMErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), fetchPPMErr)
+					return handlers.ResponseForError(appCtx.Logger(), fetchPPMErr), fetchPPMErr
 				}
 				if ppm.MoveID != moveID {
-					return movedocop.NewCreateGenericMoveDocumentBadRequest()
+					ppmMatchErr := apperror.NewUnprocessableEntityError("PPM Move ID doesn't match original Move ID")
+					return movedocop.NewCreateGenericMoveDocumentBadRequest(), ppmMatchErr
 				}
 
 				ppmID = &id
 			}
 
 			if payload.MoveDocumentType == nil {
-				return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: MoveDocumentType"))
+				moveDocErr := apperror.NewBadDataError("missing required field: MoveDocumentType")
+				return handlers.ResponseForError(appCtx.Logger(), moveDocErr), moveDocErr
 			}
 			newMoveDocument, verrs, err := move.CreateMoveDocument(appCtx.DB(),
 				userUploads,
@@ -102,13 +104,13 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 				*move.SelectedMoveType)
 
 			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 
 			newPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *newMoveDocument)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload)
+			return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload), nil
 		})
 }
