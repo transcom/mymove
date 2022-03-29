@@ -33,14 +33,14 @@ type mockPPMComputer struct {
 	ppmComputerParams []ppmComputerParams
 }
 
-func (mppmc *mockPPMComputer) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error) {
+func (mppmc *mockPPMComputer) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error) {
 	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
 		Weight:                                 weight,
 		OriginPickupZip5:                       originPickupZip5,
-		OriginDutyLocationZip5:                 originDutyStationZip5,
+		OriginDutyLocationZip5:                 originDutyLocationZip5,
 		DestinationZip5:                        destinationZip5,
 		DistanceMilesFromOriginPickupZip:       distanceMilesFromOriginPickupZip,
-		DistanceMilesFromOriginDutyLocationZip: distanceMilesFromOriginDutyStationZip,
+		DistanceMilesFromOriginDutyLocationZip: distanceMilesFromOriginDutyLocationZip,
 		Date:                                   date,
 		DaysInSIT:                              daysInSit,
 	})
@@ -147,7 +147,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 			Cost:      rateengine.CostComputation{GCC: 100, SITMax: 20000},
 			IsWinning: true,
 		}
-		costDetails["originDutyStation"] = &rateengine.CostDetail{
+		costDetails["originDutyLocation"] = &rateengine.CostDetail{
 			Cost:      rateengine.CostComputation{GCC: 200, SITMax: 30000},
 			IsWinning: true,
 		}
@@ -191,7 +191,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 			Cost:      rateengine.CostComputation{SITMax: unit.Cents(500)},
 			IsWinning: true,
 		}
-		costDetails["originDutyStation"] = &rateengine.CostDetail{
+		costDetails["originDutyLocation"] = &rateengine.CostDetail{
 			Cost:      rateengine.CostComputation{SITMax: unit.Cents(600)},
 			IsWinning: false,
 		}
@@ -211,7 +211,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 			Cost:      rateengine.CostComputation{SITMax: unit.Cents(500)},
 			IsWinning: true,
 		}
-		costDetails["originDutyStation"] = &rateengine.CostDetail{
+		costDetails["originDutyLocation"] = &rateengine.CostDetail{
 			Cost:      rateengine.CostComputation{SITMax: unit.Cents(600)},
 			IsWinning: false,
 		}

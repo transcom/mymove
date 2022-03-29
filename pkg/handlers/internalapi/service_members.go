@@ -82,8 +82,8 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 			residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
 			backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
 
-			var stationID *uuid.UUID
-			var station models.DutyLocation
+			var dutyLocationID *uuid.UUID
+			var dutyLocation models.DutyLocation
 			if params.CreateServiceMemberPayload.CurrentLocationID != nil {
 				id, err := uuid.FromString(params.CreateServiceMemberPayload.CurrentLocationID.String())
 				if err != nil {
@@ -93,8 +93,8 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				if err != nil {
 					return handlers.ResponseForError(appCtx.Logger(), err)
 				}
-				stationID = &id
-				station = s
+				dutyLocationID = &id
+				dutyLocation = s
 			}
 
 			// Create a new serviceMember for an authenticated user
@@ -114,9 +114,9 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				EmailIsPreferred:     params.CreateServiceMemberPayload.EmailIsPreferred,
 				ResidentialAddress:   residentialAddress,
 				BackupMailingAddress: backupMailingAddress,
-				DutyLocation:         station,
+				DutyLocation:         dutyLocation,
 				RequiresAccessCode:   h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
-				DutyLocationID:       stationID,
+				DutyLocationID:       dutyLocationID,
 			}
 			smVerrs, err := models.SaveServiceMember(appCtx, &newServiceMember)
 			if smVerrs.HasAny() || err != nil {
@@ -241,17 +241,17 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(appCtx appcontext.AppContext, serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
 	if h.isDraftMove(serviceMember) {
 		if payload.CurrentLocationID != nil {
-			stationID, err := uuid.FromString(payload.CurrentLocationID.String())
+			dutyLocationID, err := uuid.FromString(payload.CurrentLocationID.String())
 			if err != nil {
 				return validate.NewErrors(), err
 			}
 			// Fetch the model partially as a validation on the ID
-			station, err := models.FetchDutyLocation(appCtx.DB(), stationID)
+			dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
 			if err != nil {
 				return validate.NewErrors(), err
 			}
-			serviceMember.DutyLocation = station
-			serviceMember.DutyLocationID = &stationID
+			serviceMember.DutyLocation = dutyLocation
+			serviceMember.DutyLocationID = &dutyLocationID
 		}
 
 		if payload.Affiliation != nil {

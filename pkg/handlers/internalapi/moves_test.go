@@ -282,7 +282,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 
 func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 	suite.Run("Routes to service counseling when feature flag is true", func() {
-		// Given: a set of orders with an origin duty station that provides services counseling,
+		// Given: a set of orders with an origin duty location that provides services counseling,
 		// a move, user and servicemember
 		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 			DutyLocation: models.DutyLocation{

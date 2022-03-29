@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// DutyLocation represents a military duty station for a specific affiliation
+// DutyLocation represents a military duty location for a specific affiliation
 type DutyLocation struct {
 	ID                         uuid.UUID                     `json:"id" db:"id"`
 	CreatedAt                  time.Time                     `json:"created_at" db:"created_at"`
@@ -58,7 +58,7 @@ type DutyLocationTransportInfo struct {
 	PhoneLine string `db:"number"`
 }
 
-// FetchDLContactInfo loads a duty station's associated transportation office and its first listed office phone number.
+// FetchDLContactInfo loads a duty location's associated transportation office and its first listed office phone number.
 func FetchDLContactInfo(db *pop.Connection, dutyLocationID *uuid.UUID) (*DutyLocationTransportInfo, error) {
 	if dutyLocationID == nil {
 		return nil, ErrFetchNotFound
@@ -88,16 +88,16 @@ func FetchDLContactInfo(db *pop.Connection, dutyLocationID *uuid.UUID) (*DutyLoc
 
 // FetchDutyLocation returns a DutyLocation for a given id
 func FetchDutyLocation(tx *pop.Connection, id uuid.UUID) (DutyLocation, error) {
-	var station DutyLocation
-	err := tx.Q().Eager("Address").Find(&station, id)
-	return station, err
+	var dutyLocation DutyLocation
+	err := tx.Q().Eager("Address").Find(&dutyLocation, id)
+	return dutyLocation, err
 }
 
 // FetchDutyLocationByName returns a DutyLocation for a given unique name
 func FetchDutyLocationByName(tx *pop.Connection, name string) (DutyLocation, error) {
-	var station DutyLocation
-	err := tx.Where("name = ?", name).Eager("Address").First(&station)
-	return station, err
+	var dutyLocation DutyLocation
+	err := tx.Where("name = ?", name).Eager("Address").First(&dutyLocation)
+	return dutyLocation, err
 }
 
 // FindDutyLocations returns all duty locations matching a search query
@@ -147,7 +147,7 @@ limit 7`
 	return locations, nil
 }
 
-// FetchDutyLocationTransportationOffice returns a transportation office for a duty station
+// FetchDutyLocationTransportationOffice returns a transportation office for a duty location
 func FetchDutyLocationTransportationOffice(db *pop.Connection, dutyLocationID uuid.UUID) (TransportationOffice, error) {
 	var dutyLocation DutyLocation
 
@@ -163,7 +163,7 @@ func FetchDutyLocationTransportationOffice(db *pop.Connection, dutyLocationID uu
 	return dutyLocation.TransportationOffice, nil
 }
 
-// FetchDutyLocationsByPostalCode returns a station for a given postal code
+// FetchDutyLocationsByPostalCode returns a duty location for a given postal code
 func FetchDutyLocationsByPostalCode(tx *pop.Connection, postalCode string) (DutyLocations, error) {
 	var locations DutyLocations
 	query := tx.

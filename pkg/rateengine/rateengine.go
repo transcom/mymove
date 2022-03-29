@@ -268,8 +268,8 @@ func (re *RateEngine) computePPMIncludingLHDiscount(appCtx appcontext.AppContext
 	return cost, nil
 }
 
-// ComputePPMMoveCosts uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty station zip - and returns both calcs.
-func (re *RateEngine) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (costDetails CostDetails, err error) {
+// ComputePPMMoveCosts uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty location zip - and returns both calcs.
+func (re *RateEngine) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (costDetails CostDetails, err error) {
 	costFromOriginPickupZip, err := re.computePPMIncludingLHDiscount(
 		appCtx,
 		weight,
@@ -290,12 +290,12 @@ func (re *RateEngine) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight u
 		false,
 	}
 
-	costFromOriginDutyStationZip, err := re.computePPMIncludingLHDiscount(
+	costFromOriginDutyLocationZip, err := re.computePPMIncludingLHDiscount(
 		appCtx,
 		weight,
-		originDutyStationZip5,
+		originDutyLocationZip5,
 		destinationZip5,
-		distanceMilesFromOriginDutyStationZip,
+		distanceMilesFromOriginDutyLocationZip,
 		date,
 		daysInSit,
 	)
@@ -303,17 +303,17 @@ func (re *RateEngine) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight u
 		appCtx.Logger().Error("Failed to compute PPM cost", zap.Error(err))
 		return
 	}
-	costDetails["originDutyStation"] = &CostDetail{
-		costFromOriginDutyStationZip,
+	costDetails["originDutyLocation"] = &CostDetail{
+		costFromOriginDutyLocationZip,
 		false,
 	}
 
 	originZipCode := originPickupZip5
 	originZipLocation := "Pickup location"
-	if costFromOriginPickupZip.GCC > costFromOriginDutyStationZip.GCC {
-		costDetails["originDutyStation"].IsWinning = true
-		originZipCode = originDutyStationZip5
-		originZipLocation = "Origin duty station"
+	if costFromOriginPickupZip.GCC > costFromOriginDutyLocationZip.GCC {
+		costDetails["originDutyLocation"].IsWinning = true
+		originZipCode = originDutyLocationZip5
+		originZipLocation = "Origin duty location"
 	} else {
 		costDetails["pickupLocation"].IsWinning = true
 	}
@@ -331,13 +331,13 @@ func GetWinningCostMove(costDetails CostDetails) CostComputation {
 	if costDetails["pickupLocation"].IsWinning {
 		return costDetails["pickupLocation"].Cost
 	}
-	return costDetails["originDutyStation"].Cost
+	return costDetails["originDutyLocation"].Cost
 }
 
 // GetNonWinningCostMove returns a costComputation of the non-winning calculation
 func GetNonWinningCostMove(costDetails CostDetails) CostComputation {
 	if costDetails["pickupLocation"].IsWinning {
-		return costDetails["originDutyStation"].Cost
+		return costDetails["originDutyLocation"].Cost
 	}
 	return costDetails["pickupLocation"].Cost
 }
