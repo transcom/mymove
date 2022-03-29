@@ -46,8 +46,8 @@ type ShowAddressHandler struct {
 
 // Handle returns a address given an addressId
 func (h ShowAddressHandler) Handle(params addressop.ShowAddressParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			addressID, err := uuid.FromString(params.AddressID.String())
 
 			if err != nil {
@@ -56,6 +56,6 @@ func (h ShowAddressHandler) Handle(params addressop.ShowAddressParams) middlewar
 			address := models.FetchAddressByID(appCtx.DB(), &addressID)
 
 			addressPayload := payloads.Address(address)
-			return addressop.NewShowAddressOK().WithPayload(addressPayload)
+			return addressop.NewShowAddressOK().WithPayload(addressPayload), nil
 		})
 }
