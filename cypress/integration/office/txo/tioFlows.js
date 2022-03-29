@@ -326,26 +326,32 @@ describe('TIO user', () => {
 
     cy.get('[data-testid="serviceItemName"]').contains('Move management');
     cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.wait('@patchPaymentServiceItemStatus');
     cy.get('button').contains('Next').click();
 
     cy.get('[data-testid="serviceItemName"]').contains('Domestic origin shuttle service');
     cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.wait('@patchPaymentServiceItemStatus');
     cy.get('button').contains('Next').click();
 
     cy.get('[data-testid="serviceItemName"]').contains('Domestic origin shuttle service');
     cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.wait('@patchPaymentServiceItemStatus');
     cy.get('button').contains('Next').click();
 
     cy.get('[data-testid="serviceItemName"]').contains('Domestic crating');
     cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.wait('@patchPaymentServiceItemStatus');
     cy.get('button').contains('Next').click();
 
     cy.get('[data-testid="serviceItemName"]').contains('Domestic crating');
     cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.wait('@patchPaymentServiceItemStatus');
     cy.get('button').contains('Next').click();
 
     cy.get('[data-testid="serviceItemName"]').contains('Domestic linehaul');
     cy.get('[data-testid="approveRadio"]').click({ force: true });
+    cy.wait('@patchPaymentServiceItemStatus');
     cy.get('button').contains('Next').click();
 
     cy.get('[data-testid="accepted"]').contains('$1,130.21');
