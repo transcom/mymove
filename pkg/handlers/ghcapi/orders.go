@@ -29,22 +29,21 @@ type GetOrdersHandler struct {
 
 // Handle getting the information of a specific order
 func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
-
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			orderID, _ := uuid.FromString(params.OrderID.String())
 			order, err := h.FetchOrder(appCtx, orderID)
 			if err != nil {
 				appCtx.Logger().Error("fetching order", zap.Error(err))
 				switch err {
 				case sql.ErrNoRows:
-					return orderop.NewGetOrderNotFound()
+					return orderop.NewGetOrderNotFound(), err
 				default:
-					return orderop.NewGetOrderInternalServerError()
+					return orderop.NewGetOrderInternalServerError(), err
 				}
 			}
 			orderPayload := payloads.Order(order)
-			return orderop.NewGetOrderOK().WithPayload(orderPayload)
+			return orderop.NewGetOrderOK().WithPayload(orderPayload), nil
 		})
 }
 
@@ -57,34 +56,42 @@ type UpdateOrderHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error updating order", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return orderop.NewUpdateOrderNotFound()
+					return orderop.NewUpdateOrderNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-					return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
+					return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload), err
 				case apperror.ConflictError:
-					return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.PreconditionFailedError:
-					return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return orderop.NewUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return orderop.NewUpdateOrderInternalServerError()
+					return orderop.NewUpdateOrderInternalServerError(), err
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || (!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
+			if !appCtx.Session().IsOfficeUser() ||
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
 				return handleError(apperror.NewForbiddenError("is not a TXO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
-			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
+			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(
+				appCtx,
+				orderID,
+				*params.Body,
+				params.IfMatch,
+			)
 			if err != nil {
 				return handleError(err)
 			}
@@ -93,7 +100,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 
 			orderPayload := payloads.Order(updatedOrder)
 
-			return orderop.NewUpdateOrderOK().WithPayload(orderPayload)
+			return orderop.NewUpdateOrderOK().WithPayload(orderPayload), nil
 		})
 }
 
@@ -104,33 +111,43 @@ type CounselingUpdateOrderHandler struct {
 }
 
 // Handle ... updates an order as requested by a services counselor
-func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrderParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+func (h CounselingUpdateOrderHandler) Handle(
+	params orderop.CounselingUpdateOrderParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error updating order", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return orderop.NewCounselingUpdateOrderNotFound()
+					return orderop.NewCounselingUpdateOrderNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-					return orderop.NewCounselingUpdateOrderUnprocessableEntity().WithPayload(payload)
+					return orderop.NewCounselingUpdateOrderUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return orderop.NewCounselingUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewCounselingUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return orderop.NewCounselingUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewCounselingUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return orderop.NewCounselingUpdateOrderInternalServerError()
+					return orderop.NewCounselingUpdateOrderInternalServerError(), err
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 				return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
-			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsCounselor(appCtx, orderID, *params.Body, params.IfMatch)
+			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsCounselor(
+				appCtx,
+				orderID,
+				*params.Body,
+				params.IfMatch,
+			)
 			if err != nil {
 				return handleError(err)
 			}
@@ -139,7 +156,7 @@ func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrde
 
 			orderPayload := payloads.Order(updatedOrder)
 
-			return orderop.NewCounselingUpdateOrderOK().WithPayload(orderPayload)
+			return orderop.NewCounselingUpdateOrderOK().WithPayload(orderPayload), nil
 		})
 }
 
@@ -151,32 +168,40 @@ type UpdateAllowanceHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error updating order allowance", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return orderop.NewUpdateAllowanceNotFound()
+					return orderop.NewUpdateAllowanceNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-					return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload)
+					return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return orderop.NewUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return orderop.NewUpdateAllowanceInternalServerError()
+					return orderop.NewUpdateAllowanceInternalServerError(), err
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 				return handleError(apperror.NewForbiddenError("is not a TOO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
-			updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
+			updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsTOO(
+				appCtx,
+				orderID,
+				*params.Body,
+				params.IfMatch,
+			)
 			if err != nil {
 				return handleError(err)
 			}
@@ -185,7 +210,7 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 
 			orderPayload := payloads.Order(updatedOrder)
 
-			return orderop.NewUpdateAllowanceOK().WithPayload(orderPayload)
+			return orderop.NewUpdateAllowanceOK().WithPayload(orderPayload), nil
 		})
 }
 
@@ -196,33 +221,43 @@ type CounselingUpdateAllowanceHandler struct {
 }
 
 // Handle ... updates an order from a request payload
-func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdateAllowanceParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+func (h CounselingUpdateAllowanceHandler) Handle(
+	params orderop.CounselingUpdateAllowanceParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error updating order allowance", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return orderop.NewCounselingUpdateAllowanceNotFound()
+					return orderop.NewCounselingUpdateAllowanceNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-					return orderop.NewCounselingUpdateAllowanceUnprocessableEntity().WithPayload(payload)
+					return orderop.NewCounselingUpdateAllowanceUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return orderop.NewCounselingUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewCounselingUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return orderop.NewCounselingUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewCounselingUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return orderop.NewCounselingUpdateAllowanceInternalServerError()
+					return orderop.NewCounselingUpdateAllowanceInternalServerError(), err
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 				return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
-			updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsCounselor(appCtx, orderID, *params.Body, params.IfMatch)
+			updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsCounselor(
+				appCtx,
+				orderID,
+				*params.Body,
+				params.IfMatch,
+			)
 			if err != nil {
 				return handleError(err)
 			}
@@ -231,7 +266,7 @@ func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdate
 
 			orderPayload := payloads.Order(updatedOrder)
 
-			return orderop.NewCounselingUpdateAllowanceOK().WithPayload(orderPayload)
+			return orderop.NewCounselingUpdateAllowanceOK().WithPayload(orderPayload), nil
 		})
 }
 
@@ -242,34 +277,44 @@ type UpdateBillableWeightHandler struct {
 }
 
 // Handle ... updates the authorized weight
-func (h UpdateBillableWeightHandler) Handle(params orderop.UpdateBillableWeightParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+func (h UpdateBillableWeightHandler) Handle(
+	params orderop.UpdateBillableWeightParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return orderop.NewUpdateBillableWeightNotFound()
+					return orderop.NewUpdateBillableWeightNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-					return orderop.NewUpdateBillableWeightUnprocessableEntity().WithPayload(payload)
+					return orderop.NewUpdateBillableWeightUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return orderop.NewUpdateBillableWeightPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateBillableWeightPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return orderop.NewUpdateBillableWeightForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateBillableWeightForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return orderop.NewUpdateBillableWeightInternalServerError()
+					return orderop.NewUpdateBillableWeightInternalServerError(), err
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 				return handleError(apperror.NewForbiddenError("is not a TOO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
 			dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
-			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateBillableWeightAsTOO(appCtx, orderID, dbAuthorizedWeight, params.IfMatch)
+			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateBillableWeightAsTOO(
+				appCtx,
+				orderID,
+				dbAuthorizedWeight,
+				params.IfMatch,
+			)
 			if err != nil {
 				return handleError(err)
 			}
@@ -278,7 +323,7 @@ func (h UpdateBillableWeightHandler) Handle(params orderop.UpdateBillableWeightP
 
 			orderPayload := payloads.Order(updatedOrder)
 
-			return orderop.NewUpdateBillableWeightOK().WithPayload(orderPayload)
+			return orderop.NewUpdateBillableWeightOK().WithPayload(orderPayload), nil
 		})
 }
 
@@ -289,35 +334,46 @@ type UpdateMaxBillableWeightAsTIOHandler struct {
 }
 
 // Handle ... updates the authorized weight
-func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBillableWeightAsTIOParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+func (h UpdateMaxBillableWeightAsTIOHandler) Handle(
+	params orderop.UpdateMaxBillableWeightAsTIOParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error updating max billable weight", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return orderop.NewUpdateMaxBillableWeightAsTIONotFound()
+					return orderop.NewUpdateMaxBillableWeightAsTIONotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-					return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload)
+					return orderop.NewUpdateMaxBillableWeightAsTIOUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateMaxBillableWeightAsTIOPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return orderop.NewUpdateMaxBillableWeightAsTIOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewUpdateMaxBillableWeightAsTIOForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError()
+					return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError(), err
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
 				return handleError(apperror.NewForbiddenError("is not a TIO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
 			dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
 			remarks := params.Body.TioRemarks
-			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(appCtx, orderID, dbAuthorizedWeight, remarks, params.IfMatch)
+			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(
+				appCtx,
+				orderID,
+				dbAuthorizedWeight,
+				remarks,
+				params.IfMatch,
+			)
 			if err != nil {
 				return handleError(err)
 			}
@@ -326,7 +382,7 @@ func (h UpdateMaxBillableWeightAsTIOHandler) Handle(params orderop.UpdateMaxBill
 
 			orderPayload := payloads.Order(updatedOrder)
 
-			return orderop.NewUpdateMaxBillableWeightAsTIOOK().WithPayload(orderPayload)
+			return orderop.NewUpdateMaxBillableWeightAsTIOOK().WithPayload(orderPayload), nil
 		})
 }
 
@@ -337,33 +393,42 @@ type AcknowledgeExcessWeightRiskHandler struct {
 }
 
 // Handle ... updates the authorized weight
-func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExcessWeightRiskParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+func (h AcknowledgeExcessWeightRiskHandler) Handle(
+	params orderop.AcknowledgeExcessWeightRiskParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			handleError := func(err error) middleware.Responder {
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("error acknowledging excess weight risk", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return orderop.NewAcknowledgeExcessWeightRiskNotFound()
+					return orderop.NewAcknowledgeExcessWeightRiskNotFound(), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
-					return orderop.NewAcknowledgeExcessWeightRiskUnprocessableEntity().WithPayload(payload)
+					return orderop.NewAcknowledgeExcessWeightRiskUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
-					return orderop.NewAcknowledgeExcessWeightRiskPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewAcknowledgeExcessWeightRiskPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				case apperror.ForbiddenError:
-					return orderop.NewAcknowledgeExcessWeightRiskForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+					return orderop.NewAcknowledgeExcessWeightRiskForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return orderop.NewAcknowledgeExcessWeightRiskInternalServerError()
+					return orderop.NewAcknowledgeExcessWeightRiskInternalServerError(), err
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 				return handleError(apperror.NewForbiddenError("is not a TOO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
-			updatedMove, err := h.excessWeightRiskManager.AcknowledgeExcessWeightRisk(appCtx, orderID, params.IfMatch)
+			updatedMove, err := h.excessWeightRiskManager.AcknowledgeExcessWeightRisk(
+				appCtx,
+				orderID,
+				params.IfMatch,
+			)
 			if err != nil {
 				return handleError(err)
 			}
@@ -372,11 +437,16 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExc
 
 			movePayload := payloads.Move(updatedMove)
 
-			return orderop.NewAcknowledgeExcessWeightRiskOK().WithPayload(movePayload)
+			return orderop.NewAcknowledgeExcessWeightRiskOK().WithPayload(movePayload), nil
 		})
 }
 
-func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateOrderParams) {
+func (h UpdateOrderHandler) triggerUpdateOrderEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.UpdateOrderParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateOrderEndpointKey,
 		// Endpoint that is being handled
@@ -386,14 +456,18 @@ func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateOrderHandler could not generate the event")
 	}
 }
 
-func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.CounselingUpdateOrderParams) {
+func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.CounselingUpdateOrderParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcCounselingUpdateOrderEndpointKey,
 		// Endpoint that is being handled
@@ -403,14 +477,18 @@ func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(appCtx a
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateAllowanceHandler could not generate the event")
 	}
 }
 
-func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateAllowanceParams) {
+func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.UpdateAllowanceParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateAllowanceEndpointKey,
 		// Endpoint that is being handled
@@ -420,14 +498,18 @@ func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(appCtx appcontext.A
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateAllowanceHandler could not generate the event")
 	}
 }
 
-func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.CounselingUpdateAllowanceParams) {
+func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.CounselingUpdateAllowanceParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcCounselingUpdateAllowanceEndpointKey,
 		// Endpoint that is being handled
@@ -437,14 +519,19 @@ func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		appCtx.Logger().Error("ghcapi.CounselingUpdateAllowanceHandler could not generate the event")
+		appCtx.Logger().
+			Error("ghcapi.CounselingUpdateAllowanceHandler could not generate the event")
 	}
 }
 
-func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateBillableWeightParams) {
+func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.UpdateBillableWeightParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateBillableWeightEndpointKey,
 		// Endpoint that is being handled
@@ -454,14 +541,18 @@ func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(appCtx ap
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateBillableWeightHandler could not generate the event")
 	}
 }
 
-func (h UpdateMaxBillableWeightAsTIOHandler) triggerUpdatedMaxBillableWeightAsTIOEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateMaxBillableWeightAsTIOParams) {
+func (h UpdateMaxBillableWeightAsTIOHandler) triggerUpdatedMaxBillableWeightAsTIOEvent(
+	appCtx appcontext.AppContext,
+	orderID uuid.UUID,
+	moveID uuid.UUID,
+	params orderop.UpdateMaxBillableWeightAsTIOParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateMaxBillableWeightAsTIOEndpointKey,
 		// Endpoint that is being handled
@@ -471,14 +562,18 @@ func (h UpdateMaxBillableWeightAsTIOHandler) triggerUpdatedMaxBillableWeightAsTI
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		appCtx.Logger().Error("ghcapi.UpdateMaxBillableWeightAsTIOHandler could not generate the event")
+		appCtx.Logger().
+			Error("ghcapi.UpdateMaxBillableWeightAsTIOHandler could not generate the event")
 	}
 }
 
-func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEvent(appCtx appcontext.AppContext, moveID uuid.UUID, params orderop.AcknowledgeExcessWeightRiskParams) {
+func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEvent(
+	appCtx appcontext.AppContext,
+	moveID uuid.UUID,
+	params orderop.AcknowledgeExcessWeightRiskParams,
+) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcAcknowledgeExcessWeightRiskEndpointKey,
 		// Endpoint that is being handled
@@ -488,7 +583,6 @@ func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEv
 		AppContext:      appCtx,
 		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
 	})
-
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateBillableWeightHandler could not generate the event")

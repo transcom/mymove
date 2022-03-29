@@ -4538,6 +4538,12 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "contextId": {
+          "description": "id column for the context table the record belongs to",
+          "type": "string",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
         "eventName": {
           "description": "API endpoint name that was called to make the change",
           "type": "string",
@@ -11431,6 +11437,12 @@ func init() {
         "context": {
           "type": "string",
           "x-nullable": true
+        },
+        "contextId": {
+          "description": "id column for the context table the record belongs to",
+          "type": "string",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "eventName": {
           "description": "API endpoint name that was called to make the change",

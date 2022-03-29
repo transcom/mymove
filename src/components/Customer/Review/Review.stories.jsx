@@ -1,12 +1,27 @@
 import React from 'react';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 
-import { Summary } from './Summary';
-
-import { MOVE_STATUSES } from 'shared/constants';
+import { Summary } from 'components/Customer/Review/Summary/Summary';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
+import { shipmentStatuses } from 'constants/shipments';
 
 export default {
   title: 'Customer Components / Review Shipment',
+  component: Summary,
+  decorators: [
+    (Story) => (
+      <MockProviders>
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <Story />
+            </Grid>
+          </Grid>
+        </GridContainer>
+      </MockProviders>
+    ),
+  ],
 };
 
 const noop = () => {};
@@ -48,15 +63,18 @@ const defaultProps = {
     },
   },
   history: {
-    back: noop,
+    goBack: noop,
     push: noop,
   },
   match: {
-    url: `/moves/${mtoLocator}/review`,
+    url: `/moves/${mtoUuid}/review`,
     params: {
-      moveId: mtoLocator,
+      moveId: mtoUuid,
     },
+    isExact: true,
+    path: '/moves/:moveId/review',
   },
+  onDidMount: noop,
   moveIsApproved: false,
   mtoShipments: [],
   serviceMember: {
@@ -70,7 +88,7 @@ const defaultProps = {
       state: 'NY',
       streetAddress1: '448 Washington Blvd NE',
     },
-    affiliation: 'Navy',
+    affiliation: 'NAVY',
     edipi: '1231231231',
     personal_email: 'test@example.com',
     first_name: 'Jason',
@@ -101,10 +119,19 @@ const HHGShipment = {
 
 const PPMShipment = {
   id: 'ppmShipmentUuid',
-  pickup_postal_code: '13643',
-  destination_postal_code: '91945',
-  original_move_date: '2021-06-23',
+  moveTaskOrderID: mtoUuid,
+  status: MOVE_STATUSES.DRAFT,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   created_at: '2020-09-01T22:00:00.000Z',
+  updated_at: '2020-09-01T22:30:00.000Z',
+  ppmShipment: {
+    expectedDepartureDate: '2021-06-23',
+    pickupPostalCode: '13643',
+    destinationPostalCode: '91945',
+    sitExpected: false,
+    estimatedWeight: 5000,
+    estimatedIncentive: 1000000,
+  },
 };
 
 export const WithNoShipments = () => {
@@ -131,7 +158,7 @@ export const WithHHGShipment = () => {
 export const WithPPM = () => {
   const props = {
     ...defaultProps,
-    currentPPM: PPMShipment,
+    mtoShipments: [PPMShipment],
   };
   return (
     <MockProviders>
@@ -143,12 +170,11 @@ export const WithPPM = () => {
 export const AsSubmitted = () => {
   const props = {
     ...defaultProps,
-    mtoShipments: [HHGShipment],
+    mtoShipments: [HHGShipment, PPMShipment],
     currentMove: {
       ...defaultProps.currentMove,
       status: MOVE_STATUSES.SUBMITTED,
     },
-    currentPPM: PPMShipment,
   };
 
   return (
@@ -159,19 +185,23 @@ export const AsSubmitted = () => {
 };
 
 export const AsApproved = () => {
-  const approvedShipment = {
+  const approvedHHGShipment = {
     ...HHGShipment,
-    status: MOVE_STATUSES.SUBMITTED,
+    status: shipmentStatuses.APPROVED,
+  };
+
+  const approvedPPMShipment = {
+    ...PPMShipment,
+    status: shipmentStatuses.APPROVED,
   };
 
   const props = {
     ...defaultProps,
-    mtoShipments: [approvedShipment],
+    mtoShipments: [approvedHHGShipment, approvedPPMShipment],
     moveIsApproved: true,
-    currentPPM: PPMShipment,
     currentMove: {
       ...defaultProps.currentMove,
-      status: MOVE_STATUSES.SUBMITTED,
+      status: MOVE_STATUSES.APPROVED,
     },
   };
 

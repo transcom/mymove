@@ -49,17 +49,17 @@ type EmailInfos []EmailInfo
 
 // EmailInfo email information for rendering a template
 type EmailInfo struct {
-	ServiceMemberID    uuid.UUID `db:"id"`
-	Email              *string   `db:"personal_email"`
-	DutyStationName    string    `db:"duty_station_name"`
-	NewDutyStationName string    `db:"new_duty_station_name"`
-	Locator            string    `db:"locator"`
+	ServiceMemberID     uuid.UUID `db:"id"`
+	Email               *string   `db:"personal_email"`
+	DutyLocationName    string    `db:"duty_location_name"`
+	NewDutyLocationName string    `db:"new_duty_location_name"`
+	Locator             string    `db:"locator"`
 }
 
 // GetEmailInfo retreives email information
 func (m MoveReviewed) GetEmailInfo(appCtx appcontext.AppContext, date time.Time) (EmailInfos, error) {
 	dateString := date.Format("2006-01-02")
-	query := `SELECT sm.id, sm.personal_email, dln.name AS new_duty_station_name, dlo.name AS duty_station_name, m.locator
+	query := `SELECT sm.id, sm.personal_email, dln.name AS new_duty_location_name, dlo.name AS duty_location_name, m.locator
 FROM personally_procured_moves p
          JOIN moves m ON p.move_id = m.id
          JOIN orders o ON m.orders_id = o.id
@@ -96,9 +96,9 @@ func (m MoveReviewed) formatEmails(appCtx appcontext.AppContext, emailInfos Emai
 	var emails []emailContent
 	for _, emailInfo := range emailInfos {
 		htmlBody, textBody, err := m.renderTemplates(appCtx, moveReviewedEmailData{
-			Link:                   surveyLink,
-			OriginDutyStation:      emailInfo.DutyStationName,
-			DestinationDutyStation: emailInfo.NewDutyStationName,
+			Link:                    surveyLink,
+			OriginDutyLocation:      emailInfo.DutyLocationName,
+			DestinationDutyLocation: emailInfo.NewDutyLocationName,
 		})
 		if err != nil {
 			appCtx.Logger().Error("error rendering template", zap.Error(err))
@@ -157,9 +157,9 @@ func (m MoveReviewed) OnSuccess(appCtx appcontext.AppContext, emailInfo EmailInf
 }
 
 type moveReviewedEmailData struct {
-	Link                   string
-	OriginDutyStation      string
-	DestinationDutyStation string
+	Link                    string
+	OriginDutyLocation      string
+	DestinationDutyLocation string
 }
 
 // RenderHTML renders the html for the email

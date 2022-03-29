@@ -31,20 +31,20 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveSubmitted(move.ID)
 
-	originDutyStation := "origDutyStation"
-	originDutyStationPhoneLine := "555-555-5555"
+	originDutyLocation := "origDutyLocation"
+	originDutyLocationPhoneLine := "555-555-5555"
 
 	s := moveSubmittedEmailData{
-		Link:                       "https://my.move.mil/",
-		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyStation:          &originDutyStation,
-		DestinationDutyStation:     "destDutyStation",
-		OriginDutyStationPhoneLine: &originDutyStationPhoneLine,
-		Locator:                    "abc123",
-		WeightAllowance:            "7,999",
+		Link:                        "https://my.move.mil/",
+		PpmLink:                     "https://office.move.mil/downloads/ppm_info_sheet.pdf",
+		OriginDutyLocation:          &originDutyLocation,
+		DestinationDutyLocation:     "destDutyLocation",
+		OriginDutyLocationPhoneLine: &originDutyLocationPhoneLine,
+		Locator:                     "abc123",
+		WeightAllowance:             "7,999",
 	}
 	expectedHTMLContent := `<p>
-  This is a confirmation that you’ve submitted the details for your move from origDutyStation to destDutyStation.
+  This is a confirmation that you’ve submitted the details for your move from origDutyLocation to destDutyLocation.
 </p>
 
 <p>
@@ -97,7 +97,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 </ul>
 
 <p>
-  If you have any questions about the PPM part of your move, call the origDutyStation PPPO at
+  If you have any questions about the PPM part of your move, call the origDutyLocation PPPO at
   555-555-5555 and reference move code abc123.
 </p>
 
@@ -135,7 +135,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 
 <p>If any information about your move changes at any point during the move, let your movers know.</p>
 
-<p>Good luck on your move to destDutyStation!</p>
+<p>Good luck on your move to destDutyLocation!</p>
 `
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
@@ -148,22 +148,22 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 
 }
 
-func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyStation() {
+func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocation() {
 	approver := testdatagen.MakeStubbedUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveSubmitted(move.ID)
 
 	s := moveSubmittedEmailData{
-		Link:                       "https://my.move.mil/",
-		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyStation:          nil,
-		DestinationDutyStation:     "destDutyStation",
-		OriginDutyStationPhoneLine: nil,
-		Locator:                    "abc123",
-		WeightAllowance:            "7,999",
+		Link:                        "https://my.move.mil/",
+		PpmLink:                     "https://office.move.mil/downloads/ppm_info_sheet.pdf",
+		OriginDutyLocation:          nil,
+		DestinationDutyLocation:     "destDutyLocation",
+		OriginDutyLocationPhoneLine: nil,
+		Locator:                     "abc123",
+		WeightAllowance:             "7,999",
 	}
 	expectedHTMLContent := `<p>
-  This is a confirmation that you’ve submitted the details for your move to destDutyStation.
+  This is a confirmation that you’ve submitted the details for your move to destDutyLocation.
 </p>
 
 <p>
@@ -251,7 +251,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyStation
 
 <p>If any information about your move changes at any point during the move, let your movers know.</p>
 
-<p>Good luck on your move to destDutyStation!</p>
+<p>Good luck on your move to destDutyLocation!</p>
 `
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
@@ -270,20 +270,20 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveSubmitted(move.ID)
 
-	originDutyStation := "origDutyStation"
-	originDutyStationPhoneLine := "555-555-5555"
+	originDutyLocation := "origDutyLocation"
+	originDutyLocationPhoneLine := "555-555-5555"
 
 	s := moveSubmittedEmailData{
-		Link:                       "https://my.move.mil/",
-		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyStation:          &originDutyStation,
-		DestinationDutyStation:     "destDutyStation",
-		OriginDutyStationPhoneLine: &originDutyStationPhoneLine,
-		Locator:                    "abc123",
-		WeightAllowance:            "7,999",
+		Link:                        "https://my.move.mil/",
+		PpmLink:                     "https://office.move.mil/downloads/ppm_info_sheet.pdf",
+		OriginDutyLocation:          &originDutyLocation,
+		DestinationDutyLocation:     "destDutyLocation",
+		OriginDutyLocationPhoneLine: &originDutyLocationPhoneLine,
+		Locator:                     "abc123",
+		WeightAllowance:             "7,999",
 	}
 
-	expectedTextContent := `This is a confirmation that you’ve submitted the details for your move from origDutyStation to destDutyStation.
+	expectedTextContent := `This is a confirmation that you’ve submitted the details for your move from origDutyLocation to destDutyLocation.
 
 We’ve assigned you a move code: abc123. You can use this code when talking to any representative about your move.
 
@@ -307,7 +307,7 @@ If you chose to do a full or partial PPM (DITY) move, <a href="https://office.mo
 * If you’re missing weight tickets, you may not get paid for your PPM
 * Save receipts for PPM expenses to request reimbursement or to reduce taxes on your incentive payment
 
-If you have any questions about the PPM part of your move, call the origDutyStation PPPO at 555-555-5555 and reference move code abc123.
+If you have any questions about the PPM part of your move, call the origDutyLocation PPPO at 555-555-5555 and reference move code abc123.
 
 Once you’ve completed your PPM shipment, you can request payment by <a href="https://my.move.mil/">logging in to MilMove</a>.
 
@@ -331,7 +331,7 @@ They’ll also finalize dates to pack and pick up your things, on or near the da
 
 If any information about your move changes at any point during the move, let your movers know.
 
-Good luck on your move to destDutyStation!
+Good luck on your move to destDutyLocation!
 `
 
 	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{

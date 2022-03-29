@@ -1,5 +1,5 @@
 import React from 'react';
-import Summary from 'components/Customer/Review/Summary';
+import Summary from 'components/Customer/Review/Summary/Summary';
 import { withRouter } from 'react-router-dom';
 import scrollToTop from 'shared/scrollToTop';
 

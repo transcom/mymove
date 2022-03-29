@@ -19,15 +19,15 @@ type ShowDutyLocationTransportationOfficeHandler struct {
 
 // Handle retrieves the transportation office in the system for a given duty location ID
 func (h ShowDutyLocationTransportationOfficeHandler) Handle(params transportationofficeop.ShowDutyLocationTransportationOfficeParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			dutyLocationID, _ := uuid.FromString(params.DutyLocationID.String())
 			transportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), dutyLocationID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			transportationOfficePayload := payloads.TransportationOffice(transportationOffice)
 
-			return transportationofficeop.NewShowDutyLocationTransportationOfficeOK().WithPayload(transportationOfficePayload)
+			return transportationofficeop.NewShowDutyLocationTransportationOfficeOK().WithPayload(transportationOfficePayload), nil
 		})
 }
