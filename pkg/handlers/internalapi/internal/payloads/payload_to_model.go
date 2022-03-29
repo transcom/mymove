@@ -148,6 +148,8 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 		EstimatedIncentive:             &estimatedIncentive,
+		Advance:                        handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
+		AdvanceRequested:               ppmShipment.AdvanceRequested,
 	}
 
 	if ppmShipment.ExpectedDepartureDate != nil {

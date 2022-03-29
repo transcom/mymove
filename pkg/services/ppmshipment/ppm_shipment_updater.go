@@ -20,6 +20,7 @@ func NewPPMShipmentUpdater() services.PPMShipmentUpdater {
 			checkShipmentID(),
 			checkPPMShipmentID(),
 			checkRequiredFields(),
+			checkAdvance(),
 		},
 	}
 }
