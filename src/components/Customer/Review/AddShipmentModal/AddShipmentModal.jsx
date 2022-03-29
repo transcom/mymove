@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import styles from './index.module.scss';
-
+import styles from 'components/Customer/Review/AddShipmentModal/AddShipmentModal.module.scss';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const AddShipmentModal = ({ closeModal }) => (

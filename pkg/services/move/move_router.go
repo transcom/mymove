@@ -125,8 +125,8 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 
 	originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
 	if err != nil {
-		appCtx.Logger().Error("failure finding the origin duty station", zap.Error(err))
-		return false, apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty station")
+		appCtx.Logger().Error("failure finding the origin duty location", zap.Error(err))
+		return false, apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
 	}
 
 	if move.ServiceCounselingCompletedAt != nil {

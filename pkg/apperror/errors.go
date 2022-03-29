@@ -292,3 +292,54 @@ func (e EventError) Error() string {
 func (e EventError) Unwrap() error {
 	return e.error
 }
+
+// We should log Session Errors generated in the Handlers
+type SessionError struct {
+	message string
+}
+
+// NewSessionError returns a new SessionError
+func NewSessionError(message string) SessionError {
+	return SessionError{
+		message: message,
+	}
+}
+
+// Error is the string representation of the SessionError
+func (e SessionError) Error() string {
+	return e.message
+}
+
+// We should log Unprocessable Entity Errors generated in the Handlers
+type UnprocessableEntityError struct {
+	message string
+}
+
+// NewUnprocessableEntityError returns a new UnprocessableEntityError
+func NewUnprocessableEntityError(message string) UnprocessableEntityError {
+	return UnprocessableEntityError{
+		message: message,
+	}
+}
+
+// Error is the string representation of the UnprocessableEntityError
+func (e UnprocessableEntityError) Error() string {
+	return e.message
+}
+
+// Generic InternalServerError for internal errors that aren't covered by other, more specific errors
+type InternalServerError struct {
+	message string
+}
+
+// NewSessionError returns a new InternalServerError
+func NewInternalServerError(message string) InternalServerError {
+	return InternalServerError{
+		message: message,
+	}
+}
+
+// Error is the string representation of the InternalServerError
+func (e InternalServerError) Error() string {
+	return e.message
+}

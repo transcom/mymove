@@ -1523,48 +1523,70 @@ func serviceMemberWithOrdersAndPPMMove04(appCtx appcontext.AppContext, userUploa
 }
 
 func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
+	email := "profile_full_ppm@move.draft"
+	uuidStr := "9b9ce6ed-70ba-4edf-b016-488c87fc1250"
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
 		},
-	})
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67e4"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-		},
-		UserUploader: userUploader,
 	})
 
 	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:       uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30e8"),
-			OrdersID: orders.ID,
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("6796979019"),
+			PersonalEmail: models.StringPointer(email),
 		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30e8"),
+			Locator: "PPMFUL",
+		},
+		UserUploader: userUploader,
 	})
 }
 
 func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
+	email := "full_ppm_mobile@complete.profile"
+	uuidStr := "4fd6726d-2d05-4640-96dd-983bec236a9c"
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
 		},
-	})
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("eb6b0c75-3972-4a09-a453-3a7b257aa7f7"),
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-		},
-		UserUploader: userUploader,
 	})
 
 	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:       uuid.FromStringOrNil("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
-			OrdersID: orders.ID,
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Complete"),
+			LastName:      models.StringPointer("Profile"),
+			Edipi:         models.StringPointer("6796979019"),
+			PersonalEmail: models.StringPointer(email),
 		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
+			Locator: "PPMMOB",
+		},
+		UserUploader: userUploader,
 	})
 }
 
@@ -3052,10 +3074,644 @@ func createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext, u
 	})
 }
 
+/*
+* Create a NTS-R move with a payment request and 5 semi-realistic service items
+ */
+func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string) {
+	currentTime := time.Now()
+	tac := "1111"
+	tac2 := "2222"
+	sac := "3333"
+	sac2 := "4444"
+
+	// Create Customer
+	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{})
+
+	// Create Orders
+	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+			TAC:             &tac,
+			NtsTAC:          &tac2,
+			SAC:             &sac,
+			NtsSAC:          &sac2,
+		},
+		UserUploader: userUploader,
+	})
+
+	// Create Move
+	selectedMoveType := models.SelectedMoveTypeNTSR
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Locator:            locator,
+			OrdersID:           orders.ID,
+			AvailableToPrimeAt: swag.Time(time.Now()),
+			SelectedMoveType:   &selectedMoveType,
+			SubmittedAt:        &currentTime,
+		},
+		Order: orders,
+	})
+
+	// Create Pickup Address
+	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			// KKFA GBLOC
+			PostalCode: "85004",
+		},
+	})
+
+	// Create Storage Facility
+	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			// KKFA GBLOC
+			PostalCode: "85005",
+		},
+	})
+
+	// Create NTS-R Shipment
+	tacType := models.LOATypeHHG
+	sacType := models.LOATypeNTS
+	serviceOrderNumber := "1234"
+	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ApprovedDate:         swag.Time(time.Now()),
+			PickupAddress:        &shipmentPickupAddress,
+			TACType:              &tacType,
+			Status:               models.MTOShipmentStatusApproved,
+			SACType:              &sacType,
+			StorageFacility:      &storageFacility,
+			ServiceOrderNumber:   &serviceOrderNumber,
+		},
+		Move: move,
+	})
+
+	// Create Releasing Agent
+	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.Must(uuid.NewV4()),
+			MTOShipment:   ntsrShipment,
+			MTOShipmentID: ntsrShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	// Create Payment Request
+	paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.Must(uuid.NewV4()),
+			MoveTaskOrder:   move,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+		Move: move,
+	})
+
+	// Create Domestic linehaul service item
+	dlCost := unit.Cents(80000)
+	dlItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DL Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.01, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "21",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+
+		{
+			Key:     models.ServiceItemParamNameActualPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip3,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(354)),
+		},
+
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1400),
+		},
+		{
+			Key:     models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   strconv.FormatFloat(0.000417, 'f', 7, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameEIAFuelPrice,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Millicents(281400))),
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80301",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipDestAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80501",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+	}
+	testdatagen.MakePaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDLH,
+		dlItemParams,
+		testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &dlCost,
+			},
+			Move:           move,
+			MTOShipment:    ntsrShipment,
+			PaymentRequest: paymentRequest,
+		},
+	)
+
+	// Create Fuel surcharge service item
+	fsCost := unit.Cents(10700)
+	fsItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "FS Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.01, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "21",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+
+		{
+			Key:     models.ServiceItemParamNameActualPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip3,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(354)),
+		},
+
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1400),
+		},
+		{
+			Key:     models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   strconv.FormatFloat(0.000417, 'f', 7, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameEIAFuelPrice,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Millicents(281400))),
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80301",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipDestAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80501",
+		},
+	}
+	testdatagen.MakePaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeFSC,
+		fsItemParams,
+		testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &fsCost,
+			},
+			Move:           move,
+			MTOShipment:    ntsrShipment,
+			PaymentRequest: paymentRequest,
+		},
+	)
+
+	// Create Domestic origin price service item
+	doCost := unit.Cents(15000)
+	doItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(4300),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DO Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.04071, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "6.25",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+	}
+	testdatagen.MakePaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDOP,
+		doItemParams,
+		testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &doCost,
+			},
+			Move:           move,
+			MTOShipment:    ntsrShipment,
+			PaymentRequest: paymentRequest,
+		},
+	)
+
+	// Create Domestic destination price service item
+	ddpCost := unit.Cents(15000)
+	ddpItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(4300),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DDP Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.04071, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "6.25",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+	}
+	testdatagen.MakePaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDDP,
+		ddpItemParams,
+		testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &ddpCost,
+			},
+			Move:           move,
+			MTOShipment:    ntsrShipment,
+			PaymentRequest: paymentRequest,
+		},
+	)
+
+	// Create Domestic unpacking service item
+	duCost := unit.Cents(45900)
+	duItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(4300),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DUPK Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.04071, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "5.79",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+	}
+	testdatagen.MakePaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDUPK,
+		duItemParams,
+		testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &duCost,
+			},
+			Move:           move,
+			MTOShipment:    ntsrShipment,
+			PaymentRequest: paymentRequest,
+		},
+	)
+
+}
+
+/*
+ * Create a NTS-R move with a single payment request and service item
+ */
+func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string) {
+	currentTime := time.Now()
+	tac := "1111"
+
+	// Create Customer
+	customer := testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{})
+
+	// Create Orders
+	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+			TAC:             &tac,
+		},
+		UserUploader: userUploader,
+	})
+
+	// Create Move
+	selectedMoveType := models.SelectedMoveTypeNTSR
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Locator:            locator,
+			OrdersID:           orders.ID,
+			AvailableToPrimeAt: swag.Time(time.Now()),
+			SelectedMoveType:   &selectedMoveType,
+			SubmittedAt:        &currentTime,
+		},
+		Order: orders,
+	})
+
+	// Create Pickup Address
+	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			// KKFA GBLOC
+			PostalCode: "85004",
+		},
+	})
+
+	// Create Storage Facility
+	storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			// KKFA GBLOC
+			PostalCode: "85004",
+		},
+	})
+
+	// Create NTS-R Shipment
+	tacType := models.LOATypeHHG
+	serviceOrderNumber := "1234"
+	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ApprovedDate:         swag.Time(time.Now()),
+			PickupAddress:        &shipmentPickupAddress,
+			TACType:              &tacType,
+			Status:               models.MTOShipmentStatusApproved,
+			StorageFacility:      &storageFacility,
+			ServiceOrderNumber:   &serviceOrderNumber,
+			UsesExternalVendor:   true,
+		},
+		Move: move,
+	})
+
+	// Create Releasing Agent
+	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.Must(uuid.NewV4()),
+			MTOShipment:   ntsrShipment,
+			MTOShipmentID: ntsrShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	// Create Payment Request
+	paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.Must(uuid.NewV4()),
+			MoveTaskOrder:   move,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+		Move: move,
+	})
+
+	// create service item
+	msCostcos := unit.Cents(32400)
+	testdatagen.MakePaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeCS,
+		[]testdatagen.CreatePaymentServiceItemParams{
+			{
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
+			}},
+		testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &msCostcos,
+			},
+			Move:           move,
+			MTOShipment:    ntsrShipment,
+			PaymentRequest: paymentRequest,
+		},
+	)
+}
+
 // Run does that data load thing
 func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	moveRouter := moverouter.NewMoveRouter()
-	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
+	// Testdatagen factories will create new random duty locations so let's get the standard ones in the migrations
 	var allDutyLocations []models.DutyLocation
 	appCtx.DB().All(&allDutyLocations)
 
@@ -3166,6 +3822,11 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 	createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
 	createUnsubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
+
+	// TIO
+	createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx, userUploader, "NTSRT1")
+	createNTSRMoveWithPaymentRequest(appCtx, userUploader, "NTSRT2")
+	createNTSRMoveWithPaymentRequest(appCtx, userUploader, "NTSRT3")
 
 	//Retiree, HOR, HHG
 	createMoveWithOptions(appCtx, testdatagen.Assertions{

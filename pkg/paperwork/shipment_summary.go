@@ -15,7 +15,7 @@ import (
 )
 
 type ppmComputer interface {
-	ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error)
+	ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error)
 }
 
 //SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
@@ -38,15 +38,15 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 		return models.Obligations{}, err
 	}
 
-	originDutyStationZip := ssfd.CurrentDutyLocation.Address.PostalCode
-	destDutyStationZip := ssfd.Order.NewDutyLocation.Address.PostalCode
+	originDutyLocationZip := ssfd.CurrentDutyLocation.Address.PostalCode
+	destDutyLocationZip := ssfd.Order.NewDutyLocation.Address.PostalCode
 
-	distanceMilesFromPickupZip, err := planner.Zip5TransitDistanceLineHaul(appCtx, *firstPPM.PickupPostalCode, destDutyStationZip)
+	distanceMilesFromPickupZip, err := planner.Zip5TransitDistanceLineHaul(appCtx, *firstPPM.PickupPostalCode, destDutyLocationZip)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
 
-	distanceMilesFromDutyStationZip, err := planner.Zip5TransitDistanceLineHaul(appCtx, originDutyStationZip, destDutyStationZip)
+	distanceMilesFromDutyLocationZip, err := planner.Zip5TransitDistanceLineHaul(appCtx, originDutyLocationZip, destDutyLocationZip)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
@@ -55,10 +55,10 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 		appCtx,
 		ssfd.PPMRemainingEntitlement,
 		*firstPPM.PickupPostalCode,
-		originDutyStationZip,
-		destDutyStationZip,
+		originDutyLocationZip,
+		destDutyLocationZip,
 		distanceMilesFromPickupZip,
-		distanceMilesFromDutyStationZip,
+		distanceMilesFromDutyLocationZip,
 		*firstPPM.OriginalMoveDate,
 		0,
 	)
@@ -70,10 +70,10 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 		appCtx,
 		ssfd.WeightAllotment.TotalWeight,
 		*firstPPM.PickupPostalCode,
-		originDutyStationZip,
-		destDutyStationZip,
+		originDutyLocationZip,
+		destDutyLocationZip,
 		distanceMilesFromPickupZip,
-		distanceMilesFromDutyStationZip,
+		distanceMilesFromDutyLocationZip,
 		*firstPPM.OriginalMoveDate,
 		0,
 	)

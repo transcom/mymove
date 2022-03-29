@@ -569,6 +569,18 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		if newShipment.TACType != nil && *newShipment.TACType == "" {
+			newShipment.TACType = nil
+		} else if newShipment.TACType == nil {
+			newShipment.TACType = dbShipment.TACType
+		}
+
+		if newShipment.SACType != nil && *newShipment.SACType == "" {
+			newShipment.SACType = nil
+		} else if newShipment.SACType == nil {
+			newShipment.SACType = dbShipment.SACType
+		}
+
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
 		}

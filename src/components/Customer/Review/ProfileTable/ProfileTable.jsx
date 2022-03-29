@@ -1,10 +1,8 @@
-/* eslint-ignore */
 import React from 'react';
 import classnames from 'classnames';
 import { string, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import TableDivider from '../TableDivider';
 import reviewStyles from '../Review.module.scss';
 
 import { customerRoutes } from 'constants/routes';
@@ -72,13 +70,6 @@ const ProfileTable = ({
             <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
               {currentDutyStationName}
             </td>
-          </tr>
-          <TableDivider />
-          <tr>
-            <th scope="row" style={{ borderTop: 'none' }}>
-              Contact info
-            </th>
-            <td style={{ borderTop: 'none' }} />
           </tr>
           <tr>
             <th scope="row">Best contact phone</th>

@@ -23,6 +23,7 @@ import (
 const equals = "="
 const greaterThan = ">"
 const ilike = "ILIKE" // Case insensitive
+const isNull = "IS NULL"
 
 // allowed sorting order for this query builder implmentation
 const asc = "asc"
@@ -66,6 +67,8 @@ func getComparator(comparator string) (string, bool) {
 		return greaterThan, true
 	case ilike:
 		return ilike, true
+	case isNull:
+		return isNull, true
 	default:
 		return "", false
 	}
@@ -219,8 +222,17 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 
 		// Column lookup should always adhere to SQL injection input validations
 		// https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md#defense-option-3-whitelist-input-validation
-		columnQuery := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
-		query = query.Where(columnQuery, f.Value())
+
+		var columnQuery string
+
+		if f.Comparator() == isNull {
+			columnQuery = fmt.Sprintf("%s %s", f.Column(), f.Comparator())
+			query = query.Where(columnQuery)
+		} else {
+			columnQuery = fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
+			query = query.Where(columnQuery, f.Value())
+		}
+
 	}
 
 	// Hacky way to get ILIKE filters to work with OR instead of AND

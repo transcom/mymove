@@ -101,6 +101,7 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		SessionUserEmail:     auditHistory.SessionUserEmail,
 		SessionUserTelephone: auditHistory.SessionUserTelephone,
 		Context:              auditHistory.Context,
+		ContextID:            auditHistory.ContextID,
 		StatementOnly:        auditHistory.StatementOnly,
 		TableName:            auditHistory.TableName,
 		SchemaName:           auditHistory.SchemaName,
@@ -191,7 +192,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		return nil
 	}
 
-	destinationDutyStation := DutyLocation(&order.NewDutyLocation)
+	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
@@ -226,7 +227,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	payload := ghcmessages.Order{
-		DestinationDutyLocation:     destinationDutyStation,
+		DestinationDutyLocation:     destinationDutyLocation,
 		Entitlement:                 entitlements,
 		Grade:                       &grade,
 		OrderNumber:                 order.OrdersNumber,

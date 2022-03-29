@@ -1,4 +1,4 @@
-This is a confirmation that you’ve submitted the details for your move {{if .OriginDutyStation}}from {{.OriginDutyStation}} {{ end }}to {{.DestinationDutyStation}}.
+This is a confirmation that you’ve submitted the details for your move {{if .OriginDutyLocation}}from {{.OriginDutyLocation}} {{ end }}to {{.DestinationDutyLocation}}.
 
 We’ve assigned you a move code: {{.Locator}}. You can use this code when talking to any representative about your move.
 
@@ -21,10 +21,10 @@ If you chose to do a full or partial PPM (DITY) move, <a href="{{.PpmLink}}"> re
 * Get certified weight tickets that show the empty and full weight for each vehicle used in each PPM shipment
 * If you’re missing weight tickets, you may not get paid for your PPM
 * Save receipts for PPM expenses to request reimbursement or to reduce taxes on your incentive payment
-{{ if .OriginDutyStation }}
-If you have any questions about the PPM part of your move, call the {{.OriginDutyStation}} PPPO at {{.OriginDutyStationPhoneLine}} and reference move code {{.Locator}}.
+{{ if .OriginDutyLocation }}
+If you have any questions about the PPM part of your move, call the {{.OriginDutyLocation}} PPPO at {{.OriginDutyLocationPhoneLine}} and reference move code {{.Locator}}.
 {{- end }}
-{{- if not .OriginDutyStation }}
+{{- if not .OriginDutyLocation }}
 If you have any questions about the PPM part of your move, consult Military OneSource's directory of PCS-related contacts to best contact and reference move code {{.Locator}}.
 {{- end }}
 
@@ -50,4 +50,4 @@ They’ll also finalize dates to pack and pick up your things, on or near the da
 
 If any information about your move changes at any point during the move, let your movers know.
 
-Good luck on your move to {{.DestinationDutyStation}}!
+Good luck on your move to {{.DestinationDutyLocation}}!

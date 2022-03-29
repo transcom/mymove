@@ -27,15 +27,15 @@ type ListMTOAgentsHandler struct {
 
 //Handle handles the handling for listing MTO Agents.
 func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			mtoShipmentID, err := uuid.FromString(params.ShipmentID.String())
 			// Return parsing sadness
 			if err != nil {
 				parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MTOShipmentID", err).Error()
 				appCtx.Logger().Error(parsingError)
 				payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-				return mtoagentop.NewFetchMTOAgentListUnprocessableEntity().WithPayload(payload)
+				return mtoagentop.NewFetchMTOAgentListUnprocessableEntity().WithPayload(payload), err
 			}
 
 			// Let's set up our filter for the service object call
@@ -48,13 +48,13 @@ func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) 
 			if err != nil {
 				if err.Error() == "FETCH_NOT_FOUND" {
 					appCtx.Logger().Error(fmt.Sprintf("Error while fetching mto agents. Could not find record with mto shipment with id: %s", mtoShipmentID.String()), zap.Error(err))
-					return mtoagentop.NewFetchMTOAgentListNotFound()
+					return mtoagentop.NewFetchMTOAgentListNotFound(), err
 				}
 				appCtx.Logger().Error(fmt.Sprintf("Error fetching mto agents for mto shipment with id: %s", mtoShipmentID.String()), zap.Error(err))
-				return mtoagentop.NewFetchMTOAgentListInternalServerError()
+				return mtoagentop.NewFetchMTOAgentListInternalServerError(), err
 			}
 
 			returnPayload := payloads.MTOAgents(&mtoAgents)
-			return mtoagentop.NewFetchMTOAgentListOK().WithPayload(*returnPayload)
+			return mtoagentop.NewFetchMTOAgentListOK().WithPayload(*returnPayload), nil
 		})
 }
