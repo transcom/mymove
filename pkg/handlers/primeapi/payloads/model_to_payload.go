@@ -129,7 +129,7 @@ func Order(order *models.Order) *primemessages.Order {
 	if order == nil {
 		return nil
 	}
-	destinationDutyStation := DutyLocation(&order.NewDutyLocation)
+	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
 		order.Entitlement.SetWeightAllotment(*order.Grade)
@@ -138,7 +138,7 @@ func Order(order *models.Order) *primemessages.Order {
 	payload := primemessages.Order{
 		CustomerID:              strfmt.UUID(order.ServiceMemberID.String()),
 		Customer:                Customer(&order.ServiceMember),
-		DestinationDutyLocation: destinationDutyStation,
+		DestinationDutyLocation: destinationDutyLocation,
 		Entitlement:             Entitlement(order.Entitlement),
 		ID:                      strfmt.UUID(order.ID.String()),
 		OriginDutyLocation:      originDutyLocation,
@@ -192,16 +192,16 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 }
 
 // DutyLocation payload
-func DutyLocation(dutyStation *models.DutyLocation) *primemessages.DutyLocation {
-	if dutyStation == nil {
+func DutyLocation(dutyLocation *models.DutyLocation) *primemessages.DutyLocation {
+	if dutyLocation == nil {
 		return nil
 	}
-	address := Address(&dutyStation.Address)
+	address := Address(&dutyLocation.Address)
 	payload := primemessages.DutyLocation{
 		Address:   address,
 		AddressID: address.ID,
-		ID:        strfmt.UUID(dutyStation.ID.String()),
-		Name:      dutyStation.Name,
+		ID:        strfmt.UUID(dutyLocation.ID.String()),
+		Name:      dutyLocation.Name,
 	}
 	return &payload
 }

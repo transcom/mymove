@@ -63,10 +63,10 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
-	var originDutyStation, originDutyStationPhoneLine *string
+	var originDutyLocation, originDutyLocationPhoneLine *string
 	if originDSTransportInfo != nil {
-		originDutyStation = &originDSTransportInfo.Name
-		originDutyStationPhoneLine = &originDSTransportInfo.PhoneLine
+		originDutyLocation = &originDSTransportInfo.Name
+		originDutyLocationPhoneLine = &originDSTransportInfo.PhoneLine
 
 	}
 
@@ -80,13 +80,13 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveSubmittedEmailData{
-		Link:                       "https://my.move.mil/",
-		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyStation:          originDutyStation,
-		DestinationDutyStation:     orders.NewDutyLocation.Name,
-		OriginDutyStationPhoneLine: originDutyStationPhoneLine,
-		Locator:                    move.Locator,
-		WeightAllowance:            humanize.Comma(int64(totalEntitlement)),
+		Link:                        "https://my.move.mil/",
+		PpmLink:                     "https://office.move.mil/downloads/ppm_info_sheet.pdf",
+		OriginDutyLocation:          originDutyLocation,
+		DestinationDutyLocation:     orders.NewDutyLocation.Name,
+		OriginDutyLocationPhoneLine: originDutyLocationPhoneLine,
+		Locator:                     move.Locator,
+		WeightAllowance:             humanize.Comma(int64(totalEntitlement)),
 	})
 
 	if err != nil {
@@ -120,13 +120,13 @@ func (m MoveSubmitted) renderTemplates(appCtx appcontext.AppContext, data moveSu
 }
 
 type moveSubmittedEmailData struct {
-	Link                       string
-	PpmLink                    string
-	OriginDutyStation          *string
-	DestinationDutyStation     string
-	OriginDutyStationPhoneLine *string
-	Locator                    string
-	WeightAllowance            string
+	Link                        string
+	PpmLink                     string
+	OriginDutyLocation          *string
+	DestinationDutyLocation     string
+	OriginDutyLocationPhoneLine *string
+	Locator                     string
+	WeightAllowance             string
 }
 
 // RenderHTML renders the html for the email

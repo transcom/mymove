@@ -1,8 +1,8 @@
 <p><strong>You're all set to move!</strong></p>
 
 <p>
-  The local transportation office <strong>approved your move</strong> {{if .OriginDutyStation}}from <strong>{{.OriginDutyStation}}</strong> {{end}}to
-  <strong>{{.DestinationDutyStation}}</strong
+  The local transportation office <strong>approved your move</strong> {{if .OriginDutyLocation}}from <strong>{{.OriginDutyLocation}}</strong> {{end}}to
+  <strong>{{.DestinationDutyLocation}}</strong
   >.
 </p>
 
@@ -17,6 +17,6 @@
   request payment later in the process.
 </p>
 
-{{if .OriginDutyStation}}<p>If you have any questions, call the {{.OriginDutyStation}} PPPO at {{.OriginDutyStationPhoneLine}} and reference your move locator code: {{.Locator}}</p>{{end}}
+{{if .OriginDutyLocation}}<p>If you have any questions, call the {{.OriginDutyLocation}} PPPO at {{.OriginDutyLocationPhoneLine}} and reference your move locator code: {{.Locator}}</p>{{end}}
 
 <p>You can <a href="https://my.move.mil">check the status of your move</a> anytime at https://my.move.mil"</p>

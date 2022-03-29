@@ -22,8 +22,8 @@ type ValidatePostalCodeWithRateDataHandler struct {
 
 // Handle should call the service validator and rescue expected errors and return false to valid
 func (h ValidatePostalCodeWithRateDataHandler) Handle(params postalcodesops.ValidatePostalCodeWithRateDataParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			postalCode := params.PostalCode
 			postalCodeType := params.PostalCodeType
 
@@ -43,7 +43,7 @@ func (h ValidatePostalCodeWithRateDataHandler) Handle(params postalcodesops.Vali
 					appCtx.Logger().Error("We do not have region rate data for destination postal code", zap.Error(err))
 				default:
 					appCtx.Logger().Error("Validate postal code", zap.Error(err))
-					return postalcodesops.NewValidatePostalCodeWithRateDataBadRequest()
+					return postalcodesops.NewValidatePostalCodeWithRateDataBadRequest(), err
 				}
 			}
 
@@ -52,6 +52,6 @@ func (h ValidatePostalCodeWithRateDataHandler) Handle(params postalcodesops.Vali
 				PostalCode:     &postalCode,
 				PostalCodeType: &postalCodeType,
 			}
-			return postalcodesops.NewValidatePostalCodeWithRateDataOK().WithPayload(&payload)
+			return postalcodesops.NewValidatePostalCodeWithRateDataOK().WithPayload(&payload), nil
 		})
 }

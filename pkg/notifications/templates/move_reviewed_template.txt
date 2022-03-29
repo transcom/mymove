@@ -1,4 +1,4 @@
-Good news: Your move from {{.OriginDutyStation}} to {{.DestinationDutyStation}} has been processed for payment.
+Good news: Your move from {{.OriginDutyLocation}} to {{.DestinationDutyLocation}} has been processed for payment.
 
 Can we ask a quick favor? Tell us about your experience with requesting and receiving payment at {{.Link}}.
 
