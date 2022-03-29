@@ -44,5 +44,5 @@ function navigateToEstimatedIncentivePage() {
 }
 
 function verifyShipmentSpecificInfo() {
-  cy.get('.container h2').contains('$100');
+  cy.get('.container h2').contains('$10000');
 }
