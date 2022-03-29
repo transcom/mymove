@@ -6,6 +6,24 @@ export function customerStartsAddingAPPMShipment() {
   cy.nextPage();
 }
 
+export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId) {
+  cy.apiSignInAsUser(userId);
+
+  cy.wait('@getShipment');
+
+  cy.get('h3').should('contain', 'Time to submit your move');
+
+  cy.get('button').contains('PPM').click();
+
+  cy.wait('@getShipment');
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
+  });
+
+  cy.get('h1').should('contain', 'PPM date & location');
+}
+
 // used for creating a new shipment
 export function submitsDateAndLocation() {
   cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
@@ -13,12 +31,21 @@ export function submitsDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
-  cy.get('button').contains('Save & Continue').click();
-  cy.wait('@createShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage('@createShipment');
+}
+
+export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionToWaitOn) {
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+
+  if (actionToWaitOn) {
+    cy.wait(actionToWaitOn);
+  }
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
   });
+
+  cy.get('h1').should('contain', 'Estimated weight');
 }
 
 export function submitsEstimatedWeightsAndProGear() {
@@ -27,30 +54,32 @@ export function submitsEstimatedWeightsAndProGear() {
   cy.get('input[name="proGearWeight"]').clear().type(500).blur();
   cy.get('button').contains('Save & Continue').should('be.enabled');
 
-  cy.get('button').contains('Save & Continue').click();
-  cy.wait('@patchShipment');
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
-  });
+  navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
 }
 
 export function submitsEstimatedWeights() {
   cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
   cy.get('button').contains('Save & Continue').should('be.enabled');
 
-  cy.get('button').contains('Save & Continue').click();
+  navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
+}
+
+export function navigateFromEstimatedWeightsPageToEstimatedIncentivePage() {
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+
   cy.wait('@patchShipment');
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
   });
+
+  cy.get('h1').should('contain', 'Estimated incentive');
 }
 
 export function generalVerifyEstimatedIncentivePage(isMobile = false) {
   cy.get('h1').should('contain', 'Estimated incentive');
 
-  // checks the format of the incentive amount statment is `$<some comma-separated number without decimals> is`
+  // checks the format of the incentive amount statement is `$<some comma-separated number without decimals> is`
   cy.get('.container h2').contains(/\$\d{1,3}(?:,\d{3})*? is/);
 
   if (!isMobile) {
@@ -59,9 +88,15 @@ export function generalVerifyEstimatedIncentivePage(isMobile = false) {
     cy.get('button').contains('Next').should('not.be.disabled').should('have.css', 'order', '1');
   }
 
+  navigateFromEstimatedIncentivePageToAdvancesPage();
+}
+
+export function navigateFromEstimatedIncentivePageToAdvancesPage() {
   cy.get('button').contains('Next').should('be.enabled').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/advances/);
   });
+
+  cy.get('h1').should('contain', 'Advances');
 }

@@ -1,4 +1,9 @@
-import { submitsEstimatedWeights, submitsEstimatedWeightsAndProGear } from '../../../support/ppmShared';
+import {
+  navigateFromDateAndLocationPageToEstimatedWeightsPage,
+  signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
+  submitsEstimatedWeights,
+  submitsEstimatedWeightsAndProGear,
+} from '../../../support/ppmShared';
 
 describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   before(() => {
@@ -80,11 +85,7 @@ function invalidInputs() {
 function getToEstimatedWeightsPage() {
   // dates_and_locations@ppm.unsubmitted
   const userId = 'bbb469f3-f4bc-420d-9755-b9569f81715e';
-  cy.apiSignInAsUser(userId);
-  cy.wait('@getShipment');
 
-  cy.get('[data-testid="shipment-list-item-container"]').click();
-  cy.wait('@getShipment');
-  cy.get('button').contains('Save & Continue').click();
-  cy.wait('@patchShipment');
+  signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
+  navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
 }
