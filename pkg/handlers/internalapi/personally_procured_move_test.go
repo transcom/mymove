@@ -436,7 +436,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 
 	newDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{
-			Name:      "test duty station",
+			Name:      "test duty location",
 			AddressID: dutyLocationAddress.ID,
 			Address:   dutyLocationAddress,
 		},

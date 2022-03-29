@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 
-	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
+	locationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -43,7 +43,7 @@ type SearchDutyLocationsHandler struct {
 }
 
 // Handle returns a list of locations based on the search query
-func (h SearchDutyLocationsHandler) Handle(params stationop.SearchDutyLocationsParams) middleware.Responder {
+func (h SearchDutyLocationsHandler) Handle(params locationop.SearchDutyLocationsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
@@ -51,7 +51,7 @@ func (h SearchDutyLocationsHandler) Handle(params stationop.SearchDutyLocationsP
 			if err != nil {
 				dutyLocationErr := apperror.NewNotFoundError(uuid.Nil, "Finding duty locations")
 				appCtx.Logger().Error(dutyLocationErr.Error(), zap.Error(err))
-				return stationop.NewSearchDutyLocationsInternalServerError(), dutyLocationErr
+				return locationop.NewSearchDutyLocationsInternalServerError(), dutyLocationErr
 
 			}
 
@@ -60,6 +60,6 @@ func (h SearchDutyLocationsHandler) Handle(params stationop.SearchDutyLocationsP
 				locationPayload := payloadForDutyLocationModel(location)
 				locationPayloads[i] = locationPayload
 			}
-			return stationop.NewSearchDutyLocationsOK().WithPayload(locationPayloads), nil
+			return locationop.NewSearchDutyLocationsOK().WithPayload(locationPayloads), nil
 		})
 }

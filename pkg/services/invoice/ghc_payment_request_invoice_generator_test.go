@@ -434,18 +434,18 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.T().Run("adds orders destination address", func(t *testing.T) {
-		expectedDutyStation := paymentRequest.MoveTaskOrder.Orders.NewDutyLocation
-		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), expectedDutyStation.ID)
+		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.NewDutyLocation
+		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), expectedDutyLocation.ID)
 		suite.FatalNoError(err)
 		// name
 		n1 := result.Header.DestinationName
 		suite.IsType(edisegment.N1{}, n1)
 		suite.Equal("ST", n1.EntityIdentifierCode)
-		suite.Equal(expectedDutyStation.Name, n1.Name)
+		suite.Equal(expectedDutyLocation.Name, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
 		suite.Equal(transportationOffice.Gbloc, n1.IdentificationCode)
 		// street address
-		address := expectedDutyStation.Address
+		address := expectedDutyLocation.Address
 		destAddress := result.Header.DestinationStreetAddress
 		suite.IsType(&edisegment.N3{}, destAddress)
 		n3 := *destAddress
@@ -461,9 +461,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.NoError(err)
 		suite.Equal(*countryCode, n4.CountryCode)
 		// Office Phone
-		destinationStationPhoneLines := expectedDutyStation.TransportationOffice.PhoneLines
+		destinationDutyLocationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
 		var destPhoneLines []string
-		for _, phoneLine := range destinationStationPhoneLines {
+		for _, phoneLine := range destinationDutyLocationPhoneLines {
 			if phoneLine.Type == "voice" {
 				destPhoneLines = append(destPhoneLines, phoneLine.Number)
 			}
@@ -509,9 +509,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.NoError(err)
 		suite.Equal(*countryCode, n4.CountryCode)
 		// Office Phone
-		originStationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
+		originDutyLocationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
 		var originPhoneLines []string
-		for _, phoneLine := range originStationPhoneLines {
+		for _, phoneLine := range originDutyLocationPhoneLines {
 			if phoneLine.Type == "voice" {
 				originPhoneLines = append(originPhoneLines, phoneLine.Number)
 			}

@@ -126,11 +126,11 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err)
 			}
 
-			stationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+			dutyLocationID, err := uuid.FromString(payload.NewDutyLocationID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err)
 			}
-			newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
+			newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err)
 			}
@@ -250,11 +250,11 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			}
 
 			payload := params.UpdateOrders
-			stationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+			dutyLocationID, err := uuid.FromString(payload.NewDutyLocationID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err)
 			}
-			dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), stationID)
+			dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err)
 			}

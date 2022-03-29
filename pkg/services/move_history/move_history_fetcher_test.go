@@ -171,4 +171,23 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserEmail, "AuditHistories contains an AuditHistory with a SessionUserEmail")
 		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserTelephone, "AuditHistories contains an AuditHistory with a SessionUserTelephone")
 	})
+
+	suite.T().Run("has context and context ID", func(t *testing.T) {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		moveHistoryData, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), approvedMove.Locator)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
+		contextIDIndex := 0
+		for k, v := range moveHistoryData.AuditHistories {
+			if *v.Context == "pickup_address" {
+				contextIDIndex = k
+				break
+			}
+		}
+		suite.NotEmpty(moveHistoryData.AuditHistories[contextIDIndex].Context, "AuditHistories contains an AuditHistory with a Context")
+		suite.NotEmpty(moveHistoryData.AuditHistories[contextIDIndex].ContextID, "AuditHistories contains an AuditHistory with a ContextID")
+
+	})
 }
