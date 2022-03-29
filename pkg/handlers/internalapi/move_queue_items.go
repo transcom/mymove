@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -96,11 +97,12 @@ func sortQueueItemsByLastModifiedDate(moveQueueItems []models.MoveQueueItem) {
 
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if !appCtx.Session().IsOfficeUser() {
-				return queueop.NewShowQueueForbidden()
+				badUserErr := apperror.NewSessionError("User is not an Office user")
+				return queueop.NewShowQueueForbidden(), badUserErr
 			}
 
 			lifecycleState := params.QueueType
@@ -108,7 +110,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 			MoveQueueItems, err := models.GetMoveQueueItems(appCtx.DB(), lifecycleState)
 			if err != nil {
 				appCtx.Logger().Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			// Sorting the slice by LastModifiedDate so that the API results follow suit.
@@ -119,6 +121,6 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 				MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem)
 				MoveQueueItemPayloads[i] = MoveQueueItemPayload
 			}
-			return queueop.NewShowQueueOK().WithPayload(MoveQueueItemPayloads)
+			return queueop.NewShowQueueOK().WithPayload(MoveQueueItemPayloads), nil
 		})
 }
