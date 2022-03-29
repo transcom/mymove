@@ -131,7 +131,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	var groupByColumms []string
 	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_dl.id")
 
-	if params.Sort != nil && *params.Sort == "destinationDutyStation" {
+	if params.Sort != nil && *params.Sort == "destinationDutyLocation" {
 		groupByColumms = append(groupByColumms, "dest_dl.name")
 	}
 
@@ -334,16 +334,16 @@ func gblocFilterForTOO(gbloc *string) QueryOption {
 
 func sortOrder(sort *string, order *string) QueryOption {
 	parameters := map[string]string{
-		"lastName":               "service_members.last_name",
-		"dodID":                  "service_members.edipi",
-		"branch":                 "service_members.affiliation",
-		"locator":                "moves.locator",
-		"status":                 "moves.status",
-		"submittedAt":            "moves.submitted_at",
-		"destinationDutyStation": "dest_dl.name",
-		"originDutyLocation":     "origin_dl.name",
-		"requestedMoveDate":      "min(mto_shipments.requested_pickup_date)",
-		"originGBLOC":            "origin_to.gbloc",
+		"lastName":                "service_members.last_name",
+		"dodID":                   "service_members.edipi",
+		"branch":                  "service_members.affiliation",
+		"locator":                 "moves.locator",
+		"status":                  "moves.status",
+		"submittedAt":             "moves.submitted_at",
+		"destinationDutyLocation": "dest_dl.name",
+		"originDutyLocation":      "origin_dl.name",
+		"requestedMoveDate":       "min(mto_shipments.requested_pickup_date)",
+		"originGBLOC":             "origin_to.gbloc",
 	}
 
 	return func(query *pop.Query) {

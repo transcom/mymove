@@ -441,14 +441,14 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	})
 
 	suite.T().Run("Sort by destination duty location", func(t *testing.T) {
-		params := services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("asc")}
+		params := services.ListOrderParams{Sort: swag.String("destinationDutyLocation"), Order: swag.String("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(expectedMove1.Orders.NewDutyLocation.Name, moves[0].Orders.NewDutyLocation.Name)
 		suite.Equal(expectedMove2.Orders.NewDutyLocation.Name, moves[1].Orders.NewDutyLocation.Name)
 
-		params = services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("desc")}
+		params = services.ListOrderParams{Sort: swag.String("destinationDutyLocation"), Order: swag.String("desc")}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
