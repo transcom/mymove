@@ -369,10 +369,11 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			err := checkAdvance().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
 			suite.Error(err)
 		})
-		suite.Run("failure - advance set for greater than 60%", func() {
+
+		suite.Run("failure - advance not nil", func() {
 			shipmentID := uuid.Must(uuid.NewV4())
-			newAdvanceRequested := true
-			newAdvance := unit.Cents(15000)
+			newAdvanceRequested := false
+			newAdvance := unit.Cents(10000)
 			estimatedIncentive := int32(17000)
 
 			oldPPMShipment := models.PPMShipment{
@@ -393,10 +394,10 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			suite.Error(err)
 		})
 
-		suite.Run("failure - advance not nil", func() {
+		suite.Run("failure - advance set for greater than estimated incentive", func() {
 			shipmentID := uuid.Must(uuid.NewV4())
-			newAdvanceRequested := false
-			newAdvance := unit.Cents(10000)
+			newAdvanceRequested := true
+			newAdvance := unit.Cents(18000)
 			estimatedIncentive := int32(17000)
 
 			oldPPMShipment := models.PPMShipment{
