@@ -40,6 +40,9 @@ const defaultProps = {
       total_weight_self: 5000,
     },
   },
+  orders: {
+    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  },
   isCreatePage: true,
 };
 
