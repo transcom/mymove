@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
-import { DutyStationSearchBoxComponent } from './DutyStationSearchBox';
+import { DutyLocationSearchBoxComponent } from './DutyLocationSearchBox';
 
 export default {
-  title: 'Components/Duty Station Search Box',
-  component: DutyStationSearchBoxComponent,
+  title: 'Components/Duty Location Search Box',
+  component: DutyLocationSearchBoxComponent,
 };
 
 const testAddress = {
@@ -16,7 +16,7 @@ const testAddress = {
   streetAddress1: 'n/a',
 };
 
-const testStations = [
+const testLocations = [
   {
     address: {
       city: '',
@@ -125,12 +125,12 @@ const testStations = [
 ];
 
 const baseValue = {
-  ...testStations[2],
+  ...testLocations[2],
   address: { ...testAddress },
 };
 
-const mockSearchDutyStations = async () => {
-  return testStations;
+const mockSearchDutyLocations = async () => {
+  return testLocations;
 };
 
 const mockShowAddress = async () => {
@@ -145,11 +145,11 @@ export const Standard = () => {
   };
 
   return (
-    <DutyStationSearchBoxComponent
+    <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       name="test_component"
-      searchDutyLocations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );
@@ -163,11 +163,11 @@ export const WithValue = () => {
   };
 
   return (
-    <DutyStationSearchBoxComponent
+    <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       displayAddress={false}
-      searchDutyLocations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );
@@ -181,10 +181,10 @@ export const WithValueAndAddress = () => {
   };
 
   return (
-    <DutyStationSearchBoxComponent
+    <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
-      searchDutyLocations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );
@@ -198,11 +198,11 @@ export const WithErrorMessage = () => {
   };
 
   return (
-    <DutyStationSearchBoxComponent
+    <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
       errorMsg="Something went wrong"
-      searchDutyLocations={mockSearchDutyStations}
+      searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );
@@ -215,15 +215,15 @@ export const WithLocalError = () => {
     setValue(newValue);
   };
 
-  const brokenSearchDutyStations = async () => {
+  const brokenSearchDutyLocations = async () => {
     throw new Error('Artificial error message text');
   };
 
   return (
-    <DutyStationSearchBoxComponent
+    <DutyLocationSearchBoxComponent
       input={{ name: 'test_component', onChange, value }}
       title="Test Component"
-      searchDutyLocations={brokenSearchDutyStations}
+      searchDutyLocations={brokenSearchDutyLocations}
       showAddress={mockShowAddress}
     />
   );

@@ -38,7 +38,7 @@ describe('scenes ServiceMembers api', () => {
     it('throws an error when appropriate', async () => {
       await expect(async () => {
         await SearchDutyLocations('broken');
-      }).rejects.toThrow('failed to query duty stations due to server error');
+      }).rejects.toThrow('failed to query duty locations due to server error');
     });
   });
 
@@ -51,7 +51,7 @@ describe('scenes ServiceMembers api', () => {
     it('throws an error when appropriate', async () => {
       await expect(async () => {
         await ShowAddress('broken');
-      }).rejects.toThrow('failed to query address for duty station');
+      }).rejects.toThrow('failed to query address for duty location');
     });
   });
 });

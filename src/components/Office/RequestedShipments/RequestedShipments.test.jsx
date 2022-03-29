@@ -144,7 +144,7 @@ describe('RequestedShipments', () => {
 
     it('uses the duty location postal code if there is no destination address', () => {
       const wrapper = mount(requestedShipmentsComponent);
-      // The first shipment has a destination address so will not use the duty station postal code
+      // The first shipment has a destination address so will not use the duty location postal code
       const destination = shipments[0].destinationAddress;
       expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toEqual(
         `${destination.streetAddress1},\xa0${destination.city}, ${destination.state} ${destination.postalCode}`,

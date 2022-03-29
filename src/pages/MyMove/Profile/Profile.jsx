@@ -21,8 +21,8 @@ import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
   const showMessages = currentOrders.id && !moveIsInDraft;
   const rank = currentOrders.grade ?? serviceMember.rank;
-  const originStation = currentOrders.origin_duty_location ?? serviceMember.current_location;
-  const transportationOfficePhoneLines = originStation?.transportation_office?.phone_lines;
+  const originDutyLocation = currentOrders.origin_duty_location ?? serviceMember.current_location;
+  const transportationOfficePhoneLines = originDutyLocation?.transportation_office?.phone_lines;
   const transportationOfficePhone = transportationOfficePhoneLines ? transportationOfficePhoneLines[0] : '';
   const backupContact = {
     name: currentBackupContacts[0]?.name || '',
@@ -54,8 +54,8 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
             <ServiceInfoDisplay
               firstName={serviceMember?.first_name || ''}
               lastName={serviceMember?.last_name || ''}
-              originDutyStationName={originStation?.name || ''}
-              originTransportationOfficeName={originStation?.transportation_office?.name || ''}
+              originDutyLocationName={originDutyLocation?.name || ''}
+              originTransportationOfficeName={originDutyLocation?.transportation_office?.name || ''}
               originTransportationOfficePhone={transportationOfficePhone}
               affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
               rank={ORDERS_RANK_OPTIONS[rank] || ''}
