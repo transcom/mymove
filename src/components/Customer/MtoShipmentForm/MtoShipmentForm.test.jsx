@@ -128,16 +128,6 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByText(/8,000 lbs/)).toHaveClass('usa-alert__text');
     });
 
-    // it('renders the correct helper text for Delivery Location when orders type is PERMANENT_CHANGE_OF_STATION', async () => {
-    //   render(
-    //     <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />
-    //   )
-
-    //   await waitFor(() =>
-    //     expect(screen.getByText('We can use the zip of your new duty location').toBeInTheDocument)
-    //   )
-    // })
-
     it('renders the correct helper text for Delivery Location when orders type is RETIREMENT', async () => {
       render(
         <MtoShipmentForm
