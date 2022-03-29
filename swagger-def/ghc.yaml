@@ -3170,14 +3170,9 @@ definitions:
         $ref: 'definitions/MTOAgents.yaml'
         x-nullable: true
       tacType:
-        x-nullable: true
-        allOf:
-          - $ref: 'definitions/LOAType.yaml'
-          - x-nullable: true
+        $ref: 'definitions/LOATypeNullable.yaml'
       sacType:
-        allOf:
-          - $ref: 'definitions/LOAType.yaml'
-          - x-nullable: true
+        $ref: 'definitions/LOATypeNullable.yaml'
       usesExternalVendor:
         type: boolean
         example: false

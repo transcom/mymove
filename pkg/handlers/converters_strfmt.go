@@ -10,8 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// These functions facilitate converting from the go types the db uses
-// into the strfmt types that go-swagger uses for payloads.
+// These functions facilitate converting from strfmt types that go-swagger uses for payloads
+//to the go types the db uses.
 
 // FmtDatePtrToPopPtr converts go-swagger type to pop type
 func FmtDatePtrToPopPtr(date *strfmt.Date) *time.Time {
@@ -65,4 +65,14 @@ func FmtUUIDPtrToPopPtr(u *strfmt.UUID) *uuid.UUID {
 func FmtUUIDToPop(u strfmt.UUID) uuid.UUID {
 	fmtUUID := uuid.FromStringOrNil(u.String())
 	return fmtUUID
+}
+
+// PoundPtrFromInt64Ptr converts go-swagger type to pop type
+func PoundPtrFromInt64Ptr(num *int64) *unit.Pound {
+	if num == nil {
+		return nil
+	}
+	value := int(*num)
+	pound := unit.Pound(value)
+	return &pound
 }

@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -38,8 +39,8 @@ func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserP
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if !appCtx.Session().IsServiceMember() {
 				var officeUser models.OfficeUser
@@ -48,7 +49,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 					officeUser, err = h.officeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
 					if err != nil {
 						appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
-						return userop.NewIsLoggedInUserInternalServerError()
+						return userop.NewIsLoggedInUserInternalServerError(), err
 					}
 				}
 
@@ -59,7 +60,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 					OfficeUser: payloads.OfficeUser(&officeUser),
 				}
 				decoratePayloadWithRoles(appCtx.Session(), &userPayload)
-				return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
+				return userop.NewShowLoggedInUserOK().WithPayload(&userPayload), nil
 			}
 
 			// Load Servicemember and first level associations
@@ -67,7 +68,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving service_member", zap.Error(err))
-				return userop.NewShowLoggedInUserUnauthorized()
+				return userop.NewShowLoggedInUserUnauthorized(), err
 			}
 
 			// Load duty location and transportation office association
@@ -75,7 +76,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				// Fetch associations on duty location
 				dutyLocation, dutyLocationErr := models.FetchDutyLocation(appCtx.DB(), *serviceMember.DutyLocationID)
 				if dutyLocationErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), dutyLocationErr)
+					return handlers.ResponseForError(appCtx.Logger(), dutyLocationErr), dutyLocationErr
 				}
 				serviceMember.DutyLocation = dutyLocation
 
@@ -84,11 +85,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				if tspErr != nil {
 					if errors.Cause(tspErr) != models.ErrFetchNotFound {
 						// The absence of an office shouldn't render the entire request a 404
-						return handlers.ResponseForError(appCtx.Logger(), tspErr)
+						return handlers.ResponseForError(appCtx.Logger(), tspErr), tspErr
 					}
 					// We might not have Transportation Office data for a Duty Location, and that's ok
 					if errors.Cause(tspErr) != models.ErrFetchNotFound {
-						return handlers.ResponseForError(appCtx.Logger(), tspErr)
+						return handlers.ResponseForError(appCtx.Logger(), tspErr), tspErr
 					}
 				}
 				serviceMember.DutyLocation.TransportationOffice = transportationOffice
@@ -98,7 +99,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 			if len(serviceMember.Orders) > 0 {
 				orders, orderErr := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].ID)
 				if orderErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), orderErr)
+					return handlers.ResponseForError(appCtx.Logger(), orderErr), orderErr
 				}
 
 				serviceMember.Orders[0] = orders
@@ -107,7 +108,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				if dutyLocationErr != nil {
 					if errors.Cause(dutyLocationErr) != models.ErrFetchNotFound {
 						// The absence of an office shouldn't render the entire request a 404
-						return handlers.ResponseForError(appCtx.Logger(), dutyLocationErr)
+						return handlers.ResponseForError(appCtx.Logger(), dutyLocationErr), dutyLocationErr
 					}
 				}
 				serviceMember.Orders[0].NewDutyLocation.TransportationOffice = newDutyLocationTransportationOffice
@@ -118,7 +119,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 						// TODO: load advances on all ppms for the latest order's move
 						ppm, ppmErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID)
 						if ppmErr != nil {
-							return handlers.ResponseForError(appCtx.Logger(), ppmErr)
+							return handlers.ResponseForError(appCtx.Logger(), ppmErr), ppmErr
 						}
 						serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
 					}
@@ -126,7 +127,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 					// Check if move is valid and not hidden
 					// If the move is hidden, return an error
 					if !(*serviceMember.Orders[0].Moves[0].Show) {
-						return userop.NewShowLoggedInUserUnauthorized()
+						return userop.NewShowLoggedInUserUnauthorized(), apperror.NewForbiddenError("user unauthorized to access move")
 					}
 				}
 			}
@@ -134,7 +135,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 			requiresAccessCode := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
 
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			userPayload := internalmessages.LoggedInUserPayload{
 				ID:            handlers.FmtUUID(appCtx.Session().UserID),
@@ -143,6 +144,6 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				Email:         appCtx.Session().Email,
 			}
 			decoratePayloadWithRoles(appCtx.Session(), &userPayload)
-			return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
+			return userop.NewShowLoggedInUserOK().WithPayload(&userPayload), nil
 		})
 }
