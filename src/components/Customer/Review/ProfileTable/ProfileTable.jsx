@@ -10,7 +10,7 @@ import { customerRoutes } from 'constants/routes';
 const ProfileTable = ({
   affiliation,
   city,
-  currentDutyStationName,
+  currentDutyLocationName,
   edipi,
   email,
   firstName,
@@ -68,7 +68,7 @@ const ProfileTable = ({
               Current duty location
             </th>
             <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
-              {currentDutyStationName}
+              {currentDutyLocationName}
             </td>
           </tr>
           <tr>
@@ -96,7 +96,7 @@ const ProfileTable = ({
 ProfileTable.propTypes = {
   affiliation: string.isRequired,
   city: string.isRequired,
-  currentDutyStationName: string.isRequired,
+  currentDutyLocationName: string.isRequired,
   edipi: string.isRequired,
   email: string.isRequired,
   firstName: string.isRequired,

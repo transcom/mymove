@@ -132,7 +132,7 @@ class MtoShipmentForm extends Component {
     const {
       match,
       history,
-      newDutyStationAddress,
+      newDutyLocationAddress,
       selectedMoveType,
       isCreatePage,
       mtoShipment,
@@ -148,6 +148,7 @@ class MtoShipmentForm extends Component {
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;
+    const isRetireeSeparatee = orders.orders_type !== 'PERMANENT_CHANGE_OF_STATION';
 
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
@@ -304,8 +305,8 @@ class MtoShipmentForm extends Component {
                           {showPickupFields && <h2>Destination info</h2>}
                           <Fieldset legend="Date">
                             <Hint>
-                              If you’re not sure, use your report-by date. You’ll finalize an actual delivery date later
-                              by talking with your movers once the shipment is underway.
+                              You’ll finalize an actual delivery date later by talking with your movers once the
+                              shipment is underway.
                             </Hint>
                             <DatePickerInput
                               name="delivery.requestedDate"
@@ -341,7 +342,7 @@ class MtoShipmentForm extends Component {
                                 </div>
                               </FormGroup>
                             )}
-                            {hasDeliveryAddress === 'yes' || isNTSR ? (
+                            {(hasDeliveryAddress === 'yes' || isNTSR) && (
                               <AddressFields
                                 name="delivery.address"
                                 render={(fields) => (
@@ -382,16 +383,28 @@ class MtoShipmentForm extends Component {
                                   </>
                                 )}
                               />
-                            ) : (
+                            )}
+                            {hasDeliveryAddress === 'no' && !isRetireeSeparatee && !isNTSR && (
                               <p>
                                 We can use the zip of your new duty location.
                                 <br />
                                 <strong>
-                                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                                  {newDutyStationAddress.postalCode}{' '}
+                                  {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
+                                  {newDutyLocationAddress.postalCode}{' '}
                                 </strong>
                                 <br />
                                 You can add the specific delivery address later, once you know it.
+                              </p>
+                            )}
+                            {hasDeliveryAddress === 'no' && isRetireeSeparatee && !isNTSR && (
+                              <p>
+                                We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
+                                <br />
+                                <strong>
+                                  {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
+                                  {newDutyLocationAddress.postalCode}{' '}
+                                </strong>
+                                <br />
                               </p>
                             )}
                           </Fieldset>
@@ -491,7 +504,7 @@ MtoShipmentForm.propTypes = {
   updateMTOShipment: func.isRequired,
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
-  newDutyStationAddress: SimpleAddressShape,
+  newDutyLocationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: HhgShipmentShape,
   serviceMember: shape({
@@ -506,7 +519,7 @@ MtoShipmentForm.defaultProps = {
   isCreatePage: false,
   match: { isExact: false, params: { moveID: '' } },
   history: { goBack: () => {}, push: () => {} },
-  newDutyStationAddress: {
+  newDutyLocationAddress: {
     city: '',
     state: '',
     postalCode: '',

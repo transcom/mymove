@@ -10,18 +10,18 @@ import { updateServiceMember as updateServiceMemberAction } from 'store/entities
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
-import CurrentDutyStationForm from 'components/Customer/CurrentDutyStationForm/CurrentDutyStationForm';
+import CurrentDutyLocationForm from 'components/Customer/CurrentDutyLocationForm/CurrentDutyLocationForm';
 import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
-import { DutyStationShape } from 'types/dutyStation';
+import { DutyLocationShape } from 'types/dutyLocation';
 
-const dutyStationFormName = 'duty_station';
+const dutyLocationFormName = 'duty_location';
 
-export const DutyStation = ({ serviceMember, existingStation, newDutyLocation, updateServiceMember, push }) => {
+export const DutyLocation = ({ serviceMember, existingDutyLocation, newDutyLocation, updateServiceMember, push }) => {
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
-    current_location: existingStation.name ? existingStation : {},
+    current_location: existingDutyLocation.name ? existingDutyLocation : {},
   };
 
   const handleBack = () => {
@@ -64,7 +64,7 @@ export const DutyStation = ({ serviceMember, existingStation, newDutyLocation, u
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <CurrentDutyStationForm
+          <CurrentDutyLocationForm
             onSubmit={handleSubmit}
             onBack={handleBack}
             initialValues={initialValues}
@@ -76,16 +76,16 @@ export const DutyStation = ({ serviceMember, existingStation, newDutyLocation, u
   );
 };
 
-DutyStation.propTypes = {
+DutyLocation.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   serviceMember: ServiceMemberShape.isRequired,
   push: PropTypes.func.isRequired,
-  existingStation: DutyStationShape,
-  newDutyLocation: DutyStationShape,
+  existingDutyLocation: DutyLocationShape,
+  newDutyLocation: DutyLocationShape,
 };
 
-DutyStation.defaultProps = {
-  existingStation: {},
+DutyLocation.defaultProps = {
+  existingDutyLocation: {},
   newDutyLocation: {},
 };
 
@@ -98,8 +98,8 @@ function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
-    values: getFormValues(dutyStationFormName)(state),
-    existingStation: serviceMember?.current_location,
+    values: getFormValues(dutyLocationFormName)(state),
+    existingDutyLocation: serviceMember?.current_location,
     serviceMember,
     newDutyLocation: orders?.new_duty_location,
   };
@@ -108,4 +108,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(requireCustomerState(DutyStation, profileStates.CONTACT_INFO_COMPLETE));
+)(requireCustomerState(DutyLocation, profileStates.CONTACT_INFO_COMPLETE));

@@ -146,7 +146,6 @@
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-ato": "file:./eslint-plugin-ato",
-    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-security": "^1.4.0",

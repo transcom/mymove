@@ -89,14 +89,14 @@ export const EditOrders = ({
   const submitOrders = (fieldValues) => {
     const hasDependents = fieldValues.has_dependents === 'yes';
     const entitlementCouldChange = hasDependents !== currentOrders.has_dependents;
-    const newDutyStationId = fieldValues.new_duty_location.id;
+    const newDutyLocationId = fieldValues.new_duty_location.id;
 
     return patchOrders({
       ...fieldValues,
       id: currentOrders.id,
       service_member_id: serviceMember.id,
       has_dependents: hasDependents,
-      new_duty_location_id: newDutyStationId,
+      new_duty_location_id: newDutyLocationId,
       // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the
       // ppm office edit orders
       spouse_has_pro_gear: currentOrders.spouse_has_pro_gear,
@@ -160,7 +160,7 @@ export const EditOrders = ({
                 onUploadComplete={handleUploadComplete}
                 onDelete={handleDeleteFile}
                 ordersTypeOptions={ordersTypeOptions}
-                currentStation={serviceMember.current_location}
+                currentDutyLocation={serviceMember.current_location}
                 onCancel={handleCancel}
               />
             </div>

@@ -751,7 +751,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             const rejectedServiceItems = serviceItemsForShipment?.filter(
               (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
             );
-            const dutyStationPostal = { postalCode: order.destinationDutyLocation.address.postalCode };
+            const dutyLocationPostal = { postalCode: order.destinationDutyLocation.address.postalCode };
             const { pickupAddress, destinationAddress } = mtoShipment;
             const formattedScheduledPickup = formatShipmentDate(mtoShipment.scheduledPickupDate);
 
@@ -770,7 +770,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                     originCity: pickupAddress?.city,
                     originState: pickupAddress?.state,
                     originPostalCode: pickupAddress?.postalCode,
-                    destinationAddress: destinationAddress || dutyStationPostal,
+                    destinationAddress: destinationAddress || dutyLocationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
                     shipmentStatus: mtoShipment.status,
                     ifMatchEtag: mtoShipment.eTag,

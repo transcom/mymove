@@ -6,11 +6,11 @@ import AsyncSelect from 'react-select/async';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 
-import styles from './DutyStationSearchBox.module.scss';
+import styles from './DutyLocationSearchBox.module.scss';
 import { SearchDutyLocations, ShowAddress } from './api';
 
 import Hint from 'components/Hint';
-import { DutyStationShape } from 'types';
+import { DutyLocationShape } from 'types';
 
 const getOptionName = (option) => option.name;
 
@@ -76,7 +76,7 @@ const customStyles = {
   }),
 };
 
-export const DutyStationSearchBoxComponent = (props) => {
+export const DutyLocationSearchBoxComponent = (props) => {
   const { searchDutyLocations, showAddress, title, input, name, errorMsg, displayAddress, hint } = props;
   const { value, onChange, name: inputName } = input;
 
@@ -127,7 +127,7 @@ export const DutyStationSearchBoxComponent = (props) => {
   });
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
-  const hasStation = !!value && !!value.address;
+  const hasDutyLocation = !!value && !!value.address;
 
   return (
     <FormGroup>
@@ -149,12 +149,12 @@ export const DutyStationSearchBoxComponent = (props) => {
           onChange={selectOption}
           onInputChange={changeInputText}
           placeholder="Start typing a duty location..."
-          value={hasStation ? value : null}
+          value={hasDutyLocation ? value : null}
           noOptionsMessage={noOptionsMessage}
           styles={customStyles}
         />
       </div>
-      {displayAddress && hasStation && (
+      {displayAddress && hasDutyLocation && (
         <p className={locationClasses}>
           {value.address.city}, {value.address.state} {value.address.postalCode}
         </p>
@@ -164,13 +164,13 @@ export const DutyStationSearchBoxComponent = (props) => {
   );
 };
 
-export const DutyStationSearchBoxContainer = (props) => {
+export const DutyLocationSearchBoxContainer = (props) => {
   return (
-    <DutyStationSearchBoxComponent {...props} searchDutyLocations={SearchDutyLocations} showAddress={ShowAddress} />
+    <DutyLocationSearchBoxComponent {...props} searchDutyLocations={SearchDutyLocations} showAddress={ShowAddress} />
   );
 };
 
-DutyStationSearchBoxContainer.propTypes = {
+DutyLocationSearchBoxContainer.propTypes = {
   displayAddress: PropTypes.bool,
   name: PropTypes.string.isRequired,
   errorMsg: PropTypes.string,
@@ -178,12 +178,12 @@ DutyStationSearchBoxContainer.propTypes = {
   input: PropTypes.shape({
     name: PropTypes.string,
     onChange: PropTypes.func,
-    value: DutyStationShape,
+    value: DutyLocationShape,
   }),
   hint: PropTypes.node,
 };
 
-DutyStationSearchBoxContainer.defaultProps = {
+DutyLocationSearchBoxContainer.defaultProps = {
   displayAddress: true,
   title: 'Name of Duty Location:',
   errorMsg: '',
@@ -195,14 +195,14 @@ DutyStationSearchBoxContainer.defaultProps = {
   hint: '',
 };
 
-DutyStationSearchBoxComponent.propTypes = {
-  ...DutyStationSearchBoxContainer.propTypes,
+DutyLocationSearchBoxComponent.propTypes = {
+  ...DutyLocationSearchBoxContainer.propTypes,
   searchDutyLocations: PropTypes.func.isRequired,
   showAddress: PropTypes.func.isRequired,
 };
 
-DutyStationSearchBoxComponent.defaultProps = {
-  ...DutyStationSearchBoxContainer.defaultProps,
+DutyLocationSearchBoxComponent.defaultProps = {
+  ...DutyLocationSearchBoxContainer.defaultProps,
 };
 
-export default DutyStationSearchBoxContainer;
+export default DutyLocationSearchBoxContainer;

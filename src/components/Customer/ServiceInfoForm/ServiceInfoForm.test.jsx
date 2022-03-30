@@ -5,7 +5,7 @@ import selectEvent from 'react-select-event';
 
 import ServiceInfoForm from './ServiceInfoForm';
 
-jest.mock('components/DutyStationSearchBox/api', () => ({
+jest.mock('components/DutyLocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
       city: 'Test City',
@@ -192,10 +192,10 @@ describe('ServiceInfoForm', () => {
       />,
     );
 
-    // Test Duty Station Search Box interaction
-    const dutyStationInput = await screen.getByLabelText('Current duty location');
-    fireEvent.change(dutyStationInput, { target: { value: 'AFB' } });
-    await selectEvent.select(dutyStationInput, /Luke/);
+    // Test Duty Location Search Box interaction
+    const dutyLocationInput = await screen.getByLabelText('Current duty location');
+    fireEvent.change(dutyLocationInput, { target: { value: 'AFB' } });
+    await selectEvent.select(dutyLocationInput, /Luke/);
 
     expect(await screen.findByRole('form')).toHaveFormValues({
       current_location: 'Luke AFB',

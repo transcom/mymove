@@ -7,19 +7,19 @@ import Contact from './index';
 describe('Contact component', () => {
   it('renders footer with given required props', () => {
     const header = 'Contact Info';
-    const dutyStationName = 'Headquarters';
+    const dutyLocationName = 'Headquarters';
     const officeType = 'Homebase';
     const telephone = '(777) 777-7777';
     const props = {
       header,
-      dutyStationName,
+      dutyLocationName,
       officeType,
       telephone,
     };
 
     render(<Contact {...props} />);
     expect(screen.getByRole('heading', { level: 6, name: /Contact Info/i })).toBeInTheDocument();
-    expect(screen.getByText(dutyStationName)).toBeInTheDocument();
+    expect(screen.getByText(dutyLocationName)).toBeInTheDocument();
     expect(screen.getByText(officeType)).toBeInTheDocument();
     expect(screen.getByText(telephone)).toBeInTheDocument();
     expect(screen.getByRole('link')).toHaveAttribute(

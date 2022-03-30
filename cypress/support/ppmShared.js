@@ -126,12 +126,13 @@ export function navigateFromAdvancesPageToReviewPage(isMobile = false) {
     cy.get('input[name="agreeToTerms"]').check({ force: true });
   }
 
-  const buttonText = 'Save & Continue';
+  cy.get('button').contains('Save & Continue').as('saveButton');
+
   if (isMobile) {
-    cy.get('button').contains(buttonText).should('be.enabled').should('have.css', 'order', '1').click();
-  } else {
-    cy.get('button').contains(buttonText).should('be.enabled').click();
+    cy.get('@saveButton').should('have.css', 'order', '1');
   }
+
+  cy.get('@saveButton').should('be.enabled').click();
 
   cy.wait('@patchShipment');
 

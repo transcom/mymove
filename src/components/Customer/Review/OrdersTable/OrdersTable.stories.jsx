@@ -29,7 +29,7 @@ const defaultProps = {
   orderType: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION,
   issueDate: '2020-06-11',
   reportByDate: '2020-08-11',
-  newDutyStationName: 'Fort Knox',
+  newDutyLocationName: 'Fort Knox',
   hasDependents: true,
   uploads: [{ id: 1 }, { id: 2 }, { id: 3 }],
 };
