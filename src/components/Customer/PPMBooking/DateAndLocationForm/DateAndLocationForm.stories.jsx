@@ -33,7 +33,7 @@ BlankDatesAndLocation.args = {
       postalCode: '90210',
     },
   },
-  destinationDutyStation: {
+  destinationDutyLocation: {
     address: {
       postalCode: '94611',
     },
@@ -51,7 +51,7 @@ MTOShipmentDatesAndLocation.args = {
       postalCode: '90210',
     },
   },
-  destinationDutyStation: {
+  destinationDutyLocation: {
     address: {
       postalCode: '94611',
     },
@@ -81,7 +81,7 @@ ErrorDatesAndLocation.args = {
       postalCode: '99021',
     },
   },
-  destinationDutyStation: {
+  destinationDutyLocation: {
     address: {
       postalCode: '94611',
     },

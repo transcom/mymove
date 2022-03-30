@@ -379,7 +379,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		move := subtestData.move
 		order := subtestData.move.Orders
-		destinationDutyStation := order.NewDutyLocation
+		destinationDutyLocation := order.NewDutyLocation
 		originDutyStation := order.OriginDutyLocation
 
 		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -393,7 +393,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			OrdersType:            ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
 			OrdersTypeDetail:      &ordersTypeDetail,
 			OrdersNumber:          handlers.FmtString("ORDER100"),
-			NewDutyLocationID:     handlers.FmtUUID(destinationDutyStation.ID),
+			NewDutyLocationID:     handlers.FmtUUID(destinationDutyLocation.ID),
 			OriginDutyLocationID:  handlers.FmtUUID(originDutyStation.ID),
 			Tac:                   handlers.FmtString("E19A"),
 			Sac:                   nullable.NewString("987654321"),

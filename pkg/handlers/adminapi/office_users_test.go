@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -273,12 +275,17 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
+	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	sessionManagers := setupSessionManagers()
+	handlerContext.SetSessionManagers(sessionManagers)
 	mockUpdater := mocks.OfficeUserUpdater{}
+	mockRevoker := mocks.UserSessionRevocation{}
 	handler := UpdateOfficeUserHandler{
-		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+		handlerContext,
 		&mockUpdater,
 		query.NewQueryFilter,
 		usersroles.NewUsersRolesCreator(), // a special can of worms, TODO mocked tests
+		&mockRevoker,
 	}
 
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
@@ -353,5 +360,36 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserInternalServerError{}, response)
+	})
+
+	suite.T().Run("Office user session is revoked when roles are changed", func(t *testing.T) {
+		// Setup payload to remove all roles for office user
+		newRoles := []*adminmessages.OfficeUserRole{}
+		officeUserUpdates := &adminmessages.OfficeUserUpdatePayload{
+			Roles: newRoles,
+		}
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  request,
+			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
+
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		mockUpdater.
+			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdates).
+			Return(&officeUser, nil, nil)
+
+		expectedSessionUpdate := &adminmessages.UserUpdatePayload{
+			RevokeOfficeSession: swag.Bool(true),
+		}
+		mockRevoker.
+			On("RevokeUserSession", mock.AnythingOfType("*appcontext.appContext"), *officeUser.UserID, expectedSessionUpdate, mock.Anything).
+			Return(nil, nil, nil).
+			Once()
+
+		response := handler.Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
+		mockRevoker.AssertNumberOfCalls(t, "RevokeUserSession", 1)
 	})
 }

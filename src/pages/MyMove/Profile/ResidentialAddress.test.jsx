@@ -80,7 +80,7 @@ describe('ResidentialAddress page', () => {
     expect(backButton).toBeInTheDocument();
     userEvent.click(backButton);
 
-    expect(testProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_STATION_PATH);
+    expect(testProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
   });
 
   it('next button submits the form and goes to the Backup address step', async () => {
@@ -189,7 +189,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     push: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "DUTY STATION COMPLETE" state', async () => {
+  it('dispatches a redirect if the current state is earlier than the "DUTY LOCATION COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -225,11 +225,11 @@ describe('requireCustomerState ResidentialAddress', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockDispatch).toHaveBeenCalledWith(push(customerRoutes.CURRENT_DUTY_STATION_PATH));
+      expect(mockDispatch).toHaveBeenCalledWith(push(customerRoutes.CURRENT_DUTY_LOCATION_PATH));
     });
   });
 
-  it('does not redirect if the current state equals the "DUTY STATION COMPLETE" state', async () => {
+  it('does not redirect if the current state equals the "DUTY LOCATION COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -251,7 +251,7 @@ describe('requireCustomerState ResidentialAddress', () => {
             personal_email: 'test@example.com',
             email_is_preferred: true,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
             },
           },
         },
@@ -272,7 +272,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     });
   });
 
-  it('does not redirect if the current state is after the "DUTY STATION COMPLETE" state and profile is not complete', async () => {
+  it('does not redirect if the current state is after the "DUTY LOCATION COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -294,7 +294,7 @@ describe('requireCustomerState ResidentialAddress', () => {
             personal_email: 'test@example.com',
             email_is_preferred: true,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
             },
             residential_address: {
               street: '123 Main St',
@@ -343,7 +343,7 @@ describe('requireCustomerState ResidentialAddress', () => {
             personal_email: 'test@example.com',
             email_is_preferred: true,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
             },
             residential_address: {
               street: '123 Main St',
