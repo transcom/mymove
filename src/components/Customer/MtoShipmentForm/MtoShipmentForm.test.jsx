@@ -51,6 +51,7 @@ const defaultProps = {
     },
   },
   orders: {
+    orders_type: 'PERMANENT_CHANGE_OF_STATION',
     has_dependents: false,
   },
 };
@@ -125,6 +126,39 @@ describe('MtoShipmentForm component', () => {
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
 
       expect(screen.getByText(/8,000 lbs/)).toHaveClass('usa-alert__text');
+    });
+
+    it('renders the correct helper text for Delivery Location when orders type is RETIREMENT', async () => {
+      render(
+        <MtoShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          orders={{ orders_type: 'RETIREMENT' }}
+        />,
+      );
+      await waitFor(() =>
+        expect(
+          screen.getByText('We can use the zip of the HOR, PLEAD or HOS you entered with your orders.')
+            .toBeInTheDocument,
+        ),
+      );
+    });
+
+    it('renders the correct helper text for Delivery Location when orders type is SEPARATION', async () => {
+      render(
+        <MtoShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          orders={{ orders_type: 'SEPARATION' }}
+        />,
+      );
+
+      await waitFor(() =>
+        expect(
+          screen.getByText('We can use the zip of the HOR, PLEAD or HOS you entered with your orders.')
+            .toBeInTheDocument,
+        ),
+      );
     });
 
     it('does not render special NTS What to expect section', async () => {
