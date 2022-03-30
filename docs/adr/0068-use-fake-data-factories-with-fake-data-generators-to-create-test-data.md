@@ -5,7 +5,7 @@
 We have complex data models that can vary a lot depending on the situation, e.g. an HHG shipment looks very different
 from a PPM shipment. This can make writing tests for our code more difficult because even if we aren't doing something
 that affects every part of an object, we might still need to know the correct way to set up the data before we can even
-test the part that we are interacting with. The problems with the way we do things now are a bit different between the
+test the part that we are interacting with. The problem with the way we do things now are a bit different between the
 frontend and backend, but the chosen solution would ideally help with both.
 
 Continuing with the shipment model example, if we want to write a test for a services counselor editing a shipment to
@@ -101,7 +101,7 @@ The rest of the pros/cons match the next option so see that one for more info.
 ### Option 2: Create factories on the FE (using a package) and use fake data generators for both the BE and FE
 
 * `+` Creating factories for the FE would free up devs from having to know exactly what an object should look like and
-    be able to focus only on the part of an object that they are testing.
+    allow them to focus on the part of an object that they are testing.
 * `+` Using fake data generators for the FE factories would make it easier to generate realistic fake data for fields
     without having hard-coded data or having to pass in overrides every time how we do on the BE.
 * `+` Refactoring our existing FE tests to use the new factories would serve as a test of our newly minted factories and
@@ -128,7 +128,7 @@ The rest of the pros/cons match the next option so see that one for more info.
 * `-` Not using factories for the FE would still leave us with devs needing to have a deeper knowledge of how our
     objects relate to each other and what the minimum data needed is in order to test what they're trying to focus on.
 * `-` Measuring success for the FE is more ambiguous because we won't be replacing all the hard-coded data that exists
-    with the generated data since some of that hard-coded data is being used in the tests as is on purpose, so seeing
+    with the generated data since some of that hard-coded data is being used in the tests as is on purpose. Thus, seeing
     what needs to be updated vs left as is would be harder to do at a glance.
 * `-` One argument against fake data generators is that if a test fails, you can't re-run the test with the same exact
     data.
