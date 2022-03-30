@@ -786,7 +786,8 @@ func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppConte
 
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMember: smWithPPM,
+			ServiceMemberID: smWithPPM.ID,
+			ServiceMember:   smWithPPM,
 		},
 		UserUploader: userUploader,
 		Move: models.Move{

@@ -3821,6 +3821,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx, userUploader)
 	createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 	createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
+	createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx, userUploader)
 	createUnsubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
 
 	// TIO

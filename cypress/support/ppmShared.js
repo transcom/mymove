@@ -120,6 +120,12 @@ export function submitsAdvancePage(addAdvance = false, isMobile = false) {
 }
 
 export function navigateFromAdvancesPageToReviewPage(isMobile = false) {
+  // when navigating through an existing PPM that requested an advance, we must agree to the terms again to proceed
+  // using cypress get or contains would result in an assertion failure for the case where advance requested is No
+  if (Cypress.$('input[name="advanceRequested"][value="true"]:checked').length > 0) {
+    cy.get('input[name="agreeToTerms"]').check({ force: true });
+  }
+
   const buttonText = 'Save & Continue';
   if (isMobile) {
     cy.get('button').contains(buttonText).should('be.enabled').should('have.css', 'order', '1').click();
