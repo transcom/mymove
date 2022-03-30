@@ -2,6 +2,7 @@ import {
   generalVerifyEstimatedIncentivePage,
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
+  setMobileViewport,
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
 } from '../../../support/ppmShared';
 
@@ -22,7 +23,7 @@ describe('PPM Onboarding - Estimated Incentive', function () {
   });
 
   it('mobile - go to estimated incentives page', () => {
-    cy.viewport(479, 875);
+    setMobileViewport();
     navigateToEstimatedIncentivePage();
     verifyShipmentSpecificInfo();
     generalVerifyEstimatedIncentivePage(true);

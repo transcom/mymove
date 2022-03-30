@@ -6,6 +6,7 @@ import {
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
+  setMobileViewport,
 } from '../../../support/ppmShared';
 
 describe('Entire PPM onboarding flow', function () {
@@ -28,7 +29,9 @@ describe('Entire PPM onboarding flow', function () {
   it('mobile - happy path with new shipment', () => {
     // full_ppm_mobile@complete.profile
     const userId = '4fd6726d-2d05-4640-96dd-983bec236a9c';
-    cy.viewport(479, 875);
+
+    setMobileViewport();
+
     navigateHappyPath(userId, true);
   });
 
@@ -37,7 +40,8 @@ describe('Entire PPM onboarding flow', function () {
   });
 
   it('mobile - happy path with edits and backs', () => {
-    cy.viewport(479, 875);
+    setMobileViewport();
+
     navigateHappyPathWithEditsAndBacks(true);
   });
 });

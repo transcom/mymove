@@ -1,3 +1,7 @@
+export function setMobileViewport() {
+  cy.viewport(479, 875);
+}
+
 export function customerStartsAddingAPPMShipment() {
   cy.get('button[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
@@ -99,4 +103,35 @@ export function navigateFromEstimatedIncentivePageToAdvancesPage() {
   });
 
   cy.get('h1').should('contain', 'Advances');
+}
+
+export function submitsAdvancePage(addAdvance = false, isMobile = false) {
+  if (addAdvance) {
+    cy.get('input[name="advanceRequested"][value="true"]').check({ force: true });
+
+    cy.get('input[name="amountRequested"]').clear().type(4000).blur();
+
+    cy.get('input[name="agreeToTerms"]').check({ force: true });
+  } else {
+    cy.get('input[name="advanceRequested"][value="false"]').check({ force: true });
+  }
+
+  navigateFromAdvancesPageToReviewPage(isMobile);
+}
+
+export function navigateFromAdvancesPageToReviewPage(isMobile = false) {
+  const buttonText = 'Save & Continue';
+  if (isMobile) {
+    cy.get('button').contains(buttonText).should('be.enabled').should('have.css', 'order', '1').click();
+  } else {
+    cy.get('button').contains(buttonText).should('be.enabled').click();
+  }
+
+  cy.wait('@patchShipment');
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
+  });
+
+  cy.get('h1').should('contain', 'Review your details');
 }
