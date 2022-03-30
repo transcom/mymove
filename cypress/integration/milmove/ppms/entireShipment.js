@@ -7,6 +7,7 @@ import {
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
   setMobileViewport,
+  submitsAdvancePage,
 } from '../../../support/ppmShared';
 
 describe('Entire PPM onboarding flow', function () {
@@ -53,6 +54,7 @@ function navigateHappyPath(userId, isMobile = false) {
   submitsDateAndLocation();
   submitsEstimatedWeightsAndProGear();
   generalVerifyEstimatedIncentivePage(isMobile);
+  submitsAdvancePage(true, isMobile);
 }
 
 function navigateHappyPathWithEditsAndBacks(isMobile = false) {
@@ -68,6 +70,8 @@ function navigateHappyPathWithEditsAndBacks(isMobile = false) {
 
   verifyShipmentSpecificInfoOnEstimatedIncentivePage();
   generalVerifyEstimatedIncentivePage(isMobile);
+
+  submitsAdvancePage(true, isMobile);
 }
 
 // update the form values by submitting and then return to the page to verify if the values persist and then return to the next page
