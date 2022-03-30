@@ -57,17 +57,23 @@ describe('PPM On-boarding - Advances', function () {
 function invalidInputs() {
   cy.get('input[name="advanceRequested"][value="true"]').check({ force: true });
 
+  cy.get('button').contains('Save & Continue').as('saveButton');
+
   // missing advance
   cy.get('input[name="amountRequested"]').as('amountRequestedInput');
   cy.get('@amountRequestedInput').clear().blur();
   cy.get('[class="usa-error-message"]').as('errorMessage');
   cy.get('@errorMessage').contains('Required');
   cy.get('@errorMessage').next('div').find('input').should('have.id', 'amountRequested');
+  cy.get('@saveButton').should('be.disabled');
+  cy.get('@amountRequestedInput').clear().type(1).blur();
+  cy.get('@errorMessage').should('not.exist');
 
   // advance violates min
   cy.get('@amountRequestedInput').clear().type(0).blur();
   cy.get('@errorMessage').contains("The minimum advance request is $1. If you don't want an advance, select No.");
   cy.get('@errorMessage').next('div').find('input').should('have.id', 'amountRequested');
+  cy.get('@saveButton').should('be.disabled');
   cy.get('@amountRequestedInput').clear().type(1).blur();
   cy.get('@errorMessage').should('not.exist');
 
@@ -76,6 +82,7 @@ function invalidInputs() {
   cy.get('[data-testid="textInputWarning"]').as('warningMessage');
   cy.get('@warningMessage').contains('Reminder: your advance can not be more than $6,000');
   cy.get('@warningMessage').next('div').find('input').should('have.id', 'amountRequested');
+  cy.get('@saveButton').should('be.disabled');
   cy.get('@amountRequestedInput').clear().type(1).blur();
   cy.get('@warningMessage').should('not.exist');
 
@@ -83,6 +90,7 @@ function invalidInputs() {
   cy.get('@amountRequestedInput').clear().type(20000).blur();
   cy.get('@errorMessage').contains('Enter an amount less than $6,000');
   cy.get('@errorMessage').next('div').find('input').should('have.id', 'amountRequested');
+  cy.get('@saveButton').should('be.disabled');
   cy.get('@amountRequestedInput').clear().type(1).blur();
   cy.get('@errorMessage').should('not.exist');
 }
