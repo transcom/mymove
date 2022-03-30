@@ -1,13 +1,10 @@
 import {
-  navigateFromAdvancesPageToReviewPage,
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
   navigateFromEstimatedIncentivePageToAdvancesPage,
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
   setMobileViewport,
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
   submitsAdvancePage,
-  submitsEstimatedWeights,
-  submitsEstimatedWeightsAndProGear,
 } from '../../../support/ppmShared';
 
 describe('PPM On-boarding - Advances', function () {
