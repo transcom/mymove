@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -27,37 +28,39 @@ type ShowPPMSitEstimateHandler struct {
 // Handle calculates SIT charge and retrieves SIT discount rate.
 // It returns the discount rate applied to relevant SIT charge.
 func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			ordersID, err := uuid.FromString(params.OrdersID.String())
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			move, err := models.FetchMoveByOrderID(appCtx.DB(), ordersID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			var originalMoveDate = time.Time(params.OriginalMoveDate)
 			if originalMoveDate.IsZero() {
-				appCtx.Logger().Error("original move date invalid")
-				return ppmop.NewShowPPMSitEstimateUnprocessableEntity()
+				errMsg := "original move date invalid"
+				appCtx.Logger().Error(errMsg)
+				return ppmop.NewShowPPMSitEstimateUnprocessableEntity(), apperror.NewBadDataError(errMsg)
 			}
 
 			if params.WeightEstimate == 0 {
-				appCtx.Logger().Error("weight estimate required")
-				return ppmop.NewShowPPMSitEstimateUnprocessableEntity()
+				errMsg := "weight estimate required"
+				appCtx.Logger().Error(errMsg)
+				return ppmop.NewShowPPMSitEstimateUnprocessableEntity(), apperror.NewBadDataError(errMsg)
 			}
 			weightEstimate := unit.Pound(params.WeightEstimate)
 
@@ -70,11 +73,11 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 
 			sitCharge, _, err := h.CalculateEstimates(appCtx, &estimatedPPM, move.ID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			ppmSitEstimate := internalmessages.PPMSitEstimate{
 				Estimate: &sitCharge,
 			}
-			return ppmop.NewShowPPMSitEstimateOK().WithPayload(&ppmSitEstimate)
+			return ppmop.NewShowPPMSitEstimateOK().WithPayload(&ppmSitEstimate), nil
 		})
 }

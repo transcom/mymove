@@ -217,16 +217,16 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 // moveTaskOrderPopulated function spot checks a few values in the Move, Orders, and Customer to
 // ensure they are populated.
 func (suite *HandlerSuite) moveTaskOrderPopulated(response *movetaskorderops.CreateMoveTaskOrderCreated,
-	destinationDutyStation *models.DutyLocation,
-	originDutyStation *models.DutyLocation) {
+	destinationDutyLocation *models.DutyLocation,
+	originDutyLocation *models.DutyLocation) {
 
 	responsePayload := response.Payload
 
 	suite.NotNil(responsePayload.MoveCode)
 	suite.NotNil(responsePayload.Order.Customer.FirstName)
 
-	suite.Equal(destinationDutyStation.Name, responsePayload.Order.DestinationDutyLocation.Name)
-	suite.Equal(originDutyStation.Name, responsePayload.Order.OriginDutyLocation.Name)
+	suite.Equal(destinationDutyLocation.Name, responsePayload.Order.DestinationDutyLocation.Name)
+	suite.Equal(originDutyLocation.Name, responsePayload.Order.OriginDutyLocation.Name)
 
 }
 
@@ -284,9 +284,9 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder and order associated with an existing customer,
-		//             existing duty stations and existing uploaded orders document
+		//             existing duty locations and existing uploaded orders document
 		// Expected outcome:
-		//             New MTO and orders are created. Customer data and duty station data are pulled in.
+		//             New MTO and orders are created. Customer data and duty location data are pulled in.
 		//			   Status should be default value which is DRAFT
 
 		// We only provide an existing customerID not the whole object.
@@ -387,10 +387,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder and order associated with an existing customer,
-		//             existing duty stations and existing uploaded orders document.
+		//             existing duty locations and existing uploaded orders document.
 		//             The status is canceled.
 		// Expected outcome:
-		//             New MTO and orders are created. Customer data and duty station data are pulled in.
+		//             New MTO and orders are created. Customer data and duty location data are pulled in.
 		//             Status is canceled.
 
 		// We only provide an existing customerID not the whole object.
@@ -427,7 +427,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder, order, and new customer.
-		//             The order is associated with existing duty stations.
+		//             The order is associated with existing duty locations.
 		// Expected outcome:
 		//             New MTO, orders and customer are created.
 
@@ -554,19 +554,19 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.IsType(&movetaskorderops.CreateMoveTaskOrderNotFound{}, response)
 	})
 
-	suite.T().Run("Failed createMoveTaskOrder 404 NotFound Bad Dutystation", func(t *testing.T) {
+	suite.T().Run("Failed createMoveTaskOrder 404 NotFound Bad DutyLocation", func(t *testing.T) {
 		// TESTCASE SCENARIO
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder, order, and existing customer.
-		//             The order has a bad duty station ID.
+		//             The order has a bad duty location ID.
 		// Expected outcome:
-		//             Failure of 404 Not Found since the dutystation is not found.
+		//             Failure of 404 Not Found since the dutyLocation is not found.
 
 		// We only provide an existing customerID not the whole object.
 		mtoPayload.Order.CustomerID = handlers.FmtUUID(dbCustomer.ID)
 
-		// Using a randomID as a dutyStationID should cause a query error
+		// Using a randomID as a dutyLocationID should cause a query error
 		mtoPayload.Order.OriginDutyLocationID = handlers.FmtUUID(uuid.Must(uuid.NewV4()))
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{

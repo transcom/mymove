@@ -12,7 +12,7 @@ describe('ServiceInfoDisplay component', () => {
     affiliation: 'Air Force',
     rank: 'E-5',
     edipi: '9999999999',
-    originDutyStationName: 'Buckley AFB',
+    originDutyLocationName: 'Buckley AFB',
     originTransportationOfficeName: 'Buckley AFB',
     originTransportationOfficePhone: '555-555-5555',
   };
@@ -48,11 +48,11 @@ describe('ServiceInfoDisplay component', () => {
 
     expect(dodId.nextElementSibling.textContent).toBe(testProps.edipi);
 
-    const currentDutyStation = screen.getByText('Current duty location');
+    const currentDutyLocation = screen.getByText('Current duty location');
 
-    expect(currentDutyStation).toBeInTheDocument();
+    expect(currentDutyLocation).toBeInTheDocument();
 
-    expect(currentDutyStation.nextElementSibling.textContent).toBe(testProps.originDutyStationName);
+    expect(currentDutyLocation.nextElementSibling.textContent).toBe(testProps.originDutyLocationName);
 
     const editLink = screen.getByText('Edit');
 

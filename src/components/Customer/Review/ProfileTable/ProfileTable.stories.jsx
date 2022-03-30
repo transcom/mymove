@@ -28,7 +28,7 @@ const defaultProps = {
   affiliation: 'Air Force',
   rank: 'E-5',
   edipi: '9999999999',
-  currentDutyStationName: 'Buckley AFB',
+  currentDutyLocationName: 'Buckley AFB',
   telephone: '(999) 999-9999',
   email: 'test@example.com',
   streetAddress1: '17 8th St',

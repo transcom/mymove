@@ -8,7 +8,7 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const ServiceInfoDisplay = ({
   affiliation,
-  originDutyStationName,
+  originDutyLocationName,
   originTransportationOfficeName,
   originTransportationOfficePhone,
   edipi,
@@ -57,7 +57,7 @@ const ServiceInfoDisplay = ({
 
           <div className={descriptionListStyles.row}>
             <dt>Current duty location</dt>
-            <dd>{originDutyStationName}</dd>
+            <dd>{originDutyLocationName}</dd>
           </div>
         </dl>
       </div>
@@ -67,7 +67,7 @@ const ServiceInfoDisplay = ({
 
 ServiceInfoDisplay.propTypes = {
   affiliation: string.isRequired,
-  originDutyStationName: string.isRequired,
+  originDutyLocationName: string.isRequired,
   originTransportationOfficeName: string.isRequired,
   originTransportationOfficePhone: string,
   edipi: string.isRequired,

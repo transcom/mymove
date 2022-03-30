@@ -75,9 +75,9 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
-  //duty station
+  //duty location
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
-  cy.selectDutyStation('Fort Carson', 'current_location');
+  cy.selectDutyLocation('Fort Carson', 'current_location');
 
   cy.nextPage();
   cy.location().should((loc) => {

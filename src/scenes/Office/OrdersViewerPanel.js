@@ -9,14 +9,14 @@ import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/order
 import { formatDate, formatDateTime } from 'shared/formatters';
 import { editablePanelify, PanelField, PanelSwaggerField, RowBasedHeader } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
+import DutyLocationSearchBox from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
 import { renderStatusIcon } from 'shared/utils';
 
 import './office.scss';
 
 const OrdersViewerDisplay = (props) => {
   const orders = props.orders;
-  const currentDutyStation = get(props.serviceMember, 'current_location.name', '');
+  const currentDutyLocation = get(props.serviceMember, 'current_location.name', '');
   const uploads = get(orders, 'uploaded_orders.uploads', []);
   const ordersFieldsProps = {
     values: props.orders,
@@ -46,7 +46,7 @@ const OrdersViewerDisplay = (props) => {
 
         <PanelField title="Report by" required value={formatDate(orders.report_by_date)} />
 
-        <PanelField title="Current Duty Location" required value={currentDutyStation} />
+        <PanelField title="Current Duty Location" required value={currentDutyLocation} />
 
         <PanelField title="New Duty Location" required value={get(orders, 'new_duty_location.name', '')} />
 
@@ -88,17 +88,17 @@ const OrdersViewerEdit = (props) => {
           <SwaggerField title="Report by" fieldName="report_by_date" swagger={schema} />
         </FormSection>
         <FormSection name="serviceMember">
-          <div className="duty-station">
+          <div className="duty-location">
             <Field
               name="current_location"
-              component={DutyStationSearchBox}
+              component={DutyLocationSearchBox}
               props={{ title: 'Current Duty Location' }}
             />
           </div>
         </FormSection>
         <FormSection name="orders">
-          <div className="duty-station">
-            <Field name="new_duty_location" component={DutyStationSearchBox} props={{ title: 'New Duty Location' }} />
+          <div className="duty-location">
+            <Field name="new_duty_location" component={DutyLocationSearchBox} props={{ title: 'New Duty Location' }} />
           </div>
           <SwaggerField fieldName="has_dependents" swagger={schema} title="Dependents authorized" />
           <SwaggerField title="Dept. Indicator" fieldName="department_indicator" swagger={schema} required />

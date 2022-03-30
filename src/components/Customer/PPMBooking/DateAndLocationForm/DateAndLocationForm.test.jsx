@@ -14,7 +14,7 @@ const defaultProps = {
       postalCode: '90210',
     },
   },
-  destinationDutyStation: {
+  destinationDutyLocation: {
     address: {
       postalCode: '94611',
     },
@@ -107,7 +107,7 @@ describe('DateAndLocationForm component', () => {
       expect(destinationZip.value).toBe('');
       userEvent.click(useDestinationZip);
       await waitFor(() => {
-        expect(destinationZip.value).toBe(defaultProps.destinationDutyStation?.address?.postalCode);
+        expect(destinationZip.value).toBe(defaultProps.destinationDutyLocation?.address?.postalCode);
       });
     });
 
@@ -118,7 +118,7 @@ describe('DateAndLocationForm component', () => {
       expect(destinationZip.value).toBe('');
       userEvent.click(useDestinationZip);
       await waitFor(() => {
-        expect(destinationZip.value).toBe(defaultProps.destinationDutyStation?.address?.postalCode);
+        expect(destinationZip.value).toBe(defaultProps.destinationDutyLocation?.address?.postalCode);
       });
 
       userEvent.click(useDestinationZip);

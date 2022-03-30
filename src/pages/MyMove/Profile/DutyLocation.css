@@ -13,6 +13,6 @@ div#react-select-2-listbox {
   margin-left: 0px;
   margin-top: 3px;
   border: 3px solid #cd2026;
-  /*Set a max width here since the DutyStationSearchBox will always have a max width of 32rem for now*/
+  /*Set a max width here since the DutyLocationSearchBox will always have a max width of 32rem for now*/
   max-width: 32rem;
 }

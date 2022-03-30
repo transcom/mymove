@@ -50,13 +50,13 @@ const order = {
   grade: 'RANK',
   moves: ['123'],
   origin_duty_location: {
-    name: 'Test Duty Station',
+    name: 'Test Duty Location',
     address: {
       postalCode: '123456',
     },
   },
   new_duty_location: {
-    name: 'New Test Duty Station',
+    name: 'New Test Duty Location',
     address: {
       postalCode: '123456',
     },

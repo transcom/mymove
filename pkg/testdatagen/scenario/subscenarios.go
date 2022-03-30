@@ -103,6 +103,7 @@ func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *upload
 		})
 		createUnsubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
 		createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
+		createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
 	}
 }
@@ -370,6 +371,18 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 		createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
 		createNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
 
+		// Create a move with an HHG and NTS prime-handled shipment
+		createMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)
+
+		// Create a move with an HHG and NTS external vendor-handled shipment
+		createMoveWithHHGAndNTSShipments(appCtx, "PRXNTS", true)
+
+		// Create a move with only NTS external vendor-handled shipment
+		createMoveWithNTSShipment(appCtx, "EXTNTS", true)
+
+		// Create a move with only an NTS external vendor-handled shipment
+		createMoveWithNTSShipment(appCtx, "NTSNTS", true)
+
 		// Create some submitted Moves for TXO users
 		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter)
 		createMoveWithHHGAndNTSMissingInfo(appCtx, moveRouter)
@@ -440,7 +453,7 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		// be changed to an HHG move in SUBMITTED status to reflect reality.
 		createMoveWithServiceItems(appCtx, userUploader)
 		createMoveWithBasicServiceItems(appCtx, userUploader)
-		// Sets up a move with a non-default destination duty station address
+		// Sets up a move with a non-default destination duty location address
 		// (to more easily spot issues with addresses being overwritten).
 		createMoveWithUniqueDestinationAddress(appCtx)
 		// Creates a move that has multiple orders uploaded

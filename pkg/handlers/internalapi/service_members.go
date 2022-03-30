@@ -76,25 +76,25 @@ type CreateServiceMemberHandler struct {
 // Handle ... creates a new ServiceMember from a request payload
 func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceMemberParams) middleware.Responder {
 	// User should always be populated by middleware
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
 			backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
 
-			var stationID *uuid.UUID
-			var station models.DutyLocation
+			var dutyLocationID *uuid.UUID
+			var dutyLocation models.DutyLocation
 			if params.CreateServiceMemberPayload.CurrentLocationID != nil {
 				id, err := uuid.FromString(params.CreateServiceMemberPayload.CurrentLocationID.String())
 				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err)
+					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}
 				s, err := models.FetchDutyLocation(appCtx.DB(), id)
 				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err)
+					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}
-				stationID = &id
-				station = s
+				dutyLocationID = &id
+				dutyLocation = s
 			}
 
 			// Create a new serviceMember for an authenticated user
@@ -114,13 +114,13 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				EmailIsPreferred:     params.CreateServiceMemberPayload.EmailIsPreferred,
 				ResidentialAddress:   residentialAddress,
 				BackupMailingAddress: backupMailingAddress,
-				DutyLocation:         station,
+				DutyLocation:         dutyLocation,
 				RequiresAccessCode:   h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
-				DutyLocationID:       stationID,
+				DutyLocationID:       dutyLocationID,
 			}
 			smVerrs, err := models.SaveServiceMember(appCtx, &newServiceMember)
 			if smVerrs.HasAny() || err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			// Update session info
 			appCtx.Session().ServiceMemberID = newServiceMember.ID
@@ -138,7 +138,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 			responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
 			sessionManager := h.SessionManager(appCtx.Session())
-			return handlers.NewCookieUpdateResponder(params.HTTPRequest, responder, sessionManager, appCtx.Session())
+			return handlers.NewCookieUpdateResponder(params.HTTPRequest, responder, sessionManager, appCtx.Session()), nil
 		})
 }
 
@@ -149,18 +149,18 @@ type ShowServiceMemberHandler struct {
 
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
-			return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
+			return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload), nil
 		})
 }
 
@@ -183,9 +183,8 @@ func (h PatchServiceMemberHandler) isDraftMove(serviceMember *models.ServiceMemb
 
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
-
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
@@ -195,17 +194,17 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 			serviceMember, err = models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			payload := params.PatchServiceMemberPayload
 
 			if verrs, err = h.patchServiceMemberWithPayload(appCtx, &serviceMember, payload); verrs.HasAny() || err != nil {
-				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 
 			if verrs, err = models.SaveServiceMember(appCtx, &serviceMember); verrs.HasAny() || err != nil {
-				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 
 			if len(serviceMember.Orders) != 0 && h.isDraftMove(&serviceMember) {
@@ -213,7 +212,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 				order, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].ID)
 
 				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err)
+					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}
 
 				serviceMemberRank := (*string)(serviceMember.Rank)
@@ -228,30 +227,30 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 				verrs, err = appCtx.DB().ValidateAndSave(&order)
 				if verrs.HasAny() || err != nil {
-					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 				}
 				serviceMember.Orders[0] = order
 			}
 
 			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
-			return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
+			return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload), nil
 		})
 }
 
 func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(appCtx appcontext.AppContext, serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
 	if h.isDraftMove(serviceMember) {
 		if payload.CurrentLocationID != nil {
-			stationID, err := uuid.FromString(payload.CurrentLocationID.String())
+			dutyLocationID, err := uuid.FromString(payload.CurrentLocationID.String())
 			if err != nil {
 				return validate.NewErrors(), err
 			}
 			// Fetch the model partially as a validation on the ID
-			station, err := models.FetchDutyLocation(appCtx.DB(), stationID)
+			dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
 			if err != nil {
 				return validate.NewErrors(), err
 			}
-			serviceMember.DutyLocation = station
-			serviceMember.DutyLocationID = &stationID
+			serviceMember.DutyLocation = dutyLocation
+			serviceMember.DutyLocationID = &dutyLocationID
 		}
 
 		if payload.Affiliation != nil {
@@ -319,22 +318,22 @@ type ShowServiceMemberOrdersHandler struct {
 
 // Handle retrieves orders for a logged in service member
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), appCtx.Session().ServiceMemberID)
 			if err != nil {
-				return servicememberop.NewShowServiceMemberOrdersNotFound()
+				return servicememberop.NewShowServiceMemberOrdersNotFound(), err
 			}
 
 			order, err := serviceMember.FetchLatestOrder(appCtx.Session(), appCtx.DB())
 			if err != nil {
-				return servicememberop.NewShowServiceMemberOrdersNotFound()
+				return servicememberop.NewShowServiceMemberOrdersNotFound(), err
 			}
 
 			orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload)
+			return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload), nil
 		})
 }

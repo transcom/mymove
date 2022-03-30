@@ -1,6 +1,6 @@
 You're all set to move!
 
-The local transportation office approved your move {{if .OriginDutyStation}}from {{.OriginDutyStation}} {{end}}to {{.DestinationDutyStation}}.
+The local transportation office approved your move {{if .OriginDutyLocation}}from {{.OriginDutyLocation}} {{end}}to {{.DestinationDutyLocation}}.
 
 Please review the Personally Procured Move (PPM) info sheet for detailed instructions at {{.Link}}.
 
@@ -10,6 +10,6 @@ Because you’ve chosen a do-it-yourself move, you can start whenever you are re
 
 Be sure to save your weight tickets and any receipts associated with your move. You’ll need them to request payment later in the process.
 
-{{if .OriginDutyStation}}If you have any questions, call the {{.OriginDutyStation}} PPPO at {{.OriginDutyStationPhoneLine}} and reference move locator code: {{.Locator}}.{{end}}
+{{if .OriginDutyLocation}}If you have any questions, call the {{.OriginDutyLocation}} PPPO at {{.OriginDutyLocationPhoneLine}} and reference move locator code: {{.Locator}}.{{end}}
 
 You can check the status of your move anytime at https://my.move.mil"

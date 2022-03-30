@@ -47,7 +47,7 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, userEmail, pus
     return patchServiceMember(payload)
       .then(updateServiceMember)
       .then(() => {
-        push(customerRoutes.CURRENT_DUTY_STATION_PATH);
+        push(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
