@@ -151,6 +151,7 @@ export const Standard = () => {
       name="test_component"
       searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
+      placeholder="Start typing a duty location..."
     />
   );
 };
@@ -169,6 +170,7 @@ export const WithValue = () => {
       displayAddress={false}
       searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
+      placeholder="Start typing a duty location..."
     />
   );
 };
@@ -186,6 +188,7 @@ export const WithValueAndAddress = () => {
       title="Test Component"
       searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
+      placeholder="Start typing a duty location..."
     />
   );
 };
@@ -204,6 +207,7 @@ export const WithErrorMessage = () => {
       errorMsg="Something went wrong"
       searchDutyLocations={mockSearchDutyLocations}
       showAddress={mockShowAddress}
+      placeholder="Start typing a duty location..."
     />
   );
 };
@@ -225,6 +229,7 @@ export const WithLocalError = () => {
       title="Test Component"
       searchDutyLocations={brokenSearchDutyLocations}
       showAddress={mockShowAddress}
+      placeholder="Start typing a duty location..."
     />
   );
 };

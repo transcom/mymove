@@ -35,10 +35,24 @@ const OrdersDetailForm = ({
     ? 'HOR, HOS or PLEAD'
     : 'New duty location';
 
+  const newDutyLocationPlaceholder = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType)
+    ? 'Enter a city or ZIP'
+    : 'Start typing a duty location...';
+
   return (
     <div className={styles.OrdersDetailForm}>
-      <DutyLocationInput name="originDutyLocation" label="Current duty location" displayAddress={false} />
-      <DutyLocationInput name="newDutyLocation" label={newDutyLocationLabel} displayAddress={false} />
+      <DutyLocationInput
+        name="originDutyLocation"
+        label="Current duty location"
+        displayAddress={false}
+        placeholder="Start typing a duty location..."
+      />
+      <DutyLocationInput
+        name="newDutyLocation"
+        label={newDutyLocationLabel}
+        displayAddress={false}
+        placeholder={newDutyLocationPlaceholder}
+      />
       <DatePickerInput name="issueDate" label="Date issued" />
       <DatePickerInput name="reportByDate" label={reportDateRowLabel} />
       {showDepartmentIndicator && (

@@ -32,6 +32,7 @@ const CurrentDutyLocationForm = ({ initialValues, onBack, onSubmit, newDutyLocat
                 label="What is your current duty location?"
                 name="current_location"
                 id="current_location"
+                placeholder="Start typing a duty location..."
                 required
               />
             </SectionWrapper>

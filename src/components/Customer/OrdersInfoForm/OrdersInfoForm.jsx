@@ -116,10 +116,16 @@ const OrdersInfoForm = ({ currentDutyLocation, ordersTypeOptions, initialValues,
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
+                    placeholder="Enter a city or ZIP"
                   />
                 </>
               ) : (
-                <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
+                <DutyLocationInput
+                  name="new_duty_location"
+                  label="New duty location"
+                  displayAddress={false}
+                  placeholder="Start typing a duty location..."
+                />
               )}
             </SectionWrapper>
 

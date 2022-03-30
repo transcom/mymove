@@ -96,7 +96,13 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation })
                 </Grid>
               </Grid>
 
-              <DutyLocationInput label="Current duty location" name="current_location" id="current_location" required />
+              <DutyLocationInput
+                label="Current duty location"
+                name="current_location"
+                id="current_location"
+                placeholder="Start typing a duty location..."
+                required
+              />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

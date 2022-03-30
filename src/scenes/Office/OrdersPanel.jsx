@@ -120,7 +120,7 @@ const OrdersEdit = (props) => {
             <Field
               name="current_location"
               component={DutyLocationSearchBox}
-              props={{ title: 'Current Duty Location' }}
+              props={{ title: 'Current Duty Location', placeholder: 'Start typing a duty location...' }}
             />
           </div>
         </FormSection>
