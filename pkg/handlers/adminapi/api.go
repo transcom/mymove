@@ -72,6 +72,7 @@ func NewAdminAPI(ctx handlers.HandlerContext) *adminops.MymoveAPI {
 		officeUpdater,
 		query.NewQueryFilter,
 		userRolesCreator,
+		user.NewUserSessionRevocation(queryBuilder),
 	}
 
 	adminAPI.OfficeIndexOfficesHandler = IndexOfficesHandler{
