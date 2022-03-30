@@ -57,35 +57,34 @@ describe('PPM On-boarding - Advances', function () {
 function invalidInputs() {
   cy.get('input[name="advanceRequested"][value="true"]').check({ force: true });
 
-  const amountRequestedInputSelector = 'input[name="amountRequested"]';
-  const errorMessageSelector = '[class="usa-error-message"]';
-  const warningMessageSelector = '[data-testid="textInputWarning"]';
-
   // missing advance
-  cy.get(amountRequestedInputSelector).clear().blur();
-  cy.get(errorMessageSelector).contains('Required');
-  cy.get(errorMessageSelector).next('div').find('input').should('have.id', 'amountRequested');
+  cy.get('input[name="amountRequested"]').as('amountRequestedInput');
+  cy.get('@amountRequestedInput').clear().blur();
+  cy.get('[class="usa-error-message"]').as('errorMessage');
+  cy.get('@errorMessage').contains('Required');
+  cy.get('@errorMessage').next('div').find('input').should('have.id', 'amountRequested');
 
   // advance violates min
-  cy.get(amountRequestedInputSelector).clear().type(0).blur();
-  cy.get(errorMessageSelector).contains("The minimum advance request is $1. If you don't want an advance, select No.");
-  cy.get(errorMessageSelector).next('div').find('input').should('have.id', 'amountRequested');
-  cy.get(amountRequestedInputSelector).clear().type(1).blur();
-  cy.get(errorMessageSelector).should('not.exist');
+  cy.get('@amountRequestedInput').clear().type(0).blur();
+  cy.get('@errorMessage').contains("The minimum advance request is $1. If you don't want an advance, select No.");
+  cy.get('@errorMessage').next('div').find('input').should('have.id', 'amountRequested');
+  cy.get('@amountRequestedInput').clear().type(1).blur();
+  cy.get('@errorMessage').should('not.exist');
 
   // a warning is displayed when advance is greater than 60% of incentive
-  cy.get(amountRequestedInputSelector).clear().type(8000).blur();
-  cy.get(warningMessageSelector).contains('Reminder: your advance can not be more than $6,000');
-  cy.get(warningMessageSelector).next('div').find('input').should('have.id', 'amountRequested');
-  cy.get(amountRequestedInputSelector).clear().type(1).blur();
-  cy.get(warningMessageSelector).should('not.exist');
+  cy.get('@amountRequestedInput').clear().type(8000).blur();
+  cy.get('[data-testid="textInputWarning"]').as('warningMessage');
+  cy.get('@warningMessage').contains('Reminder: your advance can not be more than $6,000');
+  cy.get('@warningMessage').next('div').find('input').should('have.id', 'amountRequested');
+  cy.get('@amountRequestedInput').clear().type(1).blur();
+  cy.get('@warningMessage').should('not.exist');
 
   // advance violates max (over 100% of incentive)
-  cy.get(amountRequestedInputSelector).clear().type(20000).blur();
-  cy.get(errorMessageSelector).contains('Enter an amount less than $6,000');
-  cy.get(errorMessageSelector).next('div').find('input').should('have.id', 'amountRequested');
-  cy.get(amountRequestedInputSelector).clear().type(1).blur();
-  cy.get(errorMessageSelector).should('not.exist');
+  cy.get('@amountRequestedInput').clear().type(20000).blur();
+  cy.get('@errorMessage').contains('Enter an amount less than $6,000');
+  cy.get('@errorMessage').next('div').find('input').should('have.id', 'amountRequested');
+  cy.get('@amountRequestedInput').clear().type(1).blur();
+  cy.get('@errorMessage').should('not.exist');
 }
 
 function getToAdvancesPage() {
