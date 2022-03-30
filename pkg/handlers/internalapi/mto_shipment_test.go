@@ -684,7 +684,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(*params.Body.PpmShipment.HasProGear, *updatedShipment.PpmShipment.HasProGear)
 		suite.Equal(*params.Body.PpmShipment.ProGearWeight, *updatedShipment.PpmShipment.ProGearWeight)
 		suite.Equal(*params.Body.PpmShipment.SpouseProGearWeight, *updatedShipment.PpmShipment.SpouseProGearWeight)
-		suite.Equal(int64(10000), *updatedShipment.PpmShipment.EstimatedIncentive)
+		suite.Equal(int64(1000000), *updatedShipment.PpmShipment.EstimatedIncentive)
 
 		suite.NoError(updatedShipment.Validate(strfmt.Default))
 	})
