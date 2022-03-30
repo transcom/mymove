@@ -1,8 +1,13 @@
 import {
-  customerChoosesAPPMMove,
+  customerStartsAddingAPPMShipment,
   submitsDateAndLocation,
-  submitsEstimatedWeightsAndProgear,
+  submitsEstimatedWeightsAndProGear,
   generalVerifyEstimatedIncentivePage,
+  signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
+  navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
+  navigateFromDateAndLocationPageToEstimatedWeightsPage,
+  setMobileViewport,
+  submitsAdvancePage,
 } from '../../../support/ppmShared';
 
 describe('Entire PPM onboarding flow', function () {
@@ -25,7 +30,9 @@ describe('Entire PPM onboarding flow', function () {
   it('mobile - happy path with new shipment', () => {
     // full_ppm_mobile@complete.profile
     const userId = '4fd6726d-2d05-4640-96dd-983bec236a9c';
-    cy.viewport(479, 875);
+
+    setMobileViewport();
+
     navigateHappyPath(userId, true);
   });
 
@@ -34,7 +41,8 @@ describe('Entire PPM onboarding flow', function () {
   });
 
   it('mobile - happy path with edits and backs', () => {
-    cy.viewport(479, 875);
+    setMobileViewport();
+
     navigateHappyPathWithEditsAndBacks(true);
   });
 });
@@ -42,29 +50,28 @@ describe('Entire PPM onboarding flow', function () {
 function navigateHappyPath(userId, isMobile = false) {
   cy.apiSignInAsUser(userId);
   cy.wait('@getShipment');
-  customerChoosesAPPMMove();
+  customerStartsAddingAPPMShipment();
   submitsDateAndLocation();
-  submitsEstimatedWeightsAndProgear();
+  submitsEstimatedWeightsAndProGear();
   generalVerifyEstimatedIncentivePage(isMobile);
+  submitsAdvancePage(true, isMobile);
 }
 
 function navigateHappyPathWithEditsAndBacks(isMobile = false) {
   // TODO: need to change id to be unique + add email associated with user
   const userId = '4512dc8c-c777-444e-b6dc-7971e398f2dc';
-  cy.apiSignInAsUser(userId);
-  cy.wait('@getShipment');
 
-  // navigate to existing shipment
-  cy.get('[data-testid="shipment-list-item-container"]').click();
-  cy.wait('@getShipment');
+  signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
 
   submitAndVerifyUpdateDateAndLocation();
 
-  submitsEstimatedWeightsAndProgear();
-  verifyEstimatedWeightsAndProgear();
+  submitsEstimatedWeightsAndProGear();
+  verifyEstimatedWeightsAndProGear();
 
   verifyShipmentSpecificInfoOnEstimatedIncentivePage();
   generalVerifyEstimatedIncentivePage(isMobile);
+
+  submitsAdvancePage(true, isMobile);
 }
 
 // update the form values by submitting and then return to the page to verify if the values persist and then return to the next page
@@ -74,10 +81,8 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
   cy.get('input[name="expectedDepartureDate"]').clear().type('15 Apr 2022').blur();
 
-  cy.get('button').contains('Save & Continue').click();
-  cy.wait('@patchShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
 
-  cy.get('h1').should('contain', 'Estimated weight');
   cy.get('button').contains('Back').click();
 
   // verify values
@@ -89,23 +94,19 @@ function submitAndVerifyUpdateDateAndLocation() {
   // TODO: We want to update the sit expected value and see if it saves (right now we are not updating this value)
   cy.get('input[name="sitExpected"]').eq(1).should('be.checked').and('have.value', 'false');
 
-  // go to next page
-  cy.get('button').contains('Save & Continue').click();
-  cy.wait('@patchShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
 }
 
 // verify page and submit to go to next page
-function verifyEstimatedWeightsAndProgear() {
-  cy.get('h1').should('contain', 'Estimated incentive');
+function verifyEstimatedWeightsAndProGear() {
   cy.get('button').contains('Back').click();
+
   cy.get('input[name="estimatedWeight"]').should('have.value', '500');
   cy.get('input[name="hasProGear"][value="true"]').should('be.checked');
   cy.get('input[name="proGearWeight"]').should('be.visible').and('have.value', '500');
   cy.get('input[name="spouseProGearWeight"]').should('be.visible').and('have.value', '0');
 
-  // go to next page
-  cy.get('button').contains('Save & Continue').click();
-  cy.wait('@patchShipment');
+  navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
 }
 
 function verifyShipmentSpecificInfoOnEstimatedIncentivePage() {
