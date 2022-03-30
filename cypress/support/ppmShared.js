@@ -123,7 +123,7 @@ export function navigateFromAdvancesPageToReviewPage(isMobile = false) {
   cy.get('button').contains('Save & Continue').as('saveButton');
 
   if (isMobile) {
-    cy.get('@saveButton').should('have.css', 'order', '1').click();
+    cy.get('@saveButton').should('have.css', 'order', '1');
   }
 
   cy.get('@saveButton').should('be.enabled').click();
