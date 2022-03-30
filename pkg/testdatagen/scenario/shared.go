@@ -797,9 +797,19 @@ func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppConte
 		},
 	})
 
-	advanceCents := unit.Cents(598700)
+	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:              uuid.Must(uuid.FromString("82a40901-f3da-414a-9594-bbf20b0785b8")),
+			ShipmentType:    models.MTOShipmentTypePPM,
+			Status:          models.MTOShipmentStatusDraft,
+			MoveTaskOrder:   move,
+			MoveTaskOrderID: move.ID,
+		},
+	})
+
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
+		Move:        move,
+		MTOShipment: mtoShipment,
 		PPMShipment: models.PPMShipment{
 			ID:                             uuid.Must(uuid.FromString("8b507206-486d-4c9d-a880-b625bb3c9b46")),
 			SitExpected:                    true,
@@ -811,7 +821,7 @@ func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppConte
 			SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
 			EstimatedIncentive:             models.Int32Pointer(int32(1000000)),
 			AdvanceRequested:               models.BoolPointer(true),
-			Advance:                        &advanceCents,
+			Advance:                        models.CentPointer(unit.Cents(598700)),
 		},
 	})
 }

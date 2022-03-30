@@ -10,6 +10,16 @@ export function customerStartsAddingAPPMShipment() {
   cy.nextPage();
 }
 
+export function signInAndNavigateFromHomePageToReviewPage(userId) {
+  cy.apiSignInAsUser(userId);
+
+  cy.wait('@getShipment');
+
+  cy.get('h3').should('contain', 'Time to submit your move');
+
+  cy.get('button').contains('Review and submit').click();
+}
+
 export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId) {
   cy.apiSignInAsUser(userId);
 
@@ -122,9 +132,11 @@ export function submitsAdvancePage(addAdvance = false, isMobile = false) {
 export function navigateFromAdvancesPageToReviewPage(isMobile = false) {
   // when navigating through an existing PPM that requested an advance, we must agree to the terms again to proceed
   // using cypress get or contains would result in an assertion failure for the case where advance requested is No
-  if (Cypress.$('input[name="advanceRequested"][value="true"]:checked').length > 0) {
-    cy.get('input[name="agreeToTerms"]').check({ force: true });
-  }
+  cy.get('body').then(($body) => {
+    if ($body.find('input[name="advanceRequested"][value="true"]:checked').length) {
+      cy.get('input[name="agreeToTerms"]').check({ force: true });
+    }
+  });
 
   cy.get('button').contains('Save & Continue').as('saveButton');
 
