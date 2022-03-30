@@ -239,14 +239,12 @@ describe('Advance page', () => {
     userEvent.click(saveButton);
 
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith(reviewPath));
-    await waitFor(() =>
-      expect(mockDispatch).toHaveBeenCalledWith(
-        setFlashMessage(
-          'PPM_ONBOARDING_SUBMIT_SUCCESS',
-          'success',
-          'Review your info and submit your move request now, or come back and finish later.',
-          'Details saved',
-        ),
+    expect(mockDispatch).toHaveBeenCalledWith(
+      setFlashMessage(
+        'PPM_ONBOARDING_SUBMIT_SUCCESS',
+        'success',
+        'Review your info and submit your move request now, or come back and finish later.',
+        'Details saved',
       ),
     );
   });
