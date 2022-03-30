@@ -1,4 +1,4 @@
-import { customerChoosesAPPMMove, submitsDateAndLocation } from '../../../support/ppmShared';
+import { customerStartsAddingAPPMShipment, submitsDateAndLocation } from '../../../support/ppmShared';
 
 describe('PPM Onboarding - Add dates and location flow', function () {
   before(() => {
@@ -9,17 +9,17 @@ describe('PPM Onboarding - Add dates and location flow', function () {
     cy.intercept('POST', '**/internal/mto_shipments').as('createShipment');
   });
 
-  // profile@comple.te
+  // profile@complete.draft
   const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
   it('doesn’t allow SM to progress if form is in an invalid state', () => {
     cy.apiSignInAsUser(userId);
-    customerChoosesAPPMMove();
+    customerStartsAddingAPPMShipment();
     invalidInputs();
   });
 
   it('can continue to next page', () => {
     cy.apiSignInAsUser(userId);
-    customerChoosesAPPMMove();
+    customerStartsAddingAPPMShipment();
     submitsDateAndLocation();
   });
 });
