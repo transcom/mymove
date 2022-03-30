@@ -52,7 +52,7 @@ export const selectServiceMemberProfileState = createSelector(selectServiceMembe
   if (!telephone || !personal_email || !(phone_is_preferred || email_is_preferred)) return profileStates.NAME_COMPLETE;
   if (!current_location || !current_location.id || current_location.id === NULL_UUID)
     return profileStates.CONTACT_INFO_COMPLETE;
-  if (!residential_address) return profileStates.DUTY_STATION_COMPLETE;
+  if (!residential_address) return profileStates.DUTY_LOCATION_COMPLETE;
   if (!backup_mailing_address) return profileStates.ADDRESS_COMPLETE;
   if (!backup_contacts || !backup_contacts.length) return profileStates.BACKUP_ADDRESS_COMPLETE;
   return profileStates.BACKUP_CONTACTS_COMPLETE;

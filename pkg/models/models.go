@@ -56,3 +56,9 @@ func BoolPointer(b bool) *bool {
 func PoundPointer(p unit.Pound) *unit.Pound {
 	return &p
 }
+
+// CentPointer allows you to get the pointer to a unit.Cent literal.
+// It is useful for initializing unit.Cent pointer fields in model construction
+func CentPointer(c unit.Cents) *unit.Cents {
+	return &c
+}

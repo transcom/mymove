@@ -19,7 +19,7 @@ RUN rm -f bin/milmove && make bin/milmove
 # FINAL #
 #########
 
-FROM alpine:3.14.4
+FROM alpine:3.15.3
 
 # hadolint ignore=DL3017
 RUN apk upgrade --no-cache busybox

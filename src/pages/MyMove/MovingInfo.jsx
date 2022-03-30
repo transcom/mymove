@@ -82,8 +82,8 @@ export class MovingInfo extends Component {
               </IconSection>
               <IconSection icon="car" headline="It's common to move some things yourself.">
                 <p>
-                  Most people doing a PCS have professionals move most of their things, but handle a few important
-                  things themselves.
+                  Most people have professionals move most of their things, but handle a few important things
+                  themselves.
                 </p>
               </IconSection>
               <IconSection icon="hand-holding-usd" headline="You can get paid for things you move yourself.">

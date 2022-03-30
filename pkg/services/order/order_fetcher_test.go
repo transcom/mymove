@@ -43,7 +43,7 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 	// OriginDutyLocation column. To mimic that and to surface any issues, we didn't
 	// update the testdatagen MakeOrder function so that new orders would have
 	// an empty OriginDutyLocation. During local testing in the office app, we
-	// noticed an exception due to trying to load empty OriginDutyStations.
+	// noticed an exception due to trying to load empty OriginDutyLocations.
 	// This was not caught by any tests, so we're adding one now.
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 
@@ -347,17 +347,9 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	affiliation := models.AffiliationNAVY
 	edipi := "9999999999"
 
-	// SET UP: New Duty Location for sorting by destination duty location
-	newDutyLocationName := "Ze Duty Location"
-	newDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			Name: newDutyLocationName,
-		},
-	})
-
 	// CREATE EXPECTED MOVES
 	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-		// Default New Duty Station name is Fort Gordon
+		// Default New Duty Location name is Fort Gordon
 		Move: models.Move{
 			Status:  models.MoveStatusAPPROVED,
 			Locator: "AA1234",
@@ -372,10 +364,6 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		},
 		// Lea Spacemen
 		ServiceMember: models.ServiceMember{Affiliation: &affiliation, FirstName: &serviceMemberFirstName, Edipi: &edipi},
-		Order: models.Order{
-			NewDutyLocation:   newDutyLocation2,
-			NewDutyLocationID: newDutyLocation2.ID,
-		},
 		MTOShipment: models.MTOShipment{
 			RequestedPickupDate: &requestedMoveDate2,
 		},
@@ -440,22 +428,6 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
 	})
 
-	suite.T().Run("Sort by destination duty station", func(t *testing.T) {
-		params := services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
-		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove1.Orders.NewDutyLocation.Name, moves[0].Orders.NewDutyLocation.Name)
-		suite.Equal(expectedMove2.Orders.NewDutyLocation.Name, moves[1].Orders.NewDutyLocation.Name)
-
-		params = services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("desc")}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
-		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove2.Orders.NewDutyLocation.Name, moves[0].Orders.NewDutyLocation.Name)
-		suite.Equal(expectedMove1.Orders.NewDutyLocation.Name, moves[1].Orders.NewDutyLocation.Name)
-	})
-
 	suite.T().Run("Sort by request move date", func(t *testing.T) {
 		params := services.ListOrderParams{Sort: swag.String("requestedMoveDate"), Order: swag.String("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
@@ -514,7 +486,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 	// Create a services counselor with defauult GBLOC, LKNQ
 	officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
 
-	// Default Origin Duty Station GBLOC is LKNQ
+	// Default Origin Duty Location GBLOC is LKNQ
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
 	lknqMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -527,7 +499,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
-	// Create a dutystation with ZANY GBLOC
+	// Create a dutyLocation with ZANY GBLOC
 	dutyLocationAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "Anchor 1212",

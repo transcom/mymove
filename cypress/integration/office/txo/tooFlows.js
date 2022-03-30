@@ -143,8 +143,7 @@ describe('TOO user', () => {
     cy.url().should('include', `/moves/${moveLocator}/mto`);
 
     // Move Task Order page
-    const shipments = cy.get('[data-testid="ShipmentContainer"]');
-    shipments.should('have.length', 1);
+    cy.get('[data-testid="ShipmentContainer"]').should('have.length', 1);
 
     cy.contains('Approved service items (12 items)');
     cy.contains('Rejected service items').should('not.exist');
@@ -167,7 +166,7 @@ describe('TOO user', () => {
     });
 
     cy.get('[data-testid="modal"]').within(($modal) => {
-      expect($modal).to.be.visible;
+      cy.get($modal).should('be.visible');
       cy.get('button[type="submit"]').should('be.disabled');
       cy.get('[data-testid="textInput"]').type('my very valid reason');
       cy.get('button[type="submit"]').click();
