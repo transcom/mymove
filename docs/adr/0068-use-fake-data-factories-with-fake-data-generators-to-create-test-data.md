@@ -52,6 +52,18 @@ _How will this change be observed by other team members?_
 This ADR will be announced in meetings where most of the MilMove team is present. If approved, as core factories are set
 up, they could be announced at demos or FE check in meetings.
 
+### Implementation Plan
+
+1. Mark existing fake data with comments indicating it's the old way of doing things. BE/FE order not important.
+   1. Mark existing `testdatagen` functions with comments indicating that they should be updated to use fake data.
+   1. Mark existing fake data in FE tests with comments indicating they they should be updated to use factories if possible.
+      1. This way anyone that looks at it for an example will see that it's using an older pattern.
+      1. Anyone working on those tests will see it and can update it as they edit the tests.
+1. Set up core factories as needed and use fake data generators in factories. BE/FE order not important. Core factories
+   defined in [Measuring Success](#measuring-success).
+   1. Create core FE factories.
+   1. Update core `testdatagen` functions to use fake data generators.
+
 ### Ownership
 
 AppEng would own this since it's related to the way we test our application code.
