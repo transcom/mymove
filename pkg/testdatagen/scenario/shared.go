@@ -649,7 +649,7 @@ func createUnsubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, u
 
 func createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	/*
-	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
+	 * A service member with orders and a PPM shipment updated with an estimated weight value and estimated incentive
 	 */
 	email := "estimated_weights@ppm.unsubmitted"
 	uuidStr := "4512dc8c-c777-444e-b6dc-7971e398f2dc"
@@ -706,6 +706,7 @@ func createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 	 */
 	email := "advance_requested@ppm.unsubmitted"
 	uuidStr := "dd1a3982-1ec4-4e34-a7bd-73cba4f3376a"
+
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
 	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
@@ -751,6 +752,65 @@ func createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 			EstimatedIncentive: models.Int32Pointer(int32(10000000)),
 			Advance:            models.CentPointer(unit.Cents(30000)),
 			AdvanceRequested:   models.BoolPointer(true),
+		},
+	})
+}
+
+func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
+	 */
+	email := "complete@ppm.unsubmitted"
+	uuidStr := "6a7d969a-2347-48c7-9289-0963c447f0a7"
+
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.FromString("6796ae4d-4f11-47f6-8f1d-6fd232f6850c")),
+			UserID:        uuid.Must(uuid.FromString(uuidStr)),
+			FirstName:     models.StringPointer("Complete"),
+			LastName:      models.StringPointer("PPM"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMember: smWithPPM,
+		},
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.Must(uuid.FromString("3878d124-9b7a-46fb-b138-43995f3f5ad5")),
+			Locator:          "PPMCMP",
+			SelectedMoveType: &ppmMoveType,
+		},
+	})
+
+	advanceCents := unit.Cents(598700)
+	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		PPMShipment: models.PPMShipment{
+			ID:                             uuid.Must(uuid.FromString("8b507206-486d-4c9d-a880-b625bb3c9b46")),
+			SitExpected:                    true,
+			SecondaryPickupPostalCode:      models.StringPointer("90211"),
+			SecondaryDestinationPostalCode: models.StringPointer("30814"),
+			EstimatedWeight:                models.PoundPointer(unit.Pound(4000)),
+			HasProGear:                     models.BoolPointer(true),
+			ProGearWeight:                  models.PoundPointer(unit.Pound(1987)),
+			SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
+			EstimatedIncentive:             models.Int32Pointer(int32(1000000)),
+			AdvanceRequested:               models.BoolPointer(true),
+			Advance:                        &advanceCents,
 		},
 	})
 }
