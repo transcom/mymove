@@ -11,13 +11,13 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
+import { setFlashMessage } from 'store/flash/actions';
 
 const Advance = () => {
   const [errorMessage, setErrorMessage] = useState();
   const history = useHistory();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
-
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const handleBack = () => {
@@ -41,6 +41,14 @@ const Advance = () => {
       .then((response) => {
         setSubmitting(false);
         dispatch(updateMTOShipment(response));
+        dispatch(
+          setFlashMessage(
+            'PPM_ONBOARDING_SUBMIT_SUCCESS',
+            'success',
+            'Review your info and submit your move request now, or come back and finish later.',
+            'Details saved',
+          ),
+        );
         history.push(generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId }));
       })
       .catch((err) => {

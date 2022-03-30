@@ -9,6 +9,7 @@ import Advance from './Advance';
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
+import { setFlashMessage } from 'store/flash/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
 
@@ -238,6 +239,16 @@ describe('Advance page', () => {
     userEvent.click(saveButton);
 
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith(reviewPath));
+    await waitFor(() =>
+      expect(mockDispatch).toHaveBeenCalledWith(
+        setFlashMessage(
+          'PPM_ONBOARDING_SUBMIT_SUCCESS',
+          'success',
+          'Review your info and submit your move request now, or come back and finish later.',
+          'Details saved',
+        ),
+      ),
+    );
   });
 
   it('displays an error message if the update fails', async () => {
