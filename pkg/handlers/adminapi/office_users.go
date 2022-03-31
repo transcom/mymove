@@ -7,6 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
+
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -225,6 +227,7 @@ type UpdateOfficeUserHandler struct {
 	services.OfficeUserUpdater
 	services.NewQueryFilter
 	services.UserRoleAssociator
+	services.UserSessionRevocation
 }
 
 // Handle updates an office user
@@ -249,6 +252,25 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		if err != nil {
 			appCtx.Logger().Error("Error updating user roles", zap.Error(err))
 			return officeuserop.NewUpdateOfficeUserInternalServerError()
+		}
+
+		boolean := true
+		revokeOfficeSessionPayload := adminmessages.UserUpdatePayload{
+			RevokeOfficeSession: &boolean,
+		}
+
+		sessionStore := h.SessionManager(appCtx.Session()).Store
+
+		_, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(
+			appCtx,
+			*updatedOfficeUser.UserID,
+			&revokeOfficeSessionPayload,
+			sessionStore,
+		)
+
+		if revokeErr != nil || validationErrors != nil {
+			appCtx.Logger().Error("Error revoking user session", zap.Error(revokeErr), zap.Error(verrs))
+			return userop.NewUpdateUserInternalServerError()
 		}
 	}
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { AddressShape } from './address';
 
-export const DutyStationShape = PropTypes.shape({
+export const DutyLocationShape = PropTypes.shape({
   address: AddressShape,
   address_id: PropTypes.string,
   affiliation: PropTypes.string,

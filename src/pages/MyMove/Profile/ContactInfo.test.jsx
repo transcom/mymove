@@ -211,7 +211,7 @@ describe('requireCustomerState ContactInfo', () => {
             personal_email: 'test@example.com',
             email_is_preferred: true,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
             },
             residential_address: {
               street: '123 Main St',
@@ -260,7 +260,7 @@ describe('requireCustomerState ContactInfo', () => {
             personal_email: 'test@example.com',
             email_is_preferred: true,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
             },
             residential_address: {
               street: '123 Main St',

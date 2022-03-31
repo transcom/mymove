@@ -114,13 +114,13 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
-	suite.T().Run("current duty station missing", func(t *testing.T) {
+	suite.T().Run("current duty location missing", func(t *testing.T) {
 		sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 
-		// Remove transportation office info from current station
-		station := sm.DutyLocation
-		station.TransportationOfficeID = nil
-		suite.MustSave(&station)
+		// Remove transportation office info from current duty location
+		dutyLocation := sm.DutyLocation
+		dutyLocation.TransportationOfficeID = nil
+		suite.MustSave(&dutyLocation)
 
 		req := httptest.NewRequest("GET", "/users/logged_in", nil)
 		req = suite.AuthenticateRequest(req, sm)
@@ -138,17 +138,17 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("new duty station missing", func(t *testing.T) {
+	suite.T().Run("new duty location missing", func(t *testing.T) {
 		// add orders
 		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 
 		sm := order.ServiceMember
 
-		// Remove transportation office info from new station
+		// Remove transportation office info from new duty location
 		// happens when a customer is not done
-		station := order.NewDutyLocation
-		station.TransportationOfficeID = nil
-		suite.MustSave(&station)
+		dutyLocation := order.NewDutyLocation
+		dutyLocation.TransportationOfficeID = nil
+		suite.MustSave(&dutyLocation)
 
 		req := httptest.NewRequest("GET", "/users/logged_in", nil)
 		req = suite.AuthenticateRequest(req, sm)

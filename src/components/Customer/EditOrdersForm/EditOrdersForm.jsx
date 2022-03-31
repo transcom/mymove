@@ -14,8 +14,8 @@ import { documentSizeLimitMsg } from 'shared/constants';
 import profileImage from 'scenes/Review/images/profile.png';
 import Hint from 'components/Hint/index';
 import { DropdownArrayOf, ExistingUploadsShape } from 'types';
-import { DutyStationShape } from 'types/dutyStation';
-import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
+import { DutyLocationShape } from 'types/dutyLocation';
+import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { formatLabelReportByDate } from 'utils/formatters';
@@ -29,7 +29,7 @@ const EditOrdersForm = ({
   filePondEl,
   onSubmit,
   ordersTypeOptions,
-  currentStation,
+  currentDutyLocation,
   onCancel,
 }) => {
   const validationSchema = Yup.object().shape({
@@ -46,7 +46,7 @@ const EditOrdersForm = ({
     new_duty_location: Yup.object()
       .shape({
         name: Yup.string().notOneOf(
-          [currentStation?.name],
+          [currentDutyLocation?.name],
           'You entered the same duty location for your origin and destination. Please change one of them.',
         ),
       })
@@ -146,7 +146,7 @@ const EditOrdersForm = ({
                       </USWDSLink>
                     </p>
                   </Callout>
-                  <DutyStationInput
+                  <DutyLocationInput
                     name="new_duty_location"
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
@@ -154,7 +154,7 @@ const EditOrdersForm = ({
                   />
                 </>
               ) : (
-                <DutyStationInput name="new_duty_location" label="New duty location" displayAddress={false} />
+                <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
               )}
               <p>Uploads:</p>
               <UploadsTable uploads={initialValues.uploaded_orders} onDelete={onDelete} />
@@ -203,7 +203,7 @@ EditOrdersForm.propTypes = {
     }),
     uploaded_orders: ExistingUploadsShape,
   }).isRequired,
-  currentStation: DutyStationShape.isRequired,
+  currentDutyLocation: DutyLocationShape.isRequired,
   onCancel: PropTypes.func.isRequired,
 };
 

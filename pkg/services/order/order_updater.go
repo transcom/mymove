@@ -148,16 +148,16 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
 	order := existingOrder
 
-	// update both order origin duty station and service member duty station
+	// update both order origin duty location and service member duty location
 	if payload.OriginDutyLocationID != nil {
-		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
-		order.OriginDutyLocationID = &originDutyStationID
-		order.ServiceMember.DutyLocationID = &originDutyStationID
+		originDutyLocationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
+		order.OriginDutyLocationID = &originDutyLocationID
+		order.ServiceMember.DutyLocationID = &originDutyLocationID
 	}
 
 	if payload.NewDutyLocationID != nil {
-		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyLocationID.String())
-		order.NewDutyLocationID = newDutyStationID
+		newDutyLocationID := uuid.FromStringOrNil(payload.NewDutyLocationID.String())
+		order.NewDutyLocationID = newDutyLocationID
 	}
 
 	if payload.DepartmentIndicator != nil {
@@ -275,16 +275,16 @@ func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UU
 func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
 	order := existingOrder
 
-	// update both order origin duty station and service member duty station
+	// update both order origin duty location and service member duty location
 	if payload.OriginDutyLocationID != nil {
-		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
-		order.OriginDutyLocationID = &originDutyStationID
-		order.ServiceMember.DutyLocationID = &originDutyStationID
+		originDutyLocationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
+		order.OriginDutyLocationID = &originDutyLocationID
+		order.ServiceMember.DutyLocationID = &originDutyLocationID
 	}
 
 	if payload.NewDutyLocationID != nil {
-		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyLocationID.String())
-		order.NewDutyLocationID = newDutyStationID
+		newDutyLocationID := uuid.FromStringOrNil(payload.NewDutyLocationID.String())
+		order.NewDutyLocationID = newDutyLocationID
 	}
 
 	if payload.IssueDate != nil {
@@ -516,7 +516,7 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 	}
 
 	if order.OriginDutyLocationID != nil {
-		// TODO refactor to use service objects to fetch duty station
+		// TODO refactor to use service objects to fetch duty location
 		var originDutyLocation models.DutyLocation
 		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *order.OriginDutyLocationID)
 		if err != nil {
@@ -550,9 +550,9 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 	}
 
 	if order.NewDutyLocationID != uuid.Nil {
-		// TODO refactor to use service objects to fetch duty station
-		var newDutyStation models.DutyLocation
-		newDutyStation, err = models.FetchDutyLocation(appCtx.DB(), order.NewDutyLocationID)
+		// TODO refactor to use service objects to fetch duty location
+		var newDutyLocation models.DutyLocation
+		newDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), order.NewDutyLocationID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -561,8 +561,8 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 				return nil, apperror.NewQueryError("DutyLocation", err, "")
 			}
 		}
-		order.NewDutyLocationID = newDutyStation.ID
-		order.NewDutyLocation = newDutyStation
+		order.NewDutyLocationID = newDutyLocation.ID
+		order.NewDutyLocation = newDutyLocation
 	}
 
 	verrs, err = appCtx.DB().ValidateAndUpdate(&order)

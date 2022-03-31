@@ -7,7 +7,7 @@ describe('Review -> Ppm Shipment Summary', () => {
     hasEstimateError: false,
     hasEstimateSuccess: false,
     rateEngineError: null,
-    originDutyStationZip: '',
+    originDutyLocationZip: '',
     incentive_estimate_min: 0,
     incentive_estimate_max: 0,
   };

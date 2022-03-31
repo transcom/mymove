@@ -33,7 +33,7 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 }
 
 // OrderModel converts payload to model - it does not convert nested
-// duty stations but will preserve the ID if provided.
+// duty locations but will preserve the ID if provided.
 // It will create nested customer and entitlement models
 // if those are provided in the payload
 func OrderModel(orderPayload *supportmessages.Order) *models.Order {
@@ -55,11 +55,11 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	customerID := uuid.FromStringOrNil(orderPayload.CustomerID.String())
 	model.ServiceMemberID = customerID
 
-	destinationDutyStationID := uuid.FromStringOrNil(orderPayload.DestinationDutyLocationID.String())
-	model.NewDutyLocationID = destinationDutyStationID
+	destinationDutyLocationID := uuid.FromStringOrNil(orderPayload.DestinationDutyLocationID.String())
+	model.NewDutyLocationID = destinationDutyLocationID
 
-	originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyLocationID.String())
-	model.OriginDutyLocationID = &originDutyStationID
+	originDutyLocationID := uuid.FromStringOrNil(orderPayload.OriginDutyLocationID.String())
+	model.OriginDutyLocationID = &originDutyLocationID
 
 	reportByDate := time.Time(*orderPayload.ReportByDate)
 	if !reportByDate.IsZero() {

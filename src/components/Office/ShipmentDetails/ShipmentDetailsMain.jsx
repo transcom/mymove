@@ -20,7 +20,7 @@ import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
 const ShipmentDetailsMain = ({
   className,
   shipment,
-  dutyStationAddresses,
+  dutyLocationAddresses,
   handleDivertShipment,
   handleRequestReweighModal,
   handleReviewSITExtension,
@@ -41,7 +41,7 @@ const ShipmentDetailsMain = ({
     shipmentType,
     storageFacility,
   } = shipment;
-  const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
+  const { originDutyLocationAddress, destinationDutyLocationAddress } = dutyLocationAddresses;
 
   const [isReviewSITExtensionModalVisible, setIsReviewSITExtensionModalVisible] = useState(false);
   const [isSubmitITExtensionModalVisible, setIsSubmitITExtensionModalVisible] = useState(false);
@@ -85,7 +85,7 @@ const ShipmentDetailsMain = ({
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyStationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
       break;
     case SHIPMENT_OPTIONS.NTS:
       displayedPickupAddress = pickupAddress;
@@ -97,7 +97,7 @@ const ShipmentDetailsMain = ({
       break;
     default:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyStationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
   }
 
   return (
@@ -135,8 +135,8 @@ const ShipmentDetailsMain = ({
       <ShipmentAddresses
         pickupAddress={displayedPickupAddress}
         destinationAddress={displayedDeliveryAddress}
-        originDutyLocation={originDutyStationAddress}
-        destinationDutyLocation={destinationDutyStationAddress}
+        originDutyLocation={originDutyLocationAddress}
+        destinationDutyLocation={destinationDutyLocationAddress}
         shipmentInfo={{
           id: shipment.id,
           eTag: shipment.eTag,
@@ -166,9 +166,9 @@ const ShipmentDetailsMain = ({
 ShipmentDetailsMain.propTypes = {
   className: PropTypes.string,
   shipment: ShipmentShape.isRequired,
-  dutyStationAddresses: PropTypes.shape({
-    originDutyStationAddress: AddressShape,
-    destinationDutyStationAddress: AddressShape,
+  dutyLocationAddresses: PropTypes.shape({
+    originDutyLocationAddress: AddressShape,
+    destinationDutyLocationAddress: AddressShape,
   }).isRequired,
   handleDivertShipment: PropTypes.func.isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,

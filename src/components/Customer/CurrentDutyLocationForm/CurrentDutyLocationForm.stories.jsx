@@ -1,10 +1,10 @@
 import React from 'react';
 
-import CurrentDutyStationForm from './CurrentDutyStationForm';
+import CurrentDutyLocationForm from './CurrentDutyLocationForm';
 
 export default {
   title: 'Customer Components / Forms / Current Duty Location Form',
-  component: CurrentDutyStationForm,
+  component: CurrentDutyLocationForm,
   argTypes: {
     onSubmit: { action: 'submit form' },
     onBack: { action: 'go back' },
@@ -12,11 +12,11 @@ export default {
 };
 
 export const DefaultState = (argTypes) => (
-  <CurrentDutyStationForm initialValues={{}} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
+  <CurrentDutyLocationForm initialValues={{}} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
 );
 
 export const InitialValues = (argTypes) => (
-  <CurrentDutyStationForm
+  <CurrentDutyLocationForm
     initialValues={{
       current_location: {
         address: {
@@ -34,7 +34,7 @@ export const InitialValues = (argTypes) => (
 );
 
 export const Error = (argTypes) => (
-  <CurrentDutyStationForm
+  <CurrentDutyLocationForm
     initialValues={{
       current_location: {
         address: {

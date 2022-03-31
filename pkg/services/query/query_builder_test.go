@@ -304,9 +304,9 @@ func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
 		suite.Len(dutyLocations, 2)
 
 		// Make sure every record has no address or transportation office loaded
-		for _, dutyStation := range dutyLocations {
-			suite.Equal(uuid.Nil, dutyStation.Address.ID)
-			suite.Equal(uuid.Nil, dutyStation.TransportationOffice.ID)
+		for _, dutyLocation := range dutyLocations {
+			suite.Equal(uuid.Nil, dutyLocation.Address.ID)
+			suite.Equal(uuid.Nil, dutyLocation.TransportationOffice.ID)
 		}
 	})
 

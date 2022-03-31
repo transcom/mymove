@@ -60,7 +60,12 @@ const AccountingCodeSection = ({ label, fieldName, shipmentTypes, emptyMessage }
         {fields}
       </FormGroup>
 
-      <button type="button" onClick={handleClear} className={styles.SectionClear}>
+      <button
+        type="button"
+        onClick={handleClear}
+        className={styles.SectionClear}
+        data-testid={`clearSelection-${fieldName}`}
+      >
         Clear selection
       </button>
     </>

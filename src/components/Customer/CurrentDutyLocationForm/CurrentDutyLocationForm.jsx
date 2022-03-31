@@ -4,13 +4,13 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 
 import { Form } from 'components/form/Form';
-import { DutyStationInput } from 'components/form/fields/DutyStationInput';
+import { DutyLocationInput } from 'components/form/fields/DutyLocationInput';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
-import { DutyStationShape } from 'types/dutyStation';
+import { DutyLocationShape } from 'types/dutyLocation';
 
-const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocation }) => {
+const CurrentDutyLocationForm = ({ initialValues, onBack, onSubmit, newDutyLocation }) => {
   const validationSchema = Yup.object().shape({
     current_location: Yup.object()
       .required('Required')
@@ -28,7 +28,7 @@ const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocati
           <Form className={formStyles.form}>
             <h1>Current duty location</h1>
             <SectionWrapper className={formStyles.formSection}>
-              <DutyStationInput
+              <DutyLocationInput
                 label="What is your current duty location?"
                 name="current_location"
                 id="current_location"
@@ -49,17 +49,17 @@ const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyLocati
   );
 };
 
-CurrentDutyStationForm.propTypes = {
+CurrentDutyLocationForm.propTypes = {
   initialValues: shape({
-    current_location: DutyStationShape,
+    current_location: DutyLocationShape,
   }).isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-  newDutyLocation: DutyStationShape,
+  newDutyLocation: DutyLocationShape,
 };
 
-CurrentDutyStationForm.defaultProps = {
+CurrentDutyLocationForm.defaultProps = {
   newDutyLocation: {},
 };
 
-export default CurrentDutyStationForm;
+export default CurrentDutyLocationForm;

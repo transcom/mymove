@@ -48,7 +48,7 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember, push })
   };
 
   const handleBack = () => {
-    push(customerRoutes.CURRENT_DUTY_STATION_PATH);
+    push(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
   };
 
   const handleNext = () => {
@@ -122,4 +122,4 @@ const mapStateToProps = (state) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(requireCustomerState(ResidentialAddress, profileStates.DUTY_STATION_COMPLETE));
+)(requireCustomerState(ResidentialAddress, profileStates.DUTY_LOCATION_COMPLETE));

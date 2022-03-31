@@ -11,7 +11,6 @@ import styles from './Summary.module.scss';
 
 import { customerRoutes } from 'constants/routes';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
-import { loadMove } from 'shared/Entities/modules/moves';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import ProfileTable from 'components/Customer/Review/ProfileTable/ProfileTable';
@@ -159,8 +158,8 @@ export class Summary extends Component {
     const { showModal } = this.state;
 
     const { moveId } = match.params;
-    const currentStation = serviceMember?.current_location;
-    const stationPhone = currentStation?.transportation_office?.phone_lines?.[0];
+    const currentDutyLocation = serviceMember?.current_location;
+    const officePhone = currentDutyLocation?.transportation_office?.phone_lines?.[0];
 
     const rootReviewAddressWithMoveId = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
@@ -183,7 +182,7 @@ export class Summary extends Component {
           <ProfileTable
             affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
             city={serviceMember.residential_address.city}
-            currentDutyStationName={currentOrders.origin_duty_location.name}
+            currentDutyLocationName={currentOrders.origin_duty_location.name}
             edipi={serviceMember.edipi}
             email={serviceMember.personal_email}
             firstName={serviceMember.first_name}
@@ -202,7 +201,7 @@ export class Summary extends Component {
             hasDependents={currentOrders.has_dependents}
             issueDate={currentOrders.issue_date}
             moveId={moveId}
-            newDutyStationName={currentOrders.new_duty_location.name}
+            newDutyLocationName={currentOrders.new_duty_location.name}
             onEditClick={this.handleEditClick}
             orderType={currentOrders.orders_type}
             reportByDate={currentOrders.report_by_date}
@@ -239,8 +238,8 @@ export class Summary extends Component {
         )}
         {moveIsApproved && (
           <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office at {currentStation.name}{' '}
-            {stationPhone ? ` at ${stationPhone}` : ''}.
+            *To change these fields, contact your local PPPO office at {currentDutyLocation.name}{' '}
+            {officePhone ? ` at ${officePhone}` : ''}.
           </div>
         )}
         <ConnectedAddShipmentModal isOpen={showModal} closeModal={this.toggleModal} />
@@ -272,15 +271,8 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    onDidMount() {
-      const moveID = ownProps.match.params.moveId;
-      dispatch(loadMove(moveID, 'Summary.getMove'));
-      dispatch(showLoggedInUserAction());
-    },
-    showLoggedInUser: showLoggedInUserAction,
-  };
-}
+const mapDispatchToProps = {
+  showLoggedInUser: showLoggedInUserAction,
+};
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));

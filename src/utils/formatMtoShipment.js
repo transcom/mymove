@@ -237,6 +237,8 @@ export function formatMtoShipmentForAPI({
     counselorRemarks,
     agents: [],
     destinationType,
+    tacType,
+    sacType,
   };
 
   if (pickup?.requestedDate && pickup.requestedDate !== '') {
@@ -284,14 +286,6 @@ export function formatMtoShipmentForAPI({
 
   if (ntsRecordedWeight) {
     formattedMtoShipment.ntsRecordedWeight = formatDelimitedNumber(ntsRecordedWeight);
-  }
-
-  if (tacType) {
-    formattedMtoShipment.tacType = tacType;
-  }
-
-  if (sacType) {
-    formattedMtoShipment.sacType = sacType;
   }
 
   if (serviceOrderNumber) {

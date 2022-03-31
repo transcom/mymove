@@ -310,7 +310,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	edipi := "2342342344"
 
 	// If there are orders and the move has been submitted, then the
-	// affiliation rank, and duty station should not be editable.
+	// affiliation rank, and duty location should not be editable.
 	origRank := models.ServiceMemberRankE1
 	newRank := internalmessages.ServiceMemberRankE2
 

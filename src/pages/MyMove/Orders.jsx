@@ -24,7 +24,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
-import { DutyStationShape } from 'types';
+import { DutyLocationShape } from 'types';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 
 export class Orders extends Component {
@@ -51,7 +51,7 @@ export class Orders extends Component {
   }
 
   render() {
-    const { context, currentStation, push, serviceMemberId, currentOrders, updateOrders, updateServiceMember } =
+    const { context, currentDutyLocation, push, serviceMemberId, currentOrders, updateOrders, updateServiceMember } =
       this.props;
 
     const { isLoading, serverError } = this.state;
@@ -140,7 +140,7 @@ export class Orders extends Component {
             <OrdersInfoForm
               ordersTypeOptions={ordersTypeOptions}
               initialValues={initialValues}
-              currentStation={currentStation}
+              currentDutyLocation={currentDutyLocation}
               onSubmit={submitOrders}
               onBack={handleBack}
             />
@@ -162,12 +162,12 @@ Orders.propTypes = {
   currentOrders: OrdersShape,
   updateOrders: PropTypes.func.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
-  currentStation: DutyStationShape,
+  currentDutyLocation: DutyLocationShape,
 };
 
 Orders.defaultProps = {
   currentOrders: null,
-  currentStation: {},
+  currentDutyLocation: {},
 };
 
 const mapStateToProps = (state) => {
@@ -176,7 +176,7 @@ const mapStateToProps = (state) => {
   return {
     serviceMemberId: serviceMember?.id,
     currentOrders: selectCurrentOrders(state),
-    currentStation: serviceMember?.current_location || {},
+    currentDutyLocation: serviceMember?.current_location || {},
   };
 };
 

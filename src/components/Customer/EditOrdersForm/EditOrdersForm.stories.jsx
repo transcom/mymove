@@ -70,7 +70,7 @@ const testProps = {
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
   ],
-  currentStation: {},
+  currentDutyLocation: {},
 };
 
 export const EmptyValues = (argTypes) => (

@@ -4,8 +4,8 @@ import truck from 'shared/icon/truck-gray.svg';
 
 const CanceledMoveSummary = (props) => {
   const { profile, reviewProfile } = props;
-  const currentStation = get(profile, 'current_location');
-  const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
+  const currentLocation = get(profile, 'current_location');
+  const officePhone = get(currentLocation, 'transportation_office.phone_lines.0');
   return (
     <div>
       <h1>New move</h1>
@@ -23,8 +23,8 @@ const CanceledMoveSummary = (props) => {
                 <div className="step">
                   <div>
                     Make sure you have a copy of your move orders before you get started. Questions or need to help?
-                    Contact your local Transportation Office (PPPO) at {get(currentStation, 'name')}
-                    {stationPhone ? ` at ${stationPhone}` : ''}.
+                    Contact your local Transportation Office (PPPO) at {get(currentLocation, 'name')}
+                    {officePhone ? ` at ${officePhone}` : ''}.
                   </div>
                 </div>
               </div>
