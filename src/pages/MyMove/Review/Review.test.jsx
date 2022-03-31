@@ -4,14 +4,28 @@ import userEvent from '@testing-library/user-event';
 
 import ConnectedReview from 'pages/MyMove/Review/Review';
 import { MockProviders } from 'testUtils';
+import MOVE_STATUSES from 'constants/moves';
+import { selectCurrentMove } from 'store/entities/selectors';
 
 // Mock the summary part of the review page since we're just testing the
 // navigation portion.
 jest.mock('components/Customer/Review/Summary/Summary', () => 'summary');
 
+jest.mock('store/entities/selectors', () => ({
+  ...jest.requireActual('store/entities/selectors'),
+  selectCurrentMove: jest.fn(),
+}));
+
 describe('Review page', () => {
+  const testDraftMove = {
+    status: MOVE_STATUSES.DRAFT,
+  };
+
+  const testSubmittedMove = {
+    status: MOVE_STATUSES.SUBMITTED,
+  };
+
   const testProps = {
-    canMoveNext: true,
     push: jest.fn(),
     match: {
       path: '/moves/:moveId/review',
@@ -23,7 +37,7 @@ describe('Review page', () => {
     },
   };
 
-  const testState = {
+  const testFlashState = {
     flash: {
       flashMessage: {
         type: 'SET_FLASH_MESSAGE',
@@ -37,6 +51,7 @@ describe('Review page', () => {
   };
 
   it('renders the Review Page', async () => {
+    selectCurrentMove.mockImplementation(() => testDraftMove);
     render(
       <MockProviders>
         <ConnectedReview {...testProps} />
@@ -47,13 +62,15 @@ describe('Review page', () => {
   });
 
   it('Finish Later button goes to the home page', async () => {
+    selectCurrentMove.mockImplementation(() => testDraftMove);
+
     render(
       <MockProviders>
         <ConnectedReview {...testProps} />
       </MockProviders>,
     );
 
-    const backButton = await screen.findByRole('button', { name: 'Finish later' });
+    const backButton = screen.getByRole('button', { name: 'Finish later' });
 
     expect(backButton).toBeInTheDocument();
 
@@ -62,7 +79,9 @@ describe('Review page', () => {
     expect(testProps.push).toHaveBeenCalledWith('/');
   });
 
-  it('next button goes to the Agreement page', async () => {
+  it('next button goes to the Agreement page when move is in DRAFT status', async () => {
+    selectCurrentMove.mockImplementation(() => testDraftMove);
+
     render(
       <MockProviders>
         <ConnectedReview {...testProps} />
@@ -78,9 +97,23 @@ describe('Review page', () => {
     expect(testProps.push).toHaveBeenCalledWith(`/moves/${testProps.match.params.moveId}/agreement`);
   });
 
+  it('return home button is displayed when move has been submitted', async () => {
+    selectCurrentMove.mockImplementation(() => testSubmittedMove);
+
+    render(
+      <MockProviders>
+        <ConnectedReview {...testProps} />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'Return home' })).toBeInTheDocument();
+  });
+
   it('renders the success alert flash message', async () => {
     render(
-      <MockProviders initialState={testState}>
+      <MockProviders initialState={testFlashState}>
         <ConnectedReview {...testProps} />
       </MockProviders>,
     );

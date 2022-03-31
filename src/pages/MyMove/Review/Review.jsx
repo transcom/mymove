@@ -1,5 +1,5 @@
 import React from 'react';
-import { bool, func } from 'prop-types';
+import { func } from 'prop-types';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
@@ -14,8 +14,12 @@ import 'scenes/Review/Review.css';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
+import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
+import { selectCurrentMove } from 'store/entities/selectors';
+import { MoveShape } from 'types/customerShapes';
+import MOVE_STATUSES from 'constants/moves';
 
-const Review = ({ push, canMoveNext, match }) => {
+const Review = ({ push, currentMove, match }) => {
   const handleCancel = () => {
     push(generalRoutes.HOME_PATH);
   };
@@ -26,6 +30,8 @@ const Review = ({ push, canMoveNext, match }) => {
     });
     push(nextPath);
   };
+
+  const inDraftStatus = currentMove.status === MOVE_STATUSES.DRAFT;
 
   return (
     <GridContainer>
@@ -49,10 +55,11 @@ const Review = ({ push, canMoveNext, match }) => {
             <div className={formStyles.formActions}>
               <WizardNavigation
                 onNextClick={handleNext}
-                disableNext={!canMoveNext}
+                disableNext={false}
                 onCancelClick={handleCancel}
                 isFirstPage
                 showFinishLater
+                readOnly={!inDraftStatus}
               />
             </div>
           </div>
@@ -63,7 +70,7 @@ const Review = ({ push, canMoveNext, match }) => {
 };
 
 Review.propTypes = {
-  canMoveNext: bool.isRequired,
+  currentMove: MoveShape.isRequired,
   push: func.isRequired,
   match: MatchShape.isRequired,
 };
@@ -71,8 +78,12 @@ Review.propTypes = {
 const mapStateToProps = (state, ownProps) => {
   return {
     ...ownProps,
-    canMoveNext: true, // TODO: prevent incomplete PPM submission?
+    currentMove: selectCurrentMove(state) || {},
   };
 };
 
-export default connect(mapStateToProps)(Review);
+const mapDispatchToProps = {
+  showLoggedInUser: showLoggedInUserAction,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Review);

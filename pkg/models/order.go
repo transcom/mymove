@@ -200,6 +200,25 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	return order, nil
 }
 
+// FetchOrderForAuthorizedUser queries for the order if it matches the given user of the session
+func FetchOrderForAuthorizedUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
+	var order Order
+	err := db.Q().EagerPreload("ServiceMember").Find(&order, id)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Order{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Order{}, err
+	}
+
+	// TODO: Handle case where more than one user is authorized to modify orders
+	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
+		return Order{}, ErrFetchForbidden
+	}
+	return order, nil
+}
+
 // FetchOrder returns orders without REGARDLESS OF USER.
 // DO NOT USE IF YOU NEED USER AUTH
 func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {

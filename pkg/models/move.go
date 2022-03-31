@@ -180,7 +180,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	// Ensure that the logged-in user is authorized to access this move
-	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
+	_, authErr := FetchOrderForAuthorizedUser(db, session, move.OrdersID)
 	if authErr != nil {
 		return nil, authErr
 	}
