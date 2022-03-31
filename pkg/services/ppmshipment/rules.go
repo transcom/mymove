@@ -73,6 +73,10 @@ func checkRequiredFields() ppmShipmentValidator {
 			verrs.Add("destinationPostalCode", "cannot be nil or empty")
 		}
 
+		if newPPMShipment.SitExpected == nil {
+			verrs.Add("sitExpected", "cannot be nil")
+		}
+
 		return verrs
 	})
 }

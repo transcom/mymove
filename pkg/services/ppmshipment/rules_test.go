@@ -204,6 +204,18 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 					"destinationPostalCode",
 					"cannot be nil or empty",
 				},
+				{
+					"Missing SIT Expected value",
+					models.PPMShipment{
+						ShipmentID:            shipmentID,
+						ExpectedDepartureDate: expectedTime,
+						PickupPostalCode:      pickupPostal,
+						DestinationPostalCode: destPostalcode,
+						SitExpected:           nil,
+					},
+					"sitExpected",
+					"cannot be nil",
+				},
 			}
 
 			for _, tc := range testCases {
