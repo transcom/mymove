@@ -49,22 +49,22 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch MB-11452-rds-certs
+  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch MB-11452-rds-certs
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch MB-11452-rds-certs
+  client-ignore-branch: &client-ignore-branch placeholder_branch_name
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch MB-11452-rds-certs
+  server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
   av_medium:
@@ -849,6 +849,7 @@ jobs:
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
       - aws_vars_loadtest
+      #can delete this cert step
       - run:
           name: Prepare certificates
           command: |
@@ -866,6 +867,7 @@ jobs:
             PWD: /home/circleci/transcom/mymove
             TEST_ACC_ENV: loadtest
       - aws_vars_demo
+      #can delete this cert step
       - run:
           name: Prepare certificates
           command: |
