@@ -30,7 +30,11 @@ const Review = ({ push, canMoveNext, match }) => {
   return (
     <GridContainer>
       <ScrollToTop />
-      <ConnectedFlashMessage />
+      <Grid row>
+        <Grid col desktop={{ col: 8, offset: 2 }}>
+          <ConnectedFlashMessage />
+        </Grid>
+      </Grid>
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <div className={styles.reviewMoveContainer}>
