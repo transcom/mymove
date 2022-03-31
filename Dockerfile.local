@@ -10,7 +10,8 @@ COPY --chown=circleci:circleci . /home/circleci/project
 WORKDIR /home/circleci/project
 
 RUN make clean
-RUN make bin/rds-ca-rsa4096-g1.pem
+RUN make bin/rds-ca-2019-root.pem
+RUN make bin/rds-ca-us-gov-west-1-2017-root.pem
 RUN rm -f pkg/assets/assets.go && make pkg/assets/assets.go
 RUN make server_generate
 RUN rm -f bin/milmove && make bin/milmove
@@ -22,7 +23,8 @@ RUN rm -f bin/milmove && make bin/milmove
 # hadolint ignore=DL3007
 FROM gcr.io/distroless/base:latest
 
-COPY --from=builder --chown=root:root /home/circleci/project/bin/bin/rds-ca-rsa4096-g1.pem /bin/bin/rds-ca-rsa4096-g1.pem
+COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
 COPY --from=builder --chown=root:root /home/circleci/project/bin/milmove /bin/milmove
 
 COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
