@@ -4511,7 +4511,10 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
-          "type": "string",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
           "x-nullable": true
         },
         "clientQuery": {
@@ -4543,7 +4546,10 @@ func init() {
         },
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
-          "type": "string",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
           "x-nullable": true
         },
         "relId": {
@@ -11405,7 +11411,10 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
-          "type": "string",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
           "x-nullable": true
         },
         "clientQuery": {
@@ -11437,7 +11446,10 @@ func init() {
         },
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
-          "type": "string",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
           "x-nullable": true
         },
         "relId": {
