@@ -158,7 +158,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 				ExpectedDepartureDate: expectedTime,
 				PickupPostalCode:      pickupPostal,
 				DestinationPostalCode: destPostalcode,
-				SitExpected:           sitExpected,
+				SitExpected:           &sitExpected,
 			}
 
 			err := checkRequiredFields().Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
@@ -178,7 +178,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						ShipmentID:            shipmentID,
 						PickupPostalCode:      pickupPostal,
 						DestinationPostalCode: destPostalcode,
-						SitExpected:           sitExpected,
+						SitExpected:           &sitExpected,
 					},
 					"expectedDepartureDate",
 					"cannot be a zero value"},
@@ -188,7 +188,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						ShipmentID:            shipmentID,
 						ExpectedDepartureDate: expectedTime,
 						DestinationPostalCode: destPostalcode,
-						SitExpected:           sitExpected,
+						SitExpected:           &sitExpected,
 					},
 					"pickupPostalCode",
 					"cannot be nil or empty",
@@ -199,7 +199,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						ShipmentID:            shipmentID,
 						ExpectedDepartureDate: expectedTime,
 						PickupPostalCode:      pickupPostal,
-						SitExpected:           sitExpected,
+						SitExpected:           &sitExpected,
 					},
 					"destinationPostalCode",
 					"cannot be nil or empty",

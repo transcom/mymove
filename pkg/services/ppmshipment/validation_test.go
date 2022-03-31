@@ -23,7 +23,7 @@ func setupShipmentData() (data dataSetup) {
 		ExpectedDepartureDate: time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC),
 		PickupPostalCode:      "90210",
 		DestinationPostalCode: "08004",
-		SitExpected:           false,
+		SitExpected:           models.BoolPointer(false),
 		Advance:               nil,
 		AdvanceRequested:      models.BoolPointer(false),
 	}

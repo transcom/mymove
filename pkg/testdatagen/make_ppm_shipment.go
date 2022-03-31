@@ -64,6 +64,7 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 
 	requiredFields.destinationPostalCode = orders.NewDutyLocation.Address.PostalCode
 
+	// sitExpected is a pointer on the model, but is expected in our business rules.
 	requiredFields.sitExpected = false
 
 	return requiredFields
@@ -89,7 +90,7 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 		PickupPostalCode:      requiredFields.pickupPostalCode,
 		DestinationPostalCode: requiredFields.destinationPostalCode,
 		EstimatedWeight:       &estimatedWeight,
-		SitExpected:           requiredFields.sitExpected,
+		SitExpected:           &requiredFields.sitExpected,
 		HasProGear:            &hasProGear,
 		ProGearWeight:         &proGearWeight,
 		SpouseProGearWeight:   &spouseProGearWeight,
@@ -138,7 +139,7 @@ func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PP
 		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
 		PickupPostalCode:      requiredFields.pickupPostalCode,
 		DestinationPostalCode: requiredFields.destinationPostalCode,
-		SitExpected:           requiredFields.sitExpected,
+		SitExpected:           &requiredFields.sitExpected,
 	}
 
 	// Overwrite values with those from assertions
