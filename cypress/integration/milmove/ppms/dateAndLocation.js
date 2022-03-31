@@ -1,3 +1,5 @@
+import { customerStartsAddingAPPMShipment, submitsDateAndLocation } from '../../../support/ppmShared';
+
 describe('PPM Onboarding - Add dates and location flow', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -5,20 +7,19 @@ describe('PPM Onboarding - Add dates and location flow', function () {
 
   beforeEach(() => {
     cy.intercept('POST', '**/internal/mto_shipments').as('createShipment');
-    cy.logout();
   });
 
-  // profile@comple.te
+  // profile@complete.draft
   const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
   it('doesn’t allow SM to progress if form is in an invalid state', () => {
     cy.apiSignInAsUser(userId);
-    customerChoosesAPPMMove();
+    customerStartsAddingAPPMShipment();
     invalidInputs();
   });
 
   it('can continue to next page', () => {
     cy.apiSignInAsUser(userId);
-    customerChoosesAPPMMove();
+    customerStartsAddingAPPMShipment();
     submitsDateAndLocation();
   });
 });
@@ -62,26 +63,4 @@ function invalidInputs() {
   cy.get('@errorMessage').next('input').should('have.id', 'secondaryDestinationPostalCode');
   cy.get('input[name="secondaryDestinationPostalCode"]').clear().type('90210').blur();
   cy.get('@errorMessage').should('not.exist');
-}
-
-function customerChoosesAPPMMove() {
-  cy.get('button[data-testid="shipment-selection-btn"]').click();
-  cy.nextPage();
-
-  cy.get('input[value="PPM"]').check({ force: true });
-  cy.nextPage();
-}
-
-function submitsDateAndLocation() {
-  cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
-
-  cy.get('input[name="destinationPostalCode"]').clear().type('76127');
-  cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
-
-  cy.get('button').contains('Save & Continue').click();
-  cy.wait('@createShipment');
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
-  });
 }

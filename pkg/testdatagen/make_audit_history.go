@@ -28,6 +28,7 @@ type TestDataAuditHistory struct {
 	SessionUserEmail     *string    `json:"session_user_email" db:"-"`
 	SessionUserTelephone *string    `json:"session_user_telephone" db:"-"`
 	Context              *string    `json:"context" db:"-"`
+	ContextID            *string    `json:"context_id" db:"-"`
 	// Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx
 	TransactionID *int64 `json:"transaction_id" db:"transaction_id"`
 	// Record the text of the client query that triggered the audit event
@@ -58,6 +59,8 @@ func MakeAuditHistory(db *pop.Connection, assertions Assertions) TestDataAuditHi
 	genericUUID := uuid.Must(uuid.NewV4())
 	movesTableUUID := assertions.Move.ID
 	fakeEventName := "setFinancialReviewFlag"
+	fakeContext := "moves test"
+	fakeContextID := "1234567"
 	fakeOldData := models.JSONMap{"Locator": "asdf"}
 	fakeChangedData := models.JSONMap{"Locator": "fdsa"}
 	var fakeTransactionID int64 = 1234
@@ -68,6 +71,8 @@ func MakeAuditHistory(db *pop.Connection, assertions Assertions) TestDataAuditHi
 		SchemaName:      "public",
 		TableNameDB:     "moves",
 		RelID:           16592,
+		Context:         &fakeContext,
+		ContextID:       &fakeContextID,
 		ObjectID:        &movesTableUUID,
 		SessionUserID:   &assertions.User.ID,
 		TransactionID:   &fakeTransactionID,

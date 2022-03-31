@@ -9,7 +9,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { dropdownInputOptions } from 'shared/formatters';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 
-const dutyStation = {
+const dutyLocation = {
   address: {
     city: 'Scott Air Force Base',
     id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
@@ -26,8 +26,8 @@ const dutyStation = {
 };
 
 const initialValues = {
-  currentDutyLocation: dutyStation,
-  newDutyLocation: dutyStation,
+  currentDutyLocation: dutyLocation,
+  newDutyLocation: dutyLocation,
   dateIssued: '2020-03-08',
   reportByDate: '2020-04-01',
   departmentIndicator: 'NAVY_AND_MARINES',

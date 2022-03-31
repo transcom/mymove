@@ -1,4 +1,4 @@
-We hope your move to {{.DestinationDutyStation}} went well.
+We hope your move to {{.DestinationDutyLocation}} went well.
 
 It’s been a couple of weeks, so we want to make sure you get paid for that move. {{.IncentiveTxt}}
 

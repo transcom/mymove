@@ -1,13 +1,13 @@
 package internalapi
 
 import (
-	"errors"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -48,18 +48,18 @@ type CreateMovingExpenseDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMovingExpenseDocumentParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			moveID, err := uuid.FromString(params.MoveID.String())
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			// Validate that this move belongs to the current user
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			payload := params.CreateMovingExpenseDocumentPayload
@@ -69,7 +69,8 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 			// To maintain old behavior that required / assumed
 			// that users always had receipts
 			if len(uploadIds) == 0 && haveReceipt {
-				return movedocop.NewCreateMovingExpenseDocumentBadRequest()
+				badRequestErr := apperror.NewBadDataError("There are no upload IDs nor a receipt with the request")
+				return movedocop.NewCreateMovingExpenseDocumentBadRequest(), badRequestErr
 			}
 
 			// Fetch uploads to confirm ownership
@@ -78,7 +79,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 				convertedUploadID := uuid.Must(uuid.FromString(id.String()))
 				userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), convertedUploadID)
 				if fetchUploadErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), fetchUploadErr)
+					return handlers.ResponseForError(appCtx.Logger(), fetchUploadErr), fetchUploadErr
 				}
 				userUploads = append(userUploads, userUpload)
 			}
@@ -90,10 +91,11 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 				// Enforce that the ppm's move_id matches our move
 				ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), id)
 				if fetchPPMErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), fetchPPMErr)
+					return handlers.ResponseForError(appCtx.Logger(), fetchPPMErr), fetchPPMErr
 				}
 				if ppm.MoveID != moveID {
-					return movedocop.NewCreateMovingExpenseDocumentBadRequest()
+					badRequestErr := apperror.NewBadDataError("PPM Move ID does not match Move ID")
+					return movedocop.NewCreateMovingExpenseDocumentBadRequest(), badRequestErr
 				}
 
 				ppmID = &id
@@ -118,7 +120,8 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 				movingExpenseDocument.MovingExpenseType = models.MovingExpenseType(*payload.MovingExpenseType)
 			}
 			if payload.MoveDocumentType == nil {
-				return handlers.ResponseForError(appCtx.Logger(), errors.New("missing required field: MoveDocumentType"))
+				missingFieldErr := apperror.NewUnprocessableEntityError("Missing required field: MoveDocumentType")
+				return handlers.ResponseForError(appCtx.Logger(), missingFieldErr), missingFieldErr
 			}
 			newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
 				appCtx.DB(),
@@ -132,13 +135,13 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 			)
 
 			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 
 			newPayload, err := payloadForMovingExpenseDocumentModel(h.FileStorer(), *newMovingExpenseDocument)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err)
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			return movedocop.NewCreateMovingExpenseDocumentOK().WithPayload(newPayload)
+			return movedocop.NewCreateMovingExpenseDocumentOK().WithPayload(newPayload), nil
 		})
 }

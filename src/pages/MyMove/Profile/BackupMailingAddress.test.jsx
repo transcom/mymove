@@ -154,7 +154,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
             personal_email: 'test@example.com',
             email_is_preferred: true,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
             },
           },
         },
@@ -194,7 +194,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
             personal_email: 'test@example.com',
             email_is_preferred: true,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
             },
             residential_address: {
               street: '123 Main St',
@@ -237,7 +237,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
             personal_email: 'test@example.com',
             email_is_preferred: true,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
             },
             residential_address: {
               street: '123 Main St',
@@ -283,7 +283,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
             personal_email: 'test@example.com',
             email_is_preferred: true,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
             },
             residential_address: {
               street: '123 Main St',

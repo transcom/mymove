@@ -13,7 +13,7 @@ import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } f
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
-import { DutyStationShape } from 'types';
+import { DutyLocationShape } from 'types';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
 
@@ -45,7 +45,7 @@ const setZip = (setFieldValue, postalCodeField, postalCode, isChecked, isChecked
 
 const DateAndLocationForm = ({
   mtoShipment,
-  destinationDutyStation,
+  destinationDutyLocation,
   serviceMember,
   onBack,
   onSubmit,
@@ -67,7 +67,7 @@ const DateAndLocationForm = ({
   };
 
   const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
-  const destinationDutyLocationPostalCode = destinationDutyStation?.address?.postalCode;
+  const destinationDutyLocationPostalCode = destinationDutyLocation?.address?.postalCode;
 
   const postalCodeValidate = async (value, location, name) => {
     if (value?.length !== 5) {
@@ -335,7 +335,7 @@ const DateAndLocationForm = ({
 DateAndLocationForm.propTypes = {
   mtoShipment: MtoShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
-  destinationDutyStation: DutyStationShape.isRequired,
+  destinationDutyLocation: DutyLocationShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
   postalCodeValidator: func.isRequired,

@@ -155,6 +155,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
+		"MTOShipments.PPMShipment",
 		"SignedCertifications",
 		"Orders",
 		"Orders.UploadedAmendedOrders",
@@ -557,42 +558,29 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	transactionErr := db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("Rollback The transaction")
-
-		for _, ppm := range move.PersonallyProcuredMoves {
-			copyOfPpm := ppm // Make copy to avoid implicit memory aliasing of items from a range statement.
-			if copyOfPpm.Advance != nil {
-				if verrs, err := db.ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
-					responseVErrors.Append(verrs)
-					responseError = errors.Wrap(err, "Error Saving Advance")
-					return transactionError
-				}
-			}
-
-			if verrs, err := db.ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
+	for _, ppm := range move.PersonallyProcuredMoves {
+		copyOfPpm := ppm // Make copy to avoid implicit memory aliasing of items from a range statement.
+		if copyOfPpm.Advance != nil {
+			if verrs, err := db.ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving PPM")
-				return transactionError
+				responseError = errors.Wrap(err, "Error Saving Advance")
 			}
 		}
 
-		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
+		if verrs, err := db.ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error Saving Orders")
-			return transactionError
+			responseError = errors.Wrap(err, "Error Saving PPM")
 		}
+	}
 
-		if verrs, err := db.ValidateAndSave(move); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error Saving Move")
-			return transactionError
-		}
-		return nil
-	})
+	if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error Saving Orders")
+	}
 
-	if transactionErr != nil {
-		return responseVErrors, transactionErr
+	if verrs, err := db.ValidateAndSave(move); verrs.HasAny() || err != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error Saving Move")
 	}
 
 	return responseVErrors, responseError

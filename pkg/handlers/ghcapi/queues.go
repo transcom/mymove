@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -30,12 +31,15 @@ type FilterOption func(*pop.Query)
 
 // Handle returns the paginated list of moves for the TOO user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
-
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				appCtx.Logger().Error("user is not authenticated with TOO office role")
-				return queues.NewGetMovesQueueForbidden()
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with TOO office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetMovesQueueForbidden(), forbiddenErr
 			}
 
 			ListOrderParams := services.ListOrderParams{
@@ -67,10 +71,10 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				appCtx.Session().OfficeUserID,
 				&ListOrderParams,
 			)
-
 			if err != nil {
-				appCtx.Logger().Error("error fetching list of moves for office user", zap.Error(err))
-				return queues.NewGetMovesQueueInternalServerError()
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
@@ -82,7 +86,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				QueueMoves: *queueMoves,
 			}
 
-			return queues.NewGetMovesQueueOK().WithPayload(result)
+			return queues.NewGetMovesQueueOK().WithPayload(result), nil
 		})
 }
 
@@ -93,26 +97,32 @@ type GetPaymentRequestsQueueHandler struct {
 }
 
 // Handle returns the paginated list of payment requests for the TIO user
-func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+func (h GetPaymentRequestsQueueHandler) Handle(
+	params queues.GetPaymentRequestsQueueParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-				return queues.NewGetPaymentRequestsQueueForbidden()
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with TIO office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetPaymentRequestsQueueForbidden(), forbiddenErr
 			}
 
 			listPaymentRequestParams := services.FetchPaymentRequestListParams{
-				Branch:                 params.Branch,
-				Locator:                params.Locator,
-				DodID:                  params.DodID,
-				LastName:               params.LastName,
-				DestinationDutyStation: params.DestinationDutyLocation,
-				Status:                 params.Status,
-				Page:                   params.Page,
-				PerPage:                params.PerPage,
-				SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
-				Sort:                   params.Sort,
-				Order:                  params.Order,
-				OriginDutyLocation:     params.OriginDutyLocation,
+				Branch:                  params.Branch,
+				Locator:                 params.Locator,
+				DodID:                   params.DodID,
+				LastName:                params.LastName,
+				DestinationDutyLocation: params.DestinationDutyLocation,
+				Status:                  params.Status,
+				Page:                    params.Page,
+				PerPage:                 params.PerPage,
+				SubmittedAt:             handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
+				Sort:                    params.Sort,
+				Order:                   params.Order,
+				OriginDutyLocation:      params.OriginDutyLocation,
 			}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
@@ -131,8 +141,9 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 				&listPaymentRequestParams,
 			)
 			if err != nil {
-				appCtx.Logger().Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
-				return queues.NewGetPaymentRequestsQueueInternalServerError()
+				appCtx.Logger().
+					Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
+				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
 			}
 
 			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
@@ -144,7 +155,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 				QueuePaymentRequests: *queuePaymentRequests,
 			}
 
-			return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+			return queues.NewGetPaymentRequestsQueueOK().WithPayload(result), nil
 		})
 }
 
@@ -155,13 +166,18 @@ type GetServicesCounselingQueueHandler struct {
 }
 
 // Handle returns the paginated list of moves for the services counselor
-func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
-
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-				appCtx.Logger().Error("user is not authenticated with an office role")
-				return queues.NewGetServicesCounselingQueueForbidden()
+func (h GetServicesCounselingQueueHandler) Handle(
+	params queues.GetServicesCounselingQueueParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with an office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetServicesCounselingQueueForbidden(), forbiddenErr
 			}
 
 			ListOrderParams := services.ListOrderParams{
@@ -200,10 +216,10 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 				appCtx.Session().OfficeUserID,
 				&ListOrderParams,
 			)
-
 			if err != nil {
-				appCtx.Logger().Error("error fetching list of moves for office user", zap.Error(err))
-				return queues.NewGetServicesCounselingQueueInternalServerError()
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
@@ -215,6 +231,6 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 				QueueMoves: *queueMoves,
 			}
 
-			return queues.NewGetServicesCounselingQueueOK().WithPayload(result)
+			return queues.NewGetServicesCounselingQueueOK().WithPayload(result), nil
 		})
 }
