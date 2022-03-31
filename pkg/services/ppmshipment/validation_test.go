@@ -66,6 +66,33 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		suite.Equal(oldPPMShipment.SitExpected, mergedPPMShipment.SitExpected)
 	})
 
+	suite.Run("Merge changes to required fields", func() {
+		data := setupShipmentData()
+		oldPPMShipment := data.old
+		newPPMShipment := data.new
+		newPPMShipment.SitExpected = models.BoolPointer(true)
+		newPPMShipment.ExpectedDepartureDate = time.Date(2022, time.March, 15, 0, 0, 0, 0, time.UTC)
+		newPPMShipment.PickupPostalCode = "79912"
+		newPPMShipment.DestinationPostalCode = "94535"
+
+		mergedPPMShipment := mergePPMShipment(newPPMShipment, &oldPPMShipment)
+
+		// Check if new fields are added
+		suite.Equal(newPPMShipment.ExpectedDepartureDate, mergedPPMShipment.ExpectedDepartureDate)
+		suite.Equal(newPPMShipment.PickupPostalCode, mergedPPMShipment.PickupPostalCode)
+		suite.Equal(newPPMShipment.DestinationPostalCode, mergedPPMShipment.DestinationPostalCode)
+		suite.Equal(*newPPMShipment.SitExpected, *mergedPPMShipment.SitExpected)
+		suite.Equal(*newPPMShipment.EstimatedWeight, *mergedPPMShipment.EstimatedWeight)
+		suite.Equal(*newPPMShipment.HasProGear, *mergedPPMShipment.HasProGear)
+		suite.Equal(*newPPMShipment.ProGearWeight, *mergedPPMShipment.ProGearWeight)
+		suite.Equal(*newPPMShipment.SpouseProGearWeight, *mergedPPMShipment.SpouseProGearWeight)
+		suite.Equal(*newPPMShipment.AdvanceRequested, *mergedPPMShipment.AdvanceRequested)
+
+		// Check if old fields are not changed
+		suite.Equal(oldPPMShipment.ID, mergedPPMShipment.ID)
+		suite.Equal(oldPPMShipment.ShipmentID, mergedPPMShipment.ShipmentID)
+	})
+
 	suite.Run("Merge zeros", func() {
 		data := setupShipmentData()
 		oldPPMShipment := data.old
@@ -91,6 +118,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			ExpectedDepartureDate: time.Time{},
 			PickupPostalCode:      "",
 			DestinationPostalCode: "",
+			SitExpected:           nil,
 		}
 
 		mergedPPMShipment := mergePPMShipment(newPPMShipment, &oldPPMShipment)
@@ -99,5 +127,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		suite.Equal(oldPPMShipment.ExpectedDepartureDate, mergedPPMShipment.ExpectedDepartureDate)
 		suite.Equal(oldPPMShipment.PickupPostalCode, mergedPPMShipment.PickupPostalCode)
 		suite.Equal(oldPPMShipment.DestinationPostalCode, mergedPPMShipment.DestinationPostalCode)
+		suite.Equal(oldPPMShipment.SitExpected, mergedPPMShipment.SitExpected)
 	})
 }
