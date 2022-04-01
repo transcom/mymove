@@ -756,18 +756,12 @@ func createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 	})
 }
 
-func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	/*
-	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
-	 */
-	email := "complete@ppm.unsubmitted"
-	uuidStr := "6a7d969a-2347-48c7-9289-0963c447f0a7"
-
+func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext, email string, userid string, locator string, userUploader *uploader.UserUploader) {
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
 	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			ID:            uuid.Must(uuid.FromString(userid)),
 			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
@@ -776,8 +770,7 @@ func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppConte
 
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.Must(uuid.FromString("6796ae4d-4f11-47f6-8f1d-6fd232f6850c")),
-			UserID:        uuid.Must(uuid.FromString(uuidStr)),
+			UserID:        uuid.Must(uuid.FromString(userid)),
 			FirstName:     models.StringPointer("Complete"),
 			LastName:      models.StringPointer("PPM"),
 			PersonalEmail: models.StringPointer(email),
@@ -791,15 +784,13 @@ func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppConte
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
-			ID:               uuid.Must(uuid.FromString("3878d124-9b7a-46fb-b138-43995f3f5ad5")),
-			Locator:          "PPMCMP",
+			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
 		},
 	})
 
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
-			ID:              uuid.Must(uuid.FromString("82a40901-f3da-414a-9594-bbf20b0785b8")),
 			ShipmentType:    models.MTOShipmentTypePPM,
 			Status:          models.MTOShipmentStatusDraft,
 			MoveTaskOrder:   move,
@@ -811,7 +802,6 @@ func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppConte
 		Move:        move,
 		MTOShipment: mtoShipment,
 		PPMShipment: models.PPMShipment{
-			ID:                             uuid.Must(uuid.FromString("8b507206-486d-4c9d-a880-b625bb3c9b46")),
 			SitExpected:                    true,
 			SecondaryPickupPostalCode:      models.StringPointer("90211"),
 			SecondaryDestinationPostalCode: models.StringPointer("30814"),
@@ -822,6 +812,78 @@ func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppConte
 			EstimatedIncentive:             models.Int32Pointer(int32(1000000)),
 			AdvanceRequested:               models.BoolPointer(true),
 			Advance:                        models.CentPointer(unit.Cents(598700)),
+		},
+	})
+}
+
+func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+
+	userID := uuid.Must(uuid.FromString("04f2a1c6-eb40-463d-8544-1909141fdedf"))
+	email := "complete@ppm.submitted"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            userID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			UserID:        userID,
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Submitted"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: smWithPPM.ID,
+			ServiceMember:   smWithPPM,
+		},
+		UserUploader: userUploader,
+		Move: models.Move{
+			Locator:          "PPMSUB",
+			SelectedMoveType: &ppmMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+	})
+
+	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ShipmentType:    models.MTOShipmentTypePPM,
+			Status:          models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:   move,
+			MoveTaskOrderID: move.ID,
+		},
+	})
+
+	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: mtoShipment,
+		PPMShipment: models.PPMShipment{
+			SitExpected:                    true,
+			SecondaryPickupPostalCode:      models.StringPointer("90211"),
+			SecondaryDestinationPostalCode: models.StringPointer("30814"),
+			EstimatedWeight:                models.PoundPointer(unit.Pound(4000)),
+			HasProGear:                     models.BoolPointer(true),
+			ProGearWeight:                  models.PoundPointer(unit.Pound(1987)),
+			SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
+			EstimatedIncentive:             models.Int32Pointer(int32(1000000)),
+			AdvanceRequested:               models.BoolPointer(true),
+			Advance:                        models.CentPointer(unit.Cents(598700)),
+			Status:                         models.PPMShipmentStatusSubmitted,
+		},
+	})
+
+	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:           move.ID,
+			SubmittingUserID: userID,
 		},
 	})
 }

@@ -127,3 +127,26 @@ export function customerFillsOutOrdersInformation() {
   cy.get('[data-testid="doc-list-container"]').contains('sample-orders.png');
   cy.get('button').contains('Set up your shipments').click();
 }
+
+export function signAgreement() {
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
+  });
+
+  cy.get('h1').contains('Now for the official part…');
+
+  cy.get('input[name="signature"]').type('Sofía Clark-Nuñez');
+  cy.get('button').contains('Complete');
+}
+
+export function submitMove(actionToWaitOn) {
+  cy.get('button').contains('Complete').click();
+
+  if (actionToWaitOn) {
+    cy.wait(actionToWaitOn);
+  }
+
+  cy.get('.usa-alert--success').within(() => {
+    cy.contains('You’ve submitted your move request.');
+  });
+}

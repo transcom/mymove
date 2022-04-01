@@ -10,14 +10,24 @@ export function customerStartsAddingAPPMShipment() {
   cy.nextPage();
 }
 
-export function signInAndNavigateFromHomePageToReviewPage(userId) {
+export function signInAndNavigateFromHomePageToReviewPage(userId, isMoveSubmitted = false) {
   cy.apiSignInAsUser(userId);
 
   cy.wait('@getShipment');
 
-  cy.get('h3').should('contain', 'Time to submit your move');
+  navigateFromHomePageToReviewPage(isMoveSubmitted);
+}
 
-  cy.get('button').contains('Review and submit').click();
+export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
+  if (isMoveSubmitted) {
+    cy.get('h3').contains('Next: Talk to a move counselor');
+
+    cy.get('button').contains('Review your request').click();
+  } else {
+    cy.get('h3').should('contain', 'Time to submit your move');
+
+    cy.get('button').contains('Review and submit').click();
+  }
 }
 
 export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId) {
@@ -158,4 +168,12 @@ export function navigateFromAdvancesPageToReviewPage(isMobile = false) {
     .contains('Details saved')
     .next()
     .contains('Review your info and submit your move request now, or come back and finish later.');
+}
+
+export function navigateFromReviewPageToHomePage() {
+  cy.get('button').contains('Return home').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.equal('/');
+  });
 }

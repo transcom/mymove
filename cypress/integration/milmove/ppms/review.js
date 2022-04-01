@@ -3,13 +3,14 @@ import {
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
   navigateFromEstimatedIncentivePageToAdvancesPage,
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
+  navigateFromHomePageToReviewPage,
+  navigateFromReviewPageToHomePage,
   setMobileViewport,
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
   signInAndNavigateFromHomePageToReviewPage,
-  submitsAdvancePage,
-  submitsEstimatedWeights,
-  submitsEstimatedWeightsAndProGear,
 } from '../../../support/ppmShared';
+
+import { signAgreement, signAgreementAndSubmitMove, submitMove } from '../../mymove/utilities/customer';
 
 const fullPPMShipmentId = '82A40901';
 
@@ -35,11 +36,12 @@ describe('PPM Onboarding - Review', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
 
   const viewportType = [
-    { viewport: 'desktop', isMobile: false },
-    { viewport: 'mobile', isMobile: true },
+    { viewport: 'desktop', isMobile: false, userId: '6a7d969a-2347-48c7-9289-0963c447f0a7' }, // complete@ppm.unsubmitted
+    { viewport: 'mobile', isMobile: true, userId: 'fd02a7ac-f9cb-49e0-90ab-93a8443c1fc7' }, // complete2@ppm.unsubmitted
   ];
 
   viewportType.forEach(({ viewport, isMobile }) => {
@@ -48,29 +50,33 @@ describe('PPM Onboarding - Review', function () {
         setMobileViewport();
       }
 
-      getToReviewPage(isMobile);
-      verifyPPMShipmentCard(fullPPMShipmentFields, fullPPMShipmentId);
-      navigatesFromReviewPageToAgreementPage();
-    });
+      // complete@ppm.unsubmitted
+      const userId = '6a7d969a-2347-48c7-9289-0963c447f0a7';
 
-    it(`navigates to the review page from the home page for an unsubmitted move - ${viewport}`, () => {
+      getToReviewPage(isMobile, userId);
+      verifyPPMShipmentCard(fullPPMShipmentFields, true);
+      navigateToAgreementAndSign(); // other tests submit the move otherwise we'd have an excessive number of moves
+    });
+  });
+
+  viewportType.forEach(({ viewport, isMobile, userId }) => {
+    it(`navigates to review page from home page and submits the move - ${viewport}`, () => {
       if (isMobile) {
         setMobileViewport();
       }
 
-      // complete@ppm.unsubmitted
-      const userId = '6a7d969a-2347-48c7-9289-0963c447f0a7';
       signInAndNavigateFromHomePageToReviewPage(userId);
-      verifyPPMShipmentCard(fullPPMShipmentFields, fullPPMShipmentId);
-      navigatesFromReviewPageToAgreementPage();
+      verifyPPMShipmentCard(fullPPMShipmentFields, true);
+      navigateToAgreementAndSign();
+      submitMove('@signedCertifications');
+      navigateFromHomePageToReviewPage(true);
+      verifyPPMShipmentCard(fullPPMShipmentFields, false);
+      navigateFromReviewPageToHomePage();
     });
   });
 });
 
-function getToReviewPage(isMobile = false) {
-  // complete@ppm.unsubmitted
-  const userId = '6a7d969a-2347-48c7-9289-0963c447f0a7';
-
+function getToReviewPage(isMobile = false, userId) {
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
   navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
@@ -78,14 +84,13 @@ function getToReviewPage(isMobile = false) {
   navigateFromAdvancesPageToReviewPage(isMobile);
 }
 
-function verifyPPMShipmentCard(shipmentCardFields, shipmentId, isEditable = false) {
+function verifyPPMShipmentCard(shipmentCardFields, isEditable = false) {
   cy.get('h2').contains('Move setup').as('moveSetup');
 
   cy.get('@moveSetup')
     .next()
     .within(() => {
       cy.get('h3').contains('PPM 1');
-      cy.contains(shipmentId);
 
       if (isEditable) {
         cy.get('button').contains('Edit');
@@ -101,12 +106,7 @@ function verifyPPMShipmentCard(shipmentCardFields, shipmentId, isEditable = fals
     });
 }
 
-function navigatesFromReviewPageToAgreementPage() {
+function navigateToAgreementAndSign() {
   cy.nextPage();
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
-  });
-
-  cy.get('h1').contains('Now for the official part…');
+  signAgreement();
 }
