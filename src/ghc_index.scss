@@ -1,6 +1,11 @@
-@import './shared/styles/settings';
+/* USWDS settings */
+@import './shared/styles/uswdsSettings';
+
+/* Vendor styles (direct source) */
 @import 'uswds';
 @import '~@trussworks/react-uswds/lib/index.css';
+
+/* Project styles */
 @import './shared/styles/colors';
 @import './shared/styles/variables';
 @import './shared/styles/mixins';

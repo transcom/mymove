@@ -8,7 +8,7 @@ This must be included in the top of any .module.scss file that uses USWDS SCSS
 @import '~uswds/src/stylesheets/theme/_uswds-theme-color.scss';
 @import '~uswds/src/stylesheets/theme/_uswds-theme-utilities.scss';
 // Custom theme settings/USWDS overrides go here
-@import '../../shared/styles/settings';
+@import '../../shared/styles/uswdsSettings';
 
 // Set these to true to view USWDS CSS compile warnings
 $theme-show-compile-warnings: false;

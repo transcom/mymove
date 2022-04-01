@@ -1,7 +1,7 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/_mixins.scss';
 @import 'shared/styles/_variables.scss';
-@import 'shared/styles/_basics.scss';
+@import 'shared/styles/uswdsImports.scss';
 
 // 24px margin in between Alert and SectionWrapper
 :global(.usa-alert) + .sectionWrapper {
