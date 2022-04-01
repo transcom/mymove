@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ShipmentList from '.';
+import ShipmentList from './ShipmentList';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatWeight } from 'utils/formatters';
