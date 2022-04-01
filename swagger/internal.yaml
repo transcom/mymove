@@ -5139,6 +5139,30 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a shipment by ID
+      description: Soft deletes a shipment by ID
+      operationId: deleteShipment
+      tags:
+        - shipment
+      produces:
+        - application/json
+      parameters:
+        - description: ID of the shipment to be deleted
+          in: path
+          name: mtoShipmentId
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the shipment
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /moves/{moveTaskOrderID}/mto_shipments:
     get:
       summary: Gets all shipments for a move task order

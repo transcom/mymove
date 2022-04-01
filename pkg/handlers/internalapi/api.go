@@ -176,6 +176,11 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 		fetch.NewFetcher(builder),
 	}
 
+	internalAPI.ShipmentDeleteShipmentHandler = DeleteShipmentHandler{
+		ctx,
+		mtoshipment.NewShipmentDeleter(),
+	}
+
 	return internalAPI
 }
 
