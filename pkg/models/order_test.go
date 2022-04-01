@@ -188,43 +188,6 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	suite.Equal(ErrFetchForbidden, err)
 }
 
-func (suite *ModelSuite) TestFetchOrderForAuthorizedUser() {
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
-	serviceMember1 := order.ServiceMember
-	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
-
-	// User is authorized to fetch order
-	session := &auth.Session{
-		ApplicationName: auth.MilApp,
-		UserID:          serviceMember1.UserID,
-		ServiceMemberID: serviceMember1.ID,
-	}
-	goodOrder, err := FetchOrderForAuthorizedUser(suite.DB(), session, order.ID)
-
-	suite.NoError(err)
-	suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
-	suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
-	suite.Equal(order.OrdersType, goodOrder.OrdersType)
-	suite.Equal(order.HasDependents, goodOrder.HasDependents)
-	suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
-	suite.Equal(order.Grade, goodOrder.Grade)
-
-	// Wrong Order ID
-	wrongID, _ := uuid.NewV4()
-	_, err = FetchOrderForAuthorizedUser(suite.DB(), session, wrongID)
-
-	suite.Error(err)
-	suite.Equal(ErrFetchNotFound, err)
-
-	// User is forbidden from fetching order
-	session.UserID = serviceMember2.UserID
-	session.ServiceMemberID = serviceMember2.ID
-	_, err = FetchOrderForAuthorizedUser(suite.DB(), session, order.ID)
-
-	suite.Error(err)
-	suite.Equal(ErrFetchForbidden, err)
-}
-
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 

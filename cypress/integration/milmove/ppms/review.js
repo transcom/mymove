@@ -10,9 +10,7 @@ import {
   signInAndNavigateFromHomePageToReviewPage,
 } from '../../../support/ppmShared';
 
-import { signAgreement, signAgreementAndSubmitMove, submitMove } from '../../mymove/utilities/customer';
-
-const fullPPMShipmentId = '82A40901';
+import { signAgreement, submitMove } from '../../mymove/utilities/customer';
 
 const fullPPMShipmentFields = [
   ['Expected departure', '15 Mar 2020'],
