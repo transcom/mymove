@@ -6,7 +6,6 @@ import { push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { GovBanner } from '@trussworks/react-uswds';
 
-import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'styles/customer.scss';
 
 import BypassBlock from 'components/BypassBlock';
