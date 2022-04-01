@@ -597,162 +597,127 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	}
 }
 
-func createUnsubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	/*
-	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
-	 */
-	email := "dates_and_locations@ppm.unsubmitted"
-	uuidStr := "bbb469f3-f4bc-420d-9755-b9569f81715e"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+type ppmCreatorInfo struct {
+	userID      uuid.UUID
+	email       string
+	smID        uuid.UUID
+	firstName   string
+	lastName    string
+	moveID      uuid.UUID
+	moveLocator string
+	ppmShipment models.PPMShipment
+}
+
+func createGenericUnsubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, ppmInfo ppmCreatorInfo) {
+	if ppmInfo.userID.IsNil() || ppmInfo.email == "" || ppmInfo.smID.IsNil() || ppmInfo.firstName == "" || ppmInfo.lastName == "" || ppmInfo.moveID.IsNil() || ppmInfo.moveLocator == "" || ppmInfo.ppmShipment.ID.IsNil() {
+		log.Panic("All ppmInfo fields must have non-zero values.")
+	}
 
 	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
+			ID:            ppmInfo.userID,
+			LoginGovUUID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
+			LoginGovEmail: ppmInfo.email,
 			Active:        true,
 		},
 	})
 
-	smIDPPM := "635e4c37-63b8-4860-9239-0e743ec383b0"
 	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.Must(uuid.FromString(smIDPPM)),
-			UserID:        uuid.Must(uuid.FromString(uuidStr)),
-			FirstName:     models.StringPointer("Minimal"),
-			LastName:      models.StringPointer("PPM"),
-			Edipi:         models.StringPointer("8937816489"),
-			PersonalEmail: models.StringPointer(email),
+			ID:            ppmInfo.smID,
+			UserID:        ppmInfo.userID,
+			FirstName:     models.StringPointer(ppmInfo.firstName),
+			LastName:      models.StringPointer(ppmInfo.lastName),
+			Edipi:         models.StringPointer(testdatagen.RandomEdipi()),
+			PersonalEmail: models.StringPointer(ppmInfo.email),
 		},
 	})
 
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ServiceMemberID: uuid.Must(uuid.FromString(smIDPPM)),
+			ServiceMemberID: ppmInfo.smID,
 			ServiceMember:   smWithPPM,
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
-			ID:               uuid.Must(uuid.FromString("16cb4b73-cc0e-48c5-8cc7-b2a2ac52c342")),
-			Locator:          "PPMMIN",
+			ID:               ppmInfo.moveID,
+			Locator:          ppmInfo.moveLocator,
 			SelectedMoveType: &ppmMoveType,
 		},
 	})
 
 	testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		PPMShipment: models.PPMShipment{
-			ID: uuid.Must(uuid.FromString("ffc95935-6781-4f95-9f35-16a5994cab56")),
-		},
+		Move:        move,
+		PPMShipment: ppmInfo.ppmShipment,
 	})
+}
+
+func createUnsubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
+	 */
+	ppmInfo := ppmCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("bbb469f3-f4bc-420d-9755-b9569f81715e"),
+		email:       "dates_and_locations@ppm.unsubmitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("635e4c37-63b8-4860-9239-0e743ec383b0"),
+		firstName:   "Minimal",
+		lastName:    "PPM",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("16cb4b73-cc0e-48c5-8cc7-b2a2ac52c342"),
+		moveLocator: "PPMMIN",
+		ppmShipment: models.PPMShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("ffc95935-6781-4f95-9f35-16a5994cab56"),
+		},
+	}
+
+	createGenericUnsubmittedMoveWithPPMShipment(appCtx, userUploader, ppmInfo)
 }
 
 func createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	/*
 	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
 	 */
-	email := "estimated_weights@ppm.unsubmitted"
-	uuidStr := "4512dc8c-c777-444e-b6dc-7971e398f2dc"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smIDPPM := "81b772ab-86ff-4bda-b0fa-21b14dfe14d5"
-	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.Must(uuid.FromString(smIDPPM)),
-			UserID:        uuid.Must(uuid.FromString(uuidStr)),
-			FirstName:     models.StringPointer("Minimal"),
-			LastName:      models.StringPointer("PPM"),
-			Edipi:         models.StringPointer("8738145769"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.Must(uuid.FromString(smIDPPM)),
-			ServiceMember:   smWithPPM,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.Must(uuid.FromString("e89a7018-be76-449a-b99b-e30a09c485dc")),
-			Locator:          "PPMEWH",
-			SelectedMoveType: &ppmMoveType,
-		},
-	})
-
-	testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		PPMShipment: models.PPMShipment{
-			ID:                 uuid.Must(uuid.FromString("65eea403-89ac-4c2d-9b1c-0dcc8805258f")),
+	ppmInfo := ppmCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("4512dc8c-c777-444e-b6dc-7971e398f2dc"),
+		email:       "estimated_weights@ppm.unsubmitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("81b772ab-86ff-4bda-b0fa-21b14dfe14d5"),
+		firstName:   "Minimal",
+		lastName:    "PPM",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("e89a7018-be76-449a-b99b-e30a09c485dc"),
+		moveLocator: "PPMEWH",
+		ppmShipment: models.PPMShipment{
+			ID:                 testdatagen.ConvertUUIDStringToUUID("65eea403-89ac-4c2d-9b1c-0dcc8805258f"),
 			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
 			HasProGear:         models.BoolPointer(false),
 			EstimatedIncentive: models.Int32Pointer(int32(10000)),
 		},
-	})
+	}
+
+	createGenericUnsubmittedMoveWithPPMShipment(appCtx, userUploader, ppmInfo)
 }
 
 func createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	/*
 	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
 	 */
-	email := "advance_requested@ppm.unsubmitted"
-	uuidStr := "dd1a3982-1ec4-4e34-a7bd-73cba4f3376a"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smIDPPM := "7a402a11-92a0-4334-b297-551be2bc44ef"
-	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.Must(uuid.FromString(smIDPPM)),
-			UserID:        uuid.Must(uuid.FromString(uuidStr)),
-			FirstName:     models.StringPointer("Minimal"),
-			LastName:      models.StringPointer("PPM"),
-			Edipi:         models.StringPointer("8734145769"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.Must(uuid.FromString(smIDPPM)),
-			ServiceMember:   smWithPPM,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.Must(uuid.FromString("fe322fae-c13e-4961-9956-69fb7a491ad4")),
-			Locator:          "PPMADV",
-			SelectedMoveType: &ppmMoveType,
-		},
-	})
-
-	testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		PPMShipment: models.PPMShipment{
-			ID:                 uuid.Must(uuid.FromString("9160a396-9b60-41c2-af7a-aa03d5002c71")),
+	ppmInfo := ppmCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("dd1a3982-1ec4-4e34-a7bd-73cba4f3376a"),
+		email:       "advance_requested@ppm.unsubmitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("7a402a11-92a0-4334-b297-551be2bc44ef"),
+		firstName:   "Minimal",
+		lastName:    "PPM",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("fe322fae-c13e-4961-9956-69fb7a491ad4"),
+		moveLocator: "PPMADV",
+		ppmShipment: models.PPMShipment{
+			ID:                 testdatagen.ConvertUUIDStringToUUID("9160a396-9b60-41c2-af7a-aa03d5002c71"),
 			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
 			HasProGear:         models.BoolPointer(false),
 			EstimatedIncentive: models.Int32Pointer(int32(10000000)),
 			Advance:            models.CentPointer(unit.Cents(30000)),
 			AdvanceRequested:   models.BoolPointer(true),
 		},
-	})
+	}
+
+	createGenericUnsubmittedMoveWithPPMShipment(appCtx, userUploader, ppmInfo)
 }
 
 func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
