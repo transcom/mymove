@@ -11,16 +11,6 @@ import { useGHCGetMoveHistory } from 'hooks/queries';
 import { formatDateFromIso } from 'shared/formatters';
 import { getHistoryLogEventNameDisplay } from 'constants/historyLogUIDisplayName';
 
-const formatChangedValues = (changedValues) => {
-  return changedValues
-    ? Object.keys(changedValues).map((key) => (
-        <div key={`${key}-${changedValues[key]}`}>
-          {key}: {changedValues[key]}
-        </div>
-      ))
-    : '';
-};
-
 const columns = [
   createHeader(
     'Date & Time',

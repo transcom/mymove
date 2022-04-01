@@ -3,12 +3,9 @@ import { getHistoryLogEventNameDisplay } from './historyLogUIDisplayName';
 describe('historyLogUIDisplay', () => {
   describe('display Submitted orders', () => {
     const item = {
-      changedValues: [
-        {
-          columnName: 'status',
-          columnValue: 'DRAFT',
-        },
-      ],
+      changedValues: {
+        status: 'DRAFT',
+      },
       eventName: 'createOrders',
     };
 
@@ -23,12 +20,9 @@ describe('historyLogUIDisplay', () => {
 
   describe('display Approved service item', () => {
     const item = {
-      changedValues: [
-        {
-          columnName: 'status',
-          columnValue: 'APPROVED',
-        },
-      ],
+      changedValues: {
+        status: 'APPROVED',
+      },
       eventName: 'updateMTOServiceItemStatus',
     };
 
@@ -43,12 +37,9 @@ describe('historyLogUIDisplay', () => {
 
   describe('display Move rejected', () => {
     const item = {
-      changedValues: [
-        {
-          columnName: 'status',
-          columnValue: 'REJECTED',
-        },
-      ],
+      changedValues: {
+        status: 'REJECTED',
+      },
       eventName: 'updateMoveTaskOrderStatus',
     };
 
