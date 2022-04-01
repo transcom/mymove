@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -1153,5 +1154,78 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)
+	})
+}
+
+//
+// DELETE
+//
+
+func (suite *HandlerSuite) TestDeleteShipmentHandler() {
+	suite.Run("Returns 204 when all validations pass", func() {
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(shipment.MoveTaskOrderID, nil)
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := mtoshipmentops.DeleteShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+
+		suite.IsType(&mtoshipmentops.DeleteShipmentNoContent{}, response)
+	})
+
+	suite.Run("Returns 404 when deleter returns NotFoundError", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.NotFoundError{})
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := mtoshipmentops.DeleteShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+		suite.IsType(&mtoshipmentops.DeleteShipmentNotFound{}, response)
+	})
+
+	suite.Run("Returns 500 when deleter returns InternalServerError", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.InternalServerError{})
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := mtoshipmentops.DeleteShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+		suite.IsType(&mtoshipmentops.DeleteShipmentInternalServerError{}, response)
 	})
 }

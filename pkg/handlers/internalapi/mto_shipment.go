@@ -341,16 +341,14 @@ type DeleteShipmentHandler struct {
 func (h DeleteShipmentHandler) Handle(params mtoshipmentops.DeleteShipmentParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-			moveID, err := h.DeleteShipment(appCtx, shipmentID)
+			shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+			_, err := h.DeleteShipment(appCtx, shipmentID)
 			if err != nil {
 				appCtx.Logger().Error("internalapi.DeleteShipmentHandler", zap.Error(err))
 
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewDeleteShipmentNotFound(), err
-				case apperror.ForbiddenError:
-					return mtoshipmentops.NewDeleteShipmentForbidden(), err
 				default:
 					return mtoshipmentops.NewDeleteShipmentInternalServerError(), err
 				}
