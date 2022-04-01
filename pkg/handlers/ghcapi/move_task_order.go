@@ -192,6 +192,72 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 		})
 }
 
+// UpdateMTOStatusServiceCounselingPPMApprovedHandler updates the move status to approved and PPM status to waiting on
+// customer
+type UpdateMTOStatusServiceCounselingPPMApprovedHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
+}
+
+// Handle updates the move status to approved and PPM status to waiting on customer
+func (h UpdateMTOStatusServiceCounselingPPMApprovedHandler) Handle(params movetaskorderops.UpdateMTOStatusServiceCounselingPPMApprovedParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			eTag := params.IfMatch
+
+			// TODO - Revisit authorization for Service Counselor role
+			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+
+			mto, err := h.moveTaskOrderStatusUpdater.UpdateStatusServiceCounselingPPMApproved(appCtx, moveTaskOrderID, eTag)
+
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.UpdateMTOStatusServiceCounselingPPMApprovedHandler error", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingPPMApprovedNotFound(), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(
+						"Unable to complete request",
+						err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest),
+						validate.NewErrors())
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingPPMApprovedUnprocessableEntity().
+						WithPayload(payload), err
+				case apperror.PreconditionFailedError:
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingPPMApprovedPreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				case apperror.ConflictError:
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingPPMApprovedConflict().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				default:
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingPPMApprovedInternalServerError(), err
+				}
+			}
+
+			moveTaskOrderPayload := payloads.Move(mto)
+
+			// Audit
+			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
+			if err != nil {
+				appCtx.Logger().Error("Auditing service error for transitioning move status to approved and PPM status to waiting on customer.", zap.Error(err))
+				return movetaskorderops.NewUpdateMTOStatusServiceCounselingPPMApprovedInternalServerError(), err
+			}
+
+			_, err = event.TriggerEvent(event.Event{
+				EventKey:        event.MoveTaskOrderUpdateEventKey,
+				MtoID:           mto.ID,
+				UpdatedObjectID: mto.ID,
+				EndpointKey:     event.GhcUpdateMTOStatusServiceCounselingPPMApprovedEndpointKey,
+				AppContext:      appCtx,
+				TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
+			})
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.UpdateMTOStatusServiceCounselingPPMApprovedHandler could not generate the event")
+			}
+
+			return movetaskorderops.NewUpdateMTOStatusServiceCounselingPPMApprovedOK().WithPayload(moveTaskOrderPayload), nil
+		})
+}
+
 // UpdateMTOReviewedBillableWeightsAtHandlerFunc provides timestamp for a Move's (MoveTaskOrder's) ReviewedBillableWeightsAt field
 type UpdateMTOReviewedBillableWeightsAtHandlerFunc struct {
 	handlers.HandlerContext

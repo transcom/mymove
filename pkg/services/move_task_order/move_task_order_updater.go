@@ -94,6 +94,72 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 	return move, nil
 }
 
+func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingPPMApproved(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
+	var err error
+	var verrs *validate.Errors
+
+	searchParams := services.MoveTaskOrderFetcherParams{
+		IncludeHidden:   false,
+		MoveTaskOrderID: moveTaskOrderID,
+	}
+	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
+	if err != nil {
+		return &models.Move{}, err
+	}
+
+	// TODO: Put in transaction (or do we assume it is in one from the handler level?)
+
+	// check if status is in the right state
+	// needs to be in MoveStatusNeedsServiceCounseling
+	if move.Status != models.MoveStatusNeedsServiceCounseling {
+		err = errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Cannot move to Approved state when the move is not in a Needs Service Counseling state for status: %s", move.Status))
+
+		return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
+	}
+
+	if len(move.MTOShipments) == 0 {
+		return &models.Move{}, apperror.NewConflictError(move.ID, "No shipments associated with move")
+	}
+
+	ppmOnlyMove := true
+	for _, s := range move.MTOShipments {
+		if s.ShipmentType != models.MTOShipmentTypePPM {
+			ppmOnlyMove = false
+			break
+		}
+	}
+	if !ppmOnlyMove {
+		return &models.Move{}, apperror.NewConflictError(move.ID, "Move should only contain PPM shipments")
+	}
+
+	// set move status to service counseling completed
+	move.Status = models.MoveStatusServiceCounselingCompleted
+
+	// Check the If-Match header against existing eTag before updating
+	encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
+	if encodedUpdatedAt != eTag {
+		return nil, apperror.NewPreconditionFailedError(move.ID, err)
+	}
+
+	verrs, err = appCtx.DB().ValidateAndSave(move)
+	if verrs != nil && verrs.HasAny() {
+		return &models.Move{}, apperror.NewInvalidInputError(move.ID, nil, verrs, "")
+	}
+	if err != nil {
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return nil, apperror.NewPreconditionFailedError(move.ID, err)
+		default:
+			return &models.Move{}, err
+		}
+	}
+
+	// TODO: set PPM shipment status to waiting for customer
+
+	return move, nil
+}
+
 // UpdateReviewedBillableWeightsAt updates the BillableWeightsReviewedAt field on the move (move task order)
 func (o moveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
 	var err error

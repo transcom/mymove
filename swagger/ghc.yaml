@@ -1408,6 +1408,52 @@ paths:
       description: Changes move (move task order) status to service counseling completed
       operationId: updateMTOStatusServiceCounselingCompleted
       summary: Changes move (move task order) status to service counseling completed
+  /move-task-orders/{moveTaskOrderID}/status/service-counseling-ppm-approved:
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: ID of move to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully updated move task order status
+          schema:
+            $ref: '#/definitions/Move'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: >-
+        Changes move (move task order) status to approved and PPM status to
+        waiting on customer
+      operationId: updateMTOStatusServiceCounselingPPMApproved
+      summary: >-
+        Changes move (move task order) status to approved and PPM status to
+        waiting on customer
   /move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status:
     parameters:
       - description: ID of move to use
