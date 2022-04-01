@@ -12,8 +12,8 @@ html {
 //
 .container {
   @include u-bg('white');
-  @include u-padding('2');
-  @include u-margin('3');
+  @include u-padding(2);
+  @include u-margin(3);
   @include u-radius('05');
   &--gray {
     @include u-bg('base-lightest');
@@ -30,7 +30,7 @@ html {
     &--ub,
     &--nts,
     &--ntsr {
-      @include u-radius('0');
+      @include u-radius(0);
     }
 
     &--default {
