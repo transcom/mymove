@@ -4831,7 +4831,7 @@ paths:
       description: Soft deletes a shipment by ID
       operationId: deleteShipment
       tags:
-        - shipment
+        - mtoShipment
       produces:
         - application/json
       parameters:
