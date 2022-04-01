@@ -1,12 +1,17 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ShipmentList from '.';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatWeight } from 'utils/formatters';
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('ShipmentList component', () => {
   const shipments = [
@@ -38,19 +43,45 @@ describe('ShipmentList component', () => {
     expect(wrapper.find('.shipment-list-item-NTS-release span').text()).toBe('#ID-4');
   });
 
-  it('ShipmentList calls onShipmentClick when clicked', () => {
-    const wrapper = mount(<ShipmentList {...defaultProps} />);
-    expect(onShipmentClick.mock.calls.length).toBe(0);
-    wrapper.find('ShipmentListItem').at(0).simulate('click');
-    expect(onShipmentClick.mock.calls.length).toBe(1);
-    wrapper.find('ShipmentListItem').at(1).simulate('click');
-    expect(onShipmentClick.mock.calls.length).toBe(2);
-    wrapper.find('ShipmentListItem').at(2).simulate('click');
-    expect(onShipmentClick.mock.calls.length).toBe(3);
-    const [shipmentOneId, shipmentTwoId, shipmentThreeId] = onShipmentClick.mock.calls;
-    expect(shipmentOneId[0]).toEqual(shipments[0].id);
-    expect(shipmentTwoId[0]).toEqual(shipments[1].id);
-    expect(shipmentThreeId[0]).toEqual(shipments[2].id);
+  it.each([
+    ['Shows', false],
+    ['Hides', true],
+  ])('%s the edit link if moveSubmitted is %s', async (showHideEditLink, moveSubmitted) => {
+    const props = { ...defaultProps, moveSubmitted };
+
+    render(<ShipmentList {...props} />);
+
+    userEvent.click(screen.getByRole('button', { name: /^ppm /i }));
+
+    const checkShipmentClick = (shipmentID, shipmentNumber, shipmentType) => {
+      if (showHideEditLink === 'Shows') {
+        expect(onShipmentClick).toHaveBeenCalledWith(shipmentID, shipmentNumber, shipmentType);
+      } else {
+        expect(onShipmentClick).not.toHaveBeenCalled();
+      }
+    };
+
+    await waitFor(() => {
+      checkShipmentClick('ID-1', 1, SHIPMENT_OPTIONS.PPM);
+    });
+
+    userEvent.click(screen.getByRole('button', { name: /^hhg /i }));
+
+    await waitFor(() => {
+      checkShipmentClick('ID-2', 1, SHIPMENT_OPTIONS.HHG);
+    });
+
+    userEvent.click(screen.getByRole('button', { name: /^nts /i }));
+
+    await waitFor(() => {
+      checkShipmentClick('ID-3', 1, SHIPMENT_OPTIONS.NTS);
+    });
+
+    userEvent.click(screen.getByRole('button', { name: /^nts-release /i }));
+
+    await waitFor(() => {
+      checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
+    });
   });
 });
 
