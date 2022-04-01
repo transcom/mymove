@@ -12,9 +12,9 @@ import { getHistoryLogEventNameDisplay } from 'constants/historyLogUIDisplayName
 
 const formatChangedValues = (changedValues) => {
   return changedValues
-    ? changedValues.map((changedValue) => (
-        <div key={`${changedValue.columnName}-${changedValue.columnValue}`}>
-          {changedValue.columnName}: {changedValue.columnValue}
+    ? Object.keys(changedValues).map((key) => (
+        <div key={`${key}-${changedValues[key]}`}>
+          {key}: {changedValues[key]}
         </div>
       ))
     : '';
