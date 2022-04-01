@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -27,20 +26,12 @@ describe('ShipmentList component', () => {
     moveSubmitted: false,
   };
   it('renders ShipmentList with shipments', () => {
-    const wrapper = mount(<ShipmentList {...defaultProps} />);
-    expect(wrapper.find('ShipmentListItem').length).toBe(4);
-    expect(wrapper.find('.shipment-list-item-PPM').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-PPM strong').text()).toBe('PPM');
-    expect(wrapper.find('.shipment-list-item-PPM span').text()).toBe('#ID-1');
-    expect(wrapper.find('.shipment-list-item-HHG').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-HHG strong').text()).toBe('HHG');
-    expect(wrapper.find('.shipment-list-item-HHG span').text()).toBe('#ID-2');
-    expect(wrapper.find('.shipment-list-item-NTS').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-NTS strong').text()).toBe('NTS');
-    expect(wrapper.find('.shipment-list-item-NTS span').text()).toBe('#ID-3');
-    expect(wrapper.find('.shipment-list-item-NTS-release').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-NTS-release strong').text()).toBe('NTS-release');
-    expect(wrapper.find('.shipment-list-item-NTS-release span').text()).toBe('#ID-4');
+    render(<ShipmentList {...defaultProps} />);
+
+    screen.getByRole('button', { name: /^ppm #id-1/i });
+    screen.getByRole('button', { name: /^hhg #id-2/i });
+    screen.getByRole('button', { name: /^nts #id-3/i });
+    screen.getByRole('button', { name: /^nts-release #id-4/i });
   });
 
   it.each([
