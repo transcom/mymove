@@ -91,6 +91,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 					}
 				}*/
 			} else if h.TableName == "moves" {
+				if h.OldData != nil {
+					oldData := removeEscapeJSON(h.OldData)
+					if len(oldData["tio_remarks"]) == 0 {
+						verifyOldTIORemarks = true
+					}
+				}
 				if *h.ObjectID == approvedMove.ID {
 					if h.ChangedData != nil {
 						changedData := removeEscapeJSON(h.ChangedData)
