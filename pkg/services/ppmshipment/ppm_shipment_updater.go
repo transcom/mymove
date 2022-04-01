@@ -10,10 +10,11 @@ import (
 )
 
 type ppmShipmentUpdater struct {
-	checks []ppmShipmentValidator
+	checks    []ppmShipmentValidator
+	estimator services.PPMEstimator
 }
 
-func NewPPMShipmentUpdater() services.PPMShipmentUpdater {
+func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator) services.PPMShipmentUpdater {
 	return &ppmShipmentUpdater{
 		checks: []ppmShipmentValidator{
 			checkShipmentType(),
@@ -22,6 +23,7 @@ func NewPPMShipmentUpdater() services.PPMShipmentUpdater {
 			checkRequiredFields(),
 			checkAdvance(),
 		},
+		estimator: ppmEstimator,
 	}
 }
 
@@ -48,6 +50,9 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 	if err != nil {
 		return nil, err
 	}
+
+	// Add estimator here
+	// Add check for if the estimator encounters an err, then do not proceed with update
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)

@@ -13,10 +13,11 @@ import (
 type ppmShipmentCreator struct {
 	mtoShipmentCreator services.MTOShipmentCreator
 	checks             []ppmShipmentValidator
+	ppmEstimator       services.PPMEstimator
 }
 
 // NewPPMShipmentCreator creates a new struct with the service dependencies
-func NewPPMShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator) services.PPMShipmentCreator {
+func NewPPMShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmEstimator services.PPMEstimator) services.PPMShipmentCreator {
 	return &ppmShipmentCreator{
 		mtoShipmentCreator: mtoShipmentCreator,
 		checks: []ppmShipmentValidator{
@@ -24,6 +25,7 @@ func NewPPMShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator) servi
 			checkPPMShipmentID(),
 			checkRequiredFields(),
 		},
+		ppmEstimator: ppmEstimator,
 	}
 }
 

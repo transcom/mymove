@@ -21,7 +21,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	// eTag := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
 	suite.Run("UpdatePPMShipment - Success", func() {
 		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
-		ppmShipmentUpdater := NewPPMShipmentUpdater()
+		ppmEstimator := testdatagen.MakeDefaultPPMEstimate
+		ppmShipmentUpdater := NewPPMShipmentUpdater(ppmEstimator)
 
 		newPPM := createDefaultPPMShipment()
 		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), newPPM, oldPPMShipment.ShipmentID)
