@@ -9,6 +9,11 @@ const TextBoxFilter = ({ column: { filterValue, setFilter, id } }) => {
       id={id}
       name={id}
       defaultValue={filterValue || ''}
+      onKeyUp={(e) => {
+        if (e.key === 'Enter') {
+          setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+        }
+      }}
       onBlur={(e) => {
         setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
       }}

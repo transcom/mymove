@@ -19,7 +19,7 @@ const defaultProps = {
   },
   history: { push: () => {}, goBack: () => {} },
   showLoggedInUser: () => {},
-  newDutyStationAddress: {
+  newDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',
@@ -39,6 +39,9 @@ const defaultProps = {
     weight_allotment: {
       total_weight_self: 5000,
     },
+  },
+  orders: {
+    orders_type: 'PERMANENT_CHANGE_OF_STATION',
   },
   isCreatePage: true,
 };
@@ -95,6 +98,8 @@ function renderStory(props) {
 
 // create shipment stories (form should not prefill customer data)
 export const HHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG });
+export const HHGShipmentRetiree = () =>
+  renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG, orders: { orders_type: 'RETIREMENT' } });
 export const NTSReleaseShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR });
 export const NTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS });
 
@@ -116,6 +121,14 @@ export const EditNTSShipment = () =>
     selectedMoveType: SHIPMENT_OPTIONS.NTS,
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
+  });
+
+export const EditShipmentAsSeparatee = () =>
+  renderStory({
+    selectedMoveType: SHIPMENT_OPTIONS.HHG,
+    isCreatePage: false,
+    mtoShipment: mockMtoShipment,
+    orders: { orders_type: 'SEPARATION' },
   });
 
 export const EditHHGShipmentWithSecondaryAddresses = () => {

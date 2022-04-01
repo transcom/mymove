@@ -43,6 +43,10 @@ type MoveAuditHistory struct {
 	// context
 	Context *string `json:"context,omitempty"`
 
+	// id column for the context table the record belongs to
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	ContextID *string `json:"contextId,omitempty"`
+
 	// API endpoint name that was called to make the change
 	EventName *string `json:"eventName,omitempty"`
 

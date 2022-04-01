@@ -66,6 +66,7 @@ const ShipmentAddresses = ({
           destinationAddress ? formatAddress(destinationAddress) : '—',
         ]}
         icon={<FontAwesomeIcon icon="arrow-right" />}
+        data-testid="pickupDestinationAddress"
       />
     </DataTableWrapper>
   );

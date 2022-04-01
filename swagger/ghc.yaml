@@ -2524,6 +2524,11 @@ definitions:
       context:
         type: string
         x-nullable: true
+      contextId:
+        description: id column for the context table the record belongs to
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        type: string
+        x-nullable: true
       eventName:
         description: API endpoint name that was called to make the change
         type: string
@@ -3284,14 +3289,9 @@ definitions:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
       tacType:
-        x-nullable: true
-        allOf:
-          - $ref: '#/definitions/LOAType'
-          - x-nullable: true
+        $ref: '#/definitions/LOATypeNullable'
       sacType:
-        allOf:
-          - $ref: '#/definitions/LOAType'
-          - x-nullable: true
+        $ref: '#/definitions/LOATypeNullable'
       usesExternalVendor:
         type: boolean
         example: false
@@ -4462,6 +4462,17 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
+  LOATypeNullable:
+    description: The Line of accounting (TAC/SAC) type that will be used for the shipment
+    type: string
+    x-go-type:
+      import:
+        package: github.com/transcom/mymove/pkg/swagger/nullable
+      type: String
+    example: HHG
+    enum:
+      - HHG
+      - NTS
   ServiceItemParamName:
     type: string
     enum:

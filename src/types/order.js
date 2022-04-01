@@ -7,12 +7,12 @@ import dimensionTypes from 'constants/dimensionTypes';
 import customerContactTypes from 'constants/customerContactTypes';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 
-export const DestinationDutyStationShape = PropTypes.shape({
+export const DestinationDutyLocationShape = PropTypes.shape({
   name: PropTypes.string,
   address: AddressShape,
 });
 
-export const OriginDutyStationShape = PropTypes.shape({
+export const OriginDutyLocationShape = PropTypes.shape({
   id: PropTypes.string,
   name: PropTypes.string,
   address_id: PropTypes.string,
@@ -40,15 +40,15 @@ export const OrderShape = PropTypes.shape({
   order_type_detail: PropTypes.string,
   tac: PropTypes.string,
   sac: PropTypes.string,
-  destinationDutyLocation: DestinationDutyStationShape,
-  originDutyLocation: OriginDutyStationShape,
+  destinationDutyLocation: DestinationDutyLocationShape,
+  originDutyLocation: OriginDutyLocationShape,
   entitlement: EntitlementShape,
 });
 
 export const OrdersInfoShape = PropTypes.shape({
   id: PropTypes.string,
-  currentDutyLocation: OriginDutyStationShape,
-  newDutyLocation: DestinationDutyStationShape,
+  currentDutyLocation: OriginDutyLocationShape,
+  newDutyLocation: DestinationDutyLocationShape,
   issuedDate: PropTypes.string,
   reportByDate: PropTypes.string,
   departmentIndicator: PropTypes.string,

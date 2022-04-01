@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
-jest.mock('components/DutyStationSearchBox/api', () => ({
+jest.mock('components/DutyLocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
       city: 'Glendale Luke AFB',
@@ -135,7 +135,7 @@ const testProps = {
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
   ],
-  currentStation: {},
+  currentDutyLocation: {},
 };
 
 describe('OrdersInfoForm component', () => {
@@ -174,14 +174,14 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('validates the new duty location against the current duty location', async () => {
-    render(<OrdersInfoForm {...testProps} currentStation={{ name: 'Luke AFB' }} />);
+    render(<OrdersInfoForm {...testProps} currentDutyLocation={{ name: 'Luke AFB' }} />);
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
     userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     userEvent.click(screen.getByLabelText('No'));
 
-    // Test Duty Station Search Box interaction
+    // Test Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
     const selectedOption = await screen.findByText(/Luke/);
     userEvent.click(selectedOption);
@@ -220,7 +220,7 @@ describe('OrdersInfoForm component', () => {
     userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     userEvent.click(screen.getByLabelText('No'));
 
-    // Test Duty Station Search Box interaction
+    // Test Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
     const selectedOption = await screen.findByText(/Luke/);
     userEvent.click(selectedOption);

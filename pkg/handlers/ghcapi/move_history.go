@@ -21,12 +21,12 @@ type GetMoveHistoryHandler struct {
 
 // Handle handles the getMoveHistory by locator request
 func (h GetMoveHistoryHandler) Handle(params moveop.GetMoveHistoryParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			locator := params.Locator
 			if locator == "" {
-				return moveop.NewGetMoveHistoryBadRequest()
+				return moveop.NewGetMoveHistoryBadRequest(), apperror.NewBadDataError("missing required parameter: locator")
 			}
 
 			move, err := h.FetchMoveHistory(appCtx, locator)
@@ -35,13 +35,13 @@ func (h GetMoveHistoryHandler) Handle(params moveop.GetMoveHistoryParams) middle
 				appCtx.Logger().Error("Error retrieving move history by locator", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return moveop.NewGetMoveHistoryNotFound()
+					return moveop.NewGetMoveHistoryNotFound(), err
 				default:
-					return moveop.NewGetMoveHistoryInternalServerError()
+					return moveop.NewGetMoveHistoryInternalServerError(), err
 				}
 			}
 
 			payload := payloads.MoveHistory(move)
-			return moveop.NewGetMoveHistoryOK().WithPayload(payload)
+			return moveop.NewGetMoveHistoryOK().WithPayload(payload), nil
 		})
 }

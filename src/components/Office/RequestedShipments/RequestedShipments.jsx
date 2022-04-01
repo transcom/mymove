@@ -62,7 +62,7 @@ const RequestedShipments = ({
     ntsSac: ordersInfo.NTSsac,
   };
 
-  const shipmentDisplayInfo = (shipment, dutyStationPostal) => {
+  const shipmentDisplayInfo = (shipment, dutyLocationPostal) => {
     const destType = displayDestinationType ? shipmentDestinationTypes[shipment.destinationType] : null;
 
     return {
@@ -70,7 +70,7 @@ const RequestedShipments = ({
       heading: shipmentTypeLabels[shipment.shipmentType],
       isDiversion: shipment.diversion,
       shipmentStatus: shipment.status,
-      destinationAddress: shipment.destinationAddress || dutyStationPostal,
+      destinationAddress: shipment.destinationAddress || dutyLocationPostal,
       destinationType: destType,
       displayDestinationType,
     };
@@ -167,7 +167,7 @@ const RequestedShipments = ({
   // Check that there are Prime-handled shipments before determining if the button should be enabled
   const isButtonEnabled = filterPrimeShipments.length > 0 ? primeShipmentsForApproval : externalVendorShipmentsOnly;
 
-  const dutyStationPostal = { postalCode: ordersInfo.newDutyLocation?.address?.postalCode };
+  const dutyLocationPostal = { postalCode: ordersInfo.newDutyLocation?.address?.postalCode };
 
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
@@ -206,7 +206,7 @@ const RequestedShipments = ({
                       shipmentId={shipment.id}
                       shipmentType={shipment.shipmentType}
                       isSubmitted
-                      displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                      displayInfo={shipmentDisplayInfo(shipment, dutyLocationPostal)}
                       ordersLOA={ordersLOA}
                       errorIfMissing={errorIfMissing[shipment.shipmentType]}
                       showWhenCollapsed={
@@ -278,7 +278,7 @@ const RequestedShipments = ({
                     key={shipment.id}
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
-                    displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
+                    displayInfo={shipmentDisplayInfo(shipment, dutyLocationPostal)}
                     ordersLOA={ordersLOA}
                     showWhenCollapsed={
                       shipment.usesExternalVendor

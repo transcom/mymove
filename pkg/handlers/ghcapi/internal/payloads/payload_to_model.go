@@ -263,15 +263,15 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	}
 
 	var tacType *models.LOAType
-	if mtoShipment.TacType != nil {
-		tt := models.LOAType(*mtoShipment.TacType)
+	if mtoShipment.TacType.Present {
+		tt := models.LOAType(*mtoShipment.TacType.Value)
 		tacType = &tt
 	}
 
 	var sacType *models.LOAType
-	if mtoShipment.SacType != nil {
-		st := models.LOAType(*mtoShipment.SacType)
-		sacType = &st
+	if mtoShipment.SacType.Present {
+		tt := models.LOAType(*mtoShipment.SacType.Value)
+		sacType = &tt
 	}
 
 	var usesExternalVendor bool

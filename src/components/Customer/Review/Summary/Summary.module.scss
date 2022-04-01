@@ -7,25 +7,25 @@
   @include u-margin-bottom(1 !important);
 }
 
-.buttonRight {
-  justify-content: flex-end;
-  padding: 0;
-  vertical-align: baseline;
-
-  @media (min-width: $tablet) {
-    justify-content: center;
-  }
-}
-
 .buttonContainer {
   display: flex;
   align-items: center;
+
+  .buttonRight {
+    justify-content: flex-end;
+    padding: 0;
+    vertical-align: baseline;
+
+    @media (min-width: $tablet) {
+      justify-content: center;
+    }
+  }
 }
 
 .SummarySectionWrapper {
-  @include u-margin-bottom('2');
+  @include u-margin-bottom(2);
 }
 
 .SummarySectionWrapper + .SummarySectionWrapper {
-  @include u-margin-top('4');
+  @include u-margin-top(4);
 }

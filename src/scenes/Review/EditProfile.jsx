@@ -12,7 +12,7 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
-import DutyStationSearchBox from 'components/DutyStationSearchBox/DutyStationSearchBox';
+import DutyLocationSearchBox from 'components/DutyLocationSearchBox/DutyLocationSearchBox';
 import scrollToTop from 'shared/scrollToTop';
 import {
   selectCurrentMove,
@@ -32,9 +32,9 @@ const editProfileFormName = 'edit_profile';
 
 let EditProfileForm = (props) => {
   const { schema, handleSubmit, submitting, valid, moveIsInDraft, initialValues, serviceMember } = props;
-  const currentStation = get(serviceMember, 'current_location');
-  const transportationOfficeName = get(currentStation, 'transportation_office.name');
-  const transportationOfficePhone = get(currentStation, 'transportation_office.phone_lines.0');
+  const currentDutyLocation = get(serviceMember, 'current_location');
+  const transportationOfficeName = get(currentDutyLocation, 'transportation_office.name');
+  const transportationOfficePhone = get(currentDutyLocation, 'transportation_office.phone_lines.0');
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -63,14 +63,14 @@ let EditProfileForm = (props) => {
                   <SwaggerField fieldName="affiliation" swagger={schema} required />
                   <SwaggerField fieldName="rank" swagger={schema} required />
                   <SwaggerField fieldName="edipi" swagger={schema} required />
-                  <Field name="current_location" title="Current duty location" component={DutyStationSearchBox} />
+                  <Field name="current_location" title="Current duty location" component={DutyLocationSearchBox} />
                 </>
               )}
               {!moveIsInDraft && (
                 <ServiceInfoDisplay
                   firstName={initialValues.first_name}
                   lastName={initialValues.last_name}
-                  originDutyStationName={currentStation.name}
+                  originDutyLocationName={currentDutyLocation.name}
                   originTransportationOfficeName={transportationOfficeName}
                   originTransportationOfficePhone={transportationOfficePhone}
                   affiliation={initialValues.affiliation}

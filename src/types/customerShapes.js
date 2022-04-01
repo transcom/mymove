@@ -1,7 +1,7 @@
 import { arrayOf, bool, func, number, object, shape, string } from 'prop-types';
 
 import { AddressShape } from 'types/address';
-import { DutyStationShape } from 'types/dutyStation';
+import { DutyLocationShape } from 'types/dutyLocation';
 
 export const WeightAllotment = shape({
   total_weight_self: number.isRequired,
@@ -54,7 +54,7 @@ export const OrdersShape = shape({
   id: string,
   issue_date: string,
   moves: arrayOf(string),
-  new_duty_location: DutyStationShape,
+  new_duty_location: DutyLocationShape,
   orders_type: string,
   report_by_date: string,
   service_member_id: string,
@@ -105,6 +105,8 @@ export const PPMShipmentShape = shape({
   spouseProGearWeight: number,
   estimatedWeight: number,
   estimatedIncentive: number,
+  advance: number,
+  advanceRequested: bool,
 });
 
 export const MtoShipmentShape = shape({

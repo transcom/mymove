@@ -4,13 +4,13 @@ import { string } from 'prop-types';
 
 import styles from './Contact.module.scss';
 
-const Contact = ({ header, dutyStationName, officeType, telephone }) => (
+const Contact = ({ header, dutyLocationName, officeType, telephone }) => (
   <div className={styles.contactContainer}>
     <h6 className={styles.contactHeader}>{header}</h6>
     <p>
-      {dutyStationName && (
+      {dutyLocationName && (
         <>
-          <strong>{dutyStationName}</strong>
+          <strong>{dutyLocationName}</strong>
           <br />
         </>
       )}
@@ -38,7 +38,7 @@ const Contact = ({ header, dutyStationName, officeType, telephone }) => (
 );
 
 Contact.propTypes = {
-  dutyStationName: string.isRequired,
+  dutyLocationName: string.isRequired,
   header: string.isRequired,
   officeType: string.isRequired,
   telephone: string.isRequired,

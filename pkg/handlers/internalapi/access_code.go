@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/cli"
 	accesscodeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -48,11 +49,15 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 		return accesscodeop.NewFetchAccessCodeOK().WithPayload(&internalmessages.AccessCode{})
 	}
 
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if appCtx.Session() == nil {
-				return accesscodeop.NewFetchAccessCodeUnauthorized()
+				sessionErr := apperror.NewSessionError(
+					"user is not authorized",
+				)
+				appCtx.Logger().Error(sessionErr.Error())
+				return accesscodeop.NewFetchAccessCodeUnauthorized(), sessionErr
 			}
 
 			// Fetch access code
@@ -61,12 +66,12 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving access_code for service member", zap.Error(err))
-				return accesscodeop.NewFetchAccessCodeNotFound()
+				return accesscodeop.NewFetchAccessCodeNotFound(), err
 			}
 
 			fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
-			return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
+			return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload), nil
 		})
 }
 
@@ -78,11 +83,15 @@ type ValidateAccessCodeHandler struct {
 
 // Handle accepts the code - validates the access code
 func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCodeParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if appCtx.Session() == nil {
-				return accesscodeop.NewValidateAccessCodeUnauthorized()
+				sessionErr := apperror.NewSessionError(
+					"user is not authorized",
+				)
+				appCtx.Logger().Error(sessionErr.Error())
+				return accesscodeop.NewValidateAccessCodeUnauthorized(), sessionErr
 			}
 
 			splitParams := strings.Split(*params.Code, "-")
@@ -94,12 +103,12 @@ func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCode
 			if !valid {
 				appCtx.Logger().Warn("Access code not valid")
 				validateAccessCodePayload = &internalmessages.AccessCode{}
-				return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+				return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload), nil
 			}
 
 			validateAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
-			return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+			return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload), nil
 		})
 }
 
@@ -111,21 +120,25 @@ type ClaimAccessCodeHandler struct {
 
 // Handle accepts the code - updates the access code
 func (h ClaimAccessCodeHandler) Handle(params accesscodeop.ClaimAccessCodeParams) middleware.Responder {
-	return h.AuditableAppContextFromRequest(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if appCtx.Session() == nil || appCtx.Session().ServiceMemberID == uuid.Nil {
-				return accesscodeop.NewClaimAccessCodeUnauthorized()
+				sessionErr := apperror.NewSessionError(
+					"claim access code not authorized",
+				)
+				appCtx.Logger().Error(sessionErr.Error())
+				return accesscodeop.NewClaimAccessCodeUnauthorized(), sessionErr
 			}
 
 			accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(appCtx, *params.AccessCode.Code, appCtx.Session().ServiceMemberID)
 
 			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err)
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 
 			accessCodePayload := payloadForAccessCodeModel(*accessCode)
 
-			return accesscodeop.NewClaimAccessCodeOK().WithPayload(accessCodePayload)
+			return accesscodeop.NewClaimAccessCodeOK().WithPayload(accessCodePayload), nil
 		})
 }

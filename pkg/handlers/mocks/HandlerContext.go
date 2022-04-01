@@ -68,12 +68,12 @@ func (_m *HandlerContext) AppNames() auth.ApplicationServername {
 	return r0
 }
 
-// AuditableAppContextFromRequest provides a mock function with given fields: _a0, _a1
-func (_m *HandlerContext) AuditableAppContextFromRequest(_a0 *http.Request, _a1 func(appcontext.AppContext) middleware.Responder) middleware.Responder {
+// AuditableAppContextFromRequestWithErrors provides a mock function with given fields: _a0, _a1
+func (_m *HandlerContext) AuditableAppContextFromRequestWithErrors(_a0 *http.Request, _a1 func(appcontext.AppContext) (middleware.Responder, error)) middleware.Responder {
 	ret := _m.Called(_a0, _a1)
 
 	var r0 middleware.Responder
-	if rf, ok := ret.Get(0).(func(*http.Request, func(appcontext.AppContext) middleware.Responder) middleware.Responder); ok {
+	if rf, ok := ret.Get(0).(func(*http.Request, func(appcontext.AppContext) (middleware.Responder, error)) middleware.Responder); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {

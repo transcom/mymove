@@ -50,7 +50,7 @@ jest.mock('hooks/queries', () => ({
             actionTstampTx: '2022-03-08T18:28:58.152Z',
             changedValues: { postal_code: '90213', updated_at: '2022-03-08T19:08:44.664709' },
             clientQuery:
-              'UPDATE orders\nSET origin_duty_location_id = origin_duty_station_id\nWHERE origin_duty_location_id IS NULL\nAND origin_duty_station_id IS NOT NULL;',
+              'UPDATE "orders" AS orders SET "amended_orders_acknowledged_at" = $1, "department_indicator" = $2, "entitlement_id" = $3, "grade" = $4, "has_dependents" = $5, "issue_date" = $6, "new_duty_location_id" = $7, "nts_sac" = $8, "nts_tac" = $9, "orders_number" = $10, "orders_type" = $11, "orders_type_detail" = $12, "origin_duty_location_id" = $13, "report_by_date" = $14, "sac" = $15, "service_member_id" = $16, "spouse_has_pro_gear" = $17, "status" = $18, "tac" = $19, "updated_at" = $20, "uploaded_amended_orders_id" = $21, "uploaded_orders_id" = $22 WHERE orders.id = $23',
             id: '34752aeb-f658-4afa-b1c0-dcdcb5fb3a73',
             objectId: '18b3725c-529c-4add-811b-7345ece8847f',
             oldValues: {

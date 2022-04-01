@@ -34,10 +34,10 @@ func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 	suite.NoError(err)
 	suite.NotNil(emailInfo)
 	suite.Len(emailInfo, 1)
-	suite.Equal(ppms[0].Move.Orders.NewDutyLocation.Name, emailInfo[0].NewDutyStationName)
+	suite.Equal(ppms[0].Move.Orders.NewDutyLocation.Name, emailInfo[0].NewDutyLocationName)
 	suite.NotNil(emailInfo[0].Email)
 	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
-	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyLocation.Name, emailInfo[0].DutyStationName)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyLocation.Name, emailInfo[0].DutyLocationName)
 }
 
 func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
@@ -104,17 +104,18 @@ func (suite *NotificationSuite) TestHTMLTemplateRender() {
 	mr, err := NewMoveReviewed(onDate)
 	suite.NoError(err)
 	s := moveReviewedEmailData{
-		Link:                   "www.survey",
-		OriginDutyStation:      "OriginDutyLocation",
-		DestinationDutyStation: "DestDutyStation",
+		Link:                    "www.survey",
+		OriginDutyLocation:      "OriginDutyLocation",
+		DestinationDutyLocation: "DestDutyLocation",
 	}
-	expectedHTMLContent := `<p><strong>Good news:</strong> Your move from OriginDutyLocation to DestDutyStation has been processed for payment.</p>
+	expectedHTMLContent := `<p><strong>Good news:</strong> Your move from OriginDutyLocation to DestDutyLocation has been processed for payment.</p>
 
 <p>Can we ask a quick favor? <a href="www.survey"> Tell us about your experience</a> with requesting and receiving payment.</p>
 
 <p>We'll use your feedback to make MilMove better for your fellow service members.</p>
 
-<p>Thank you for your thoughts, and <strong>congratulations on your move.</strong></p>`
+<p>Thank you for your thoughts, and <strong>congratulations on your move.</strong></p>
+`
 
 	htmlContent, err := mr.RenderHTML(suite.AppContextForTest(), s)
 
@@ -129,17 +130,18 @@ func (suite *NotificationSuite) TestTextTemplateRender() {
 	mr, err := NewMoveReviewed(onDate)
 	suite.NoError(err)
 	s := moveReviewedEmailData{
-		Link:                   "www.survey",
-		OriginDutyStation:      "OriginDutyLocation",
-		DestinationDutyStation: "DestDutyStation",
+		Link:                    "www.survey",
+		OriginDutyLocation:      "OriginDutyLocation",
+		DestinationDutyLocation: "DestDutyLocation",
 	}
-	expectedTextContent := `Good news: Your move from OriginDutyLocation to DestDutyStation has been processed for payment.
+	expectedTextContent := `Good news: Your move from OriginDutyLocation to DestDutyLocation has been processed for payment.
 
 Can we ask a quick favor? Tell us about your experience with requesting and receiving payment at www.survey.
 
 We'll use your feedback to make MilMove better for your fellow service members.
 
-Thank you for your thoughts, and congratulations on your move.`
+Thank you for your thoughts, and congratulations on your move.
+`
 
 	textContent, err := mr.RenderText(suite.AppContextForTest(), s)
 
@@ -156,23 +158,23 @@ func (suite *NotificationSuite) TestFormatEmails() {
 	email2 := "email2"
 	emailInfos := EmailInfos{
 		{
-			Email:              &email1,
-			DutyStationName:    "d1",
-			NewDutyStationName: "nd2",
-			Locator:            "abc123",
+			Email:               &email1,
+			DutyLocationName:    "d1",
+			NewDutyLocationName: "nd2",
+			Locator:             "abc123",
 		},
 		{
-			Email:              &email2,
-			DutyStationName:    "d2",
-			NewDutyStationName: "nd2",
-			Locator:            "abc456",
+			Email:               &email2,
+			DutyLocationName:    "d2",
+			NewDutyLocationName: "nd2",
+			Locator:             "abc456",
 		},
 		{
 			// nil emails should be skipped
-			Email:              nil,
-			DutyStationName:    "d2",
-			NewDutyStationName: "nd2",
-			Locator:            "abc788",
+			Email:               nil,
+			DutyLocationName:    "d2",
+			NewDutyLocationName: "nd2",
+			Locator:             "abc788",
 		},
 	}
 
@@ -182,9 +184,9 @@ func (suite *NotificationSuite) TestFormatEmails() {
 	for i, actualEmailContent := range formattedEmails {
 		emailInfo := emailInfos[i]
 		data := moveReviewedEmailData{
-			Link:                   surveyLink,
-			OriginDutyStation:      emailInfo.DutyStationName,
-			DestinationDutyStation: emailInfo.NewDutyStationName,
+			Link:                    surveyLink,
+			OriginDutyLocation:      emailInfo.DutyLocationName,
+			DestinationDutyLocation: emailInfo.NewDutyLocationName,
 		}
 		htmlBody, err := mr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)
