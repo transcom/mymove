@@ -112,12 +112,15 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 }
 
 func removeEscapeJSON(data *string) map[string]string {
-	stringData := *data
-	var byteData = []byte(stringData)
-
 	var result map[string]string
+	if data == nil || *data == "" {
+		return result
+	}
+	var byteData = []byte(*data)
+
 	_ = json.Unmarshal(byteData, &result)
 	return result
+
 }
 
 func moveHistoryRecords(auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
