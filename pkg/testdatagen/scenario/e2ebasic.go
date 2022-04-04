@@ -3829,9 +3829,9 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createMoveWithSinceParamater(appCtx, userUploader)
 	createMoveWithTaskOrderServices(appCtx, userUploader)
 	createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx, userUploader)
-	createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
-	createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
-	createUnsubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
+	createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
+	createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
+	createUnSubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
 
 	// TIO
 	createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx, userUploader, "NTSRT1")
