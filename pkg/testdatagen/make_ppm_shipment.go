@@ -11,10 +11,13 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// checkOrCreateMTOShipment checks MTOShipment in assertions, or creates one if none exists. Caller can specify if this
-// should create a minimal or full MTOShipment.
-func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions, minimalMTOShipment bool) models.MTOShipment {
+// checkOrCreateMTOShipment checks MTOShipment in assertions, or creates one if none exists.
+func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
 	shipment := assertions.MTOShipment
+
+	if shipment.ShipmentType != "" && shipment.ShipmentType != models.MTOShipmentTypePPM {
+		log.Panicf("Expected asserted MTOShipment to be of type %s but instead got type %s", models.MTOShipmentTypePPM, shipment.ShipmentType)
+	}
 
 	if isZeroUUID(shipment.ID) {
 		assertions.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
@@ -23,15 +26,7 @@ func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions, minimal
 			assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
 		}
 
-		if minimalMTOShipment {
-			assertions.MTOShipment.RequestedPickupDate = nil
-
-			shipment = MakeMTOShipmentMinimal(db, assertions)
-		} else {
-			shipment = MakeMTOShipment(db, assertions) // has some fields that we may want to clear out like pickup dates and addresses
-		}
-	} else if shipment.ShipmentType != models.MTOShipmentTypePPM {
-		log.Panicf("Expected asserted MTOShipment to be of type %s but instead got type %s", models.MTOShipmentTypePPM, shipment.ShipmentType)
+		shipment = MakeBaseMTOShipment(db, assertions)
 	}
 
 	return shipment
@@ -72,7 +67,7 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 
 // MakePPMShipment creates a single PPMShipment and associated relationships
 func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	shipment := checkOrCreateMTOShipment(db, assertions, false)
+	shipment := checkOrCreateMTOShipment(db, assertions)
 
 	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
 	estimatedWeight := unit.Pound(4000)
@@ -128,7 +123,7 @@ func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PP
 		assertions.MTOShipment.Status = models.MTOShipmentStatusDraft
 	}
 
-	shipment := checkOrCreateMTOShipment(db, assertions, true)
+	shipment := checkOrCreateMTOShipment(db, assertions)
 
 	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
 
