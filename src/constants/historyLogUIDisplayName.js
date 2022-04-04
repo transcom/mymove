@@ -73,7 +73,7 @@ export const eventNamePlainTextToDisplay = {
       ? 'Move flagged for financial review'
       : 'Move unflagged for financial review';
   },
-  requestShipmentCancellation: () => 'Shipment cancelled',
+  requestShipmentCancellation: (_, oldValues) => `Requested cancellation for ${oldValues.shipment_type} shipment`,
   updateMoveTaskOrderStatus: (changedValues) => {
     return changedValues.status === 'APPROVED' ? 'Created Move Task Order (MTO)' : 'Rejected Move Task Order (MTO)';
   },
