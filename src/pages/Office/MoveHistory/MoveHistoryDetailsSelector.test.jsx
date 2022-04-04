@@ -39,6 +39,6 @@ describe('MoveHistoryDetailsSelector', () => {
   ])('for event name %s it renders %s', (eventName, text, oldValues, changedValues) => {
     render(<MoveHistoryDetailsSelector eventName={eventName} oldValues={oldValues} changedValues={changedValues} />);
 
-    expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(text)).toBeInTheDocument();
   });
 });

@@ -18,35 +18,11 @@ describe('PlainTextDetails', () => {
       { shipment_type: 'HHG' },
       {},
     ],
-    [
-      'requestShipmentCancellation',
-      `Requested cancellation for ${shipmentOptionToDisplay.HHG_OUTOF_NTS_DOMESTIC} shipment`,
-      { shipment_type: 'HHG_OUTOF_NTS_DOMESTIC' },
-      {},
-    ],
-    [
-      'requestShipmentCancellation',
-      `Requested cancellation for ${shipmentOptionToDisplay.HHG_INTO_NTS_DOMESTIC} shipment`,
-      { shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
-      {},
-    ],
-    [
-      'requestShipmentCancellation',
-      `Requested cancellation for ${shipmentOptionToDisplay.PPM} shipment`,
-      { shipment_type: 'PPM' },
-      {},
-    ],
-    [
-      'requestShipmentCancellation',
-      `Requested cancellation for ${shipmentOptionToDisplay.HHG_SHORTHAUL_DOMESTIC} shipment`,
-      { shipment_type: 'HHG_SHORTHAUL_DOMESTIC' },
-      {},
-    ],
     ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', {}, { status: 'APPROVED' }],
     ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', {}, { status: 'REJECTED' }],
   ])('for event name %s it renders %s', (eventName, text, oldValues, changedValues) => {
     render(<PlainTextDetails eventName={eventName} oldValues={oldValues} changedValues={changedValues} />);
 
-    expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(text)).toBeInTheDocument();
   });
 });
