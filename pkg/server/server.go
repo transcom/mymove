@@ -117,9 +117,9 @@ func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 			// RA: Why code valuable: It allows us to ensure we error if missing expected client certs.
 			// RA: Mitigation: The deprecation notes this is a problem when reading SystemCertPool, but we do not use this here and are building up our own cert pool instead.
 			// RA Developer Status: Mitigated
-			// RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-			// RA Validator:
-			// RA Modified Severity:
+			// RA Validator Status: Mitigated
+			// RA Validator: leodis.f.scott.civ@mail.mil
+			// RA Modified Severity: CAT III
 			// nolint:staticcheck
 			if input.ClientCAs == nil || len(input.ClientCAs.Subjects()) == 0 {
 				return nil, ErrMissingCACert
