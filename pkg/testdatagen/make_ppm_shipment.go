@@ -19,7 +19,7 @@ func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions) models.
 		log.Panicf("Expected asserted MTOShipment to be of type %s but instead got type %s", models.MTOShipmentTypePPM, shipment.ShipmentType)
 	}
 
-	if isZeroUUID(shipment.ID) {
+	if !assertions.Stub && shipment.CreatedAt.IsZero() || shipment.ID.IsNil() {
 		assertions.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
 
 		if assertions.MTOShipment.Status == "" {
