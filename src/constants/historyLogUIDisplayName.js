@@ -1,6 +1,25 @@
 import PropTypes from 'prop-types';
 
-export const HistoryLogValuesShape = PropTypes.object;
+export const HistoryLogValuesShape = PropTypes.shape({
+  updated_dat: PropTypes.string,
+  diversion: PropTypes.string,
+  billable_weight_cap: PropTypes.string,
+  uses_external_vendor: PropTypes.string,
+  requested_delivery_date: PropTypes.string,
+  scheduled_pickup_date: PropTypes.string,
+  status: PropTypes.string,
+  customer_remarks: PropTypes.string,
+  approved_dat: PropTypes.string,
+  actual_pickup_date: PropTypes.string,
+  prime_estimated_weight: PropTypes.string,
+  counselor_remarks: PropTypes.string,
+  street_address_1: PropTypes.string,
+  street_address_2: PropTypes.string,
+  street_address_3: PropTypes.string,
+  postal_code: PropTypes.string,
+  city: PropTypes.string,
+  country: PropTypes.string,
+});
 
 /*
 const modelToDisplayName = {
