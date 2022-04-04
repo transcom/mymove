@@ -74,6 +74,8 @@ export class Home extends Component {
     this.state = {
       showDeleteModal: false,
       targetShipmentId: null,
+      showDeleteSuccessAlert: false,
+      showDeleteErrorAlert: false,
     };
   }
 
@@ -250,11 +252,17 @@ export class Home extends Component {
       .then(() => {
         getMTOShipmentsForMove(move.id).then((response) => {
           updateShipmentList(response);
+          this.setState({
+            showDeleteSuccessAlert: true,
+            showDeleteErrorAlert: false,
+          });
         });
       })
       .catch(() => {
-        // review how error handling is generally done
-        // console.log(err);
+        this.setState({
+          showDeleteErrorAlert: true,
+          showDeleteSuccessAlert: false,
+        });
       })
       .finally(() => {
         this.setState({ showDeleteModal: false });
@@ -298,7 +306,7 @@ export class Home extends Component {
       uploadedOrderDocuments,
     } = this.props;
 
-    const { showDeleteModal, targetShipmentId } = this.state;
+    const { showDeleteModal, targetShipmentId, showDeleteSuccessAlert, showDeleteErrorAlert } = this.state;
 
     // early return if loading user/service member
     if (!serviceMember) {
@@ -347,6 +355,16 @@ export class Home extends Component {
             </div>
           </header>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+            {showDeleteSuccessAlert && (
+              <Alert slim type="success">
+                The shipment was deleted.
+              </Alert>
+            )}
+            {showDeleteErrorAlert && (
+              <Alert slim type="error">
+                Something went wrong, and your changes were not saved. Please try again later or contact your counselor.
+              </Alert>
+            )}
             <ConnectedFlashMessage />
 
             {isProfileComplete && (
