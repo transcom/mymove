@@ -57,7 +57,7 @@ export function entitiesReducer(state = initialState, action) {
   if (action.type === 'UPDATE_MTO_SHIPMENTS_ENTITIY') {
     return {
       ...state,
-      mtoShipments: action.entities['mtoShipments'],
+      mtoShipments: action.entities['mtoShipments'] || {},
     };
   }
   if (action.type === ADD_ENTITIES) {
