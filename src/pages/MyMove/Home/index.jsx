@@ -47,6 +47,9 @@ import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } f
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import { shipmentTypes } from 'constants/shipments';
+import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
+import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
+import { updateMTOShipments } from 'store/entities/actions';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -66,6 +69,14 @@ Description.defaultProps = {
 };
 
 export class Home extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showDeleteModal: false,
+      targetShipmentId: null,
+    };
+  }
+
   componentDidMount() {
     const { move, getSignedCertification } = this.props;
     if (Object.entries(move).length && move.status === MOVE_STATUSES.SUBMITTED) {
@@ -195,6 +206,12 @@ export class Home extends Component {
     );
   };
 
+  hideDeleteModal = () => {
+    this.setState({
+      showDeleteModal: false,
+    });
+  };
+
   handleShipmentClick = (shipmentId, shipmentNumber, shipmentType) => {
     const { move, history } = this.props;
     let queryString = '';
@@ -217,6 +234,31 @@ export class Home extends Component {
     }
 
     history.push(destLink);
+  };
+
+  handleDeleteClick = (shipmentId) => {
+    this.setState({
+      showDeleteModal: true,
+      targetShipmentId: shipmentId,
+    });
+  };
+
+  handleDeleteShipmentConfirmation = (shipmentId) => {
+    const { move, updateShipmentList } = this.props;
+    // TODO: add toast msgs
+    deleteMTOShipment(shipmentId)
+      .then(() => {
+        getMTOShipmentsForMove(move.id).then((response) => {
+          updateShipmentList(response);
+        });
+      })
+      .catch(() => {
+        // review how error handling is generally done
+        // console.log(err);
+      })
+      .finally(() => {
+        this.setState({ showDeleteModal: false });
+      });
   };
 
   handleNewPathClick = (path) => {
@@ -256,6 +298,8 @@ export class Home extends Component {
       uploadedOrderDocuments,
     } = this.props;
 
+    const { showDeleteModal, targetShipmentId } = this.state;
+
     // early return if loading user/service member
     if (!serviceMember) {
       return (
@@ -286,6 +330,13 @@ export class Home extends Component {
     return (
       <>
         <ScrollToTop />
+        {showDeleteModal && (
+          <SCRequestShipmentCancellationModal
+            shipmentID={targetShipmentId}
+            onClose={this.hideDeleteModal}
+            onSubmit={this.handleDeleteShipmentConfirmation}
+          />
+        )}
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
             <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -369,6 +420,7 @@ export class Home extends Component {
                         <ShipmentList
                           shipments={allSortedShipments}
                           onShipmentClick={this.handleShipmentClick}
+                          onDeleteClick={this.handleDeleteClick}
                           moveSubmitted={this.hasSubmittedMove}
                         />
                       </div>
@@ -445,6 +497,7 @@ Home.propTypes = {
     created_at: string,
   }),
   getSignedCertification: func.isRequired,
+  updateShipmentList: func.isRequired,
 };
 
 Home.defaultProps = {
@@ -476,6 +529,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {
   getSignedCertification: getSignedCertificationAction,
+  updateShipmentList: updateMTOShipments,
 };
 
 // in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail
