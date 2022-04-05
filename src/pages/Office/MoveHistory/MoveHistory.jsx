@@ -54,15 +54,15 @@ const columns = [
 ];
 
 const MoveHistory = ({ moveCode }) => {
-  const useGetMoveHistoryQuery = () => {
-    return useGHCGetMoveHistory(moveCode);
+  const useGetMoveHistoryQuery = ({ currentPage, currentPageSize }) => {
+    return useGHCGetMoveHistory({ moveCode, currentPage, currentPageSize });
   };
 
   return (
     <div className={styles.MoveHistoryTable}>
       <TableQueue
         showFilters={false}
-        showPagination={false}
+        showPagination
         disableSortBy
         columns={columns}
         title="Move history"
