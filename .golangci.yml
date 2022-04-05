@@ -1,6 +1,4 @@
 linters-settings:
-  govet:
-    check-shadowing: true
   goimports:
     # put imports beginning with prefix after 3rd-party packages;
     # it's a comma-separated list of prefixes
@@ -28,21 +26,23 @@ linters-settings:
             recommendations:
               - github.com/benbjohnson/clock
             reason: "facebookgo/clock is archived and inactive, recommend using original fork repo"
+  govet:
+    check-shadowing: true
 linters:
   enable:
     - deadcode
+    - errcheck
     - gofmt
     - goimports
-    - revive
+    - gomodguard
     - gosec
     - govet
     - ineffassign
+    - revive
+    - staticcheck
     - structcheck
     - typecheck
     - varcheck
-    - gomodguard
-    - errcheck
-    - staticcheck
   fast: false
 issues:
   fix: true
@@ -57,3 +57,10 @@ run:
     - pkg/gen
     - mocks
   skip-dirs-use-default: true
+  # Setting this to 1.17 for now instead of letting golangci-lint auto-detect 1.18 since golangci-lint turns off
+  # several linters we use due to 1.18 compatibility issues. Once those are sorted out in later versions of
+  # golangci-lint and the corresponding linters, we should be able to remove this line. We may also experience linter
+  # issues if we start using generics before then. Follow https://github.com/golangci/golangci-lint/issues/2649 for
+  # more info. To see which of our linters are turned off, remove this line and run `pre-commit run -a --verbose
+  # golangci-lint`.
+  go: '1.17'

@@ -6066,6 +6066,51 @@ func createMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 		},
 	})
 }
+func createMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+	db := appCtx.DB()
+	submittedAt := time.Now()
+	ntsrMoveType := models.SelectedMoveTypeNTSR
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: true,
+		},
+		Order: models.Order{
+			OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		},
+	})
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:          locator,
+			Status:           models.MoveStatusSUBMITTED,
+			SelectedMoveType: &ntsrMoveType,
+			SubmittedAt:      &submittedAt,
+		},
+		Order: orders,
+	})
+
+	// Makes a basic HHG shipment to reflect likely real scenario
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+		},
+	})
+
+	testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status:             models.MTOShipmentStatusSubmitted,
+			UsesExternalVendor: usesExternalVendor,
+		},
+	})
+}
 
 func createMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
 	db := appCtx.DB()
@@ -6092,7 +6137,37 @@ func createMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 	testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:       models.MTOShipmentTypeHHGIntoNTSDom,
+			Status:             models.MTOShipmentStatusSubmitted,
+			UsesExternalVendor: usesExternalVendor,
+		},
+	})
+}
+
+func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
+	db := appCtx.DB()
+	submittedAt := time.Now()
+	ntsrMoveType := models.SelectedMoveTypeNTSR
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: true,
+		},
+		Order: models.Order{
+			OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		},
+	})
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:          locator,
+			Status:           models.MoveStatusSUBMITTED,
+			SelectedMoveType: &ntsrMoveType,
+			SubmittedAt:      &submittedAt,
+		},
+		Order: orders,
+	})
+
+	testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
 			Status:             models.MTOShipmentStatusSubmitted,
 			UsesExternalVendor: usesExternalVendor,
 		},

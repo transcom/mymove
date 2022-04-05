@@ -4526,8 +4526,11 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
@@ -4564,8 +4567,11 @@ func init() {
         },
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
@@ -11426,8 +11432,11 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
@@ -11464,8 +11473,11 @@ func init() {
         },
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
