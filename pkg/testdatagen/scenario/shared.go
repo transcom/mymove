@@ -659,7 +659,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	}
 }
 
-func createGenericUnSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo moveCreatorInfo, assertions testdatagen.Assertions) models.Move {
+func createGenericUnSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo moveCreatorInfo, useMinimalPPMShipment bool, assertions testdatagen.Assertions) models.Move {
 	if assertions.PPMShipment.ID.IsNil() {
 		log.Panic("PPMShipment ID cannot be nil.")
 	}
@@ -672,7 +672,11 @@ func createGenericUnSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, m
 
 	testdatagen.MergeModels(&fullAssertions, assertions)
 
-	testdatagen.MakeMinimalPPMShipment(appCtx.DB(), fullAssertions)
+	if useMinimalPPMShipment {
+		testdatagen.MakeMinimalPPMShipment(appCtx.DB(), fullAssertions)
+	} else {
+		testdatagen.MakePPMShipment(appCtx.DB(), fullAssertions)
+	}
 
 	return move
 }
@@ -698,7 +702,7 @@ func createUnSubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, u
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, assertions)
+	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
 }
 
 func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -725,7 +729,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appconte
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, assertions)
+	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
 }
 
 func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -754,7 +758,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, assertions)
+	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
 }
 
 func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
@@ -762,60 +766,28 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 	/*
 	 * A service member with orders and a submitted move with a ppm
 	 */
-	email := "user@ppm"
-	uuidStr := "28837508-1942-4188-a7ef-a7b544309ea6"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("28837508-1942-4188-a7ef-a7b544309ea6"),
+		email:       "user@ppm",
+		smID:        testdatagen.ConvertUUIDStringToUUID("c29418e5-5d69-498d-9709-b493d5bbc814"),
+		firstName:   "Submitted",
+		lastName:    "PPM",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("5174fd6c-3cab-4304-b4b3-89bd0f59b00b"),
+		moveLocator: "PPM001",
+	}
 
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smIDPPM := "c29418e5-5d69-498d-9709-b493d5bbc814"
-	smWithPPM := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.Must(uuid.FromString(smIDPPM)),
-			UserID:        uuid.Must(uuid.FromString(uuidStr)),
-			FirstName:     models.StringPointer("Submitted"),
-			LastName:      models.StringPointer("Ppm"),
-			Edipi:         models.StringPointer("7598050675"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.Must(uuid.FromString(smIDPPM)),
-			ServiceMember:   smWithPPM,
-		},
+	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.Must(uuid.FromString("5174fd6c-3cab-4304-b4b3-89bd0f59b00b")),
-			Locator:          "PPM001",
-			SelectedMoveType: &ppmMoveType,
-		},
-	})
-
-	mtoShipment := testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
-			ID:           uuid.Must(uuid.FromString("933d1c2b-5b90-4dfd-b363-5ff9a7e2b43a")),
-			ShipmentType: models.MTOShipmentTypePPM,
+			ID: testdatagen.ConvertUUIDStringToUUID("933d1c2b-5b90-4dfd-b363-5ff9a7e2b43a"),
 		},
-		Move: move,
-	})
-
-	testdatagen.MakePPMShipment(db, testdatagen.Assertions{
-		Move:         move,
-		UserUploader: userUploader,
-		MTOShipment:  mtoShipment,
 		PPMShipment: models.PPMShipment{
-			ID: uuid.Must(uuid.FromString("0914dfa2-6988-4a12-82b1-2586fb4aa8c7")),
+			ID:     testdatagen.ConvertUUIDStringToUUID("0914dfa2-6988-4a12-82b1-2586fb4aa8c7"),
+			Status: models.PPMShipmentStatusDraft,
 		},
-	})
+	}
+
+	move := createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
