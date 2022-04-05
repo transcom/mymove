@@ -383,6 +383,15 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 		// Create a move with only an NTS external vendor-handled shipment
 		createMoveWithNTSShipment(appCtx, "NTSNTS", true)
 
+		// Create a move with an HHG and NTS-release prime-handled shipment
+		createMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
+
+		// Create a move with an HHG and NTS-release external vendor-handled shipment
+		createMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
+
+		// Create a move with only an NTS-release external vendor-handled shipment
+		createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
+
 		// Create some submitted Moves for TXO users
 		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter)
 		createMoveWithHHGAndNTSMissingInfo(appCtx, moveRouter)
