@@ -8,7 +8,12 @@ import { shipmentOptionToDisplay } from 'constants/historyLogUIDisplayName';
 describe('PlainTextDetails', () => {
   it.each([
     ['approveShipment', 'Approved shipment', {}, {}],
-    ['requestShipmentDiversion', 'Requested diversion', {}, {}],
+    [
+      'requestShipmentDiversion',
+      `Requested diversion for ${shipmentOptionToDisplay.HHG} shipment`,
+      { shipment_type: 'HHG' },
+      {},
+    ],
     ['updateMTOServiceItemStatus', 'Service item status', {}, {}],
     ['setFinancialReviewFlag', 'Move flagged for financial review', {}, { financial_review_flag: 'true' }],
     ['setFinancialReviewFlag', 'Move unflagged for financial review', {}, { financial_review_flag: 'false' }],
