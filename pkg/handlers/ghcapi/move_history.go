@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
@@ -19,17 +20,22 @@ type GetMoveHistoryHandler struct {
 	services.MoveHistoryFetcher
 }
 
-// Handle handles the getMoveHistory by locator request
+// Handle handles the paged getMoveHistory by locator request
 func (h GetMoveHistoryHandler) Handle(params moveop.GetMoveHistoryParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			locator := params.Locator
-			if locator == "" {
+			if params.Locator == "" {
 				return moveop.NewGetMoveHistoryBadRequest(), apperror.NewBadDataError("missing required parameter: locator")
 			}
 
-			move, err := h.FetchMoveHistory(appCtx, locator)
+			moveHistoryRequestParams := services.FetchMoveHistoryParams{
+				Locator: params.Locator,
+				Page:    params.Page,
+				PerPage: params.PerPage,
+			}
+
+			moveHistory, totalCount, err := h.FetchMoveHistory(appCtx, &moveHistoryRequestParams)
 
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving move history by locator", zap.Error(err))
@@ -41,7 +47,18 @@ func (h GetMoveHistoryHandler) Handle(params moveop.GetMoveHistoryParams) middle
 				}
 			}
 
-			payload := payloads.MoveHistory(move)
-			return moveop.NewGetMoveHistoryOK().WithPayload(payload), nil
+			historyRecords := payloads.MoveHistory(moveHistory)
+
+			result := &ghcmessages.MoveHistoryResult{
+				Page:           *moveHistoryRequestParams.Page,
+				PerPage:        *moveHistoryRequestParams.PerPage,
+				TotalCount:     totalCount,
+				ID:             historyRecords.ID,
+				HistoryRecords: historyRecords.HistoryRecords,
+				Locator:        historyRecords.Locator,
+				ReferenceID:    historyRecords.ReferenceID,
+			}
+
+			return moveop.NewGetMoveHistoryOK().WithPayload(result), nil
 		})
 }
