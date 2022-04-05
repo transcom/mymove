@@ -113,6 +113,10 @@ export const historyLogEventNameDisplay = {
   createMTOServiceItem: 'Requested service item', // prime.yaml
 };
 
+export const shipmentTypeDetails = {
+  approveShipmentDiversion: 'Approved shipment',
+};
+
 export function getHistoryLogEventNameDisplay({ eventName /* operationId */, changedValues }) {
   switch (eventName) {
     case 'updateMTOServiceItemStatus': {
@@ -134,6 +138,9 @@ export function getHistoryLogEventNameDisplay({ eventName /* operationId */, cha
         default:
           return '';
       }
+    }
+    case 'approveShipmentDiversion': {
+      return 'Approved shipment';
     }
     default:
       return historyLogEventNameDisplay[eventName];

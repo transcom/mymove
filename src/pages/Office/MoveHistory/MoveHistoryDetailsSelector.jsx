@@ -8,6 +8,7 @@ import {
   eventNamesWithServiceItemDetails,
   eventNamesWithPlainTextDetails,
   HistoryLogValuesShape,
+  shipmentTypeDetails,
 } from 'constants/historyLogUIDisplayName';
 
 const formatChangedValues = (values) => {
@@ -43,6 +44,10 @@ const MoveHistoryDetailsSelector = ({ eventName, oldValues, changedValues }) => 
 
   if (eventNamesWithPlainTextDetails[eventName]) {
     return <PlainTextDetails eventName={eventName} changedValues={changedValues} />;
+  }
+
+  if (shipmentTypeDetails[eventName]) {
+    return <div>{oldValues.shipment_type} shipment</div>;
   }
 
   return (
