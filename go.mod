@@ -1,6 +1,6 @@
 module github.com/transcom/mymove
 
-go 1.17
+go 1.18
 
 require (
 	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
@@ -10,7 +10,7 @@ require (
 	github.com/XSAM/otelsql v0.12.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.43.25
+	github.com/aws/aws-sdk-go v1.43.33
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
