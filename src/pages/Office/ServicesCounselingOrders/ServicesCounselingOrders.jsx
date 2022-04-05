@@ -11,7 +11,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
-import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
+import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -22,7 +23,9 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { TAC_VALIDATION_ACTIONS, reducer, initialState } from 'reducers/tacValidation';
 import { LOA_TYPE } from 'shared/constants';
 
+const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
+const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 
 const validationSchema = Yup.object({
   originDutyLocation: Yup.object().defined('Required'),
@@ -33,7 +36,12 @@ const validationSchema = Yup.object({
   reportByDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
+  departmentIndicator: Yup.string().required('Required'),
+  ordersNumber: Yup.string().required('Required'),
   ordersType: Yup.string().required('Required'),
+  ordersTypeDetail: Yup.string().required('Required'),
+  tac: Yup.string().min(4, 'Enter a 4-character TAC').required('Required'),
+  sac: Yup.string().required('Required'),
 });
 
 const ServicesCounselingOrders = () => {
@@ -145,6 +153,8 @@ const ServicesCounselingOrders = () => {
     reportByDate: order?.report_by_date,
     departmentIndicator: order?.department_indicator,
     ordersType: order?.order_type,
+    ordersNumber: order?.order_number || '',
+    ordersTypeDetail: order?.order_type_detail,
     tac: order?.tac,
     sac: order?.sac,
     ntsTac: order?.ntsTac,
@@ -185,10 +195,9 @@ const ServicesCounselingOrders = () => {
                 </div>
                 <div className={styles.body}>
                   <OrdersDetailForm
+                    deptIndicatorOptions={deptIndicatorDropdownOptions}
                     ordersTypeOptions={ordersTypeDropdownOptions}
-                    showDepartmentIndicator={false}
-                    showOrdersNumber={false}
-                    showOrdersTypeDetail={false}
+                    ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
                     ordersType={order.order_type}
                     setFieldValue={formik.setFieldValue}
                     hhgTacWarning={hhgTacWarning}
