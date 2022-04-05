@@ -104,6 +104,8 @@ func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *upload
 		createUnSubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
 		createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 		createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
+		createUnSubmittedMoveWithFinishedPPMShipment(appCtx, userUploader)
+		createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
 	}
 }

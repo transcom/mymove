@@ -116,10 +116,6 @@ func MakeStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
 
 // MakeMinimalPPMShipment creates a single PPMShipment and associated relationships with a minimal set of data
 func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	if assertions.MTOShipment.Status == "" {
-		assertions.MTOShipment.Status = models.MTOShipmentStatusDraft
-	}
-
 	shipment := checkOrCreateMTOShipment(db, assertions)
 
 	requiredFields := getDefaultValuesForRequiredFields(db, shipment)

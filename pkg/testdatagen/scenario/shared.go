@@ -761,6 +761,74 @@ func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
 }
 
+func createUnSubmittedMoveWithFinishedPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
+	 */
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("1b16773e-995b-4efe-ad1c-bef2ae1253f8"),
+		email:       "finished@ppm.unsubmitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("1b400031-2b78-44ce-976c-cd2e854947f8"),
+		firstName:   "Finished",
+		lastName:    "PPM",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("3e0b6cb9-3409-4089-83a0-0fbc3fb0b493"),
+		moveLocator: "PPMFIN",
+	}
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		MTOShipment: models.MTOShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("0e17d5de-b212-404d-9249-e5a160bd0c51"),
+		},
+		PPMShipment: models.PPMShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("11978e1c-95d3-47e6-9d3f-d1e0d8c3d11a"),
+			Status: models.PPMShipmentStatusDraft,
+		},
+	}
+
+	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
+func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	/*
+	 * A service member with orders and a minimal PPM Shipment. This means the PPM only has required fields.
+	 */
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("2d6a16ec-c031-42e2-aa55-90a1e29b961a"),
+		email:       "new@ppm.submitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("f1817ad8-dfd5-44c0-97eb-f634d22e147b"),
+		firstName:   "NewlySubmitted",
+		lastName:    "PPM",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("5f30c363-07c0-4290-899c-3418e8472b44"),
+		moveLocator: "PPMSB1",
+	}
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		MTOShipment: models.MTOShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("90ce4453-f836-4a76-a959-5f3271009f58"),
+		},
+		PPMShipment: models.PPMShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("2cc9fdcb-e1a6-4621-80dc-7cfa3956f2ea"),
+			Status: models.PPMShipmentStatusDraft,
+		},
+	}
+
+	move := createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	err := moveRouter.Submit(appCtx, &move)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &move)
+
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
 func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	/*
