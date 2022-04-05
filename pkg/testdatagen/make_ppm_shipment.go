@@ -80,7 +80,6 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 		ShipmentID:            shipment.ID,
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusSubmitted,
-		SubmittedAt:           models.TimePointer(time.Now()),
 		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
 		PickupPostalCode:      requiredFields.pickupPostalCode,
 		DestinationPostalCode: requiredFields.destinationPostalCode,
@@ -90,6 +89,21 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 		ProGearWeight:         &proGearWeight,
 		SpouseProGearWeight:   &spouseProGearWeight,
 		EstimatedIncentive:    &estimatedIncentive,
+		AdvanceRequested:      models.BoolPointer(false),
+	}
+
+	// We only want to set a SubmittedAt time if there is no status set in the assertions, or the one set matches our
+	// default of submitted.
+	if assertions.PPMShipment.Status == "" || assertions.PPMShipment.Status == models.PPMShipmentStatusSubmitted {
+		ppmShipment.SubmittedAt = models.TimePointer(time.Now())
+	}
+
+	if assertions.PPMShipment.AdvanceRequested != nil && *assertions.PPMShipment.AdvanceRequested {
+		estimatedIncentiveCents := unit.Cents(estimatedIncentive)
+
+		advance := estimatedIncentiveCents.MultiplyFloat64(0.5)
+
+		ppmShipment.Advance = &advance
 	}
 
 	// Overwrite values with those from assertions
