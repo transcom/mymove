@@ -12,9 +12,9 @@ import {
 
 const formatChangedValues = (values) => {
   return values
-    ? values.map((value) => (
-        <div key={`${value.columnName}-${value.columnValue}`}>
-          {value.columnName}: {value.columnValue}
+    ? Object.keys(values).map((key) => (
+        <div key={`${key}-${values[key]}`}>
+          {key}: {values[key]}
         </div>
       ))
     : '';
@@ -62,8 +62,8 @@ MoveHistoryDetailsSelector.propTypes = {
 
 MoveHistoryDetailsSelector.defaultProps = {
   eventName: '',
-  oldValues: [],
-  changedValues: [],
+  oldValues: {},
+  changedValues: {},
 };
 
 export default MoveHistoryDetailsSelector;

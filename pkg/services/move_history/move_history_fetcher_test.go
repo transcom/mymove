@@ -1,6 +1,7 @@
 package movehistory
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -62,13 +63,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 			if h.TableName == "addresses" {
 				if *h.ObjectID == updateAddress.ID {
 					if h.OldData != nil {
-						oldData := *h.OldData
+						oldData := removeEscapeJSON(h.OldData)
 						if oldData["city"] == oldAddress.City && oldData["state"] == oldAddress.State && oldData["postal_code"] == oldAddress.PostalCode {
 							verifyOldPickupAddress = true
 						}
 					}
 					if h.ChangedData != nil {
-						changedData := *h.ChangedData
+						changedData := removeEscapeJSON(h.ChangedData)
 						if changedData["city"] == updateAddress.City && changedData["state"] == updateAddress.State && changedData["postal_code"] == updateAddress.PostalCode {
 							verifyNewPickupAddress = true
 						}
@@ -90,15 +91,15 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 					}
 				}*/
 			} else if h.TableName == "moves" {
-				if *h.ObjectID == approvedMove.ID {
-					if h.OldData != nil {
-						oldData := *h.OldData
-						if oldData["tio_remarks"] == nil {
-							verifyOldTIORemarks = true
-						}
+				if h.OldData != nil {
+					oldData := removeEscapeJSON(h.OldData)
+					if len(oldData["tio_remarks"]) == 0 {
+						verifyOldTIORemarks = true
 					}
+				}
+				if *h.ObjectID == approvedMove.ID {
 					if h.ChangedData != nil {
-						changedData := *h.ChangedData
+						changedData := removeEscapeJSON(h.ChangedData)
 						if changedData["tio_remarks"] == tioRemarks {
 							verifyTIORemarks = true
 						}
@@ -131,6 +132,17 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
+}
+
+func removeEscapeJSON(data *string) map[string]string {
+	var result map[string]string
+	if data == nil || *data == "" {
+		return result
+	}
+	var byteData = []byte(*data)
+
+	_ = json.Unmarshal(byteData, &result)
+	return result
 }
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {

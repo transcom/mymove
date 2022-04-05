@@ -32,22 +32,10 @@ describe('MoveHistoryDetailsSelector', () => {
   });
 
   it.each([
-    [
-      'setFinancialReviewFlag',
-      'Move flagged for financial review',
-      [{ columnName: 'financial_review_flag', columnValue: 'true' }],
-    ],
-    [
-      'setFinancialReviewFlag',
-      'Move unflagged for financial review',
-      [{ columnName: 'financial_review_flag', columnValue: 'false' }],
-    ],
-    ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', [{ columnName: 'status', columnValue: 'APPROVED' }]],
-    [
-      'updateMoveTaskOrderStatus',
-      'Rejected Move Task Order (MTO)',
-      [{ columnName: 'status', columnValue: 'Rejected' }],
-    ],
+    ['setFinancialReviewFlag', 'Move flagged for financial review', { financial_review_flag: 'true' }],
+    ['setFinancialReviewFlag', 'Move unflagged for financial review', { financial_review_flag: 'false' }],
+    ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', { status: 'APPROVED' }],
+    ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', { status: 'Rejected' }],
   ])('for event name %s it renders %s', (eventName, text, changedValues) => {
     render(<MoveHistoryDetailsSelector eventName={eventName} changedValues={changedValues} />);
 

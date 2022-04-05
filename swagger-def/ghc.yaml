@@ -2459,11 +2459,15 @@ definitions:
         type: string
       oldValues:
         description: A list of (old/previous) MoveAuditHistoryItem's for a record before the change.
-        $ref: '#/definitions/MoveAuditHistoryItems'
+        type: object
+        additionalProperties:
+          type: string
         x-nullable: true
       changedValues:
         description: A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.
-        $ref: '#/definitions/MoveAuditHistoryItems'
+        type: object
+        additionalProperties:
+          type: string
         x-nullable: true
       statementOnly:
         description: true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'

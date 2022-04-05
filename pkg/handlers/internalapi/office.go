@@ -80,50 +80,56 @@ type CancelMoveHandler struct {
 
 // Handle ... cancels a Move from a request payload
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	if !appCtx.Session().IsOfficeUser() {
-		return officeop.NewCancelMoveForbidden()
-	}
+			if !appCtx.Session().IsOfficeUser() {
+				sessionErr := apperror.NewSessionError(
+					"user is not authorized NewCancelMoveForbidden",
+				)
+				appCtx.Logger().Error(sessionErr.Error())
+				return officeop.NewCancelMoveForbidden(), sessionErr
+			}
 
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			moveID, err := uuid.FromString(params.MoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
-	// Canceling move will result in canceled associated PPMs
-	err = h.MoveRouter.Cancel(appCtx, *params.CancelMove.CancelReason, move)
-	if err != nil {
-		logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
-		return handlers.ResponseForError(logger, err)
-	}
+			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+			// Canceling move will result in canceled associated PPMs
+			err = h.MoveRouter.Cancel(appCtx, *params.CancelMove.CancelReason, move)
+			if err != nil {
+				logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
+				return handlers.ResponseForError(logger, err), err
+			}
 
-	// Save move, orders, and PPMs statuses
-	verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
-	}
+			// Save move, orders, and PPMs statuses
+			verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(logger, verrs, err), err
+			}
 
-	err = h.NotificationSender().SendNotification(appCtx,
-		notifications.NewMoveCanceled(moveID),
-	)
+			err = h.NotificationSender().SendNotification(appCtx,
+				notifications.NewMoveCanceled(moveID),
+			)
 
-	if err != nil {
-		logger.Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(logger, err)
-	}
+			if err != nil {
+				logger.Error("problem sending email to user", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
+			}
 
-	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	return officeop.NewCancelMoveOK().WithPayload(movePayload)
+			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+			if err != nil {
+				return handlers.ResponseForError(logger, err), err
+			}
+			return officeop.NewCancelMoveOK().WithPayload(movePayload), nil
+		})
 }
 
 // ApprovePPMHandler approves a move via POST /personally_procured_moves/{personallyProcuredMoveId}/approve
