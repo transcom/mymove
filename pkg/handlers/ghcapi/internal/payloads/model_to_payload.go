@@ -1,7 +1,7 @@
 package payloads
 
 import (
-	"fmt"
+	"encoding/json"
 	"math"
 	"time"
 
@@ -88,8 +88,8 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		ActionTstampClk:      strfmt.DateTime(auditHistory.ActionTstampClk),
 		ActionTstampStm:      strfmt.DateTime(auditHistory.ActionTstampStm),
 		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
-		ChangedValues:        moveHistoryValues(auditHistory.ChangedData, "changed_data"),
-		OldValues:            moveHistoryValues(auditHistory.OldData, "old_values"),
+		ChangedValues:        removeEscapeJSON(auditHistory.ChangedData),
+		OldValues:            removeEscapeJSON(auditHistory.OldData),
 		ClientQuery:          auditHistory.ClientQuery,
 		EventName:            auditHistory.EventName,
 		ID:                   strfmt.UUID(auditHistory.ID.String()),
@@ -111,24 +111,16 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 	return payload
 }
 
-func moveHistoryValues(data *models.JSONMap, fieldName string) ghcmessages.MoveAuditHistoryItems {
-	if data == nil {
-		return ghcmessages.MoveAuditHistoryItems{}
+func removeEscapeJSON(data *string) map[string]string {
+	var result map[string]string
+	if data == nil || *data == "" {
+		return result
 	}
+	var byteData = []byte(*data)
 
-	payload := ghcmessages.MoveAuditHistoryItems{}
+	_ = json.Unmarshal(byteData, &result)
+	return result
 
-	for k, v := range *data {
-		if v != nil {
-			item := ghcmessages.MoveAuditHistoryItem{
-				ColumnName:  k,
-				ColumnValue: fmt.Sprint(v),
-			}
-			payload = append(payload, &item)
-		}
-	}
-
-	return payload
 }
 
 func moveHistoryRecords(auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {

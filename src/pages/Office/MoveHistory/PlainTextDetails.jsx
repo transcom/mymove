@@ -18,7 +18,7 @@ PlainTextDetails.propTypes = {
 
 PlainTextDetails.defaultProps = {
   eventName: '',
-  changedValues: [],
+  changedValues: {},
 };
 
 export default PlainTextDetails;
