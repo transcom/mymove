@@ -12,7 +12,6 @@ describe('MoveHistoryDetailsSelector', () => {
     ['updateMoveTaskOrder', 'Labeled'],
     ['updateMTOShipment', 'Labeled'],
     ['approveShipment', 'Approved shipment'],
-    ['requestShipmentDiversion', 'Requested diversion'],
     ['updateMTOServiceItem', 'Service Items'],
     ['updateMTOServiceItemStatus', 'Service item status'],
     ['createOrders', '-'],
@@ -36,6 +35,7 @@ describe('MoveHistoryDetailsSelector', () => {
     ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', {}, { status: 'APPROVED' }],
     ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', {}, { status: 'Rejected' }],
     ['requestShipmentCancellation', 'Requested cancellation for HHG shipment', { shipment_type: 'HHG' }, {}],
+    ['requestShipmentDiversion', 'Requested diversion for HHG shipment', { shipment_type: 'HHG' }, {}],
   ])('for event name %s it renders %s', (eventName, text, oldValues, changedValues) => {
     render(<MoveHistoryDetailsSelector eventName={eventName} oldValues={oldValues} changedValues={changedValues} />);
 

@@ -59,7 +59,36 @@ describe('historyLogUIDisplay', () => {
   describe('displays the correct plain text when each eventNamePlainTextToDisplay is called', () => {
     it.each([
       ['approveShipment', 'Approved shipment', {}, {}],
-      ['requestShipmentDiversion', 'Requested diversion', {}, {}],
+      [
+        'requestShipmentDiversion',
+        `Requested diversion for ${shipmentOptionToDisplay.HHG} shipment`,
+        { shipment_type: 'HHG' },
+        {},
+      ],
+      [
+        'requestShipmentDiversion',
+        `Requested diversion for ${shipmentOptionToDisplay.HHG_OUTOF_NTS_DOMESTIC} shipment`,
+        { shipment_type: 'HHG_OUTOF_NTS_DOMESTIC' },
+        {},
+      ],
+      [
+        'requestShipmentDiversion',
+        `Requested diversion for ${shipmentOptionToDisplay.HHG_INTO_NTS_DOMESTIC} shipment`,
+        { shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
+        {},
+      ],
+      [
+        'requestShipmentDiversion',
+        `Requested diversion for ${shipmentOptionToDisplay.PPM} shipment`,
+        { shipment_type: 'PPM' },
+        {},
+      ],
+      [
+        'requestShipmentDiversion',
+        `Requested diversion for ${shipmentOptionToDisplay.HHG_SHORTHAUL_DOMESTIC} shipment`,
+        { shipment_type: 'HHG_SHORTHAUL_DOMESTIC' },
+        {},
+      ],
       ['updateMTOServiceItemStatus', 'Service item status', {}, {}],
       ['setFinancialReviewFlag', 'Move flagged for financial review', {}, { financial_review_flag: 'true' }],
       ['setFinancialReviewFlag', 'Move unflagged for financial review', {}, { financial_review_flag: 'false' }],

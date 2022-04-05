@@ -75,7 +75,8 @@ export const shipmentOptionToDisplay = {
 export const eventNamePlainTextToDisplay = {
   approveShipment: () => 'Approved shipment',
   updateMTOServiceItemStatus: () => 'Service item status', // ghc.yaml Need to check status as well
-  requestShipmentDiversion: () => 'Requested diversion', // ghc.yaml
+  requestShipmentDiversion: (_, oldValues) =>
+    `Requested diversion for ${shipmentOptionToDisplay[oldValues.shipment_type]} shipment`, // ghc.yaml
   setFinancialReviewFlag: (changedValues) => {
     return changedValues.financial_review_flag === 'true'
       ? 'Move flagged for financial review'
