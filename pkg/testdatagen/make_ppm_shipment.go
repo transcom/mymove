@@ -67,53 +67,36 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 
 // MakePPMShipment creates a single PPMShipment and associated relationships
 func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	shipment := checkOrCreateMTOShipment(db, assertions)
-
-	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
-	estimatedWeight := unit.Pound(4000)
-	hasProGear := true
-	proGearWeight := unit.Pound(1150)
-	spouseProGearWeight := unit.Pound(450)
-	estimatedIncentive := int32(567890)
-
-	ppmShipment := models.PPMShipment{
-		ShipmentID:            shipment.ID,
-		Shipment:              shipment,
-		Status:                models.PPMShipmentStatusSubmitted,
-		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
-		PickupPostalCode:      requiredFields.pickupPostalCode,
-		DestinationPostalCode: requiredFields.destinationPostalCode,
-		EstimatedWeight:       &estimatedWeight,
-		SitExpected:           &requiredFields.sitExpected,
-		HasProGear:            &hasProGear,
-		ProGearWeight:         &proGearWeight,
-		SpouseProGearWeight:   &spouseProGearWeight,
-		EstimatedIncentive:    &estimatedIncentive,
-		AdvanceRequested:      models.BoolPointer(false),
+	fullAssertions := Assertions{
+		PPMShipment: models.PPMShipment{
+			Status:              models.PPMShipmentStatusSubmitted,
+			EstimatedWeight:     models.PoundPointer(unit.Pound(4000)),
+			HasProGear:          models.BoolPointer(true),
+			ProGearWeight:       models.PoundPointer(unit.Pound(1150)),
+			SpouseProGearWeight: models.PoundPointer(unit.Pound(450)),
+			EstimatedIncentive:  models.Int32Pointer(567890),
+			AdvanceRequested:    models.BoolPointer(false),
+		},
 	}
 
 	// We only want to set a SubmittedAt time if there is no status set in the assertions, or the one set matches our
 	// default of submitted.
 	if assertions.PPMShipment.Status == "" || assertions.PPMShipment.Status == models.PPMShipmentStatusSubmitted {
-		ppmShipment.SubmittedAt = models.TimePointer(time.Now())
+		fullAssertions.PPMShipment.SubmittedAt = models.TimePointer(time.Now())
 	}
 
 	if assertions.PPMShipment.AdvanceRequested != nil && *assertions.PPMShipment.AdvanceRequested {
-		estimatedIncentiveCents := unit.Cents(estimatedIncentive)
+		estimatedIncentiveCents := unit.Cents(*fullAssertions.PPMShipment.EstimatedIncentive)
 
 		advance := estimatedIncentiveCents.MultiplyFloat64(0.5)
 
-		ppmShipment.Advance = &advance
+		fullAssertions.PPMShipment.Advance = &advance
 	}
 
 	// Overwrite values with those from assertions
-	mergeModels(&ppmShipment, assertions.PPMShipment)
+	mergeModels(&fullAssertions, assertions)
 
-	mustCreate(db, &ppmShipment, assertions.Stub)
-
-	ppmShipment.Shipment.PPMShipment = &ppmShipment
-
-	return ppmShipment
+	return MakeMinimalPPMShipment(db, fullAssertions)
 }
 
 // MakeDefaultPPMShipment makes a PPMShipment with default values
