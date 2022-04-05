@@ -67,6 +67,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
 
   let shipmentsInfo = [];
   let disableSubmit = false;
+  let disableSubmitDueToMissingOrderInfo = false;
   let numberOfErrorIfMissingForAllShipments = 0;
   let numberOfWarnIfMissingForAllShipments = 0;
 
@@ -81,6 +82,9 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
     errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
     errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
   }
+
+  if (!order.departmentIndicator || !order.ordersNumber || !order.ordersTypeDetail || !order.tacMDC)
+    disableSubmitDueToMissingOrderInfo = true;
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
@@ -302,7 +306,9 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {counselorCanEdit && (
                 <Button
-                  disabled={!mtoShipments.length || allShipmentsDeleted || disableSubmit}
+                  disabled={
+                    !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
+                  }
                   type="button"
                   onClick={handleShowCancellationModal}
                 >
@@ -371,7 +377,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
                 )
               }
             >
-              <OrdersList ordersInfo={ordersInfo} showMissingWarnings={false} />
+              <OrdersList ordersInfo={ordersInfo} showMissingWarnings />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">
