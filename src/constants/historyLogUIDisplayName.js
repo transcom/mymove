@@ -64,6 +64,14 @@ export const eventNamesWithEmptyDetails = {
   createMTOShipment: 'Submitted/Requested shipments', // internal.yaml prime.yaml
 };
 
+export const shipmentOptionToDisplay = {
+  HHG_OUTOF_NTS_DOMESTIC: 'NTS-release',
+  HHG_INTO_NTS_DOMESTIC: 'NTS',
+  HHG: 'HHG',
+  PPM: 'PPM',
+  HHG_SHORTHAUL_DOMESTIC: 'HHG_SHORTHAUL_DOMESTIC',
+};
+
 export const eventNamePlainTextToDisplay = {
   approveShipment: () => 'Approved shipment',
   updateMTOServiceItemStatus: () => 'Service item status', // ghc.yaml Need to check status as well
@@ -73,7 +81,8 @@ export const eventNamePlainTextToDisplay = {
       ? 'Move flagged for financial review'
       : 'Move unflagged for financial review';
   },
-  requestShipmentCancellation: () => 'Shipment cancelled',
+  requestShipmentCancellation: (_, oldValues) =>
+    `Requested cancellation for ${shipmentOptionToDisplay[oldValues.shipment_type]} shipment`,
   updateMoveTaskOrderStatus: (changedValues) => {
     return changedValues.status === 'APPROVED' ? 'Created Move Task Order (MTO)' : 'Rejected Move Task Order (MTO)';
   },
