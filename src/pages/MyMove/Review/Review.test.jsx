@@ -5,7 +5,8 @@ import userEvent from '@testing-library/user-event';
 import ConnectedReview from 'pages/MyMove/Review/Review';
 import { MockProviders } from 'testUtils';
 import MOVE_STATUSES from 'constants/moves';
-import { selectCurrentMove } from 'store/entities/selectors';
+import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 // Mock the summary part of the review page since we're just testing the
 // navigation portion.
@@ -14,6 +15,7 @@ jest.mock('components/Customer/Review/Summary/Summary', () => 'summary');
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectCurrentMove: jest.fn(),
+  selectMTOShipmentsForCurrentMove: jest.fn(),
 }));
 
 describe('Review page', () => {
@@ -23,6 +25,47 @@ describe('Review page', () => {
 
   const testSubmittedMove = {
     status: MOVE_STATUSES.SUBMITTED,
+  };
+
+  const testIncompletePPMShipment = {
+    id: '1',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
+    ppmShipment: {
+      id: '2',
+      expectedDepartureDate: '2022-04-01',
+      pickupPostalCode: '90210',
+      destinationPostalCode: '10001',
+      sitExpected: false,
+    },
+  };
+
+  const testCompletePPMShipment = {
+    id: '1',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
+    ppmShipment: {
+      id: '2',
+      expectedDepartureDate: '2022-04-01',
+      pickupPostalCode: '90210',
+      destinationPostalCode: '10001',
+      sitExpected: false,
+      estimatedWeight: 5999,
+      hasProGear: false,
+      advanceRequested: false,
+    },
+  };
+
+  const testHHGShipment = {
+    id: '3',
+    shipmentType: SHIPMENT_OPTIONS.HHG,
+    requestedPickupDate: '2022-04-01',
+    pickupLocation: {
+      streetAddress1: '17 8th St',
+      city: 'New York',
+      state: 'NY',
+      postalCode: '11111',
+    },
+    requestedDeliveryDate: '2022-05-01',
+    destinationZIP: '73523',
   };
 
   const testProps = {
@@ -61,7 +104,7 @@ describe('Review page', () => {
     await screen.findByRole('heading', { level: 1, name: 'Review your details' });
   });
 
-  it('Finish Later button goes to the home page', async () => {
+  it('Finish Later button goes back to the home page', async () => {
     selectCurrentMove.mockImplementation(() => testDraftMove);
 
     render(
@@ -81,6 +124,7 @@ describe('Review page', () => {
 
   it('next button goes to the Agreement page when move is in DRAFT status', async () => {
     selectCurrentMove.mockImplementation(() => testDraftMove);
+    selectMTOShipmentsForCurrentMove.mockImplementation(() => [testCompletePPMShipment, testHHGShipment]);
 
     render(
       <MockProviders>
@@ -95,6 +139,21 @@ describe('Review page', () => {
     userEvent.click(submitButton);
 
     expect(testProps.push).toHaveBeenCalledWith(`/moves/${testProps.match.params.moveId}/agreement`);
+  });
+
+  it('next button is disabled when a PPM shipment is in an incomplete state', async () => {
+    selectCurrentMove.mockImplementation(() => testDraftMove);
+    selectMTOShipmentsForCurrentMove.mockImplementation(() => [testIncompletePPMShipment, testHHGShipment]);
+
+    render(
+      <MockProviders>
+        <ConnectedReview {...testProps} />
+      </MockProviders>,
+    );
+
+    const submitButton = await screen.findByRole('button', { name: 'Next' });
+
+    expect(submitButton).toBeDisabled();
   });
 
   it('return home button is displayed when move has been submitted', async () => {

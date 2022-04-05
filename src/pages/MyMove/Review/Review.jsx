@@ -1,5 +1,5 @@
 import React from 'react';
-import { func } from 'prop-types';
+import { func, arrayOf } from 'prop-types';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
@@ -14,12 +14,13 @@ import 'scenes/Review/Review.css';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { selectCurrentMove } from 'store/entities/selectors';
-import { MoveShape } from 'types/customerShapes';
+import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
+import { MoveShape, MtoShipmentShape } from 'types/customerShapes';
 import MOVE_STATUSES from 'constants/moves';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { isPPMShipmentComplete } from 'utils/shipments';
 
-const Review = ({ push, currentMove, match }) => {
+const Review = ({ currentMove, mtoShipments, push, match }) => {
   const handleCancel = () => {
     push(generalRoutes.HOME_PATH);
   };
@@ -32,6 +33,12 @@ const Review = ({ push, currentMove, match }) => {
   };
 
   const inDraftStatus = currentMove.status === MOVE_STATUSES.DRAFT;
+
+  // PPM shipments can be left in an incomplete state, disable proceeding to the signature move
+  // submission page to force them to complete or delete the shipment.
+  const hasCompletedPPMShipments = mtoShipments
+    ?.filter((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM)
+    ?.every((s) => isPPMShipmentComplete(s));
 
   return (
     <GridContainer>
@@ -55,7 +62,7 @@ const Review = ({ push, currentMove, match }) => {
             <div className={formStyles.formActions}>
               <WizardNavigation
                 onNextClick={handleNext}
-                disableNext={false}
+                disableNext={!hasCompletedPPMShipments}
                 onCancelClick={handleCancel}
                 isFirstPage
                 showFinishLater
@@ -71,6 +78,7 @@ const Review = ({ push, currentMove, match }) => {
 
 Review.propTypes = {
   currentMove: MoveShape.isRequired,
+  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   push: func.isRequired,
   match: MatchShape.isRequired,
 };
@@ -79,11 +87,8 @@ const mapStateToProps = (state, ownProps) => {
   return {
     ...ownProps,
     currentMove: selectCurrentMove(state) || {},
+    mtoShipments: selectMTOShipmentsForCurrentMove(state) || [],
   };
 };
 
-const mapDispatchToProps = {
-  showLoggedInUser: showLoggedInUserAction,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Review);
+export default connect(mapStateToProps)(Review);
