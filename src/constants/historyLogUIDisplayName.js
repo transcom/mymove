@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 export const HistoryLogValuesShape = PropTypes.shape({
-  updated_dat: PropTypes.string,
+  updated_at: PropTypes.string,
   diversion: PropTypes.string,
   billable_weight_cap: PropTypes.string,
   uses_external_vendor: PropTypes.string,
@@ -9,7 +9,7 @@ export const HistoryLogValuesShape = PropTypes.shape({
   scheduled_pickup_date: PropTypes.string,
   status: PropTypes.string,
   customer_remarks: PropTypes.string,
-  approved_dat: PropTypes.string,
+  approved_at: PropTypes.string,
   actual_pickup_date: PropTypes.string,
   prime_estimated_weight: PropTypes.string,
   counselor_remarks: PropTypes.string,
