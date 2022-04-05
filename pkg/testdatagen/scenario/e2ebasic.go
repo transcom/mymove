@@ -3820,6 +3820,15 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	// Create a move with only an NTS external vendor-handled shipment
 	createMoveWithNTSShipment(appCtx, "EXTNTS", true)
 
+	// Create a move with an HHG and NTS-release prime-handled shipment
+	createMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
+
+	// Create a move with an HHG and NTS-release external vendor-handled shipment
+	createMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
+
+	// Create a move with only an NTS-release external vendor-handled shipment
+	createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
+
 	createBasicMovePPM01(appCtx, userUploader)
 	createBasicMovePPM02(appCtx, userUploader)
 	createBasicMovePPM03(appCtx, userUploader)
