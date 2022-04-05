@@ -32,7 +32,7 @@ export class CreateOrEditMtoShipment extends Component {
       history,
       mtoShipment,
       currentResidence,
-      newDutyStationAddress,
+      newDutyLocationAddress,
       updateMTOShipment,
       serviceMember,
       orders,
@@ -60,7 +60,7 @@ export class CreateOrEditMtoShipment extends Component {
           selectedMoveType={type || mtoShipment.shipmentType}
           isCreatePage={!!type}
           currentResidence={currentResidence}
-          newDutyStationAddress={newDutyStationAddress}
+          newDutyLocationAddress={newDutyLocationAddress}
           updateMTOShipment={updateMTOShipment}
           serviceMember={serviceMember}
           orders={orders}
@@ -81,7 +81,7 @@ CreateOrEditMtoShipment.propTypes = {
   // using hhg because it has all the props
   mtoShipment: HhgShipmentShape,
   currentResidence: AddressShape.isRequired,
-  newDutyStationAddress: SimpleAddressShape,
+  newDutyLocationAddress: SimpleAddressShape,
   updateMTOShipment: func.isRequired,
   serviceMember: shape({
     weight_allotment: shape({
@@ -105,7 +105,7 @@ CreateOrEditMtoShipment.defaultProps = {
       streetAddress1: '',
     },
   },
-  newDutyStationAddress: {
+  newDutyLocationAddress: {
     city: '',
     state: '',
     postalCode: '',
@@ -121,7 +121,7 @@ function mapStateToProps(state, ownProps) {
     orders: selectCurrentOrders(state) || {},
     mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
-    newDutyStationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
+    newDutyLocationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
   };
 
   return props;

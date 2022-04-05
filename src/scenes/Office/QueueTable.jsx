@@ -18,8 +18,8 @@ class QueueTable extends Component {
     super();
     this.state = {
       data: [],
-      origDutyStationData: [],
-      destDutyStationData: [],
+      origDutyLocationData: [],
+      destDutyLocationData: [],
       pages: null,
       loading: true,
       refreshing: false, // only true when the user clicks the refresh button
@@ -73,16 +73,16 @@ class QueueTable extends Component {
     // Catch any errors here and render an empty queue
     try {
       const body = await this.props.retrieveMoves(this.props.queueType);
-      // grab all destination duty station and remove duplicates
-      // this will build on top of the current duty stations list we see from the data
-      let origDutyStationDataSet = new Set(this.getOriginDutyStations());
-      let destDutyStationDataSet = new Set(this.getDestinationDutyStations());
+      // grab all destination duty location and remove duplicates
+      // this will build on top of the current duty locations list we see from the data
+      let origDutyLocationDataSet = new Set(this.getOriginDutyLocations());
+      let destDutyLocationDataSet = new Set(this.getDestinationDutyLocations());
       body.forEach((value) => {
         if (value.origin_duty_location_name !== undefined && value.origin_duty_location_name !== '') {
-          origDutyStationDataSet.add(value.origin_duty_location_name);
+          origDutyLocationDataSet.add(value.origin_duty_location_name);
         }
-        if (value.destination_duty_station_name !== undefined && value.destination_duty_station_name !== '') {
-          destDutyStationDataSet.add(value.destination_duty_station_name);
+        if (value.destination_duty_location_name !== undefined && value.destination_duty_location_name !== '') {
+          destDutyLocationDataSet.add(value.destination_duty_location_name);
         }
       });
 
@@ -91,8 +91,8 @@ class QueueTable extends Component {
       if (this.state.loadingQueue === loadingQueueType) {
         this.setState({
           data: body,
-          origDutyStationData: [...origDutyStationDataSet].sort(),
-          destDutyStationData: [...destDutyStationDataSet].sort(),
+          origDutyLocationData: [...origDutyLocationDataSet].sort(),
+          destDutyLocationData: [...destDutyLocationDataSet].sort(),
           pages: 1,
           loading: false,
           refreshing: false,
@@ -102,8 +102,8 @@ class QueueTable extends Component {
     } catch (e) {
       this.setState({
         data: [],
-        origDutyStationData: [],
-        destDutyStationData: [],
+        origDutyLocationData: [],
+        destDutyLocationData: [],
         pages: 1,
         loading: false,
         refreshing: false,
@@ -132,12 +132,12 @@ class QueueTable extends Component {
     this.fetchData();
   }
 
-  getDestinationDutyStations = () => {
-    return this.state.destDutyStationData;
+  getDestinationDutyLocations = () => {
+    return this.state.destDutyLocationData;
   };
 
-  getOriginDutyStations = () => {
-    return this.state.origDutyStationData;
+  getOriginDutyLocations = () => {
+    return this.state.origDutyLocationData;
   };
 
   render() {

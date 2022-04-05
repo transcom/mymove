@@ -4,14 +4,14 @@
 
 .usa-button {
   @include u-bg('primary-vivid');
-  @include u-padding-x('3');
+  @include u-padding-x(3);
   @include u-padding-y('105');
   @include u-font-size('body', 'xs');
   display: flex;
   align-items: center;
   justify-content: center;
   height: 42px;
-  @include u-margin-y('1');
+  @include u-margin-y(1);
   .icon svg path,
   .icon svg polygon {
     fill: white;
@@ -88,7 +88,7 @@
   }
   &--small {
     @include u-padding-x('105');
-    @include u-padding-y('1');
+    @include u-padding-y(1);
     @include u-font-size('body', '2xs');
     height: 34px;
   }

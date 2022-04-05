@@ -1,10 +1,10 @@
 export { UserRoleShape, UserRolesShape, OfficeUserInfoShape, TransportationOfficeShape } from './user';
 export { AddressShape } from './address';
-export { DutyStationShape } from './dutyStation';
+export { DutyLocationShape } from './dutyLocation';
 export { DropdownArrayOf } from './form';
 export {
-  DestinationDutyStationShape,
-  OriginDutyStationShape,
+  DestinationDutyLocationShape,
+  OriginDutyLocationShape,
   EntitlementShape,
   OrderShape,
   CustomerShape,

@@ -15,7 +15,7 @@ import Home from 'pages/MyMove/Home';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import DodInfo from 'pages/MyMove/Profile/DodInfo';
 import SMName from 'pages/MyMove/Profile/Name';
-import DutyStation from 'pages/MyMove/Profile/DutyStation';
+import DutyLocation from 'pages/MyMove/Profile/DutyLocation';
 import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
@@ -116,17 +116,17 @@ const pages = {
       ({ history }) =>
         <ContactInfo push={history.push} />,
   },
-  [customerRoutes.CURRENT_DUTY_STATION_PATH]: {
+  [customerRoutes.CURRENT_DUTY_LOCATION_PATH]: {
     isInFlow: myFirstRodeo,
 
-    // api for duty station always returns an object, even when duty station is not set
-    // if there is no duty station, that object will have a null uuid
+    // api for duty location always returns an object, even when duty location is not set
+    // if there is no duty location, that object will have a null uuid
     isComplete: ({ sm }) => sm.is_profile_complete || get(sm, 'current_location.id', NULL_UUID) !== NULL_UUID,
     render:
       () =>
       ({ history }) =>
-        <DutyStation push={history.push} />,
-    description: 'current duty station',
+        <DutyLocation push={history.push} />,
+    description: 'current duty location',
   },
   [customerRoutes.CURRENT_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,

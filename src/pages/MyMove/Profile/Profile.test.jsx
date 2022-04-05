@@ -22,7 +22,7 @@ describe('Profile component', () => {
         orders: {
           test: {
             new_duty_location: {
-              name: 'Test Duty Station',
+              name: 'Test Duty Location',
             },
             status: 'DRAFT',
             moves: ['testMove'],
@@ -197,7 +197,7 @@ describe('Profile component', () => {
         orders: {
           test: {
             new_duty_location: {
-              name: 'Test Duty Station',
+              name: 'Test Duty Location',
             },
             status: 'DRAFT',
             moves: ['testMove'],

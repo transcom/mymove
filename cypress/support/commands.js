@@ -256,7 +256,7 @@ function genericSelect(inputData, fieldName, classSelector) {
   cy.get(classSelector).find('div[class*="option"]').first().click();
 }
 
-Cypress.Commands.add('selectDutyStation', (stationName, fieldName) => {
+Cypress.Commands.add('selectDutyLocation', (dutyLocationName, fieldName) => {
   let classSelector = '.duty-input-box';
-  genericSelect(stationName, fieldName, classSelector);
+  genericSelect(dutyLocationName, fieldName, classSelector);
 });

@@ -3866,6 +3866,21 @@ func init() {
       ],
       "example": "HHG"
     },
+    "LOATypeNullable": {
+      "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+      "type": "string",
+      "enum": [
+        "HHG",
+        "NTS"
+      ],
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      },
+      "example": "HHG"
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -4511,8 +4526,11 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
@@ -4549,8 +4567,11 @@ func init() {
         },
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
@@ -5936,14 +5957,7 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOATypeNullable"
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -5957,15 +5971,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ],
-          "x-nullable": true
+          "$ref": "#/definitions/LOATypeNullable"
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -10766,6 +10772,21 @@ func init() {
       ],
       "example": "HHG"
     },
+    "LOATypeNullable": {
+      "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
+      "type": "string",
+      "enum": [
+        "HHG",
+        "NTS"
+      ],
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      },
+      "example": "HHG"
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -11411,8 +11432,11 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
@@ -11449,8 +11473,11 @@ func init() {
         },
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
@@ -12843,14 +12870,7 @@ func init() {
           "x-nullable": true
         },
         "sacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/LOATypeNullable"
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -12864,15 +12884,7 @@ func init() {
           "$ref": "#/definitions/StorageFacility"
         },
         "tacType": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/LOAType"
-            },
-            {
-              "x-nullable": true
-            }
-          ],
-          "x-nullable": true
+          "$ref": "#/definitions/LOATypeNullable"
         },
         "usesExternalVendor": {
           "type": "boolean",

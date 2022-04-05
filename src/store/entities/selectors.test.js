@@ -176,7 +176,7 @@ describe('selectServiceMemberProfileState', () => {
     expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.NAME_COMPLETE);
   });
 
-  it('returns CONTACT_INFO_COMPLETE if there is no duty station data', () => {
+  it('returns CONTACT_INFO_COMPLETE if there is no duty location data', () => {
     const testState = {
       entities: {
         user: {
@@ -206,7 +206,7 @@ describe('selectServiceMemberProfileState', () => {
     expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.CONTACT_INFO_COMPLETE);
   });
 
-  it('returns DUTY_STATION_COMPLETE if there is no address data', () => {
+  it('returns DUTY_LOCATION_COMPLETE if there is no address data', () => {
     const testState = {
       entities: {
         user: {
@@ -229,7 +229,7 @@ describe('selectServiceMemberProfileState', () => {
             telephone: '555-555-5556',
             email_is_preferred: false,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
               address: {
                 city: 'Colorado Springs',
                 country: 'United States',
@@ -243,7 +243,7 @@ describe('selectServiceMemberProfileState', () => {
       },
     };
 
-    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.DUTY_STATION_COMPLETE);
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.DUTY_LOCATION_COMPLETE);
   });
 
   it('returns ADDRESS_COMPLETE if there is no backup address data', () => {
@@ -269,7 +269,7 @@ describe('selectServiceMemberProfileState', () => {
             telephone: '555-555-5556',
             email_is_preferred: false,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
               address: {
                 city: 'Colorado Springs',
                 country: 'United States',
@@ -325,7 +325,7 @@ describe('selectServiceMemberProfileState', () => {
             telephone: '555-555-5556',
             email_is_preferred: false,
             current_location: {
-              id: 'testDutyStationId',
+              id: 'testDutyLocationId',
               address: {
                 city: 'Colorado Springs',
                 country: 'United States',
@@ -430,7 +430,7 @@ describe('selectCurrentDutyLocation', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             current_location: {
-              id: 'dutyStationId890',
+              id: 'dutyLocationId890',
             },
           },
         },

@@ -2562,13 +2562,17 @@ definitions:
         description: >-
           A list of (old/previous) MoveAuditHistoryItem's for a record before
           the change.
-        $ref: '#/definitions/MoveAuditHistoryItems'
+        type: object
+        additionalProperties:
+          type: string
         x-nullable: true
       changedValues:
         description: >-
           A list of (changed/updated) MoveAuditHistoryItem's for a record after
           the change.
-        $ref: '#/definitions/MoveAuditHistoryItems'
+        type: object
+        additionalProperties:
+          type: string
         x-nullable: true
       statementOnly:
         description: >-
@@ -3285,14 +3289,9 @@ definitions:
         $ref: '#/definitions/MTOAgents'
         x-nullable: true
       tacType:
-        x-nullable: true
-        allOf:
-          - $ref: '#/definitions/LOAType'
-          - x-nullable: true
+        $ref: '#/definitions/LOATypeNullable'
       sacType:
-        allOf:
-          - $ref: '#/definitions/LOAType'
-          - x-nullable: true
+        $ref: '#/definitions/LOATypeNullable'
       usesExternalVendor:
         type: boolean
         example: false
@@ -4463,6 +4462,17 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
+  LOATypeNullable:
+    description: The Line of accounting (TAC/SAC) type that will be used for the shipment
+    type: string
+    x-go-type:
+      import:
+        package: github.com/transcom/mymove/pkg/swagger/nullable
+      type: String
+    example: HHG
+    enum:
+      - HHG
+      - NTS
   ServiceItemParamName:
     type: string
     enum:

@@ -11,11 +11,11 @@ nav.tabNav a {
 }
 
 .tabList {
-  @include u-margin('0');
+  @include u-margin(0);
   @include u-line-height('body', 1);
   @include u-position('relative');
   @include u-bg('white');
-  @include u-padding-left('0');
+  @include u-padding-left(0);
 }
 
 .tabItem a {
@@ -28,7 +28,7 @@ nav.tabNav a {
 }
 
 .tabItem :global a .tab-title {
-  @include u-padding-bottom('1.5');
+  @include u-padding-bottom(1);
   @include u-position('relative');
   @include u-font-size('body', 4);
   @include u-text('gray-cool-70');
@@ -51,13 +51,13 @@ nav.tabNav a {
   @include u-text('gray-cool-70');
   @include u-bg('gold-20v');
   @include u-margin-left('05');
-  @include u-margin-right('0');
+  @include u-margin-right(0);
   padding-bottom: 0px;
 }
 
 .tabList .tabItem {
   border: none;
-  @include u-padding('2');
+  @include u-padding(2);
   @include u-display('inline-block');
   &:focus {
     @include u-outline('05', 'blue-40v');

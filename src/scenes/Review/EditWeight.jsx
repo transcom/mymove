@@ -204,19 +204,19 @@ class EditWeight extends Component {
   componentDidMount() {
     getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
-    const { currentPPM, originDutyStationZip, orders } = this.props;
+    const { currentPPM, originDutyLocationZip, orders } = this.props;
     this.handleWeightChange(
       currentPPM.original_move_date,
       currentPPM.pickup_postal_code,
-      originDutyStationZip,
+      originDutyLocationZip,
       orders.id,
       currentPPM.weight_estimate,
     );
     scrollToTop();
   }
 
-  handleWeightChange = (moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) => {
-    calculatePPMEstimate(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate)
+  handleWeightChange = (moveDate, originZip, originDutyLocationZip, ordersId, weightEstimate) => {
+    calculatePPMEstimate(moveDate, originZip, originDutyLocationZip, ordersId, weightEstimate)
       .then((response) => {
         this.props.updatePPMEstimate(response);
         this.props.setPPMEstimateError(null);
@@ -229,12 +229,12 @@ class EditWeight extends Component {
   debouncedHandleWeightChange = debounce(this.handleWeightChange, weightEstimateDebounce);
 
   onWeightChange = (e, newValue) => {
-    const { currentPPM, entitlement, originDutyStationZip, orders } = this.props;
+    const { currentPPM, entitlement, originDutyLocationZip, orders } = this.props;
     if (newValue > 0 && newValue <= entitlement.sum) {
       this.debouncedHandleWeightChange(
         currentPPM.original_move_date,
         currentPPM.pickup_postal_code,
-        originDutyStationZip,
+        originDutyLocationZip,
         orders.id,
         newValue,
       );
@@ -354,7 +354,7 @@ function mapStateToProps(state) {
     incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    originDutyStationZip: serviceMember?.current_location?.address?.postalCode,
+    originDutyLocationZip: serviceMember?.current_location?.address?.postalCode,
     orders: selectCurrentOrders(state) || {},
     rateEngineError: selectPPMEstimateError(state),
   };

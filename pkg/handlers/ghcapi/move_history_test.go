@@ -21,28 +21,27 @@ func getMoveHistoryForTest() models.MoveHistory {
 	transactionID := int64(3281)
 	clientQuery := "UPDATE \"orders\" AS orders SET \"amended_orders_acknowledged_at\" = $1, \"department_indicator\" = $2, \"entitlement_id\" = $3, \"grade\" = $4, \"has_dependents\" = $5, \"issue_date\" = $6, \"new_duty_location_id\" = $7, \"nts_sac\" = $8, \"nts_tac\" = $9, \"orders_number\" = $10, \"orders_type\" = $11, \"orders_type_detail\" = $12, \"origin_duty_location_id\" = $13, \"report_by_date\" = $14, \"sac\" = $15, \"service_member_id\" = $16, \"spouse_has_pro_gear\" = $17, \"status\" = $18, \"tac\" = $19, \"updated_at\" = $20, \"uploaded_amended_orders_id\" = $21, \"uploaded_orders_id\" = $22 WHERE orders.id = $23"
 	eventName := "apiEndpoint"
+	oldData := `{\"updated_at\": \"2022-03-08T19:08:44.664709\", \"postal_code\": \"90213\"}`
+	changedData := `{\"updated_at\": \"2022-03-08T19:08:44.664709\", \"postal_code\": \"90213\"}`
+
 	moveHistory := models.MoveHistory{
 		ID:          uuid.Must(uuid.NewV4()),
 		Locator:     "BILWEI",
 		ReferenceID: handlers.FmtString("7858-9363"),
 		AuditHistories: models.AuditHistories{
 			{
-				ID:            uuid.Must(uuid.NewV4()),
-				SchemaName:    "",
-				TableName:     "orders",
-				RelID:         16879,
-				ObjectID:      &localUUID,
-				SessionUserID: &localUUID,
-				TransactionID: &transactionID,
-				ClientQuery:   &clientQuery,
-				Action:        "U",
-				EventName:     &eventName,
-				OldData: &models.JSONMap{
-					"uploaded_amended_orders_id": "d74543b6-7e9b-45bb-8d91-00c48ddd5e41",
-				},
-				ChangedData: &models.JSONMap{
-					"uploaded_amended_orders_id": "8013228d-07e5-47b7-a6eb-61d733d7a859",
-				},
+				ID:              uuid.Must(uuid.NewV4()),
+				SchemaName:      "",
+				TableName:       "orders",
+				RelID:           16879,
+				ObjectID:        &localUUID,
+				SessionUserID:   &localUUID,
+				TransactionID:   &transactionID,
+				ClientQuery:     &clientQuery,
+				Action:          "U",
+				EventName:       &eventName,
+				OldData:         &oldData,
+				ChangedData:     &changedData,
 				StatementOnly:   false,
 				ActionTstampTx:  time.Now(),
 				ActionTstampStm: time.Now(),
