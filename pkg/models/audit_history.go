@@ -37,9 +37,9 @@ type AuditHistory struct {
 	// Action type; I = insert, D = delete, U = update, T = truncate
 	Action string `json:"action" db:"action"`
 	// API endpoint name that was called to make the change
-	EventName   *string  `json:"event_name" db:"event_name"`
-	OldData     *JSONMap `json:"old_data" db:"old_data"`
-	ChangedData *JSONMap `json:"changed_data" db:"changed_data"`
+	EventName   *string `json:"event_name" db:"event_name"`
+	OldData     *string `json:"old_data" db:"old_data"`
+	ChangedData *string `json:"changed_data" db:"changed_data"`
 	// true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'
 	StatementOnly bool `json:"statement_only" db:"statement_only"`
 	// Transaction start timestamp for tx in which audited event occurred
