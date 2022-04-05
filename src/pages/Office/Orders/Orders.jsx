@@ -38,7 +38,7 @@ const validationSchema = Yup.object({
   ordersType: Yup.string().required('Required'),
   ordersTypeDetail: Yup.string().required('Required'),
   tac: Yup.string().min(4, 'Enter a 4-character TAC').required('Required'),
-  sac: Yup.string().required('Required'),
+  sac: Yup.string(),
 });
 
 const Orders = () => {
