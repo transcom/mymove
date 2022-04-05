@@ -214,7 +214,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 	})
 
-	suite.T().Run("has paginiated results", func(t *testing.T) {
+	suite.T().Run("has paginated results", func(t *testing.T) {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
 		moveHistoryData, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
