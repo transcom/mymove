@@ -21,7 +21,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard/NTSRShipmentCard';
 import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal/AddShipmentModal';
-import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
+import { DestructiveShipmentConfirmationModal } from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -224,10 +224,14 @@ export class Summary extends Component {
     return (
       <>
         {showDeleteModal && (
-          <SCRequestShipmentCancellationModal
+          <DestructiveShipmentConfirmationModal
             shipmentID={targetShipmentId}
             onClose={this.hideDeleteModal}
             onSubmit={this.handleDeleteShipmentConfirmation}
+            title="Delete this?"
+            content="Your information will be gone. You’ll need to start over if you want it back."
+            submitText="Yes, Delete"
+            backText="No, Keep It"
           />
         )}
         <SectionWrapper className={styles.SummarySectionWrapper}>

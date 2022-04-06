@@ -47,7 +47,7 @@ import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } f
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import { shipmentTypes } from 'constants/shipments';
-import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
+import { DestructiveShipmentConfirmationModal } from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { updateMTOShipments } from 'store/entities/actions';
 
@@ -338,10 +338,14 @@ export class Home extends Component {
       <>
         <ScrollToTop />
         {showDeleteModal && (
-          <SCRequestShipmentCancellationModal
+          <DestructiveShipmentConfirmationModal
             shipmentID={targetShipmentId}
             onClose={this.hideDeleteModal}
             onSubmit={this.handleDeleteShipmentConfirmation}
+            title="Delete this?"
+            content="Your information will be gone. You’ll need to start over if you want it back."
+            submitText="Yes, Delete"
+            backText="No, Keep It"
           />
         )}
         <div className={styles.homeContainer}>

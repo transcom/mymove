@@ -10,7 +10,7 @@ import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOption
 import styles from './ShipmentForm.module.scss';
 
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
-import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
+import { DestructiveShipmentConfirmationModal } from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
@@ -243,7 +243,7 @@ const ShipmentForm = ({
         return (
           <>
             {isCancelModalVisible && (
-              <SCRequestShipmentCancellationModal
+              <DestructiveShipmentConfirmationModal
                 shipmentID={mtoShipment.id}
                 onClose={setIsCancelModalVisible}
                 onSubmit={handleDeleteShipment}
