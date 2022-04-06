@@ -32,7 +32,7 @@ describe('TOO user', () => {
 
   // This test covers editing the NTS shipment and prepares it for approval
   it('TOO can edit a request for Domestic NTS Shipment handled by the Prime', () => {
-    navigateToMove('PRINTS');
+    navigateToMove('PRINTR');
 
     cy.contains('Approve selected').should('be.disabled');
     cy.get('[data-testid="ShipmentContainer"]')
@@ -41,6 +41,7 @@ describe('TOO user', () => {
         cy.get('[data-testid="shipment-display-checkbox"]').should('be.disabled');
         cy.get('[data-icon="chevron-down"]').click();
 
+        cy.get('div[class*="missingInfoError"] [data-testid="ntsRecordedWeight"]').should('exist');
         cy.get('div[class*="missingInfoError"] [data-testid="storageFacilityName"]').should('exist');
         cy.get('[data-testid="storageFacilityName"]').contains('Missing');
         cy.get('div[class*="missingInfoError"] [data-testid="serviceOrderNumber"]').should('exist');
@@ -56,8 +57,7 @@ describe('TOO user', () => {
     cy.waitFor(['@getMTOServiceItems, @getMoves']);
 
     // Basic info
-    cy.get('#requestedPickupDate').clear().type('16 Mar 2022').blur();
-    cy.get('[data-testid="useCurrentResidence"]').click({ force: true });
+    cy.get('#ntsRecordedWeight').clear().type('3000').blur();
 
     // Storage facility info
     cy.get('#facilityName').clear().type('Sample Facility Name').blur();
@@ -72,6 +72,16 @@ describe('TOO user', () => {
     cy.get('select[name="storageFacility.address.state"]').select('GA');
     cy.get('input[name="storageFacility.address.postalCode"]').clear().type('30301').blur();
     cy.get('#facilityLotNumber').clear().type('1111111').blur();
+
+    // Delivery info
+    cy.get('#requestedDeliveryDate').clear().type('16 Mar 2022').blur();
+
+    cy.get('input[name="delivery.address.streetAddress1"]').clear().type('148 S East St').blur();
+    cy.get('input[name="delivery.address.streetAddress2"]').clear().type('Suite 7A').blur();
+    cy.get('input[name="delivery.address.city"]').clear().type('Sample City').blur();
+    cy.get('select[name="delivery.address.state"]').select('GA');
+    cy.get('input[name="delivery.address.postalCode"]').clear().type('30301').blur();
+    cy.get('#destinationType').select('HOME_OF_RECORD');
 
     // TAC and SAC
     cy.get('[data-testid="radio"] [for="tacType-NTS"]').click();
@@ -109,6 +119,7 @@ describe('TOO user', () => {
         cy.get('[data-testid="tag"]').should('not.exist');
         cy.get('[data-icon="chevron-down"]').click();
 
+        cy.get('div[class*="missingInfoError"] [data-testid="ntsRecordedWeight"]').should('not.exist');
         cy.get('div[class*="missingInfoError"] [data-testid="storageFacilityName"]').should('not.exist');
         cy.get('div[class*="missingInfoError"] [data-testid="serviceOrderNumber"]').should('not.exist');
         cy.get('div[class*="missingInfoError"] [data-testid="storageFacilityAddress"]').should('not.exist');
@@ -120,7 +131,7 @@ describe('TOO user', () => {
     // Make sure that it shows all the relevant information on the approve page
     // captures the information about the NTS Facility and relevant storage information
     // verifies that all the information is shown for NTS shipments handled by the GHC Contractor
-    navigateToMove('PRINTS');
+    navigateToMove('PRINTR');
 
     cy.get('#approved-shipments').should('not.exist');
     cy.get('#requested-shipments');
@@ -157,7 +168,8 @@ describe('TOO user', () => {
         cy.get('[data-testid="modal"] [data-testid="ShipmentContainer"]')
           .last()
           .within(() => {
-            cy.get('[data-testid="usesExternalVendor"]').should('exist');
+            cy.get('[data-testid="ntsRecordedWeight"]').should('exist');
+            cy.get('[data-testid="destinationAddress"]').should('exist');
             cy.get('[data-testid="tacType"]').should('exist');
             cy.get('[data-testid="sacType"]').should('exist');
           });
@@ -169,11 +181,11 @@ describe('TOO user', () => {
     cy.wait(['@approveShipment', '@patchMTOStatus']);
 
     // Redirected to Move Task Order page
-    cy.url().should('include', `/moves/PRINTS/mto`);
+    cy.url().should('include', `/moves/PRINTR/mto`);
   });
 
   it('TOO can view and edit Domestic NTS Shipments handled by the Prime on the MTO page', () => {
-    navigateToMove('PRINTS');
+    navigateToMove('PRINTR');
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
     cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
 
@@ -187,7 +199,7 @@ describe('TOO user', () => {
         // non-temp storage header
         cy.get('h2').contains('Non-temp storage');
         // pickup address header
-        cy.get('[class*="ShipmentAddresses_mtoShipmentAddresses"]').contains('Pickup address');
+        cy.get('[class*="ShipmentAddresses_mtoShipmentAddresses"]').contains('Delivery address');
         // facility address header
         cy.get('[class*="ShipmentAddresses_mtoShipmentAddresses"]').contains('Facility address');
 
@@ -278,7 +290,7 @@ describe('TOO user', () => {
   });
 
   it('TOO can approve an HHG shipment with an NTS Shipment handled by an external vendor', () => {
-    navigateToMove('PRXNTS');
+    navigateToMove('PRXNTR');
 
     cy.get('#approved-shipments').should('not.exist');
     cy.get('#requested-shipments');
@@ -331,7 +343,7 @@ describe('TOO user', () => {
     cy.wait(['@approveShipment', '@patchMTOStatus']);
 
     // Redirected to Move Task Order page
-    cy.url().should('include', `/moves/PRXNTS/mto`);
+    cy.url().should('include', `/moves/PRXNTR/mto`);
     cy.wait(['@getMTOShipments']);
     // Confirm estimated weight shows expected extra shipment detail link
     cy.get('[id="move-weights"] div').contains('1 shipment not moved by GHC prime.');
@@ -400,14 +412,14 @@ function editTacSac() {
 
   cy.get('form').within(($form) => {
     cy.get('select[name="departmentIndicator"]').select('21 Army', { force: true });
-    cy.get('input[name="ordersNumber"]').click().clear().type('ORDER66').blur();
+    cy.get('input[name="ordersNumber"]').click().clear().type('ORDER66');
     cy.get('select[name="ordersType"]').select('Permanent Change Of Station (PCS)');
     cy.get('select[name="ordersTypeDetail"]').select('Shipment of HHG Permitted');
 
-    cy.get('[data-testid="hhgTacInput"]').click().clear().type('E15A').blur();
-    cy.get('[data-testid="hhgSacInput"]').click().clear().type('4K988AS098F').blur();
-    cy.get('[data-testid="ntsTacInput"]').click().clear().type('F123').blur();
-    cy.get('[data-testid="ntsSacInput"]').click().clear().type('3L988AS098F').blur();
+    cy.get('[data-testid="hhgTacInput"]').click().clear().type('E15A');
+    cy.get('[data-testid="hhgSacInput"]').click().clear().type('4K988AS098F');
+    cy.get('[data-testid="ntsTacInput"]').click().clear().type('F123');
+    cy.get('[data-testid="ntsSacInput"]').click().clear().type('3L988AS098F');
     // Edit orders page | Save
     cy.get('[data-testid="button"]').contains('Save').click();
   });
