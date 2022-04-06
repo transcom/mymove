@@ -57,15 +57,15 @@ export const ShipmentListItem = ({
         </div>
       )}
       {canEditOrDelete ? (
-        <span className={styles['shipment-btns']}>
+        <div className={styles['shipment-btns']}>
           <Button className={styles['edit-btn']} onClick={onDeleteClick} type="button">
             Delete
           </Button>
-          <div>|</div>
+          |
           <Button className={styles['edit-btn']} onClick={onShipmentClick} type="button">
             Edit
           </Button>
-        </span>
+        </div>
       ) : (
         <div className={styles.noEdit} />
       )}
