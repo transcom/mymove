@@ -64,7 +64,7 @@ references:
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch placeholder_branch_name
+  server-ignore-branch: &server-ignore-branch mb-12040-excel-allowable-file-type-uploads
 
 executors:
   av_medium:
