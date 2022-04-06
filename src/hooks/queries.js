@@ -429,8 +429,15 @@ export const usePrimeSimulatorGetMove = (moveCode) => {
   };
 };
 
-export const useGHCGetMoveHistory = (moveCode) => {
-  const { data = {}, ...getGHCMoveHistoryQuery } = useQuery([MOVE_HISTORY, moveCode], getMoveHistory);
+export const useGHCGetMoveHistory = ({
+  moveCode,
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
+  const { data = {}, ...getGHCMoveHistoryQuery } = useQuery(
+    [MOVE_HISTORY, { moveCode, currentPage, currentPageSize }],
+    getMoveHistory,
+  );
   const { isLoading, isError, isSuccess } = getQueriesStatus([getGHCMoveHistoryQuery]);
   const { historyRecords, ...dataProps } = data;
   return {
