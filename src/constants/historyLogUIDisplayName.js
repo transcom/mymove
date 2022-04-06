@@ -5,6 +5,13 @@ import { shipmentTypes } from 'constants/shipments';
 export const HistoryLogValuesShape = PropTypes.object;
 export const HistoryLogContextShape = PropTypes.object;
 
+export const HistoryLogRecordShape = PropTypes.shape({
+  context: HistoryLogContextShape,
+  eventName: PropTypes.string,
+  changedValues: HistoryLogValuesShape,
+  oldValues: HistoryLogValuesShape,
+});
+
 /*
 const modelToDisplayName = {
   updatedAt: 'Updated at',
@@ -78,19 +85,21 @@ export const shipmentOptionToDisplay = {
 export const eventNamePlainTextToDisplay = {
   approveShipment: (_, oldValues) => `${shipmentTypes[oldValues.shipment_type]} shipment`,
   approveShipmentDiversion: (_, oldValues) => `${shipmentTypes[oldValues.shipment_type]} shipment`,
-  updateMTOServiceItemStatus: (_, __, context) =>
-    `${shipmentOptionToDisplay[context.shipment_type]} shipment, ${context.name}`,
-  requestShipmentDiversion: (_, oldValues) =>
-    `Requested diversion for ${shipmentOptionToDisplay[oldValues.shipment_type]} shipment`, // ghc.yaml
-  setFinancialReviewFlag: (changedValues) => {
-    return changedValues.financial_review_flag === 'true'
+  updateMTOServiceItemStatus: (historyRecord) =>
+    `${shipmentOptionToDisplay[historyRecord.context.shipment_type]} shipment, ${historyRecord.context.name}`,
+  requestShipmentDiversion: (historyRecord) =>
+    `Requested diversion for ${shipmentOptionToDisplay[historyRecord.oldValues.shipment_type]} shipment`, // ghc.yaml
+  setFinancialReviewFlag: (historyRecord) => {
+    return historyRecord.changedValues.financial_review_flag === 'true'
       ? 'Move flagged for financial review'
       : 'Move unflagged for financial review';
   },
-  requestShipmentCancellation: (_, oldValues) =>
-    `Requested cancellation for ${shipmentOptionToDisplay[oldValues.shipment_type]} shipment`,
-  updateMoveTaskOrderStatus: (changedValues) => {
-    return changedValues.status === 'APPROVED' ? 'Created Move Task Order (MTO)' : 'Rejected Move Task Order (MTO)';
+  requestShipmentCancellation: (historyRecord) =>
+    `Requested cancellation for ${shipmentOptionToDisplay[historyRecord.oldValues.shipment_type]} shipment`,
+  updateMoveTaskOrderStatus: (historyRecord) => {
+    return historyRecord.changedValues.status === 'APPROVED'
+      ? 'Created Move Task Order (MTO)'
+      : 'Rejected Move Task Order (MTO)';
   },
 };
 

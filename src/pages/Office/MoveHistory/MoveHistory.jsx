@@ -29,14 +29,7 @@ const columns = [
   createHeader(
     'Details',
     (row) => {
-      return (
-        <MoveHistoryDetailsSelector
-          eventName={row.eventName}
-          oldValues={row.oldValues}
-          changedValues={row.changedValues}
-          context={row.context}
-        />
-      );
+      return <MoveHistoryDetailsSelector historyRecord={row} />;
     },
     { id: 'move-history-details' },
   ),
