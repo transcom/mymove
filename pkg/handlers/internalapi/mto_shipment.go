@@ -349,6 +349,8 @@ func (h DeleteShipmentHandler) Handle(params mtoshipmentops.DeleteShipmentParams
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewDeleteShipmentNotFound(), err
+				case apperror.ForbiddenError:
+					return mtoshipmentops.NewDeleteShipmentForbidden(), err
 				default:
 					return mtoshipmentops.NewDeleteShipmentInternalServerError(), err
 				}
