@@ -67,7 +67,7 @@ Review.propTypes = {
 const mapStateToProps = (state, ownProps) => {
   return {
     ...ownProps,
-    canMoveNext: true, // TODO: prevent incomplete PPM submission?
+    canMoveNext: !!state?.entities?.mtoShipments.length, // TODO: prevent incomplete PPM submission?
   };
 };
 

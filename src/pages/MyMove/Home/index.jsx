@@ -247,7 +247,6 @@ export class Home extends Component {
 
   handleDeleteShipmentConfirmation = (shipmentId) => {
     const { move, updateShipmentList } = this.props;
-    // TODO: add toast msgs
     deleteMTOShipment(shipmentId)
       .then(() => {
         getMTOShipmentsForMove(move.id).then((response) => {
