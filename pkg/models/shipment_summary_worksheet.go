@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mitchellh/mapstructure"
-
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
+	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
@@ -712,7 +712,7 @@ func FormatDate(date time.Time) string {
 //outSep specifies the character to use for rejoining the string
 func FormatEnum(s string, outSep string) string {
 	words := strings.Replace(strings.ToLower(s), "_", " ", -1)
-	return strings.Replace(strings.Title(words), " ", outSep, -1)
+	return strings.Replace(cases.Title(language.English).String(words), " ", outSep, -1)
 }
 
 //FormatWeights formats a unit.Pound using 000s separator
