@@ -1669,6 +1669,11 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@faker-js/faker@^6.1.2":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-6.1.2.tgz#7093ea65e6d78eae388918a46968c083366bd621"
+  integrity sha512-QSvmexHCxeRUk1/yKmoEDaWB5Hohjvtim5g2JJwy8S/l0L4b3y/GxSpE6vN4SBoVGGahEQW21uqyRr7EofI35A==
+
 "@fortawesome/fontawesome-common-types@^0.2.36":
   version "0.2.36"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.36.tgz#b44e52db3b6b20523e0c57ef8c42d315532cb903"
@@ -1808,6 +1813,11 @@
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.3.tgz#e45e384e4b8ec16bce2fd903af78450f6bf7ec98"
   integrity sha512-ZXRY4jNvVgSVQ8DL3LTcakaAtXwTVUxE81hslsyD2AtoXW/wVob10HkOJ1X/pAlcI7D+2YoZKg5do8G/w6RYgA==
+
+"@jackfranklin/test-data-bot@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@jackfranklin/test-data-bot/-/test-data-bot-2.0.0.tgz#56df4085bc1b516c611fc9b98c349532ad5fce3f"
+  integrity sha512-LA/rc2Y28JdvvPjCEYLx8xGm76bj8yphvybP0iwMiol3qVJlz59zSILuLxGKtxKcyCXoYCC3aUOsRmql1AqjBw==
 
 "@jest/console@^26.6.2":
   version "26.6.2"

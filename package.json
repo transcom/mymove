@@ -120,6 +120,8 @@
     "@babel/helper-builder-react-jsx": "^7.16.7",
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@dump247/storybook-state": "^1.6.1",
+    "@faker-js/faker": "^6.1.2",
+    "@jackfranklin/test-data-bot": "^2.0.0",
     "@stoplight/spectral": "^5.9.2",
     "@storybook/addon-a11y": "^6.4.14",
     "@storybook/addon-essentials": "^6.4.14",
