@@ -59,6 +59,12 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['src/utils/test/**'],
+      rules: {
+        'import/no-extraneous-dependencies': 'off',
+      },
+    },
+    {
       files: ['*.stories.js', '*.stories.jsx', 'setupTests.js'],
       rules: {
         'import/no-extraneous-dependencies': 'off',
