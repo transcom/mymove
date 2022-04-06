@@ -7,6 +7,7 @@ import {
   eventNamesWithLabeledDetails,
   eventNamesWithServiceItemDetails,
   eventNamesWithPlainTextDetails,
+  HistoryLogContextShape,
   HistoryLogValuesShape,
 } from 'constants/historyLogUIDisplayName';
 
@@ -20,7 +21,7 @@ const formatChangedValues = (values) => {
     : '';
 };
 
-const MoveHistoryDetailsSelector = ({ eventName, oldValues, changedValues }) => {
+const MoveHistoryDetailsSelector = ({ eventName, oldValues, changedValues, context }) => {
   if (eventNamesWithLabeledDetails[eventName]) {
     return (
       <div>
@@ -42,7 +43,9 @@ const MoveHistoryDetailsSelector = ({ eventName, oldValues, changedValues }) => 
   }
 
   if (eventNamesWithPlainTextDetails[eventName]) {
-    return <PlainTextDetails eventName={eventName} oldValues={oldValues} changedValues={changedValues} />;
+    return (
+      <PlainTextDetails eventName={eventName} oldValues={oldValues} changedValues={changedValues} context={context} />
+    );
   }
 
   return (
@@ -58,12 +61,14 @@ MoveHistoryDetailsSelector.propTypes = {
   eventName: PropTypes.string,
   oldValues: HistoryLogValuesShape,
   changedValues: HistoryLogValuesShape,
+  context: HistoryLogContextShape,
 };
 
 MoveHistoryDetailsSelector.defaultProps = {
   eventName: '',
   oldValues: {},
   changedValues: {},
+  context: {},
 };
 
 export default MoveHistoryDetailsSelector;

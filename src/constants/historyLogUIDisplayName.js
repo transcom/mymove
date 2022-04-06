@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { shipmentTypes } from 'constants/shipments';
 
 export const HistoryLogValuesShape = PropTypes.object;
+export const HistoryLogContextShape = PropTypes.object;
 
 /*
 const modelToDisplayName = {
@@ -77,7 +78,8 @@ export const shipmentOptionToDisplay = {
 export const eventNamePlainTextToDisplay = {
   approveShipment: (_, oldValues) => `${shipmentTypes[oldValues.shipment_type]} shipment`,
   approveShipmentDiversion: (_, oldValues) => `${shipmentTypes[oldValues.shipment_type]} shipment`,
-  updateMTOServiceItemStatus: () => 'Service item status', // ghc.yaml Need to check status as well
+  updateMTOServiceItemStatus: (_, __, context) =>
+    `${shipmentOptionToDisplay[context.shipment_type]} shipment, ${context.name}`,
   requestShipmentDiversion: (_, oldValues) =>
     `Requested diversion for ${shipmentOptionToDisplay[oldValues.shipment_type]} shipment`, // ghc.yaml
   setFinancialReviewFlag: (changedValues) => {
