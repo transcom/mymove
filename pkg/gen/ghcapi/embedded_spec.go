@@ -4552,7 +4552,10 @@ func init() {
           "x-nullable": true
         },
         "context": {
-          "type": "string",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
           "x-nullable": true
         },
         "contextId": {
@@ -11507,7 +11510,10 @@ func init() {
           "x-nullable": true
         },
         "context": {
-          "type": "string",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
           "x-nullable": true
         },
         "contextId": {

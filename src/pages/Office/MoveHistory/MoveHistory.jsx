@@ -34,6 +34,7 @@ const columns = [
           eventName={row.eventName}
           oldValues={row.oldValues}
           changedValues={row.changedValues}
+          context={row.context}
         />
       );
     },
