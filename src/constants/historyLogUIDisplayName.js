@@ -115,6 +115,7 @@ export const historyLogEventNameDisplay = {
 
 export const shipmentTypeDetails = {
   approveShipmentDiversion: 'Approved shipment',
+  approveShipment: 'Approved shipment',
 };
 
 export function getHistoryLogEventNameDisplay({ eventName /* operationId */, changedValues }) {
