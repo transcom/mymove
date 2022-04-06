@@ -18,6 +18,8 @@ jest.mock('store/entities/selectors', () => ({
   selectMTOShipmentsForCurrentMove: jest.fn(),
 }));
 
+afterEach(jest.resetAllMocks);
+
 describe('Review page', () => {
   const testDraftMove = {
     status: MOVE_STATUSES.DRAFT,
@@ -141,6 +143,25 @@ describe('Review page', () => {
     expect(testProps.push).toHaveBeenCalledWith(`/moves/${testProps.match.params.moveId}/agreement`);
   });
 
+  it('next button goes to the Agreement page when move is in DRAFT status with only HHG shipment', async () => {
+    selectCurrentMove.mockImplementation(() => testDraftMove);
+    selectMTOShipmentsForCurrentMove.mockImplementation(() => [testHHGShipment]);
+
+    render(
+      <MockProviders>
+        <ConnectedReview {...testProps} />
+      </MockProviders>,
+    );
+
+    const submitButton = await screen.findByRole('button', { name: 'Next' });
+
+    expect(submitButton).toBeInTheDocument();
+
+    userEvent.click(submitButton);
+
+    expect(testProps.push).toHaveBeenCalledWith(`/moves/${testProps.match.params.moveId}/agreement`);
+  });
+
   it('next button is disabled when a PPM shipment is in an incomplete state', async () => {
     selectCurrentMove.mockImplementation(() => testDraftMove);
     selectMTOShipmentsForCurrentMove.mockImplementation(() => [testIncompletePPMShipment, testHHGShipment]);
@@ -182,6 +203,4 @@ describe('Review page', () => {
       screen.getByText('Review your info and submit your move request now, or come back and finish later.'),
     ).toBeInTheDocument();
   });
-
-  afterEach(jest.resetAllMocks);
 });

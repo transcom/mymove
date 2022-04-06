@@ -756,6 +756,14 @@ func createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 	})
 }
 
+func createUnsubmittedMoveWithFullPPMShipmentComplete1(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx, "complete@ppm.unsubmitted", "6a7d969a-2347-48c7-9289-0963c447f0a7", "PPMCMP", userUploader)
+}
+
+func createUnsubmittedMoveWithFullPPMShipmentComplete2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx, "complete.2@ppm.unsubmitted", "fd02a7ac-f9cb-49e0-90ab-93a8443c1fc7", "PPMCM2", userUploader)
+}
+
 func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext, email string, userid string, locator string, userUploader *uploader.UserUploader) {
 	loginGovUUID := uuid.Must(uuid.NewV4())
 

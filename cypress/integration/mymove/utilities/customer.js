@@ -136,7 +136,7 @@ export function signAgreement() {
   cy.get('h1').contains('Now for the official part…');
 
   cy.get('input[name="signature"]').type('Sofía Clark-Nuñez');
-  cy.get('button').contains('Complete');
+  cy.get('button').contains('Complete').should('be.enabled');
 }
 
 export function submitMove(actionToWaitOn) {

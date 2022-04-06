@@ -92,6 +92,8 @@ function verifyPPMShipmentCard(shipmentCardFields, isEditable = false) {
 
       if (isEditable) {
         cy.get('button').contains('Edit');
+      } else {
+        cy.get('[data-testid="ShipmentContainer"]').find('button').should('not.exist');
       }
 
       cy.get('dt').should('have.length', shipmentCardFields.length).as('shipmentLabels');
