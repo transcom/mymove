@@ -36,6 +36,7 @@ type PPMShipment struct {
 	Shipment                       MTOShipment       `belongs_to:"mto_shipments" fk_id:"shipment_id"`
 	CreatedAt                      time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt                      time.Time         `json:"updated_at" db:"updated_at"`
+	DeletedAt                      time.Time         `json:"deleted_at" db:"deleted_at"`
 	Status                         PPMShipmentStatus `json:"status" db:"status"`
 	ExpectedDepartureDate          time.Time         `json:"expected_departure_date" db:"expected_departure_date"`
 	ActualMoveDate                 *time.Time        `json:"actual_move_date" db:"actual_move_date"`
