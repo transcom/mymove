@@ -5,7 +5,7 @@ type AllowedFileTypes []string
 
 var (
 	// AllowedTypesServiceMember are the content types we allow service members to upload
-	AllowedTypesServiceMember AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf"}
+	AllowedTypesServiceMember AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/octet-stream", "application/zip"}
 
 	// AllowedTypesPaymentRequest are the content types we allow prime to upload
 	AllowedTypesPaymentRequest AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf"}

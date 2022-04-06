@@ -67,7 +67,15 @@ const FileUpload = forwardRef(({ name, createUpload, onChange, labelIdle, labelI
     server: serverConfig,
     imagePreviewMaxHeight: 100,
     labelIdle: isMobile() ? labelIdleMobile : labelIdle,
-    acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+    acceptedFileTypes: [
+      'image/jpeg',
+      'image/png',
+      'application/pdf',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/octet-stream',
+      'application/zip',
+    ],
     maxFileSize: '25MB',
     credits: false,
   };
