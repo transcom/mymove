@@ -11,7 +11,6 @@ describe('MoveHistoryDetailsSelector', () => {
     ['counselingUpdateAllowance', 'Labeled'],
     ['updateMoveTaskOrder', 'Labeled'],
     ['updateMTOShipment', 'Labeled'],
-    ['approveShipment', 'Approved shipment'],
     ['requestShipmentDiversion', 'Requested diversion'],
     ['updateMTOServiceItem', 'Service Items'],
     ['updateMTOServiceItemStatus', 'Service item status'],
@@ -32,12 +31,13 @@ describe('MoveHistoryDetailsSelector', () => {
   });
 
   it.each([
-    ['setFinancialReviewFlag', 'Move flagged for financial review', { financial_review_flag: 'true' }],
-    ['setFinancialReviewFlag', 'Move unflagged for financial review', { financial_review_flag: 'false' }],
-    ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', { status: 'APPROVED' }],
-    ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', { status: 'Rejected' }],
-  ])('for event name %s it renders %s', (eventName, text, changedValues) => {
-    render(<MoveHistoryDetailsSelector eventName={eventName} changedValues={changedValues} />);
+    ['setFinancialReviewFlag', 'Move flagged for financial review', { financial_review_flag: 'true' }, {}],
+    ['setFinancialReviewFlag', 'Move unflagged for financial review', { financial_review_flag: 'false' }, {}],
+    ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', { status: 'APPROVED' }, {}],
+    ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', { status: 'Rejected' }, {}],
+    ['approveShipment', 'HHG shipment', { status: 'APPROVED' }, { shipment_type: 'HHG' }],
+  ])('for event name %s it renders %s', (eventName, text, changedValues, oldValues) => {
+    render(<MoveHistoryDetailsSelector eventName={eventName} changedValues={changedValues} oldValues={oldValues} />);
 
     expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
   });

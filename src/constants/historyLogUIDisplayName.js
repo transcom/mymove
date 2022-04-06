@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+import { shipmentTypes } from 'constants/shipments';
+
 export const HistoryLogValuesShape = PropTypes.object;
 
 /*
@@ -65,7 +67,8 @@ export const eventNamesWithEmptyDetails = {
 };
 
 export const eventNamePlainTextToDisplay = {
-  approveShipment: () => 'Approved shipment',
+  approveShipment: (_, oldValues) => `${shipmentTypes[oldValues.shipment_type]} shipment`,
+  approveShipmentDiversion: (_, oldValues) => `${shipmentTypes[oldValues.shipment_type]} shipment`,
   updateMTOServiceItemStatus: () => 'Service item status', // ghc.yaml Need to check status as well
   requestShipmentDiversion: () => 'Requested diversion', // ghc.yaml
   setFinancialReviewFlag: (changedValues) => {
@@ -81,6 +84,7 @@ export const eventNamePlainTextToDisplay = {
 
 export const eventNamesWithPlainTextDetails = {
   approveShipment: 'Approved shipment', // ghc.yaml
+  approveShipmentDiversion: 'Approved shipment',
   requestShipmentDiversion: 'Requested diversion', // ghc.yaml
   updateMTOServiceItemStatus: 'Service item status', // ghc.yaml Need to check status as well
   setFinancialReviewFlag: 'Flagged move', // ghc.yaml
@@ -97,6 +101,7 @@ export const historyLogEventNameDisplay = {
   updateMoveTaskOrder: 'Updated move', // ghc.yaml
   updateMTOShipment: 'Updated shipment', // ghc.yaml internal.yaml prime.yaml
   approveShipment: 'Approved shipment', // ghc.yaml
+  approveShipmentDiversion: 'Approved shipment',
   requestShipmentDiversion: 'Requested diversion', // ghc.yaml
   updateMTOServiceItem: 'Updated service item', // ghc.yaml
   updateMTOServiceItemStatus: '', // ghc.yaml
@@ -111,11 +116,6 @@ export const historyLogEventNameDisplay = {
   createMTOShipment: 'Submitted/Requested shipments', // internal.yaml prime.yaml
   updateMTOShipmentAddress: 'Updated shipment', // prime.yaml
   createMTOServiceItem: 'Requested service item', // prime.yaml
-};
-
-export const shipmentTypeDetails = {
-  approveShipmentDiversion: 'Approved shipment',
-  approveShipment: 'Approved shipment',
 };
 
 export function getHistoryLogEventNameDisplay({ eventName /* operationId */, changedValues }) {
