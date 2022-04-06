@@ -92,6 +92,7 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
 		createTXO(appCtx)
+		createTXOServicesCounselor(appCtx)
 		createTXOUSMC(appCtx)
 
 		// Onboarding
@@ -105,6 +106,7 @@ func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *upload
 		createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 		createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
+		createNeedsServicesCounseling(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypePPM, nil, "SCPPM1")
 	}
 }
 

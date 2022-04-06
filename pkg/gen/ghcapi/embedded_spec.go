@@ -3322,6 +3322,10 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "departmentIndicator": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DeptIndicator"
+        },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
           "type": "string",
@@ -3346,8 +3350,17 @@ func init() {
           "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
+        "ordersNumber": {
+          "type": "string",
+          "title": "Orders Number",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
+        },
+        "ordersTypeDetail": {
+          "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyLocationId": {
           "type": "string",
@@ -4526,11 +4539,8 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
@@ -4567,11 +4577,8 @@ func init() {
         },
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
         },
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
@@ -10228,6 +10235,10 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "departmentIndicator": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DeptIndicator"
+        },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
           "type": "string",
@@ -10252,8 +10263,17 @@ func init() {
           "$ref": "#/definitions/NullableString",
           "example": "F8J1"
         },
+        "ordersNumber": {
+          "type": "string",
+          "title": "Orders Number",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
         "ordersType": {
           "$ref": "#/definitions/OrdersType"
+        },
+        "ordersTypeDetail": {
+          "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyLocationId": {
           "type": "string",
@@ -11432,11 +11452,8 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
@@ -11473,11 +11490,8 @@ func init() {
         },
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/MoveAuditHistoryItems"
         },
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
