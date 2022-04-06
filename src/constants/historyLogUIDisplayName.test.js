@@ -52,6 +52,23 @@ describe('historyLogUIDisplay', () => {
     });
   });
 
+  describe('display Approved shipment', () => {
+    const item = {
+      changedValues: {
+        status: 'APPROVED',
+      },
+      eventName: 'approveShipment',
+    };
+
+    // ['createOrders', 'Submitted orders'], //internal.yaml
+    describe('display Approved shipment when approveShipment API is used', () => {
+      const result = getHistoryLogEventNameDisplay(item);
+      it('should be string Approved shipment', () => {
+        expect(result).toEqual('Approved shipment');
+      });
+    });
+  });
+
   describe('display Move rejected', () => {
     const item = {
       changedValues: {
