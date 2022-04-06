@@ -40,7 +40,7 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for exp deploys. See the branch settings below.
-  exp-branch: &exp-branch mb-12040-excel-allowable-file-type-uploads
+  exp-branch: &exp-branch placeholder_branch_name
 
   # set acceptance-branch to the branch you want to ENABLE acceptance
   # tests, or `placeholder_branch_name` if you don't want to run them
@@ -64,7 +64,7 @@ references:
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch mb-12040-excel-allowable-file-type-uploads
+  server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
   av_medium:
