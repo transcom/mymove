@@ -150,9 +150,7 @@ export function getHistoryLogEventNameDisplay({ eventName /* operationId */, cha
           return '';
       }
     }
-    case 'approveShipmentDiversion': {
-      return 'Approved shipment';
-    }
+
     default:
       return historyLogEventNameDisplay[eventName];
   }
