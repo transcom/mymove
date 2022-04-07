@@ -7,7 +7,7 @@ import { shipmentOptionToDisplay } from 'constants/historyLogUIDisplayName';
 
 describe('PlainTextDetails', () => {
   it.each([
-    ['approveShipment', 'Approved shipment', {}, {}],
+    ['approveShipment', 'HHG shipment', { shipment_type: 'HHG' }, {}],
     [
       'requestShipmentDiversion',
       `Requested diversion for ${shipmentOptionToDisplay.HHG} shipment`,
@@ -27,7 +27,6 @@ describe('PlainTextDetails', () => {
     ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', {}, { status: 'REJECTED' }],
   ])('for event name %s it renders %s', (eventName, text, oldValues, changedValues) => {
     render(<PlainTextDetails eventName={eventName} oldValues={oldValues} changedValues={changedValues} />);
-
     expect(screen.getByText(text)).toBeInTheDocument();
   });
 });
