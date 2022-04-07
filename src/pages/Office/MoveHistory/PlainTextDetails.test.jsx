@@ -7,7 +7,7 @@ import { shipmentOptionToDisplay } from 'constants/historyLogUIDisplayName';
 
 describe('PlainTextDetails', () => {
   it.each([
-    ['approveShipment', 'HHG shipment', {}, { shipment_type: 'HHG' }],
+    ['approveShipment', 'HHG shipment', { shipment_type: 'HHG' }, {}],
     [
       'requestShipmentDiversion',
       `Requested diversion for ${shipmentOptionToDisplay.HHG} shipment`,

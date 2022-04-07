@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import { HistoryLogValuesShape, eventNamePlainTextToDisplay } from 'constants/historyLogUIDisplayName';
 
-
 const PlainTextDetails = ({ eventName, oldValues, changedValues }) => {
   let textToDisplay = '';
   if (eventNamePlainTextToDisplay[eventName]) {

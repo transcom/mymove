@@ -12,7 +12,6 @@ describe('MoveHistoryDetailsSelector', () => {
     ['updateMoveTaskOrder', 'Labeled'],
     ['updateMTOShipment', 'Labeled'],
     ['requestShipmentDiversion', 'Requested diversion'],
-    ['approveShipment', 'Approved shipment'],
     ['updateMTOServiceItem', 'Service Items'],
     ['updateMTOServiceItemStatus', 'Service item status'],
     ['createOrders', '-'],
@@ -35,7 +34,8 @@ describe('MoveHistoryDetailsSelector', () => {
     ['setFinancialReviewFlag', 'Move unflagged for financial review', {}, { financial_review_flag: 'false' }],
     ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', {}, { status: 'APPROVED' }],
     ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', {}, { status: 'Rejected' }],
-    ['approveShipment', 'HHG shipment', { status: 'APPROVED' }, { shipment_type: 'HHG' }],
+    ['approveShipment', 'HHG shipment', { shipment_type: 'HHG' }, { status: 'APPROVED' }],
+    ['approveShipmentDiversion', 'HHG shipment', { shipment_type: 'HHG' }, { status: 'APPROVED' }],
     ['requestShipmentCancellation', 'Requested cancellation for HHG shipment', { shipment_type: 'HHG' }, {}],
     ['requestShipmentDiversion', 'Requested diversion for HHG shipment', { shipment_type: 'HHG' }, {}],
   ])('for event name %s it renders %s', (eventName, text, oldValues, changedValues) => {
