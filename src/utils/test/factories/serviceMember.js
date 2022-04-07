@@ -8,9 +8,9 @@ import WEIGHT_ENTITLEMENTS from 'constants/weightEntitlements';
 import fake from 'utils/test/factories/base';
 import addressBuilder from 'utils/test/factories/address';
 
-const PHONE_FORMAT = '###-###-####';
+export const PHONE_FORMAT = '###-###-####';
 
-const serviceMemberBuilder = build({
+export const serviceMemberBuilder = build({
   fields: {
     id: perBuild(uuidv4),
     affiliation: oneOf(...Object.keys(serviceMemberAgencies)),
@@ -54,5 +54,3 @@ const serviceMemberBuilder = build({
     return serviceMember;
   },
 });
-
-export default serviceMemberBuilder;
