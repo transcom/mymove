@@ -16,9 +16,11 @@ describe('ShipmentList component', () => {
     { id: 'ID-4', shipmentType: SHIPMENT_OPTIONS.NTSR },
   ];
   const onShipmentClick = jest.fn();
+  const onDeleteClick = jest.fn();
   const defaultProps = {
     shipments,
     onShipmentClick,
+    onDeleteClick,
     moveSubmitted: false,
   };
   it('renders ShipmentList with shipments', () => {
@@ -48,6 +50,21 @@ describe('ShipmentList component', () => {
     wrapper.find('ShipmentListItem').at(2).find('button').at(1).simulate('click');
     expect(onShipmentClick.mock.calls.length).toBe(3);
     const [shipmentOneId, shipmentTwoId, shipmentThreeId] = onShipmentClick.mock.calls;
+    expect(shipmentOneId[0]).toEqual(shipments[0].id);
+    expect(shipmentTwoId[0]).toEqual(shipments[1].id);
+    expect(shipmentThreeId[0]).toEqual(shipments[2].id);
+  });
+
+  it('ShipmentList calls onDeleteClick when clicked', () => {
+    const wrapper = mount(<ShipmentList {...defaultProps} />);
+    expect(onDeleteClick.mock.calls.length).toBe(0);
+    wrapper.find('ShipmentListItem').at(0).find('button').at(0).simulate('click');
+    expect(onDeleteClick.mock.calls.length).toBe(1);
+    wrapper.find('ShipmentListItem').at(1).find('button').at(0).simulate('click');
+    expect(onDeleteClick.mock.calls.length).toBe(2);
+    wrapper.find('ShipmentListItem').at(2).find('button').at(0).simulate('click');
+    expect(onDeleteClick.mock.calls.length).toBe(3);
+    const [shipmentOneId, shipmentTwoId, shipmentThreeId] = onDeleteClick.mock.calls;
     expect(shipmentOneId[0]).toEqual(shipments[0].id);
     expect(shipmentTwoId[0]).toEqual(shipments[1].id);
     expect(shipmentThreeId[0]).toEqual(shipments[2].id);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 import PPMShipmentCard from './PPMShipmentCard';
 
@@ -8,6 +8,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 const defaultProps = {
   showEditAndDeleteBtn: true,
   onEditClick: jest.fn(),
+  onDeleteClick: jest.fn(),
   shipmentNumber: 1,
   shipment: {
     moveTaskOrderID: 'testMove123',
@@ -25,6 +26,7 @@ const defaultProps = {
 const completeProps = {
   showEditAndDeleteBtn: true,
   onEditClick: jest.fn(),
+  onDeleteClick: jest.fn(),
   shipmentNumber: 1,
   shipment: {
     moveTaskOrderID: 'testMove123',
@@ -123,5 +125,19 @@ describe('PPMShipmentCard component', () => {
 
     expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+  });
+
+  it('calls onEditClick when edit button is pressed', () => {
+    render(<PPMShipmentCard {...completeProps} />);
+    const editBtn = screen.queryByRole('button', { name: 'Edit' });
+    fireEvent.click(editBtn);
+    expect(completeProps.onEditClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onDeleteClick when delete button is pressed', () => {
+    render(<PPMShipmentCard {...completeProps} />);
+    const deleteBtn = screen.queryByRole('button', { name: 'Delete' });
+    fireEvent.click(deleteBtn);
+    expect(completeProps.onDeleteClick).toHaveBeenCalledTimes(1);
   });
 });
