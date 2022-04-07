@@ -5350,11 +5350,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -12363,11 +12358,6 @@ func init() {
           "x-omitempty": false
         },
         "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "deletedAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true

@@ -2454,10 +2454,6 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      deletedAt:
-        format: date-time
-        type: string
-        readOnly: true
       updatedAt:
         format: date-time
         type: string

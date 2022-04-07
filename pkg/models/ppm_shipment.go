@@ -71,6 +71,7 @@ func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UU
 
 	err := db.EagerPreload("Shipment").
 		Where("ppm_shipments.shipment_id = ?", mtoShipmentID).
+		Where("ppm_shipments.deleted_at is null").
 		First(&ppmShipment)
 
 	if err != nil {
