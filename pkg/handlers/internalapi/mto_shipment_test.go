@@ -608,7 +608,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-	ppmUpdater := ppmshipment.NewPPMShipmentUpdater()
+	ppmEstimator := ppmshipment.NewEstimatePPM()
+	ppmUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator)
 
 	suite.Run("Successful PATCH - Integration Test", func() {
 		handler := UpdateMTOShipmentHandler{

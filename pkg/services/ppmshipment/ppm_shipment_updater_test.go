@@ -21,7 +21,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	// eTag := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
 	suite.Run("UpdatePPMShipment - Success", func() {
 		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
-		ppmEstimator := testdatagen.MakeDefaultPPMEstimate
+		ppmEstimator := NewEstimatePPM()
 		ppmShipmentUpdater := NewPPMShipmentUpdater(ppmEstimator)
 
 		newPPM := createDefaultPPMShipment()
@@ -34,7 +34,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Not Found Error", func() {
-		ppmShipmentUpdater := NewPPMShipmentUpdater()
+		ppmEstimator := NewEstimatePPM()
+		ppmShipmentUpdater := NewPPMShipmentUpdater(ppmEstimator)
 
 		newPPM := createDefaultPPMShipment()
 		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), newPPM, uuid.Nil)

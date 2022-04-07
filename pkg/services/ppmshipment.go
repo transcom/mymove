@@ -20,5 +20,5 @@ type PPMShipmentUpdater interface {
 
 // PPMEstimator estimates the cost of a PPM shipment
 type PPMEstimator interface {
-	EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment) (*models.PPMShipment, error)
+	EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*int32, error)
 }

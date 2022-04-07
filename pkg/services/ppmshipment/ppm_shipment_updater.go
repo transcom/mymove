@@ -51,7 +51,7 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, err
 	}
 
-	// Add estimator here
+	// Add call to estimator
 	// Add check for if the estimator encounters an err, then do not proceed with update
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {

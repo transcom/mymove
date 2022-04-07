@@ -145,7 +145,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
 		mtoShipmentCreator,
-		ppmshipment.NewPPMShipmentCreator(mtoShipmentCreator, ppmEstimator),
+		ppmshipment.NewPPMShipmentCreator(mtoShipmentCreator),
 	}
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
