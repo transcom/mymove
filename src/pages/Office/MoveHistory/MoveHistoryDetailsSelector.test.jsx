@@ -14,13 +14,13 @@ describe('MoveHistoryDetailsSelector', () => {
 	[{ eventName: 'requestShipmentDiversion' }, 'Requested diversion'],
     [{ eventName: 'approveShipment' }, 'Approved shipment'],
     [{ eventName: 'updateMTOServiceItem' }, 'Service Items'],
-    // [
-    //   {
-    //     eventName: 'updateMTOServiceItemStatus',
-    //     context: { name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
-    //   },
-    //   'Service item status',
-    // ],
+    [
+      {
+        eventName: 'updateMTOServiceItemStatus',
+        context: { name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
+      },
+      'NTS shipment, Domestic origin price',
+    ],
     [{ eventName: 'createOrders' }, '-'],
     [{ eventName: 'updateOrders' }, 'Labeled'],
     [{ eventName: 'uploadAmendedOrders' }, '-'],
