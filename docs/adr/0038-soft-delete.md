@@ -32,4 +32,4 @@ Please note that soft delete is to be treated like a hard delete in the regard t
 
 ## Reference
 
-* [Documentation](https://transcom.github.io/mymove-docs/docs/backend/guides/how-to/soft-delete/) on how to implement soft deletion 
+* [Documentation](https://transcom.github.io/mymove-docs/docs/backend/guides/how-to/soft-delete/) on how to implement soft deletion
