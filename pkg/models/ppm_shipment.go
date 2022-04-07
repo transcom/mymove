@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -36,7 +37,7 @@ type PPMShipment struct {
 	Shipment                       MTOShipment       `belongs_to:"mto_shipments" fk_id:"shipment_id"`
 	CreatedAt                      time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt                      time.Time         `json:"updated_at" db:"updated_at"`
-	DeletedAt                      time.Time         `json:"deleted_at" db:"deleted_at"`
+	DeletedAt                      *time.Time        `json:"deleted_at" db:"deleted_at"`
 	Status                         PPMShipmentStatus `json:"status" db:"status"`
 	ExpectedDepartureDate          time.Time         `json:"expected_departure_date" db:"expected_departure_date"`
 	ActualMoveDate                 *time.Time        `json:"actual_move_date" db:"actual_move_date"`
@@ -83,4 +84,11 @@ func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UU
 		}
 	}
 	return &ppmShipment, nil
+}
+
+// DeletePPMShipment will soft delete the PPMShipment
+func DeletePPMShipment(db *pop.Connection, ppmShipment *PPMShipment) error {
+	return db.Transaction(func(db *pop.Connection) error {
+		return utilities.SoftDestroy(db, ppmShipment)
+	})
 }
