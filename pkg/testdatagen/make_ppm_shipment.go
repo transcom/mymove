@@ -11,27 +11,22 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// checkOrCreateMTOShipment checks MTOShipment in assertions, or creates one if none exists. Caller can specify if this
-// should create a minimal or full MTOShipment.
-func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions, minimalMTOShipment bool) models.MTOShipment {
+// checkOrCreateMTOShipment checks MTOShipment in assertions, or creates one if none exists.
+func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
 	shipment := assertions.MTOShipment
 
-	if isZeroUUID(shipment.ID) {
+	if shipment.ShipmentType != "" && shipment.ShipmentType != models.MTOShipmentTypePPM {
+		log.Panicf("Expected asserted MTOShipment to be of type %s but instead got type %s", models.MTOShipmentTypePPM, shipment.ShipmentType)
+	}
+
+	if !assertions.Stub && shipment.CreatedAt.IsZero() || shipment.ID.IsNil() {
 		assertions.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
 
 		if assertions.MTOShipment.Status == "" {
 			assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
 		}
 
-		if minimalMTOShipment {
-			assertions.MTOShipment.RequestedPickupDate = nil
-
-			shipment = MakeMTOShipmentMinimal(db, assertions)
-		} else {
-			shipment = MakeMTOShipment(db, assertions) // has some fields that we may want to clear out like pickup dates and addresses
-		}
-	} else if shipment.ShipmentType != models.MTOShipmentTypePPM {
-		log.Panicf("Expected asserted MTOShipment to be of type %s but instead got type %s", models.MTOShipmentTypePPM, shipment.ShipmentType)
+		shipment = MakeBaseMTOShipment(db, assertions)
 	}
 
 	return shipment
@@ -64,6 +59,7 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 
 	requiredFields.destinationPostalCode = orders.NewDutyLocation.Address.PostalCode
 
+	// sitExpected is a pointer on the model, but is expected in our business rules.
 	requiredFields.sitExpected = false
 
 	return requiredFields
@@ -71,39 +67,36 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 
 // MakePPMShipment creates a single PPMShipment and associated relationships
 func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	shipment := checkOrCreateMTOShipment(db, assertions, false)
+	fullAssertions := Assertions{
+		PPMShipment: models.PPMShipment{
+			Status:              models.PPMShipmentStatusSubmitted,
+			EstimatedWeight:     models.PoundPointer(unit.Pound(4000)),
+			HasProGear:          models.BoolPointer(true),
+			ProGearWeight:       models.PoundPointer(unit.Pound(1150)),
+			SpouseProGearWeight: models.PoundPointer(unit.Pound(450)),
+			EstimatedIncentive:  models.Int32Pointer(567890),
+			AdvanceRequested:    models.BoolPointer(false),
+		},
+	}
 
-	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
-	estimatedWeight := unit.Pound(4000)
-	hasProGear := true
-	proGearWeight := unit.Pound(1150)
-	spouseProGearWeight := unit.Pound(450)
-	estimatedIncentive := int32(567890)
+	// We only want to set a SubmittedAt time if there is no status set in the assertions, or the one set matches our
+	// default of submitted.
+	if assertions.PPMShipment.Status == "" || assertions.PPMShipment.Status == models.PPMShipmentStatusSubmitted {
+		fullAssertions.PPMShipment.SubmittedAt = models.TimePointer(time.Now())
+	}
 
-	ppmShipment := models.PPMShipment{
-		ShipmentID:            shipment.ID,
-		Shipment:              shipment,
-		Status:                models.PPMShipmentStatusSubmitted,
-		SubmittedAt:           models.TimePointer(time.Now()),
-		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
-		PickupPostalCode:      requiredFields.pickupPostalCode,
-		DestinationPostalCode: requiredFields.destinationPostalCode,
-		EstimatedWeight:       &estimatedWeight,
-		SitExpected:           requiredFields.sitExpected,
-		HasProGear:            &hasProGear,
-		ProGearWeight:         &proGearWeight,
-		SpouseProGearWeight:   &spouseProGearWeight,
-		EstimatedIncentive:    &estimatedIncentive,
+	if assertions.PPMShipment.AdvanceRequested != nil && *assertions.PPMShipment.AdvanceRequested {
+		estimatedIncentiveCents := unit.Cents(*fullAssertions.PPMShipment.EstimatedIncentive)
+
+		advance := estimatedIncentiveCents.MultiplyFloat64(0.5)
+
+		fullAssertions.PPMShipment.Advance = &advance
 	}
 
 	// Overwrite values with those from assertions
-	mergeModels(&ppmShipment, assertions.PPMShipment)
+	mergeModels(&fullAssertions, assertions)
 
-	mustCreate(db, &ppmShipment, assertions.Stub)
-
-	ppmShipment.Shipment.PPMShipment = &ppmShipment
-
-	return ppmShipment
+	return MakeMinimalPPMShipment(db, fullAssertions)
 }
 
 // MakeDefaultPPMShipment makes a PPMShipment with default values
@@ -123,11 +116,7 @@ func MakeStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
 
 // MakeMinimalPPMShipment creates a single PPMShipment and associated relationships with a minimal set of data
 func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	if assertions.MTOShipment.Status == "" {
-		assertions.MTOShipment.Status = models.MTOShipmentStatusDraft
-	}
-
-	shipment := checkOrCreateMTOShipment(db, assertions, true)
+	shipment := checkOrCreateMTOShipment(db, assertions)
 
 	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
 
@@ -138,7 +127,7 @@ func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PP
 		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
 		PickupPostalCode:      requiredFields.pickupPostalCode,
 		DestinationPostalCode: requiredFields.destinationPostalCode,
-		SitExpected:           requiredFields.sitExpected,
+		SitExpected:           &requiredFields.sitExpected,
 	}
 
 	// Overwrite values with those from assertions

@@ -88,7 +88,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		SitExpected:                    &ppmShipment.SitExpected,
+		SitExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,

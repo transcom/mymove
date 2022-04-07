@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import moment from 'moment';
@@ -11,18 +11,14 @@ import SubmitMoveForm from 'components/Customer/SubmitMoveForm/SubmitMoveForm';
 import ScrollToTop from 'components/ScrollToTop';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { completeCertificationText } from 'scenes/Legalese/legaleseText';
-import { getPPMsForMove, submitMoveForApproval } from 'services/internalApi';
-import { selectCurrentPPM, selectCurrentMove } from 'store/entities/selectors';
-import { updatePPMs as updatePPMsAction, updateMove as updateMoveAction } from 'store/entities/actions';
+import { submitMoveForApproval } from 'services/internalApi';
+import { selectCurrentMove } from 'store/entities/selectors';
+import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { formatSwaggerDate } from 'shared/formatters';
 
-export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlashMessage }) => {
+export const Agreement = ({ moveId, updateMove, push, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
-
-  useEffect(() => {
-    getPPMsForMove(moveId).then((response) => updatePPMs(response));
-  });
 
   const initialValues = {
     signature: '',
@@ -40,7 +36,6 @@ export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlas
       certification_text: completeCertificationText,
       date: submitDate,
       signature: values.signature,
-      personally_procured_move_id: ppmId,
       certification_type: SIGNED_CERT_OPTIONS.SHIPMENT,
     };
 
@@ -78,22 +73,14 @@ Agreement.propTypes = {
   moveId: PropTypes.string.isRequired,
   setFlashMessage: PropTypes.func.isRequired,
   push: PropTypes.func.isRequired,
-  updatePPMs: PropTypes.func.isRequired,
   updateMove: PropTypes.func.isRequired,
-  ppmId: PropTypes.string,
-};
-
-Agreement.defaultProps = {
-  ppmId: undefined,
 };
 
 const mapStateToProps = (state) => ({
   moveId: selectCurrentMove(state)?.id,
-  ppmId: selectCurrentPPM(state)?.id,
 });
 
 const mapDispatchToProps = {
-  updatePPMs: updatePPMsAction,
   updateMove: updateMoveAction,
   push: pushAction,
   setFlashMessage: setFlashMessageAction,

@@ -161,31 +161,31 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	}
 	goodOrder, err := FetchOrderForUser(suite.DB(), session, order.ID)
 
-	if suite.NoError(err) {
-		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
-		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
-		suite.Equal(order.OrdersType, goodOrder.OrdersType)
-		suite.Equal(order.HasDependents, goodOrder.HasDependents)
-		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
-		suite.Equal(order.OriginDutyLocation.ID, goodOrder.OriginDutyLocation.ID)
-		suite.Equal(order.NewDutyLocation.ID, goodOrder.NewDutyLocation.ID)
-		suite.Equal(order.Grade, goodOrder.Grade)
-		suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
-	}
+	suite.NoError(err)
+	suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
+	suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
+	suite.Equal(order.OrdersType, goodOrder.OrdersType)
+	suite.Equal(order.HasDependents, goodOrder.HasDependents)
+	suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
+	suite.Equal(order.OriginDutyLocation.ID, goodOrder.OriginDutyLocation.ID)
+	suite.Equal(order.NewDutyLocation.ID, goodOrder.NewDutyLocation.ID)
+	suite.Equal(order.Grade, goodOrder.Grade)
+	suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
 
 	// Wrong Order ID
 	wrongID, _ := uuid.NewV4()
 	_, err = FetchOrderForUser(suite.DB(), session, wrongID)
-	if suite.Error(err) {
-		suite.Equal(ErrFetchNotFound, err)
-	}
+
+	suite.Error(err)
+	suite.Equal(ErrFetchNotFound, err)
+
 	// User is forbidden from fetching order
 	session.UserID = serviceMember2.UserID
 	session.ServiceMemberID = serviceMember2.ID
 	_, err = FetchOrderForUser(suite.DB(), session, order.ID)
-	if suite.Error(err) {
-		suite.Equal(ErrFetchForbidden, err)
-	}
+
+	suite.Error(err)
+	suite.Equal(ErrFetchForbidden, err)
 }
 
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
@@ -224,14 +224,13 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 
 	// No session
 	goodOrder, err := FetchOrder(suite.DB(), order.ID)
-	if suite.NoError(err) {
-		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
-		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
-		suite.Equal(order.OrdersType, goodOrder.OrdersType)
-		suite.Equal(order.HasDependents, goodOrder.HasDependents)
-		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
-		suite.Equal(order.NewDutyLocationID, goodOrder.NewDutyLocationID)
-	}
+	suite.NoError(err)
+	suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
+	suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
+	suite.Equal(order.OrdersType, goodOrder.OrdersType)
+	suite.Equal(order.HasDependents, goodOrder.HasDependents)
+	suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
+	suite.Equal(order.NewDutyLocationID, goodOrder.NewDutyLocationID)
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {
