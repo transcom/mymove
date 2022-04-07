@@ -8,7 +8,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -84,11 +83,4 @@ func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UU
 		}
 	}
 	return &ppmShipment, nil
-}
-
-// DeletePPMShipment will soft delete the PPMShipment
-func DeletePPMShipment(db *pop.Connection, ppmShipment *PPMShipment) error {
-	return db.Transaction(func(db *pop.Connection) error {
-		return utilities.SoftDestroy(db, ppmShipment)
-	})
 }

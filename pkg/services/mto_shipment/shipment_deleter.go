@@ -33,15 +33,8 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 		return uuid.Nil, err
 	}
 
-	if shipment.PPMShipment != nil {
-		err := models.DeletePPMShipment(appCtx.DB(), shipment.PPMShipment)
-		if err != nil {
-			return uuid.Nil, err
-		}
-	}
-
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		err := utilities.SoftDestroy(appCtx.DB(), shipment)
+		err = utilities.SoftDestroy(appCtx.DB(), shipment)
 		if err != nil {
 			return err
 		}
