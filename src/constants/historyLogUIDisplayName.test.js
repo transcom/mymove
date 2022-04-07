@@ -92,7 +92,7 @@ describe('historyLogUIDisplay', () => {
 
   describe('displays the correct plain text when each eventNamePlainTextToDisplay is called', () => {
     it.each([
-      ['approveShipment', 'Approved shipment', {}, {}],
+      ['approveShipment', 'HHG shipment', { shipment_type: 'HHG' }, { status: 'APPROVED' }],
       [
         'requestShipmentDiversion',
         `Requested diversion for ${shipmentOptionToDisplay.HHG} shipment`,
