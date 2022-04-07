@@ -82,25 +82,29 @@ export const shipmentOptionToDisplay = {
   HHG_SHORTHAUL_DOMESTIC: 'HHG_SHORTHAUL_DOMESTIC',
 };
 
-export const eventNamePlainTextToDisplay = {
-  approveShipment: (_, oldValues) => `${shipmentTypes[oldValues.shipment_type]} shipment`,
-  approveShipmentDiversion: (_, oldValues) => `${shipmentTypes[oldValues.shipment_type]} shipment`,
-  updateMTOServiceItemStatus: (historyRecord) =>
-    `${shipmentOptionToDisplay[historyRecord.context.shipment_type]} shipment, ${historyRecord.context.name}`,
-  requestShipmentDiversion: (historyRecord) =>
-    `Requested diversion for ${shipmentOptionToDisplay[historyRecord.oldValues.shipment_type]} shipment`, // ghc.yaml
-  setFinancialReviewFlag: (historyRecord) => {
-    return historyRecord.changedValues.financial_review_flag === 'true'
-      ? 'Move flagged for financial review'
-      : 'Move unflagged for financial review';
-  },
-  requestShipmentCancellation: (historyRecord) =>
-    `Requested cancellation for ${shipmentOptionToDisplay[historyRecord.oldValues.shipment_type]} shipment`,
-  updateMoveTaskOrderStatus: (historyRecord) => {
-    return historyRecord.changedValues.status === 'APPROVED'
-      ? 'Created Move Task Order (MTO)'
-      : 'Rejected Move Task Order (MTO)';
-  },
+export const detailsPlainTextToDisplay = (historyRecord) => {
+  switch (historyRecord.eventName) {
+    case 'approveShipment':
+      return `${shipmentTypes[historyRecord.oldValues.shipment_type]} shipment`;
+	case 'approveShipmentDiversion':
+	  return `${shipmentTypes[historyRecord.oldValues.shipment_type]} shipment`;
+    case 'updateMTOServiceItemStatus':
+      return `${shipmentOptionToDisplay[historyRecord.context.shipment_type]} shipment, ${historyRecord.context.name}`;
+    case 'requestShipmentDiversion':
+      return `Requested diversion for ${shipmentOptionToDisplay[historyRecord.oldValues.shipment_type]} shipment`; // ghc.yaml
+    case 'setFinancialReviewFlag':
+      return historyRecord.changedValues.financial_review_flag === 'true'
+        ? 'Move flagged for financial review'
+        : 'Move unflagged for financial review';
+    case 'requestShipmentCancellation':
+      return `Requested cancellation for ${shipmentOptionToDisplay[historyRecord.oldValues.shipment_type]} shipment`;
+    case 'updateMoveTaskOrderStatus':
+      return historyRecord.changedValues.status === 'APPROVED'
+        ? 'Created Move Task Order (MTO)'
+        : 'Rejected Move Task Order (MTO)';
+    default:
+      return '';
+  }
 };
 
 export const eventNamesWithPlainTextDetails = {
