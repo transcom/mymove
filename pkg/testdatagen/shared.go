@@ -159,6 +159,11 @@ func isZeroUUID(testID uuid.UUID) bool {
 	return testID == uuid.Nil
 }
 
+// ConvertUUIDStringToUUID takes a uuid string and converts it to uuid.UUID; panic if uuid string isn't a valid UUID.
+func ConvertUUIDStringToUUID(uuidString string) uuid.UUID {
+	return uuid.Must(uuid.FromString(uuidString))
+}
+
 // mergeModels merges src into dst, if non-zero values are present
 // dst should be a pointer the struct you are merging into
 func mergeModels(dst, src interface{}) {
