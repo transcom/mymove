@@ -9,7 +9,7 @@ import { formatCustomerDate } from 'utils/formatters';
 const defaultProps = {
   moveId: 'testMove123',
   onEditClick: jest.fn(),
-  showEditBtn: false,
+  showEditAndDeleteBtn: false,
   shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
   shipmentId: '#ABC123K',
   requestedDeliveryDate: new Date('03/01/2020').toISOString(),

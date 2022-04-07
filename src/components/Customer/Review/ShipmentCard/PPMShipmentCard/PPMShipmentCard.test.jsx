@@ -6,7 +6,7 @@ import PPMShipmentCard from './PPMShipmentCard';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const defaultProps = {
-  showEditBtn: true,
+  showEditAndDeleteBtn: true,
   onEditClick: jest.fn(),
   shipmentNumber: 1,
   shipment: {
@@ -23,7 +23,7 @@ const defaultProps = {
 };
 
 const completeProps = {
-  showEditBtn: true,
+  showEditAndDeleteBtn: true,
   onEditClick: jest.fn(),
   shipmentNumber: 1,
   shipment: {
@@ -55,6 +55,7 @@ describe('PPMShipmentCard component', () => {
     expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
 
     const descriptionDefinitions = screen.getAllByRole('definition');
 
@@ -91,6 +92,7 @@ describe('PPMShipmentCard component', () => {
     expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
 
     const descriptionDefinitions = screen.getAllByRole('definition');
 
@@ -116,9 +118,10 @@ describe('PPMShipmentCard component', () => {
     });
   });
 
-  it('omits the edit button when showEditBtn prop is false', () => {
-    render(<PPMShipmentCard {...completeProps} showEditBtn={false} />);
+  it('omits the edit button when showEditAndDeleteBtn prop is false', () => {
+    render(<PPMShipmentCard {...completeProps} showEditAndDeleteBtn={false} />);
 
     expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
   });
 });

@@ -11,7 +11,7 @@ const defaultProps = {
   onEditClick: jest.fn(),
   shipmentId: '#ABC123K',
   shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-  showEditBtn: false,
+  showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
     streetAddress1: '17 8th St',

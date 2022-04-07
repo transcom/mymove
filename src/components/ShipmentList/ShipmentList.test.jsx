@@ -41,11 +41,11 @@ describe('ShipmentList component', () => {
   it('ShipmentList calls onShipmentClick when clicked', () => {
     const wrapper = mount(<ShipmentList {...defaultProps} />);
     expect(onShipmentClick.mock.calls.length).toBe(0);
-    wrapper.find('ShipmentListItem').at(0).simulate('click');
+    wrapper.find('ShipmentListItem').at(0).find('button').at(1).simulate('click');
     expect(onShipmentClick.mock.calls.length).toBe(1);
-    wrapper.find('ShipmentListItem').at(1).simulate('click');
+    wrapper.find('ShipmentListItem').at(1).find('button').at(1).simulate('click');
     expect(onShipmentClick.mock.calls.length).toBe(2);
-    wrapper.find('ShipmentListItem').at(2).simulate('click');
+    wrapper.find('ShipmentListItem').at(2).find('button').at(1).simulate('click');
     expect(onShipmentClick.mock.calls.length).toBe(3);
     const [shipmentOneId, shipmentTwoId, shipmentThreeId] = onShipmentClick.mock.calls;
     expect(shipmentOneId[0]).toEqual(shipments[0].id);

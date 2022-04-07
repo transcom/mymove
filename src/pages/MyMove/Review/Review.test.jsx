@@ -51,8 +51,9 @@ describe('Review page', () => {
   });
 
   it('next button goes to the Agreement page', async () => {
+    const localState = { entities: { mtoShipments: { id: 1 } } };
     const { findByRole } = render(
-      <MockProviders>
+      <MockProviders initialState={localState}>
         <ConnectedReview {...testProps} />
       </MockProviders>,
     );

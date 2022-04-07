@@ -109,7 +109,7 @@ describe('Home component', () => {
         mtoShipmentId: testProps.mtoShipments[1].id,
       });
 
-      wrapper.find('ShipmentListItem').at(0).simulate('click');
+      wrapper.find('ShipmentListItem').at(0).find('button').at(1).simulate('click');
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(`${editHHGShipmentPath}?shipmentNumber=1`);
     });
@@ -120,7 +120,7 @@ describe('Home component', () => {
         mtoShipmentId: testProps.currentPpm.id,
       });
 
-      wrapper.find('ShipmentListItem').at(1).simulate('click');
+      wrapper.find('ShipmentListItem').at(1).find('button').at(1).simulate('click');
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(`${editPPMShipmentPath}?shipmentNumber=1`);
     });
@@ -131,7 +131,7 @@ describe('Home component', () => {
         mtoShipmentId: testProps.mtoShipments[2].id,
       });
 
-      wrapper.find('ShipmentListItem').at(3).simulate('click');
+      wrapper.find('ShipmentListItem').at(3).find('button').at(1).simulate('click');
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSShipmentPath);
     });
@@ -142,7 +142,7 @@ describe('Home component', () => {
         mtoShipmentId: testProps.mtoShipments[3].id,
       });
 
-      wrapper.find('ShipmentListItem').at(4).simulate('click');
+      wrapper.find('ShipmentListItem').at(4).find('button').at(1).simulate('click');
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSRShipmentPath);
     });
