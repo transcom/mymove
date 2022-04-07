@@ -5,41 +5,68 @@ import MoveHistoryDetailsSelector from './MoveHistoryDetailsSelector';
 
 describe('MoveHistoryDetailsSelector', () => {
   it.each([
-    ['counselingUpdateOrder', 'Labeled'],
-    ['updateOrder', 'Labeled'],
-    ['updateAllowance', 'Labeled'],
-    ['counselingUpdateAllowance', 'Labeled'],
-    ['updateMoveTaskOrder', 'Labeled'],
-    ['updateMTOShipment', 'Labeled'],
-    ['requestShipmentDiversion', 'Requested diversion'],
-    ['updateMTOServiceItem', 'Service Items'],
-    ['updateMTOServiceItemStatus', 'Service item status'],
-    ['createOrders', '-'],
-    ['updateOrders', 'Labeled'],
-    ['uploadAmendedOrders', '-'],
-    ['submitMoveForApproval', '-'],
-    ['submitAmendedOrders', 'Labeled'],
-    ['createMTOShipment', '-'],
-    ['updateMTOShipmentAddress', 'Labeled'],
-    ['createMTOServiceItem', 'Service Items'],
-    ['default', '-'],
-  ])('for event name %s it renders %s', (eventName, text) => {
-    render(<MoveHistoryDetailsSelector eventName={eventName} />);
+    [{ eventName: 'counselingUpdateOrder' }, 'Labeled'],
+    [{ eventName: 'updateOrder' }, 'Labeled'],
+    [{ eventName: 'updateAllowance' }, 'Labeled'],
+    [{ eventName: 'counselingUpdateAllowance' }, 'Labeled'],
+    [{ eventName: 'updateMoveTaskOrder' }, 'Labeled'],
+    [{ eventName: 'updateMTOShipment' }, 'Labeled'],
+	[{ eventName: 'requestShipmentDiversion' }, 'Requested diversion'],
+    [{ eventName: 'approveShipment' }, 'Approved shipment'],
+    [{ eventName: 'updateMTOServiceItem' }, 'Service Items'],
+    // [
+    //   {
+    //     eventName: 'updateMTOServiceItemStatus',
+    //     context: { name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
+    //   },
+    //   'Service item status',
+    // ],
+    [{ eventName: 'createOrders' }, '-'],
+    [{ eventName: 'updateOrders' }, 'Labeled'],
+    [{ eventName: 'uploadAmendedOrders' }, '-'],
+    [{ eventName: 'submitMoveForApproval' }, '-'],
+    [{ eventName: 'submitAmendedOrders' }, 'Labeled'],
+    [{ eventName: 'createMTOShipment' }, '-'],
+    [{ eventName: 'updateMTOShipmentAddress' }, 'Labeled'],
+    [{ eventName: 'createMTOServiceItem' }, 'Service Items'],
+    [{ eventName: 'default' }, '-'],
+  ])('for history record %s it renders %s', (historyRecord, text) => {
+    render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
 
     expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
   });
 
   it.each([
-    ['setFinancialReviewFlag', 'Move flagged for financial review', {}, { financial_review_flag: 'true' }],
-    ['setFinancialReviewFlag', 'Move unflagged for financial review', {}, { financial_review_flag: 'false' }],
-    ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', {}, { status: 'APPROVED' }],
-    ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', {}, { status: 'Rejected' }],
-    ['approveShipment', 'HHG shipment', { shipment_type: 'HHG' }, { status: 'APPROVED' }],
-    ['approveShipmentDiversion', 'HHG shipment', { shipment_type: 'HHG' }, { status: 'APPROVED' }],
-    ['requestShipmentCancellation', 'Requested cancellation for HHG shipment', { shipment_type: 'HHG' }, {}],
-    ['requestShipmentDiversion', 'Requested diversion for HHG shipment', { shipment_type: 'HHG' }, {}],
-  ])('for event name %s it renders %s', (eventName, text, oldValues, changedValues) => {
-    render(<MoveHistoryDetailsSelector eventName={eventName} oldValues={oldValues} changedValues={changedValues} />);
+    [
+      { eventName: 'setFinancialReviewFlag', changedValues: { financial_review_flag: 'true' } },
+      'Move flagged for financial review',
+    ],
+    [
+      { eventName: 'setFinancialReviewFlag', changedValues: { financial_review_flag: 'false' } },
+      'Move unflagged for financial review',
+    ],
+    [
+      { eventName: 'updateMoveTaskOrderStatus', changedValues: { status: 'APPROVED' } },
+      'Created Move Task Order (MTO)',
+    ],
+    [
+      { eventName: 'updateMoveTaskOrderStatus', changedValues: { status: 'Rejected' } },
+      'Rejected Move Task Order (MTO)',
+    ],
+	[
+		{ eventName: 'approveShipmentDiversion', oldValues: { shipment_type: 'HHG' }, changedValues: { status: 'APPROVED' } },
+		'HHG shipment',
+	],
+    [
+      { eventName: 'requestShipmentCancellation', oldValues: { shipment_type: 'HHG' } },
+      'Requested cancellation for HHG shipment',
+    ],
+    [
+      { eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'HHG' } },
+      'Requested diversion for HHG shipment',
+    ],
+  ])('for historyRecord %s it renders %s', (historyRecord, text) => {
+    render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
 
     expect(screen.getByText(text)).toBeInTheDocument();
   });
