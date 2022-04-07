@@ -32,7 +32,7 @@ import {
 } from 'store/entities/selectors';
 import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { updateMTOShipments } from 'store/entities/actions';
-import { clearFlashMessage, setFlashMessage } from 'store/flash/actions';
+import { setFlashMessage } from 'store/flash/actions';
 import { OrdersShape, MoveShape, MtoShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 
 export class Summary extends Component {
@@ -331,7 +331,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   updateShipmentList: updateMTOShipments,
-  clearMsg: clearFlashMessage,
   setMsg: setFlashMessage,
 };
 
