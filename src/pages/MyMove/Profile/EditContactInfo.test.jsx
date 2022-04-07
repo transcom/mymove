@@ -1,11 +1,14 @@
 import React from 'react';
+import { faker } from '@faker-js/faker';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { v4 as uuidv4 } from 'uuid';
 
 import { EditContactInfo } from './EditContactInfo';
 
-import { patchBackupContact, patchServiceMember } from 'services/internalApi';
 import { customerRoutes } from 'constants/routes';
+import { patchBackupContact, patchServiceMember } from 'services/internalApi';
+import { PHONE_FORMAT, serviceMemberBuilder } from 'utils/test/factories/serviceMember';
 
 const mockPush = jest.fn();
 
@@ -29,35 +32,14 @@ describe('EditContactInfo page', () => {
   const testProps = {
     currentBackupContacts: [
       {
-        id: 'backupContactID',
-        name: 'Barbara St. Juste',
-        email: 'bsj@example.com',
-        telephone: '915-555-1234',
+        id: uuidv4(),
+        name: faker.name.findName(),
+        email: faker.internet.exampleEmail(),
+        telephone: faker.phone.phoneNumber(PHONE_FORMAT),
         permission: 'NONE',
       },
     ],
-    serviceMember: {
-      id: 'testServiceMemberID',
-      telephone: '915-555-2945',
-      secondary_telephone: '',
-      personal_email: 'test@example.com',
-      email_is_preferred: true,
-      phone_is_preferred: false,
-      residential_address: {
-        streetAddress1: '148 S East St',
-        streetAddress2: '',
-        city: 'Fake City',
-        state: 'TX',
-        postalCode: '79936',
-      },
-      backup_mailing_address: {
-        streetAddress1: '10642 N Second Ave',
-        streetAddress2: '',
-        city: 'Fake City',
-        state: 'TX',
-        postalCode: '79936',
-      },
-    },
+    serviceMember: serviceMemberBuilder(),
     setFlashMessage: jest.fn(),
     updateBackupContact: jest.fn(),
     updateServiceMember: jest.fn(),
@@ -93,15 +75,16 @@ describe('EditContactInfo page', () => {
   });
 
   it('saves backup contact info when it is updated and the save button is clicked', async () => {
-    const newName = 'Rosalie Wexler';
+    const newName = faker.name.findName();
 
     const expectedPayload = { ...testProps.currentBackupContacts[0], name: newName };
 
+    const createdAt = faker.datatype.datetime();
     const patchResponse = {
       ...expectedPayload,
       serviceMemberId: testProps.serviceMember.id,
-      created_at: '2021-02-08T16:48:04.117Z',
-      updated_at: '2021-02-11T16:48:04.117Z',
+      created_at: createdAt,
+      updated_at: faker.datatype.datetime({ min: createdAt.getTime() }),
     };
 
     patchBackupContact.mockImplementation(() => Promise.resolve(patchResponse));
@@ -146,7 +129,7 @@ describe('EditContactInfo page', () => {
 
     userEvent.clear(backupNameInput);
 
-    userEvent.type(backupNameInput, 'Rosalie Wexler');
+    userEvent.type(backupNameInput, faker.name.findName());
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -181,14 +164,36 @@ describe('EditContactInfo page', () => {
   });
 
   it('saves service member info when the save button is clicked', async () => {
-    const secondaryPhone = '915-555-9753';
+    const secondaryPhone = faker.phone.phoneNumber(PHONE_FORMAT);
 
-    const expectedPayload = { ...testProps.serviceMember, secondary_telephone: secondaryPhone };
+    const expectedPayload = {
+      id: testProps.serviceMember.id,
+      telephone: testProps.serviceMember.telephone,
+      secondary_telephone: secondaryPhone,
+      personal_email: testProps.serviceMember.personal_email,
+      phone_is_preferred: testProps.serviceMember.phone_is_preferred,
+      email_is_preferred: testProps.serviceMember.email_is_preferred,
+      residential_address: {
+        streetAddress1: testProps.serviceMember.residential_address.streetAddress1,
+        streetAddress2: testProps.serviceMember.residential_address.streetAddress2,
+        city: testProps.serviceMember.residential_address.city,
+        state: testProps.serviceMember.residential_address.state,
+        postalCode: testProps.serviceMember.residential_address.postalCode,
+      },
+      backup_mailing_address: {
+        streetAddress1: testProps.serviceMember.backup_mailing_address.streetAddress1,
+        streetAddress2: testProps.serviceMember.backup_mailing_address.streetAddress2,
+        city: testProps.serviceMember.backup_mailing_address.city,
+        state: testProps.serviceMember.backup_mailing_address.state,
+        postalCode: testProps.serviceMember.backup_mailing_address.postalCode,
+      },
+    };
 
+    const createdAt = faker.datatype.datetime();
     const patchResponse = {
       ...expectedPayload,
-      created_at: '2021-02-08T16:48:04.117Z',
-      updated_at: '2021-02-11T16:48:04.117Z',
+      created_at: createdAt,
+      updated_at: faker.datatype.datetime({ min: createdAt.getTime() }),
     };
 
     patchServiceMember.mockImplementation(() => Promise.resolve(patchResponse));
