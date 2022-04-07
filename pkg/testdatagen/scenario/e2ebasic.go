@@ -4146,6 +4146,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx, userUploader)
 	createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 	createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
+	createUnsubmittedMoveWithFullPPMShipmentComplete1(appCtx, userUploader)
+	createUnsubmittedMoveWithFullPPMShipmentComplete2(appCtx, userUploader)
 	createUnSubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
 	createUnSubmittedMoveWithFinishedPPMShipment(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)

@@ -25,7 +25,7 @@ type GetMoveHistoryOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.MoveHistory `json:"body,omitempty"`
+	Payload *ghcmessages.MoveHistoryResult `json:"body,omitempty"`
 }
 
 // NewGetMoveHistoryOK creates GetMoveHistoryOK with default headers values
@@ -35,13 +35,13 @@ func NewGetMoveHistoryOK() *GetMoveHistoryOK {
 }
 
 // WithPayload adds the payload to the get move history o k response
-func (o *GetMoveHistoryOK) WithPayload(payload *ghcmessages.MoveHistory) *GetMoveHistoryOK {
+func (o *GetMoveHistoryOK) WithPayload(payload *ghcmessages.MoveHistoryResult) *GetMoveHistoryOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move history o k response
-func (o *GetMoveHistoryOK) SetPayload(payload *ghcmessages.MoveHistory) {
+func (o *GetMoveHistoryOK) SetPayload(payload *ghcmessages.MoveHistoryResult) {
 	o.Payload = payload
 }
 
