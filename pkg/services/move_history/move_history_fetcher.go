@@ -3,6 +3,7 @@ package movehistory
 import (
 	"database/sql"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -20,8 +21,8 @@ func NewMoveHistoryFetcher() services.MoveHistoryFetcher {
 }
 
 //FetchMoveHistory retrieves a Move's history if it is visible for a given locator
-func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locator string) (*models.MoveHistory, error) {
-	query := `WITH moves AS (
+func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, params *services.FetchMoveHistoryParams) (*models.MoveHistory, int64, error) {
+	rawQuery := `WITH moves AS (
 		SELECT
 			moves.*
 		FROM
@@ -111,16 +112,27 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 				OR role_type = 'contracting_officer')
 		LEFT JOIN office_users ON office_users.user_id = session_userid
 	ORDER BY
-		action_tstamp_tx DESC;`
+		action_tstamp_tx DESC`
+
 	audits := &models.AuditHistories{}
-	err := appCtx.DB().RawQuery(query, locator).All(audits)
+	locator := params.Locator
+	if params.Page == nil {
+		params.Page = swag.Int64(1)
+	}
+	if params.PerPage == nil {
+		params.PerPage = swag.Int64(20)
+	}
+
+	query := appCtx.DB().RawQuery(rawQuery, locator).Paginate(int(*params.Page), int(*params.PerPage))
+	err := query.All(audits)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			// Not found error expects an id but we're querying by locator
-			return &models.MoveHistory{}, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
+			return &models.MoveHistory{}, 0, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
 		default:
-			return &models.MoveHistory{}, apperror.NewQueryError("AuditHistory", err, "")
+			return &models.MoveHistory{}, 0, apperror.NewQueryError("AuditHistory", err, "")
 		}
 	}
 
@@ -130,9 +142,9 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 		switch err {
 		case sql.ErrNoRows:
 			// Not found error expects an id but we're querying by locator
-			return &models.MoveHistory{}, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
+			return &models.MoveHistory{}, 0, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
 		default:
-			return &models.MoveHistory{}, apperror.NewQueryError("Move", err, "")
+			return &models.MoveHistory{}, 0, apperror.NewQueryError("Move", err, "")
 		}
 	}
 
@@ -143,5 +155,5 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 		AuditHistories: *audits,
 	}
 
-	return &moveHistory, nil
+	return &moveHistory, int64(query.Paginator.TotalEntriesSize), nil
 }

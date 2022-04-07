@@ -99,5 +99,7 @@ describe('MoveHistory', () => {
     expect(screen.getByTestId('move-history-event-1')).toBeInTheDocument();
     expect(screen.getByTestId('move-history-details-1')).toBeInTheDocument();
     expect(screen.getByTestId('move-history-modified-by-1')).toBeInTheDocument();
+
+    expect(screen.getByTestId('pagination')).toBeInTheDocument();
   });
 });
