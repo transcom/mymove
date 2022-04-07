@@ -35,7 +35,7 @@ type MoveAuditHistory struct {
 	ActionTstampTx strfmt.DateTime `json:"actionTstampTx,omitempty"`
 
 	// A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.
-	ChangedValues MoveAuditHistoryItems `json:"changedValues,omitempty"`
+	ChangedValues map[string]string `json:"changedValues,omitempty"`
 
 	// Record the text of the client query that triggered the audit event
 	ClientQuery *string `json:"clientQuery,omitempty"`
@@ -61,7 +61,7 @@ type MoveAuditHistory struct {
 	ObjectID *strfmt.UUID `json:"objectId,omitempty"`
 
 	// A list of (old/previous) MoveAuditHistoryItem's for a record before the change.
-	OldValues MoveAuditHistoryItems `json:"oldValues,omitempty"`
+	OldValues map[string]string `json:"oldValues,omitempty"`
 
 	// relation OID. Table OID (object identifier). Changes with drop/create.
 	RelID int64 `json:"relId,omitempty"`
@@ -117,19 +117,11 @@ func (m *MoveAuditHistory) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateChangedValues(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateObjectID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateOldValues(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -183,23 +175,6 @@ func (m *MoveAuditHistory) validateActionTstampTx(formats strfmt.Registry) error
 	return nil
 }
 
-func (m *MoveAuditHistory) validateChangedValues(formats strfmt.Registry) error {
-	if swag.IsZero(m.ChangedValues) { // not required
-		return nil
-	}
-
-	if err := m.ChangedValues.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("changedValues")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("changedValues")
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *MoveAuditHistory) validateID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -218,23 +193,6 @@ func (m *MoveAuditHistory) validateObjectID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("objectId", "body", "uuid", m.ObjectID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MoveAuditHistory) validateOldValues(formats strfmt.Registry) error {
-	if swag.IsZero(m.OldValues) { // not required
-		return nil
-	}
-
-	if err := m.OldValues.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("oldValues")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("oldValues")
-		}
 		return err
 	}
 
@@ -265,49 +223,8 @@ func (m *MoveAuditHistory) validateSessionUserTelephone(formats strfmt.Registry)
 	return nil
 }
 
-// ContextValidate validate this move audit history based on the context it is used
+// ContextValidate validates this move audit history based on context it is used
 func (m *MoveAuditHistory) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateChangedValues(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateOldValues(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *MoveAuditHistory) contextValidateChangedValues(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.ChangedValues.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("changedValues")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("changedValues")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *MoveAuditHistory) contextValidateOldValues(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.OldValues.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("oldValues")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("oldValues")
-		}
-		return err
-	}
-
 	return nil
 }
 

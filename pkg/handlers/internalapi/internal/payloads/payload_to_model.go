@@ -108,7 +108,9 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 		return nil
 	}
 
-	model := &models.PPMShipment{}
+	model := &models.PPMShipment{
+		SitExpected: ppmShipment.SitExpected,
+	}
 
 	expectedDepartureDate := time.Time(*ppmShipment.ExpectedDepartureDate)
 	if !expectedDepartureDate.IsZero() {
@@ -121,10 +123,6 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 
 	if ppmShipment.DestinationPostalCode != nil {
 		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
-	}
-
-	if ppmShipment.SitExpected != nil {
-		model.SitExpected = *ppmShipment.SitExpected
 	}
 
 	return model
@@ -142,6 +140,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		SitExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		NetWeight:                      handlers.PoundPtrFromInt64Ptr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
@@ -162,10 +161,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 
 	if ppmShipment.PickupPostalCode != nil {
 		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
-	}
-
-	if ppmShipment.SitExpected != nil {
-		ppmModel.SitExpected = *ppmShipment.SitExpected
 	}
 
 	return ppmModel

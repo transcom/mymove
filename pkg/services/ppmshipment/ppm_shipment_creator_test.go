@@ -57,7 +57,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		subtestData.newPPMShipment.ExpectedDepartureDate = time.Now()
 		subtestData.newPPMShipment.PickupPostalCode = "90909"
 		subtestData.newPPMShipment.DestinationPostalCode = "90905"
-		subtestData.newPPMShipment.SitExpected = false
+		subtestData.newPPMShipment.SitExpected = models.BoolPointer(false)
 
 		createdPPMShipment, err := subtestData.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), subtestData.newPPMShipment)
 
