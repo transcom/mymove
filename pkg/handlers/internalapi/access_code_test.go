@@ -1,13 +1,10 @@
 package internalapi
 
 import (
-	"fmt"
 	"net/http/httptest"
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/cli"
@@ -112,96 +109,6 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_FeatureFlagIsOff() {
 
 	suite.IsNotErrResponse(response)
 	suite.Assertions.IsType(&accesscodeops.FetchAccessCodeOK{}, response)
-}
-
-func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
-	// create user
-	user := testdatagen.MakeStubbedUser(suite.DB())
-	selectedMoveType := models.SelectedMoveTypePPM
-
-	// creates access code
-	code := "TEST1"
-	accessCode := models.AccessCode{
-		Code:     code,
-		MoveType: selectedMoveType,
-	}
-	fullCode := fmt.Sprintf("%s-%s", selectedMoveType, code)
-	// makes request
-	request := httptest.NewRequest("GET", fmt.Sprintf("/access_codes/valid?code=%s", fullCode), nil)
-	request = suite.AuthenticateUserRequest(request, user)
-
-	params := accesscodeops.ValidateAccessCodeParams{
-		HTTPRequest: request,
-		Code:        &fullCode,
-	}
-
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	accessCodeValidator := &mocks.AccessCodeValidator{}
-	accessCodeValidator.On("ValidateAccessCode",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("models.SelectedMoveType"),
-	).Return(&accessCode, true, nil)
-
-	handler := ValidateAccessCodeHandler{context, accessCodeValidator}
-	response := handler.Handle(params)
-
-	suite.IsNotErrResponse(response)
-	validateAccessCodeResponse := response.(*accesscodeops.ValidateAccessCodeOK)
-	validateAccessCodePayload := validateAccessCodeResponse.Payload
-
-	suite.NotNil(validateAccessCodePayload)
-	suite.Assertions.IsType(&accesscodeops.ValidateAccessCodeOK{}, response)
-}
-
-func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
-	// create user
-	user := testdatagen.MakeStubbedUser(suite.DB())
-	selectedMoveType := models.SelectedMoveTypeHHG
-	smID, _ := uuid.NewV4()
-
-	// creates access code
-	code := "TEST2"
-	claimedTime := time.Now()
-	invalidAccessCode := models.AccessCode{
-		Code:            code,
-		MoveType:        selectedMoveType,
-		ServiceMemberID: &smID,
-		ClaimedAt:       &claimedTime,
-	}
-	fullCode := fmt.Sprintf("%s-%s", selectedMoveType, code)
-
-	// makes request
-	request := httptest.NewRequest("GET", fmt.Sprintf("/access_codes/valid?code=%s", fullCode), nil)
-	request = suite.AuthenticateUserRequest(request, user)
-
-	params := accesscodeops.ValidateAccessCodeParams{
-		HTTPRequest: request,
-		Code:        &fullCode,
-	}
-
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	accessCodeValidator := &mocks.AccessCodeValidator{}
-	accessCodeValidator.On("ValidateAccessCode",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("models.SelectedMoveType"),
-	).Return(&invalidAccessCode, false, nil)
-
-	handler := ValidateAccessCodeHandler{context, accessCodeValidator}
-	response := handler.Handle(params)
-
-	suite.IsNotErrResponse(response)
-	validateAccessCodeResponse := response.(*accesscodeops.ValidateAccessCodeOK)
-	validateAccessCodePayload := validateAccessCodeResponse.Payload
-
-	suite.Nil(validateAccessCodePayload.Code)
-	suite.Nil(validateAccessCodePayload.ID)
-	suite.Nil(validateAccessCodePayload.MoveType)
-	suite.Nil(validateAccessCodePayload.CreatedAt)
-	suite.Equal(validateAccessCodePayload.ServiceMemberID, strfmt.UUID(""))
-
-	suite.Assertions.IsType(&accesscodeops.ValidateAccessCodeOK{}, response)
 }
 
 func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {

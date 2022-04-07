@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"strings"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -72,43 +70,6 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 			fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
 			return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload), nil
-		})
-}
-
-// ValidateAccessCodeHandler validates an access code to allow access to the MilMove platform as a service member
-type ValidateAccessCodeHandler struct {
-	handlers.HandlerContext
-	accessCodeValidator services.AccessCodeValidator
-}
-
-// Handle accepts the code - validates the access code
-func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCodeParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			if appCtx.Session() == nil {
-				sessionErr := apperror.NewSessionError(
-					"user is not authorized",
-				)
-				appCtx.Logger().Error(sessionErr.Error())
-				return accesscodeop.NewValidateAccessCodeUnauthorized(), sessionErr
-			}
-
-			splitParams := strings.Split(*params.Code, "-")
-			moveType, code := splitParams[0], splitParams[1]
-
-			accessCode, valid, _ := h.accessCodeValidator.ValidateAccessCode(appCtx, code, models.SelectedMoveType(moveType))
-			var validateAccessCodePayload *internalmessages.AccessCode
-
-			if !valid {
-				appCtx.Logger().Warn("Access code not valid")
-				validateAccessCodePayload = &internalmessages.AccessCode{}
-				return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload), nil
-			}
-
-			validateAccessCodePayload = payloadForAccessCodeModel(*accessCode)
-
-			return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload), nil
 		})
 }
 

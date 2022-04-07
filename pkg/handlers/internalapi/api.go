@@ -136,7 +136,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 
 	// Access Codes
 	internalAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeFetcher()}
-	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeValidator()}
+
 	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeClaimer()}
 
 	// GHC Endpoint
