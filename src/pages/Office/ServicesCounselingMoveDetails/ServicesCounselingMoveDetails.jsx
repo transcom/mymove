@@ -83,7 +83,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
     errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
   }
 
-  if (!order.departmentIndicator || !order.ordersNumber || !order.ordersTypeDetail || !order.tacMDC)
+  if (!order.department_indicator || !order.order_number || !order.order_type_detail || !order.tac)
     disableSubmitDueToMissingOrderInfo = true;
 
   if (mtoShipments) {
@@ -170,9 +170,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   const ordersInfo = {
     currentDutyLocation: order.originDutyLocation,
     newDutyLocation: order.destinationDutyLocation,
+    departmentIndicator: order.department_indicator,
     issuedDate: order.date_issued,
     reportByDate: order.report_by_date,
     ordersType: order.order_type,
+    ordersNumber: order.order_number,
+    ordersTypeDetail: order.order_type_detail,
     tacMDC: order.tac,
     sacSDN: order.sac,
     NTStac: order.ntsTac,
