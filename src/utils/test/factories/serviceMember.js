@@ -14,7 +14,7 @@ const serviceMemberBuilder = build({
   fields: {
     id: perBuild(uuidv4),
     affiliation: oneOf(...Object.keys(serviceMemberAgencies)),
-    edipi: fake((f) => f.datatype.number({ min: 1000000000, max: 9999999999 })),
+    edipi: fake((f) => f.datatype.number({ min: 1000000000, max: 9999999999 }).toString()),
     rank: oneOf(...Object.keys(ORDERS_RANK_OPTIONS)),
     first_name: fake((f) => f.name.firstName()),
     middle_name: fake((f) => f.name.middleName()),
