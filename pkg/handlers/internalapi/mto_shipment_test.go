@@ -674,7 +674,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.EqualDate(existingPPMShipment.ExpectedDepartureDate, *updatedShipment.PpmShipment.ExpectedDepartureDate)
 		suite.Equal(existingPPMShipment.PickupPostalCode, *updatedShipment.PpmShipment.PickupPostalCode)
 		suite.Equal(existingPPMShipment.DestinationPostalCode, *updatedShipment.PpmShipment.DestinationPostalCode)
-		suite.Equal(existingPPMShipment.SitExpected, *updatedShipment.PpmShipment.SitExpected)
+		suite.Equal(*existingPPMShipment.SitExpected, *updatedShipment.PpmShipment.SitExpected)
 
 		// Check if mto_shipment fields are updated
 		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
@@ -1011,7 +1011,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.Equal(expectedShipment.PPMShipment.SecondaryPickupPostalCode, returnedShipment.PpmShipment.SecondaryPickupPostalCode)
 				suite.Equal(expectedShipment.PPMShipment.DestinationPostalCode, *returnedShipment.PpmShipment.DestinationPostalCode)
 				suite.Equal(expectedShipment.PPMShipment.SecondaryDestinationPostalCode, returnedShipment.PpmShipment.SecondaryDestinationPostalCode)
-				suite.Equal(expectedShipment.PPMShipment.SitExpected, *returnedShipment.PpmShipment.SitExpected)
+				suite.Equal(*expectedShipment.PPMShipment.SitExpected, *returnedShipment.PpmShipment.SitExpected)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.EstimatedWeight, returnedShipment.PpmShipment.EstimatedWeight)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.NetWeight, returnedShipment.PpmShipment.NetWeight)
 				suite.Equal(expectedShipment.PPMShipment.HasProGear, returnedShipment.PpmShipment.HasProGear)

@@ -12,6 +12,35 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// MakeBaseMTOShipment creates a single MTOShipment with the base set of data required for a shipment.
+func MakeBaseMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
+	moveTaskOrder := assertions.Move
+
+	if isZeroUUID(moveTaskOrder.ID) {
+		moveTaskOrder = MakeMove(db, assertions)
+	}
+
+	newMTOShipment := models.MTOShipment{
+		MoveTaskOrder:   moveTaskOrder,
+		MoveTaskOrderID: moveTaskOrder.ID,
+		ShipmentType:    models.MTOShipmentTypeHHG,
+		Status:          models.MTOShipmentStatusSubmitted,
+	}
+
+	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
+		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+
+		newMTOShipment.ApprovedDate = &approvedDate
+	}
+
+	// Overwrite values with those from assertions
+	mergeModels(&newMTOShipment, assertions.MTOShipment)
+
+	mustCreate(db, &newMTOShipment, assertions.Stub)
+
+	return newMTOShipment
+}
+
 // MakeMTOShipment creates a single MTOShipment and associated set relationships
 func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
 	shipmentType := models.MTOShipmentTypeHHG
@@ -183,37 +212,17 @@ func MakeDefaultMTOShipment(db *pop.Connection) models.MTOShipment {
 	return MakeMTOShipment(db, Assertions{})
 }
 
-// MakeMTOShipmentMinimal creates a single MTOShipment with a minimal set of data as could be possible
-// through milmove UI.
-// It does not create associated addresses.
+// MakeMTOShipmentMinimal creates a single MTOShipment with a minimal set of data as could be possible through the UI
+// for any shipment that doesn't have a child table associated with the MTOShipment model. It does not create associated
+// addresses.
 func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	moveTaskOrder := assertions.Move
-	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMove(db, assertions)
+	if assertions.MTOShipment.RequestedPickupDate == nil {
+		requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+
+		assertions.MTOShipment.RequestedPickupDate = &requestedPickupDate
 	}
 
-	// mock dates
-	requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-
-	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:       moveTaskOrder,
-		MoveTaskOrderID:     moveTaskOrder.ID,
-		RequestedPickupDate: &requestedPickupDate,
-		ShipmentType:        models.MTOShipmentTypeHHG,
-		Status:              "SUBMITTED",
-	}
-
-	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
-		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
-		MTOShipment.ApprovedDate = &approvedDate
-	}
-
-	// Overwrite values with those from assertions
-	mergeModels(&MTOShipment, assertions.MTOShipment)
-
-	mustCreate(db, &MTOShipment, assertions.Stub)
-
-	return MTOShipment
+	return MakeBaseMTOShipment(db, assertions)
 }
 
 // MakeDefaultMTOShipmentMinimal makes a minimal MTOShipment with default values

@@ -12,9 +12,9 @@ describe('MoveHistoryDetailsSelector', () => {
     ['updateMoveTaskOrder', 'Labeled'],
     ['updateMTOShipment', 'Labeled'],
     ['requestShipmentDiversion', 'Requested diversion'],
+    ['approveShipment', 'Approved shipment'],
     ['updateMTOServiceItem', 'Service Items'],
     ['updateMTOServiceItemStatus', 'Service item status'],
-    ['requestShipmentCancellation', 'Shipment cancelled'],
     ['createOrders', '-'],
     ['updateOrders', 'Labeled'],
     ['uploadAmendedOrders', '-'],
@@ -31,14 +31,17 @@ describe('MoveHistoryDetailsSelector', () => {
   });
 
   it.each([
-    ['setFinancialReviewFlag', 'Move flagged for financial review', { financial_review_flag: 'true' }, {}],
-    ['setFinancialReviewFlag', 'Move unflagged for financial review', { financial_review_flag: 'false' }, {}],
-    ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', { status: 'APPROVED' }, {}],
-    ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', { status: 'Rejected' }, {}],
-    ['approveShipment', 'HHG shipment', { status: 'APPROVED' }, { shipment_type: 'HHG' }],
-  ])('for event name %s it renders %s', (eventName, text, changedValues, oldValues) => {
-    render(<MoveHistoryDetailsSelector eventName={eventName} changedValues={changedValues} oldValues={oldValues} />);
 
-    expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
+    ['setFinancialReviewFlag', 'Move flagged for financial review', {}, { financial_review_flag: 'true' }],
+    ['setFinancialReviewFlag', 'Move unflagged for financial review', {}, { financial_review_flag: 'false' }],
+    ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', {}, { status: 'APPROVED' }],
+    ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', {}, { status: 'Rejected' }],
+    ['approveShipment', 'HHG shipment', { status: 'APPROVED' }, { shipment_type: 'HHG' }],
+    ['requestShipmentCancellation', 'Requested cancellation for HHG shipment', { shipment_type: 'HHG' }, {}],
+    ['requestShipmentDiversion', 'Requested diversion for HHG shipment', { shipment_type: 'HHG' }, {}],
+  ])('for event name %s it renders %s', (eventName, text, oldValues, changedValues) => {
+    render(<MoveHistoryDetailsSelector eventName={eventName} oldValues={oldValues} changedValues={changedValues} />);
+
+    expect(screen.getByText(text)).toBeInTheDocument();
   });
 });

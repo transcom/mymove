@@ -42,7 +42,7 @@ const MoveHistoryDetailsSelector = ({ eventName, oldValues, changedValues }) => 
   }
 
   if (eventNamesWithPlainTextDetails[eventName]) {
-    return <PlainTextDetails eventName={eventName} changedValues={changedValues} oldValues={oldValues} />;
+    return <PlainTextDetails eventName={eventName} oldValues={oldValues} changedValues={changedValues} />;
   }
 
   return (
