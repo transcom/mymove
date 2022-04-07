@@ -10,11 +10,16 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 	"strings"
+
+	"github.com/go-openapi/swag"
 )
 
 // GetMoveHistoryURL generates an URL for the get move history operation
 type GetMoveHistoryURL struct {
 	Locator string
+
+	Page    *int64
+	PerPage *int64
 
 	_basePath string
 	// avoid unkeyed usage
@@ -54,6 +59,26 @@ func (o *GetMoveHistoryURL) Build() (*url.URL, error) {
 		_basePath = "/ghc/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var pageQ string
+	if o.Page != nil {
+		pageQ = swag.FormatInt64(*o.Page)
+	}
+	if pageQ != "" {
+		qs.Set("page", pageQ)
+	}
+
+	var perPageQ string
+	if o.PerPage != nil {
+		perPageQ = swag.FormatInt64(*o.PerPage)
+	}
+	if perPageQ != "" {
+		qs.Set("perPage", perPageQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }
