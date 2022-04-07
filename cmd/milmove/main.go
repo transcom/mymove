@@ -67,6 +67,17 @@ func main() {
 	initMigrateFlags(migrateCommand.Flags())
 	root.AddCommand(migrateCommand)
 
+	loadCommand := &cobra.Command{
+		Use:           "dbload",
+		Short:         "Loads the MilMove db from a schema file",
+		Long:          "Loads the MilMove db from a schema file",
+		RunE:          dbloadFunction,
+		SilenceUsage:  true, // not needed
+		SilenceErrors: true, // not needed
+	}
+	initMigrateFlags(loadCommand.Flags())
+	root.AddCommand(loadCommand)
+
 	genCommand := &cobra.Command{
 		Use:   "gen",
 		Short: "Generate migrations and other objects",

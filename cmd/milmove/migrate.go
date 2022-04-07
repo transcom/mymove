@@ -119,13 +119,13 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	loggingEnv := v.GetString(cli.LoggingEnvFlag)
 
-	logger, _, errLogging := logging.Config(
+	logger, _, err := logging.Config(
 		logging.WithEnvironment(loggingEnv),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
 	)
-	if errLogging != nil {
-		return errors.Wrapf(errLogging, "failed to initialize zap logging")
+	if err != nil {
+		return errors.Wrapf(err, "failed to initialize zap logging")
 	}
 
 	fields := make([]zap.Field, 0)
@@ -282,7 +282,10 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	wait := v.GetDuration(cli.MigrationWaitFlag)
 
+	schemaPath := v.GetString(cli.MigrationSchemaPathFlag)
+
 	migrator := pop.NewMigrator(dbConnection)
+	migrator.SchemaPath = schemaPath
 	scanner := bufio.NewScanner(manifest)
 	for scanner.Scan() {
 		target := scanner.Text()
@@ -302,9 +305,9 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		if len(uri) == 0 {
 			return errors.Errorf("Error finding migration for filename %q", target)
 		}
-		m, err := pop.ParseMigrationFilename(target)
-		if err != nil {
-			return errors.Wrapf(err, "error parsing migration filename %q", uri)
+		m, migrationErr := pop.ParseMigrationFilename(target)
+		if migrationErr != nil {
+			return errors.Wrapf(migrationErr, "error parsing migration filename %q", uri)
 		}
 		if m == nil {
 			return errors.Errorf("Error parsing migration filename %q", uri)
@@ -334,6 +337,11 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	errUp := migrator.Up()
 	if errUp != nil {
 		return errors.Wrap(errUp, "error running migrations")
+	}
+
+	err = migrator.DumpMigrationSchema()
+	if err != nil {
+		return errors.Wrap(err, "error dumping migration")
 	}
 
 	return nil

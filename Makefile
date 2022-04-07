@@ -41,6 +41,10 @@ ifdef CIRCLECI
 	endif
 endif
 
+DEV_DATABASE_URL=postgres://$(DB_USER)@$(DB_HOST):$(DB_PORT)/$(DB_NAME_DEV)?sslmode=$(DB_SSL_MODE)
+TEST_DATABASE_URL=postgres://$(DB_USER)@$(DB_HOST):$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=$(DB_SSL_MODE)
+
+
 ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
 endif
@@ -397,7 +401,7 @@ mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_setup
-server_test_setup: db_test_reset db_test_migrate redis_reset db_test_truncate
+server_test_setup: db_test_prepare db_test_truncate
 
 .PHONY: server_test
 server_test: server_test_setup server_test_standalone ## Run server unit tests
@@ -411,12 +415,12 @@ server_test_build:
 	NO_DB=1 DRY_RUN=1 scripts/run-server-test
 
 .PHONY: server_test_all
-server_test_all: db_dev_reset db_dev_migrate redis_reset ## Run all server unit tests
+server_test_all: db_test_prepare redis_reset ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
 	LONG_TEST=1 scripts/run-server-test
 
 .PHONY: server_test_coverage_generate
-server_test_coverage_generate: db_test_reset db_test_migrate redis_reset server_test_coverage_generate_standalone ## Run server unit test coverage
+server_test_coverage_generate: db_test_prepare server_test_coverage_generate_standalone ## Run server unit test coverage
 
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
@@ -424,7 +428,7 @@ server_test_coverage_generate_standalone: ## Run server unit tests with coverage
 	NO_DB=1 SERVER_REPORT=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
-server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_coverage_generate ## Run server unit test coverage with html output
+server_test_coverage: db_test_prepare server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
 
 #
@@ -524,12 +528,34 @@ db_dev_run: db_dev_start db_dev_create ## Run Dev DB (start and create)
 db_dev_reset: db_dev_destroy db_dev_run ## Reset Dev DB (destroy and run)
 
 .PHONY: db_dev_init
-db_dev_init: db_dev_reset db_dev_migrate ## Init Dev DB (destroy, run, migrate)
+db_dev_init: db_dev_reset db_dev_load_from_schema ## Init Dev DB (destroy, run, load)
 
 .PHONY: db_dev_migrate_standalone ## Migrate Dev DB directly
 db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
-	DB_DEBUG=0 bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt"
+	DB_DEBUG=0 bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt" --migration-schema-path "migrations/${APPLICATION}"
+# ahobson tried only dumping some tables needed for seed data, but the
+# tables needed are the largest tables, so filtering didn't really
+# reduce the time or space
+#
+# However, dumping all the data we exceed github's 100MB file size
+# limit. Excluding the tables below because they are not needed in a
+# world with a single GHC prime. We are now just under the limit
+#
+# audit_history is not needed for the data created in seed
+	pg_dump --format=plain --encoding=UTF8 --data-only \
+		--exclude-table transportation_service_providers \
+		--exclude-table transportation_service_provider_performances \
+		--exclude-table traffic_distribution_list \
+		--exclude-table audit_history \
+		$(DEV_DATABASE_URL) > "migrations/${APPLICATION}/dev_data_seed.sql"
+
+.PHONY: db_dev_load_from_schema
+db_dev_load_from_schema: bin/milmove
+	@echo "Loading from schema the ${DB_NAME_DEV} database..."
+	DB_DEBUG=0 bin/milmove dbload --migration-schema-path "migrations/${APPLICATION}"
+	psql $(DEV_DATABASE_URL) -f "migrations/${APPLICATION}/dev_data_seed.sql"
+
 
 .PHONY: db_dev_migrate
 db_dev_migrate: db_dev_migrate_standalone ## Migrate Dev DB
@@ -539,7 +565,7 @@ db_dev_psql: ## Open PostgreSQL shell for Dev DB
 	scripts/psql-dev
 
 .PHONY: db_dev_fresh
-db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
+db_dev_fresh: check_app db_dev_reset db_dev_load_from_schema ## Recreate dev db from scratch and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
@@ -677,6 +703,12 @@ db_test_truncate:
 	@echo "Truncating ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) DB_NAME=$(DB_NAME_TEST) ./scripts/db-truncate
 
+db_test_load_from_schema: bin/milmove
+	@echo "Loading from schema the ${DB_NAME_TEST} database..."
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove dbload --migration-schema-path "migrations/${APPLICATION}"
+	# the dev data is not needed for server tests, but is needed for e2e
+	# tests, so move the dev data loading to e2e related Makefile targets
+
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
@@ -700,6 +732,8 @@ db_test_migrations_build: .db_test_migrations_build.stamp ## Build Test DB Migra
 db_test_psql: ## Open PostgreSQL shell for Test DB
 	scripts/psql-test
 
+.PHONY: db_test_prepare
+db_test_prepare: db_test_reset db_test_load_from_schema redis_reset
 #
 # ----- END DB_TEST TARGETS -----
 #

@@ -13,6 +13,8 @@ const (
 	MigrationManifestFlag string = "migration-manifest"
 	// MigrationWaitFlag is the migration wait flag
 	MigrationWaitFlag string = "migration-wait"
+	// MigrationSchemaPathFlag contains the path to the schema file
+	MigrationSchemaPathFlag string = "migration-schema-path"
 )
 
 var (
@@ -23,6 +25,7 @@ var (
 func InitMigrationFlags(flag *pflag.FlagSet) {
 	flag.StringP(MigrationManifestFlag, "m", "migrations/app/migrations_manifest.txt", "Path to the manifest")
 	flag.DurationP(MigrationWaitFlag, "w", time.Millisecond*10, "duration to wait when polling for new data from migration file")
+	flag.String(MigrationSchemaPathFlag, "", "Path to full schema file")
 }
 
 // CheckMigration validates migration command line flags
