@@ -100,6 +100,7 @@ export const eventNamesWithPlainTextDetails = {
   setFinancialReviewFlag: 'Flagged move', // ghc.yaml
   requestShipmentCancellation: 'Updated shipment', // ghc.yaml
   updateMoveTaskOrderStatus: 'Move task order status', // ghc.yaml Need to check status as well
+  acknowledgeExcessWeightRisk: 'Dismissed excess weight alert',
 };
 
 export const historyLogEventNameDisplay = {
