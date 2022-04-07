@@ -143,6 +143,7 @@ export const historyLogEventNameDisplay = {
   createMTOShipment: 'Submitted/Requested shipments', // internal.yaml prime.yaml
   updateMTOShipmentAddress: 'Updated shipment', // prime.yaml
   createMTOServiceItem: 'Requested service item', // prime.yaml
+  acknowledgeExcessWeightRisk: 'Updated move',
 };
 
 export function getHistoryLogEventNameDisplay({ eventName /* operationId */, changedValues }) {
