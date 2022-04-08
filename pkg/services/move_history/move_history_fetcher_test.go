@@ -230,7 +230,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 				if *h.ObjectID == updatedServiceItem.ID {
 					if h.Context != nil {
 						context := removeEscapeJSON(h.Context)
-						if context != nil && context["name"] == *&serviceItem.ReService.Name && context["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) {
+						if context != nil && context["name"] == serviceItem.ReService.Name && context["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) {
 							verifyServiceItemStatusContext = true
 						}
 					}
