@@ -34,6 +34,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			mto_shipments.*
 		FROM
 			mto_shipments
+		WHERE move_id = (SELECT moves.id FROM moves)
 	),
 	shipment_logs AS (
 		SELECT
