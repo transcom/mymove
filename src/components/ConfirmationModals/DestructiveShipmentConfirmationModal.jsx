@@ -9,10 +9,10 @@ export const DestructiveShipmentConfirmationModal = ({
   onClose,
   onSubmit,
   shipmentID,
-  title = 'Are you sure?',
-  content = 'You’ll lose all the information in this shipment. If you want it back later, you’ll have to request a new shipment.',
-  submitText = 'Delete shipment',
-  backText = 'Keep shipment',
+  title,
+  content,
+  submitText,
+  backText,
 }) => (
   <div>
     <Overlay />
@@ -52,10 +52,18 @@ DestructiveShipmentConfirmationModal.propTypes = {
 
   shipmentID: PropTypes.string.isRequired,
 
-  title: PropTypes.string.isRequired,
-  content: PropTypes.string.isRequired,
-  submitText: PropTypes.string.isRequired,
-  backText: PropTypes.string.isRequired,
+  title: PropTypes.string,
+  content: PropTypes.string,
+  submitText: PropTypes.string,
+  backText: PropTypes.string,
+};
+
+DestructiveShipmentConfirmationModal.defaultProps = {
+  title: 'Are you sure?',
+  content:
+    'You’ll lose all the information in this shipment. If you want it back later, you’ll have to request a new shipment.',
+  submitText: 'Delete shipment',
+  backText: 'Keep shipment',
 };
 
 DestructiveShipmentConfirmationModal.displayName = 'DestructiveShipmentConfirmationModal';
