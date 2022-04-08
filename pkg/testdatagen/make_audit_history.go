@@ -21,14 +21,14 @@ type TestDataAuditHistory struct {
 	// relation OID. Table OID (object identifier). Changes with drop/create
 	RelID int64 `json:"rel_id" db:"relid"`
 	// id column for the tableName where the data was changed
-	ObjectID             *uuid.UUID `json:"object_id" db:"object_id"`
-	SessionUserID        *uuid.UUID `json:"session_user_id" db:"session_userid"`
-	SessionUserFirstName *string    `json:"session_user_first_name" db:"-"`
-	SessionUserLastName  *string    `json:"session_user_last_name" db:"-"`
-	SessionUserEmail     *string    `json:"session_user_email" db:"-"`
-	SessionUserTelephone *string    `json:"session_user_telephone" db:"-"`
-	Context              *string    `json:"context" db:"-"`
-	ContextID            *string    `json:"context_id" db:"-"`
+	ObjectID             *uuid.UUID      `json:"object_id" db:"object_id"`
+	SessionUserID        *uuid.UUID      `json:"session_user_id" db:"session_userid"`
+	SessionUserFirstName *string         `json:"session_user_first_name" db:"-"`
+	SessionUserLastName  *string         `json:"session_user_last_name" db:"-"`
+	SessionUserEmail     *string         `json:"session_user_email" db:"-"`
+	SessionUserTelephone *string         `json:"session_user_telephone" db:"-"`
+	Context              *models.JSONMap `json:"context" db:"-"`
+	ContextID            *string         `json:"context_id" db:"-"`
 	// Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx
 	TransactionID *int64 `json:"transaction_id" db:"transaction_id"`
 	// Record the text of the client query that triggered the audit event
@@ -59,7 +59,7 @@ func MakeAuditHistory(db *pop.Connection, assertions Assertions) TestDataAuditHi
 	genericUUID := uuid.Must(uuid.NewV4())
 	movesTableUUID := assertions.Move.ID
 	fakeEventName := "setFinancialReviewFlag"
-	fakeContext := "moves test"
+	fakeContext := models.JSONMap{}
 	fakeContextID := "1234567"
 	fakeOldData := models.JSONMap{"Locator": "asdf"}
 	fakeChangedData := models.JSONMap{"Locator": "fdsa"}
