@@ -35,6 +35,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusSUBMITTED,
 		},
+		DutyLocation: models.DutyLocation{
+			TransportationOfficeID: &officeUser.TransportationOffice.ID,
+			TransportationOffice:   officeUser.TransportationOffice,
+		},
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -81,9 +85,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	payload := response.(*queues.GetMovesQueueOK).Payload
 
 	order := hhgMove.Orders
+	suite.Len(payload.QueueMoves, 1)
+
 	result := payload.QueueMoves[0]
 	deptIndicator := *result.DepartmentIndicator
-	suite.Len(payload.QueueMoves, 1)
 	suite.Equal(hhgMove.ID.String(), result.ID.String())
 	suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
 	suite.Equal(*order.DepartmentIndicator, string(deptIndicator))
@@ -219,6 +224,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusSUBMITTED,
+		},
+		DutyLocation: models.DutyLocation{
+			TransportationOfficeID: &officeUser.TransportationOffice.ID,
+			TransportationOffice:   officeUser.TransportationOffice,
 		},
 	})
 

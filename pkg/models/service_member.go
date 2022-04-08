@@ -23,6 +23,11 @@ func (s ServiceMemberAffiliation) String() string {
 	return string(s)
 }
 
+// Pointer returns a pointer to a ServiceMemberAffiliation
+func (s ServiceMemberAffiliation) Pointer() *ServiceMemberAffiliation {
+	return &s
+}
+
 const (
 	// AffiliationARMY captures enum value "ARMY"
 	AffiliationARMY ServiceMemberAffiliation = "ARMY"

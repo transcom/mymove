@@ -62,37 +62,37 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 	suite.Assertions.IsType(&entitlementop.ValidateEntitlementOK{}, response)
 }
 
-func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409IfPPM() {
-	// Given: a set of orders, a move, user, servicemember and a PPM
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
-
-	// When: rank is E1, the orders have dependents and spouse gear, and
-	// the weight estimate stored is over entitlement of 10500
-	wtgEst := unit.Pound(14000)
-	ppm.WeightEstimate = &wtgEst
-	suite.MustSave(&ppm)
-
-	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
-
-	params := entitlementop.ValidateEntitlementParams{
-		HTTPRequest: request,
-		MoveID:      strfmt.UUID(move.ID.String()),
-	}
-
-	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
-	response := handler.Handle(params)
-
-	// Then: expect a 409 status code
-	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
-	errResponse := response.(*handlers.ErrResponse)
-
-	// Then: expect a 409 status code
-	suite.Assertions.Equal(http.StatusConflict, errResponse.Code)
-}
+//func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409IfPPM() {
+//	// Given: a set of orders, a move, user, servicemember and a PPM
+//	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+//	move := ppm.Move
+//
+//	// When: rank is E1, the orders have dependents and spouse gear, and
+//	// the weight estimate stored is over entitlement of 10500
+//	wtgEst := unit.Pound(14000)
+//	ppm.WeightEstimate = &wtgEst
+//	suite.MustSave(&ppm)
+//
+//	// And: the context contains the auth values
+//	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
+//	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
+//
+//	params := entitlementop.ValidateEntitlementParams{
+//		HTTPRequest: request,
+//		MoveID:      strfmt.UUID(move.ID.String()),
+//	}
+//
+//	// And: validate entitlements endpoint is hit
+//	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+//	response := handler.Handle(params)
+//
+//	// Then: expect a 409 status code
+//	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+//	errResponse := response.(*handlers.ErrResponse)
+//
+//	// Then: expect a 409 status code
+//	suite.Assertions.Equal(http.StatusConflict, errResponse.Code)
+//}
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoPpmOrHhg() {
 	// Given: a set of orders, a move, user, servicemember but NO ppm and NO hhg

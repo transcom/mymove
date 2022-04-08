@@ -1,6 +1,8 @@
 package order
 
 import (
+	"fmt"
+	"sort"
 	"testing"
 	"time"
 
@@ -71,9 +73,15 @@ func (suite *OrderServiceSuite) TestListOrders() {
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
 
-	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			TransportationOfficeID: &officeUser.TransportationOffice.ID,
+			TransportationOffice:   officeUser.TransportationOffice,
+		},
+	})
+
 	//"30813"
 	// May have to create postalcodetogbloc for office user
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
@@ -151,7 +159,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 	suite.T().Run("returns moves filtered by service member affiliation", func(t *testing.T) {
 		airForce := models.AffiliationAIRFORCE
-		airForceString := "AIR_FORCE"
+		airForceString := models.AffiliationAIRFORCE.String()
 		params := services.ListOrderParams{Branch: &airForceString, Page: swag.Int64(1)}
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{
@@ -162,7 +170,13 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		suite.FatalNoError(err)
-		suite.Equal(1, len(moves))
+
+		expectedMovesNum := 1
+
+		if *expectedMove.Orders.ServiceMember.Affiliation == airForce {
+			expectedMovesNum++
+		}
+		suite.Equal(expectedMovesNum, len(moves))
 	})
 
 	suite.T().Run("returns moves filtered submitted at", func(t *testing.T) {
@@ -341,9 +355,6 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	requestedMoveDate3 := time.Date(testdatagen.GHCTestYear, 01, 15, 0, 0, 0, 0, time.UTC)
 
 	// SET UP: Service Members for sorting by Service Member Last Name and Branch
-	// - We'll need two other service members to test the last name sort, Lea Spacemen and Leo Zephyer
-	serviceMemberFirstName := "Lea"
-	serviceMemberLastName := "Zephyer"
 	affiliation := models.AffiliationNAVY
 	edipi := "9999999999"
 
@@ -363,7 +374,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 			Locator: "TTZ123",
 		},
 		// Lea Spacemen
-		ServiceMember: models.ServiceMember{Affiliation: &affiliation, FirstName: &serviceMemberFirstName, Edipi: &edipi},
+		ServiceMember: models.ServiceMember{Affiliation: &affiliation, Edipi: &edipi},
 		MTOShipment: models.MTOShipment{
 			RequestedPickupDate: &requestedMoveDate2,
 		},
@@ -450,9 +461,16 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	// MUST BE LAST, ADDS EXTRA MOVE
 	suite.T().Run("Sort by service member last name", func(t *testing.T) {
 		// Last name sort is the only one that needs 3 moves for a complete test, so add that here at the end
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			// Leo Zephyer
-			ServiceMember: models.ServiceMember{LastName: &serviceMemberLastName},
+		expectedMove3 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+		names := []string{
+			fmt.Sprintf("%s, %s", *expectedMove1.Orders.ServiceMember.LastName, *expectedMove1.Orders.ServiceMember.FirstName),
+			fmt.Sprintf("%s, %s", *expectedMove2.Orders.ServiceMember.LastName, *expectedMove2.Orders.ServiceMember.FirstName),
+			fmt.Sprintf("%s, %s", *expectedMove3.Orders.ServiceMember.LastName, *expectedMove3.Orders.ServiceMember.FirstName),
+		}
+
+		sort.Slice(names, func(a, b int) bool {
+			return names[a] < names[b]
 		})
 
 		params := services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
@@ -460,18 +478,18 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 		suite.NoError(err)
 		suite.Equal(3, len(moves))
-		suite.Equal("Spacemen, Lea", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-		suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
-		suite.Equal("Zephyer, Leo", *moves[2].Orders.ServiceMember.LastName+", "+*moves[2].Orders.ServiceMember.FirstName)
+		suite.Equal(names[0], *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal(names[1], *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+		suite.Equal(names[2], *moves[2].Orders.ServiceMember.LastName+", "+*moves[2].Orders.ServiceMember.FirstName)
 
 		params = services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		suite.NoError(err)
 		suite.Equal(3, len(moves))
-		suite.Equal("Zephyer, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-		suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
-		suite.Equal("Spacemen, Lea", *moves[2].Orders.ServiceMember.LastName+", "+*moves[2].Orders.ServiceMember.FirstName)
+		suite.Equal(names[2], *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal(names[1], *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+		suite.Equal(names[0], *moves[2].Orders.ServiceMember.LastName+", "+*moves[2].Orders.ServiceMember.FirstName)
 	})
 }
 

@@ -1,27 +1,81 @@
 package testdatagen
 
 import (
-	"log"
 	"strconv"
-
-	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"github.com/jaswdr/faker"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // randomEdipi creates a random Edipi for a service member
 func randomEdipi() string {
+	fake := faker.New()
+
 	low := 1000000000
 	high := 9999999999
-	randInt, err := random.GetRandomIntAddend(low, high)
-	if err != nil {
-		log.Panicf("Failure to generate randomEdipi %v", err)
+
+	return strconv.Itoa(fake.IntBetween(low, high))
+}
+
+// randomServiceMemberAffiliation returns a random service member affiliation
+func randomServiceMemberAffiliation() models.ServiceMemberAffiliation {
+	fake := faker.New()
+
+	affiliations := []string{
+		models.AffiliationARMY.String(),
+		models.AffiliationNAVY.String(),
+		models.AffiliationMARINES.String(),
+		models.AffiliationAIRFORCE.String(),
+		models.AffiliationCOASTGUARD.String(),
 	}
-	return strconv.Itoa(low + int(randInt))
+
+	affiliation := fake.RandomStringElement(affiliations)
+
+	return models.ServiceMemberAffiliation(affiliation)
+}
+
+func randomServiceMemberRank() models.ServiceMemberRank {
+	fake := faker.New()
+
+	ranks := []string{
+		models.ServiceMemberRankE1.String(),
+		models.ServiceMemberRankE2.String(),
+		models.ServiceMemberRankE3.String(),
+		models.ServiceMemberRankE4.String(),
+		models.ServiceMemberRankE5.String(),
+		models.ServiceMemberRankE6.String(),
+		models.ServiceMemberRankE7.String(),
+		models.ServiceMemberRankE8.String(),
+		models.ServiceMemberRankE9.String(),
+		models.ServiceMemberRankE9SPECIALSENIORENLISTED.String(),
+		models.ServiceMemberRankO1ACADEMYGRADUATE.String(),
+		models.ServiceMemberRankO2.String(),
+		models.ServiceMemberRankO3.String(),
+		models.ServiceMemberRankO4.String(),
+		models.ServiceMemberRankO5.String(),
+		models.ServiceMemberRankO6.String(),
+		models.ServiceMemberRankO7.String(),
+		models.ServiceMemberRankO8.String(),
+		models.ServiceMemberRankO9.String(),
+		models.ServiceMemberRankO10.String(),
+		models.ServiceMemberRankW1.String(),
+		models.ServiceMemberRankW2.String(),
+		models.ServiceMemberRankW3.String(),
+		models.ServiceMemberRankW4.String(),
+		models.ServiceMemberRankW5.String(),
+		models.ServiceMemberRankAVIATIONCADET.String(),
+		models.ServiceMemberRankCIVILIANEMPLOYEE.String(),
+		models.ServiceMemberRankACADEMYCADET.String(),
+		models.ServiceMemberRankMIDSHIPMAN.String(),
+	}
+
+	rank := fake.RandomStringElement(ranks)
+
+	return models.ServiceMemberRank(rank)
 }
 
 // MakeServiceMember creates a single ServiceMember
@@ -29,15 +83,13 @@ func randomEdipi() string {
 // - User
 // - ResidentialAddress
 func MakeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
-	aServiceMember := assertions.ServiceMember
-	user := aServiceMember.User
-	agency := aServiceMember.Affiliation
-	email := "leo_spaceman_sm@example.com"
-	currentAddressID := aServiceMember.ResidentialAddressID
-	currentAddress := aServiceMember.ResidentialAddress
+	fake := faker.New()
+
+	user := assertions.ServiceMember.User
+	email := fake.Internet().Email()
 
 	// ID is required because it must be populated for Eager saving to work.
-	if isZeroUUID(assertions.ServiceMember.UserID) {
+	if assertions.ServiceMember.UserID.IsNil() { // TODO: This should be checking assertions.User.ID, but I won't change it right now because it would require changing any place this is called incorrectly.
 		if assertions.User.LoginGovEmail == "" {
 			assertions.User.LoginGovEmail = email
 		}
@@ -47,32 +99,23 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		email = assertions.User.LoginGovEmail
 	}
 
-	if agency == nil {
-		army := models.AffiliationARMY
-		agency = &army
-	}
-
-	if currentAddressID == nil || isZeroUUID(*currentAddressID) {
-		newAddress := MakeDefaultAddress(db)
-		currentAddressID = &newAddress.ID
-		currentAddress = &newAddress
-	}
-
-	randomEdipi := randomEdipi()
-	rank := models.ServiceMemberRankE1
-
 	serviceMember := models.ServiceMember{
-		UserID:               user.ID,
-		User:                 user,
-		Edipi:                swag.String(randomEdipi),
-		Affiliation:          agency,
-		FirstName:            swag.String("Leo"),
-		LastName:             swag.String("Spacemen"),
-		Telephone:            swag.String("212-123-4567"),
-		PersonalEmail:        &email,
-		ResidentialAddressID: currentAddressID,
-		ResidentialAddress:   currentAddress,
-		Rank:                 &rank,
+		UserID:        user.ID,
+		User:          user,
+		Edipi:         models.StringPointer(randomEdipi()),
+		Affiliation:   randomServiceMemberAffiliation().Pointer(),
+		FirstName:     models.StringPointer(fake.Person().FirstName()),
+		LastName:      models.StringPointer(fake.Person().LastName()),
+		Telephone:     models.StringPointer(fake.Phone().Number()),
+		PersonalEmail: &email,
+		Rank:          randomServiceMemberRank().Pointer(),
+	}
+
+	if assertions.ServiceMember.ResidentialAddressID == nil || assertions.ServiceMember.ResidentialAddressID.IsNil() {
+		newAddress := MakeDefaultAddress(db) // TODO: This isn't passing along assertions, so Stub won't work, but it's also doing other things in there so it'll take more to refactor.
+
+		serviceMember.ResidentialAddressID = &newAddress.ID
+		serviceMember.ResidentialAddress = &newAddress
 	}
 
 	// Overwrite values with those from assertions
@@ -99,27 +142,17 @@ func MakeDefaultServiceMember(db *pop.Connection) models.ServiceMember {
 //   - DutyLocation
 //   - BackupContact
 func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
-	affiliation := assertions.ServiceMember.Affiliation
-	if affiliation == nil {
-		army := models.AffiliationARMY
-		affiliation = &army
-	}
-	residentialAddress := MakeDefaultAddress(db)
+	fake := faker.New()
+
 	backupMailingAddress := MakeAddress2(db, assertions)
-	e1 := models.ServiceMemberRankE1
 	dutyLocation := FetchOrMakeDefaultCurrentDutyLocation(db)
 
-	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{
-		Edipi:                  swag.String(randomEdipi()),
-		Rank:                   &e1,
-		Affiliation:            affiliation,
-		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
 		DutyLocationID:         &dutyLocation.ID,
 		DutyLocation:           dutyLocation,
 		EmailIsPreferred:       swag.Bool(true),
-		Telephone:              swag.String("555-555-5555"),
+		Telephone:              models.StringPointer(fake.Phone().Number()),
 	}
 
 	mergeModels(&smDefaults, assertions.ServiceMember)
@@ -133,7 +166,9 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 			ServiceMember:   serviceMember,
 			ServiceMemberID: serviceMember.ID,
 		},
+		Stub: assertions.Stub,
 	}
+
 	backupContact := MakeBackupContact(db, contactAssertions)
 	serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
 	if !assertions.Stub {

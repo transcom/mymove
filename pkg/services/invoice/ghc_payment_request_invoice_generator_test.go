@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/benbjohnson/clock"
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -271,12 +270,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
 
-	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
-		},
-	})
-
 	// setup known next value
 	icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 	suite.NoError(icnErr)
@@ -375,9 +368,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	}{
 		{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, ActualValue: &result.Header.PaymentRequestNumber},
 		{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", ActualValue: &result.Header.ContractCode},
-		{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
-		{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank), ActualValue: &result.Header.ServiceMemberRank},
-		{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
+		{TestName: "service member name", Qualifier: "1W", ExpectedValue: mto.Orders.ServiceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
+		{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*mto.Orders.ServiceMember.Rank), ActualValue: &result.Header.ServiceMemberRank},
+		{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*mto.Orders.ServiceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
 	}
 
 	for _, data := range testData {
@@ -385,7 +378,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.IsType(&edisegment.N9{}, data.ActualValue)
 			n9 := data.ActualValue
 			suite.Equal(data.Qualifier, n9.ReferenceIdentificationQualifier)
-			suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
+			suite.Equal(data.ExpectedValue, n9.ReferenceIdentification) // expected: "Lizeth, Quitzon"  actual  : "Angelo, Russel"
 		})
 	}
 

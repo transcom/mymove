@@ -63,3 +63,13 @@ const (
 	// ServiceMemberRankMIDSHIPMAN captures enum value "MIDSHIPMAN"
 	ServiceMemberRankMIDSHIPMAN ServiceMemberRank = "MIDSHIPMAN"
 )
+
+// String is a string representation of a ServiceMemberRank
+func (s ServiceMemberRank) String() string {
+	return string(s)
+}
+
+// Pointer returns a pointer to a ServiceMemberRank
+func (s ServiceMemberRank) Pointer() *ServiceMemberRank {
+	return &s
+}

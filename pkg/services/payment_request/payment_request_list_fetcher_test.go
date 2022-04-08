@@ -58,7 +58,12 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			TransportationOfficeID: &officeUser.TransportationOffice.ID,
+			TransportationOffice:   officeUser.TransportationOffice,
+		},
+	})
 
 	// we need a mapping for the pickup address postal code to our user's gbloc
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
@@ -272,7 +277,9 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 	army := models.AffiliationARMY
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	expectedMoveNotUSMC := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	expectedMoveNotUSMC := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{Affiliation: &army},
+	})
 
 	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
 		expectedMoveNotUSMC.MTOShipments[0].PickupAddress.PostalCode,

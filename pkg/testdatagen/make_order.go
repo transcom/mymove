@@ -12,7 +12,7 @@ import (
 // MakeOrder creates a single Order and associated data.
 func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	// Create new relational data if not provided
-	sm := assertions.Order.ServiceMember
+	sm := assertions.Order.ServiceMember // TODO: This should be using assertions.ServiceMember
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Order.ServiceMemberID) {
 		sm = MakeExtendedServiceMember(db, assertions)
