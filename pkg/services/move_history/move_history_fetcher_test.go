@@ -157,6 +157,10 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 	suite.T().Run("returns Audit History with session information", func(t *testing.T) {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{},
+			Move:        approvedMove,
+		})
 		fakeRole := testdatagen.MakeTOORole(suite.DB())
 		fakeUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
 		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
@@ -182,7 +186,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistoryData, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
-		suite.Equal(totalCount, int64(6), "total count should be 6")
+		suite.Equal(totalCount, int64(5), "total count should be 5")
 		suite.NoError(err)
 
 		suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
@@ -195,10 +199,20 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 	suite.T().Run("has context and context ID", func(t *testing.T) {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+			},
+			Move: approvedMove,
+		})
 		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistoryData, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
-		suite.Equal(totalCount, int64(5), "total count should be 5")
+		suite.Equal(totalCount, int64(4), "total count should be 4")
 		suite.NoError(err)
 
 		suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
@@ -216,12 +230,16 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 	suite.T().Run("has paginated results", func(t *testing.T) {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{},
+			Move:        approvedMove,
+		})
 		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
 		moveHistoryData, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
-		suite.Equal(totalCount, int64(5), "total count should be 5")
+		suite.Equal(totalCount, int64(4), "total count should be 4")
 		suite.Equal(2, len(moveHistoryData.AuditHistories), "should have 2 rows due to pagination")
 
 	})
