@@ -3,11 +3,10 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
 
-import DocsUploaded from '../DocsUploaded/index';
-import ShipmentList from '../../../ShipmentList/index';
-
 import Step from '.';
 
+import DocsUploaded from 'components/Customer/Home/DocsUploaded/index';
+import ShipmentList from 'components/ShipmentList/ShipmentList';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {

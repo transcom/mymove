@@ -13,13 +13,13 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// randomEdipi creates a random Edipi for a service member
-func randomEdipi() string {
+// RandomEdipi creates a random Edipi for a service member
+func RandomEdipi() string {
 	low := 1000000000
 	high := 9999999999
 	randInt, err := random.GetRandomIntAddend(low, high)
 	if err != nil {
-		log.Panicf("Failure to generate randomEdipi %v", err)
+		log.Panicf("Failure to generate random Edipi %v", err)
 	}
 	return strconv.Itoa(low + int(randInt))
 }
@@ -58,7 +58,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		currentAddress = &newAddress
 	}
 
-	randomEdipi := randomEdipi()
+	randomEdipi := RandomEdipi()
 	rank := models.ServiceMemberRankE1
 
 	serviceMember := models.ServiceMember{
@@ -111,7 +111,7 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{
-		Edipi:                  swag.String(randomEdipi()),
+		Edipi:                  swag.String(RandomEdipi()),
 		Rank:                   &e1,
 		Affiliation:            affiliation,
 		ResidentialAddressID:   &residentialAddress.ID,

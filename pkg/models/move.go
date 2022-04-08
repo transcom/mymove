@@ -157,7 +157,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.PPMShipment",
 		"SignedCertifications",
-		"Orders",
+		"Orders.ServiceMember",
 		"Orders.UploadedAmendedOrders",
 		"MoveDocuments.Document",
 	).Where("show = TRUE").Find(&move, id)
@@ -180,9 +180,8 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	// Ensure that the logged-in user is authorized to access this move
-	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
-	if authErr != nil {
-		return nil, authErr
+	if session.IsMilApp() && move.Orders.ServiceMember.ID != session.ServiceMemberID {
+		return nil, ErrFetchForbidden
 	}
 
 	return &move, nil
