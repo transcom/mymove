@@ -85,21 +85,23 @@ export const shipmentOptionToDisplay = {
 export const detailsPlainTextToDisplay = (historyRecord) => {
   switch (historyRecord.eventName) {
     case 'approveShipment':
-      return `${shipmentTypes[historyRecord.oldValues.shipment_type]} shipment`;
-	case 'approveShipmentDiversion':
-	  return `${shipmentTypes[historyRecord.oldValues.shipment_type]} shipment`;
+      return `${shipmentTypes[historyRecord.oldValues?.shipment_type]} shipment`;
+    case 'approveShipmentDiversion':
+      return `${shipmentTypes[historyRecord.oldValues?.shipment_type]} shipment`;
     case 'updateMTOServiceItemStatus':
-      return `${shipmentOptionToDisplay[historyRecord.context.shipment_type]} shipment, ${historyRecord.context.name}`;
+      return `${shipmentOptionToDisplay[historyRecord.context?.shipment_type]} shipment, ${
+        historyRecord.context?.name
+      }`;
     case 'requestShipmentDiversion':
-      return `Requested diversion for ${shipmentOptionToDisplay[historyRecord.oldValues.shipment_type]} shipment`; // ghc.yaml
+      return `Requested diversion for ${shipmentOptionToDisplay[historyRecord.oldValues?.shipment_type]} shipment`; // ghc.yaml
     case 'setFinancialReviewFlag':
       return historyRecord.changedValues.financial_review_flag === 'true'
         ? 'Move flagged for financial review'
         : 'Move unflagged for financial review';
     case 'requestShipmentCancellation':
-      return `Requested cancellation for ${shipmentOptionToDisplay[historyRecord.oldValues.shipment_type]} shipment`;
+      return `Requested cancellation for ${shipmentOptionToDisplay[historyRecord.oldValues?.shipment_type]} shipment`;
     case 'updateMoveTaskOrderStatus':
-      return historyRecord.changedValues.status === 'APPROVED'
+      return historyRecord.changedValues?.status === 'APPROVED'
         ? 'Created Move Task Order (MTO)'
         : 'Rejected Move Task Order (MTO)';
     default:
