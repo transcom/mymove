@@ -50,7 +50,7 @@ Long-term, we would ideally:
 _How will this change be observed by other team members?_
 
 This ADR will be announced in meetings where most of the MilMove team is present. If approved, as core factories are set
-up, they could be announced at demos or FE check in meetings.
+up, they could be announced at internal demos or FE check in meetings.
 
 ### Implementation Plan
 
