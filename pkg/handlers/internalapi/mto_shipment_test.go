@@ -1207,6 +1207,28 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		suite.IsType(&mtoshipmentops.DeleteShipmentNotFound{}, response)
 	})
 
+	suite.Run("Returns 403 when deleter returns ForbiddenError", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ForbiddenError{})
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := mtoshipmentops.DeleteShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+		suite.IsType(&mtoshipmentops.DeleteShipmentForbidden{}, response)
+	})
+
 	suite.Run("Returns 500 when deleter returns InternalServerError", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		deleter := &mocks.ShipmentDeleter{}
