@@ -12,9 +12,7 @@ COPY bin/milmove /bin/milmove
 COPY bin/generate-test-data /bin/generate-test-data
 COPY bin/prime-api-client /bin/prime-api-client
 
-COPY migrations/app/schema /migrate/schema
-COPY migrations/app/secure /migrate/secure
-COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
+COPY migrations/app/*.sql /migrate/schema/
 
 COPY build /build
 COPY config /config

@@ -15,6 +15,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/migrate"
 )
 
 func dbloadFunction(cmd *cobra.Command, args []string) error {
@@ -110,6 +111,35 @@ func dbloadFunction(cmd *cobra.Command, args []string) error {
 	}
 	logger.Info(fmt.Sprintf("Successfully loaded schema from %s", schema))
 	f.Close()
+
+	// optionally load the dev seed data
+	if v.GetBool(cli.MigrationLoadDevSeed) {
+		devSeed := filepath.Join(schemaPath, "dev_data_seed.sql")
+		wait := v.GetDuration(cli.MigrationWaitFlag)
+
+		// need to use our custom migration code that supports COPY FROM stdin
+		fakeMatch := &pop.Match{
+			Type:      "sql",
+			Name:      "dev_data_seed",
+			Direction: "up",
+			DBType:    "all",
+			Version:   "0",
+		}
+		b := &migrate.Builder{Match: fakeMatch, Path: "file://" + devSeed}
+		migration, errCompile := b.Compile(nil, wait, logger)
+		if errCompile != nil {
+			return errors.Wrap(errCompile, "Error compiling migration")
+		}
+
+		err = dbConnection.Transaction(func(tx *pop.Connection) error {
+			return migration.Run(tx)
+		})
+		if err != nil {
+			return err
+		}
+		logger.Info(fmt.Sprintf("Successfully loaded dev seed from %s", devSeed))
+		f.Close()
+	}
 
 	return nil
 }

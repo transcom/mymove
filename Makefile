@@ -42,8 +42,6 @@ ifdef CIRCLECI
 endif
 
 DEV_DATABASE_URL=postgres://$(DB_USER)@$(DB_HOST):$(DB_PORT)/$(DB_NAME_DEV)?sslmode=$(DB_SSL_MODE)
-TEST_DATABASE_URL=postgres://$(DB_USER)@$(DB_HOST):$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=$(DB_SSL_MODE)
-
 
 ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
@@ -553,9 +551,7 @@ db_dev_migrate_standalone: bin/milmove
 .PHONY: db_dev_load_from_schema
 db_dev_load_from_schema: bin/milmove
 	@echo "Loading from schema the ${DB_NAME_DEV} database..."
-	DB_DEBUG=0 bin/milmove dbload --migration-schema-path "migrations/${APPLICATION}"
-	psql $(DEV_DATABASE_URL) -f "migrations/${APPLICATION}/dev_data_seed.sql"
-
+	DB_DEBUG=0 bin/milmove dbload --migration-schema-path "migrations/${APPLICATION}" --migration-load-dev-seed
 
 .PHONY: db_dev_migrate
 db_dev_migrate: db_dev_migrate_standalone ## Migrate Dev DB
@@ -708,6 +704,10 @@ db_test_load_from_schema: bin/milmove
 	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove dbload --migration-schema-path "migrations/${APPLICATION}"
 	# the dev data is not needed for server tests, but is needed for e2e
 	# tests, so move the dev data loading to e2e related Makefile targets
+
+db_test_load_from_schema_with_seed: bin/milmove
+	@echo "Loading from schema the ${DB_NAME_TEST} database..."
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove dbload --migration-schema-path "migrations/${APPLICATION}" --migration-load-dev-seed
 
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly

@@ -15,6 +15,8 @@ const (
 	MigrationWaitFlag string = "migration-wait"
 	// MigrationSchemaPathFlag contains the path to the schema file
 	MigrationSchemaPathFlag string = "migration-schema-path"
+	// MigrationLoadDevSeed is whether to load dev seed data
+	MigrationLoadDevSeed string = "migration-load-dev-seed"
 )
 
 var (
@@ -26,6 +28,7 @@ func InitMigrationFlags(flag *pflag.FlagSet) {
 	flag.StringP(MigrationManifestFlag, "m", "migrations/app/migrations_manifest.txt", "Path to the manifest")
 	flag.DurationP(MigrationWaitFlag, "w", time.Millisecond*10, "duration to wait when polling for new data from migration file")
 	flag.String(MigrationSchemaPathFlag, "", "Path to full schema file")
+	flag.Bool(MigrationLoadDevSeed, false, "Load the dev seed data")
 }
 
 // CheckMigration validates migration command line flags
