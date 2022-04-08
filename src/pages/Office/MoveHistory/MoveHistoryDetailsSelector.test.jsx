@@ -11,8 +11,8 @@ describe('MoveHistoryDetailsSelector', () => {
     [{ eventName: 'counselingUpdateAllowance' }, 'Labeled'],
     [{ eventName: 'updateMoveTaskOrder' }, 'Labeled'],
     [{ eventName: 'updateMTOShipment' }, 'Labeled'],
-	[{ eventName: 'requestShipmentDiversion' }, 'Requested diversion'],
-    [{ eventName: 'approveShipment' }, 'Approved shipment'],
+    [{ eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'HHG' } }, 'Requested diversion'],
+    [{ eventName: 'approveShipment', oldValues: { shipment_type: 'HHG' } }, 'HHG shipment'],
     [{ eventName: 'updateMTOServiceItem' }, 'Service Items'],
     [
       {
@@ -53,10 +53,14 @@ describe('MoveHistoryDetailsSelector', () => {
       { eventName: 'updateMoveTaskOrderStatus', changedValues: { status: 'Rejected' } },
       'Rejected Move Task Order (MTO)',
     ],
-	[
-		{ eventName: 'approveShipmentDiversion', oldValues: { shipment_type: 'HHG' }, changedValues: { status: 'APPROVED' } },
-		'HHG shipment',
-	],
+    [
+      {
+        eventName: 'approveShipmentDiversion',
+        oldValues: { shipment_type: 'HHG' },
+        changedValues: { status: 'APPROVED' },
+      },
+      'HHG shipment',
+    ],
     [
       { eventName: 'requestShipmentCancellation', oldValues: { shipment_type: 'HHG' } },
       'Requested cancellation for HHG shipment',
