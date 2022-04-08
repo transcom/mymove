@@ -342,6 +342,10 @@ func (h DeleteShipmentHandler) Handle(params mtoshipmentops.DeleteShipmentParams
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+			sm := models.GetCustomerFromShipment(appCtx.DB(), shipmentID)
+			if appCtx.Session().ServiceMemberID != sm.ID {
+				return handleError(apperror.NewForbiddenError("customer requesting to delete shipment must be the same customer on the shipment"))
+			}
 			_, err := h.DeleteShipment(appCtx, shipmentID)
 			if err != nil {
 				appCtx.Logger().Error("internalapi.DeleteShipmentHandler", zap.Error(err))
