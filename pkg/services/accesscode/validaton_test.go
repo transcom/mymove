@@ -13,12 +13,10 @@ func (suite *AccessCodeServiceSuite) TestValidateAccessCode_ValidAccessCode() {
 		Code:     code,
 		MoveType: selectedMoveType,
 	}
-	suite.MustSave(&accessCode)
-	validateAccessCode := NewAccessCodeValidator()
-	ac, valid, _ := validateAccessCode.ValidateAccessCode(suite.AppContextForTest(), code, selectedMoveType)
 
-	suite.True(valid)
-	suite.Equal(ac.Code, accessCode.Code, "expected CODE2")
+	suite.MustSave(&accessCode)
+	err := checkAccessCode().Validate(suite.AppContextForTest(), &accessCode)
+	suite.Empty(err.Error())
 }
 
 func (suite *AccessCodeServiceSuite) TestValidateAccessCode_InvalidAccessCode() {
@@ -31,8 +29,8 @@ func (suite *AccessCodeServiceSuite) TestValidateAccessCode_InvalidAccessCode() 
 		MoveType:        selectedMoveType,
 		ServiceMemberID: &user.ID,
 	}
+
 	suite.MustSave(&usedAccessCode)
-	validateAccessCode := NewAccessCodeValidator()
-	_, valid, _ := validateAccessCode.ValidateAccessCode(suite.AppContextForTest(), code, selectedMoveType)
-	suite.False(valid)
+	err := checkAccessCode().Validate(suite.AppContextForTest(), &usedAccessCode)
+	suite.NotEmpty(err.Error())
 }

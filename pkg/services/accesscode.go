@@ -13,7 +13,7 @@ import (
 // AccessCodeValidator is the service object interface for ValidateAccessCode
 //go:generate mockery --name AccessCodeValidator --disable-version-string
 type AccessCodeValidator interface {
-	ValidateAccessCode(appCtx appcontext.AppContext, code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error)
+	ValidateAccessCode(appCtx appcontext.AppContext, ac *models.AccessCode) error
 }
 
 // AccessCodeFetcher is the service object interface for FetchAccessCode
