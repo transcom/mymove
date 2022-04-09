@@ -12,23 +12,7 @@ export const HistoryLogRecordShape = PropTypes.shape({
   oldValues: HistoryLogValuesShape,
 });
 
-/*
-const modelToDisplayName = {
-  updatedAt: 'Updated at',
-  diversion: 'Diversion',
-  billableWeightCap: 'Billable weight cap',
-  usesExternalVendor: 'Uses external vendor',
-  requestedDeliveryDate: 'Requested delivery date',
-  scheduledPickupDate: 'Scheduled pickup date',
-  status: 'Status',
-  customerRemarks: 'Customer remarks',
-  approvedDate: 'Approved date',
-  actualPickupDate: 'Actual pickup date',
-  primeEstimatedEeight: 'Prime estimated weight',
-  counselorRemarks: 'Counselor remarks',
-};
-
-const dbFieldsToModel = {
+export const dbFieldsToModel = {
   updated_at: 'updatedAt',
   diversion: 'diversion',
   billable_weight_cap: 'billableWeightCap',
@@ -47,8 +31,28 @@ const dbFieldsToModel = {
   postal_code: 'postalCode',
   city: 'city',
   country: 'country',
+  service_order_number: 'serviceOrderNumber',
+  tac_type: 'tacType',
+  sac_type: 'sacType',
 };
-*/
+
+export const modelToDisplayName = {
+  updatedAt: 'Updated at',
+  diversion: 'Diversion',
+  billableWeightCap: 'Billable weight cap',
+  usesExternalVendor: 'Uses external vendor',
+  requestedDeliveryDate: 'Requested delivery date',
+  scheduledPickupDate: 'Scheduled pickup date',
+  status: 'Status',
+  customerRemarks: 'Customer remarks',
+  approvedDate: 'Approved date',
+  actualPickupDate: 'Actual pickup date',
+  primeEstimatedEeight: 'Prime estimated weight',
+  counselorRemarks: 'Counselor remarks',
+  serviceOrderNumber: 'Service order number',
+  tacType: 'TAC type',
+  sacType: 'SAC type',
+};
 
 export const eventNamesWithLabeledDetails = {
   counselingUpdateOrder: 'Updated orders', // ghc.yaml

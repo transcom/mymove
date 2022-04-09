@@ -5,13 +5,6 @@ import MoveHistoryDetailsSelector from './MoveHistoryDetailsSelector';
 
 describe('MoveHistoryDetailsSelector', () => {
   it.each([
-    [{ eventName: 'counselingUpdateOrder' }, 'Labeled'],
-    [{ eventName: 'updateOrder' }, 'Labeled'],
-    [{ eventName: 'updateAllowance' }, 'Labeled'],
-    [{ eventName: 'counselingUpdateAllowance' }, 'Labeled'],
-    [{ eventName: 'updateMoveTaskOrder' }, 'Labeled'],
-    [{ eventName: 'updateMTOShipment' }, 'Labeled'],
-    [{ eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'HHG' } }, 'Requested diversion'],
     [{ eventName: 'approveShipment', oldValues: { shipment_type: 'HHG' } }, 'HHG shipment'],
     [{ eventName: 'updateMTOServiceItem' }, 'Service Items'],
     [
@@ -22,12 +15,9 @@ describe('MoveHistoryDetailsSelector', () => {
       'NTS shipment, Domestic origin price',
     ],
     [{ eventName: 'createOrders' }, '-'],
-    [{ eventName: 'updateOrders' }, 'Labeled'],
     [{ eventName: 'uploadAmendedOrders' }, '-'],
     [{ eventName: 'submitMoveForApproval' }, '-'],
-    [{ eventName: 'submitAmendedOrders' }, 'Labeled'],
     [{ eventName: 'createMTOShipment' }, '-'],
-    [{ eventName: 'updateMTOShipmentAddress' }, 'Labeled'],
     [{ eventName: 'createMTOServiceItem' }, 'Service Items'],
     [{ eventName: 'default' }, '-'],
   ])('for history record %s it renders %s', (historyRecord, text) => {
@@ -69,9 +59,25 @@ describe('MoveHistoryDetailsSelector', () => {
       { eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'HHG' } },
       'Requested diversion for HHG shipment',
     ],
-  ])('for historyRecord %s it renders %s', (historyRecord, text) => {
+  ])('for plain text historyRecord %s it renders %s', (historyRecord, text) => {
     render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
 
     expect(screen.getByText(text)).toBeInTheDocument();
+  });
+
+  it.each([
+    // [{ eventName: 'counselingUpdateOrder' }, 'Labeled'],
+    // [{ eventName: 'updateOrder' }, 'Labeled'],
+    // [{ eventName: 'updateAllowance' }, 'Labeled'],
+    // [{ eventName: 'counselingUpdateAllowance' }, 'Labeled'],
+    // [{ eventName: 'updateMoveTaskOrder' }, 'Labeled'],
+    [{ eventName: 'updateMTOShipment', changedValues: { billable_weight_cap: '800' } }, 'Billable weight cap'],
+    // [{ eventName: 'updateOrders' }, 'Labeled'],
+    // [{ eventName: 'submitAmendedOrders' }, 'Labeled'],
+    // [{ eventName: 'updateMTOShipmentAddress' }, 'Labeled'],
+  ])('for labeled historyRecord %s it renders %s', (historyRecord, text) => {
+    render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
+
+    expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
   });
 });
