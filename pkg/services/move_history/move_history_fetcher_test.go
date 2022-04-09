@@ -163,10 +163,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 	suite.T().Run("returns Audit History with session information", func(t *testing.T) {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{},
-			Move:        approvedMove,
-		})
 		fakeRole := testdatagen.MakeTOORole(suite.DB())
 		fakeUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
 		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
@@ -200,6 +196,33 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserLastName, "AuditHistories contains an AuditHistory with a SessionUserLastName")
 		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserEmail, "AuditHistories contains an AuditHistory with a SessionUserEmail")
 		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserTelephone, "AuditHistories contains an AuditHistory with a SessionUserTelephone")
+	})
+
+	suite.T().Run("filters shipments from different move ", func(t *testing.T) {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMoveToFilter := testdatagen.MakeAvailableMove(suite.DB())
+		approvedShipmentToFilter := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
+			Move: approvedMoveToFilter,
+		})
+
+		customerRemarks := "fragile"
+		approvedShipmentToFilter.CustomerRemarks = &customerRemarks
+		suite.MustSave(&approvedShipmentToFilter)
+
+		_ = testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ID: approvedMove.ID,
+			},
+		})
+
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		// would be 9 without filtering
+		suite.Equal(5, len(moveHistoryData.AuditHistories), "should not have more than 5")
+
 	})
 
 	suite.T().Run("has context", func(t *testing.T) {
@@ -253,10 +276,11 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		approvedMove.TIORemarks = &tioRemarks
 		suite.MustSave(&approvedMove)
 
-    params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
 		moveHistoryData, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
+		suite.Greater(totalCount, int64(2), "total count should be 5")
 		suite.Equal(2, len(moveHistoryData.AuditHistories), "should have 2 rows due to pagination")
 
 	})
