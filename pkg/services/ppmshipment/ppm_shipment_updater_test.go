@@ -18,7 +18,6 @@ func createDefaultPPMShipment() *models.PPMShipment {
 }
 
 func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
-	// eTag := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
 	suite.Run("UpdatePPMShipment - Success", func() {
 		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
 		ppmEstimator := NewEstimatePPM()
