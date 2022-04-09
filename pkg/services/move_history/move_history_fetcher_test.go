@@ -220,8 +220,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
-		// would be 9 without filtering
-		suite.Equal(5, len(moveHistoryData.AuditHistories), "should not have more than 5")
+		suite.Equal(6, len(moveHistoryData.AuditHistories), "should not have more than 6. Would 10 if the filter was not working")
 
 	})
 
