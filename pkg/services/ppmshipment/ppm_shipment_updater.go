@@ -51,8 +51,18 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, err
 	}
 
-	// Add call to estimator
+	newPPMEstimator := NewEstimatePPM()
+	estimator, err := newPPMEstimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+	// HOW DO YOU CALL THE ESTIMATOR?
+	verrs, _ := appCtx.DB().ValidateAndUpdate(estimator)
 	// Add check for if the estimator encounters an err, then do not proceed with update
+	if err != nil {
+		return nil, err
+	}
+
+	if verrs != nil && verrs.HasAny() {
+		return apperror.NewNotImplementedError("Cannot update the Estimated Incentive."), nil
+	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
