@@ -1,6 +1,6 @@
 import {
   getHistoryLogEventNameDisplay,
-  eventNamePlainTextToDisplay,
+  detailsPlainTextToDisplay,
   shipmentOptionToDisplay,
 } from './historyLogUIDisplayName';
 
@@ -90,76 +90,77 @@ describe('historyLogUIDisplay', () => {
     });
   });
 
-  describe('displays the correct plain text when each eventNamePlainTextToDisplay is called', () => {
+  describe('displays the correct plain text when each detailsPlainTextToDisplay is called', () => {
     it.each([
-      ['approveShipment', 'HHG shipment', { shipment_type: 'HHG' }, { status: 'APPROVED' }],
       [
-        'requestShipmentDiversion',
+        { eventName: 'approveShipment', oldValues: { shipment_type: 'HHG' }, changedValues: { status: 'APPROVED' } },
+        'HHG shipment',
+      ],
+      [
+        { eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'HHG' } },
         `Requested diversion for ${shipmentOptionToDisplay.HHG} shipment`,
-        { shipment_type: 'HHG' },
-        {},
       ],
       [
-        'requestShipmentDiversion',
+        { eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'HHG_OUTOF_NTS_DOMESTIC' } },
         `Requested diversion for ${shipmentOptionToDisplay.HHG_OUTOF_NTS_DOMESTIC} shipment`,
-        { shipment_type: 'HHG_OUTOF_NTS_DOMESTIC' },
-        {},
       ],
       [
-        'requestShipmentDiversion',
+        { eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'HHG_INTO_NTS_DOMESTIC' } },
         `Requested diversion for ${shipmentOptionToDisplay.HHG_INTO_NTS_DOMESTIC} shipment`,
-        { shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
-        {},
       ],
       [
-        'requestShipmentDiversion',
+        { eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'PPM' } },
         `Requested diversion for ${shipmentOptionToDisplay.PPM} shipment`,
-        { shipment_type: 'PPM' },
-        {},
       ],
       [
-        'requestShipmentDiversion',
+        { eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'HHG_SHORTHAUL_DOMESTIC' } },
         `Requested diversion for ${shipmentOptionToDisplay.HHG_SHORTHAUL_DOMESTIC} shipment`,
-        { shipment_type: 'HHG_SHORTHAUL_DOMESTIC' },
-        {},
       ],
-      ['updateMTOServiceItemStatus', 'Service item status', {}, {}],
-      ['setFinancialReviewFlag', 'Move flagged for financial review', {}, { financial_review_flag: 'true' }],
-      ['setFinancialReviewFlag', 'Move unflagged for financial review', {}, { financial_review_flag: 'false' }],
       [
-        'requestShipmentCancellation',
+        {
+          eventName: 'updateMTOServiceItemStatus',
+          context: { name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
+        },
+        'NTS shipment, Domestic origin price',
+      ],
+      [
+        { eventName: 'setFinancialReviewFlag', changedValues: { financial_review_flag: 'true' } },
+        'Move flagged for financial review',
+      ],
+      [
+        { eventName: 'setFinancialReviewFlag', changedValues: { financial_review_flag: 'false' } },
+        'Move unflagged for financial review',
+      ],
+      [
+        { eventName: 'requestShipmentCancellation', oldValues: { shipment_type: 'HHG' } },
         `Requested cancellation for ${shipmentOptionToDisplay.HHG} shipment`,
-        { shipment_type: 'HHG' },
-        {},
       ],
       [
-        'requestShipmentCancellation',
+        { eventName: 'requestShipmentCancellation', oldValues: { shipment_type: 'HHG_OUTOF_NTS_DOMESTIC' } },
         `Requested cancellation for ${shipmentOptionToDisplay.HHG_OUTOF_NTS_DOMESTIC} shipment`,
-        { shipment_type: 'HHG_OUTOF_NTS_DOMESTIC' },
-        {},
       ],
       [
-        'requestShipmentCancellation',
+        { eventName: 'requestShipmentCancellation', oldValues: { shipment_type: 'HHG_INTO_NTS_DOMESTIC' } },
         `Requested cancellation for ${shipmentOptionToDisplay.HHG_INTO_NTS_DOMESTIC} shipment`,
-        { shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
-        {},
       ],
       [
-        'requestShipmentCancellation',
+        { eventName: 'requestShipmentCancellation', oldValues: { shipment_type: 'PPM' } },
         `Requested cancellation for ${shipmentOptionToDisplay.PPM} shipment`,
-        { shipment_type: 'PPM' },
-        {},
       ],
       [
-        'requestShipmentCancellation',
+        { eventName: 'requestShipmentCancellation', oldValues: { shipment_type: 'HHG_SHORTHAUL_DOMESTIC' } },
         `Requested cancellation for ${shipmentOptionToDisplay.HHG_SHORTHAUL_DOMESTIC} shipment`,
-        { shipment_type: 'HHG_SHORTHAUL_DOMESTIC' },
-        {},
       ],
-      ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', {}, { status: 'APPROVED' }],
-      ['updateMoveTaskOrderStatus', 'Rejected Move Task Order (MTO)', {}, { status: 'REJECTED' }],
-    ])('for event name %s it returns %s', (eventName, text, oldValues, changedValues) => {
-      const displayText = eventNamePlainTextToDisplay[eventName](changedValues, oldValues);
+      [
+        { eventName: 'updateMoveTaskOrderStatus', changedValues: { status: 'APPROVED' } },
+        'Created Move Task Order (MTO)',
+      ],
+      [
+        { eventName: 'updateMoveTaskOrderStatus', changedValues: { status: 'REJECTED' } },
+        'Rejected Move Task Order (MTO)',
+      ],
+    ])('for history record %s it returns %s', (historyRecord, text) => {
+      const displayText = detailsPlainTextToDisplay(historyRecord);
       expect(displayText).toEqual(text);
     });
   });
