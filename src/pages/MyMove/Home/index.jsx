@@ -47,7 +47,7 @@ import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } f
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import { shipmentTypes } from 'constants/shipments';
-import { DestructiveShipmentConfirmationModal } from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
+import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { updateMTOShipments } from 'store/entities/actions';
 
@@ -337,17 +337,16 @@ export class Home extends Component {
     return (
       <>
         <ScrollToTop />
-        {showDeleteModal && (
-          <DestructiveShipmentConfirmationModal
-            shipmentID={targetShipmentId}
-            onClose={this.hideDeleteModal}
-            onSubmit={this.handleDeleteShipmentConfirmation}
-            title="Delete this?"
-            content="Your information will be gone. You’ll need to start over if you want it back."
-            submitText="Yes, Delete"
-            backText="No, Keep It"
-          />
-        )}
+        <ConnectedDestructiveShipmentConfirmationModal
+          isOpen={showDeleteModal}
+          shipmentID={targetShipmentId}
+          onClose={this.hideDeleteModal}
+          onSubmit={this.handleDeleteShipmentConfirmation}
+          title="Delete this?"
+          content="Your information will be gone. You’ll need to start over if you want it back."
+          submitText="Yes, Delete"
+          backText="No, Keep It"
+        />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
             <div className={`usa-prose grid-container ${styles['grid-container']}`}>

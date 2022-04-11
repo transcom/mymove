@@ -10,7 +10,7 @@ import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOption
 import styles from './ShipmentForm.module.scss';
 
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
-import { DestructiveShipmentConfirmationModal } from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
+import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
@@ -242,13 +242,12 @@ const ShipmentForm = ({
 
         return (
           <>
-            {isCancelModalVisible && (
-              <DestructiveShipmentConfirmationModal
-                shipmentID={mtoShipment.id}
-                onClose={setIsCancelModalVisible}
-                onSubmit={handleDeleteShipment}
-              />
-            )}
+            <ConnectedDestructiveShipmentConfirmationModal
+              isOpen={isCancelModalVisible}
+              shipmentID={mtoShipment.id}
+              onClose={setIsCancelModalVisible}
+              onSubmit={handleDeleteShipment}
+            />
             {errorMessage && (
               <Alert type="error" heading="An error occurred">
                 {errorMessage}
