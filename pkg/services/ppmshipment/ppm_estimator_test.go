@@ -1,7 +1,6 @@
 package ppmshipment
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -48,9 +47,6 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		}
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-		fmt.Println("⛱⛱⛱⛱")
-		fmt.Println(ppmEstimate)
-		fmt.Println("⛱⛱⛱⛱")
 		suite.NilOrNoVerrs(err)
 		suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
 		suite.Equal(oldPPMShipment.EstimatedWeight, newPPM.EstimatedWeight)
@@ -79,5 +75,25 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
 		suite.Equal(oldPPMShipment.ExpectedDepartureDate, newPPM.ExpectedDepartureDate)
 		suite.Equal(oldPPMShipment.EstimatedIncentive, ppmEstimate)
+	})
+
+	suite.Run("Not Found Error - missing ppm shipment ID", func() {
+		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		ppmEstimator := NewEstimatePPM()
+
+		newPPM := models.PPMShipment{
+			ID:                    uuid.Nil,
+			ShipmentID:            oldPPMShipment.ShipmentID,
+			Status:                "DRAFT",
+			ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
+			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
+			DestinationPostalCode: oldPPMShipment.DestinationPostalCode,
+			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
+		}
+
+		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+
+		suite.Nil(ppmEstimate)
+		suite.IsType(err, nil)
 	})
 }
