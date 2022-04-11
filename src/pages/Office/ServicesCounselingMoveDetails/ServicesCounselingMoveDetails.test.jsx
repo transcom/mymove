@@ -496,6 +496,21 @@ describe('MoveDetails page', () => {
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
       });
 
+      it('submit move details button is disabled when required orders information is missing', async () => {
+        useMoveDetailsQueries.mockReturnValue({
+          ...newMoveDetailsQuery,
+          order: {
+            ...newMoveDetailsQuery.order,
+            department_indicator: undefined,
+          },
+        });
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
+      });
+
       it('submit move details button is not disabled when some shipments are deleted', async () => {
         const deletedMtoShipments = mtoShipments.map((shipment, index) => {
           if (index > 0) {
