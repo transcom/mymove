@@ -59,6 +59,10 @@ describe('Services counselor user', () => {
       cy.get('input[name="sac"]').click().clear().type('4K988AS098F');
       cy.get('input[name="ntsTac"]').click().clear().type('F123');
       cy.get('input[name="ntsSac"]').click().clear().type('3L988AS098F');
+      cy.get('input[name="ordersNumber"]').click().clear().type('1234');
+      cy.get('select[name="departmentIndicator"]').select('21 Army', { force: true });
+      cy.get('select[name="ordersType"]').select('Permanent Change Of Station (PCS)');
+      cy.get('select[name="ordersTypeDetail"]').select('Shipment of HHG Permitted');
       // Edit orders page | Save
       cy.get('button').contains('Save').click();
     });
