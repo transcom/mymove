@@ -1163,7 +1163,22 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	suite.Run("Returns 204 when all validations pass", func() {
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		sm := testdatagen.MakeStubbedServiceMember(suite.DB())
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ServiceMember: sm,
+			},
+		})
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: order,
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+		})
+
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(shipment.MoveTaskOrderID, nil)
@@ -1186,7 +1201,22 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 404 when deleter returns NotFoundError", func() {
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		sm := testdatagen.MakeStubbedServiceMember(suite.DB())
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ServiceMember: sm,
+			},
+		})
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: order,
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+		})
+
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.NotFoundError{})
@@ -1208,7 +1238,22 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 403 when deleter returns ForbiddenError", func() {
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		sm := testdatagen.MakeStubbedServiceMember(suite.DB())
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ServiceMember: sm,
+			},
+		})
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: order,
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+		})
+
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ForbiddenError{})
@@ -1230,7 +1275,22 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 500 when deleter returns InternalServerError", func() {
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		sm := testdatagen.MakeStubbedServiceMember(suite.DB())
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ServiceMember: sm,
+			},
+		})
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: order,
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+		})
+
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.InternalServerError{})
