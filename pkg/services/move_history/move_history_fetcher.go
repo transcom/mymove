@@ -55,6 +55,24 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		JOIN moves ON audit_history.table_name = 'moves'
 			AND audit_history.object_id = moves.id
 	),
+	orders AS (
+		SELECT
+			orders.*
+		FROM
+			orders
+		JOIN moves ON moves.orders_id = orders.id
+		WHERE moves.id = (SELECT moves.id FROM moves)
+	),
+	orders_logs AS (
+		SELECT
+			audit_history.*,
+			NULL AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN orders ON orders.id = audit_history.object_id
+			AND audit_history."table_name" = 'orders'
+	),
 	service_items AS (
 		SELECT
 			mto_service_items.*, re_services.name, mto_shipments.shipment_type
@@ -114,6 +132,11 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			*
 		FROM
 			shipment_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			orders_logs
 		UNION ALL
 		SELECT
 			*
