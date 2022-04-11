@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { HistoryLogValuesShape, dbFieldsToModel, dbFieldToDisplayName } from 'constants/historyLogUIDisplayName';
+import { HistoryLogValuesShape, dbFieldToDisplayName } from 'constants/historyLogUIDisplayName';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const LabeledDetails = ({ changedValues }) => {
-  const dbFieldsToDisplay = Object.keys(dbFieldsToModel).filter((dbField) => {
+  const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
     return changedValues[dbField];
   });
 

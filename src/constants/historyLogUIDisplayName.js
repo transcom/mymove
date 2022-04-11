@@ -30,7 +30,6 @@ export const modelToDisplayName = {
   tacType: 'TAC type',
   sacType: 'SAC type',
 };
-*/
 
 export const dbFieldsToModel = {
   updated_at: 'updatedAt',
@@ -55,6 +54,7 @@ export const dbFieldsToModel = {
   tac_type: 'tacType',
   sac_type: 'sacType',
 };
+*/
 
 export const dbFieldToDisplayName = {
   updated_at: 'Updated at',
