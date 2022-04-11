@@ -28,7 +28,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.NilOrNoVerrs(err)
 		suite.Equal(newPPM.PickupPostalCode, updatedPPMShipment.PickupPostalCode)
-		// suite.True(updatedPPMShipment.SitExpected)
 		suite.Equal(unit.Pound(1150), *updatedPPMShipment.ProGearWeight)
 	})
 
