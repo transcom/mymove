@@ -222,6 +222,7 @@ const newMoveDetailsQuery = {
     order_number: 'ORDER3',
     order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
+    department_indicator: 'ARMY',
     tac: '9999',
   },
   mtoShipments,
