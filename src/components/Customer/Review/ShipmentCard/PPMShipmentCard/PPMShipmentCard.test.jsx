@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import PPMShipmentCard from './PPMShipmentCard';
 
@@ -130,14 +131,14 @@ describe('PPMShipmentCard component', () => {
   it('calls onEditClick when edit button is pressed', () => {
     render(<PPMShipmentCard {...completeProps} />);
     const editBtn = screen.queryByRole('button', { name: 'Edit' });
-    fireEvent.click(editBtn);
+    userEvent.click(editBtn);
     expect(completeProps.onEditClick).toHaveBeenCalledTimes(1);
   });
 
   it('calls onDeleteClick when delete button is pressed', () => {
     render(<PPMShipmentCard {...completeProps} />);
     const deleteBtn = screen.queryByRole('button', { name: 'Delete' });
-    fireEvent.click(deleteBtn);
+    userEvent.click(deleteBtn);
     expect(completeProps.onDeleteClick).toHaveBeenCalledTimes(1);
   });
 });
