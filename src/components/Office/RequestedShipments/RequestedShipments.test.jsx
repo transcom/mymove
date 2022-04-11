@@ -147,7 +147,7 @@ describe('RequestedShipments', () => {
       // The first shipment has a destination address so will not use the duty location postal code
       const destination = shipments[0].destinationAddress;
       expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toEqual(
-        `${destination.streetAddress1},\xa0${destination.city}, ${destination.state} ${destination.postalCode}`,
+        `${destination.streetAddress1},\xa0${destination.streetAddress2},\xa0${destination.city}, ${destination.state} ${destination.postalCode}`,
       );
       expect(wrapper.find('[data-testid="destinationAddress"]').at(1).text()).toEqual(
         ordersInfo.newDutyLocation.address.postalCode,

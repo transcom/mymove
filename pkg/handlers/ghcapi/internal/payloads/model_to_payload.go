@@ -100,7 +100,7 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		SessionUserLastName:  auditHistory.SessionUserLastName,
 		SessionUserEmail:     auditHistory.SessionUserEmail,
 		SessionUserTelephone: auditHistory.SessionUserTelephone,
-		Context:              auditHistory.Context,
+		Context:              removeEscapeJSON(auditHistory.Context),
 		ContextID:            auditHistory.ContextID,
 		StatementOnly:        auditHistory.StatementOnly,
 		TableName:            auditHistory.TableName,
