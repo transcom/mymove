@@ -1,26 +1,17 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-import { HistoryLogValuesShape, eventNamePlainTextToDisplay } from 'constants/historyLogUIDisplayName';
+import { detailsPlainTextToDisplay, HistoryLogRecordShape } from 'constants/historyLogUIDisplayName';
 
-const PlainTextDetails = ({ eventName, oldValues, changedValues }) => {
-  let textToDisplay = '';
-  if (eventNamePlainTextToDisplay[eventName]) {
-    textToDisplay = eventNamePlainTextToDisplay[eventName](changedValues, oldValues);
-  }
-  return <div>{textToDisplay}</div>;
+const PlainTextDetails = ({ historyRecord }) => {
+  return <div>{detailsPlainTextToDisplay(historyRecord)}</div>;
 };
 
 PlainTextDetails.propTypes = {
-  eventName: PropTypes.string,
-  changedValues: HistoryLogValuesShape,
-  oldValues: HistoryLogValuesShape,
+  historyRecord: HistoryLogRecordShape,
 };
 
 PlainTextDetails.defaultProps = {
-  eventName: '',
-  changedValues: {},
-  oldValues: {},
+  historyRecord: {},
 };
 
 export default PlainTextDetails;

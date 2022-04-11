@@ -50,6 +50,7 @@ describe('shipmentDisplay utils', () => {
     describe('all address parts provided', () => {
       const shipmentAddress = {
         streetAddress1: '555 Main Street',
+        streetAddress2: 'P.O. Box 9882',
         city: 'Celebration',
         state: 'FL',
         postalCode: '34747',
@@ -59,7 +60,9 @@ describe('shipmentDisplay utils', () => {
         expect(component.at(0).text()).toEqual('555 Main Street');
         // Must use the character code for nbsp
         expect(component.at(1).text()).toEqual(',\xa0');
-        expect(component.at(2).text()).toEqual('Celebration, FL 34747');
+        expect(component.at(2).text()).toEqual('P.O. Box 9882');
+        expect(component.at(3).text()).toEqual(',\xa0');
+        expect(component.at(4).text()).toEqual('Celebration, FL 34747');
       });
     });
     describe('street address is missing', () => {
