@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"fmt"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -27,6 +29,9 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, newPPM)
 		//updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), newPPM, oldPPMShipment.ShipmentID)
 		// Might need to check that the estimated incentive is saved to the DB. LOOK AT EXAMPLES in other tests
+		fmt.Println("❤️")
+		fmt.Println(ppmEstimate)
+		fmt.Println("🔓")
 		suite.NilOrNoVerrs(err)
 		suite.NotEqualValues(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
 		suite.NotEqualValues(oldPPMShipment.EstimatedWeight, newPPM.EstimatedWeight)
