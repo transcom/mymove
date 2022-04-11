@@ -1,6 +1,7 @@
 package ppmshipment
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -32,5 +33,51 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		suite.NotEqualValues(oldPPMShipment.EstimatedWeight, newPPM.EstimatedWeight)
 		suite.Equal(int32(1000000), *ppmEstimate)
 	})
-	// Add unhappy path tests
+	suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
+		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		ppmEstimator := NewEstimatePPM()
+
+		newPPM := models.PPMShipment{
+			ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
+			ShipmentID:            oldPPMShipment.ShipmentID,
+			Status:                "DRAFT",
+			ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
+			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
+			DestinationPostalCode: oldPPMShipment.DestinationPostalCode,
+			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
+		}
+
+		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+		fmt.Println("⛱⛱⛱⛱")
+		fmt.Println(ppmEstimate)
+		fmt.Println("⛱⛱⛱⛱")
+		suite.NilOrNoVerrs(err)
+		suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
+		suite.Equal(oldPPMShipment.EstimatedWeight, newPPM.EstimatedWeight)
+		suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
+		suite.Equal(oldPPMShipment.ExpectedDepartureDate, newPPM.ExpectedDepartureDate)
+		suite.Equal(oldPPMShipment.EstimatedIncentive, ppmEstimate)
+	})
+	suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
+		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		ppmEstimator := NewEstimatePPM()
+
+		newPPM := models.PPMShipment{
+			ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
+			ShipmentID:            oldPPMShipment.ShipmentID,
+			Status:                "DRAFT",
+			ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
+			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
+			DestinationPostalCode: oldPPMShipment.DestinationPostalCode,
+			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
+		}
+
+		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+		suite.NilOrNoVerrs(err)
+		suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
+		suite.Equal(oldPPMShipment.EstimatedWeight, newPPM.EstimatedWeight)
+		suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
+		suite.Equal(oldPPMShipment.ExpectedDepartureDate, newPPM.ExpectedDepartureDate)
+		suite.Equal(oldPPMShipment.EstimatedIncentive, ppmEstimate)
+	})
 }
