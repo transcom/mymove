@@ -34,12 +34,10 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		return nil, err
 	}
 
-	// Use Case: Calculating the final incentive in the closeout flow, what is the status then?
-	// Might not need to block on teh PPM status.
 	if newPPMShipment.Status != models.PPMShipmentStatusDraft {
 		return nil, err
 	}
-	// 2. Check that all the fields we need are present.
+	// Check that all the required fields we need are present.
 	err = validatePPMShipment(appCtx, *newPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
 	if err != nil {
 		return nil, err
@@ -52,7 +50,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	newPPMShipment.Advance = nil
 	// TODO: Call the pricer to calculate the incentive
 	newPPMShipment.EstimatedIncentive = models.Int32Pointer(int32(1000000))
-	// Saving Esimtated INcentive to DB
+	// Saving Esimtated Incentive to DB
 	verrs, err := appCtx.DB().ValidateAndSave(newPPMShipment)
 	if verrs != nil && verrs.HasAny() {
 		return nil, apperror.NewInvalidInputError(newPPMShipment.ID, err, verrs, "Invalid input found while creating the Estimated Incentive.")
