@@ -104,6 +104,8 @@ export const detailsPlainTextToDisplay = (historyRecord) => {
       return historyRecord.changedValues?.status === 'APPROVED'
         ? 'Created Move Task Order (MTO)'
         : 'Rejected Move Task Order (MTO)';
+    case 'acknowledgeExcessWeightRisk':
+      return 'Dismissed excess weight alert';
     default:
       return '';
   }
