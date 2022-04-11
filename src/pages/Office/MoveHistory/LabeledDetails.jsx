@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { HistoryLogValuesShape, dbFieldsToModel, modelToDisplayName } from 'constants/historyLogUIDisplayName';
+import { HistoryLogValuesShape, dbFieldsToModel, dbFieldToDisplayName } from 'constants/historyLogUIDisplayName';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const LabeledDetails = ({ changedValues }) => {
@@ -12,7 +12,7 @@ const LabeledDetails = ({ changedValues }) => {
     <div>
       {dbFieldsToDisplay.map((modelField) => (
         <div key={modelField} className={descriptionListStyles.row}>
-          <b>{modelToDisplayName[dbFieldsToModel[modelField]]}</b>: {changedValues[modelField]}
+          <b>{dbFieldToDisplayName[modelField]}</b>: {changedValues[modelField]}
         </div>
       ))}
     </div>

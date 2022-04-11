@@ -12,6 +12,26 @@ export const HistoryLogRecordShape = PropTypes.shape({
   oldValues: HistoryLogValuesShape,
 });
 
+/*
+export const modelToDisplayName = {
+  updatedAt: 'Updated at',
+  diversion: 'Diversion',
+  billableWeightCap: 'Billable weight cap',
+  usesExternalVendor: 'Uses external vendor',
+  requestedDeliveryDate: 'Requested delivery date',
+  scheduledPickupDate: 'Scheduled pickup date',
+  status: 'Status',
+  customerRemarks: 'Customer remarks',
+  approvedDate: 'Approved date',
+  actualPickupDate: 'Actual pickup date',
+  primeEstimatedEeight: 'Prime estimated weight',
+  counselorRemarks: 'Counselor remarks',
+  serviceOrderNumber: 'Service order number',
+  tacType: 'TAC type',
+  sacType: 'SAC type',
+};
+*/
+
 export const dbFieldsToModel = {
   updated_at: 'updatedAt',
   diversion: 'diversion',
@@ -36,22 +56,22 @@ export const dbFieldsToModel = {
   sac_type: 'sacType',
 };
 
-export const modelToDisplayName = {
-  updatedAt: 'Updated at',
+export const dbFieldToDisplayName = {
+  updated_at: 'Updated at',
   diversion: 'Diversion',
-  billableWeightCap: 'Billable weight cap',
-  usesExternalVendor: 'Uses external vendor',
-  requestedDeliveryDate: 'Requested delivery date',
-  scheduledPickupDate: 'Scheduled pickup date',
+  billable_weight_cap: 'Billable weight cap',
+  uses_external_vendor: 'Uses external vendor',
+  requested_delivery_date: 'Requested delivery date',
+  scheduled_pickup_date: 'Scheduled pickup date',
   status: 'Status',
-  customerRemarks: 'Customer remarks',
-  approvedDate: 'Approved date',
-  actualPickupDate: 'Actual pickup date',
-  primeEstimatedEeight: 'Prime estimated weight',
-  counselorRemarks: 'Counselor remarks',
-  serviceOrderNumber: 'Service order number',
-  tacType: 'TAC type',
-  sacType: 'SAC type',
+  customer_remarks: 'Customer remarks',
+  approved_date: 'Approved date',
+  actual_pickup_date: 'Actual pickup date',
+  prime_estimated_weight: 'Prime estimated weight',
+  counselor_remarks: 'Counselor remarks',
+  service_order_number: 'Service order number',
+  tac_type: 'TAC type',
+  sac_type: 'SAC type',
 };
 
 export const eventNamesWithLabeledDetails = {
