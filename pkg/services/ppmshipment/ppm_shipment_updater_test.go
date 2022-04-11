@@ -43,16 +43,4 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
-
-	// suite.Run("Precondition Failed", func() {
-	// 	oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
-	// 	ppmShipmentUpdater := NewPPMShipmentUpdater()
-
-	// 	newPPM := createDefaultPPMShipment()
-	// 	updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), newPPM, oldPPMShipment.ShipmentID)
-
-	// 	suite.Nil(updatedPPMShipment)
-	// 	suite.Error(err)
-	// 	suite.IsType(apperror.PreconditionFailedError{}, err)
-	// })
 }
