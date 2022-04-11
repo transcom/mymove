@@ -2,6 +2,7 @@ package movehistory
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
@@ -199,28 +200,41 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 	})
 
 	suite.T().Run("filters shipments from different move ", func(t *testing.T) {
+
+		auditHistoryContains := func(auditHistories models.AuditHistories, keyword string) func() (success bool) {
+			return func() (success bool) {
+				for _, record := range auditHistories {
+					if strings.Contains(*record.ChangedData, keyword) {
+						return true
+					}
+				}
+				return false
+			}
+		}
+
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{})
+
 		approvedMoveToFilter := testdatagen.MakeAvailableMove(suite.DB())
-		approvedShipmentToFilter := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
-			Move: approvedMoveToFilter,
-		})
+		approvedShipmentToFilter := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMoveToFilter, testdatagen.Assertions{})
 
 		customerRemarks := "fragile"
-		approvedShipmentToFilter.CustomerRemarks = &customerRemarks
-		suite.MustSave(&approvedShipmentToFilter)
+		approvedShipment.CustomerRemarks = &customerRemarks
+		suite.MustSave(&approvedShipment)
 
-		_ = testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ID: approvedMove.ID,
-			},
-		})
+		customerRemarksFilter := "sturdy"
+		approvedShipmentToFilter.CustomerRemarks = &customerRemarksFilter
+		suite.MustSave(&approvedShipmentToFilter)
 
 		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
-		suite.Equal(6, len(moveHistoryData.AuditHistories), "should not have more than 6. Would 10 if the filter was not working")
+		suite.Equal(5, len(moveHistoryData.AuditHistories), "should not have more than 5")
+		suite.Condition(auditHistoryContains(moveHistoryData.AuditHistories, "fragile"), "should contain fragile")
+		containsSturdy := auditHistoryContains(moveHistoryData.AuditHistories, "sturdy")()
+		suite.False(containsSturdy, "should not contain sturdy")
 
 	})
 
