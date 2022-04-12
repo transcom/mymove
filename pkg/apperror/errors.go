@@ -158,7 +158,7 @@ func (e QueryError) Error() string {
 	if e.message != "" {
 		return fmt.Sprintf(e.message)
 	}
-	return fmt.Sprintf("Could not complete query related to object of type: %s.", e.objectType)
+	return fmt.Sprintf("Could not complete query related to object of type '%s': %v", e.objectType, e.err)
 }
 
 // Unwrap returns the enclosed error
