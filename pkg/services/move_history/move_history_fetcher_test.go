@@ -5,9 +5,18 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
+
+	"github.com/transcom/mymove/pkg/etag"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
+
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 )
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
@@ -45,8 +54,11 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		approvedMove.TIORemarks = &tioRemarks
 		suite.MustSave(&approvedMove)
 
-		moveHistory, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), approvedMove.Locator)
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		moveHistory, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.FatalNoError(err)
+
+		suite.Equal(totalCount, int64(6), "total count should be 6")
 
 		// address update
 		verifyOldPickupAddress := false
@@ -127,7 +139,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 	suite.T().Run("returns not found error for unknown locator", func(t *testing.T) {
 		_ = testdatagen.MakeAvailableMove(suite.DB())
 
-		_, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), "QX97UY")
+		params := services.FetchMoveHistoryParams{Locator: "QX97UY", Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		_, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
@@ -172,7 +185,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 			},
 		})
 
-		moveHistoryData, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), approvedMove.Locator)
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
@@ -184,22 +198,64 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserTelephone, "AuditHistories contains an AuditHistory with a SessionUserTelephone")
 	})
 
-	suite.T().Run("has context and context ID", func(t *testing.T) {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-		moveHistoryData, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), approvedMove.Locator)
+	suite.T().Run("has context", func(t *testing.T) {
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+
+		updater := mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter)
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+		rejectionReason := swag.String("")
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
 		suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
-		contextIDIndex := 0
-		for k, v := range moveHistoryData.AuditHistories {
-			if *v.Context == "pickup_address" {
-				contextIDIndex = k
-				break
+		verifyServiceItemStatusContext := false
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "mto_service_items" {
+				if *h.ObjectID == updatedServiceItem.ID {
+					if h.Context != nil {
+						context := removeEscapeJSON(h.Context)
+						if context != nil && context["name"] == serviceItem.ReService.Name && context["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) {
+							verifyServiceItemStatusContext = true
+						}
+					}
+				}
 			}
 		}
-		suite.NotEmpty(moveHistoryData.AuditHistories[contextIDIndex].Context, "AuditHistories contains an AuditHistory with a Context")
-		suite.NotEmpty(moveHistoryData.AuditHistories[contextIDIndex].ContextID, "AuditHistories contains an AuditHistory with a ContextID")
+		suite.True(verifyServiceItemStatusContext, "AuditHistories contains an AuditHistory with a Context when a service item is approved")
+	})
+
+	suite.T().Run("has paginated results", func(t *testing.T) {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+
+		// update move
+		tioRemarks := "updating TIO remarks for test"
+		approvedMove.TIORemarks = &tioRemarks
+		suite.MustSave(&approvedMove)
+
+		// update move
+		tioRemarks = "updating TIO remarks for test AGAIN"
+		approvedMove.TIORemarks = &tioRemarks
+		suite.MustSave(&approvedMove)
+
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
+		moveHistoryData, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		suite.Greater(totalCount, int64(2), "total count should be 5")
+		suite.Equal(2, len(moveHistoryData.AuditHistories), "should have 2 rows due to pagination")
 
 	})
 }

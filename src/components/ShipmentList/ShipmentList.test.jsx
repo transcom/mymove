@@ -1,12 +1,16 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-import ShipmentList from '.';
+import ShipmentList from './ShipmentList';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatWeight } from 'utils/formatters';
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('ShipmentList component', () => {
   const shipments = [
@@ -22,35 +26,53 @@ describe('ShipmentList component', () => {
     moveSubmitted: false,
   };
   it('renders ShipmentList with shipments', () => {
-    const wrapper = mount(<ShipmentList {...defaultProps} />);
-    expect(wrapper.find('ShipmentListItem').length).toBe(4);
-    expect(wrapper.find('.shipment-list-item-PPM').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-PPM strong').text()).toBe('PPM');
-    expect(wrapper.find('.shipment-list-item-PPM span').text()).toBe('#ID-1');
-    expect(wrapper.find('.shipment-list-item-HHG').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-HHG strong').text()).toBe('HHG');
-    expect(wrapper.find('.shipment-list-item-HHG span').text()).toBe('#ID-2');
-    expect(wrapper.find('.shipment-list-item-NTS').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-NTS strong').text()).toBe('NTS');
-    expect(wrapper.find('.shipment-list-item-NTS span').text()).toBe('#ID-3');
-    expect(wrapper.find('.shipment-list-item-NTS-release').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-NTS-release strong').text()).toBe('NTS-release');
-    expect(wrapper.find('.shipment-list-item-NTS-release span').text()).toBe('#ID-4');
+    render(<ShipmentList {...defaultProps} />);
+
+    screen.getByRole('button', { name: /^ppm #id-1/i });
+    screen.getByRole('button', { name: /^hhg #id-2/i });
+    screen.getByRole('button', { name: /^nts #id-3/i });
+    screen.getByRole('button', { name: /^nts-release #id-4/i });
   });
 
-  it('ShipmentList calls onShipmentClick when clicked', () => {
-    const wrapper = mount(<ShipmentList {...defaultProps} />);
-    expect(onShipmentClick.mock.calls.length).toBe(0);
-    wrapper.find('ShipmentListItem').at(0).simulate('click');
-    expect(onShipmentClick.mock.calls.length).toBe(1);
-    wrapper.find('ShipmentListItem').at(1).simulate('click');
-    expect(onShipmentClick.mock.calls.length).toBe(2);
-    wrapper.find('ShipmentListItem').at(2).simulate('click');
-    expect(onShipmentClick.mock.calls.length).toBe(3);
-    const [shipmentOneId, shipmentTwoId, shipmentThreeId] = onShipmentClick.mock.calls;
-    expect(shipmentOneId[0]).toEqual(shipments[0].id);
-    expect(shipmentTwoId[0]).toEqual(shipments[1].id);
-    expect(shipmentThreeId[0]).toEqual(shipments[2].id);
+  it.each([
+    ['Shows', false],
+    ['Hides', true],
+  ])('%s the edit link if moveSubmitted is %s', async (showHideEditLink, moveSubmitted) => {
+    const props = { ...defaultProps, moveSubmitted };
+
+    render(<ShipmentList {...props} />);
+
+    userEvent.click(screen.getByRole('button', { name: /^ppm /i }));
+
+    const checkShipmentClick = (shipmentID, shipmentNumber, shipmentType) => {
+      if (showHideEditLink === 'Shows') {
+        expect(onShipmentClick).toHaveBeenCalledWith(shipmentID, shipmentNumber, shipmentType);
+      } else {
+        expect(onShipmentClick).not.toHaveBeenCalled();
+      }
+    };
+
+    await waitFor(() => {
+      checkShipmentClick('ID-1', 1, SHIPMENT_OPTIONS.PPM);
+    });
+
+    userEvent.click(screen.getByRole('button', { name: /^hhg /i }));
+
+    await waitFor(() => {
+      checkShipmentClick('ID-2', 1, SHIPMENT_OPTIONS.HHG);
+    });
+
+    userEvent.click(screen.getByRole('button', { name: /^nts /i }));
+
+    await waitFor(() => {
+      checkShipmentClick('ID-3', 1, SHIPMENT_OPTIONS.NTS);
+    });
+
+    userEvent.click(screen.getByRole('button', { name: /^nts-release /i }));
+
+    await waitFor(() => {
+      checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
+    });
   });
 });
 

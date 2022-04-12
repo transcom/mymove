@@ -13,7 +13,7 @@ import { PaymentRequestShape } from 'types';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
-import AccountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
+import ConnectedAcountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
 import { groupByShipment } from 'utils/serviceItems';
 
 const paymentRequestStatusLabel = (status) => {
@@ -207,18 +207,17 @@ const PaymentRequestCard = ({
           </div>
         </div>
       </div>
-      {showModal && (
-        <AccountingCodesModal
-          shipmentType={modalShipment.shipmentType}
-          TACs={tacs}
-          SACs={sacs}
-          onClose={handleModalCancel}
-          onSubmit={handleModalSave}
-          sacType={modalShipment.sacType}
-          tacType={modalShipment.tacType}
-          onEditCodesClick={onEditCodesClick}
-        />
-      )}
+      <ConnectedAcountingCodesModal
+        isOpen={showModal}
+        shipmentType={modalShipment.shipmentType}
+        TACs={tacs}
+        SACs={sacs}
+        onClose={handleModalCancel}
+        onSubmit={handleModalSave}
+        sacType={modalShipment.sacType}
+        tacType={modalShipment.tacType}
+        onEditCodesClick={onEditCodesClick}
+      />
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
           {sortedShipments.map((serviceItems) => {

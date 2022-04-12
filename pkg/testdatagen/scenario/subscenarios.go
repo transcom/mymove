@@ -102,9 +102,14 @@ func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *upload
 				MoveType: models.SelectedMoveTypePPM,
 			},
 		})
-		createUnsubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
-		createUnsubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
-		createUnsubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
+		createUnSubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
+		createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
+		createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
+		createUnsubmittedMoveWithFullPPMShipmentComplete1(appCtx, userUploader)
+		createUnsubmittedMoveWithFullPPMShipmentComplete2(appCtx, userUploader)
+		createSubmittedMoveWithFullPPMShipmentComplete(appCtx, userUploader)
+		createUnSubmittedMoveWithFinishedPPMShipment(appCtx, userUploader)
+		createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
 		createNeedsServicesCounseling(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypePPM, nil, "SCPPM1")
 	}
@@ -384,6 +389,15 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 
 		// Create a move with only an NTS external vendor-handled shipment
 		createMoveWithNTSShipment(appCtx, "NTSNTS", true)
+
+		// Create a move with an HHG and NTS-release prime-handled shipment
+		createMoveWithHHGAndNTSRShipments(appCtx, "PRINTR", false)
+
+		// Create a move with an HHG and NTS-release external vendor-handled shipment
+		createMoveWithHHGAndNTSRShipments(appCtx, "PRXNTR", true)
+
+		// Create a move with only an NTS-release external vendor-handled shipment
+		createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
 
 		// Create some submitted Moves for TXO users
 		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter)

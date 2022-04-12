@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -52,7 +54,7 @@ func getMoveHistoryForTest() models.MoveHistory {
 	return moveHistory
 }
 
-func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
+func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 	moveHistory := getMoveHistoryForTest()
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -61,6 +63,8 @@ func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
 	params := moveops.GetMoveHistoryParams{
 		HTTPRequest: req,
 		Locator:     "ABCD1234",
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(20),
 	}
 
 	suite.T().Run("Successful move history fetch", func(t *testing.T) {
@@ -73,14 +77,15 @@ func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
 
 		mockHistoryFetcher.On("FetchMoveHistory",
 			mock.AnythingOfType("*appcontext.appContext"),
-			params.Locator,
-		).Return(&moveHistory, nil)
+			mock.AnythingOfType("*services.FetchMoveHistoryParams"),
+		).Return(&moveHistory, int64(1), nil)
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveHistoryOK{}, response)
 
 		payload := response.(*moveops.GetMoveHistoryOK).Payload
 
+		suite.Equal(int64(1), payload.TotalCount)
 		suite.Equal(moveHistory.ID.String(), payload.ID.String())
 		suite.Equal(moveHistory.Locator, payload.Locator)
 		suite.Equal(moveHistory.ReferenceID, payload.ReferenceID)
@@ -116,7 +121,13 @@ func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
 			MoveHistoryFetcher: &mockHistoryFetcher,
 		}
 
-		response := handler.Handle(moveops.GetMoveHistoryParams{HTTPRequest: req, Locator: ""})
+		badParams := moveops.GetMoveHistoryParams{
+			HTTPRequest: req,
+			Locator:     "",
+			Page:        swag.Int64(1),
+			PerPage:     swag.Int64(20),
+		}
+		response := handler.Handle(badParams)
 		suite.IsType(&moveops.GetMoveHistoryBadRequest{}, response)
 	})
 
@@ -130,8 +141,8 @@ func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
 
 		mockHistoryFetcher.On("FetchMoveHistory",
 			mock.AnythingOfType("*appcontext.appContext"),
-			params.Locator,
-		).Return(&models.MoveHistory{}, apperror.NotFoundError{})
+			mock.AnythingOfType("*services.FetchMoveHistoryParams"),
+		).Return(&models.MoveHistory{}, int64(0), apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveHistoryNotFound{}, response)
@@ -147,11 +158,53 @@ func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
 
 		mockHistoryFetcher.On("FetchMoveHistory",
 			mock.AnythingOfType("*appcontext.appContext"),
-			params.Locator,
-		).Return(&models.MoveHistory{}, apperror.QueryError{})
+			mock.AnythingOfType("*services.FetchMoveHistoryParams"),
+		).Return(&models.MoveHistory{}, int64(0), apperror.QueryError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveHistoryInternalServerError{}, response)
+	})
+
+	suite.T().Run("Paginated move history fetch results", func(t *testing.T) {
+		// Create a move
+		move := testdatagen.MakeDefaultMove(suite.DB())
+
+		// Add shipment to the move, giving the move some "history"
+		shipment := models.MTOShipment{Status: models.MTOShipmentStatusSubmitted}
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move:        move,
+			MTOShipment: shipment,
+		})
+
+		// Build history request for a TIO user
+		officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		request := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+		pagedParams := moveops.GetMoveHistoryParams{
+			HTTPRequest: request,
+			Locator:     move.Locator,
+			Page:        swag.Int64(1),
+			PerPage:     swag.Int64(2), // This should limit results to only the first 2 records of the possible 4
+		}
+
+		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handler := GetMoveHistoryHandler{
+			context,
+			movehistory.NewMoveHistoryFetcher(),
+		}
+
+		response := handler.Handle(pagedParams)
+		suite.IsNotErrResponse(response)
+
+		suite.IsType(&moveops.GetMoveHistoryOK{}, response)
+		payload := response.(*moveops.GetMoveHistoryOK).Payload
+
+		// Total count of 4
+		suite.Equal(int64(4), payload.TotalCount)
+
+		// Returned row count of 2 (since page size = 2)
+		suite.Len(payload.HistoryRecords, 2)
 	})
 
 }
