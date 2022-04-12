@@ -310,7 +310,7 @@ describe('Shipment preview modal', () => {
       />,
     );
     expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toEqual(
-      '987 Any Avenue, Fairfield, CA 94535',
+      '987 Any Avenue, P.O. Box 9876, Fairfield, CA 94535',
     );
     expect(wrapper.find('[data-testid="destinationAddress"]').at(1).text()).toEqual(
       ordersInfo.newDutyLocation.address.postalCode,

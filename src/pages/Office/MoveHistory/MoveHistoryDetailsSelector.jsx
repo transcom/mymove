@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import PlainTextDetails from './PlainTextDetails';
 
@@ -7,63 +6,59 @@ import {
   eventNamesWithLabeledDetails,
   eventNamesWithServiceItemDetails,
   eventNamesWithPlainTextDetails,
-  HistoryLogValuesShape,
+  HistoryLogRecordShape,
 } from 'constants/historyLogUIDisplayName';
 
 const formatChangedValues = (values) => {
   return values
-    ? values.map((value) => (
-        <div key={`${value.columnName}-${value.columnValue}`}>
-          {value.columnName}: {value.columnValue}
+    ? Object.keys(values).map((key) => (
+        <div key={`${key}-${values[key]}`}>
+          {key}: {values[key]}
         </div>
       ))
     : '';
 };
 
-const MoveHistoryDetailsSelector = ({ eventName, oldValues, changedValues }) => {
-  if (eventNamesWithLabeledDetails[eventName]) {
+const MoveHistoryDetailsSelector = ({ historyRecord }) => {
+  if (eventNamesWithLabeledDetails[historyRecord.eventName]) {
     return (
       <div>
-        Labeled {eventName}
-        <div>old Values {formatChangedValues(oldValues)}</div>
-        <div>changed values {formatChangedValues(changedValues)}</div>
+        Labeled {historyRecord.eventName}
+        <div>old Values {formatChangedValues(historyRecord.oldValues)}</div>
+        <div>changed values {formatChangedValues(historyRecord.changedValues)}</div>
       </div>
     );
   }
 
-  if (eventNamesWithServiceItemDetails[eventName]) {
+  if (eventNamesWithServiceItemDetails[historyRecord.eventName]) {
     return (
       <div>
-        Service Items {eventName}
-        <div>old Values {formatChangedValues(oldValues)}</div>
-        <div>changed values {formatChangedValues(changedValues)}</div>
+        Service Items {historyRecord.eventName}
+        <div>old Values {formatChangedValues(historyRecord.oldValues)}</div>
+        <div>changed values {formatChangedValues(historyRecord.changedValues)}</div>
       </div>
     );
   }
 
-  if (eventNamesWithPlainTextDetails[eventName]) {
-    return <PlainTextDetails eventName={eventName} changedValues={changedValues} />;
+  if (eventNamesWithPlainTextDetails[historyRecord.eventName]) {
+    return <PlainTextDetails historyRecord={historyRecord} />;
   }
 
   return (
     <div>
-      - {eventName}
-      <div>old Values {formatChangedValues(oldValues)}</div>
-      <div>changed values {formatChangedValues(changedValues)}</div>
+      - {historyRecord.eventName}
+      <div>old Values {formatChangedValues(historyRecord.oldValues)}</div>
+      <div>changed values {formatChangedValues(historyRecord.changedValues)}</div>
     </div>
   );
 };
 
 MoveHistoryDetailsSelector.propTypes = {
-  eventName: PropTypes.string,
-  oldValues: HistoryLogValuesShape,
-  changedValues: HistoryLogValuesShape,
+  historyRecord: HistoryLogRecordShape,
 };
 
 MoveHistoryDetailsSelector.defaultProps = {
-  eventName: '',
-  oldValues: [],
-  changedValues: [],
+  historyRecord: {},
 };
 
 export default MoveHistoryDetailsSelector;

@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -61,4 +63,10 @@ func PoundPointer(p unit.Pound) *unit.Pound {
 // It is useful for initializing unit.Cent pointer fields in model construction
 func CentPointer(c unit.Cents) *unit.Cents {
 	return &c
+}
+
+// UUIDPointer allows you to get the pointer to a uuid.UUID literal.
+// It is useful for initializing uuid.UUID pointer fields in model construction
+func UUIDPointer(u uuid.UUID) *uuid.UUID {
+	return &u
 }

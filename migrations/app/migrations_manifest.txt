@@ -715,3 +715,4 @@
 20220321142756_remove_cac_jacquelineio_jaynawallacetruss.up.sql
 20220321233308_add_advance_requested.up.sql
 20220323190113_add_comment_for_audit_history_client_query_column.up.sql
+20220331190115_create_move_history_triggers_with_ignored_columns.up.sql

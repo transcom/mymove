@@ -58,10 +58,10 @@ const PaymentRequestAccountingCodes = ({
   return (
     <span style={{ display: 'block' }}>
       <strong>TAC: </strong>
-      <span>{tacValue}</span>
+      <span data-testid="tac">{tacValue}</span>
       &nbsp;|&nbsp;
       <strong>SAC: </strong>
-      <span>{sacValue}</span>
+      <span data-testid="sac">{sacValue}</span>
       {showEdit && (
         <button type="button" className={styles.EditButton} onClick={handleEditClick}>
           Edit

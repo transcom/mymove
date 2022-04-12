@@ -1053,11 +1053,25 @@ func init() {
         ],
         "summary": "Returns the history of an identified move",
         "operationId": "getMoveHistory",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved the individual move history",
             "schema": {
-              "$ref": "#/definitions/MoveHistory"
+              "$ref": "#/definitions/MoveHistoryResult"
             }
           },
           "400": {
@@ -4526,8 +4540,11 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
@@ -4535,7 +4552,10 @@ func init() {
           "x-nullable": true
         },
         "context": {
-          "type": "string",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
           "x-nullable": true
         },
         "contextId": {
@@ -4564,8 +4584,11 @@ func init() {
         },
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
@@ -4656,6 +4679,41 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "1001-3456"
+        }
+      }
+    },
+    "MoveHistoryResult": {
+      "type": "object",
+      "properties": {
+        "historyRecords": {
+          "description": "A list of MoveAuditHistory's connected to the move.",
+          "$ref": "#/definitions/MoveAuditHistories"
+        },
+        "id": {
+          "description": "move ID",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "locator": {
+          "description": "move locator",
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "referenceId": {
+          "description": "move referenceID",
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
+        "totalCount": {
+          "type": "integer"
         }
       }
     },
@@ -7495,11 +7553,25 @@ func init() {
         ],
         "summary": "Returns the history of an identified move",
         "operationId": "getMoveHistory",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved the individual move history",
             "schema": {
-              "$ref": "#/definitions/MoveHistory"
+              "$ref": "#/definitions/MoveHistoryResult"
             }
           },
           "400": {
@@ -11426,8 +11498,11 @@ func init() {
         },
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "clientQuery": {
           "description": "Record the text of the client query that triggered the audit event",
@@ -11435,7 +11510,10 @@ func init() {
           "x-nullable": true
         },
         "context": {
-          "type": "string",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
           "x-nullable": true
         },
         "contextId": {
@@ -11464,8 +11542,11 @@ func init() {
         },
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
-          "x-nullable": true,
-          "$ref": "#/definitions/MoveAuditHistoryItems"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-nullable": true
         },
         "relId": {
           "description": "relation OID. Table OID (object identifier). Changes with drop/create.",
@@ -11556,6 +11637,41 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "1001-3456"
+        }
+      }
+    },
+    "MoveHistoryResult": {
+      "type": "object",
+      "properties": {
+        "historyRecords": {
+          "description": "A list of MoveAuditHistory's connected to the move.",
+          "$ref": "#/definitions/MoveAuditHistories"
+        },
+        "id": {
+          "description": "move ID",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "locator": {
+          "description": "move locator",
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "referenceId": {
+          "description": "move referenceID",
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
+        "totalCount": {
+          "type": "integer"
         }
       }
     },

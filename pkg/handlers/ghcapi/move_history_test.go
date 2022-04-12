@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -21,28 +23,27 @@ func getMoveHistoryForTest() models.MoveHistory {
 	transactionID := int64(3281)
 	clientQuery := "UPDATE \"orders\" AS orders SET \"amended_orders_acknowledged_at\" = $1, \"department_indicator\" = $2, \"entitlement_id\" = $3, \"grade\" = $4, \"has_dependents\" = $5, \"issue_date\" = $6, \"new_duty_location_id\" = $7, \"nts_sac\" = $8, \"nts_tac\" = $9, \"orders_number\" = $10, \"orders_type\" = $11, \"orders_type_detail\" = $12, \"origin_duty_location_id\" = $13, \"report_by_date\" = $14, \"sac\" = $15, \"service_member_id\" = $16, \"spouse_has_pro_gear\" = $17, \"status\" = $18, \"tac\" = $19, \"updated_at\" = $20, \"uploaded_amended_orders_id\" = $21, \"uploaded_orders_id\" = $22 WHERE orders.id = $23"
 	eventName := "apiEndpoint"
+	oldData := `{\"updated_at\": \"2022-03-08T19:08:44.664709\", \"postal_code\": \"90213\"}`
+	changedData := `{\"updated_at\": \"2022-03-08T19:08:44.664709\", \"postal_code\": \"90213\"}`
+
 	moveHistory := models.MoveHistory{
 		ID:          uuid.Must(uuid.NewV4()),
 		Locator:     "BILWEI",
 		ReferenceID: handlers.FmtString("7858-9363"),
 		AuditHistories: models.AuditHistories{
 			{
-				ID:            uuid.Must(uuid.NewV4()),
-				SchemaName:    "",
-				TableName:     "orders",
-				RelID:         16879,
-				ObjectID:      &localUUID,
-				SessionUserID: &localUUID,
-				TransactionID: &transactionID,
-				ClientQuery:   &clientQuery,
-				Action:        "U",
-				EventName:     &eventName,
-				OldData: &models.JSONMap{
-					"uploaded_amended_orders_id": "d74543b6-7e9b-45bb-8d91-00c48ddd5e41",
-				},
-				ChangedData: &models.JSONMap{
-					"uploaded_amended_orders_id": "8013228d-07e5-47b7-a6eb-61d733d7a859",
-				},
+				ID:              uuid.Must(uuid.NewV4()),
+				SchemaName:      "",
+				TableName:       "orders",
+				RelID:           16879,
+				ObjectID:        &localUUID,
+				SessionUserID:   &localUUID,
+				TransactionID:   &transactionID,
+				ClientQuery:     &clientQuery,
+				Action:          "U",
+				EventName:       &eventName,
+				OldData:         &oldData,
+				ChangedData:     &changedData,
 				StatementOnly:   false,
 				ActionTstampTx:  time.Now(),
 				ActionTstampStm: time.Now(),
@@ -53,7 +54,7 @@ func getMoveHistoryForTest() models.MoveHistory {
 	return moveHistory
 }
 
-func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
+func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 	moveHistory := getMoveHistoryForTest()
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -62,6 +63,8 @@ func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
 	params := moveops.GetMoveHistoryParams{
 		HTTPRequest: req,
 		Locator:     "ABCD1234",
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(20),
 	}
 
 	suite.T().Run("Successful move history fetch", func(t *testing.T) {
@@ -74,14 +77,15 @@ func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
 
 		mockHistoryFetcher.On("FetchMoveHistory",
 			mock.AnythingOfType("*appcontext.appContext"),
-			params.Locator,
-		).Return(&moveHistory, nil)
+			mock.AnythingOfType("*services.FetchMoveHistoryParams"),
+		).Return(&moveHistory, int64(1), nil)
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveHistoryOK{}, response)
 
 		payload := response.(*moveops.GetMoveHistoryOK).Payload
 
+		suite.Equal(int64(1), payload.TotalCount)
 		suite.Equal(moveHistory.ID.String(), payload.ID.String())
 		suite.Equal(moveHistory.Locator, payload.Locator)
 		suite.Equal(moveHistory.ReferenceID, payload.ReferenceID)
@@ -117,7 +121,13 @@ func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
 			MoveHistoryFetcher: &mockHistoryFetcher,
 		}
 
-		response := handler.Handle(moveops.GetMoveHistoryParams{HTTPRequest: req, Locator: ""})
+		badParams := moveops.GetMoveHistoryParams{
+			HTTPRequest: req,
+			Locator:     "",
+			Page:        swag.Int64(1),
+			PerPage:     swag.Int64(20),
+		}
+		response := handler.Handle(badParams)
 		suite.IsType(&moveops.GetMoveHistoryBadRequest{}, response)
 	})
 
@@ -131,8 +141,8 @@ func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
 
 		mockHistoryFetcher.On("FetchMoveHistory",
 			mock.AnythingOfType("*appcontext.appContext"),
-			params.Locator,
-		).Return(&models.MoveHistory{}, apperror.NotFoundError{})
+			mock.AnythingOfType("*services.FetchMoveHistoryParams"),
+		).Return(&models.MoveHistory{}, int64(0), apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveHistoryNotFound{}, response)
@@ -148,11 +158,53 @@ func (suite *HandlerSuite) TestGetMoveHistoryHandler() {
 
 		mockHistoryFetcher.On("FetchMoveHistory",
 			mock.AnythingOfType("*appcontext.appContext"),
-			params.Locator,
-		).Return(&models.MoveHistory{}, apperror.QueryError{})
+			mock.AnythingOfType("*services.FetchMoveHistoryParams"),
+		).Return(&models.MoveHistory{}, int64(0), apperror.QueryError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveHistoryInternalServerError{}, response)
+	})
+
+	suite.T().Run("Paginated move history fetch results", func(t *testing.T) {
+		// Create a move
+		move := testdatagen.MakeDefaultMove(suite.DB())
+
+		// Add shipment to the move, giving the move some "history"
+		shipment := models.MTOShipment{Status: models.MTOShipmentStatusSubmitted}
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move:        move,
+			MTOShipment: shipment,
+		})
+
+		// Build history request for a TIO user
+		officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		request := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+		pagedParams := moveops.GetMoveHistoryParams{
+			HTTPRequest: request,
+			Locator:     move.Locator,
+			Page:        swag.Int64(1),
+			PerPage:     swag.Int64(2), // This should limit results to only the first 2 records of the possible 4
+		}
+
+		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handler := GetMoveHistoryHandler{
+			context,
+			movehistory.NewMoveHistoryFetcher(),
+		}
+
+		response := handler.Handle(pagedParams)
+		suite.IsNotErrResponse(response)
+
+		suite.IsType(&moveops.GetMoveHistoryOK{}, response)
+		payload := response.(*moveops.GetMoveHistoryOK).Payload
+
+		// Total count of 4
+		suite.Equal(int64(4), payload.TotalCount)
+
+		// Returned row count of 2 (since page size = 2)
+		suite.Len(payload.HistoryRecords, 2)
 	})
 
 }
