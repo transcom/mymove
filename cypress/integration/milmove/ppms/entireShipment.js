@@ -19,6 +19,7 @@ describe('Entire PPM onboarding flow', function () {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('POST', '**/internal/mto_shipments').as('createShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
   });
 
   it('happy path with new shipment', () => {
@@ -50,6 +51,7 @@ describe('Entire PPM onboarding flow', function () {
 function navigateHappyPath(userId, isMobile = false) {
   cy.apiSignInAsUser(userId);
   cy.wait('@getShipment');
+  customerDeletesExistingShipment();
   customerStartsAddingAPPMShipment();
   submitsDateAndLocation();
   submitsEstimatedWeightsAndProGear();
@@ -79,6 +81,7 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
 
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
+  cy.get('input[name="sitExpected"]').last().check();
   cy.get('input[name="expectedDepartureDate"]').clear().type('15 Apr 2022').blur();
 
   navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
@@ -91,8 +94,7 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').should('have.value', '76127');
   cy.get('input[name="hasSecondaryDestinationPostalCode"]').eq(1).should('be.checked').and('have.value', 'false');
   cy.get('input[name="expectedDepartureDate"]').should('have.value', '15 Apr 2022');
-  // TODO: We want to update the sit expected value and see if it saves (right now we are not updating this value)
-  cy.get('input[name="sitExpected"]').eq(1).should('be.checked').and('have.value', 'false');
+  cy.get('input[name="sitExpected"]').last().should('be.checked').and('have.value', 'false');
 
   navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
 }
@@ -115,4 +117,13 @@ function verifyShipmentSpecificInfoOnEstimatedIncentivePage() {
     .and('contain', '90210')
     .and('contain', '76127')
     .and('contain', '15 Apr 2022');
+}
+
+function customerDeletesExistingShipment() {
+  cy.get('[data-testid="shipment-list-item-container"]').contains('Delete').click();
+  cy.get('[data-testid="modal"]').should('be.visible');
+  cy.get('[data-testid="modal"] button').contains('Yes, Delete').click();
+  cy.waitFor(['@deleteShipment', '@getShipment']);
+  cy.get('[data-testid="shipment-list-item-container"]').should('not.exist');
+  cy.get('[data-testid="alert"]').should('contain', 'The shipment was deleted.');
 }
