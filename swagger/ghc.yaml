@@ -148,12 +148,20 @@ paths:
     get:
       produces:
         - application/json
-      parameters: []
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: requested page of results
+        - in: query
+          name: perPage
+          type: integer
+          description: results per page
       responses:
         '200':
           description: Successfully retrieved the individual move history
           schema:
-            $ref: '#/definitions/MoveHistory'
+            $ref: '#/definitions/MoveHistoryResult'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -2519,6 +2527,32 @@ definitions:
         example: 1001-3456
         type: string
         x-nullable: true
+  MoveHistoryResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      id:
+        description: move ID
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      historyRecords:
+        description: A list of MoveAuditHistory's connected to the move.
+        $ref: '#/definitions/MoveAuditHistories'
+      locator:
+        description: move locator
+        type: string
+        example: 1K43AR
+      referenceId:
+        description: move referenceID
+        example: 1001-3456
+        type: string
+        x-nullable: true
   MoveAuditHistories:
     type: array
     items:
@@ -2568,7 +2602,9 @@ definitions:
         pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         x-nullable: true
       context:
-        type: string
+        type: object
+        additionalProperties:
+          type: string
         x-nullable: true
       contextId:
         description: id column for the context table the record belongs to
@@ -2608,13 +2644,17 @@ definitions:
         description: >-
           A list of (old/previous) MoveAuditHistoryItem's for a record before
           the change.
-        $ref: '#/definitions/MoveAuditHistoryItems'
+        type: object
+        additionalProperties:
+          type: string
         x-nullable: true
       changedValues:
         description: >-
           A list of (changed/updated) MoveAuditHistoryItem's for a record after
           the change.
-        $ref: '#/definitions/MoveAuditHistoryItems'
+        type: object
+        additionalProperties:
+          type: string
         x-nullable: true
       statementOnly:
         description: >-

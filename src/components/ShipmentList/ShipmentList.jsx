@@ -106,7 +106,7 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
           shipmentNumbersByType[shipmentType] = 1;
         }
         const shipmentNumber = shipmentNumbersByType[shipmentType];
-        let canEdit = moveSubmitted ? shipmentType === 'PPM' : true;
+        let canEdit = !moveSubmitted;
         let isOverweight;
         let isMissingWeight;
         let showNumber = shipmentCountByType[shipmentType] > 1;

@@ -3,31 +3,49 @@ import { render, screen } from '@testing-library/react';
 
 import PlainTextDetails from './PlainTextDetails';
 
+import { shipmentOptionToDisplay } from 'constants/historyLogUIDisplayName';
+
 describe('PlainTextDetails', () => {
   it.each([
-    ['approveShipment', 'Approved shipment', []],
-    ['requestShipmentDiversion', 'Requested diversion', []],
-    ['updateMTOServiceItemStatus', 'Service item status', []],
+    [{ eventName: 'approveShipment', oldValues: { shipment_type: 'HHG' } }, 'HHG shipment'],
     [
-      'setFinancialReviewFlag',
+      { eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'HHG' } },
+      `Requested diversion for ${shipmentOptionToDisplay.HHG} shipment`,
+    ],
+    [
+      { eventName: 'setFinancialReviewFlag', changedValues: { financial_review_flag: 'true' } },
       'Move flagged for financial review',
-      [{ columnName: 'financial_review_flag', columnValue: 'true' }],
     ],
     [
-      'setFinancialReviewFlag',
+      { eventName: 'setFinancialReviewFlag', changedValues: { financial_review_flag: 'false' } },
       'Move unflagged for financial review',
-      [{ columnName: 'financial_review_flag', columnValue: 'false' }],
+      {},
     ],
-    ['requestShipmentCancellation', 'Shipment cancelled', []],
-    ['updateMoveTaskOrderStatus', 'Created Move Task Order (MTO)', [{ columnName: 'status', columnValue: 'APPROVED' }]],
     [
-      'updateMoveTaskOrderStatus',
-      'Rejected Move Task Order (MTO)',
-      [{ columnName: 'status', columnValue: 'REJECTED' }],
+      {
+        eventName: 'requestShipmentCancellation',
+        oldValues: { shipment_type: 'HHG' },
+      },
+      `Requested cancellation for ${shipmentOptionToDisplay.HHG} shipment`,
     ],
-  ])('for event name %s it renders %s', (eventName, text, changedValues) => {
-    render(<PlainTextDetails eventName={eventName} changedValues={changedValues} />);
+    [
+      { eventName: 'updateMoveTaskOrderStatus', changedValues: { status: 'APPROVED' } },
+      'Created Move Task Order (MTO)',
+    ],
+    [
+      { eventName: 'updateMoveTaskOrderStatus', changedValues: { status: 'REJECTED' } },
+      'Rejected Move Task Order (MTO)',
+    ],
+    [
+      {
+        eventName: 'updateMTOServiceItemStatus',
+        context: { name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
+      },
+      'NTS shipment, Domestic origin price',
+    ],
+  ])('for history record %s it renders %s', (historyRecord, text) => {
+    render(<PlainTextDetails historyRecord={historyRecord} />);
 
-    expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(text)).toBeInTheDocument();
   });
 });

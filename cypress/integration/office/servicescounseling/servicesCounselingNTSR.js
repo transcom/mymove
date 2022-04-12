@@ -199,10 +199,10 @@ function addNTSReleaseShipment() {
       cy.get('[data-testid="ntsRecordedWeight"]').contains('1,300');
       cy.get('[data-testid="storageFacilityName"]').contains('Sample Facility Name');
       cy.get('[data-testid="serviceOrderNumber"]').contains('999999');
-      cy.get('[data-testid="storageFacilityAddress"]').contains('148 S East St, Sample City, GA 30301');
+      cy.get('[data-testid="storageFacilityAddress"]').contains('148 S East St, Suite 7A, Sample City, GA 30301');
       cy.get('[data-testid="storageFacilityAddress"]').contains('1111111');
       cy.get('[data-testid="requestedDeliveryDate"]').contains('20 Mar 2022');
-      cy.get('[data-testid="destinationAddress"]').contains('448 Washington Blvd NE, Another City, AL 36101');
+      cy.get('[data-testid="destinationAddress"]').contains('448 Washington Blvd NE, Apt D3, Another City, AL 36101');
       cy.get('[data-testid="secondaryDeliveryAddress"]').contains('—');
       cy.get('[data-testid="customerRemarks"]').contains('—');
       cy.get('[data-testid="counselorRemarks"]').contains('NTS-release counselor remarks');
@@ -265,10 +265,10 @@ function editNTSReleaseShipment() {
       cy.get('[data-testid="ntsRecordedWeight"]').contains('1,100');
       cy.get('[data-testid="storageFacilityName"]').contains('AAA Facility Name');
       cy.get('[data-testid="serviceOrderNumber"]').contains('123456');
-      cy.get('[data-testid="storageFacilityAddress"]').contains('9 W 2nd Ave, Big City, SC 29201');
+      cy.get('[data-testid="storageFacilityAddress"]').contains('9 W 2nd Ave, Bldg 3, Big City, SC 29201');
       cy.get('[data-testid="storageFacilityAddress"]').contains('2222222');
       cy.get('[data-testid="requestedDeliveryDate"]').contains('21 Mar 2022');
-      cy.get('[data-testid="destinationAddress"]').contains('4124 Apache Dr, Little City, GA 30901');
+      cy.get('[data-testid="destinationAddress"]').contains('4124 Apache Dr, Apt 18C, Little City, GA 30901');
       cy.get('[data-testid="secondaryDeliveryAddress"]').contains('—');
       cy.get('[data-testid="customerRemarks"]').contains('—');
       cy.get('[data-testid="counselorRemarks"]').contains('NTS-release edited counselor remarks');

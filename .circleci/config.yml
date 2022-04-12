@@ -13,10 +13,10 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-e822adea8f203ff4b5f0a60939683e39376eb690
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-64b1fa9ea8c2c7ed8d5773829c142c30190bc2fb
 
   # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-e822adea8f203ff4b5f0a60939683e39376eb690
+  cypress: &cypress milmove/circleci-docker:milmove-cypress-64b1fa9ea8c2c7ed8d5773829c142c30190bc2fb
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres circleci/postgres:12.7-ram
@@ -765,7 +765,7 @@ jobs:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+            - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run:
           name: Output processes and resource usage every 5 seconds while job is running
           command: |
@@ -806,13 +806,13 @@ jobs:
       - run:
           name: Run DangerJS checks
           command: yarn danger ci --failOnErrors
-      # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
+      # `v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - run:
           name: Output maximum memory usage in Bytes
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
           when: always
       - save_cache:
-          key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+          key: v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
       - store_artifacts:
@@ -849,6 +849,7 @@ jobs:
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
       - aws_vars_loadtest
+      #can delete this cert step
       - run:
           name: Prepare certificates
           command: |
@@ -866,6 +867,7 @@ jobs:
             PWD: /home/circleci/transcom/mymove
             TEST_ACC_ENV: loadtest
       - aws_vars_demo
+      #can delete this cert step
       - run:
           name: Prepare certificates
           command: |
@@ -883,10 +885,6 @@ jobs:
             PWD: /home/circleci/transcom/mymove
             TEST_ACC_ENV: demo
       - aws_vars_exp
-      - run:
-          name: Prepare certificates
-          command: |
-            sudo cp /home/circleci/transcom/mymove/bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
       - run:
           name: Run Experimental acceptance tests
           command: make acceptance_test

@@ -1,11 +1,16 @@
 import PropTypes from 'prop-types';
 
-export const HistoryLogValuesShape = PropTypes.arrayOf(
-  PropTypes.shape({
-    columnName: PropTypes.string.isRequired,
-    columnValue: PropTypes.string,
-  }),
-);
+import { shipmentTypes } from 'constants/shipments';
+
+export const HistoryLogValuesShape = PropTypes.object;
+export const HistoryLogContextShape = PropTypes.object;
+
+export const HistoryLogRecordShape = PropTypes.shape({
+  context: HistoryLogContextShape,
+  eventName: PropTypes.string,
+  changedValues: HistoryLogValuesShape,
+  oldValues: HistoryLogValuesShape,
+});
 
 /*
 const modelToDisplayName = {
@@ -69,27 +74,44 @@ export const eventNamesWithEmptyDetails = {
   createMTOShipment: 'Submitted/Requested shipments', // internal.yaml prime.yaml
 };
 
-export const retrieveValue = (nameToFind, values) => {
-  return values.find((value) => value.columnName === nameToFind).columnValue;
+export const shipmentOptionToDisplay = {
+  HHG_OUTOF_NTS_DOMESTIC: 'NTS-release',
+  HHG_INTO_NTS_DOMESTIC: 'NTS',
+  HHG: 'HHG',
+  PPM: 'PPM',
+  HHG_SHORTHAUL_DOMESTIC: 'HHG_SHORTHAUL_DOMESTIC',
 };
 
-export const eventNamePlainTextToDisplay = {
-  approveShipment: () => 'Approved shipment',
-  updateMTOServiceItemStatus: () => 'Service item status', // ghc.yaml Need to check status as well
-  requestShipmentDiversion: () => 'Requested diversion', // ghc.yaml
-  setFinancialReviewFlag: (changedValues) => {
-    const financialReviewFlag = retrieveValue('financial_review_flag', changedValues);
-    return financialReviewFlag === 'true' ? 'Move flagged for financial review' : 'Move unflagged for financial review';
-  },
-  requestShipmentCancellation: () => 'Shipment cancelled',
-  updateMoveTaskOrderStatus: (changedValues) => {
-    const status = retrieveValue('status', changedValues);
-    return status === 'APPROVED' ? 'Created Move Task Order (MTO)' : 'Rejected Move Task Order (MTO)';
-  },
+export const detailsPlainTextToDisplay = (historyRecord) => {
+  switch (historyRecord.eventName) {
+    case 'approveShipment':
+      return `${shipmentTypes[historyRecord.oldValues?.shipment_type]} shipment`;
+    case 'approveShipmentDiversion':
+      return `${shipmentTypes[historyRecord.oldValues?.shipment_type]} shipment`;
+    case 'updateMTOServiceItemStatus':
+      return `${shipmentOptionToDisplay[historyRecord.context?.shipment_type]} shipment, ${
+        historyRecord.context?.name
+      }`;
+    case 'requestShipmentDiversion':
+      return `Requested diversion for ${shipmentOptionToDisplay[historyRecord.oldValues?.shipment_type]} shipment`; // ghc.yaml
+    case 'setFinancialReviewFlag':
+      return historyRecord.changedValues.financial_review_flag === 'true'
+        ? 'Move flagged for financial review'
+        : 'Move unflagged for financial review';
+    case 'requestShipmentCancellation':
+      return `Requested cancellation for ${shipmentOptionToDisplay[historyRecord.oldValues?.shipment_type]} shipment`;
+    case 'updateMoveTaskOrderStatus':
+      return historyRecord.changedValues?.status === 'APPROVED'
+        ? 'Created Move Task Order (MTO)'
+        : 'Rejected Move Task Order (MTO)';
+    default:
+      return '';
+  }
 };
 
 export const eventNamesWithPlainTextDetails = {
   approveShipment: 'Approved shipment', // ghc.yaml
+  approveShipmentDiversion: 'Approved shipment',
   requestShipmentDiversion: 'Requested diversion', // ghc.yaml
   updateMTOServiceItemStatus: 'Service item status', // ghc.yaml Need to check status as well
   setFinancialReviewFlag: 'Flagged move', // ghc.yaml
@@ -106,6 +128,7 @@ export const historyLogEventNameDisplay = {
   updateMoveTaskOrder: 'Updated move', // ghc.yaml
   updateMTOShipment: 'Updated shipment', // ghc.yaml internal.yaml prime.yaml
   approveShipment: 'Approved shipment', // ghc.yaml
+  approveShipmentDiversion: 'Approved shipment',
   requestShipmentDiversion: 'Requested diversion', // ghc.yaml
   updateMTOServiceItem: 'Updated service item', // ghc.yaml
   updateMTOServiceItemStatus: '', // ghc.yaml
@@ -125,9 +148,7 @@ export const historyLogEventNameDisplay = {
 export function getHistoryLogEventNameDisplay({ eventName /* operationId */, changedValues }) {
   switch (eventName) {
     case 'updateMTOServiceItemStatus': {
-      // find 'columnName' with 'columnValue'
-      const status = changedValues?.find((changedValue) => changedValue?.columnName === 'status');
-      switch (status?.columnValue) {
+      switch (changedValues.status) {
         case 'APPROVED':
           return 'Approved service item';
         case 'REJECTED':
@@ -137,9 +158,7 @@ export function getHistoryLogEventNameDisplay({ eventName /* operationId */, cha
       }
     }
     case 'updateMoveTaskOrderStatus': {
-      // find 'columnName' with 'columnValue'
-      const status = changedValues?.find((changedValue) => changedValue?.columnName === 'status');
-      switch (status?.columnValue) {
+      switch (changedValues.status) {
         case 'APPROVED':
           return 'Move approved';
         case 'REJECTED':
@@ -148,6 +167,7 @@ export function getHistoryLogEventNameDisplay({ eventName /* operationId */, cha
           return '';
       }
     }
+
     default:
       return historyLogEventNameDisplay[eventName];
   }

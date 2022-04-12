@@ -3,6 +3,7 @@ package movehistory
 import (
 	"database/sql"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -20,8 +21,8 @@ func NewMoveHistoryFetcher() services.MoveHistoryFetcher {
 }
 
 //FetchMoveHistory retrieves a Move's history if it is visible for a given locator
-func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locator string) (*models.MoveHistory, error) {
-	query := `WITH moves AS (
+func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, params *services.FetchMoveHistoryParams) (*models.MoveHistory, int64, error) {
+	rawQuery := `WITH moves AS (
 		SELECT
 			moves.*
 		FROM
@@ -33,31 +34,51 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 			mto_shipments.*
 		FROM
 			mto_shipments
+		WHERE move_id = (SELECT moves.id FROM moves)
 	),
 	shipment_logs AS (
 		SELECT
 			audit_history.*,
-			'shipments' AS context,
+			NULL AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 			JOIN shipments ON shipments.id = audit_history.object_id
-				AND audit_history. "table_name" = 'mto_shipments'
+				AND audit_history."table_name" = 'mto_shipments'
 	),
 	move_logs AS (
 		SELECT
 			audit_history.*,
-			'moves' AS context,
+			NULL AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN moves ON audit_history.table_name = 'moves'
 			AND audit_history.object_id = moves.id
 	),
+	service_items AS (
+		SELECT
+			mto_service_items.*, re_services.name, mto_shipments.shipment_type
+		FROM
+			mto_service_items
+		JOIN re_services ON mto_service_items.re_service_id = re_services.id
+		JOIN mto_shipments ON mto_service_items.mto_shipment_id = mto_shipment_id
+		WHERE mto_shipments.move_id = (SELECT moves.id FROM moves)
+	),
+	service_item_logs AS (
+		SELECT
+			audit_history.*,
+			json_build_object('name', service_items.name, 'shipment_type', service_items.shipment_type)::TEXT AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN service_items ON service_items.id = audit_history.object_id
+			AND audit_history."table_name" = 'mto_service_items'
+	),
 	pickup_address_logs AS (
 		SELECT
 			audit_history.*,
-			'pickup_address' AS context,
+			NULL AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
@@ -67,7 +88,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 	destination_address_logs AS (
 		SELECT
 			audit_history.*,
-			'destination_address' AS context,
+			NULL AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
@@ -84,6 +105,11 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 			*
 		FROM
 			destination_address_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			service_item_logs
 		UNION ALL
 		SELECT
 			*
@@ -111,16 +137,27 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 				OR role_type = 'contracting_officer')
 		LEFT JOIN office_users ON office_users.user_id = session_userid
 	ORDER BY
-		action_tstamp_tx DESC;`
+		action_tstamp_tx DESC`
+
 	audits := &models.AuditHistories{}
-	err := appCtx.DB().RawQuery(query, locator).All(audits)
+	locator := params.Locator
+	if params.Page == nil {
+		params.Page = swag.Int64(1)
+	}
+	if params.PerPage == nil {
+		params.PerPage = swag.Int64(20)
+	}
+
+	query := appCtx.DB().RawQuery(rawQuery, locator).Paginate(int(*params.Page), int(*params.PerPage))
+	err := query.All(audits)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			// Not found error expects an id but we're querying by locator
-			return &models.MoveHistory{}, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
+			return &models.MoveHistory{}, 0, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
 		default:
-			return &models.MoveHistory{}, apperror.NewQueryError("AuditHistory", err, "")
+			return &models.MoveHistory{}, 0, apperror.NewQueryError("AuditHistory", err, "")
 		}
 	}
 
@@ -130,9 +167,9 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 		switch err {
 		case sql.ErrNoRows:
 			// Not found error expects an id but we're querying by locator
-			return &models.MoveHistory{}, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
+			return &models.MoveHistory{}, 0, apperror.NewNotFoundError(uuid.Nil, "move locator "+locator)
 		default:
-			return &models.MoveHistory{}, apperror.NewQueryError("Move", err, "")
+			return &models.MoveHistory{}, 0, apperror.NewQueryError("Move", err, "")
 		}
 	}
 
@@ -143,5 +180,5 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, locat
 		AuditHistories: *audits,
 	}
 
-	return &moveHistory, nil
+	return &moveHistory, int64(query.Paginator.TotalEntriesSize), nil
 }

@@ -6,8 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './BillableWeightCard.module.scss';
 
-import ShipmentList from 'components/ShipmentList';
 import ExternalVendorWeightSummary from 'components/Office/ExternalVendorWeightSummary/ExternalVendorWeightSummary';
+import ShipmentList from 'components/ShipmentList/ShipmentList';
 import { formatWeight } from 'utils/formatters';
 
 export default function BillableWeightCard({

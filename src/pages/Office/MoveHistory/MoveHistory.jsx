@@ -29,13 +29,7 @@ const columns = [
   createHeader(
     'Details',
     (row) => {
-      return (
-        <MoveHistoryDetailsSelector
-          eventName={row.eventName}
-          oldValues={row.oldValues}
-          changedValues={row.changedValues}
-        />
-      );
+      return <MoveHistoryDetailsSelector historyRecord={row} />;
     },
     { id: 'move-history-details' },
   ),
@@ -54,15 +48,15 @@ const columns = [
 ];
 
 const MoveHistory = ({ moveCode }) => {
-  const useGetMoveHistoryQuery = () => {
-    return useGHCGetMoveHistory(moveCode);
+  const useGetMoveHistoryQuery = ({ currentPage, currentPageSize }) => {
+    return useGHCGetMoveHistory({ moveCode, currentPage, currentPageSize });
   };
 
   return (
     <div className={styles.MoveHistoryTable}>
       <TableQueue
         showFilters={false}
-        showPagination={false}
+        showPagination
         disableSortBy
         columns={columns}
         title="Move history"
