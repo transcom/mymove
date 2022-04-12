@@ -338,6 +338,55 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		response := handler.Handle(deletionParams)
 		suite.IsType(&shipmentops.DeleteShipmentForbidden{}, response)
 	})
+
+	suite.Run("Returns 422 - Unprocessable Enitity error", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := shipmentops.DeleteShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+		suite.IsType(&shipmentops.DeleteShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Returns 409 - Conflict error", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ConflictError{})
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := shipmentops.DeleteShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+		suite.IsType(&shipmentops.DeleteShipmentConflict{}, response)
+	})
+
 }
 
 func (suite *HandlerSuite) TestApproveShipmentHandler() {
