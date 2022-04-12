@@ -159,6 +159,7 @@ describe('historyLogUIDisplay', () => {
         { eventName: 'updateMoveTaskOrderStatus', changedValues: { status: 'REJECTED' } },
         'Rejected Move Task Order (MTO)',
       ],
+      [{ eventName: 'acknowledgeExcessWeightRisk' }, 'Dismissed excess weight alert'],
     ])('for history record %s it returns %s', (historyRecord, text) => {
       const displayText = detailsPlainTextToDisplay(historyRecord);
       expect(displayText).toEqual(text);
