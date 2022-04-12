@@ -105,9 +105,13 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
   );
 };
 
+OrdersList.defaultProps = {
+  showMissingWarnings: true,
+};
+
 OrdersList.propTypes = {
   ordersInfo: OrdersInfoShape.isRequired,
-  showMissingWarnings: PropTypes.bool.isRequired,
+  showMissingWarnings: PropTypes.bool,
 };
 
 export default OrdersList;

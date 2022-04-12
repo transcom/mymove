@@ -98,7 +98,6 @@ export const AsServiceCounselorProcessingSeparation = () => (
 export const AsTOO = () => (
   <div className="officeApp">
     <OrdersList
-      showMissingWarnings
       ordersInfo={{
         currentDutyLocation: object('ordersInfo.currentDutyLocation', { name: 'JBSA Lackland' }),
         newDutyLocation: object('ordersInfo.newDutyLocation', { name: 'JB Lewis-McChord' }),
@@ -120,7 +119,6 @@ export const AsTOO = () => (
 export const AsTOOProcessingRetirement = () => (
   <div className="officeApp">
     <OrdersList
-      showMissingWarnings
       ordersInfo={{
         currentDutyLocation: object('ordersInfo.currentDutyLocation', { name: 'JBSA Lackland' }),
         newDutyLocation: object('ordersInfo.newDutyLocation', { name: 'JB Lewis-McChord' }),
@@ -142,7 +140,6 @@ export const AsTOOProcessingRetirement = () => (
 export const AsTOOProcessingSeparation = () => (
   <div className="officeApp">
     <OrdersList
-      showMissingWarnings
       ordersInfo={{
         currentDutyLocation: object('ordersInfo.currentDutyLocation', { name: 'JBSA Lackland' }),
         newDutyLocation: object('ordersInfo.newDutyLocation', { name: 'JB Lewis-McChord' }),
