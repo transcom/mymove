@@ -1,4 +1,11 @@
 --
+-- Role and permission changes happen at the database cluster level,
+-- affecting all databases. Migrations are not the right place for
+-- those kinds of changes, so pull them out into an idempotent file
+-- that can be applied in dev and production.
+--
+--
+--
 -- BEGIN ROLE master
 --
 -- RDS postgres has a user named 'master' which doesn't exist in development
@@ -118,18 +125,30 @@ $do$;
 
 -- Assume the master role, which has the ability to create roles and grant
 -- group membership to the rds_iam role.
-SET ROLE master;
 
 -- Create a new role named "crud" (CREATE READ UPDATE DELETE).
 -- Use NOINHERIT so that this low privileged user cannot assume the privileges
 -- of a more privileged user.
-CREATE ROLE crud WITH LOGIN NOINHERIT;
+DO
+$do$
+BEGIN
+  IF NOT EXISTS (
+    SELECT -- SELECT list can stay empty for this
+    FROM   pg_catalog.pg_roles
+    WHERE  rolname = 'crud') THEN
 
--- Allow the crud user to log in via IAM.
-GRANT rds_iam TO crud;
+	SET ROLE master;
+	CREATE ROLE crud WITH LOGIN NOINHERIT;
 
--- Reset the role back to the role that is running the migrations.
-RESET ROLE;
+	-- Allow the crud user to log in via IAM.
+	GRANT rds_iam TO crud;
+
+	-- Reset the role back to the role that is running the migrations.
+	RESET ROLE;
+  END IF;
+END
+$do$;
+
 
 -- Set a password when running this locally.
 DO
