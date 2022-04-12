@@ -40,9 +40,6 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 	if err != nil {
 		return nil, err
 	}
-	// if etag.GenerateEtag(oldPPMShipment.UpdatedAt) != eTag {
-	// 	return nil, apperror.NewPreconditionFailedError(ppmShipment.ID, nil)
-	// }
 
 	updatedPPMShipment := mergePPMShipment(*ppmShipment, oldPPMShipment)
 
@@ -51,17 +48,9 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, err
 	}
 
-	newPPMEstimator := NewEstimatePPM()
-	estimator, err := newPPMEstimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
-
-	verrs, _ := appCtx.DB().ValidateAndUpdate(estimator)
-	// Add check for if the estimator encounters an err, then do not proceed with update
+	_, err = f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
 	if err != nil {
 		return nil, err
-	}
-
-	if verrs != nil && verrs.HasAny() {
-		return nil, apperror.NewNotImplementedError("Cannot update the Estimated Incentive.")
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {

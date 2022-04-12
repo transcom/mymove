@@ -2,7 +2,6 @@ package ppmshipment
 
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -51,12 +50,12 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	// TODO: Call the pricer to calculate the incentive
 	newPPMShipment.EstimatedIncentive = models.Int32Pointer(int32(1000000))
 	// Saving Esimtated Incentive to DB
-	verrs, err := appCtx.DB().ValidateAndSave(newPPMShipment)
-	if verrs != nil && verrs.HasAny() {
-		return nil, apperror.NewInvalidInputError(newPPMShipment.ID, err, verrs, "Invalid input found while creating the Estimated Incentive.")
-	} else if err != nil {
-		return nil, apperror.NewQueryError("EstimatedIncentive", err, "")
-	}
+	//verrs, err := appCtx.DB().ValidateAndSave(newPPMShipment)
+	//if verrs != nil && verrs.HasAny() {
+	//	return nil, apperror.NewInvalidInputError(newPPMShipment.ID, err, verrs, "Invalid input found while creating the Estimated Incentive.")
+	//} else if err != nil {
+	//	return nil, apperror.NewQueryError("EstimatedIncentive", err, "")
+	//}
 
 	return newPPMShipment.EstimatedIncentive, nil
 }
