@@ -61,7 +61,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		FROM
 			orders
 		JOIN moves ON moves.orders_id = orders.id
-		WHERE moves.id = (SELECT moves.id FROM moves)
+		WHERE orders.id = (SELECT moves.orders_id FROM moves)
 	),
 	orders_logs AS (
 		SELECT
