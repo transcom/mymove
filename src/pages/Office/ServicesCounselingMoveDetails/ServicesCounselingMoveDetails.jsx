@@ -22,8 +22,12 @@ import FinancialReviewModal from 'components/Office/FinancialReviewModal/Financi
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import {
+  updateMoveStatusServiceCounselingCompleted,
+  updateMoveStatusServiceCounselingPPMApproved,
+  updateFinancialFlag,
+} from 'services/ghcApi';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -206,6 +210,19 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
     },
   });
 
+  const [mutateMoveStatusPPMApproved] = useMutation(updateMoveStatusServiceCounselingPPMApproved, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([MOVES, data.locator], data);
+      queryCache.invalidateQueries([MOVES, data.locator]);
+      setAlertMessage('Move PPM approved.');
+      setAlertType('success');
+    },
+    onError: () => {
+      setAlertMessage('There was a problem approving the PPM for this move. Please try again later.');
+      setAlertType('error');
+    },
+  });
+
   const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
@@ -236,6 +253,22 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
     mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
     setIsSubmitModalVisible(false);
   };
+
+  const handleConfirmApprovePPMDetails = () => {
+    mutateMoveStatusPPMApproved({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+    setIsSubmitModalVisible(false);
+  };
+
+  const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
+  const allShipmentsPPM =
+    submittedShipments.length &&
+    submittedShipments?.every((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
+
+  const submitConfirmAction = allShipmentsPPM ? handleConfirmApprovePPMDetails : handleConfirmSubmitMoveDetails;
+
+  const submitModalBodyText = allShipmentsPPM
+    ? "You can't make changes after you approve the PPM."
+    : "You can't make changes after you submit the move.";
 
   const handleShowFinancialReviewModal = () => {
     setIsFinancialModalVisible(true);
@@ -270,7 +303,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
           </LeftNavTag>
         </LeftNav>
         {isSubmitModalVisible && (
-          <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
+          <SubmitMoveConfirmationModal
+            onClose={setIsSubmitModalVisible}
+            onSubmit={submitConfirmAction}
+            bodyText={submitModalBodyText}
+          />
         )}
         {isFinancialModalVisible && (
           <FinancialReviewModal
@@ -306,7 +343,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
                   type="button"
                   onClick={handleShowCancellationModal}
                 >
-                  Submit move details
+                  {allShipmentsPPM ? 'Approve PPM' : 'Submit move details'}
                 </Button>
               )}
             </Grid>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 
@@ -12,36 +13,36 @@ beforeEach(() => {
 
 describe('SubmitMoveConfirmationModal', () => {
   it('renders the component', () => {
-    const wrapper = mount(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} />);
-    expect(wrapper.find('SubmitMoveConfirmationModal').exists()).toBe(true);
-    expect(wrapper.find('ModalTitle').exists()).toBe(true);
-    expect(wrapper.find('ModalActions').exists()).toBe(true);
-    expect(wrapper.find('ModalClose').exists()).toBe(true);
-    expect(wrapper.find('button[data-testid="modalCancelButton"]').exists()).toBe(true);
-    expect(wrapper.find('button[type="submit"]').exists()).toBe(true);
+    render(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} />);
+    expect(screen.getByRole('heading', { level: 2, name: 'Are you sure?' })).toBeInTheDocument();
+    expect(screen.getByText("You can't make changes after you submit the move.")).toBeInTheDocument();
   });
 
   it('closes the modal when close icon is clicked', () => {
-    const wrapper = mount(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} />);
-
-    wrapper.find('button[data-testid="modalCloseButton"]').simulate('click');
-
-    expect(onClose.mock.calls.length).toBe(1);
-  });
-
-  it('closes the modal when the cancel button is clicked', () => {
-    const wrapper = mount(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} />);
-
-    wrapper.find('button[data-testid="modalCancelButton"]').simulate('click');
+    render(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} />);
+    userEvent.click(screen.getByTestId('modalCloseButton'));
 
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('calls the submit function when submit button is clicked', async () => {
-    const wrapper = mount(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} />);
+  it('closes the modal when the cancel button is clicked', () => {
+    render(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} />);
+    userEvent.click(screen.getByTestId('modalCancelButton'));
 
-    wrapper.find('button[type="submit"]').simulate('click');
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('calls the submit function when submit button is clicked', () => {
+    render(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} />);
+    userEvent.click(screen.getByRole('button', { name: 'Yes, submit' }));
 
     expect(onSubmit).toHaveBeenCalled();
+  });
+
+  it('accepts an optional bodyText prop', () => {
+    render(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} bodyText="test text goes here" />);
+    expect(screen.getByRole('heading', { level: 2, name: 'Are you sure?' })).toBeInTheDocument();
+    expect(screen.queryByText("You can't make changes after you submit the move.")).not.toBeInTheDocument();
+    expect(screen.getByText('test text goes here')).toBeInTheDocument();
   });
 });

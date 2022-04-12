@@ -5,7 +5,7 @@ import { Button } from '@trussworks/react-uswds';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { connectModal, ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
-export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
+export const SubmitMoveConfirmationModal = ({ onClose, onSubmit, bodyText }) => (
   <div data-testid="SubmitMoveConfirmationModal">
     <Overlay />
     <ModalContainer>
@@ -14,7 +14,7 @@ export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
         <ModalTitle>
           <h2>Are you sure?</h2>
         </ModalTitle>
-        <p>You can’t make changes after you submit the move.</p>
+        <p>{bodyText}</p>
         <ModalActions>
           <Button className="usa-button--submit" type="submit" onClick={() => onSubmit()}>
             Yes, submit
@@ -36,6 +36,11 @@ export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
 SubmitMoveConfirmationModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  bodyText: PropTypes.string,
+};
+
+SubmitMoveConfirmationModal.defaultProps = {
+  bodyText: "You can't make changes after you submit the move.",
 };
 
 SubmitMoveConfirmationModal.displayName = 'SubmitMoveConfirmationModal';
