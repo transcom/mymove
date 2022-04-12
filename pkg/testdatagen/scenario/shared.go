@@ -829,71 +829,107 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 	}
 }
 
-func createUnsubmittedMoveWithFullPPMShipmentComplete1(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx, "complete@ppm.unsubmitted", "6a7d969a-2347-48c7-9289-0963c447f0a7", "PPMCMP", userUploader)
-}
+func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and two full PPM Shipments.
+	 */
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("afcc7029-4810-4f19-999a-2b254c659e19"),
+		email:       "multiComplete@ppm.unsubmitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("2dba3c65-1e69-429d-b797-0565014d0384"),
+		firstName:   "Multiple",
+		lastName:    "Complete",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("d94789bb-f8f7-4b5f-b86e-48503af70bfc"),
+		moveLocator: "MULTI1",
+	}
 
-func createUnsubmittedMoveWithFullPPMShipmentComplete2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx, "complete.2@ppm.unsubmitted", "fd02a7ac-f9cb-49e0-90ab-93a8443c1fc7", "PPMCM2", userUploader)
-}
+	ppmShipment := models.PPMShipment{
+		SitExpected:                    models.BoolPointer(true),
+		SecondaryPickupPostalCode:      models.StringPointer("90211"),
+		SecondaryDestinationPostalCode: models.StringPointer("30814"),
+		EstimatedWeight:                models.PoundPointer(unit.Pound(4000)),
+		HasProGear:                     models.BoolPointer(true),
+		ProGearWeight:                  models.PoundPointer(unit.Pound(1987)),
+		SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
+		EstimatedIncentive:             models.Int32Pointer(int32(1000000)),
+		AdvanceRequested:               models.BoolPointer(true),
+		Advance:                        models.CentPointer(unit.Cents(598700)),
+	}
 
-func createUnsubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext, email string, userid string, locator string, userUploader *uploader.UserUploader) {
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(userid)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			UserID:        uuid.Must(uuid.FromString(userid)),
-			FirstName:     models.StringPointer("Complete"),
-			LastName:      models.StringPointer("PPM"),
-			PersonalEmail: models.StringPointer(email),
-		},
-	})
-
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: smWithPPM.ID,
-			ServiceMember:   smWithPPM,
-		},
+	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
-		Move: models.Move{
-			Locator:          locator,
-			SelectedMoveType: &ppmMoveType,
+		PPMShipment: models.PPMShipment{
+			ID:                             testdatagen.ConvertUUIDStringToUUID("f5768bde-07c5-4765-b210-bcaf5f416009"),
+			SitExpected:                    ppmShipment.SitExpected,
+			SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+			SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+			EstimatedWeight:                ppmShipment.EstimatedWeight,
+			HasProGear:                     ppmShipment.HasProGear,
+			ProGearWeight:                  ppmShipment.ProGearWeight,
+			SpouseProGearWeight:            ppmShipment.SpouseProGearWeight,
+			EstimatedIncentive:             ppmShipment.EstimatedIncentive,
+			AdvanceRequested:               ppmShipment.AdvanceRequested,
+			Advance:                        ppmShipment.Advance,
 		},
-	})
+	}
 
-	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusDraft,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
-		},
-	})
+	move := createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
-		MTOShipment: mtoShipment,
+		PPMShipment: ppmShipment,
+	})
+}
+
+func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and two full PPM Shipments.
+	 */
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("836d8363-1a5a-45b7-aee0-996a97724c24"),
+		email:       "multiComplete2@ppm.unsubmitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("bde2125f-63cf-4a4b-aff4-162a02120d89"),
+		firstName:   "Multiple2",
+		lastName:    "Complete2",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("839f893c-1c72-44e9-8544-298a19f1229a"),
+		moveLocator: "MULTI2",
+	}
+
+	ppmShipment := models.PPMShipment{
+		SitExpected:                    models.BoolPointer(true),
+		SecondaryPickupPostalCode:      models.StringPointer("90211"),
+		SecondaryDestinationPostalCode: models.StringPointer("30814"),
+		EstimatedWeight:                models.PoundPointer(unit.Pound(4000)),
+		HasProGear:                     models.BoolPointer(true),
+		ProGearWeight:                  models.PoundPointer(unit.Pound(1987)),
+		SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
+		EstimatedIncentive:             models.Int32Pointer(int32(1000000)),
+		AdvanceRequested:               models.BoolPointer(true),
+		Advance:                        models.CentPointer(unit.Cents(598700)),
+	}
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
 		PPMShipment: models.PPMShipment{
-			SitExpected:                    models.BoolPointer(true),
-			SecondaryPickupPostalCode:      models.StringPointer("90211"),
-			SecondaryDestinationPostalCode: models.StringPointer("30814"),
-			EstimatedWeight:                models.PoundPointer(unit.Pound(4000)),
-			HasProGear:                     models.BoolPointer(true),
-			ProGearWeight:                  models.PoundPointer(unit.Pound(1987)),
-			SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
-			EstimatedIncentive:             models.Int32Pointer(int32(1000000)),
-			AdvanceRequested:               models.BoolPointer(true),
-			Advance:                        models.CentPointer(unit.Cents(598700)),
+			ID:                             testdatagen.ConvertUUIDStringToUUID("aa677470-c7a5-4b97-b915-1b2d6a0ff58f"),
+			SitExpected:                    ppmShipment.SitExpected,
+			SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+			SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+			EstimatedWeight:                ppmShipment.EstimatedWeight,
+			HasProGear:                     ppmShipment.HasProGear,
+			ProGearWeight:                  ppmShipment.ProGearWeight,
+			SpouseProGearWeight:            ppmShipment.SpouseProGearWeight,
+			EstimatedIncentive:             ppmShipment.EstimatedIncentive,
+			AdvanceRequested:               ppmShipment.AdvanceRequested,
+			Advance:                        ppmShipment.Advance,
 		},
+	}
+
+	move := createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
+
+	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move:        move,
+		PPMShipment: ppmShipment,
 	})
 }
 

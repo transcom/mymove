@@ -34,13 +34,24 @@ describe('PPM Onboarding - Review', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
     cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
 
   const viewportType = [
-    { viewport: 'desktop', isMobile: false, userId: '6a7d969a-2347-48c7-9289-0963c447f0a7' }, // complete@ppm.unsubmitted
-    { viewport: 'mobile', isMobile: true, userId: 'fd02a7ac-f9cb-49e0-90ab-93a8443c1fc7' }, // complete2@ppm.unsubmitted
+    { viewport: 'desktop', isMobile: false, userId: 'afcc7029-4810-4f19-999a-2b254c659e19' }, // multiComplete@ppm.unsubmitted
+    { viewport: 'mobile', isMobile: true, userId: '836d8363-1a5a-45b7-aee0-996a97724c24' }, // multiComplete2@ppm.unsubmitted
   ];
+
+  viewportType.forEach(({ viewport, isMobile, userId }) => {
+    it(`deletes shipments on the review page and submits the move -  ${viewport}`, () => {
+      if (isMobile) {
+        setMobileViewport();
+      }
+      signInAndNavigateFromHomePageToReviewPage(userId);
+      deleteShipment();
+    });
+  });
 
   viewportType.forEach(({ viewport, isMobile }) => {
     it(`navigates to the review page after finishing editing the PPM shipment - ${viewport}`, () => {
@@ -48,8 +59,8 @@ describe('PPM Onboarding - Review', function () {
         setMobileViewport();
       }
 
-      // complete@ppm.unsubmitted
-      const userId = '6a7d969a-2347-48c7-9289-0963c447f0a7';
+      // multiComplete@ppm.unsubmitted
+      const userId = 'afcc7029-4810-4f19-999a-2b254c659e19';
 
       getToReviewPage(isMobile, userId);
       verifyPPMShipmentCard(fullPPMShipmentFields, true);
@@ -92,6 +103,7 @@ function verifyPPMShipmentCard(shipmentCardFields, isEditable = false) {
 
       if (isEditable) {
         cy.get('button').contains('Edit');
+        cy.get('button').contains('Delete');
       } else {
         cy.get('[data-testid="ShipmentContainer"]').find('button').should('not.exist');
       }
@@ -109,4 +121,13 @@ function verifyPPMShipmentCard(shipmentCardFields, isEditable = false) {
 function navigateToAgreementAndSign() {
   cy.nextPage();
   signAgreement();
+}
+
+function deleteShipment() {
+  cy.get('[data-testid="ShipmentContainer"]').last().contains('Delete').click();
+  cy.get('[data-testid="modal"]').should('be.visible');
+  cy.get('[data-testid="modal"] button').contains('Yes, Delete').click();
+  cy.waitFor(['@deleteShipment', '@getShipment']);
+  cy.get('[data-testid="ShipmentContainer"]').should('have.length', 1);
+  cy.get('[data-testid="alert"]').should('contain', 'The shipment was deleted.');
 }
