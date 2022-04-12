@@ -72,6 +72,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0065](0065-use-office-app-for-prime-ui.md) - _Use Office application for Prime UI_
 - [ADR-0066](0066-use-custom-nullable-types-for-patch-requests.md) - Use custom nullable types for patch requests
 - [ADR-0067](0067-ppm-db-design.md) - Add a child table to mto_shipments for PPMs
+- [ADR-0068](0068-use-fake-data-factories-with-fake-data-generators-to-create-test-data.md) - Use fake data factories with fake data generators to create test data
 
 <!-- adrlogstop -->
 
