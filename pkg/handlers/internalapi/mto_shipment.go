@@ -350,7 +350,7 @@ func (h DeleteShipmentHandler) Handle(params mtoshipmentops.DeleteShipmentParams
 
 			if appCtx.Session() != nil {
 				if appCtx.Session().ServiceMemberID != sm.ID {
-					return mtoshipmentops.NewDeleteShipmentInternalServerError(), err
+					return mtoshipmentops.NewDeleteShipmentForbidden(), err
 				}
 			}
 
