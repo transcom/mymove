@@ -5169,12 +5169,20 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
+	ordersNumber := "8675309"
+	departmentIndicator := "ARMY"
+	tac := "E19A"
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
 		DutyLocation: models.DutyLocation{
 			ProvidesServicesCounseling: true,
 		},
 		Order: models.Order{
-			OrdersType: ordersType,
+			OrdersType:          ordersType,
+			OrdersTypeDetail:    &hhgPermitted,
+			OrdersNumber:        &ordersNumber,
+			DepartmentIndicator: &departmentIndicator,
+			TAC:                 &tac,
 		},
 	})
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
