@@ -399,7 +399,7 @@ mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_setup
-server_test_setup: db_test_prepare db_test_truncate
+server_test_setup: db_server_test_init db_test_truncate
 
 .PHONY: server_test
 server_test: server_test_setup server_test_standalone ## Run server unit tests
@@ -413,12 +413,12 @@ server_test_build:
 	NO_DB=1 DRY_RUN=1 scripts/run-server-test
 
 .PHONY: server_test_all
-server_test_all: db_test_prepare redis_reset ## Run all server unit tests
+server_test_all: db_server_test_init redis_reset ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
 	LONG_TEST=1 scripts/run-server-test
 
 .PHONY: server_test_coverage_generate
-server_test_coverage_generate: db_test_prepare server_test_coverage_generate_standalone ## Run server unit test coverage
+server_test_coverage_generate: db_server_test_init server_test_coverage_generate_standalone ## Run server unit test coverage
 
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
@@ -426,7 +426,7 @@ server_test_coverage_generate_standalone: ## Run server unit tests with coverage
 	NO_DB=1 SERVER_REPORT=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
-server_test_coverage: db_test_prepare server_test_coverage_generate ## Run server unit test coverage with html output
+server_test_coverage: db_server_test_init server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
 
 #
@@ -732,8 +732,9 @@ db_test_migrations_build: .db_test_migrations_build.stamp ## Build Test DB Migra
 db_test_psql: ## Open PostgreSQL shell for Test DB
 	scripts/psql-test
 
-.PHONY: db_test_prepare
-db_test_prepare: db_test_reset db_test_load_from_schema redis_reset
+# server test does not need to load with seed data
+.PHONY: db_server_test_init
+db_server_test_init: db_test_reset db_test_load_from_schema redis_reset
 #
 # ----- END DB_TEST TARGETS -----
 #
