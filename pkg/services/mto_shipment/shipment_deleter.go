@@ -2,13 +2,14 @@ package mtoshipment
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -33,9 +34,24 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 		return uuid.Nil, err
 	}
 
-	now := time.Now()
-	shipment.DeletedAt = &now
-	err = appCtx.DB().Save(shipment)
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		err = utilities.SoftDestroy(appCtx.DB(), shipment)
+		if err != nil {
+			switch err.Error() {
+			case "error updating model":
+				return apperror.NewUnprocessableEntityError("while updating model")
+			case "this model does not have deleted_at field":
+				return apperror.NewPreconditionFailedError(shipmentID, errors.New("model or sub table missing deleted_at field"))
+			default:
+				return apperror.NewInternalServerError("failed attempt to soft delete model")
+			}
+		}
+		return nil
+	})
+
+	if transactionError != nil {
+		return uuid.Nil, transactionError
+	}
 
 	return shipment.MoveTaskOrderID, err
 }
