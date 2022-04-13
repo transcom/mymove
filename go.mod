@@ -68,7 +68,7 @@ require (
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx/v3 v3.2.4
 	github.com/tiaguinho/gosoap v1.4.4
-	github.com/vektra/mockery/v2 v2.10.0
+	github.com/vektra/mockery/v2 v2.10.6
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
