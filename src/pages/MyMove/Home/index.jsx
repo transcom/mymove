@@ -29,7 +29,6 @@ import ShipmentList from 'components/ShipmentList/ShipmentList';
 import {
   selectCurrentMove,
   selectCurrentOrders,
-  selectCurrentPPM,
   selectIsProfileComplete,
   selectMTOShipmentsForCurrentMove,
   selectServiceMemberFromLoggedInUser,
@@ -40,7 +39,7 @@ import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
@@ -97,8 +96,8 @@ export class Home extends Component {
   }
 
   get hasAnyShipments() {
-    const { mtoShipments, currentPpm } = this.props;
-    return (this.hasOrders && !!mtoShipments.length) || !!Object.keys(currentPpm).length;
+    const { mtoShipments } = this.props;
+    return this.hasOrders && !!mtoShipments.length;
   }
 
   get hasSubmittedMove() {
@@ -107,8 +106,8 @@ export class Home extends Component {
   }
 
   get hasPPMShipment() {
-    const { currentPpm } = this.props;
-    return !!Object.keys(currentPpm).length;
+    const { mtoShipments } = this.props;
+    return mtoShipments?.some((shipment) => shipment.ppmShipment);
   }
 
   get shipmentActionBtnLabel() {
@@ -224,17 +223,8 @@ export class Home extends Component {
     history.push(path);
   };
 
-  sortAllShipments = (mtoShipments, currentPpm) => {
+  sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
-    if (Object.keys(currentPpm).length) {
-      const ppm = JSON.parse(JSON.stringify(currentPpm));
-      ppm.shipmentType = SHIPMENT_OPTIONS.PPM;
-      // workaround for differing cases between mtoShipments and ppms (bigger change needed on yaml)
-      ppm.createdAt = ppm.created_at;
-      delete ppm.created_at;
-
-      allShipments.push(ppm);
-    }
     allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
 
     return allShipments;
@@ -246,15 +236,8 @@ export class Home extends Component {
   };
 
   render() {
-    const {
-      currentPpm,
-      isProfileComplete,
-      move,
-      mtoShipments,
-      serviceMember,
-      signedCertification,
-      uploadedOrderDocuments,
-    } = this.props;
+    const { isProfileComplete, move, mtoShipments, serviceMember, signedCertification, uploadedOrderDocuments } =
+      this.props;
 
     // early return if loading user/service member
     if (!serviceMember) {
@@ -281,7 +264,7 @@ export class Home extends Component {
     const profileEditPath = customerRoutes.PROFILE_PATH;
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
-    const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
+    const allSortedShipments = this.sortAllShipments(mtoShipments);
 
     return (
       <>
@@ -431,10 +414,6 @@ Home.propTypes = {
     last_name: string,
   }),
   mtoShipments: arrayOf(MtoShipmentShape).isRequired,
-  currentPpm: shape({
-    id: string,
-    shipmentType: string,
-  }).isRequired,
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
   uploadedAmendedOrderDocuments: arrayOf(UploadShape),
   history: HistoryShape.isRequired,
@@ -459,7 +438,6 @@ const mapStateToProps = (state) => {
   const move = selectCurrentMove(state) || {};
 
   return {
-    currentPpm: selectCurrentPPM(state) || {},
     isProfileComplete: selectIsProfileComplete(state),
     orders: selectCurrentOrders(state) || {},
     uploadedOrderDocuments: selectUploadsForCurrentOrders(state),

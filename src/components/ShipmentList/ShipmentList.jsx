@@ -6,10 +6,12 @@ import { Tag } from '@trussworks/react-uswds';
 
 import styles from './ShipmentList.module.scss';
 
+import checkPPMCompletion from 'utils/checkPPMCompletion';
 import { formatWeight } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentTypes } from 'constants/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
+import { PPMShipmentShape } from 'types/customerShapes';
 
 export const ShipmentListItem = ({
   shipment,
@@ -82,7 +84,7 @@ ShipmentListItem.propTypes = {
 
 ShipmentListItem.defaultProps = {
   showNumber: true,
-  showIncomplete: true,
+  showIncomplete: false,
   showShipmentWeight: false,
   isOverweight: false,
   isMissingWeight: false,
@@ -114,6 +116,7 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
         let canEdit = !moveSubmitted;
         let isOverweight;
         let isMissingWeight;
+        let isIncomplete;
         let showNumber = shipmentCountByType[shipmentType] > 1;
         if (showShipmentWeight) {
           canEdit = false;
@@ -131,6 +134,11 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
               }
           }
         }
+        if (shipmentType === SHIPMENT_OPTIONS.PPM) {
+          if (checkPPMCompletion(shipment.ppmShipment)) {
+            isIncomplete = true;
+          }
+        }
         return (
           <ShipmentListItem
             key={shipment.id}
@@ -139,6 +147,7 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
             showShipmentWeight={showShipmentWeight}
             canEdit={canEdit}
             isOverweight={isOverweight}
+            showIncomplete={isIncomplete}
             isMissingWeight={isMissingWeight}
             onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType)}
             shipment={shipment}
@@ -155,6 +164,7 @@ ShipmentList.propTypes = {
       id: string.isRequired,
       shipmentType: string.isRequired,
       reweigh: shape({ id: string.isRequired, weight: number }),
+      ppmShipment: PPMShipmentShape,
     }),
   ).isRequired,
   onShipmentClick: func,
