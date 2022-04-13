@@ -348,10 +348,8 @@ func (h DeleteShipmentHandler) Handle(params mtoshipmentops.DeleteShipmentParams
 				return mtoshipmentops.NewDeleteShipmentNotFound(), err
 			}
 
-			if appCtx.Session() != nil {
-				if appCtx.Session().ServiceMemberID != sm.ID {
-					return mtoshipmentops.NewDeleteShipmentForbidden(), err
-				}
+			if appCtx.Session().ServiceMemberID != sm.ID {
+				return mtoshipmentops.NewDeleteShipmentForbidden(), err
 			}
 
 			_, err = h.DeleteShipment(appCtx, shipmentID)
