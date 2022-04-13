@@ -688,10 +688,6 @@ jobs:
       - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
-      - save_cache:
-          key: go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-          paths:
-            - '~/go'
       - announce_failure
 
   # `anti_virus` uses virus detection software to scan the source code
@@ -1143,10 +1139,10 @@ jobs:
       # see https://www.npmjs.com/package/terser-webpack-plugin/v/1.4.4#cache
       - restore_cache:
           keys:
-            - v1-node-modules-cache
+            - v2-node-modules-cache-{{ checksum "yarn.lock" }}
       - run: make client_build
       - save_cache:
-          key: v1-node-modules-cache
+          key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
           paths:
             - ./node_modules/.cache
       - persist_to_workspace:
