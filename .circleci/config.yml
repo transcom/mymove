@@ -275,27 +275,14 @@ commands:
         description: dp3 env to deploy to (exp, loadtest, demo)
         type: string
         default: *dp3-env
-      dp3-region:
-        type: string
-        default: << parameters.dp3-env >>_REGION
-      dp3-account-id:
-        type: string
-        default: << parameters.dp3-env >>_ACCOUNT_ID
-      dp3-access-key-id:
-        type: string
-        default: << parameters.dp3-env >>_ACCESS_KEY_ID
-      dp3-secret-access-key:
-        type: string
-        default: << parameters.dp3-env >>_SECRET_ACCESS_KEY
-
     steps:
       - run:
           name: 'Setting up AWS environment variables for dp3 env defined in &dp3-env'
           command: |
-            echo "export AWS_DEFAULT_REGION=<< parameters.dp3-region >>" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=<< parameters.dp3-account-id >>" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=<< parameters.dp3-access-key-id >>" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=<< parameters.dp3-secret-access-key >>=" >> $BASH_ENV
+            echo "export AWS_DEFAULT_REGION="$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID="$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID="$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY="$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_SECRET_KEY" >> $BASH_ENV
             source $BASH_ENV
   tls_vars_dp3:
     parameters:
@@ -303,22 +290,13 @@ commands:
         description: dp3 env to deploy to (exp, loadtest, demo)
         type: string
         default: *dp3-env
-      dp3-env-cert:
-        type: string
-        default: << parameters.dp3-env >>_DP3_CERT
-      dp3-env-key:
-        type: string
-        default: << parameters.dp3-env >>_DP3_KEY
-      dp3-env-ca:
-        type: string
-        default: << parameters.dp3-env >>_DP3_CA
     steps:
       - run:
           name: 'Setting up TLS environment variables for dp3 env defined in &dp3-env'
           command: |
-            echo "export TLS_CERT=<< parameters.dp3-env-cert >>" >> $BASH_ENV
-            echo "export TLS_KEY=<< parameters.dp3-env-key >>" >> $BASH_ENV
-            echo "export TLS_CA=<< parameters.dp3-env-ca >>" >> $BASH_ENV
+            echo "export TLS_CERT=$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_DP3_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_DP3_KEY" >> $BASH_ENV
+            echo "export TLS_CA=$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_DP3_CA" >> $BASH_ENV
             source $BASH_ENV
 
   announce_failure:
