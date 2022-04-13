@@ -1110,7 +1110,8 @@ jobs:
   #
   # the babel/terser cache below takes the compile from ~6-7m to ~4-5m !!
   compile_app_client:
-    executor: mymove_ramdisk_compiler_xlarge
+    executor: mymove_ramdisk_compiler
+    working_directory: /mnt/ramdisk
     steps:
       - checkout
       - restore_cache:
