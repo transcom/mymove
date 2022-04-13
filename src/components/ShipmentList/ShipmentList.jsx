@@ -2,6 +2,7 @@ import React from 'react';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Tag } from '@trussworks/react-uswds';
 
 import styles from './ShipmentList.module.scss';
 
@@ -16,6 +17,7 @@ export const ShipmentListItem = ({
   shipmentNumber,
   canEdit,
   showNumber,
+  showIncomplete,
   showShipmentWeight,
   isOverweight,
   isMissingWeight,
@@ -48,9 +50,10 @@ export const ShipmentListItem = ({
         {showNumber && ` ${shipmentNumber}`}
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}
-      {!showShipmentWeight && (
+      {!showShipmentWeight && !showIncomplete && (
         <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
       )}{' '}
+      {showIncomplete && <Tag>Incomplete</Tag>}
       {showShipmentWeight && (
         <div className={styles.shipmentWeight}>{formatWeight(shipment.calculatedBillableWeight)}</div>
       )}
@@ -71,6 +74,7 @@ ShipmentListItem.propTypes = {
   shipmentNumber: number.isRequired,
   canEdit: bool.isRequired,
   showNumber: bool,
+  showIncomplete: bool,
   showShipmentWeight: bool,
   isOverweight: bool,
   isMissingWeight: bool,
@@ -78,6 +82,7 @@ ShipmentListItem.propTypes = {
 
 ShipmentListItem.defaultProps = {
   showNumber: true,
+  showIncomplete: true,
   showShipmentWeight: false,
   isOverweight: false,
   isMissingWeight: false,
