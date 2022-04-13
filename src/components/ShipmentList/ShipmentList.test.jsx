@@ -1,6 +1,5 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor, queryByRole } from '@testing-library/react';
+import { render, screen, queryByRole, getByRole } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ShipmentList from './ShipmentList';
@@ -40,7 +39,7 @@ describe('ShipmentList component', () => {
   it.each([
     ['Shows', false],
     ['Hides', true],
-  ])('%s the edit link if moveSubmitted is %s', async (showHideEditLink, moveSubmitted) => {
+  ])('%s the edit link if moveSubmitted is %s', (showHideEditLink, moveSubmitted) => {
     const props = { ...defaultProps, moveSubmitted };
 
     render(<ShipmentList {...props} />);
@@ -56,33 +55,22 @@ describe('ShipmentList component', () => {
       }
     };
 
-    await waitFor(() => {
-      checkShipmentClick('ID-1', 1, SHIPMENT_OPTIONS.PPM);
-    });
+    checkShipmentClick('ID-1', 1, SHIPMENT_OPTIONS.PPM);
 
     editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[1], 'button', { name: 'Edit' });
-
-    await waitFor(() => {
-      checkShipmentClick('ID-2', 1, SHIPMENT_OPTIONS.HHG);
-    });
+    checkShipmentClick('ID-2', 1, SHIPMENT_OPTIONS.HHG);
 
     editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[2], 'button', { name: 'Edit' });
-
-    await waitFor(() => {
-      checkShipmentClick('ID-3', 1, SHIPMENT_OPTIONS.NTS);
-    });
+    checkShipmentClick('ID-3', 1, SHIPMENT_OPTIONS.NTS);
 
     editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[3], 'button', { name: 'Edit' });
-
-    await waitFor(() => {
-      checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
-    });
+    checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
   });
 
   it('calls onDeleteClick when delete is clicked', () => {
     render(<ShipmentList {...defaultProps} />);
     for (let i = 0; i < defaultProps.shipments.length; i += 1) {
-      const deleteBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[i], 'button', {
+      const deleteBtn = getByRole(screen.getAllByTestId('shipment-list-item-container')[i], 'button', {
         name: 'Delete',
       });
       userEvent.click(deleteBtn);

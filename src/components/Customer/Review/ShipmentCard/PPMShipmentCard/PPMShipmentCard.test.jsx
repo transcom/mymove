@@ -130,14 +130,14 @@ describe('PPMShipmentCard component', () => {
 
   it('calls onEditClick when edit button is pressed', () => {
     render(<PPMShipmentCard {...completeProps} />);
-    const editBtn = screen.queryByRole('button', { name: 'Edit' });
+    const editBtn = screen.getByRole('button', { name: 'Edit' });
     userEvent.click(editBtn);
     expect(completeProps.onEditClick).toHaveBeenCalledTimes(1);
   });
 
   it('calls onDeleteClick when delete button is pressed', () => {
     render(<PPMShipmentCard {...completeProps} />);
-    const deleteBtn = screen.queryByRole('button', { name: 'Delete' });
+    const deleteBtn = screen.getByRole('button', { name: 'Delete' });
     userEvent.click(deleteBtn);
     expect(completeProps.onDeleteClick).toHaveBeenCalledTimes(1);
   });
