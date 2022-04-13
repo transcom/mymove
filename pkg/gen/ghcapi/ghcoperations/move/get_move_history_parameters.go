@@ -9,8 +9,10 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewGetMoveHistoryParams creates a new GetMoveHistoryParams object
@@ -35,6 +37,14 @@ type GetMoveHistoryParams struct {
 	  In: path
 	*/
 	Locator string
+	/*requested page of results
+	  In: query
+	*/
+	Page *int64
+	/*results per page
+	  In: query
+	*/
+	PerPage *int64
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -46,8 +56,20 @@ func (o *GetMoveHistoryParams) BindRequest(r *http.Request, route *middleware.Ma
 
 	o.HTTPRequest = r
 
+	qs := runtime.Values(r.URL.Query())
+
 	rLocator, rhkLocator, _ := route.Params.GetOK("locator")
 	if err := o.bindLocator(rLocator, rhkLocator, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPage, qhkPage, _ := qs.GetOK("page")
+	if err := o.bindPage(qPage, qhkPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPerPage, qhkPerPage, _ := qs.GetOK("perPage")
+	if err := o.bindPerPage(qPerPage, qhkPerPage, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -66,6 +88,52 @@ func (o *GetMoveHistoryParams) bindLocator(rawData []string, hasKey bool, format
 	// Required: true
 	// Parameter is provided by construction from the route
 	o.Locator = raw
+
+	return nil
+}
+
+// bindPage binds and validates parameter Page from query.
+func (o *GetMoveHistoryParams) bindPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("page", "query", "int64", raw)
+	}
+	o.Page = &value
+
+	return nil
+}
+
+// bindPerPage binds and validates parameter PerPage from query.
+func (o *GetMoveHistoryParams) bindPerPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("perPage", "query", "int64", raw)
+	}
+	o.PerPage = &value
 
 	return nil
 }

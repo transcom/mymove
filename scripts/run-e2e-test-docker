@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-circleci_build_image=milmove/circleci-docker:milmove-app-e822adea8f203ff4b5f0a60939683e39376eb690
+circleci_build_image=milmove/circleci-docker:milmove-app-3d4d7c108724ebcbe7d986d63dcd6fb8a4246633
 
 set -eux -o pipefail
 

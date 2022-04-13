@@ -66,6 +66,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.SecondaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
 	ppmShipment.SecondaryDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryDestinationPostalCode, ppmShipment.SecondaryDestinationPostalCode)
 	ppmShipment.HasProGear = services.SetNoNilOptionalBoolField(newPPMShipment.HasProGear, ppmShipment.HasProGear)
+	ppmShipment.SitExpected = services.SetNoNilOptionalBoolField(newPPMShipment.SitExpected, ppmShipment.SitExpected)
 	ppmShipment.EstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.EstimatedWeight, ppmShipment.EstimatedWeight)
 	ppmShipment.NetWeight = services.SetNoNilOptionalPoundField(newPPMShipment.NetWeight, ppmShipment.NetWeight)
 	ppmShipment.ProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.ProGearWeight, ppmShipment.ProGearWeight)
@@ -88,8 +89,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	if newPPMShipment.DestinationPostalCode != "" {
 		ppmShipment.DestinationPostalCode = newPPMShipment.DestinationPostalCode
 	}
-
-	// TODO: handle sitExpected
 
 	return &ppmShipment
 }

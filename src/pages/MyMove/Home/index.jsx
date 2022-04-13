@@ -20,12 +20,12 @@ import ScrollToTop from 'components/ScrollToTop';
 import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import ShipmentList from 'components/ShipmentList';
 import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
+import ShipmentList from 'components/ShipmentList/ShipmentList';
 import {
   selectCurrentMove,
   selectCurrentOrders,
