@@ -120,6 +120,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveDocsDeleteMoveDocumentHandler: move_docs.DeleteMoveDocumentHandlerFunc(func(params move_docs.DeleteMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
 		}),
+		MtoShipmentDeleteShipmentHandler: mto_shipment.DeleteShipmentHandlerFunc(func(params mto_shipment.DeleteShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.DeleteShipment has not yet been implemented")
+		}),
 		UploadsDeleteUploadHandler: uploads.DeleteUploadHandlerFunc(func(params uploads.DeleteUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUpload has not yet been implemented")
 		}),
@@ -346,6 +349,8 @@ type MymoveAPI struct {
 	MoveDocsCreateWeightTicketDocumentHandler move_docs.CreateWeightTicketDocumentHandler
 	// MoveDocsDeleteMoveDocumentHandler sets the operation handler for the delete move document operation
 	MoveDocsDeleteMoveDocumentHandler move_docs.DeleteMoveDocumentHandler
+	// MtoShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
+	MtoShipmentDeleteShipmentHandler mto_shipment.DeleteShipmentHandler
 	// UploadsDeleteUploadHandler sets the operation handler for the delete upload operation
 	UploadsDeleteUploadHandler uploads.DeleteUploadHandler
 	// UploadsDeleteUploadsHandler sets the operation handler for the delete uploads operation
@@ -578,6 +583,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveDocsDeleteMoveDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.DeleteMoveDocumentHandler")
+	}
+	if o.MtoShipmentDeleteShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.DeleteShipmentHandler")
 	}
 	if o.UploadsDeleteUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.DeleteUploadHandler")
@@ -887,6 +895,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/move_documents/{moveDocumentId}"] = move_docs.NewDeleteMoveDocument(o.context, o.MoveDocsDeleteMoveDocumentHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/mto-shipments/{mtoShipmentId}"] = mto_shipment.NewDeleteShipment(o.context, o.MtoShipmentDeleteShipmentHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
