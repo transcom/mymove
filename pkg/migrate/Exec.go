@@ -21,7 +21,7 @@ var (
 func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration, logger *zap.Logger) error {
 
 	scanner := bufio.NewScanner(inputReader)
-	lines := make(chan string, 1000)
+	lines := make(chan string, 10240)
 	dropComments := true
 	dropSearchPath := true
 
@@ -47,7 +47,7 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration, logger 
 		close(lines)
 	}()
 
-	statements := make(chan string, 1000)
+	statements := make(chan string, 10240)
 	go SplitStatements(lines, statements, wait, logger)
 
 	var match []string
