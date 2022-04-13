@@ -62,7 +62,7 @@ const Review = ({ currentMove, mtoShipments, push, match }) => {
             <div className={formStyles.formActions}>
               <WizardNavigation
                 onNextClick={handleNext}
-                disableNext={!hasCompletedPPMShipments || !Object.keys(mtoShipments).length}
+                disableNext={!hasCompletedPPMShipments || !mtoShipments.length}
                 onCancelClick={handleCancel}
                 isFirstPage
                 showFinishLater
