@@ -49,7 +49,7 @@ require (
 	github.com/jstemmer/go-junit-report v1.0.0
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.1
-	github.com/lib/pq v1.10.4
+	github.com/lib/pq v1.10.5
 	github.com/luna-duclos/instrumentedsql v1.1.3
 	github.com/markbates/goth v1.69.0
 	github.com/mattn/go-shellwords v1.0.6 // indirect
