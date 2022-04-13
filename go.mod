@@ -68,7 +68,7 @@ require (
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx/v3 v3.2.4
 	github.com/tiaguinho/gosoap v1.4.4
-	github.com/vektra/mockery/v2 v2.10.0
+	github.com/vektra/mockery/v2 v2.10.5
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
@@ -91,7 +91,7 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.30.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.30.0
 	go.opentelemetry.io/contrib/propagators/aws v1.5.0
-	go.opentelemetry.io/otel v1.5.0
+	go.opentelemetry.io/otel v1.6.3
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.27.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.27.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.5.0
@@ -99,9 +99,9 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.27.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.5.0
 	go.opentelemetry.io/otel/metric v0.27.0
-	go.opentelemetry.io/otel/sdk v1.5.0
+	go.opentelemetry.io/otel/sdk v1.6.3
 	go.opentelemetry.io/otel/sdk/metric v0.27.0
-	go.opentelemetry.io/otel/trace v1.5.0
+	go.opentelemetry.io/otel/trace v1.6.3
 	gotest.tools/gotestsum v1.7.0
 )
 
