@@ -161,9 +161,14 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 		return nil, ErrFetchNotFound
 	}
 	identity := &identities[0]
-	roleError := db.RawQuery(`SELECT * FROM roles
-									WHERE id in (select role_id from users_roles
-										where deleted_at is null and user_id = ?)`, identity.ID).All(&identity.Roles)
+	// order the roles by the date when the role was assigned so the
+	// first role assigned is the default role
+	roleError := db.RawQuery(`SELECT roles.* FROM roles
+							  JOIN users_roles ON roles.id = users_roles.role_id
+							  WHERE users_roles.deleted_at IS NULL
+							  AND users_roles.user_id = ?
+							  ORDER BY users_roles.created_at ASC`, identity.ID).
+		All(&identity.Roles)
 	if roleError != nil {
 		return nil, roleError
 	}
