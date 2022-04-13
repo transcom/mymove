@@ -1,21 +1,36 @@
 import React from 'react';
 
-import { DestructiveShipmentConfirmationModal } from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
+import ConnectedDestructiveShipmentConfirmationModal, {
+  DestructiveShipmentConfirmationModal,
+} from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 
 export default {
   title: 'Components/DestructiveShipmentConfirmationModal',
   component: DestructiveShipmentConfirmationModal,
+  args: {
+    shipmentID: '111',
+  },
+  argTypes: {
+    onClose: { action: 'close button clicked' },
+    onSubmit: { action: 'submit button clicked' },
+  },
 };
 
-export const Basic = () => <DestructiveShipmentConfirmationModal onClose={() => {}} onSubmit={() => {}} />;
+const Template = (args) => <DestructiveShipmentConfirmationModal {...args} />;
 
-export const withOverrides = () => (
-  <DestructiveShipmentConfirmationModal
-    onClose={() => {}}
-    onSubmit={() => {}}
-    title="This is a sample title"
-    content="Some sample description"
-    submitText="YES!"
-    backText="NO"
-  />
-);
+export const Basic = Template.bind({});
+
+export const WithOverrides = Template.bind({});
+WithOverrides.args = {
+  title: 'This is a sample title',
+  content: 'Some sample description',
+  submitText: 'YES!',
+  closeText: 'NO',
+  onClose: { action: 'close button clicked' },
+};
+
+const ConnectedTemplate = (args) => <ConnectedDestructiveShipmentConfirmationModal {...args} />;
+export const ConnectedModal = ConnectedTemplate.bind({});
+ConnectedModal.args = {
+  isOpen: true,
+};
