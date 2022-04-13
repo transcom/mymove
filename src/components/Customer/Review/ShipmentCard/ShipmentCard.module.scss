@@ -46,7 +46,7 @@
       @include u-font('body', 'xs');
 
       button {
-        @include u-padding(1.5)
+        @include u-padding(1.5);
       }
     }
   }
