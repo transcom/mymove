@@ -3,10 +3,11 @@ import React, { useEffect, useReducer } from 'react';
 import { generatePath } from 'react-router';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
-import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import ordersFormValidationSchema from '../Orders/ordersFormValidationSchema';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
@@ -26,23 +27,6 @@ import { LOA_TYPE } from 'shared/constants';
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
-
-const validationSchema = Yup.object({
-  originDutyLocation: Yup.object().defined('Required'),
-  newDutyLocation: Yup.object().required('Required'),
-  issueDate: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  reportByDate: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  departmentIndicator: Yup.string().required('Required'),
-  ordersNumber: Yup.string().required('Required'),
-  ordersType: Yup.string().required('Required'),
-  ordersTypeDetail: Yup.string().required('Required'),
-  tac: Yup.string().min(4, 'Enter a 4-character TAC').required('Required'),
-  sac: Yup.string(),
-});
 
 const ServicesCounselingOrders = () => {
   const history = useHistory();
@@ -166,7 +150,7 @@ const ServicesCounselingOrders = () => {
 
   return (
     <div className={styles.sidebar}>
-      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+      <Formik initialValues={initialValues} validationSchema={ordersFormValidationSchema} onSubmit={onSubmit}>
         {(formik) => {
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
           const ntsTacWarning = tacValidationState[LOA_TYPE.NTS].isValid ? '' : tacWarningMsg;
