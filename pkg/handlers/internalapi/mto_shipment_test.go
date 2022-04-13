@@ -1275,11 +1275,12 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		suite.IsType(&mtoshipmentops.DeleteShipmentConflict{}, response)
 	})
 
-	suite.Run("Returns 403 when deleter returns ForbiddenError", func() {
-		sm := testdatagen.MakeStubbedServiceMember(suite.DB())
+	suite.Run("Returns 403 when servicemember ID doesn't match shipment", func() {
+		sm1 := testdatagen.MakeStubbedServiceMember(suite.DB())
+		sm2 := testdatagen.MakeStubbedServiceMember(suite.DB())
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
-				ServiceMember: sm,
+				ServiceMember: sm1,
 			},
 		})
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -1290,6 +1291,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypePPM,
 			},
+			ServiceMember: sm2,
 		})
 
 		deleter := &mocks.ShipmentDeleter{}
