@@ -840,8 +840,8 @@ jobs:
   # separate the integration tests by site so that if there is a flaky
   # test, we only have to re-run part of the integration tests
   integration_tests_admin:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 2 files here
-    parallelism: 2
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
+    parallelism: 4
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
@@ -862,8 +862,8 @@ jobs:
       - announce_failure
 
   integration_tests_office:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
-    parallelism: 4
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 8 files here
+    parallelism: 8
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
@@ -905,8 +905,8 @@ jobs:
 
   # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
   integration_tests_mymove:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
-    parallelism: 4
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 8 files here
+    parallelism: 8
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
@@ -927,6 +927,8 @@ jobs:
       - announce_failure
 
   integration_tests_milmove:
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
+    parallelism: 4
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
