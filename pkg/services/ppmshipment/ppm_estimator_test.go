@@ -24,6 +24,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			PickupPostalCode:      "20636",
 			DestinationPostalCode: "94040",
 			EstimatedWeight:       &estimatedWeight,
+			SitExpected:           models.BoolPointer(false),
 		}
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
@@ -33,7 +34,11 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		suite.Equal(int32(1000000), *ppmEstimate)
 	})
 	suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
-		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				EstimatedIncentive: models.Int32Pointer(int32(1000000)),
+			},
+		})
 		ppmEstimator := NewEstimatePPM()
 
 		newPPM := models.PPMShipment{
@@ -44,6 +49,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
 			DestinationPostalCode: oldPPMShipment.DestinationPostalCode,
 			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
+			SitExpected:           oldPPMShipment.SitExpected,
 		}
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
@@ -52,10 +58,14 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		suite.Equal(oldPPMShipment.EstimatedWeight, newPPM.EstimatedWeight)
 		suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
 		suite.Equal(oldPPMShipment.ExpectedDepartureDate, newPPM.ExpectedDepartureDate)
-		suite.Equal(oldPPMShipment.EstimatedIncentive, ppmEstimate)
+		suite.Equal(*oldPPMShipment.EstimatedIncentive, *ppmEstimate)
 	})
 	suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
-		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				EstimatedIncentive: models.Int32Pointer(int32(1000000)),
+			},
+		})
 		ppmEstimator := NewEstimatePPM()
 
 		newPPM := models.PPMShipment{
@@ -66,6 +76,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
 			DestinationPostalCode: oldPPMShipment.DestinationPostalCode,
 			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
+			SitExpected:           oldPPMShipment.SitExpected,
 		}
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
@@ -74,11 +85,15 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		suite.Equal(oldPPMShipment.EstimatedWeight, newPPM.EstimatedWeight)
 		suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
 		suite.Equal(oldPPMShipment.ExpectedDepartureDate, newPPM.ExpectedDepartureDate)
-		suite.Equal(oldPPMShipment.EstimatedIncentive, ppmEstimate)
+		suite.Equal(*oldPPMShipment.EstimatedIncentive, *ppmEstimate)
 	})
 
 	suite.Run("Not Found Error - missing ppm shipment ID", func() {
-		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				EstimatedIncentive: models.Int32Pointer(int32(1000000)),
+			},
+		})
 		ppmEstimator := NewEstimatePPM()
 
 		newPPM := models.PPMShipment{
@@ -89,6 +104,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
 			DestinationPostalCode: oldPPMShipment.DestinationPostalCode,
 			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
+			SitExpected:           oldPPMShipment.SitExpected,
 		}
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
