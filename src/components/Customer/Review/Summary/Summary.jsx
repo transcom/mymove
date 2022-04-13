@@ -231,7 +231,7 @@ export class Summary extends Component {
           title="Delete this?"
           content="Your information will be gone. You’ll need to start over if you want it back."
           submitText="Yes, Delete"
-          backText="No, Keep It"
+          closeText="No, Keep It"
         />
         <SectionWrapper className={styles.SummarySectionWrapper}>
           <ProfileTable

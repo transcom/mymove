@@ -11,7 +11,7 @@ export const DestructiveShipmentConfirmationModal = ({
   title,
   content,
   submitText,
-  backText,
+  closeText,
 }) => (
   <Modal>
     <ModalClose handleClick={() => onClose()} />
@@ -24,7 +24,7 @@ export const DestructiveShipmentConfirmationModal = ({
         {submitText}
       </Button>
       <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
-        {backText}
+        {closeText}
       </Button>
     </ModalActions>
   </Modal>
@@ -39,7 +39,7 @@ DestructiveShipmentConfirmationModal.propTypes = {
   title: PropTypes.string,
   content: PropTypes.string,
   submitText: PropTypes.string,
-  backText: PropTypes.string,
+  closeText: PropTypes.string,
 };
 
 DestructiveShipmentConfirmationModal.defaultProps = {
@@ -47,7 +47,7 @@ DestructiveShipmentConfirmationModal.defaultProps = {
   content:
     'You’ll lose all the information in this shipment. If you want it back later, you’ll have to request a new shipment.',
   submitText: 'Delete shipment',
-  backText: 'Keep shipment',
+  closeText: 'Keep shipment',
 };
 
 DestructiveShipmentConfirmationModal.displayName = 'DestructiveShipmentConfirmationModal';
