@@ -51,7 +51,7 @@ export const ShipmentListItem = ({
         <div className={styles.shipmentWeight}>{formatWeight(shipment.calculatedBillableWeight)}</div>
       )}
       {(isOverweight || isMissingWeight) && (
-        <div>
+        <div className={styles['warning-section']}>
           <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
           <span className={styles.warningText}>{isOverweight ? 'Over weight' : 'Missing weight'}</span>
         </div>
