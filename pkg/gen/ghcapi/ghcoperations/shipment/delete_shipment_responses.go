@@ -37,6 +37,50 @@ func (o *DeleteShipmentNoContent) WriteResponse(rw http.ResponseWriter, producer
 	rw.WriteHeader(204)
 }
 
+// DeleteShipmentBadRequestCode is the HTTP code returned for type DeleteShipmentBadRequest
+const DeleteShipmentBadRequestCode int = 400
+
+/*DeleteShipmentBadRequest The request payload is invalid
+
+swagger:response deleteShipmentBadRequest
+*/
+type DeleteShipmentBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewDeleteShipmentBadRequest creates DeleteShipmentBadRequest with default headers values
+func NewDeleteShipmentBadRequest() *DeleteShipmentBadRequest {
+
+	return &DeleteShipmentBadRequest{}
+}
+
+// WithPayload adds the payload to the delete shipment bad request response
+func (o *DeleteShipmentBadRequest) WithPayload(payload *ghcmessages.Error) *DeleteShipmentBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the delete shipment bad request response
+func (o *DeleteShipmentBadRequest) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *DeleteShipmentBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(400)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // DeleteShipmentForbiddenCode is the HTTP code returned for type DeleteShipmentForbidden
 const DeleteShipmentForbiddenCode int = 403
 
@@ -117,6 +161,94 @@ func (o *DeleteShipmentNotFound) SetPayload(payload *ghcmessages.Error) {
 func (o *DeleteShipmentNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// DeleteShipmentConflictCode is the HTTP code returned for type DeleteShipmentConflict
+const DeleteShipmentConflictCode int = 409
+
+/*DeleteShipmentConflict Conflict error
+
+swagger:response deleteShipmentConflict
+*/
+type DeleteShipmentConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewDeleteShipmentConflict creates DeleteShipmentConflict with default headers values
+func NewDeleteShipmentConflict() *DeleteShipmentConflict {
+
+	return &DeleteShipmentConflict{}
+}
+
+// WithPayload adds the payload to the delete shipment conflict response
+func (o *DeleteShipmentConflict) WithPayload(payload *ghcmessages.Error) *DeleteShipmentConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the delete shipment conflict response
+func (o *DeleteShipmentConflict) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *DeleteShipmentConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// DeleteShipmentUnprocessableEntityCode is the HTTP code returned for type DeleteShipmentUnprocessableEntity
+const DeleteShipmentUnprocessableEntityCode int = 422
+
+/*DeleteShipmentUnprocessableEntity The payload was unprocessable.
+
+swagger:response deleteShipmentUnprocessableEntity
+*/
+type DeleteShipmentUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewDeleteShipmentUnprocessableEntity creates DeleteShipmentUnprocessableEntity with default headers values
+func NewDeleteShipmentUnprocessableEntity() *DeleteShipmentUnprocessableEntity {
+
+	return &DeleteShipmentUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the delete shipment unprocessable entity response
+func (o *DeleteShipmentUnprocessableEntity) WithPayload(payload *ghcmessages.ValidationError) *DeleteShipmentUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the delete shipment unprocessable entity response
+func (o *DeleteShipmentUnprocessableEntity) SetPayload(payload *ghcmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *DeleteShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {

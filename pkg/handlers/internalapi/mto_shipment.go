@@ -348,10 +348,8 @@ func (h DeleteShipmentHandler) Handle(params mtoshipmentops.DeleteShipmentParams
 				return mtoshipmentops.NewDeleteShipmentNotFound(), err
 			}
 
-			if appCtx.Session() != nil {
-				if appCtx.Session().ServiceMemberID != sm.ID {
-					return mtoshipmentops.NewDeleteShipmentInternalServerError(), err
-				}
+			if appCtx.Session().ServiceMemberID != sm.ID {
+				return mtoshipmentops.NewDeleteShipmentForbidden(), err
 			}
 
 			_, err = h.DeleteShipment(appCtx, shipmentID)
@@ -361,8 +359,12 @@ func (h DeleteShipmentHandler) Handle(params mtoshipmentops.DeleteShipmentParams
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewDeleteShipmentNotFound(), err
+				case apperror.ConflictError:
+					return mtoshipmentops.NewDeleteShipmentConflict(), err
 				case apperror.ForbiddenError:
 					return mtoshipmentops.NewDeleteShipmentForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return mtoshipmentops.NewDeleteShipmentUnprocessableEntity(), err
 				default:
 					return mtoshipmentops.NewDeleteShipmentInternalServerError(), err
 				}

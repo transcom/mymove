@@ -1163,12 +1163,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	suite.Run("Returns 204 when all validations pass", func() {
-		sm := testdatagen.MakeStubbedServiceMember(suite.DB())
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMember: sm,
-			},
-		})
+		order := testdatagen.MakeDefaultOrder(suite.DB())
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})
@@ -1184,6 +1179,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(shipment.MoveTaskOrderID, nil)
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
@@ -1201,12 +1197,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 404 when deleter returns NotFoundError", func() {
-		sm := testdatagen.MakeStubbedServiceMember(suite.DB())
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMember: sm,
-			},
-		})
+		order := testdatagen.MakeDefaultOrder(suite.DB())
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})
@@ -1222,6 +1213,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.NotFoundError{})
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
@@ -1237,13 +1229,8 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		suite.IsType(&mtoshipmentops.DeleteShipmentNotFound{}, response)
 	})
 
-	suite.Run("Returns 403 when deleter returns ForbiddenError", func() {
-		sm := testdatagen.MakeStubbedServiceMember(suite.DB())
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMember: sm,
-			},
-		})
+	suite.Run("Returns 409 - Conflict error", func() {
+		order := testdatagen.MakeDefaultOrder(suite.DB())
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})
@@ -1256,9 +1243,48 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		deleter := &mocks.ShipmentDeleter{}
 
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ConflictError{})
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := mtoshipmentops.DeleteShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+
+		suite.IsType(&mtoshipmentops.DeleteShipmentConflict{}, response)
+	})
+
+	suite.Run("Returns 403 when servicemember ID doesn't match shipment", func() {
+		sm1 := testdatagen.MakeStubbedServiceMember(suite.DB())
+		sm2 := testdatagen.MakeStubbedServiceMember(suite.DB())
+		order := testdatagen.MakeDefaultOrder(suite.DB())
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: order,
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			ServiceMember: sm2,
+		})
+
+		deleter := &mocks.ShipmentDeleter{}
+
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ForbiddenError{})
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateRequest(req, sm1)
+
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
@@ -1274,13 +1300,41 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		suite.IsType(&mtoshipmentops.DeleteShipmentForbidden{}, response)
 	})
 
-	suite.Run("Returns 500 when deleter returns InternalServerError", func() {
-		sm := testdatagen.MakeStubbedServiceMember(suite.DB())
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMember: sm,
+	suite.Run("Returns 422 - Unprocessable Enitity error", func() {
+		order := testdatagen.MakeDefaultOrder(suite.DB())
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: order,
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
 		})
+
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := mtoshipmentops.DeleteShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+		suite.IsType(&mtoshipmentops.DeleteShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Returns 500 when deleter returns InternalServerError", func() {
+		order := testdatagen.MakeDefaultOrder(suite.DB())
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})
@@ -1296,6 +1350,8 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.InternalServerError{})
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{

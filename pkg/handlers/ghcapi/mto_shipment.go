@@ -312,8 +312,12 @@ func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) m
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return shipmentops.NewDeleteShipmentNotFound(), err
+				case apperror.ConflictError:
+					return shipmentops.NewDeleteShipmentConflict(), err
 				case apperror.ForbiddenError:
 					return shipmentops.NewDeleteShipmentForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return shipmentops.NewDeleteShipmentUnprocessableEntity(), err
 				default:
 					return shipmentops.NewDeleteShipmentInternalServerError(), err
 				}
