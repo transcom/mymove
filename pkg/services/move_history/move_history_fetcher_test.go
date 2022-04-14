@@ -56,17 +56,15 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		suite.MustSave(&approvedMove)
 
 		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
-		moveHistory, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.FatalNoError(err)
-
-		suite.Equal(totalCount, int64(6), "total count should be 6")
 
 		// address update
 		verifyOldPickupAddress := false
 		verifyNewPickupAddress := false
 		// orders update
-		// verifyOldSAC := false
-		// verifyNewSAC := false
+		verifyOldSAC := false
+		verifyNewSAC := false
 		// move update
 		verifyOldTIORemarks := false
 		verifyTIORemarks := false
@@ -88,21 +86,21 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 						}
 					}
 				}
-				/*} else if h.TableName == "orders" {
+			} else if h.TableName == "orders" {
 				if *h.ObjectID == approvedMove.Orders.ID {
 					if h.OldData != nil {
-						oldData := *h.OldData
-						if oldData["sac"] == nil {
+						oldData := removeEscapeJSON(h.OldData)
+						if len(oldData["sac"]) == 0 {
 							verifyOldSAC = true
 						}
 					}
 					if h.ChangedData != nil {
-						changedData := *h.ChangedData
+						changedData := removeEscapeJSON(h.ChangedData)
 						if changedData["sac"] == updateSAC {
 							verifyNewSAC = true
 						}
 					}
-				}*/
+				}
 			} else if h.TableName == "moves" {
 				if h.OldData != nil {
 					oldData := removeEscapeJSON(h.OldData)
@@ -130,8 +128,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		suite.True(verifyOldPickupAddress, "verifyOldPickupAddress")
 		suite.True(verifyNewPickupAddress, "verifyNewPickupAddress")
 		// orders update
-		// suite.True(verifyOldSAC, "verifyOldSAC")
-		// suite.True(verifyNewSAC, "verifyNewSAC")
+		suite.True(verifyOldSAC, "verifyOldSAC")
+		suite.True(verifyNewSAC, "verifyNewSAC")
 		// move update
 		suite.True(verifyOldTIORemarks, "verifyOldTIORemarks")
 		suite.True(verifyTIORemarks, "verifyTIORemarks")
@@ -245,8 +243,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
-		suite.Equal(10, len(moveHistoryData.AuditHistories), "should not have more than 10")
-
 		suite.Condition(auditHistoryContains(moveHistoryData.AuditHistories, "fragile"), "should contain fragile")
 		containsSturdy := auditHistoryContains(moveHistoryData.AuditHistories, "sturdy")()
 		suite.False(containsSturdy, "should not contain sturdy")
@@ -309,11 +305,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.MustSave(&approvedMove)
 
 		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
-		moveHistoryData, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
-		suite.Greater(totalCount, int64(2), "total count should be 5")
-		suite.Equal(2, len(moveHistoryData.AuditHistories), "should have 2 rows due to pagination")
 
 	})
 }
