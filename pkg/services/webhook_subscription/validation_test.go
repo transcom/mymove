@@ -9,10 +9,6 @@ import (
 )
 
 func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionValidation() {
-
-}
-
-func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionRules() {
 	builder := query.NewQueryBuilder()
 
 	subscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
