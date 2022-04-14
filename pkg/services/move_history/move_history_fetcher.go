@@ -70,7 +70,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		FROM
 			mto_service_items
 		JOIN re_services ON mto_service_items.re_service_id = re_services.id
-		JOIN mto_shipments ON mto_service_items.mto_shipment_id = mto_shipment_id
+		JOIN mto_shipments ON mto_service_items.mto_shipment_id = mto_shipments.id
 		WHERE mto_shipments.move_id = (SELECT moves.id FROM moves)
 	),
 	service_item_logs AS (

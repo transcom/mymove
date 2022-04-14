@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
+import { DestructiveShipmentConfirmationModal } from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 
 let onClose;
 let onSubmit;
@@ -11,17 +11,17 @@ beforeEach(() => {
   onSubmit = jest.fn();
 });
 
-describe('SCRequestShipmentCancellationModal', () => {
+describe('DestructiveShipmentConfirmationModal', () => {
   const shipmentID = '123456';
 
   it('renders the component', async () => {
-    render(<SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
+    render(<DestructiveShipmentConfirmationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Are you sure?' })).toBeInTheDocument();
   });
 
   it('closes the modal when close icon is clicked', async () => {
-    render(<SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
+    render(<DestructiveShipmentConfirmationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
 
     const closeButton = await screen.findByTestId('modalCloseButton');
 
@@ -31,7 +31,7 @@ describe('SCRequestShipmentCancellationModal', () => {
   });
 
   it('closes the modal when the keep button is clicked', async () => {
-    render(<SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
+    render(<DestructiveShipmentConfirmationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
 
     const keepButton = await screen.findByRole('button', { name: 'Keep shipment' });
 
@@ -41,7 +41,7 @@ describe('SCRequestShipmentCancellationModal', () => {
   });
 
   it('calls the submit function when delete button is clicked', async () => {
-    render(<SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
+    render(<DestructiveShipmentConfirmationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
 
     const deleteButton = await screen.findByRole('button', { name: 'Delete shipment' });
 

@@ -99,6 +99,8 @@ const testProps = {
   ],
   onDidMount: jest.fn(),
   showLoggedInUser: jest.fn(),
+  updateShipmentList: jest.fn(),
+  setMsg: jest.fn(),
 };
 
 describe('Summary page', () => {
