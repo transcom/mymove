@@ -149,7 +149,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
 
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
+	err := db.Q().Eager(
 		"MTOShipments.MTOAgents",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryPickupAddress",
@@ -160,7 +160,8 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"Orders.ServiceMember",
 		"Orders.UploadedAmendedOrders",
 		"MoveDocuments.Document",
-	).Where("show = TRUE").Find(&move, id)
+	).LeftJoin("mto_shipments", "mto_shipments.id = moves.id AND mto_shipments.deleted_at IS NULL").
+		Where("show = TRUE").Find(&move, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

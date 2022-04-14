@@ -2,6 +2,7 @@ package utilities
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"time"
 
@@ -128,4 +129,16 @@ func GetHasManyForeignKeyAssociations(model interface{}) []interface{} {
 		}
 	}
 	return hasManyForeignKeyAssociations
+}
+
+func ExcludeDeletedScope(model ...pop.TableNameAble) pop.ScopeFunc {
+	return func(q *pop.Query) *pop.Query {
+		if len(model) == 0 {
+			q.Where("deleted_at IS NULL")
+		}
+		for _, m := range model {
+			q.Where(fmt.Sprintf("%s.deleted_at IS NULL", m.TableName()))
+		}
+		return q
+	}
 }
