@@ -46,22 +46,22 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
+  integration-ignore-branch: &integration-ignore-branch mv-11452-exp-rds
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch mv-11452-exp-rds
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch placeholder_branch_name
+  client-ignore-branch: &client-ignore-branch mv-11452-exp-rds
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch placeholder_branch_name
+  server-ignore-branch: &server-ignore-branch mv-11452-exp-rds
 
 executors:
   av_medium:
