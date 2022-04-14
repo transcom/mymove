@@ -282,7 +282,7 @@ commands:
             echo "export AWS_DEFAULT_REGION=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_SECRET_KEY" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
   tls_vars_dp3:
     parameters:
