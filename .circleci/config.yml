@@ -29,13 +29,15 @@ references:
   demo-branch: &demo-branch placeholder_branch_name
 
   # set dp3-branch to the branch you want to deploy to the env specifed
-  # in dp3-env (loadtest, demo, exp), or
+  # in dp3-env (loadtest, demo, experimental), or
   # `placeholder_branch_name` if you don't want to deploy to dp3
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
-  dp3-branch: &dp3-branch mb-11451-dp3-rds
-  dp3-env: &dp3-env loadtest
+  dp3-branch: &dp3-branch placeholder_branch_name
+  # MUST BE ONE OF: loadtest, demo, experimental.
+  # "exp" will not work here because this is used to pull in env vars.
+  dp3-env: &dp3-env placeholder_env
 
   # set exp-branch to the branch you want to deploy to exp, or
   # `placeholder_branch_name` if you don't want to deploy to exp
@@ -51,22 +53,22 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch mb-11451-dp3-rds
+  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch mb-11451-dp3-rds
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch mb-11451-dp3-rds
+  client-ignore-branch: &client-ignore-branch placeholder_branch_name
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch mb-11451-dp3-rds
+  server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
   av_medium:
