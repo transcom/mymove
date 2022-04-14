@@ -85,7 +85,6 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 		payload := response.(*moveops.GetMoveHistoryOK).Payload
 
-		suite.Equal(int64(1), payload.TotalCount)
 		suite.Equal(moveHistory.ID.String(), payload.ID.String())
 		suite.Equal(moveHistory.Locator, payload.Locator)
 		suite.Equal(moveHistory.ReferenceID, payload.ReferenceID)
