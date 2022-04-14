@@ -476,4 +476,44 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			suite.Error(err)
 		})
 	})
+
+	suite.Run("CheckEstimatedWeight()", func() {
+		suite.Run("success estimatedWeight set", func() {
+			shipmentID := uuid.Must(uuid.NewV4())
+			estimatedWeight := unit.Pound(4000)
+			estimatedIncentive := int32(17000)
+
+			oldPPMShipment := models.PPMShipment{
+				ShipmentID:      shipmentID,
+				EstimatedWeight: &estimatedWeight,
+			}
+
+			newPPMShipment := models.PPMShipment{
+				ShipmentID:         shipmentID,
+				EstimatedWeight:    &estimatedWeight,
+				EstimatedIncentive: &estimatedIncentive,
+			}
+
+			err := checkEstimatedWeight().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
+			suite.NilOrNoVerrs(err)
+		})
+
+		suite.Run("failure estimatedWeight cannot be nil", func() {
+			shipmentID := uuid.Must(uuid.NewV4())
+			estimatedWeight := unit.Pound(4000)
+
+			oldPPMShipment := models.PPMShipment{
+				ShipmentID:      shipmentID,
+				EstimatedWeight: nil,
+			}
+
+			newPPMShipment := models.PPMShipment{
+				ShipmentID:      shipmentID,
+				EstimatedWeight: &estimatedWeight,
+			}
+
+			err := checkEstimatedWeight().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
+			suite.Error(err)
+		})
+	})
 }

@@ -1,7 +1,6 @@
 package ppmshipment
 
 import (
-	"github.com/transcom/mymove/pkg/apperror"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -16,7 +15,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		//oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
 		oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: models.Int32Pointer(int32(1000000)),
+				EstimatedIncentive: models.Int32Pointer(int32(500000)),
 			},
 			Stub: true,
 		})
@@ -62,15 +61,15 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 		suite.NilOrNoVerrs(err)
-		//suite.Equal(newPPM.Advance, *unit.Cents((*unit.Cents)(nil)))
-		//suite.Equal(newPPM.AdvanceRequested, *bool((*bool)(nil)))
+		suite.Nil(newPPM.Advance)
+		suite.Nil(newPPM.AdvanceRequested)
 		suite.Equal(int32(1000000), *ppmEstimate)
 	})
 
 	suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
 		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: models.Int32Pointer(int32(1000000)),
+				EstimatedIncentive: models.Int32Pointer(int32(500000)),
 			},
 		})
 		ppmEstimator := NewEstimatePPM()
@@ -86,18 +85,19 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			SitExpected:           oldPPMShipment.SitExpected,
 		}
 
-		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+		_, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+
 		suite.NilOrNoVerrs(err)
 		suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
 		suite.Equal(oldPPMShipment.EstimatedWeight, newPPM.EstimatedWeight)
 		suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
 		suite.Equal(oldPPMShipment.ExpectedDepartureDate, newPPM.ExpectedDepartureDate)
-		suite.Equal(*oldPPMShipment.EstimatedIncentive, *ppmEstimate)
+		suite.Equal(oldPPMShipment.EstimatedIncentive, newPPM.EstimatedIncentive)
 	})
 	suite.Run("Estimated Incentive - Failure - is not created when status is not DRAFT", func() {
 		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: models.Int32Pointer(int32(1000000)),
+				EstimatedIncentive: models.Int32Pointer(int32(500000)),
 			},
 		})
 		ppmEstimator := NewEstimatePPM()
@@ -138,33 +138,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		}
 
 		_, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-		suite.NilOrNoVerrs(err)
-		//suite.Nil(ppmEstimate)
-		suite.IsType(apperror.InvalidInputError{}, err)
-	})
-
-	suite.Run("Not Found Error - missing ppm shipment ID", func() {
-		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: models.Int32Pointer(int32(1000000)),
-			},
-		})
-		ppmEstimator := NewEstimatePPM()
-
-		newPPM := models.PPMShipment{
-			ID:                    uuid.Nil,
-			ShipmentID:            oldPPMShipment.ShipmentID,
-			Status:                "DRAFT",
-			ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
-			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
-			DestinationPostalCode: oldPPMShipment.DestinationPostalCode,
-			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
-			SitExpected:           oldPPMShipment.SitExpected,
-		}
-
-		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-
-		suite.Nil(ppmEstimate)
-		suite.IsType(err, nil)
+		suite.NoError(err)
+		suite.Nil(newPPM.EstimatedIncentive)
 	})
 }
