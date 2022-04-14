@@ -29,22 +29,15 @@ references:
   demo-branch: &demo-branch placeholder_branch_name
 
   # set dp3-branch to the branch you want to deploy to the env specifed
-  # in dp3-env (loadtest, demo, experimental), or
+  # in dp3-env (loadtest, demo, exp), or
   # `placeholder_branch_name` if you don't want to deploy to dp3
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
-  dp3-branch: &dp3-branch placeholder_branch_name
-  # MUST BE ONE OF: loadtest, demo, experimental.
-  # "exp" will not work here because this is used to pull in env vars.
-  dp3-env: &dp3-env placeholder_env
-
-  # set exp-branch to the branch you want to deploy to exp, or
-  # `placeholder_branch_name` if you don't want to deploy to exp
-  #
-  # In addition, it's common practice to disable acceptance tests and
-  # ignore tests for exp deploys. See the branch settings below.
-  exp-branch: &exp-branch placeholder_branch_name
+  dp3-branch: &dp3-branch mv-11452-exp-rds
+  # MUST BE ONE OF: loadtest, demo, exp.
+  # These are used to pull in env vars so the spelling and case matter!
+  dp3-env: &dp3-env exp
 
   # set acceptance-branch to the branch you want to ENABLE acceptance
   # tests, or `placeholder_branch_name` if you don't want to run them
@@ -184,25 +177,6 @@ commands:
             echo "export TLS_KEY=$DEMO_DP3_KEY" >> $BASH_ENV
             echo "export TLS_CA=$DEMO_DP3_CA" >> $BASH_ENV
             source $BASH_ENV
-  aws_vars_exp:
-    steps:
-      - run:
-          name: 'Setting up AWS environment variables for exp env'
-          command: |
-            echo "export AWS_DEFAULT_REGION=$EXP_REGION" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
-            source $BASH_ENV
-  tls_vars_exp:
-    steps:
-      - run:
-          name: 'Setting up TLS environment variables for exp env'
-          command: |
-            echo "export TLS_CERT=$EXP_DP3_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$EXP_DP3_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$EXP_DP3_CA" >> $BASH_ENV
-            source $BASH_ENV
   aws_vars_stg:
     steps:
       - run:
@@ -270,7 +244,6 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
             source $BASH_ENV
-
   aws_vars_dp3:
     parameters:
       dp3-env:
@@ -836,7 +809,7 @@ jobs:
           destination: test-results
       - announce_failure
 
-  # `acceptance_tests` runs acceptance tests for the webserver against the local, experimental, and staging environments.
+  # `acceptance_tests` runs acceptance tests for the webserver against the local, exp, and staging environments.
   acceptance_tests:
     executor: mymove_compiler
     steps:
@@ -895,19 +868,6 @@ jobs:
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
             TEST_ACC_ENV: demo
-      - aws_vars_exp
-      - run:
-          name: Run Experimental acceptance tests
-          command: make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: exp
-            ENVIRONMENT: exp
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: exp
       - aws_vars_stg
       - run:
           name: Run Staging acceptance tests
@@ -1297,18 +1257,6 @@ jobs:
           repo: app
       - announce_failure
 
-  # `push_app_exp` pushes the app container to the milmove-exp container repository
-  push_app_exp:
-    executor: mymove_pusher
-    steps:
-      - aws_vars_exp
-      - push_image:
-          ecr_env: exp
-          image_name: app
-          tag: web-dev
-          repo: app
-      - announce_failure
-
   # `push_app_stg` pushes the app container to the milmove-stg container repository
   push_app_stg:
     executor: mymove_pusher
@@ -1406,18 +1354,6 @@ jobs:
           repo: app-migrations
       - announce_failure
 
-  # `push_migrations_exp` pushes the migrations container to the milmove-exp container repository
-  push_migrations_exp:
-    executor: mymove_pusher
-    steps:
-      - aws_vars_exp
-      - push_image:
-          ecr_env: exp
-          image_name: app-migrations
-          tag: dev
-          repo: app-migrations
-      - announce_failure
-
   # `push_migrations_stg` pushes the migrations container to the milmove-stg container repository
   push_migrations_stg:
     executor: mymove_pusher
@@ -1500,18 +1436,6 @@ jobs:
           repo: app-tasks
       - announce_failure
 
-  # `push_tasks_exp` pushes the tasks containers to the milmove-exp container repository
-  push_tasks_exp:
-    executor: mymove_pusher
-    steps:
-      - aws_vars_exp
-      - push_image:
-          ecr_env: exp
-          image_name: tasks
-          tag: dev
-          repo: app-tasks
-      - announce_failure
-
   # `push_tasks_stg` pushes the tasks containers to the milmove-stg container repository
   push_tasks_stg:
     executor: mymove_pusher
@@ -1577,18 +1501,6 @@ jobs:
       - aws_vars_dp3
       - push_image:
           ecr_env: *dp3-env
-          image_name: webhook_client
-          tag: dev
-          repo: app-webhook-client
-      - announce_failure
-
-  # `push_webhook_client_exp` pushes the webhook client container to the exp container repository
-  push_webhook_client_exp:
-    executor: mymove_pusher
-    steps:
-      - aws_vars_exp
-      - push_image:
-          ecr_env: exp
           image_name: webhook_client
           tag: dev
           repo: app-webhook-client
@@ -1739,68 +1651,6 @@ jobs:
       - aws_vars_dp3
       - deploy_webhook_client_steps:
           ecr_env: *dp3-env
-
-  # `deploy_exp_migrations` deploys migrations to the exp environment
-  deploy_exp_migrations:
-    executor: mymove_pusher
-    environment:
-      - APP_ENVIRONMENT: 'exp'
-    steps:
-      - checkout
-      - aws_vars_exp
-      - deploy_migrations_steps:
-          ecr_env: exp
-
-  # `deploy_exp_tasks` deploys scheduled tasks to the exp environment
-  deploy_exp_tasks:
-    executor: mymove_pusher
-    environment:
-      - APP_ENVIRONMENT: 'exp'
-    steps:
-      - checkout
-      - aws_vars_exp
-      - deploy_dp3_tasks_steps:
-          ecr_env: exp
-
-  # `deploy_exp_app_client_tls` updates the mutual-TLS service in the exp environment
-  deploy_exp_app_client_tls:
-    executor: mymove_pusher
-    environment:
-      - APP_ENVIRONMENT: 'exp'
-    steps:
-      - checkout
-      - aws_vars_exp
-      - tls_vars_exp
-      - deploy_app_client_tls_steps:
-          compare_host: '' # leave blank since we want exp to be able to roll back
-          health_check_hosts: api.exp.dp3.us
-          ecr_env: exp
-
-  # `deploy_exp_app` updates the server-TLS app service in the exp environment
-  deploy_exp_app:
-    executor: mymove_pusher
-    environment:
-      APP_ENVIRONMENT: 'exp'
-      OPEN_TELEMETRY_SIDECAR: 'true'
-    steps:
-      - checkout
-      - aws_vars_exp
-      - deploy_app_steps:
-          compare_host: '' # leave blank since we want exp to be able to roll back
-          health_check_hosts: my.exp.dp3.us,office.exp.dp3.us,admin.exp.dp3.us
-          ecr_env: exp
-
-  # `deploy_exp_webhook_client` deploys the webhook client to exp
-  deploy_exp_webhook_client:
-    executor: mymove_pusher
-    environment:
-      APP_ENVIRONMENT: 'exp'
-      OPEN_TELEMETRY_SIDECAR: 'true'
-    steps:
-      - checkout
-      - aws_vars_exp
-      - deploy_webhook_client_steps:
-          ecr_env: exp
 
   check_circle_against_stg_sha:
     executor: mymove_pusher
@@ -2139,7 +1989,7 @@ workflows:
             - compile_app_client
           filters:
             branches:
-              only: [*demo-branch, *dp3-branch, *exp-branch]
+              only: [*demo-branch, *dp3-branch]
 
       - push_tasks_demo:
           requires:
@@ -2154,7 +2004,7 @@ workflows:
             - compile_app_client
           filters:
             branches:
-              only: [*demo-branch, *dp3-branch, *exp-branch]
+              only: [*demo-branch, *dp3-branch]
 
       - push_webhook_client_demo:
           requires:
@@ -2278,78 +2128,6 @@ workflows:
           filters:
             branches:
               only: *dp3-branch
-
-      - push_app_exp:
-          requires:
-            - build_dp3_app
-          filters:
-            branches:
-              only: *exp-branch
-
-      - push_migrations_exp:
-          requires:
-            - build_migrations
-          filters:
-            branches:
-              only: *exp-branch
-
-      - push_tasks_exp:
-          requires:
-            - build_dp3_tasks
-          filters:
-            branches:
-              only: *exp-branch
-
-      - push_webhook_client_exp:
-          requires:
-            - build_dp3_webhook_client
-          filters:
-            branches:
-              only: *exp-branch
-
-      - deploy_exp_migrations:
-          requires:
-            - pre_deps_golang
-            - pre_test
-            - client_test
-            - server_test
-            - push_app_exp
-            - compile_app_server
-            - compile_app_client
-            - push_tasks_exp
-            - push_migrations_exp
-            - push_webhook_client_exp
-          filters:
-            branches:
-              only: *exp-branch
-
-      - deploy_exp_tasks:
-          requires:
-            - deploy_exp_migrations
-          filters:
-            branches:
-              only: *exp-branch
-
-      - deploy_exp_app:
-          requires:
-            - deploy_exp_migrations
-          filters:
-            branches:
-              only: *exp-branch
-
-      - deploy_exp_app_client_tls:
-          requires:
-            - deploy_exp_migrations
-          filters:
-            branches:
-              only: *exp-branch
-
-      - deploy_exp_webhook_client:
-          requires:
-            - deploy_exp_migrations
-          filters:
-            branches:
-              only: *exp-branch
 
       - push_app_stg:
           requires:
