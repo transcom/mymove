@@ -2,7 +2,10 @@
 // information and get to the review screen in an incomplete state from creating another shipment
 // on the move.  Advance requested is the last required field that would mean they're finished.
 export function isPPMShipmentComplete(mtoShipment) {
-  return mtoShipment?.ppmShipment?.advanceRequested != null;
+  if (mtoShipment?.ppmShipment?.advanceRequested === null || mtoShipment?.ppmShipment?.advanceRequested === undefined) {
+    return false;
+  }
+  return true;
 }
 
 export default isPPMShipmentComplete;
