@@ -47,6 +47,7 @@ const defaultProps = {
       name: 'Test Location',
     },
   },
+  updateShipmentList: jest.fn(),
   history: {
     goBack: jest.fn(),
     push: jest.fn(),
@@ -124,7 +125,7 @@ describe('Home component', () => {
         mtoShipmentId: mtoShipments[0].id,
       });
 
-      wrapper.find('ShipmentListItem').at(0).simulate('click');
+      wrapper.find('ShipmentListItem').at(0).find('button').at(1).simulate('click');
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(`${editHHGShipmentPath}?shipmentNumber=1`);
     });
@@ -146,7 +147,7 @@ describe('Home component', () => {
         mtoShipmentId: mtoShipments[3].id,
       });
 
-      wrapper.find('ShipmentListItem').at(3).simulate('click');
+      wrapper.find('ShipmentListItem').at(3).find('button').at(1).simulate('click');
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSShipmentPath);
     });
@@ -157,7 +158,7 @@ describe('Home component', () => {
         mtoShipmentId: mtoShipments[3].id,
       });
 
-      wrapper.find('ShipmentListItem').at(4).simulate('click');
+      wrapper.find('ShipmentListItem').at(4).find('button').at(1).simulate('click');
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSRShipmentPath);
     });

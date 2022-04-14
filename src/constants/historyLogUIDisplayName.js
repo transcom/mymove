@@ -104,6 +104,8 @@ export const detailsPlainTextToDisplay = (historyRecord) => {
       return historyRecord.changedValues?.status === 'APPROVED'
         ? 'Created Move Task Order (MTO)'
         : 'Rejected Move Task Order (MTO)';
+    case 'acknowledgeExcessWeightRisk':
+      return 'Dismissed excess weight alert';
     default:
       return '';
   }
@@ -117,6 +119,7 @@ export const eventNamesWithPlainTextDetails = {
   setFinancialReviewFlag: 'Flagged move', // ghc.yaml
   requestShipmentCancellation: 'Updated shipment', // ghc.yaml
   updateMoveTaskOrderStatus: 'Move task order status', // ghc.yaml Need to check status as well
+  acknowledgeExcessWeightRisk: 'Dismissed excess weight alert',
 };
 
 export const historyLogEventNameDisplay = {
@@ -143,6 +146,7 @@ export const historyLogEventNameDisplay = {
   createMTOShipment: 'Submitted/Requested shipments', // internal.yaml prime.yaml
   updateMTOShipmentAddress: 'Updated shipment', // prime.yaml
   createMTOServiceItem: 'Requested service item', // prime.yaml
+  acknowledgeExcessWeightRisk: 'Updated move',
 };
 
 export function getHistoryLogEventNameDisplay({ eventName /* operationId */, changedValues }) {

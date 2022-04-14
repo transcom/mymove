@@ -1,6 +1,5 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, queryByRole, getByRole } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ShipmentList from './ShipmentList';
@@ -27,59 +26,64 @@ describe('ShipmentList component', () => {
     { id: 'ID-4', shipmentType: SHIPMENT_OPTIONS.NTSR },
   ];
   const onShipmentClick = jest.fn();
+  const onDeleteClick = jest.fn();
   const defaultProps = {
     shipments,
     onShipmentClick,
+    onDeleteClick,
     moveSubmitted: false,
   };
   it('renders ShipmentList with shipments', () => {
     render(<ShipmentList {...defaultProps} />);
 
-    screen.getByRole('button', { name: /^ppm #id-1/i });
-    screen.getByRole('button', { name: /^hhg #id-2/i });
-    screen.getByRole('button', { name: /^nts #id-3/i });
-    screen.getByRole('button', { name: /^nts-release #id-4/i });
+    expect(screen.getAllByTestId('shipment-list-item-container').length).toBe(4);
+    expect(screen.getAllByTestId('shipment-list-item-container')[0]).toHaveTextContent(/^ppm #id-1/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[1]).toHaveTextContent(/^hhg #id-2/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[2]).toHaveTextContent(/^nts #id-3/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[3]).toHaveTextContent(/^nts-release #id-4/i);
   });
 
   it.each([
     ['Shows', false],
     ['Hides', true],
-  ])('%s the edit link if moveSubmitted is %s', async (showHideEditLink, moveSubmitted) => {
+  ])('%s the edit link if moveSubmitted is %s', (showHideEditLink, moveSubmitted) => {
     const props = { ...defaultProps, moveSubmitted };
 
     render(<ShipmentList {...props} />);
 
-    userEvent.click(screen.getByRole('button', { name: /^ppm /i }));
+    let editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[0], 'button', { name: 'Edit' });
 
     const checkShipmentClick = (shipmentID, shipmentNumber, shipmentType) => {
       if (showHideEditLink === 'Shows') {
+        userEvent.click(editBtn);
         expect(onShipmentClick).toHaveBeenCalledWith(shipmentID, shipmentNumber, shipmentType);
       } else {
-        expect(onShipmentClick).not.toHaveBeenCalled();
+        expect(editBtn).toBeNull();
       }
     };
 
-    await waitFor(() => {
-      checkShipmentClick('ID-1', 1, SHIPMENT_OPTIONS.PPM);
-    });
+    checkShipmentClick('ID-1', 1, SHIPMENT_OPTIONS.PPM);
 
-    userEvent.click(screen.getByRole('button', { name: /^hhg /i }));
+    editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[1], 'button', { name: 'Edit' });
+    checkShipmentClick('ID-2', 1, SHIPMENT_OPTIONS.HHG);
 
-    await waitFor(() => {
-      checkShipmentClick('ID-2', 1, SHIPMENT_OPTIONS.HHG);
-    });
+    editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[2], 'button', { name: 'Edit' });
+    checkShipmentClick('ID-3', 1, SHIPMENT_OPTIONS.NTS);
 
-    userEvent.click(screen.getByRole('button', { name: /^nts /i }));
+    editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[3], 'button', { name: 'Edit' });
+    checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
+  });
 
-    await waitFor(() => {
-      checkShipmentClick('ID-3', 1, SHIPMENT_OPTIONS.NTS);
-    });
-
-    userEvent.click(screen.getByRole('button', { name: /^nts-release /i }));
-
-    await waitFor(() => {
-      checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
-    });
+  it('calls onDeleteClick when delete is clicked', () => {
+    render(<ShipmentList {...defaultProps} />);
+    for (let i = 0; i < defaultProps.shipments.length; i += 1) {
+      const deleteBtn = getByRole(screen.getAllByTestId('shipment-list-item-container')[i], 'button', {
+        name: 'Delete',
+      });
+      userEvent.click(deleteBtn);
+      expect(onDeleteClick).toHaveBeenCalledWith(`ID-${i + 1}`);
+      expect(onDeleteClick).toHaveBeenCalledTimes(i + 1);
+    }
   });
 });
 

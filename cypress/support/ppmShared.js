@@ -37,7 +37,7 @@ export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(us
 
   cy.get('h3').should('contain', 'Time to submit your move');
 
-  cy.get('button').contains('PPM').click();
+  cy.get('[data-testid="shipment-list-item-container"] button').contains('Edit').click();
 
   cy.wait('@getShipment');
 
