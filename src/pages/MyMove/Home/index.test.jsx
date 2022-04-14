@@ -40,7 +40,6 @@ const defaultProps = {
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
   isProfileComplete: true,
-  currentPpm: {},
   loadMTOShipments: jest.fn(),
   orders: {
     id: '123',
@@ -87,31 +86,34 @@ describe('Home component', () => {
   });
 
   describe('contents of Step 3', () => {
-    const testProps = {
-      mtoShipments: [
-        { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
-        {
-          id: '4322',
-          createdAt: moment().add(2, 'days'),
-          shipmentType: SHIPMENT_OPTIONS.PPM,
-          ppmShipment: {
-            id: '0001',
-            advanceRequested: false,
-          },
+    const mtoShipments = [
+      { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
+      {
+        id: '4322',
+        createdAt: moment().add(2, 'days'),
+        shipmentType: SHIPMENT_OPTIONS.PPM,
+        ppmShipment: {
+          id: '0001',
+          advanceRequested: false,
         },
-        { id: '4323', createdAt: moment().subtract(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
-        { id: '4324', createdAt: moment().add(3, 'days'), shipmentType: SHIPMENT_OPTIONS.NTS },
-        { id: '4325', createdAt: moment().add(4, 'days'), shipmentType: SHIPMENT_OPTIONS.NTSR },
-      ],
-    };
+      },
+      { id: '4323', createdAt: moment().subtract(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
+      { id: '4324', createdAt: moment().add(3, 'days'), shipmentType: SHIPMENT_OPTIONS.NTS },
+      { id: '4325', createdAt: moment().add(4, 'days'), shipmentType: SHIPMENT_OPTIONS.NTSR },
+    ];
 
-    const wrapper = mountHomeWithProviders(testProps);
+    const wrapper = mountHomeWithProviders({
+      orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Location' } },
+      uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
+      mtoShipments,
+      move: { id: 'testMoveId', status: 'SUBMITTED' },
+    });
 
     it('contains ppm and hhg cards if those shipments exist', () => {
       expect(wrapper.find('ShipmentListItem').length).toBe(5);
       expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('HHG 1');
-      expect(wrapper.find('ShipmentListItem').at(1).text()).toContain('PPM');
-      expect(wrapper.find('ShipmentListItem').at(2).text()).toContain('HHG 2');
+      expect(wrapper.find('ShipmentListItem').at(1).text()).toContain('HHG 2');
+      expect(wrapper.find('ShipmentListItem').at(2).text()).toContain('PPM');
       expect(wrapper.find('ShipmentListItem').at(3).text()).toContain('NTS');
       expect(wrapper.find('ShipmentListItem').at(4).text()).toContain('NTS-release');
     });
@@ -119,7 +121,7 @@ describe('Home component', () => {
     it('handles edit click to edit hhg shipment route', () => {
       const editHHGShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: defaultProps.move.id,
-        mtoShipmentId: testProps.mtoShipments[0].id,
+        mtoShipmentId: mtoShipments[0].id,
       });
 
       wrapper.find('ShipmentListItem').at(0).simulate('click');
@@ -130,18 +132,18 @@ describe('Home component', () => {
     it('handles edit click to edit ppm shipment route', () => {
       const editPPMShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: defaultProps.move.id,
-        mtoShipmentId: testProps.mtoShipments[1].id,
+        mtoShipmentId: mtoShipments[2].id,
       });
 
-      wrapper.find('ShipmentListItem').at(1).simulate('click');
+      wrapper.find('ShipmentListItem').at(2).simulate('click');
 
-      expect(defaultProps.history.push).toHaveBeenCalledWith(`${editPPMShipmentPath}?shipmentNumber=1`);
+      expect(defaultProps.history.push).toHaveBeenCalledWith(editPPMShipmentPath);
     });
 
     it('handles edit click to edit nts shipment route', () => {
       const editNTSShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: defaultProps.move.id,
-        mtoShipmentId: testProps.mtoShipments[2].id,
+        mtoShipmentId: mtoShipments[3].id,
       });
 
       wrapper.find('ShipmentListItem').at(3).simulate('click');
@@ -152,7 +154,7 @@ describe('Home component', () => {
     it('handles edit click to edit ntsr shipment route', () => {
       const editNTSRShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: defaultProps.move.id,
-        mtoShipmentId: testProps.mtoShipments[3].id,
+        mtoShipmentId: mtoShipments[3].id,
       });
 
       wrapper.find('ShipmentListItem').at(4).simulate('click');
@@ -224,11 +226,11 @@ describe('Home component', () => {
     });
   });
 
-  describe('if the user has orders and a currentPpm but has not submitted their move', () => {
+  describe('if the user has orders and a ppm but has not submitted their move', () => {
     const wrapper = mountHomeWithProviders({
       orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Location' } },
+      mtoShipments: [{ id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', advanceRequested: false } }],
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
-      currentPpm: { id: 'testPpm123' },
     });
 
     it('renders the NeedsSubmitMove helper', () => {
@@ -246,13 +248,15 @@ describe('Home component', () => {
       };
       const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
       const move = { id: 'testMoveId', status: 'SUBMITTED' };
-      const currentPpm = { id: 'mockPpm ' };
+      const mtoShipments = [
+        { id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', advanceRequested: false } },
+      ];
 
       const wrapper = mountHomeWithProviders({
         orders,
         uploadedOrderDocuments,
         move,
-        currentPpm,
+        mtoShipments,
       });
 
       it('renders the SubmittedMove helper', () => {
@@ -330,7 +334,11 @@ describe('Home component', () => {
       };
       const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
       const move = { id: 'testMoveId', status: 'SUBMITTED', submitted_at: submittedAt };
-      const currentPpm = { id: 'mockCombo' };
+      const mtoShipments = [
+        { id: 'test122', shipmentType: 'HHG' },
+        { id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', advanceRequested: false } },
+      ];
+
       const wrapper = mount(
         <MockProviders initialEntries={['/']}>
           <Home
@@ -338,7 +346,7 @@ describe('Home component', () => {
             orders={orders}
             uploadedOrderDocuments={uploadedOrderDocuments}
             move={move}
-            currentPpm={currentPpm}
+            mtoShipments={mtoShipments}
           />
         </MockProviders>,
       );
@@ -385,7 +393,10 @@ describe('Home component', () => {
       const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
       const uploadedAmendedOrderDocuments = [{ id: 'testDocument987', filename: 'testOrder2.pdf' }];
       const move = { id: 'testMoveId', status: 'APPROVALS REQUESTED', submitted_at: submittedAt };
-      const currentPpm = { id: 'mockCombo' };
+      const mtoShipments = [
+        { id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', advanceRequested: false } },
+      ];
+
       const wrapper = mount(
         <MockProviders initialEntries={['/']}>
           <Home
@@ -394,7 +405,7 @@ describe('Home component', () => {
             uploadedOrderDocuments={uploadedOrderDocuments}
             uploadedAmendedOrderDocuments={uploadedAmendedOrderDocuments}
             move={move}
-            currentPpm={currentPpm}
+            mtoShipments={mtoShipments}
           />
         </MockProviders>,
       );
@@ -418,7 +429,6 @@ describe('Home component', () => {
       const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
       const uploadedAmendedOrderDocuments = [{ id: 'testDocument987', filename: 'testOrder2.pdf' }];
       const move = { id: 'testMoveId', status: 'APPROVED', submitted_at: submittedAt };
-      const currentPpm = { id: 'mockCombo' };
       const wrapper = mount(
         <MockProviders initialEntries={['/']}>
           <Home
@@ -427,7 +437,6 @@ describe('Home component', () => {
             uploadedOrderDocuments={uploadedOrderDocuments}
             uploadedAmendedOrderDocuments={uploadedAmendedOrderDocuments}
             move={move}
-            currentPpm={currentPpm}
           />
         </MockProviders>,
       );
@@ -442,3 +451,4 @@ describe('Home component', () => {
     });
   });
 });
+// expect(screen.getByRole('button', { name: /^Review and submit /i })).to.be.disabled();
