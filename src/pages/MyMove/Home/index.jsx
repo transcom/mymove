@@ -340,7 +340,7 @@ export class Home extends Component {
                   )}
                   <Step
                     actionBtnLabel={this.shipmentActionBtnLabel}
-                    actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
+                    actionBtnDisabled={!this.hasOrders}
                     actionBtnId="shipment-selection-btn"
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
                     complete={this.hasAnyShipments}
@@ -352,7 +352,7 @@ export class Home extends Component {
                   >
                     {this.hasAnyShipments ? (
                       <div>
-                        {this.hasSubmittedMove && !this.doesPpmAlreadyExist && (
+                        {this.hasSubmittedMove && (
                           <p className={styles.descriptionExtra}>If you need to add shipments, let your movers know.</p>
                         )}
                         <ShipmentList
@@ -451,7 +451,6 @@ const mapStateToProps = (state) => {
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),
-    // TODO: change when we support PPM shipments as well
     mtoShipments: selectMTOShipmentsForCurrentMove(state),
     // TODO: change when we support multiple moves
     move,

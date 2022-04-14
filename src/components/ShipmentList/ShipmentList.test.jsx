@@ -14,7 +14,14 @@ beforeEach(() => {
 
 describe('ShipmentList component', () => {
   const shipments = [
-    { id: 'ID-1', shipmentType: SHIPMENT_OPTIONS.PPM },
+    {
+      id: 'ID-1',
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: 'ppm',
+        advanceRequested: false,
+      },
+    },
     { id: 'ID-2', shipmentType: SHIPMENT_OPTIONS.HHG },
     { id: 'ID-3', shipmentType: SHIPMENT_OPTIONS.NTS },
     { id: 'ID-4', shipmentType: SHIPMENT_OPTIONS.NTSR },

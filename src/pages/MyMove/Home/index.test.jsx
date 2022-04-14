@@ -42,7 +42,12 @@ const defaultProps = {
   isProfileComplete: true,
   currentPpm: {},
   loadMTOShipments: jest.fn(),
-  orders: {},
+  orders: {
+    id: '123',
+    new_duty_location: {
+      name: 'Test Location',
+    },
+  },
   history: {
     goBack: jest.fn(),
     push: jest.fn(),
@@ -83,12 +88,20 @@ describe('Home component', () => {
 
   describe('contents of Step 3', () => {
     const testProps = {
-      currentPpm: { id: '12345', createdAt: moment() },
       mtoShipments: [
         { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
-        { id: '4322', createdAt: moment().subtract(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
-        { id: '4323', createdAt: moment().add(2, 'days'), shipmentType: SHIPMENT_OPTIONS.NTS },
-        { id: '4324', createdAt: moment().add(3, 'days'), shipmentType: SHIPMENT_OPTIONS.NTSR },
+        {
+          id: '4322',
+          createdAt: moment().add(2, 'days'),
+          shipmentType: SHIPMENT_OPTIONS.PPM,
+          ppmShipment: {
+            id: '0001',
+            advanceRequested: false,
+          },
+        },
+        { id: '4323', createdAt: moment().subtract(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
+        { id: '4324', createdAt: moment().add(3, 'days'), shipmentType: SHIPMENT_OPTIONS.NTS },
+        { id: '4325', createdAt: moment().add(4, 'days'), shipmentType: SHIPMENT_OPTIONS.NTSR },
       ],
     };
 
@@ -106,7 +119,7 @@ describe('Home component', () => {
     it('handles edit click to edit hhg shipment route', () => {
       const editHHGShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: defaultProps.move.id,
-        mtoShipmentId: testProps.mtoShipments[1].id,
+        mtoShipmentId: testProps.mtoShipments[0].id,
       });
 
       wrapper.find('ShipmentListItem').at(0).simulate('click');
@@ -117,7 +130,7 @@ describe('Home component', () => {
     it('handles edit click to edit ppm shipment route', () => {
       const editPPMShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: defaultProps.move.id,
-        mtoShipmentId: testProps.currentPpm.id,
+        mtoShipmentId: testProps.mtoShipments[1].id,
       });
 
       wrapper.find('ShipmentListItem').at(1).simulate('click');
