@@ -72,6 +72,7 @@ export const dbFieldToDisplayName = {
   service_order_number: 'Service order number',
   tac_type: 'TAC type',
   sac_type: 'SAC type',
+  authorized_weight: 'Authorized weight',
 };
 
 export const eventNamesWithLabeledDetails = {
@@ -84,6 +85,7 @@ export const eventNamesWithLabeledDetails = {
   updateOrders: 'Updated orders', // internal.yaml
   submitAmendedOrders: 'Updated orders', // internal.yaml
   updateMTOShipmentAddress: 'Updated shipment', // prime.yaml
+  updateBillableWeight: 'Updated move',
 };
 
 export const eventNamesWithServiceItemDetails = {
@@ -167,6 +169,7 @@ export const historyLogEventNameDisplay = {
   createMTOShipment: 'Submitted/Requested shipments', // internal.yaml prime.yaml
   updateMTOShipmentAddress: 'Updated shipment', // prime.yaml
   createMTOServiceItem: 'Requested service item', // prime.yaml
+  updateBillableWeight: 'Update move',
 };
 
 export function getHistoryLogEventNameDisplay({ eventName /* operationId */, changedValues }) {
