@@ -2,6 +2,7 @@ package movehistory
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
@@ -196,6 +197,45 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserTelephone, "AuditHistories contains an AuditHistory with a SessionUserTelephone")
 	})
 
+	suite.T().Run("filters shipments from different move ", func(t *testing.T) {
+
+		auditHistoryContains := func(auditHistories models.AuditHistories, keyword string) func() (success bool) {
+			return func() (success bool) {
+				for _, record := range auditHistories {
+					if strings.Contains(*record.ChangedData, keyword) {
+						return true
+					}
+				}
+				return false
+			}
+		}
+
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{})
+
+		approvedMoveToFilter := testdatagen.MakeAvailableMove(suite.DB())
+		approvedShipmentToFilter := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMoveToFilter, testdatagen.Assertions{})
+
+		customerRemarks := "fragile"
+		approvedShipment.CustomerRemarks = &customerRemarks
+		suite.MustSave(&approvedShipment)
+
+		customerRemarksFilter := "sturdy"
+		approvedShipmentToFilter.CustomerRemarks = &customerRemarksFilter
+		suite.MustSave(&approvedShipmentToFilter)
+
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		suite.Equal(5, len(moveHistoryData.AuditHistories), "should not have more than 5")
+		suite.Condition(auditHistoryContains(moveHistoryData.AuditHistories, "fragile"), "should contain fragile")
+		containsSturdy := auditHistoryContains(moveHistoryData.AuditHistories, "sturdy")()
+		suite.False(containsSturdy, "should not contain sturdy")
+
+	})
+
 	suite.T().Run("has context", func(t *testing.T) {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
@@ -251,7 +291,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		moveHistoryData, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
-
 		suite.Greater(totalCount, int64(2), "total count should be 5")
 		suite.Equal(2, len(moveHistoryData.AuditHistories), "should have 2 rows due to pagination")
 

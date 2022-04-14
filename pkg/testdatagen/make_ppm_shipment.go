@@ -51,7 +51,7 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 		residentialAddress := models.FetchAddressByID(db, orders.ServiceMember.ResidentialAddressID)
 
 		if residentialAddress == nil {
-			log.Panicf("Could not find residential address to use as pickp zip.")
+			log.Panicf("Could not find residential address to use as pickup zip.")
 		}
 
 		requiredFields.pickupPostalCode = residentialAddress.PostalCode
