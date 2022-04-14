@@ -9,21 +9,21 @@ import (
 )
 
 func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionValidation() {
-	builder := query.NewQueryBuilder()
-
-	subscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
-	invalidSubscription := models.WebhookSubscription{
-		SubscriberID: uuid.Must(uuid.FromString("11111111-1111-1111-1111-111111111111")),
-		Status:       models.WebhookSubscriptionStatusActive,
-		EventKey:     "PaymentRequest.Update",
-		CallbackURL:  "/my/callback/url",
-	}
 	suite.Run("checkSubscriberExists", func() {
+		builder := query.NewQueryBuilder()
+
 		suite.Run("success", func() {
+			subscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
 			err := checkSubscriberExists(builder).Validate(suite.AppContextForTest(), subscription)
 			suite.Require().NoError(err)
 		})
 		suite.Run("failure", func() {
+			invalidSubscription := models.WebhookSubscription{
+				SubscriberID: uuid.Must(uuid.FromString("11111111-1111-1111-1111-111111111111")),
+				Status:       models.WebhookSubscriptionStatusActive,
+				EventKey:     "PaymentRequest.Update",
+				CallbackURL:  "/my/callback/url",
+			}
 			err := checkSubscriberExists(builder).Validate(suite.AppContextForTest(), invalidSubscription)
 			suite.Require().Error(err)
 		})
