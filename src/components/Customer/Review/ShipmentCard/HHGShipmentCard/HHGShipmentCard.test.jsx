@@ -9,7 +9,8 @@ import { formatCustomerDate } from 'utils/formatters';
 const defaultProps = {
   moveId: 'testMove123',
   editPath: '',
-  onEditClick: () => {},
+  onEditClick: jest.fn(),
+  onDeleteClick: jest.fn(),
   shipmentNumber: 1,
   shipmentId: '#ABC123K',
   shipmentType: 'HHG',

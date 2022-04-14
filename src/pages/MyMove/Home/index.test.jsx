@@ -42,6 +42,7 @@ const defaultProps = {
   isProfileComplete: true,
   currentPpm: {},
   loadMTOShipments: jest.fn(),
+  updateShipmentList: jest.fn(),
   orders: {},
   history: {
     goBack: jest.fn(),

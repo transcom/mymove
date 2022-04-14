@@ -26,7 +26,6 @@ WithOverrides.args = {
   content: 'Some sample description',
   submitText: 'YES!',
   closeText: 'NO',
-  onClose: { action: 'close button clicked' },
 };
 
 const ConnectedTemplate = (args) => <ConnectedDestructiveShipmentConfirmationModal {...args} />;

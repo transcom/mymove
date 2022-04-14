@@ -2374,11 +2374,20 @@ func init() {
           "204": {
             "description": "Successfully soft deleted the shipment"
           },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
           "403": {
             "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -9145,6 +9154,12 @@ func init() {
           "204": {
             "description": "Successfully soft deleted the shipment"
           },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
           "403": {
             "description": "The request was denied",
             "schema": {
@@ -9155,6 +9170,18 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {

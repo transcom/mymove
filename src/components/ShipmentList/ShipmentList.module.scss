@@ -40,8 +40,8 @@
   background-color: transparent;
   color: $primary;
   font-weight: normal;
-  padding: 12px;
   margin: 0;
+  @include u-padding(1.5);
 
   &:active,
   &:hover,
@@ -61,8 +61,13 @@
   margin-left: 5px;
 }
 
+.warning-section {
+  text-align: center;
+}
+
 .shipmentWeight {
   width: 200px;
+  text-align: center;
 }
 
 .shipment-code {
