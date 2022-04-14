@@ -58,6 +58,32 @@ export const ShipmentListWithWeights = () => (
   </div>
 );
 
+export const ShipmentListWithPPMs = () => (
+  <div className="grid-container">
+    <h3>Incomplete and Complete PPMs</h3>
+    <ShipmentList
+      shipments={[
+        {
+          id: '0001',
+          shipmentType: SHIPMENT_OPTIONS.PPM,
+          ppmShipment: {
+            id: 'completePPM',
+            advanceRequested: false,
+          },
+        },
+        {
+          id: '0002',
+          shipmentType: SHIPMENT_OPTIONS.PPM,
+          ppmShipment: {
+            id: 'completePPM',
+            advanceRequested: null,
+          },
+        },
+      ]}
+    />
+  </div>
+);
+
 export default {
   title: 'Components / ShipmentList',
 };

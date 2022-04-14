@@ -135,7 +135,7 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
           }
         }
         if (shipmentType === SHIPMENT_OPTIONS.PPM) {
-          if (isPPMShipmentComplete(shipment.ppmShipment)) {
+          if (!isPPMShipmentComplete(shipment)) {
             isIncomplete = true;
           }
         }

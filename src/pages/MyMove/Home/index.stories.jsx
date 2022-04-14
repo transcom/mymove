@@ -82,10 +82,25 @@ const withShipmentProps = {
       shipmentType: 'HHG',
       createdAt: '24 December 2020',
     },
+    {
+      id: 'testShipment2',
+      shipmentType: 'PPM',
+      createdAt: '24 December 2020',
+      ppmShipment: {
+        id: 'ppmShipmentIncomplete',
+        advanceRequested: null,
+      },
+    },
+    {
+      id: 'completePPM',
+      shipmentType: 'PPM',
+      createdAt: '24 December 2020',
+      ppmShipment: {
+        id: 'ppmShipmentComplete',
+        advanceRequested: true,
+      },
+    },
   ],
-  currentPpm: {
-    id: 'testMove',
-  },
 };
 
 const submittedProps = {
