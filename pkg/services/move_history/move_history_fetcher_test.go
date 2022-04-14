@@ -197,7 +197,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserTelephone, "AuditHistories contains an AuditHistory with a SessionUserTelephone")
 	})
 
-	suite.T().Run("filters shipments from different move ", func(t *testing.T) {
+	suite.T().Run("filters shipments and service items from different move ", func(t *testing.T) {
 
 		auditHistoryContains := func(auditHistories models.AuditHistories, keyword string) func() (success bool) {
 			return func() (success bool) {
@@ -212,9 +212,23 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{})
+		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: approvedMove,
+		})
 
 		approvedMoveToFilter := testdatagen.MakeAvailableMove(suite.DB())
 		approvedShipmentToFilter := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMoveToFilter, testdatagen.Assertions{})
+		serviceItemToFilter := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: approvedMoveToFilter,
+		})
+
+		reason := "heavy"
+		serviceItem.Reason = &reason
+		suite.MustSave(&serviceItem)
+
+		reasonFilter := "light"
+		serviceItemToFilter.Reason = &reasonFilter
+		suite.MustSave(&serviceItemToFilter)
 
 		customerRemarks := "fragile"
 		approvedShipment.CustomerRemarks = &customerRemarks
@@ -232,6 +246,10 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.Condition(auditHistoryContains(moveHistoryData.AuditHistories, "fragile"), "should contain fragile")
 		containsSturdy := auditHistoryContains(moveHistoryData.AuditHistories, "sturdy")()
 		suite.False(containsSturdy, "should not contain sturdy")
+
+		suite.Condition(auditHistoryContains(moveHistoryData.AuditHistories, "heavy"), "should contain heavy")
+		containsLight := auditHistoryContains(moveHistoryData.AuditHistories, "light")()
+		suite.False(containsLight, "should not contain light")
 
 	})
 

@@ -5,6 +5,7 @@ import {
   UPDATE_BACKUP_CONTACT,
   UPDATE_MOVE,
   UPDATE_MTO_SHIPMENT,
+  UPDATE_MTO_SHIPMENTS,
   UPDATE_ORDERS,
   UPDATE_PPMS,
   UPDATE_PPM,
@@ -12,7 +13,7 @@ import {
   UPDATE_PPM_SIT_ESTIMATE,
 } from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
-import { addEntities } from 'shared/Entities/actions';
+import { addEntities, updateMTOShipmentsEntity } from 'shared/Entities/actions';
 
 export function* updateServiceMember(action) {
   const { payload } = action;
@@ -47,6 +48,12 @@ export function* updateMTOShipment(action) {
   yield put(addEntities(normalizedData));
 }
 
+export function* updateMTOShipments(action) {
+  const { payload } = action;
+
+  yield put(updateMTOShipmentsEntity(payload));
+}
+
 export function* updatePPMs(action) {
   const { payload } = action;
   const normalizedData = yield call(normalizeResponse, payload, 'personallyProcuredMoves');
@@ -78,6 +85,7 @@ export function* watchUpdateEntities() {
     takeLatest(UPDATE_ORDERS, updateOrders),
     takeLatest(UPDATE_MOVE, updateMove),
     takeLatest(UPDATE_MTO_SHIPMENT, updateMTOShipment),
+    takeLatest(UPDATE_MTO_SHIPMENTS, updateMTOShipments),
     takeLatest(UPDATE_PPMS, updatePPMs),
     takeLatest(UPDATE_PPM, updatePPM),
     takeLatest(UPDATE_PPM_ESTIMATE, updatePPMEstimate),

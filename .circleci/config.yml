@@ -28,12 +28,16 @@ references:
   # ignore tests for demo deploys. See the branch settings below.
   demo-branch: &demo-branch placeholder_branch_name
 
-  # set loadtest-branch to the branch you want to deploy to loadtest, or
-  # `placeholder_branch_name` if you don't want to deploy to loadtest
+  # set dp3-branch to the branch you want to deploy to the env specifed
+  # in dp3-env (loadtest, demo, experimental), or
+  # `placeholder_branch_name` if you don't want to deploy to dp3
   #
   # In addition, it's common practice to disable acceptance tests and
-  # ignore tests for loadtest deploys. See the branch settings below.
-  loadtest-branch: &loadtest-branch placeholder_branch_name
+  # ignore tests for dp3 deploys. See the branch settings below.
+  dp3-branch: &dp3-branch placeholder_branch_name
+  # MUST BE ONE OF: loadtest, demo, experimental.
+  # "exp" will not work here because this is used to pull in env vars.
+  dp3-env: &dp3-env placeholder_env
 
   # set exp-branch to the branch you want to deploy to exp, or
   # `placeholder_branch_name` if you don't want to deploy to exp
@@ -266,24 +270,35 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
             source $BASH_ENV
-  aws_vars_loadtest:
+
+  aws_vars_dp3:
+    parameters:
+      dp3-env:
+        description: dp3 env to deploy to (exp, loadtest, demo)
+        type: string
+        default: *dp3-env
     steps:
       - run:
-          name: 'Setting up AWS environment variables for loadtest env'
+          name: 'Setting up AWS environment variables for dp3 env defined in &dp3-env'
           command: |
-            echo "export AWS_DEFAULT_REGION=$LOADTEST_REGION" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=$LOADTEST_ACCOUNT_ID" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=$LOADTEST_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=$LOADTEST_SECRET_ACCESS_KEY" >> $BASH_ENV
+            echo "export AWS_DEFAULT_REGION=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
-  tls_vars_loadtest:
+  tls_vars_dp3:
+    parameters:
+      dp3-env:
+        description: dp3 env to deploy to (exp, loadtest, demo)
+        type: string
+        default: *dp3-env
     steps:
       - run:
-          name: 'Setting up TLS environment variables for loadtest env'
+          name: 'Setting up TLS environment variables for dp3 env defined in &dp3-env'
           command: |
-            echo "export TLS_CERT=$LOADTEST_DP3_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$LOADTEST_DP3_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$LOADTEST_DP3_CA" >> $BASH_ENV
+            echo "export TLS_CERT=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_DP3_CERT" >> $BASH_ENV
+            echo "export TLS_KEY=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_DP3_KEY" >> $BASH_ENV
+            echo "export TLS_CA=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_DP3_CA" >> $BASH_ENV
             source $BASH_ENV
 
   announce_failure:
@@ -362,6 +377,7 @@ commands:
     parameters:
       ecr_env:
         type: string
+        default: *dp3-env
     steps:
       - attach_workspace:
           at: .
@@ -848,24 +864,19 @@ jobs:
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
-      - aws_vars_loadtest
-      #can delete this cert step
+      - aws_vars_dp3
       - run:
-          name: Prepare certificates
-          command: |
-            sudo cp /home/circleci/transcom/mymove/bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
-      - run:
-          name: Run Loadtest acceptance tests
+          name: Run dp3 acceptance tests
           command: make acceptance_test
           environment:
             CHAMBER_RETRIES: 20
             DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: loadtest
-            ENVIRONMENT: loadtest
+            ENV: *dp3-env
+            ENVIRONMENT: *dp3-env
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: loadtest
+            TEST_ACC_ENV: *dp3-env
       - aws_vars_demo
       #can delete this cert step
       - run:
@@ -1274,13 +1285,13 @@ jobs:
           repo: app
       - announce_failure
 
-  # `push_app_loadtest` pushes the app container to the milmove-loadtest container repository
-  push_app_loadtest:
+  # `push_app_dp3` pushes the app container to the milmove-<dp3-env> container repository
+  push_app_dp3:
     executor: mymove_pusher
     steps:
-      - aws_vars_loadtest
+      - aws_vars_dp3
       - push_image:
-          ecr_env: loadtest
+          ecr_env: *dp3-env
           image_name: app
           tag: web-dev
           repo: app
@@ -1383,13 +1394,13 @@ jobs:
           repo: app-migrations
       - announce_failure
 
-  # `push_migrations_loadtest` pushes the migrations container to the milmove-loadtest container repository
-  push_migrations_loadtest:
+  # `push_migrations_dp3` pushes the migrations container to the milmove-dp3 container repository
+  push_migrations_dp3:
     executor: mymove_pusher
     steps:
-      - aws_vars_loadtest
+      - aws_vars_dp3
       - push_image:
-          ecr_env: loadtest
+          ecr_env: *dp3-env
           image_name: app-migrations
           tag: dev
           repo: app-migrations
@@ -1477,13 +1488,13 @@ jobs:
           repo: app-tasks
       - announce_failure
 
-  # `push_tasks_loadtest` pushes the tasks containers to the milmove-loadtest container repository
-  push_tasks_loadtest:
+  # `push_tasks_dp3` pushes the tasks containers to the milmove-dp3 container repository
+  push_tasks_dp3:
     executor: mymove_pusher
     steps:
-      - aws_vars_loadtest
+      - aws_vars_dp3
       - push_image:
-          ecr_env: loadtest
+          ecr_env: *dp3-env
           image_name: tasks
           tag: dev
           repo: app-tasks
@@ -1559,13 +1570,13 @@ jobs:
           repo: app-webhook-client
       - announce_failure
 
-  # `push_webhook_client_loadtest` pushes the webhook client container to the loadtest container repository
-  push_webhook_client_loadtest:
+  # `push_webhook_client_dp3` pushes the webhook client container to the dp3 container repository
+  push_webhook_client_dp3:
     executor: mymove_pusher
     steps:
-      - aws_vars_loadtest
+      - aws_vars_dp3
       - push_image:
-          ecr_env: loadtest
+          ecr_env: *dp3-env
           image_name: webhook_client
           tag: dev
           repo: app-webhook-client
@@ -1657,68 +1668,77 @@ jobs:
       - deploy_webhook_client_steps:
           ecr_env: demo
 
-  # `deploy_loadtest_migrations` deploys migrations to the loadtest environment
-  deploy_loadtest_migrations:
+  # `deploy_dp3_migrations` deploys migrations to the dp3 environment
+  deploy_dp3_migrations:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'loadtest'
+      - APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
-      - aws_vars_loadtest
+      - aws_vars_dp3
       - deploy_migrations_steps:
-          ecr_env: loadtest
+          ecr_env: *dp3-env
 
-  # `deploy_loadtest_tasks` deploys scheduled tasks to the loadtest environment
-  deploy_loadtest_tasks:
+  # `deploy_dp3_tasks` deploys scheduled tasks to the dp3 environment
+  deploy_dp3_tasks:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'loadtest'
+      - APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
-      - aws_vars_loadtest
+      - aws_vars_dp3
       - deploy_dp3_tasks_steps:
-          ecr_env: loadtest
+          ecr_env: *dp3-env
 
-  # `deploy_loadtest_app` updates the server-TLS app service in the loadtest environment
-  deploy_loadtest_app:
+  # `deploy_dp3_app` updates the server-TLS app service in the dp3 environment
+  deploy_dp3_app:
     executor: mymove_pusher
+    parameters:
+      dp3-env:
+        type: string
+        default: *dp3-env
+
     environment:
-      - APP_ENVIRONMENT: 'loadtest'
+      - APP_ENVIRONMENT: *dp3-env
       - OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - checkout
-      - aws_vars_loadtest
+      - aws_vars_dp3
       - deploy_app_steps:
-          compare_host: '' # leave blank since we want loadtest to be able to roll back
-          health_check_hosts: my.loadtest.dp3.us,office.loadtest.dp3.us,admin.loadtest.dp3.us
-          ecr_env: loadtest
+          compare_host: '' # leave blank since we want dp3 to be able to roll back
+          health_check_hosts: my.<< parameters.dp3-env >>.dp3.us,office.<< parameters.dp3-env >>.dp3.us,admin.<< parameters.dp3-env >>.dp3.us
+          ecr_env: *dp3-env
 
-  # `deploy_loadtest_app_client_tls` updates the mutual-TLS service in the loadtest environment
-  deploy_loadtest_app_client_tls:
+  # `deploy_dp3_app_client_tls` updates the mutual-TLS service in the dp3 environment
+  deploy_dp3_app_client_tls:
     executor: mymove_pusher
+    parameters:
+      dp3-env:
+        type: string
+        default: *dp3-env
     environment:
-      - APP_ENVIRONMENT: 'loadtest'
+      - APP_ENVIRONMENT: *dp3-env
       - OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - checkout
-      - aws_vars_loadtest
-      - tls_vars_loadtest
+      - aws_vars_dp3
+      - tls_vars_dp3
       - deploy_app_client_tls_steps:
-          compare_host: '' # leave blank since we want loadtest to be able to roll back
-          health_check_hosts: api.loadtest.dp3.us
-          ecr_env: loadtest
+          compare_host: '' # leave blank since we want dp3 to be able to roll back
+          health_check_hosts: api.<< parameters.dp3-env >>.dp3.us
+          ecr_env: *dp3-env
 
-  # `deploy_loadtest_webhook_client` deploys the webhook client to loadtest
-  deploy_loadtest_webhook_client:
+  # `deploy_dp3_webhook_client` deploys the webhook client to dp3
+  deploy_dp3_webhook_client:
     executor: mymove_pusher
     environment:
-      APP_ENVIRONMENT: 'loadtest'
+      APP_ENVIRONMENT: *dp3-env
       OPEN_TELEMETRY_SIDECAR: 'true'
     steps:
       - checkout
-      - aws_vars_loadtest
+      - aws_vars_dp3
       - deploy_webhook_client_steps:
-          ecr_env: loadtest
+          ecr_env: *dp3-env
 
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
@@ -2053,7 +2073,7 @@ workflows:
             - compile_app_client
           filters:
             branches:
-              ignore: [*demo-branch, *loadtest-branch, *exp-branch]
+              ignore: *dp3-branch
 
       - push_app_gov_dev:
           requires:
@@ -2077,7 +2097,7 @@ workflows:
             - compile_app_client
           filters:
             branches:
-              ignore: [*demo-branch, *loadtest-branch, *exp-branch]
+              ignore: *dp3-branch
 
       - build_webhook_client:
           requires:
@@ -2085,7 +2105,7 @@ workflows:
             - compile_app_client
           filters:
             branches:
-              ignore: [*demo-branch, *loadtest-branch, *exp-branch]
+              ignore: *dp3-branch
 
       - push_tasks_gov_dev:
           requires:
@@ -2097,7 +2117,7 @@ workflows:
             - compile_app_client
           filters:
             branches:
-              only: [*demo-branch, *loadtest-branch, *exp-branch]
+              only: *dp3-branch
 
       - push_app_demo:
           requires:
@@ -2119,7 +2139,7 @@ workflows:
             - compile_app_client
           filters:
             branches:
-              only: [*demo-branch, *loadtest-branch, *exp-branch]
+              only: [*demo-branch, *dp3-branch, *exp-branch]
 
       - push_tasks_demo:
           requires:
@@ -2134,7 +2154,7 @@ workflows:
             - compile_app_client
           filters:
             branches:
-              only: [*demo-branch, *loadtest-branch, *exp-branch]
+              only: [*demo-branch, *dp3-branch, *exp-branch]
 
       - push_webhook_client_demo:
           requires:
@@ -2187,77 +2207,77 @@ workflows:
             branches:
               only: *demo-branch
 
-      - push_app_loadtest:
+      - push_app_dp3:
           requires:
             - build_dp3_app
           filters:
             branches:
-              only: *loadtest-branch
+              only: *dp3-branch
 
-      - push_migrations_loadtest:
+      - push_migrations_dp3:
           requires:
             - build_migrations
           filters:
             branches:
-              only: *loadtest-branch
+              only: *dp3-branch
 
-      - push_tasks_loadtest:
+      - push_tasks_dp3:
           requires:
             - build_dp3_tasks
           filters:
             branches:
-              only: *loadtest-branch
+              only: *dp3-branch
 
-      - push_webhook_client_loadtest:
+      - push_webhook_client_dp3:
           requires:
             - build_dp3_webhook_client
           filters:
             branches:
-              only: *loadtest-branch
+              only: *dp3-branch
 
-      - deploy_loadtest_migrations:
+      - deploy_dp3_migrations:
           requires:
             - pre_deps_golang
             - pre_test
             - client_test
             - server_test
-            - push_app_loadtest
+            - push_app_dp3
             - compile_app_server
             - compile_app_client
-            - push_tasks_loadtest
-            - push_migrations_loadtest
-            - push_webhook_client_loadtest
+            - push_tasks_dp3
+            - push_migrations_dp3
+            - push_webhook_client_dp3
           filters:
             branches:
-              only: *loadtest-branch
+              only: *dp3-branch
 
-      - deploy_loadtest_tasks:
+      - deploy_dp3_tasks:
           requires:
-            - deploy_loadtest_migrations
+            - deploy_dp3_migrations
           filters:
             branches:
-              only: *loadtest-branch
+              only: *dp3-branch
 
-      - deploy_loadtest_app:
+      - deploy_dp3_app:
           requires:
-            - deploy_loadtest_migrations
+            - deploy_dp3_migrations
           filters:
             branches:
-              only: *loadtest-branch
+              only: *dp3-branch
 
-      - deploy_loadtest_app_client_tls:
+      - deploy_dp3_app_client_tls:
           requires:
-            - deploy_loadtest_migrations
+            - deploy_dp3_migrations
           filters:
             branches:
-              only: *loadtest-branch
+              only: *dp3-branch
 
-      - deploy_loadtest_webhook_client:
+      - deploy_dp3_webhook_client:
           requires:
-            - deploy_loadtest_migrations
+            - deploy_dp3_migrations
           filters:
             branches:
-              only: *loadtest-branch
+              only: *dp3-branch
 
       - push_app_exp:
           requires:
