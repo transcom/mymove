@@ -40,6 +40,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// update HHG SAC
 		updateSAC := "23456"
 		approvedMove.Orders.SAC = &updateSAC
+		// update authorized weight
+		updateDBAuthorizedWeight := 500
+		approvedMove.Orders.Entitlement.DBAuthorizedWeight = &updateDBAuthorizedWeight
 		suite.MustSave(&approvedMove.Orders)
 
 		// update Pickup Address
@@ -68,6 +71,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// move update
 		verifyOldTIORemarks := false
 		verifyTIORemarks := false
+		verifyDBAuthorizedWeight := false
 
 		for _, h := range moveHistory.AuditHistories {
 
@@ -99,6 +103,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 						if changedData["sac"] == updateSAC {
 							verifyNewSAC = true
 						}
+					}
+				}
+			} else if h.TableName == "entitlements" {
+				if h.ChangedData != nil {
+					oldData := removeEscapeJSON(h.OldData)
+					if len(oldData["authorized_weight"]) == 0 {
+						verifyDBAuthorizedWeight = true
 					}
 				}
 			} else if h.TableName == "moves" {
@@ -133,6 +144,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// move update
 		suite.True(verifyOldTIORemarks, "verifyOldTIORemarks")
 		suite.True(verifyTIORemarks, "verifyTIORemarks")
+
+		suite.True(verifyDBAuthorizedWeight, "verifyDBAuthorizedWeight")
 	})
 
 	suite.T().Run("returns not found error for unknown locator", func(t *testing.T) {
