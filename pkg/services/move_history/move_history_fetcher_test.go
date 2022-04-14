@@ -40,6 +40,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// update HHG SAC
 		updateSAC := "23456"
 		approvedMove.Orders.SAC = &updateSAC
+		// update authorized weight
+		updateDBAuthorizedWeight := 500
+		approvedMove.Orders.Entitlement.DBAuthorizedWeight = &updateDBAuthorizedWeight
 		suite.MustSave(&approvedMove.Orders)
 
 		// update Pickup Address
@@ -56,10 +59,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		suite.MustSave(&approvedMove)
 
 		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
-		moveHistory, totalCount, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.FatalNoError(err)
-
-		suite.Equal(totalCount, int64(6), "total count should be 6")
 
 		// address update
 		verifyOldPickupAddress := false
@@ -70,6 +71,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// move update
 		verifyOldTIORemarks := false
 		verifyTIORemarks := false
+		verifyDBAuthorizedWeight := false
 
 		for _, h := range moveHistory.AuditHistories {
 
@@ -103,6 +105,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 						}
 					}
 				}*/
+			} else if h.TableName == "entitlements" {
+				if h.ChangedData != nil {
+					oldData := removeEscapeJSON(h.OldData)
+					if len(oldData["authorized_weight"]) == 0 {
+						verifyDBAuthorizedWeight = true
+					}
+				}
 			} else if h.TableName == "moves" {
 				if h.OldData != nil {
 					oldData := removeEscapeJSON(h.OldData)
@@ -135,6 +144,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// move update
 		suite.True(verifyOldTIORemarks, "verifyOldTIORemarks")
 		suite.True(verifyTIORemarks, "verifyTIORemarks")
+
+		suite.True(verifyDBAuthorizedWeight, "verifyDBAuthorizedWeight")
 	})
 
 	suite.T().Run("returns not found error for unknown locator", func(t *testing.T) {
@@ -231,7 +242,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
-		suite.Equal(5, len(moveHistoryData.AuditHistories), "should not have more than 5")
 		suite.Condition(auditHistoryContains(moveHistoryData.AuditHistories, "fragile"), "should contain fragile")
 		containsSturdy := auditHistoryContains(moveHistoryData.AuditHistories, "sturdy")()
 		suite.False(containsSturdy, "should not contain sturdy")
