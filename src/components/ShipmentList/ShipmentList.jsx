@@ -6,7 +6,7 @@ import { Tag } from '@trussworks/react-uswds';
 
 import styles from './ShipmentList.module.scss';
 
-import checkPPMCompletion from 'utils/checkPPMCompletion';
+import { isPPMShipmentComplete } from 'utils/shipments';
 import { formatWeight } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentTypes } from 'constants/shipments';
@@ -135,7 +135,7 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
           }
         }
         if (shipmentType === SHIPMENT_OPTIONS.PPM) {
-          if (checkPPMCompletion(shipment.ppmShipment)) {
+          if (isPPMShipmentComplete(shipment.ppmShipment)) {
             isIncomplete = true;
           }
         }

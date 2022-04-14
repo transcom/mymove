@@ -39,13 +39,14 @@ import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import { shipmentTypes } from 'constants/shipments';
+import { isPPMShipmentComplete } from 'utils/shipments';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -105,13 +106,18 @@ export class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
-  get hasPPMShipment() {
+  get hasPPMShipments() {
     const { mtoShipments } = this.props;
     return mtoShipments?.some((shipment) => shipment.ppmShipment);
   }
 
+  get hasCompletedPPMShipments() {
+    const { mtoShipments } = this.props;
+    return mtoShipments?.filter((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM)?.every((s) => isPPMShipmentComplete(s));
+  }
+
   get shipmentActionBtnLabel() {
-    if (this.hasSubmittedMove && this.hasPPMShipment) {
+    if (this.hasSubmittedMove && this.hasPPMShipments) {
       return '';
     }
     if (this.hasAnyShipments) {
@@ -152,7 +158,7 @@ export class Home extends Component {
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
     if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
-    if (this.hasPPMShipment)
+    if (this.hasPPMShipments)
       return (
         <>
           <HelperSubmittedMove />
@@ -364,7 +370,7 @@ export class Home extends Component {
                     )}
                   </Step>
                   <Step
-                    actionBtnDisabled={!this.hasAnyShipments}
+                    actionBtnDisabled={this.hasPPMShipments ? !this.hasCompletedPPMShipments : !this.hasAnyShipments}
                     actionBtnId="review-and-submit-btn"
                     actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review your request'}
                     complete={this.hasSubmittedMove}
