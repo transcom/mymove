@@ -200,9 +200,6 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		suite.IsType(&moveops.GetMoveHistoryOK{}, response)
 		payload := response.(*moveops.GetMoveHistoryOK).Payload
 
-		// Total count of 4
-		suite.Equal(int64(4), payload.TotalCount)
-
 		// Returned row count of 2 (since page size = 2)
 		suite.Len(payload.HistoryRecords, 2)
 	})
