@@ -1,8 +1,10 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { Switch, useParams, Redirect, Route, useHistory } from 'react-router-dom';
+import { Switch, useParams, Redirect, Route, useHistory, useLocation, matchPath } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
+
+import ServicesCounselorTabNav from 'components/Office/ServicesCounselingTabNav/ServicesCounselingTabNav';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -20,8 +22,11 @@ const ServicesCounselingEditShipmentDetails = lazy(() =>
   import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
 );
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
+const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 
 const ServicesCounselingMoveInfo = () => {
+  const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
+
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const onInfoSavedUpdate = (alertType) => {
@@ -54,6 +59,29 @@ const ServicesCounselingMoveInfo = () => {
   const { moveCode } = useParams();
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
+  const { pathname } = useLocation();
+  const hideNav =
+    matchPath(pathname, {
+      path: servicesCounselingRoutes.SHIPMENT_ADD_PATH,
+      exact: true,
+    }) ||
+    matchPath(pathname, {
+      path: servicesCounselingRoutes.SHIPMENT_EDIT_PATH,
+      exact: true,
+    }) ||
+    matchPath(pathname, {
+      path: servicesCounselingRoutes.ORDERS_EDIT_PATH,
+      exact: true,
+    }) ||
+    matchPath(pathname, {
+      path: servicesCounselingRoutes.ALLOWANCES_EDIT_PATH,
+      exact: true,
+    }) ||
+    matchPath(pathname, {
+      path: servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH,
+      exact: true,
+    });
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -69,11 +97,20 @@ const ServicesCounselingMoveInfo = () => {
           code: <strong>{traceId}</strong>
         </SystemError>
       )}
+
+      {!hideNav && <ServicesCounselorTabNav unapprovedShipmentCount={unapprovedShipmentCount} moveCode={moveCode} />}
+
       <Suspense fallback={<LoadingPlaceholder />}>
         <Switch>
           {/* TODO - Routes not finalized, revisit */}
           <Route path={servicesCounselingRoutes.MOVE_VIEW_PATH} exact>
-            <ServicesCounselingMoveDetails infoSavedAlert={infoSavedAlert} />
+            <ServicesCounselingMoveDetails
+              infoSavedAlert={infoSavedAlert}
+              setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            />
+          </Route>
+          <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} exact>
+            <MoveHistory moveCode={moveCode} />
           </Route>
 
           <Route
