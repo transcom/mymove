@@ -1,16 +1,18 @@
 import {
+  deleteShipment,
   navigateFromAdvancesPageToReviewPage,
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
   navigateFromEstimatedIncentivePageToAdvancesPage,
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
   navigateFromHomePageToReviewPage,
   navigateFromReviewPageToHomePage,
+  navigateToAgreementAndSign,
   setMobileViewport,
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
   signInAndNavigateFromHomePageToReviewPage,
 } from '../../../support/ppmShared';
 
-import { signAgreement, submitMove } from '../../mymove/utilities/customer';
+import { submitMove } from '../../mymove/utilities/customer';
 
 const fullPPMShipmentFields = [
   ['Expected departure', '15 Mar 2020'],
@@ -18,7 +20,7 @@ const fullPPMShipmentFields = [
   ['Second origin ZIP', '90211'],
   ['Destination ZIP', '30813'],
   ['Second destination ZIP', '30814'],
-  ['Storage expected? (SIT)', 'Yes'],
+  ['Storage expected? (SIT)', 'No'],
   ['Estimated weight', '4,000 lbs'],
   ['Pro-gear', 'Yes, 1,987 lbs'],
   ['Spouse pro-gear', 'Yes, 498 lbs'],
@@ -44,12 +46,12 @@ describe('PPM Onboarding - Review', function () {
   ];
 
   viewportType.forEach(({ viewport, isMobile, userId }) => {
-    it(`deletes shipments on the review page and submits the move -  ${viewport}`, () => {
+    it(`navigates to the review page and deletes a shipment -  ${viewport}`, () => {
       if (isMobile) {
         setMobileViewport();
       }
       signInAndNavigateFromHomePageToReviewPage(userId);
-      deleteShipment();
+      deleteShipmentFromCard();
     });
   });
 
@@ -118,16 +120,7 @@ function verifyPPMShipmentCard(shipmentCardFields, isEditable = false) {
     });
 }
 
-function navigateToAgreementAndSign() {
-  cy.nextPage();
-  signAgreement();
-}
-
-function deleteShipment() {
-  cy.get('[data-testid="ShipmentContainer"]').last().contains('Delete').click();
-  cy.get('[data-testid="modal"]').should('be.visible');
-  cy.get('[data-testid="modal"] button').contains('Yes, Delete').click();
-  cy.waitFor(['@deleteShipment', '@getShipment']);
-  cy.get('[data-testid="ShipmentContainer"]').should('have.length', 1);
-  cy.get('[data-testid="alert"]').should('contain', 'The shipment was deleted.');
+function deleteShipmentFromCard() {
+  cy.get('[data-testid="ShipmentContainer"]').last().as('shipmentContainer');
+  deleteShipment('@shipmentContainer', 1);
 }

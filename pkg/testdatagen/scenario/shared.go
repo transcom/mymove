@@ -769,10 +769,10 @@ func createUnSubmittedMoveWithFullPPMShipment1(appCtx appcontext.AppContext, use
 		userID:      testdatagen.ConvertUUIDStringToUUID("1b16773e-995b-4efe-ad1c-bef2ae1253f8"),
 		email:       "full@ppm.unsubmitted",
 		smID:        testdatagen.ConvertUUIDStringToUUID("1b400031-2b78-44ce-976c-cd2e854947f8"),
-		firstName:   "Finished",
+		firstName:   "Full",
 		lastName:    "PPM",
 		moveID:      testdatagen.ConvertUUIDStringToUUID("3e0b6cb9-3409-4089-83a0-0fbc3fb0b493"),
-		moveLocator: "PPMFIN",
+		moveLocator: "FULLPP",
 	}
 
 	assertions := testdatagen.Assertions{
