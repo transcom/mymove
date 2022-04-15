@@ -249,9 +249,6 @@ bin/generate-deploy-notes: cmd/generate-deploy-notes
 bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
-bin/generate-access-codes: cmd/generate_access_codes
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
-
 bin/generate-shipment-summary: cmd/generate-shipment-summary
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate-shipment-summary
 
