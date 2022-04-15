@@ -25,7 +25,7 @@ const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo')
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 
 const ServicesCounselingMoveInfo = () => {
-  const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
+  const [unapprovedShipmentCount, setUnapprovedShipmentCount] = useState(0);
 
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
