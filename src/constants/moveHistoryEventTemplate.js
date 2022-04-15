@@ -48,7 +48,7 @@ const buildMoveHistoryEventTemplate = ({
 };
 
 export const acknowledgeExcessWeightRiskEvent = buildMoveHistoryEventTemplate({
-  action: 'update',
+  action: 'UPDATE',
   eventName: moveHistoryOperations.acknowledgeExcessWeightRisk,
   tableName: 'moves',
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -142,13 +142,12 @@ export const submitMoveForApprovalEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
-export const uploadAmendedOrdersEvent = buildMoveHistoryEventTemplate({
+export const updateMoveTaskOrderEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
-  eventName: moveHistoryOperations.uploadAmendedOrders,
-  tableName: 'orders',
-  detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: () => 'Updated orders',
-  getDetailsPlainText: () => '-',
+  eventName: moveHistoryOperations.updateMoveTaskOrder,
+  tableName: 'moves',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated move',
 });
 
 export const updateMoveTaskOrderStatusEvent = buildMoveHistoryEventTemplate({
@@ -186,6 +185,15 @@ export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
   },
 });
 
+export const uploadAmendedOrdersEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.uploadAmendedOrders,
+  tableName: 'orders',
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: () => 'Updated orders',
+  getDetailsPlainText: () => '-',
+});
+
 export const undefinedEvent = buildMoveHistoryEventTemplate({
   action: '*',
   eventName: '*',
@@ -209,9 +217,10 @@ const allMoveHistoryEventTemplates = [
   requestShipmentDiversionEvent,
   setFinancialReviewFlagEvent,
   submitMoveForApprovalEvent,
-  uploadAmendedOrdersEvent,
+  updateMoveTaskOrderEvent,
   updateMoveTaskOrderStatusEvent,
   updateServiceItemStatusEvent,
+  uploadAmendedOrdersEvent,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {

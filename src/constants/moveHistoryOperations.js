@@ -13,7 +13,6 @@ const moveHistoryOperations = {
   submitAmendedOrders: 'submitAmendedOrders', // internal.yaml
   submitMoveForApproval: 'submitMoveForApproval', // internal.yaml
   updateAllowance: 'updateAllowance', // ghc.yaml
-  uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
   updateOrder: 'updateOrder', // ghc.yaml
   updateOrders: 'updateOrders', // internal.yaml
   updateMoveTaskOrder: 'updateMoveTaskOrder', // ghc.yaml
@@ -22,6 +21,7 @@ const moveHistoryOperations = {
   updateMTOServiceItem: 'updateMTOServiceItem', // ghc.yaml
   updateMTOShipment: 'updateMTOShipment', // ghc.yaml internal.yaml prime.yaml
   updateMTOShipmentAddress: 'updateMTOShipmentAddress', // prime.yaml
+  uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
 };
 
 export default moveHistoryOperations;
