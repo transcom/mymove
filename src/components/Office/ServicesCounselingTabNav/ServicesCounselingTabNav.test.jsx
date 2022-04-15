@@ -14,7 +14,7 @@ describe('Move details tag rendering', () => {
     render(<ServicesCounselingTabNav {...basicNavProps} />, { wrapper: MemoryRouter });
 
     const moveDetailsTab = screen.getByTestId('MoveDetails-Tab');
-    expect(within(moveDetailsTab).queryByTestId('tag')).toBeFalsy();
+    expect(within(moveDetailsTab).queryByTestId('tag')).not.toBeInTheDocument();
   });
 
   it('should render the move details tab container with a tag that shows the count of unapproved shipments', () => {
@@ -34,7 +34,7 @@ describe('Move history tab', () => {
     render(<ServicesCounselingTabNav {...basicNavProps} />, { wrapper: MemoryRouter });
 
     const moveTaskOrderTab = screen.getByTestId('MoveHistory-Tab');
-    expect(within(moveTaskOrderTab).queryByTestId('tag')).toBeFalsy();
+    expect(within(moveTaskOrderTab).queryByTestId('tag')).not.toBeInTheDocument();
   });
 
   describe('Tab Links', () => {
