@@ -5,7 +5,6 @@ import { createBrowserHistory } from 'history';
 import React from 'react';
 import Menu from './shared/Menu';
 import FOUOHeader from 'components/FOUOHeader';
-import AccessCodeList from './AccessCodes/AccessCodeList';
 import UploadShow from './Uploads/UploadShow';
 import OfficeUserList from 'pages/Admin/OfficeUsers/OfficeUserList';
 import OfficeUserShow from 'pages/Admin/OfficeUsers/OfficeUserShow';
@@ -95,8 +94,7 @@ const Home = () => (
         show={TSPPShow}
       />
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
-      <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
-      <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
+      å <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
       <Resource
