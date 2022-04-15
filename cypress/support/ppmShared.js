@@ -192,7 +192,7 @@ export function deleteShipment(selector, expectedLength) {
     expect($modal).to.be.visible;
     cy.get('button').contains('Yes, Delete').click();
   });
-  cy.waitFor(['@deleteShipment', '@getShipment']);
+  cy.wait(['@deleteShipment', '@getShipment']);
   if (expectedLength > 0) {
     cy.get(selector).should('have.length', expectedLength);
   } else {
