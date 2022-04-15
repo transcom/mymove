@@ -1,6 +1,7 @@
 import React from 'react';
 
 import PlainTextDetails from './PlainTextDetails';
+import LabeledDetails from './LabeledDetails';
 
 import {
   eventNamesWithLabeledDetails,
@@ -21,13 +22,7 @@ const formatChangedValues = (values) => {
 
 const MoveHistoryDetailsSelector = ({ historyRecord }) => {
   if (eventNamesWithLabeledDetails[historyRecord.eventName]) {
-    return (
-      <div>
-        Labeled {historyRecord.eventName}
-        <div>old Values {formatChangedValues(historyRecord.oldValues)}</div>
-        <div>changed values {formatChangedValues(historyRecord.changedValues)}</div>
-      </div>
-    );
+    return <LabeledDetails changedValues={historyRecord.changedValues} />;
   }
 
   if (eventNamesWithServiceItemDetails[historyRecord.eventName]) {

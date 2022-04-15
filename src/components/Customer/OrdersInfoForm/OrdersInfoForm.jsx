@@ -116,6 +116,7 @@ const OrdersInfoForm = ({ currentDutyLocation, ordersTypeOptions, initialValues,
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
+                    placeholder="Enter a city or ZIP"
                   />
                 </>
               ) : (

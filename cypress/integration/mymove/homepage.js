@@ -23,7 +23,6 @@ describe('The Home Page', function () {
   });
 
   it('contains the link to customer service', function () {
-    // cy.visit('/ppm');
     cy.get('[data-testid=contact-footer]').contains('Contact Us');
     cy.get('address').within(() => {
       cy.get('a').should('have.attr', 'href', 'https://move.mil/customer-service');
@@ -31,12 +30,12 @@ describe('The Home Page', function () {
   });
 
   const editTestCases = [
-    { canEdit: true, moveSubmitted: false, userID: '1b16773e-995b-4efe-ad1c-bef2ae1253f8' }, // finished@ppm.unsubmitted
-    { canEdit: false, moveSubmitted: true, userID: '2d6a16ec-c031-42e2-aa55-90a1e29b961a' }, // new@ppm.submitted
+    { canEditOrDelete: true, moveSubmitted: false, userID: '1b16773e-995b-4efe-ad1c-bef2ae1253f8' }, // finished@ppm.unsubmitted
+    { canEditOrDelete: false, moveSubmitted: true, userID: '2d6a16ec-c031-42e2-aa55-90a1e29b961a' }, // new@ppm.submitted
   ];
 
-  editTestCases.forEach(({ canEdit, moveSubmitted, userID }) => {
-    const testTitle = `${canEdit ? 'can' : "can't"} edit the shipment when move ${
+  editTestCases.forEach(({ canEditOrDelete, moveSubmitted, userID }) => {
+    const testTitle = `${canEditOrDelete ? 'can' : "can't"} edit/delete the shipment when move ${
       moveSubmitted ? 'is' : "isn't"
     } submitted`;
 
@@ -51,10 +50,12 @@ describe('The Home Page', function () {
         cy.get('h3').should('contain', 'Time to submit your move');
       }
 
-      if (canEdit) {
-        cy.get('button').contains('PPM').siblings('svg');
+      if (canEditOrDelete) {
+        cy.get('[data-testid="shipment-list-item-container"] button').contains('Edit');
+        cy.get('[data-testid="shipment-list-item-container"] button').contains('Delete');
       } else {
-        cy.get('button').contains('PPM').siblings('svg').should('not.exist');
+        cy.get('[data-testid="shipment-list-item-container"] button').should('not.exist');
+        cy.get('[data-testid="shipment-list-item-container"] button').should('not.exist');
       }
     });
   });

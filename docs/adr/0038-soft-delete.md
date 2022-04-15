@@ -29,3 +29,7 @@ Please note that soft delete is to be treated like a hard delete in the regard t
 * `+` In possession of records when asked for.
 * `-` Implementing soft delete will be a long, involved process.
 * `-` Database will have to deal with holding both active and 'deleted' records.
+
+## Reference
+
+* [Documentation](https://transcom.github.io/mymove-docs/docs/backend/guides/how-to/soft-delete/) on how to implement soft deletion

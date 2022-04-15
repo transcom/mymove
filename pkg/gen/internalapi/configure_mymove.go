@@ -155,6 +155,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
 		})
 	}
+	if api.MtoShipmentDeleteShipmentHandler == nil {
+		api.MtoShipmentDeleteShipmentHandler = mto_shipment.DeleteShipmentHandlerFunc(func(params mto_shipment.DeleteShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.DeleteShipment has not yet been implemented")
+		})
+	}
 	if api.UploadsDeleteUploadHandler == nil {
 		api.UploadsDeleteUploadHandler = uploads.DeleteUploadHandlerFunc(func(params uploads.DeleteUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUpload has not yet been implemented")

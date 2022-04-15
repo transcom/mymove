@@ -75,6 +75,7 @@ const defaultProps = {
     path: '/moves/:moveId/review',
   },
   onDidMount: noop,
+  setMsg: noop,
   moveIsApproved: false,
   mtoShipments: [],
   serviceMember: {

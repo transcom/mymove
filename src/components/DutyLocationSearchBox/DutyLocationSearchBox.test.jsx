@@ -150,6 +150,11 @@ describe('DutyLocationSearchBoxContainer', () => {
       expect(screen.getByLabelText('Test Component')).toBeInTheDocument();
     });
 
+    it('renders the default placeholder text', () => {
+      render(<DutyLocationSearchBox input={{ name: 'test_component' }} name="test_component" />);
+      expect(screen.getByText('Start typing a duty location...')).toBeInTheDocument();
+    });
+
     it('renders an error message', () => {
       render(
         <DutyLocationSearchBox
@@ -194,6 +199,18 @@ describe('DutyLocationSearchBoxContainer', () => {
       );
       expect(screen.getByText('Luke AFB')).toBeInTheDocument();
       expect(screen.queryByText('Glendale Luke AFB, AZ 85309')).not.toBeInTheDocument();
+    });
+
+    it('can show placeholder text based on prop', () => {
+      const testPlaceholderText = 'Test Placeholder Text';
+      render(
+        <DutyLocationSearchBox
+          input={{ name: 'test_component' }}
+          name="test_component"
+          placeholder={testPlaceholderText}
+        />,
+      );
+      expect(screen.getByText(testPlaceholderText)).toBeInTheDocument();
     });
   });
 

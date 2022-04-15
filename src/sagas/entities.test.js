@@ -6,6 +6,7 @@ import {
   updateBackupContact,
   updateMove,
   updateMTOShipment,
+  updateMTOShipments,
   updateOrders,
   updatePPMs,
   updatePPM,
@@ -23,6 +24,7 @@ import {
   UPDATE_PPM,
   UPDATE_PPM_ESTIMATE,
   UPDATE_PPM_SIT_ESTIMATE,
+  UPDATE_MTO_SHIPMENTS,
 } from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { addEntities } from 'shared/Entities/actions';
@@ -38,6 +40,7 @@ describe('watchUpdateEntities', () => {
         takeLatest(UPDATE_ORDERS, updateOrders),
         takeLatest(UPDATE_MOVE, updateMove),
         takeLatest(UPDATE_MTO_SHIPMENT, updateMTOShipment),
+        takeLatest(UPDATE_MTO_SHIPMENTS, updateMTOShipments),
         takeLatest(UPDATE_PPMS, updatePPMs),
         takeLatest(UPDATE_PPM, updatePPM),
         takeLatest(UPDATE_PPM_ESTIMATE, updatePPMEstimate),

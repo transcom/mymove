@@ -326,3 +326,50 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil
 		})
 }
+
+//
+// DELETE
+//
+
+// DeleteShipmentHandler soft deletes a shipment
+type DeleteShipmentHandler struct {
+	handlers.HandlerContext
+	services.ShipmentDeleter
+}
+
+// Handle soft deletes a shipment
+func (h DeleteShipmentHandler) Handle(params mtoshipmentops.DeleteShipmentParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+
+			sm, err := models.GetCustomerFromShipment(appCtx.DB(), shipmentID)
+			if err != nil {
+				return mtoshipmentops.NewDeleteShipmentNotFound(), err
+			}
+
+			if appCtx.Session().ServiceMemberID != sm.ID {
+				return mtoshipmentops.NewDeleteShipmentForbidden(), err
+			}
+
+			_, err = h.DeleteShipment(appCtx, shipmentID)
+			if err != nil {
+				appCtx.Logger().Error("internalapi.DeleteShipmentHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewDeleteShipmentNotFound(), err
+				case apperror.ConflictError:
+					return mtoshipmentops.NewDeleteShipmentConflict(), err
+				case apperror.ForbiddenError:
+					return mtoshipmentops.NewDeleteShipmentForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return mtoshipmentops.NewDeleteShipmentUnprocessableEntity(), err
+				default:
+					return mtoshipmentops.NewDeleteShipmentInternalServerError(), err
+				}
+			}
+
+			return mtoshipmentops.NewDeleteShipmentNoContent(), nil
+		})
+}
