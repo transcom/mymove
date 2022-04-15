@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/go-openapi/swag"
@@ -150,18 +152,11 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	var move Move
 
 	err := db.Q().Eager(
-		"MTOShipments.MTOAgents",
-		"MTOShipments.PickupAddress",
-		"MTOShipments.SecondaryPickupAddress",
-		"MTOShipments.DestinationAddress",
-		"MTOShipments.SecondaryDeliveryAddress",
-		"MTOShipments.PPMShipment",
 		"SignedCertifications",
 		"Orders.ServiceMember",
 		"Orders.UploadedAmendedOrders",
 		"MoveDocuments.Document",
-	).LeftJoin("mto_shipments", "mto_shipments.id = moves.id AND mto_shipments.deleted_at IS NULL").
-		Where("show = TRUE").Find(&move, id)
+	).Where("show = TRUE").Find(&move, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -170,6 +165,20 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
+
+	var shipments MTOShipments
+	err = db.Q().Scope(utilities.ExcludeDeletedScope()).EagerPreload("MTOAgents",
+		"PickupAddress",
+		"SecondaryPickupAddress",
+		"DestinationAddress",
+		"SecondaryDeliveryAddress",
+		"PPMShipment").Where("mto_shipments.move_id = ?", move.ID).All(&shipments)
+
+	if err != nil {
+		return nil, err
+	}
+
+	move.MTOShipments = shipments
 
 	// Eager loading of nested has_many associations is broken
 	for i, moveDoc := range move.MoveDocuments {
