@@ -107,7 +107,9 @@ func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *upload
 		createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx, userUploader)
 		createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx, userUploader)
 		createSubmittedMoveWithFullPPMShipmentComplete(appCtx, userUploader)
-		createUnSubmittedMoveWithFinishedPPMShipment(appCtx, userUploader)
+		createUnSubmittedMoveWithFullPPMShipment1(appCtx, userUploader)
+		createUnSubmittedMoveWithFullPPMShipment2(appCtx, userUploader)
+		createUnSubmittedMoveWithFullPPMShipment3(appCtx, userUploader)
 		createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
 	}

@@ -4131,7 +4131,9 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx, userUploader)
 	createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx, userUploader)
 	createUnSubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
-	createUnSubmittedMoveWithFinishedPPMShipment(appCtx, userUploader)
+	createUnSubmittedMoveWithFullPPMShipment1(appCtx, userUploader)
+	createUnSubmittedMoveWithFullPPMShipment2(appCtx, userUploader)
+	createUnSubmittedMoveWithFullPPMShipment3(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 	createNTSMoveWithServiceItemsandPaymentRequests(appCtx, userUploader)
 
