@@ -202,7 +202,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		ServiceMemberID: serviceMember.ID,
 	}
 
-	actualOrder, err := serviceMember.FetchLatestOrder(session, suite.DB())
+	actualOrder, err := FetchLatestOrder(session, suite.DB())
 
 	if suite.NoError(err) {
 		suite.Equal(order.Grade, actualOrder.Grade)

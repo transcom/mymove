@@ -261,9 +261,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AccesscodeValidateAccessCodeHandler: accesscode.ValidateAccessCodeHandlerFunc(func(params accesscode.ValidateAccessCodeParams) middleware.Responder {
 			return middleware.NotImplemented("operation accesscode.ValidateAccessCode has not yet been implemented")
 		}),
-		EntitlementsValidateEntitlementHandler: entitlements.ValidateEntitlementHandlerFunc(func(params entitlements.ValidateEntitlementParams) middleware.Responder {
-			return middleware.NotImplemented("operation entitlements.ValidateEntitlement has not yet been implemented")
-		}),
 		PostalCodesValidatePostalCodeWithRateDataHandler: postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
 		}),
@@ -443,8 +440,6 @@ type MymoveAPI struct {
 	OrdersUploadAmendedOrdersHandler orders.UploadAmendedOrdersHandler
 	// AccesscodeValidateAccessCodeHandler sets the operation handler for the validate access code operation
 	AccesscodeValidateAccessCodeHandler accesscode.ValidateAccessCodeHandler
-	// EntitlementsValidateEntitlementHandler sets the operation handler for the validate entitlement operation
-	EntitlementsValidateEntitlementHandler entitlements.ValidateEntitlementHandler
 	// PostalCodesValidatePostalCodeWithRateDataHandler sets the operation handler for the validate postal code with rate data operation
 	PostalCodesValidatePostalCodeWithRateDataHandler postal_codes.ValidatePostalCodeWithRateDataHandler
 
@@ -724,9 +719,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.AccesscodeValidateAccessCodeHandler == nil {
 		unregistered = append(unregistered, "accesscode.ValidateAccessCodeHandler")
-	}
-	if o.EntitlementsValidateEntitlementHandler == nil {
-		unregistered = append(unregistered, "entitlements.ValidateEntitlementHandler")
 	}
 	if o.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		unregistered = append(unregistered, "postal_codes.ValidatePostalCodeWithRateDataHandler")
@@ -1083,10 +1075,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/access_codes/valid"] = accesscode.NewValidateAccessCode(o.context, o.AccesscodeValidateAccessCodeHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/entitlements/{moveId}"] = entitlements.NewValidateEntitlement(o.context, o.EntitlementsValidateEntitlementHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

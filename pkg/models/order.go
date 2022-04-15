@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -178,20 +180,16 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	}
 
 	// Eager loading of nested has_many associations is broken
-	err = db.Load(&order.UploadedOrders, "UserUploads.Upload")
+	var userUploads UserUploads
+	err = db.Q().
+		Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+		Where("document_id = ?", order.UploadedOrders.ID).
+		All(&userUploads)
 	if err != nil {
 		return Order{}, err
 	}
 
-	// Only return user uploads that haven't been deleted
-	userUploads := order.UploadedOrders.UserUploads
-	relevantUploads := make([]UserUpload, 0, len(userUploads))
-	for _, userUpload := range userUploads {
-		if userUpload.DeletedAt == nil {
-			relevantUploads = append(relevantUploads, userUpload)
-		}
-	}
-	order.UploadedOrders.UserUploads = relevantUploads
+	order.UploadedOrders.UserUploads = userUploads
 
 	// TODO: Handle case where more than one user is authorized to modify orders
 	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {

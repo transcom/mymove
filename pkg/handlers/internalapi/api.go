@@ -119,7 +119,6 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{ctx, moveRouter}
 
 	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{ctx}
-	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{ctx}
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{ctx}
 

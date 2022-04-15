@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/gobuffalo/flect"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 
@@ -131,13 +132,21 @@ func GetHasManyForeignKeyAssociations(model interface{}) []interface{} {
 	return hasManyForeignKeyAssociations
 }
 
-func ExcludeDeletedScope(model ...pop.TableNameAble) pop.ScopeFunc {
+func ExcludeDeletedScope(models ...interface{}) pop.ScopeFunc {
 	return func(q *pop.Query) *pop.Query {
-		if len(model) == 0 {
+		if len(models) == 0 {
 			q.Where("deleted_at IS NULL")
 		}
-		for _, m := range model {
-			q.Where(fmt.Sprintf("%s.deleted_at IS NULL", m.TableName()))
+		for _, model := range models {
+			var tableName string
+			// Some models override the table name instead of the snake case pluralizing of the model name
+			if modelTable, ok := model.(pop.TableNameAble); ok {
+				tableName = modelTable.TableName()
+			} else {
+				modelType := reflect.TypeOf(model)
+				tableName = flect.Pluralize(flect.Underscore(modelType.Name()))
+			}
+			q.Where(fmt.Sprintf("%s.deleted_at IS NULL", tableName))
 		}
 		return q
 	}
