@@ -21,13 +21,7 @@ references:
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres circleci/postgres:12.7-ram
 
-  # set demo-branch to the branch you want to deploy to demo, or
-  # `placeholder_branch_name` if you don't want to deploy to demo
-  #
-  # In addition, it's common practice to disable acceptance tests and
-  # ignore tests for demo deploys. See the branch settings below.
-  demo-branch: &demo-branch placeholder_branch_name
-
+  # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
   # in dp3-env (loadtest, demo, exp), or
   # `placeholder_branch_name` if you don't want to deploy to dp3
@@ -158,25 +152,6 @@ executors:
           password: $DOCKERHUB_PASSWORD
 
 commands:
-  aws_vars_demo:
-    steps:
-      - run:
-          name: 'Setting up AWS environment variables for demo env'
-          command: |
-            echo "export AWS_DEFAULT_REGION=$DEMO_REGION" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=$DEMO_ACCOUNT_ID" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=$DEMO_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=$DEMO_SECRET_ACCESS_KEY" >> $BASH_ENV
-            source $BASH_ENV
-  tls_vars_demo:
-    steps:
-      - run:
-          name: 'Setting up TLS environment variables for demo env'
-          command: |
-            echo "export TLS_CERT=$DEMO_DP3_CERT" >> $BASH_ENV
-            echo "export TLS_KEY=$DEMO_DP3_KEY" >> $BASH_ENV
-            echo "export TLS_CA=$DEMO_DP3_CA" >> $BASH_ENV
-            source $BASH_ENV
   aws_vars_stg:
     steps:
       - run:
@@ -850,24 +825,6 @@ jobs:
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
             TEST_ACC_ENV: *dp3-env
-      - aws_vars_demo
-      #can delete this cert step
-      - run:
-          name: Prepare certificates
-          command: |
-            sudo cp /home/circleci/transcom/mymove/bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
-      - run:
-          name: Run Demo acceptance tests
-          command: make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: demo
-            ENVIRONMENT: demo
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: demo
       - aws_vars_stg
       - run:
           name: Run Staging acceptance tests
@@ -1233,18 +1190,6 @@ jobs:
           repo: app
       - announce_failure
 
-  # `push_app_demo` pushes the app container to the milmove-demo container repository
-  push_app_demo:
-    executor: mymove_pusher
-    steps:
-      - aws_vars_demo
-      - push_image:
-          ecr_env: demo
-          image_name: app
-          tag: web-dev
-          repo: app
-      - announce_failure
-
   # `push_app_dp3` pushes the app container to the milmove-<dp3-env> container repository
   push_app_dp3:
     executor: mymove_pusher
@@ -1330,18 +1275,6 @@ jobs:
           repo: app-migrations
       - announce_failure
 
-  # `push_migrations_demo` pushes the migrations container to the milmove-demo container repository
-  push_migrations_demo:
-    executor: mymove_pusher
-    steps:
-      - aws_vars_demo
-      - push_image:
-          ecr_env: demo
-          image_name: app-migrations
-          tag: dev
-          repo: app-migrations
-      - announce_failure
-
   # `push_migrations_dp3` pushes the migrations container to the milmove-dp3 container repository
   push_migrations_dp3:
     executor: mymove_pusher
@@ -1412,18 +1345,6 @@ jobs:
           repo: app-tasks
       - announce_failure
 
-  # `push_tasks_demo` pushes the tasks containers to the milmove-demo container repository
-  push_tasks_demo:
-    executor: mymove_pusher
-    steps:
-      - aws_vars_demo
-      - push_image:
-          ecr_env: demo
-          image_name: tasks
-          tag: dev
-          repo: app-tasks
-      - announce_failure
-
   # `push_tasks_dp3` pushes the tasks containers to the milmove-dp3 container repository
   push_tasks_dp3:
     executor: mymove_pusher
@@ -1482,18 +1403,6 @@ jobs:
           working_dir: /mnt/ramdisk
       - announce_failure
 
-  # `push_webhook_client_demo` pushes the webhook client container to the demo container repository
-  push_webhook_client_demo:
-    executor: mymove_pusher
-    steps:
-      - aws_vars_demo
-      - push_image:
-          ecr_env: demo
-          image_name: webhook_client
-          tag: dev
-          repo: app-webhook-client
-      - announce_failure
-
   # `push_webhook_client_dp3` pushes the webhook client container to the dp3 container repository
   push_webhook_client_dp3:
     executor: mymove_pusher
@@ -1519,66 +1428,6 @@ jobs:
       - announce_failure
 
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
-
-  # `deploy_demo_migrations` deploys migrations to the demo environment
-  deploy_demo_migrations:
-    executor: mymove_pusher
-    environment:
-      - APP_ENVIRONMENT: 'demo'
-    steps:
-      - checkout
-      - aws_vars_demo
-      - deploy_migrations_steps:
-          ecr_env: demo
-
-  # `deploy_demo_tasks` deploys scheduled tasks to the demo environment
-  deploy_demo_tasks:
-    executor: mymove_pusher
-    environment:
-      - APP_ENVIRONMENT: 'demo'
-    steps:
-      - checkout
-      - aws_vars_demo
-      - deploy_dp3_tasks_steps:
-          ecr_env: demo
-
-  # `deploy_demo_app` updates the server-TLS app service in the demo environment
-  deploy_demo_app:
-    executor: mymove_pusher
-    environment:
-      - APP_ENVIRONMENT: 'demo'
-    steps:
-      - checkout
-      - aws_vars_demo
-      - deploy_app_steps:
-          compare_host: '' # leave blank since we want demo to be able to roll back
-          health_check_hosts: my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us
-          ecr_env: demo
-
-  # `deploy_demo_app_client_tls` updates the mutual-TLS service in the demo environment
-  deploy_demo_app_client_tls:
-    executor: mymove_pusher
-    environment:
-      - APP_ENVIRONMENT: 'demo'
-    steps:
-      - checkout
-      - aws_vars_demo
-      - tls_vars_demo
-      - deploy_app_client_tls_steps:
-          compare_host: '' # leave blank since we want demo to be able to roll back
-          health_check_hosts: api.demo.dp3.us
-          ecr_env: demo
-
-  # `deploy_demo_webhook_client` deploys the webhook client to demo
-  deploy_demo_webhook_client:
-    executor: mymove_pusher
-    environment:
-      APP_ENVIRONMENT: 'demo'
-    steps:
-      - checkout
-      - aws_vars_demo
-      - deploy_webhook_client_steps:
-          ecr_env: demo
 
   # `deploy_dp3_migrations` deploys migrations to the dp3 environment
   deploy_dp3_migrations:
@@ -1969,34 +1818,13 @@ workflows:
             branches:
               only: *dp3-branch
 
-      - push_app_demo:
-          requires:
-            - build_dp3_app
-          filters:
-            branches:
-              only: *demo-branch
-
-      - push_migrations_demo:
-          requires:
-            - build_migrations
-          filters:
-            branches:
-              only: *demo-branch
-
       - build_dp3_tasks:
           requires:
             - compile_app_server
             - compile_app_client
           filters:
             branches:
-              only: [*demo-branch, *dp3-branch]
-
-      - push_tasks_demo:
-          requires:
-            - build_dp3_tasks
-          filters:
-            branches:
-              only: *demo-branch
+              only: *dp3-branch
 
       - build_dp3_webhook_client:
           requires:
@@ -2004,58 +1832,7 @@ workflows:
             - compile_app_client
           filters:
             branches:
-              only: [*demo-branch, *dp3-branch]
-
-      - push_webhook_client_demo:
-          requires:
-            - build_dp3_webhook_client
-          filters:
-            branches:
-              only: *demo-branch
-
-      - deploy_demo_migrations:
-          requires:
-            - pre_deps_golang
-            - pre_test
-            - client_test
-            - server_test
-            - compile_app_server
-            - compile_app_client
-            - push_app_demo
-            - push_tasks_demo
-            - push_migrations_demo
-            - push_webhook_client_demo
-          filters:
-            branches:
-              only: *demo-branch
-
-      - deploy_demo_tasks:
-          requires:
-            - deploy_demo_migrations
-          filters:
-            branches:
-              only: *demo-branch
-
-      - deploy_demo_app:
-          requires:
-            - deploy_demo_migrations
-          filters:
-            branches:
-              only: *demo-branch
-
-      - deploy_demo_app_client_tls:
-          requires:
-            - deploy_demo_migrations
-          filters:
-            branches:
-              only: *demo-branch
-
-      - deploy_demo_webhook_client:
-          requires:
-            - deploy_demo_migrations
-          filters:
-            branches:
-              only: *demo-branch
+              only: *dp3-branch
 
       - push_app_dp3:
           requires:
