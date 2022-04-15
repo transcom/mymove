@@ -614,10 +614,21 @@ commands:
             docker cp cypress:/home/circleci/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
             docker cp cypress:/home/circleci/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
 
+  # this custom step has some duplication with
+  # scripts/run-e2e-mtls-test-docker because we want to run some of the
+  # steps below in parallel
   e2e_tests_mtls:
     steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run:
-          name: make e2e_mtls_test_docker
+          name: setup docker for server
+          command: |
+            docker network create e2e_mtls
+            docker build -t milmove_mtls:local -f Dockerfile.e2e .
+      - run:
+          background: true
+          name: run server
           command: |
             echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
             echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
@@ -626,16 +637,15 @@ commands:
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
             source $BASH_ENV
-            make e2e_mtls_test_docker
-          environment:
-            # Env vars needed for the webserver to run inside docker
-            APPLICATION: app
-            LOGIN_GOV_CALLBACK_PROTOCOL: http
-            LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
-            LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
-            LOGIN_GOV_ADMIN_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:adminmovemillocal
-            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            docker-compose -f docker-compose.mtls.yml up
+      - run:
+          name: run e2e mtls tests
+          command: |
+            docker run \
+            --name prime_api_client \
+            --network e2e_mtls \
+            --entrypoint /scripts/run-e2e-mtls-test \
+            milmove_mtls:local
 
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
@@ -946,34 +956,12 @@ jobs:
   # `integration_tests_mtls` runs integration tests using
   # prime-api-client.
   #
-  # This could almost certainly be sped up in a manner similar to the
-  # integration_tests, but this test is short enough it isn't urgent
-  # right now
   integration_tests_mtls:
     executor: mymove_compiler
     steps:
-      - aws_vars_transcom_gov_dev
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - restore_cache:
-          keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - restore_cache:
-          keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
-      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
-      - run: make server_generate
-      - run: rm -f bin/generate-test-data && make bin/generate-test-data
-      - run: rm -f bin/prime-api-client && make bin/prime-api-client
-      - run:
-          name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+          at: .
       - e2e_tests_mtls
-      - store_test_results:
-          path: cypress/results
       - announce_failure
 
   # `server_test` runs the server side Go tests
@@ -1092,6 +1080,7 @@ jobs:
             - Dockerfile.webhook_client
             - Dockerfile.webhook_client_dp3
             - docker-compose.e2e.yml
+            - docker-compose.mtls.yml
             - bin
             - config
             - migrations
@@ -1711,13 +1700,11 @@ workflows:
               ignore: *integration-ignore-branch
 
       - integration_tests_mtls:
+          # mtls integration tests use the same server image as the
+          # e2e cypress tests and so needs the client build
           requires:
-            - pre_deps_golang
-            - check_generated_code
-            - push_app_gov_dev
-            - push_app_stg
-            - push_migrations_gov_dev
-            - push_migrations_stg
+            - compile_app_server
+            - compile_app_client
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:

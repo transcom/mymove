@@ -39,6 +39,8 @@ const (
 	PortFlag string = "port"
 	// InsecureFlag indicates that TLS verification and validation can be skipped
 	InsecureFlag string = "insecure"
+	// WaitFlat is how long to wait for the server to respond
+	WaitFlag string = "wait"
 )
 
 // ParseFlags parses the command line flags

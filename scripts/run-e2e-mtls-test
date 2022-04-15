@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -eux -o pipefail
+
+#
+# INTEGRATION TESTS START
+#
+
+##Integration test for Prime API
+##Return moves from the list-moves endpoint where is_available_for_prime is true
+function prime_api_client () {
+    bin/prime-api-client \
+    --certpath config/tls/devlocal-mtls.cer \
+    --keypath config/tls/devlocal-mtls.key \
+    --insecure \
+    --hostname primelocal \
+    --port 9443 \
+    "$@"
+}
+
+
+# wait for 5 minutes for the server to be ready
+prime_api_client --wait 5m list-moves
+# now that the server is ready, actually run the tests and parse the JSON response
+
+# Integration test/health check for Prime API
+# Return moves from the list-moves endpoint where available_to_prime_at
+# is NOT NULL
+moves=$(prime_api_client --wait 5m list-moves)
+#Returns move IDs from the list-moves response (this would fail if API returns 500/400)
+moveID=$(echo "$moves" | jq '.[0] | .id')
+echo "$moveID"
+
+#Integration test/health check for Support API
+#Return all mtos regardless of whether or not they have been made available to prime at some point
+list_mtos=$(prime_api_client support-list-mtos)
+#Returns mtoShipments from the support-list-mtos response (this would fail if API returns 500/400)
+supportMtoShipments=$(echo "$list_mtos" | jq '.[0] | .mtoShipments')
+echo "$supportMtoShipments"
+
+#
+# INTEGRATION TESTS END
+#
+
+exit 0
