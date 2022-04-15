@@ -1141,10 +1141,6 @@ definitions:
       updated_at:
         type: string
         format: date-time
-      requires_access_code:
-        type: boolean
-        x-nullable: false
-        title: Requires Access Code
       weight_allotment:
         $ref: '#/definitions/WeightAllotment'
     required:
@@ -1153,7 +1149,6 @@ definitions:
       - is_profile_complete
       - created_at
       - updated_at
-      - requires_access_code
   CreateServiceMemberPayload:
     type: object
     properties:

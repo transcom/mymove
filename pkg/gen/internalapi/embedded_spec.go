@@ -5986,8 +5986,7 @@ func init() {
         "user_id",
         "is_profile_complete",
         "created_at",
-        "updated_at",
-        "requires_access_code"
+        "updated_at"
       ],
       "properties": {
         "affiliation": {
@@ -6070,11 +6069,6 @@ func init() {
         "rank": {
           "title": "Rank",
           "$ref": "#/definitions/ServiceMemberRank"
-        },
-        "requires_access_code": {
-          "type": "boolean",
-          "title": "Requires Access Code",
-          "x-nullable": false
         },
         "residential_address": {
           "title": "Residential Address",
@@ -12857,8 +12851,7 @@ func init() {
         "user_id",
         "is_profile_complete",
         "created_at",
-        "updated_at",
-        "requires_access_code"
+        "updated_at"
       ],
       "properties": {
         "affiliation": {
@@ -12941,11 +12934,6 @@ func init() {
         "rank": {
           "title": "Rank",
           "$ref": "#/definitions/ServiceMemberRank"
-        },
-        "requires_access_code": {
-          "type": "boolean",
-          "title": "Requires Access Code",
-          "x-nullable": false
         },
         "residential_address": {
           "title": "Residential Address",
