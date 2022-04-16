@@ -111,14 +111,6 @@ export function formatCentsRange(min, max) {
 
 // Service Member Formatters
 
-// Format a date in the MM-DD-YYYY format for use in the service member UI.
-export function formatDateSM(date) {
-  if (date) {
-    return moment(date).format('MM/DD/YYYY');
-  }
-  return undefined;
-}
-
 // Format a date into the format required for submission as a date property in
 // Swagger.
 export function formatSwaggerDate(date) {

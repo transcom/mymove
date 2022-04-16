@@ -12,6 +12,16 @@ export function toDollarString(num) {
   return numeral(num).format('$0,0.00');
 }
 
+// Service Member Formatters
+
+// Format a date in the MM-DD-YYYY format for use in the service member UI.
+export function formatDateSM(date) {
+  if (date) {
+    return moment(date).format('MM/DD/YYYY');
+  }
+  return undefined;
+}
+
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
 export function formatOrderType(orderType) {
   return orderType
