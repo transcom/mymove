@@ -109,39 +109,6 @@ export function formatCentsRange(min, max) {
   return `$${formatCents(min)} - ${formatCents(max)}`;
 }
 
-// Service Member Formatters
-
-// Format date for display of dates summaries
-const formatDateForDateRange = (date, formatType) => {
-  let format = '';
-  switch (formatType) {
-    case 'long':
-      format = 'ddd, MMM DD';
-      break;
-    case 'condensed':
-      format = 'MMM D';
-      break;
-    default:
-      format = 'ddd, MMM DD';
-  }
-  if (date) {
-    return moment(date).format(format);
-  }
-  return undefined;
-};
-
-export const displayDateRange = (dates, formatType = 'long') => {
-  let span = '';
-  let firstDate = '';
-  if (dates.length > 1) {
-    span = ` - ${formatDateForDateRange(dates[dates.length - 1], formatType)}`;
-  }
-  if (dates.length >= 1) {
-    firstDate = formatDateForDateRange(dates[0], formatType);
-  }
-  return firstDate + span;
-};
-
 // Office Formatters
 
 // Format a date and ignore any time values, e.g. 03-Jan-18
