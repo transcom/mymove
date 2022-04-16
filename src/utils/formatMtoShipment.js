@@ -3,8 +3,7 @@ import moment from 'moment';
 
 import { MTOAgentType } from 'shared/constants';
 import { parseDate } from 'shared/dates';
-import { parseSwaggerDate } from 'shared/formatters';
-import { formatDelimitedNumber } from 'utils/formatters';
+import { formatDelimitedNumber, parseSwaggerDate } from 'utils/formatters';
 import { roleTypes } from 'constants/userRoles';
 
 const formatDateForSwagger = (date) => {

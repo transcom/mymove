@@ -111,14 +111,6 @@ export function formatCentsRange(min, max) {
 
 // Service Member Formatters
 
-// Parse a date from the format used by Swagger into a Date object
-export function parseSwaggerDate(dateString) {
-  if (dateString) {
-    return moment(dateString, 'YYYY-MM-DD').toDate();
-  }
-  return undefined;
-}
-
 // Format date for display of dates summaries
 const formatDateForDateRange = (date, formatType) => {
   let format = '';

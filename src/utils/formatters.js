@@ -31,6 +31,14 @@ export function formatSwaggerDate(date) {
   return '';
 }
 
+// Parse a date from the format used by Swagger into a Date object
+export function parseSwaggerDate(dateString) {
+  if (dateString) {
+    return moment(dateString, 'YYYY-MM-DD').toDate();
+  }
+  return undefined;
+}
+
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
 export function formatOrderType(orderType) {
   return orderType
