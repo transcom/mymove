@@ -22,6 +22,15 @@ export function formatDateSM(date) {
   return undefined;
 }
 
+// Format a date into the format required for submission as a date property in
+// Swagger.
+export function formatSwaggerDate(date) {
+  if (date) {
+    return moment(date).format('YYYY-MM-DD');
+  }
+  return '';
+}
+
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
 export function formatOrderType(orderType) {
   return orderType
