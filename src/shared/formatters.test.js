@@ -90,12 +90,6 @@ describe('formatToOrdinal', () => {
   });
 });
 
-describe('toDollarString', () => {
-  it('returns string representation of a dollar', () => {
-    expect(formatters.toDollarString(1234.12)).toEqual('$1,234.12');
-  });
-});
-
 describe('filenameFromPath', () => {
   it('returns last portion of path with default delimiter', () => {
     expect(formatters.filenameFromPath('/home/user/folder/.hidden/My Long Filename.sql')).toEqual(

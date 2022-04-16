@@ -142,4 +142,10 @@ describe('formatters', () => {
       expect(formatters.formatLabelReportByDate('test')).toEqual('Report by date');
     });
   });
+
+  describe('toDollarString', () => {
+    it('returns string representation of a dollar', () => {
+      expect(formatters.toDollarString(1234.12)).toEqual('$1,234.12');
+    });
+  });
 });

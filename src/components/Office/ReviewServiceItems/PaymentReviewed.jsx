@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 
 import styles from './PaymentReviewed.module.scss';
 
-import { toDollarString, formatDateFromIso } from 'shared/formatters';
+import { formatDateFromIso } from 'shared/formatters';
+import { toDollarString } from 'utils/formatters';
 
 /**
  * This component represents a section shown in the ReviewDetailsCard at the end of navigation.

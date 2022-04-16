@@ -13,7 +13,8 @@ import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/S
 import { shipmentTypes, shipmentModificationTypes } from 'constants/shipments';
 import ShipmentModificationTag from 'components/ShipmentModificationTag/ShipmentModificationTag';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import { toDollarString, formatDateFromIso } from 'shared/formatters';
+import { formatDateFromIso } from 'shared/formatters';
+import { toDollarString } from 'utils/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { PaymentServiceItemParam, MTOServiceItemShape } from 'types/order';

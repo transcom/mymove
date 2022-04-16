@@ -1,4 +1,16 @@
 import moment from 'moment';
+import numeral from 'numeral';
+
+/**
+ * Formats number into a dollar string. Eg. $1,234.12
+ *
+ * More info: http://numeraljs.com/
+ * @param num
+ * @returns {string}
+ */
+export function toDollarString(num) {
+  return numeral(num).format('$0,0.00');
+}
 
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
 export function formatOrderType(orderType) {
