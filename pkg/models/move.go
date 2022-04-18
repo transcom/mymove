@@ -167,7 +167,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	var shipments MTOShipments
-	err = db.Q().Scope(utilities.ExcludeDeletedScope()).EagerPreload("MTOAgents",
+	err = db.Q().Scope(utilities.ExcludeDeletedScope()).Eager("MTOAgents",
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DestinationAddress",
