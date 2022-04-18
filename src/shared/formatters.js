@@ -2,7 +2,7 @@ import { isFinite } from 'lodash';
 import moment from 'moment';
 import path from 'path';
 
-import { DEPARTMENT_INDICATOR_LABELS, DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
+import { DEPARTMENT_INDICATOR_LABELS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
@@ -108,8 +108,6 @@ export function formatCentsRange(min, max) {
   return `$${formatCents(min)} - ${formatCents(max)}`;
 }
 
-// Office Formatters
-
 // Format a date, include its time and timezone, e.g. 03-Jan-2018 21:23 ET
 export function formatDateTimeWithTZ(date) {
   if (!date) return undefined;
@@ -166,13 +164,6 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
     return `${wholeNumInt.toLocaleString()}.${decimalNum}`;
   }
   return wholeNumInt.toLocaleString();
-};
-
-export const departmentIndicatorReadable = (departmentIndicator, missingText) => {
-  if (!departmentIndicator) {
-    return missingText;
-  }
-  return DEPARTMENT_INDICATOR_OPTIONS[`${departmentIndicator}`] || departmentIndicator;
 };
 
 export const departmentIndicatorLabel = (departmentIndicator) => {
