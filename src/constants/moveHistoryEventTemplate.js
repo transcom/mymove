@@ -231,6 +231,15 @@ export const uploadAmendedOrdersEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
+export const updateOrderEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateOrder,
+  tableName: 'orders',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated orders',
+  getDetailsPlainText: () => '-',
+});
+
 export const undefinedEvent = buildMoveHistoryEventTemplate({
   action: '*',
   eventName: '*',
@@ -258,6 +267,7 @@ const allMoveHistoryEventTemplates = [
   submitMoveForApprovalEvent,
   updateMoveTaskOrderEvent,
   updateMoveTaskOrderStatusEvent,
+  updateOrderEvent,
   updateServiceItemStatusEvent,
   uploadAmendedOrdersEvent,
   updateBillableWeightEvent,
