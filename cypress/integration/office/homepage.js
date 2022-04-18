@@ -53,7 +53,7 @@ describe('Office authorization', () => {
 
   it('redirects Services Counselor to Services Counselor homepage', () => {
     cy.signInAsNewServicesCounselorUser();
-    cy.waitFor('@getCounselingSortedOrders');
+    cy.wait('@getCounselingSortedOrders');
 
     cy.contains('Moves');
     cy.contains('Needs counseling');

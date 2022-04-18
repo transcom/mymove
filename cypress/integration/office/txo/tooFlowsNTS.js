@@ -53,7 +53,7 @@ describe('TOO user', () => {
 
     // Edit shipments to enter missing info
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.waitFor(['@getMTOServiceItems, @getMoves']);
+    cy.wait(['@getMTOServiceItems, @getMoves']);
 
     // Basic info
     cy.get('#requestedPickupDate').clear().type('16 Mar 2022').blur();
@@ -83,7 +83,7 @@ describe('TOO user', () => {
 
     // edit the NTS shipment to be handled by an external vendor
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.waitFor(['@getMTOServiceItems, @getMoves']);
+    cy.wait(['@getMTOServiceItems, @getMoves']);
 
     cy.get('label[for="vendorExternal"]').click();
     cy.get('[data-testid="submitForm"]').click();
@@ -93,7 +93,7 @@ describe('TOO user', () => {
 
     // edit the NTS shipment back to being handled by the GHC Prime contractor
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.waitFor(['@getMTOServiceItems, @getMoves']);
+    cy.wait(['@getMTOServiceItems, @getMoves']);
 
     cy.get('[data-testid="alert"]').contains('The GHC prime contractor is not handling the shipment.');
 
@@ -394,7 +394,7 @@ describe('TOO user', () => {
 
 function editTacSac() {
   cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-  cy.waitFor(['@getMTOServiceItems']);
+  cy.wait(['@getMTOServiceItems']);
 
   cy.get('[data-testid="grid"] button').contains('Add or edit codes').click();
 

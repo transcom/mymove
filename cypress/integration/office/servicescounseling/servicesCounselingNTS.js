@@ -34,14 +34,14 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="ShipmentContainer"] .usa-button').should('have.length', 3);
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.waitFor(['@getMTOServiceItems']);
+    cy.wait(['@getMTOServiceItems']);
     // click to trigger confirmation modal
     cy.get('[data-testid="grid"] button').contains('Delete shipment').click();
 
     cy.get('[data-testid="modal"]').should('be.visible');
 
     cy.get('[data-testid="modal"] button').contains('Delete shipment').click();
-    cy.waitFor(['@patchServiceCounselingCompleted', '@getMoves']);
+    cy.wait(['@patchServiceCounselingCompleted', '@getMoves']);
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').should('have.length', 2);
   });
@@ -50,7 +50,7 @@ describe('Services counselor user', () => {
     navigateToMove('NTSHHG');
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.waitFor(['@getMTOServiceItems']);
+    cy.wait(['@getMTOServiceItems']);
 
     cy.get('[data-testid="grid"] button').contains('Add or edit codes').click();
 
@@ -73,7 +73,7 @@ describe('Services counselor user', () => {
     navigateToMove('NTSHHG');
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.waitFor(['@getMTOServiceItems, @getMoves']);
+    cy.wait(['@getMTOServiceItems, @getMoves']);
 
     cy.get('[data-testid="radio"] [for="tacType-NTS"]').click();
     cy.get('[data-testid="radio"] [for="sacType-HHG"]').click();
@@ -92,7 +92,7 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="modal"]').should('be.visible');
 
     cy.get('button').contains('Yes, submit').click();
-    cy.waitFor(['@patchServiceCounselingCompleted', '@getMoves']);
+    cy.wait(['@patchServiceCounselingCompleted', '@getMoves']);
 
     // verify success alert
     cy.contains('Move submitted.');
