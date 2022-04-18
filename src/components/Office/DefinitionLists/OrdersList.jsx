@@ -6,9 +6,13 @@ import styles from './OfficeDefinitionLists.module.scss';
 
 import { OrdersInfoShape } from 'types/order';
 import { formatDate } from 'shared/dates';
-import { ordersTypeDetailReadable } from 'shared/formatters';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-import { formatLabelReportByDate, departmentIndicatorReadable, ordersTypeReadable } from 'utils/formatters';
+import {
+  formatLabelReportByDate,
+  departmentIndicatorReadable,
+  ordersTypeReadable,
+  ordersTypeDetailReadable,
+} from 'utils/formatters';
 
 const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
   const { ordersType } = ordersInfo;

@@ -1,7 +1,6 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
 import path from 'path';
-import { ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 export function formatNumber(num) {
@@ -160,13 +159,6 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
     return `${wholeNumInt.toLocaleString()}.${decimalNum}`;
   }
   return wholeNumInt.toLocaleString();
-};
-
-export const ordersTypeDetailReadable = (ordersTypeDetail, missingText) => {
-  if (!ordersTypeDetail) {
-    return missingText;
-  }
-  return ORDERS_TYPE_DETAILS_OPTIONS[`${ordersTypeDetail}`] || ordersTypeDetail;
 };
 
 export const paymentRequestStatusReadable = (paymentRequestStatus) => {
