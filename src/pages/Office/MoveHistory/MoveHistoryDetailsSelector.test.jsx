@@ -4,80 +4,44 @@ import { render, screen } from '@testing-library/react';
 import MoveHistoryDetailsSelector from './MoveHistoryDetailsSelector';
 
 describe('MoveHistoryDetailsSelector', () => {
-  it.each([
-    [{ eventName: 'approveShipment', oldValues: { shipment_type: 'HHG' } }, 'HHG shipment'],
-    [{ eventName: 'updateMTOServiceItem' }, 'Service Items'],
-    [
-      {
-        eventName: 'updateMTOServiceItemStatus',
-        context: { name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
+  describe('for a plain text details event  (request shipment cancellation)', () => {
+    const historyRecord = {
+      action: 'UPDATE',
+      changedValues: {
+        status: 'DRAFT',
       },
-      'NTS shipment, Domestic origin price',
-    ],
-    [{ eventName: 'createOrders' }, '-'],
-    [{ eventName: 'uploadAmendedOrders' }, '-'],
-    [{ eventName: 'submitMoveForApproval' }, '-'],
-    [{ eventName: 'createMTOShipment' }, '-'],
-    [{ eventName: 'createMTOServiceItem' }, 'Service Items'],
-    [{ eventName: 'default' }, '-'],
-  ])('for history record %s it renders %s', (historyRecord, text) => {
-    render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
-
-    expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
+      eventName: 'requestShipmentCancellation',
+      oldValues: { shipment_type: 'PPM' },
+      tableName: '',
+    };
+    it('renders the plain text details appropriately', () => {
+      render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
+      expect(screen.getByText('Requested cancellation for PPM shipment')).toBeInTheDocument();
+    });
   });
 
-  it.each([
-    [
-      { eventName: 'setFinancialReviewFlag', changedValues: { financial_review_flag: 'true' } },
-      'Move flagged for financial review',
-    ],
-    [
-      { eventName: 'setFinancialReviewFlag', changedValues: { financial_review_flag: 'false' } },
-      'Move unflagged for financial review',
-    ],
-    [
-      { eventName: 'updateMoveTaskOrderStatus', changedValues: { status: 'APPROVED' } },
-      'Created Move Task Order (MTO)',
-    ],
-    [
-      { eventName: 'updateMoveTaskOrderStatus', changedValues: { status: 'Rejected' } },
-      'Rejected Move Task Order (MTO)',
-    ],
-    [
-      {
-        eventName: 'approveShipmentDiversion',
-        oldValues: { shipment_type: 'HHG' },
-        changedValues: { status: 'APPROVED' },
+  describe('for a labeled details event (update move task order)', () => {
+    const historyRecord = {
+      action: 'UPDATE',
+      changedValues: {
+        billable_weight_cap: '200',
+        customer_remarks: 'Test customer remarks',
+        counselor_remarks: '',
       },
-      'HHG shipment',
-    ],
-    [
-      { eventName: 'requestShipmentCancellation', oldValues: { shipment_type: 'HHG' } },
-      'Requested cancellation for HHG shipment',
-    ],
-    [
-      { eventName: 'requestShipmentDiversion', oldValues: { shipment_type: 'HHG' } },
-      'Requested diversion for HHG shipment',
-    ],
-  ])('for plain text historyRecord %s it renders %s', (historyRecord, text) => {
-    render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
-
-    expect(screen.getByText(text)).toBeInTheDocument();
+      eventName: 'updateMoveTaskOrder',
+      oldValues: { billable_: 'PPM' },
+      tableName: 'moves',
+    };
+    it('renders the labeled details appropriately', () => {
+      render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
+      expect(screen.getByText('Billable weight cap')).toBeInTheDocument();
+      expect(screen.getByText(200, { exact: false })).toBeInTheDocument();
+      expect(screen.getByText('Customer remarks')).toBeInTheDocument();
+      expect(screen.getByText('Test customer remarks', { exact: false })).toBeInTheDocument();
+    });
   });
 
-  it.each([
-    // [{ eventName: 'counselingUpdateOrder' }, 'Labeled'],
-    // [{ eventName: 'updateOrder' }, 'Labeled'],
-    // [{ eventName: 'updateAllowance' }, 'Labeled'],
-    // [{ eventName: 'counselingUpdateAllowance' }, 'Labeled'],
-    // [{ eventName: 'updateMoveTaskOrder' }, 'Labeled'],
-    [{ eventName: 'updateMTOShipment', changedValues: { billable_weight_cap: '800' } }, 'Billable weight cap'],
-    // [{ eventName: 'updateOrders' }, 'Labeled'],
-    // [{ eventName: 'submitAmendedOrders' }, 'Labeled'],
-    // [{ eventName: 'updateMTOShipmentAddress' }, 'Labeled'],
-  ])('for labeled historyRecord %s it renders %s', (historyRecord, text) => {
-    render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
+  // describe('handle a payments details event', () => {
 
-    expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
-  });
+  // });
 });
