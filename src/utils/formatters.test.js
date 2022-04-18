@@ -173,4 +173,13 @@ describe('formatters', () => {
       expect(formatters.formatDateFromIso('2020-08-11T21:00:59.126987Z', 'DD MMM YYYY')).toBe('11 Aug 2020');
     });
   });
+
+  describe('formatToOrdinal', () => {
+    it('returns the ordinal corresponding to an int', () => {
+      expect(formatters.formatToOrdinal(1)).toEqual('1st');
+      expect(formatters.formatToOrdinal(2)).toEqual('2nd');
+      expect(formatters.formatToOrdinal(3)).toEqual('3rd');
+      expect(formatters.formatToOrdinal(4)).toEqual('4th');
+    });
+  });
 });

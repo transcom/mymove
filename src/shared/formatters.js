@@ -169,13 +169,6 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
   return wholeNumInt.toLocaleString();
 };
 
-// maps int to int with ordinal 1 -> 1st, 2 -> 2nd, 3rd ...
-export const formatToOrdinal = (n) => {
-  const s = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
-};
-
 // Map shipment types to friendly display names for mto shipments
 export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
   switch (shipmentType) {

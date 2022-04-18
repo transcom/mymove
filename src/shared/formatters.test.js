@@ -56,15 +56,6 @@ describe('formatters', () => {
   });
 });
 
-describe('formatToOrdinal', () => {
-  it('returns the ordinal corresponding to an int', () => {
-    expect(formatters.formatToOrdinal(1)).toEqual('1st');
-    expect(formatters.formatToOrdinal(2)).toEqual('2nd');
-    expect(formatters.formatToOrdinal(3)).toEqual('3rd');
-    expect(formatters.formatToOrdinal(4)).toEqual('4th');
-  });
-});
-
 describe('filenameFromPath', () => {
   it('returns last portion of path with default delimiter', () => {
     expect(formatters.filenameFromPath('/home/user/folder/.hidden/My Long Filename.sql')).toEqual(
