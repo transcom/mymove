@@ -371,6 +371,7 @@ func FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) 
 		if err != nil {
 			return Order{}, err
 		}
+		order.UploadedAmendedOrders.UserUploads = amendedUserUploads
 	}
 
 	// User must be logged in service member
