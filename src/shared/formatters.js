@@ -1,7 +1,6 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
 import path from 'path';
-import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 export function formatNumber(num) {
   if (!isFinite(num)) {
@@ -159,10 +158,6 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
     return `${wholeNumInt.toLocaleString()}.${decimalNum}`;
   }
   return wholeNumInt.toLocaleString();
-};
-
-export const paymentRequestStatusReadable = (paymentRequestStatus) => {
-  return PAYMENT_REQUEST_STATUS_LABELS[`${paymentRequestStatus}`] || paymentRequestStatus;
 };
 
 export const dropdownInputOptions = (options) => {

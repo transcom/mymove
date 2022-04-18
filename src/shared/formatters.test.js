@@ -1,8 +1,6 @@
 import * as formatters from './formatters';
 import moment from 'moment';
 
-import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
-
 describe('formatters', () => {
   describe('truncateNumber', () => {
     it('should truncate number based on passed variable returning a number string', () => {
@@ -81,35 +79,5 @@ describe('formatAgeToDays', () => {
 
   it('returns expected string greater than 1 day', () => {
     expect(formatters.formatAgeToDays(2.99)).toEqual('2 days');
-  });
-});
-
-describe('paymentRequestStatusReadable', () => {
-  it('returns expected string for PENDING', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual('Payment requested');
-  });
-
-  it('returns expected string for REVIEWED', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.REVIEWED)).toEqual('Reviewed');
-  });
-
-  it('returns expected string for SENT_TO_GEX', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.SENT_TO_GEX)).toEqual('Reviewed');
-  });
-
-  it('returns expected string for RECEIVED_BY_GEX', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX)).toEqual('Reviewed');
-  });
-
-  it('returns expected string for PAID', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('Paid');
-  });
-
-  it('returns expected string for EDI_ERROR', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.EDI_ERROR)).toEqual('EDI error');
-  });
-
-  it('returns expected string for DEPRECATED', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.DEPRECATED)).toEqual('Deprecated');
   });
 });

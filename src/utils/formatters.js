@@ -6,6 +6,7 @@ import { DEPARTMENT_INDICATOR_LABELS, DEPARTMENT_INDICATOR_OPTIONS } from 'const
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { SERVICE_COUNSELING_MOVE_STATUS_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -170,6 +171,10 @@ export const ordersTypeDetailReadable = (ordersTypeDetail, missingText) => {
     return missingText;
   }
   return ORDERS_TYPE_DETAILS_OPTIONS[`${ordersTypeDetail}`] || ordersTypeDetail;
+};
+
+export const paymentRequestStatusReadable = (paymentRequestStatus) => {
+  return PAYMENT_REQUEST_STATUS_LABELS[`${paymentRequestStatus}`] || paymentRequestStatus;
 };
 
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
