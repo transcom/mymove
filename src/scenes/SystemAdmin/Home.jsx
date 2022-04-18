@@ -94,7 +94,7 @@ const Home = () => (
         show={TSPPShow}
       />
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
-      å <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
+      <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
       <Resource
