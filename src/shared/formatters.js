@@ -3,7 +3,6 @@ import moment from 'moment';
 import path from 'path';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
-import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { MOVE_STATUS_OPTIONS, SERVICE_COUNSELING_MOVE_STATUS_OPTIONS } from 'constants/queues';
 
 export function formatNumber(num) {
@@ -162,10 +161,6 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
     return `${wholeNumInt.toLocaleString()}.${decimalNum}`;
   }
   return wholeNumInt.toLocaleString();
-};
-
-export const serviceMemberAgencyLabel = (agency) => {
-  return SERVICE_MEMBER_AGENCY_LABELS[`${agency}`] || agency;
 };
 
 export const moveStatusLabel = (status) => {

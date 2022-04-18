@@ -3,6 +3,7 @@ import numeral from 'numeral';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { DEPARTMENT_INDICATOR_LABELS, DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
+import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -141,6 +142,10 @@ export const departmentIndicatorReadable = (departmentIndicator, missingText) =>
 
 export const departmentIndicatorLabel = (departmentIndicator) => {
   return DEPARTMENT_INDICATOR_LABELS[`${departmentIndicator}`] || departmentIndicator;
+};
+
+export const serviceMemberAgencyLabel = (agency) => {
+  return SERVICE_MEMBER_AGENCY_LABELS[`${agency}`] || agency;
 };
 
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
