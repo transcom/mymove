@@ -80,26 +80,29 @@ jest.mock('hooks/queries', () => ({
 }));
 
 describe('MoveHistory', () => {
-  render(
-    <MockProviders initialEntries={[`/moves/${testMoveLocator}/history`]}>
-      <MoveHistory moveCode={testMoveLocator} />,
-    </MockProviders>,
+  it.each([['/moves'], ['/counseling/moves']])(
+    'render the different elements of the Move history tab at path %s',
+    async (basePath) => {
+      render(
+        <MockProviders initialEntries={[`${basePath}/${testMoveLocator}/history`]}>
+          <MoveHistory moveCode={testMoveLocator} />,
+        </MockProviders>,
+      );
+
+      expect(screen.getByText('Move history (2)')).toBeInTheDocument();
+      expect(screen.getByRole('table')).toBeInTheDocument();
+
+      expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent('09 Mar 22 15:33');
+      expect(screen.getByTestId('move-history-event-0')).toHaveTextContent('Updated orders');
+      expect(screen.getByTestId('move-history-details-0')).toBeInTheDocument();
+      expect(screen.getByTestId('move-history-modified-by-0')).toBeInTheDocument();
+
+      expect(screen.getByTestId('move-history-date-time-1')).toHaveTextContent('08 Mar 22 18:28');
+      expect(screen.getByTestId('move-history-event-1')).toBeInTheDocument();
+      expect(screen.getByTestId('move-history-details-1')).toBeInTheDocument();
+      expect(screen.getByTestId('move-history-modified-by-1')).toBeInTheDocument();
+
+      expect(screen.getByTestId('pagination')).toBeInTheDocument();
+    },
   );
-
-  it('renders the different elements of the Move history tab', () => {
-    expect(screen.getByText('Move history (2)')).toBeInTheDocument();
-    expect(screen.getByRole('table')).toBeInTheDocument();
-
-    expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent('09 Mar 22 15:33');
-    expect(screen.getByTestId('move-history-event-0')).toHaveTextContent('Updated orders');
-    expect(screen.getByTestId('move-history-details-0')).toBeInTheDocument();
-    expect(screen.getByTestId('move-history-modified-by-0')).toBeInTheDocument();
-
-    expect(screen.getByTestId('move-history-date-time-1')).toHaveTextContent('08 Mar 22 18:28');
-    expect(screen.getByTestId('move-history-event-1')).toBeInTheDocument();
-    expect(screen.getByTestId('move-history-details-1')).toBeInTheDocument();
-    expect(screen.getByTestId('move-history-modified-by-1')).toBeInTheDocument();
-
-    expect(screen.getByTestId('pagination')).toBeInTheDocument();
-  });
 });

@@ -45,6 +45,7 @@ export const servicesCounselingRoutes = {
   QUEUE_VIEW_PATH: '/counseling/queue',
   SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-:shipmentType`,
   SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId`,
+  MOVE_HISTORY_PATH: `${BASE_MOVE_PATH}/history`,
 };
 
 export const tioRoutes = {
