@@ -4,7 +4,7 @@ import numeral from 'numeral';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { DEPARTMENT_INDICATOR_LABELS, DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
-import { MOVE_STATUS_OPTIONS } from 'constants/queues';
+import { SERVICE_COUNSELING_MOVE_STATUS_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -151,6 +151,10 @@ export const serviceMemberAgencyLabel = (agency) => {
 
 export const moveStatusLabel = (status) => {
   return MOVE_STATUS_OPTIONS.find((option) => option.value === `${status}`)?.label || status;
+};
+
+export const serviceCounselingMoveStatusLabel = (status) => {
+  return SERVICE_COUNSELING_MOVE_STATUS_OPTIONS.find((option) => option.value === `${status}`)?.label || status;
 };
 
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
