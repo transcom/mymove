@@ -111,13 +111,6 @@ export function formatCentsRange(min, max) {
 
 // Office Formatters
 
-export function formatTime(date) {
-  if (date) {
-    return moment(date).format('HH:mm');
-  }
-  return undefined;
-}
-
 // Format a date and include its time, e.g. 03-Jan-2018 21:23
 export function formatDateTime(date) {
   if (date) {

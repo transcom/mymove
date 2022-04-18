@@ -91,6 +91,13 @@ export function formatDate4DigitYear(date) {
   return undefined;
 }
 
+export function formatTime(date) {
+  if (date) {
+    return moment(date).format('HH:mm');
+  }
+  return undefined;
+}
+
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
 export function formatOrderType(orderType) {
   return orderType
