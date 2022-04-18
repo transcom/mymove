@@ -6,7 +6,6 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func createDefaultPPMShipment() *models.PPMShipment {
@@ -29,7 +28,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NilOrNoVerrs(err)
 		suite.Equal(newPPM.PickupPostalCode, updatedPPMShipment.PickupPostalCode)
 		// suite.True(updatedPPMShipment.SitExpected)
-		suite.Equal(unit.Pound(1987), *updatedPPMShipment.ProGearWeight)
+		suite.Equal(*oldPPMShipment.ProGearWeight, *updatedPPMShipment.ProGearWeight)
 	})
 
 	suite.Run("Not Found Error", func() {
