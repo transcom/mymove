@@ -2,7 +2,6 @@ import { isFinite } from 'lodash';
 import moment from 'moment';
 import path from 'path';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { DEPARTMENT_INDICATOR_LABELS, DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
@@ -167,22 +166,6 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
     return `${wholeNumInt.toLocaleString()}.${decimalNum}`;
   }
   return wholeNumInt.toLocaleString();
-};
-
-// Map shipment types to friendly display names for mto shipments
-export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
-  switch (shipmentType) {
-    case SHIPMENT_OPTIONS.HHG:
-      return 'Household goods';
-    case SHIPMENT_OPTIONS.NTSR:
-      return 'NTS release';
-    case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
-      return 'Household goods longhaul domestic';
-    case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
-      return 'Household goods shorthaul domestic';
-    default:
-      return shipmentType;
-  }
 };
 
 export const departmentIndicatorReadable = (departmentIndicator, missingText) => {

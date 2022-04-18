@@ -1,6 +1,8 @@
 import moment from 'moment';
 import numeral from 'numeral';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 /**
  * Formats number into a dollar string. Eg. $1,234.12
  *
@@ -111,6 +113,22 @@ export const formatToOrdinal = (n) => {
   const s = ['th', 'st', 'nd', 'rd'];
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+// Map shipment types to friendly display names for mto shipments
+export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
+  switch (shipmentType) {
+    case SHIPMENT_OPTIONS.HHG:
+      return 'Household goods';
+    case SHIPMENT_OPTIONS.NTSR:
+      return 'NTS release';
+    case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
+      return 'Household goods longhaul domestic';
+    case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
+      return 'Household goods shorthaul domestic';
+    default:
+      return shipmentType;
+  }
 };
 
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
