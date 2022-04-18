@@ -13,7 +13,10 @@ import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
 import { MockProviders, renderWithRouter } from 'testUtils';
-import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import {
+  updateMoveStatusServiceCounselingCompleted,
+  updateMoveStatusServiceCounselingPPMApproved,
+} from 'services/ghcApi';
 
 const mockRequestedMoveCode = 'LR4T8V';
 
@@ -29,6 +32,7 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   updateMoveStatusServiceCounselingCompleted: jest.fn(),
+  updateMoveStatusServiceCounselingPPMApproved: jest.fn(),
 }));
 
 const mtoShipments = [
@@ -230,6 +234,24 @@ const newMoveDetailsQuery = {
   isLoading: false,
   isError: false,
   isSuccess: true,
+};
+
+const newPPMMoveDetailsQuery = {
+  ...newMoveDetailsQuery,
+  mtoShipments: [
+    {
+      createdAt: '2022-04-07T19:00:01.681Z',
+      eTag: 'MjAyMi0wNC0wN1QxOTowMDozNy40OTY1ODRa',
+      id: '11793d13-f3b3-473d-8eec-f969d5c350d9',
+      moveTaskOrderID: '1af43f14-9921-4723-a8ad-57477ee0b99f',
+      requestedDeliveryDate: '0001-01-01',
+      requestedPickupDate: '0001-01-01',
+      shipmentType: 'PPM',
+      sitDaysAllowance: 90,
+      status: 'DRAFT',
+      updatedAt: '2022-04-07T19:00:37.496Z',
+    },
+  ],
 };
 
 const counselingCompletedMoveDetailsQuery = {
@@ -547,6 +569,27 @@ describe('MoveDetails page', () => {
       it('allows the service counselor to use the modal as expected', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
         updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
+
+        render(mockedComponent);
+
+        const submitButton = await screen.findByRole('button', { name: 'Submit move details' });
+
+        userEvent.click(submitButton);
+
+        expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 })).toBeInTheDocument();
+
+        const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
+
+        userEvent.click(modalSubmitButton);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 })).not.toBeInTheDocument();
+        });
+      });
+
+      it('allows the service counselor to approve a PPM with the modal', async () => {
+        useMoveDetailsQueries.mockReturnValue(newPPMMoveDetailsQuery);
+        updateMoveStatusServiceCounselingPPMApproved.mockImplementation(() => Promise.resolve({}));
 
         render(mockedComponent);
 

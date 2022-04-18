@@ -22,8 +22,12 @@ import FinancialReviewModal from 'components/Office/FinancialReviewModal/Financi
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import {
+  updateMoveStatusServiceCounselingCompleted,
+  updateMoveStatusServiceCounselingPPMApproved,
+  updateFinancialFlag,
+} from 'services/ghcApi';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -206,6 +210,19 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
     },
   });
 
+  const [mutateMoveStatusPPMApproved] = useMutation(updateMoveStatusServiceCounselingPPMApproved, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([MOVES, data.locator], data);
+      queryCache.invalidateQueries([MOVES, data.locator]);
+      setAlertMessage('Move submitted.');
+      setAlertType('success');
+    },
+    onError: () => {
+      setAlertMessage('There was a problem approving the PPM for this move. Please try again later.');
+      setAlertType('error');
+    },
+  });
+
   const [mutateFinancialReview] = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
@@ -232,8 +249,16 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
     setIsSubmitModalVisible(true);
   };
 
+  const isPPMMove = mtoShipments
+    .filter((shipment) => !shipment.deletedAt)
+    .every((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
+
   const handleConfirmSubmitMoveDetails = () => {
-    mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+    if (isPPMMove) {
+      mutateMoveStatusPPMApproved({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+    } else {
+      mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+    }
     setIsSubmitModalVisible(false);
   };
 

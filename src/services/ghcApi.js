@@ -189,6 +189,18 @@ export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, if
   );
 }
 
+export const updateMoveStatusServiceCounselingPPMApproved = ({ moveTaskOrderID, ifMatchETag, normalize = false }) => {
+  const operationPath = 'moveTaskOrder.updateMTOStatusServiceCounselingPPMApproved';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      'If-Match': ifMatchETag,
+    },
+    { normalize },
+  );
+};
+
 export function updateMTOShipmentStatus({
   shipmentID,
   operationPath,
