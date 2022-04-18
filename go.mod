@@ -32,7 +32,7 @@ require (
 	github.com/go-playground/validator/v10 v10.10.1
 	github.com/gobuffalo/envy v1.10.1
 	github.com/gobuffalo/fizz v1.14.0
-	github.com/gobuffalo/flect v0.2.4
+	github.com/gobuffalo/flect v0.2.5
 	github.com/gobuffalo/nulls v0.4.1 // indirect
 	github.com/gobuffalo/pop/v5 v5.3.4
 	github.com/gobuffalo/validate/v3 v3.3.1
@@ -58,7 +58,7 @@ require (
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.4
-	github.com/pterm/pterm v0.12.39
+	github.com/pterm/pterm v0.12.41
 	github.com/spf13/afero v1.8.2
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
@@ -84,7 +84,7 @@ require (
 )
 
 require (
-	github.com/golang-jwt/jwt/v4 v4.4.0
+	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/rickar/cal/v2 v2.1.3
 	github.com/trussworks/otelhttp v0.0.0-20211201183707-a6d8db57ed9b
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.5.0
@@ -144,7 +144,7 @@ require (
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
-	github.com/gookit/color v1.4.2 // indirect
+	github.com/gookit/color v1.5.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect

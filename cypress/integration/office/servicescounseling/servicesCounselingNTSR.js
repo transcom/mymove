@@ -41,7 +41,7 @@ describe('Services counselor user', () => {
 
     cy.get('[data-testid="modal"]').should('be.visible');
 
-    cy.get('[data-testid="modal"] button').contains('Delete shipment').click();
+    cy.get('[data-testid="modal"] button').contains('Delete shipment').click({ force: true });
     cy.wait(['@deleteShipment', '@getMoves']);
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').should('have.length', 2);

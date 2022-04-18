@@ -1,63 +1,87 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
 import ShipmentList from './ShipmentList';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-export const Basic = () => (
-  <div className="grid-container">
-    <h3>Single Shipment</h3>
-    <ShipmentList shipments={[{ id: '0001', shipmentType: SHIPMENT_OPTIONS.PPM }]} onShipmentClick={() => {}} />
-    <br />
-    <h3>Multiple shipments</h3>
-    <ShipmentList
-      shipments={[
-        { id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG },
-        { id: '0002', shipmentType: SHIPMENT_OPTIONS.NTS },
-        { id: '0003', shipmentType: SHIPMENT_OPTIONS.PPM },
-      ]}
-      onShipmentClick={() => {}}
-    />
-  </div>
-);
-
-export const ShipmentListWithWeights = () => (
-  <div className="grid-container">
-    <h3>Single Shipment</h3>
-    <ShipmentList
-      shipments={[
-        {
-          id: '0001',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          calculatedBillableWeight: 4600,
-          estimatedWeight: 5000,
-          primeEstimatedWeight: 300,
-          reweigh: { id: '1236', weight: 200 },
-        },
-      ]}
-      showShipmentWeight
-    />
-    <br />
-    <h3>Multiple shipments</h3>
-    <ShipmentList
-      shipments={[
-        { id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG, calculatedBillableWeight: 6161, estimatedWeight: 5600 },
-        { id: '0002', shipmentType: SHIPMENT_OPTIONS.HHG, calculatedBillableWeight: 3200, reweigh: { id: '1234' } },
-        {
-          id: '0003',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          calculatedBillableWeight: 3400,
-          estimatedWeight: 5000,
-          primeEstimatedWeight: 300,
-          reweigh: { id: '1236', weight: 200 },
-        },
-      ]}
-      showShipmentWeight
-    />
-  </div>
-);
-
 export default {
   title: 'Components / ShipmentList',
+  component: ShipmentList,
+  args: {
+    moveSubmitted: false,
+  },
+  argTypes: {
+    onShipmentClick: { action: 'edit shipment clicked' },
+    onDeleteClick: { action: 'delete shipment clicked' },
+  },
+  decorators: [
+    (Story) => (
+      <div className="grid-container">
+        <Story />
+      </div>
+    ),
+  ],
 };
+
+const Template = (args) => <ShipmentList {...args} />;
+
+const generateDecorator = (text) => [
+  (Story) => (
+    <>
+      <h3>{text}</h3>
+      <Story />
+    </>
+  ),
+];
+
+export const BasicSingle = Template.bind({});
+
+BasicSingle.args = {
+  shipments: [{ id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG }],
+};
+BasicSingle.decorators = generateDecorator('Single Shipment');
+
+export const BasicMultiple = Template.bind({});
+BasicMultiple.args = {
+  shipments: [
+    { id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG },
+    { id: '0002', shipmentType: SHIPMENT_OPTIONS.NTS },
+    { id: '0003', shipmentType: SHIPMENT_OPTIONS.PPM },
+    { id: '0004', shipmentType: SHIPMENT_OPTIONS.NTSR },
+  ],
+};
+BasicMultiple.decorators = generateDecorator('Multiple Shipments');
+
+export const WithWeightsSingle = Template.bind({});
+WithWeightsSingle.args = {
+  shipments: [
+    {
+      id: '0001',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      calculatedBillableWeight: 4600,
+      estimatedWeight: 5000,
+      primeEstimatedWeight: 300,
+      reweigh: { id: '1236', weight: 200 },
+    },
+  ],
+  showShipmentWeight: true,
+};
+WithWeightsSingle.decorators = generateDecorator('Single Shipment');
+
+export const WithWeightsMultiple = Template.bind({});
+WithWeightsMultiple.args = {
+  shipments: [
+    { id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG, calculatedBillableWeight: 6161, estimatedWeight: 5600 },
+    { id: '0002', shipmentType: SHIPMENT_OPTIONS.HHG, calculatedBillableWeight: 3200, reweigh: { id: '1234' } },
+    {
+      id: '0003',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      calculatedBillableWeight: 3400,
+      estimatedWeight: 5000,
+      primeEstimatedWeight: 300,
+      reweigh: { id: '1236', weight: 200 },
+    },
+  ],
+  showShipmentWeight: true,
+};
+WithWeightsMultiple.decorators = generateDecorator('Multiple Shipments');

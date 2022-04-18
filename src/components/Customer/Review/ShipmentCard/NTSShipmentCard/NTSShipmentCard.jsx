@@ -14,6 +14,7 @@ import { customerRoutes } from 'constants/routes';
 const NTSShipmentCard = ({
   moveId,
   onEditClick,
+  onDeleteClick,
   pickupLocation,
   secondaryPickupAddress,
   releasingAgent,
@@ -22,7 +23,7 @@ const NTSShipmentCard = ({
   shipmentId,
   shipmentType,
   shipmentNumber,
-  showEditBtn,
+  showEditAndDeleteBtn,
 }) => {
   const editPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
     moveId,
@@ -37,15 +38,16 @@ const NTSShipmentCard = ({
             <h3>{getShipmentTypeLabel(shipmentType)}</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          {showEditBtn && (
-            <Button
-              className={styles.editBtn}
-              data-testid="edit-nts-shipment-btn"
-              onClick={() => onEditClick(editPath)}
-              unstyled
-            >
-              Edit
-            </Button>
+          {showEditAndDeleteBtn && (
+            <div className={styles.btnContainer}>
+              <Button onClick={() => onDeleteClick(shipmentId)} unstyled>
+                Delete
+              </Button>
+              |
+              <Button data-testid="edit-nts-shipment-btn" onClick={() => onEditClick(editPath)} unstyled>
+                Edit
+              </Button>
+            </div>
           )}
         </div>
         <dl className={styles.shipmentCardSubsection}>
@@ -71,9 +73,10 @@ const NTSShipmentCard = ({
 NTSShipmentCard.propTypes = {
   moveId: string.isRequired,
   onEditClick: func.isRequired,
+  onDeleteClick: func.isRequired,
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
-  showEditBtn: bool.isRequired,
+  showEditAndDeleteBtn: bool.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
   secondaryPickupAddress: AddressShape,

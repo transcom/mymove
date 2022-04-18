@@ -21,7 +21,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard/NTSRShipmentCard';
 import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal/AddShipmentModal';
-import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
+import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -30,6 +30,9 @@ import {
   selectHasCanceledMove,
   selectMTOShipmentsForCurrentMove,
 } from 'store/entities/selectors';
+import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
+import { updateMTOShipments } from 'store/entities/actions';
+import { setFlashMessage } from 'store/flash/actions';
 import { OrdersShape, MoveShape, MtoShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 
 export class Summary extends Component {
@@ -38,6 +41,8 @@ export class Summary extends Component {
 
     this.state = {
       showModal: false,
+      showDeleteModal: false,
+      targetShipmentId: null,
     };
   }
 
@@ -61,10 +66,46 @@ export class Summary extends Component {
     history.push(path);
   };
 
+  handleDeleteClick = (shipmentId) => {
+    this.setState({
+      showDeleteModal: true,
+      targetShipmentId: shipmentId,
+    });
+  };
+
+  hideDeleteModal = () => {
+    this.setState({
+      showDeleteModal: false,
+    });
+  };
+
+  handleDeleteShipmentConfirmation = (shipmentId) => {
+    const { currentMove, updateShipmentList, setMsg } = this.props;
+    deleteMTOShipment(shipmentId)
+      .then(() => {
+        getMTOShipmentsForMove(currentMove.id).then((response) => {
+          updateShipmentList(response);
+          setMsg('MTO_SHIPMENT_DELETE_SUCCESS', 'success', 'The shipment was deleted.', '', true);
+        });
+      })
+      .catch(() => {
+        setMsg(
+          'MTO_SHIPMENT_DELETE_FAILURE',
+          'error',
+          'Something went wrong, and your changes were not saved. Please try again later or contact your counselor.',
+          '',
+          true,
+        );
+      })
+      .finally(() => {
+        this.setState({ showDeleteModal: false });
+      });
+  };
+
   renderShipments = () => {
     const { currentMove, currentOrders, match } = this.props;
     const { moveId } = match.params;
-    const showEditBtn = currentMove.status === MOVE_STATUSES.DRAFT;
+    const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
     return this.getSortedShipments.map((shipment) => {
@@ -78,8 +119,9 @@ export class Summary extends Component {
             key={shipment.id}
             shipment={shipment}
             shipmentNumber={ppmShipmentNumber}
-            showEditBtn={showEditBtn}
+            showEditAndDeleteBtn={showEditAndDeleteBtn}
             onEditClick={this.handleEditClick}
+            onDeleteClick={this.handleDeleteClick}
           />
         );
       }
@@ -91,9 +133,10 @@ export class Summary extends Component {
         return (
           <NTSShipmentCard
             key={shipment.id}
-            showEditBtn={showEditBtn}
+            showEditAndDeleteBtn={showEditAndDeleteBtn}
             moveId={moveId}
             onEditClick={this.handleEditClick}
+            onDeleteClick={this.handleDeleteClick}
             pickupLocation={shipment.pickupAddress}
             secondaryPickupAddress={shipment?.secondaryPickupAddress}
             releasingAgent={releasingAgent}
@@ -111,9 +154,10 @@ export class Summary extends Component {
             destinationLocation={shipment?.destinationAddress}
             destinationZIP={currentOrders.new_duty_location.address.postalCode}
             secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
-            showEditBtn={showEditBtn}
+            showEditAndDeleteBtn={showEditAndDeleteBtn}
             moveId={moveId}
             onEditClick={this.handleEditClick}
+            onDeleteClick={this.handleDeleteClick}
             receivingAgent={receivingAgent}
             remarks={shipment.customerRemarks}
             requestedDeliveryDate={shipment.requestedDeliveryDate}
@@ -132,6 +176,7 @@ export class Summary extends Component {
           destinationLocation={shipment?.destinationAddress}
           moveId={moveId}
           onEditClick={this.handleEditClick}
+          onDeleteClick={this.handleDeleteClick}
           pickupLocation={shipment.pickupAddress}
           receivingAgent={receivingAgent}
           releasingAgent={releasingAgent}
@@ -141,7 +186,7 @@ export class Summary extends Component {
           shipmentId={shipment.id}
           shipmentNumber={hhgShipmentNumber}
           shipmentType={shipment.shipmentType}
-          showEditBtn={showEditBtn}
+          showEditAndDeleteBtn={showEditAndDeleteBtn}
         />
       );
     });
@@ -155,7 +200,7 @@ export class Summary extends Component {
 
   render() {
     const { currentMove, currentOrders, match, moveIsApproved, mtoShipments, serviceMember } = this.props;
-    const { showModal } = this.state;
+    const { showModal, showDeleteModal, targetShipmentId } = this.state;
 
     const { moveId } = match.params;
     const currentDutyLocation = serviceMember?.current_location;
@@ -178,6 +223,16 @@ export class Summary extends Component {
 
     return (
       <>
+        <ConnectedDestructiveShipmentConfirmationModal
+          isOpen={showDeleteModal}
+          shipmentID={targetShipmentId}
+          onClose={this.hideDeleteModal}
+          onSubmit={this.handleDeleteShipmentConfirmation}
+          title="Delete this?"
+          content="Your information will be gone. You’ll need to start over if you want it back."
+          submitText="Yes, Delete"
+          closeText="No, Keep It"
+        />
         <SectionWrapper className={styles.SummarySectionWrapper}>
           <ProfileTable
             affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
@@ -257,6 +312,8 @@ Summary.propTypes = {
   mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
+  updateShipmentList: func.isRequired,
+  setMsg: func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -272,7 +329,8 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  showLoggedInUser: showLoggedInUserAction,
+  updateShipmentList: updateMTOShipments,
+  setMsg: setFlashMessage,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));
