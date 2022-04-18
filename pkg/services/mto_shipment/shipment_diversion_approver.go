@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"database/sql"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -54,7 +56,7 @@ func (f *shipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.A
 
 func (f *shipmentDiversionApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope()).Find(&shipment, shipmentID)
 
 	if err != nil {
 		switch err {

@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -51,7 +53,7 @@ func (f *sitExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext,
 
 func (f *sitExtensionApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope()).EagerPreload("MoveTaskOrder").Find(&shipment, shipmentID)
 
 	if err != nil {
 		switch err {

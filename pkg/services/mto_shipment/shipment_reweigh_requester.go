@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -37,6 +39,7 @@ func (f *shipmentReweighRequester) findShipment(appCtx appcontext.AppContext, sh
 	var shipment models.MTOShipment
 
 	err := appCtx.DB().Q().
+		Scope(utilities.ExcludeDeletedScope()).
 		Eager("Reweigh").
 		Find(&shipment, shipmentID)
 

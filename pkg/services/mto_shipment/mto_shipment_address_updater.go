@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -60,7 +62,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	if mustBeAvailableToPrime {
 		query.Where("uses_external_vendor = FALSE")
 	}
-	err := query.Find(&mtoShipment, mtoShipmentID)
+	err := query.Scope(utilities.ExcludeDeletedScope()).Find(&mtoShipment, mtoShipmentID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

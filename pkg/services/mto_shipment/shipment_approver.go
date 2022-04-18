@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"database/sql"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/pkg/errors"
 
 	"github.com/gofrs/uuid"
@@ -87,7 +89,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 
 func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress", "StorageFacility").Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope()).Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress", "StorageFacility").Find(&shipment, shipmentID)
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
 	// cannot eager load the address as "StorageFacility.Address" because

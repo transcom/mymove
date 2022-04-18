@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"database/sql"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -33,7 +35,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 	}
 
 	var shipments []models.MTOShipment
-	err = appCtx.DB().
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 		EagerPreload(
 			"MTOServiceItems.ReService",
 			"MTOAgents",
@@ -47,7 +49,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"SITExtensions",
 			"StorageFacility.Address",
 		). // Right now no use case for showing deleted shipments.
-		Where("move_id = ? AND deleted_at IS NULL", moveID).
+		Where("move_id = ?", moveID).
 		Order("uses_external_vendor asc").
 		Order("created_at asc").
 		All(&shipments)

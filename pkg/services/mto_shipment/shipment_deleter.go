@@ -58,7 +58,7 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 
 func (f *shipmentDeleter) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Eager("MoveTaskOrder").Where("mto_shipments.deleted_at IS NULL").Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope()).Eager("MoveTaskOrder").Find(&shipment, shipmentID)
 
 	if err != nil {
 		switch err {
