@@ -9,7 +9,7 @@ import Content from './Content/Content';
 import Menu from './Menu/Menu';
 
 import { formatDate } from 'shared/dates';
-import { filenameFromPath } from 'shared/formatters';
+import { filenameFromPath } from 'utils/formatters';
 
 /**
  * TODO

@@ -214,4 +214,18 @@ describe('formatters', () => {
       expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.DEPRECATED)).toEqual('Deprecated');
     });
   });
+
+  describe('filenameFromPath', () => {
+    it('returns last portion of path with default delimiter', () => {
+      expect(formatters.filenameFromPath('/home/user/folder/.hidden/My Long Filename.sql')).toEqual(
+        'My Long Filename.sql',
+      );
+    });
+
+    it('returns original filename if no path is included', () => {
+      expect(formatters.filenameFromPath('Just-A-gnarly_filemame(0) DRAFT.v2.docx')).toEqual(
+        'Just-A-gnarly_filemame(0) DRAFT.v2.docx',
+      );
+    });
+  });
 });

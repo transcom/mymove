@@ -1,6 +1,5 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
-import path from 'path';
 
 export function formatNumber(num) {
   if (!isFinite(num)) {
@@ -162,10 +161,6 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
 
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key: key, value: value }));
-};
-
-export const filenameFromPath = (filePath) => {
-  return path.basename(filePath);
 };
 
 // Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days

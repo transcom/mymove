@@ -1,3 +1,5 @@
+import path from 'path';
+
 import moment from 'moment';
 import numeral from 'numeral';
 
@@ -175,6 +177,10 @@ export const ordersTypeDetailReadable = (ordersTypeDetail, missingText) => {
 
 export const paymentRequestStatusReadable = (paymentRequestStatus) => {
   return PAYMENT_REQUEST_STATUS_LABELS[`${paymentRequestStatus}`] || paymentRequestStatus;
+};
+
+export const filenameFromPath = (filePath) => {
+  return path.basename(filePath);
 };
 
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
