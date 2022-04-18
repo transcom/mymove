@@ -87,8 +87,3 @@ export const eventNamesWithLabeledDetails = {
   updateMTOShipmentAddress: 'Updated shipment', // prime.yaml
   updateBillableWeight: 'Updated move',
 };
-
-export const eventNamesWithServiceItemDetails = {
-  updateMTOServiceItem: 'Updated service item', // ghc.yaml
-  createMTOServiceItem: 'Requested service item', // prime.yaml
-};

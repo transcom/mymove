@@ -9,7 +9,6 @@ export const detailsTypes = {
   PLAIN_TEXT: 'PLAIN_TEXT',
   LABELED: 'LABELED',
   LABELED_SHIPMENT: 'LABELED_SHIPMENT',
-  LABELED_SERVICE_ITEM: 'LABELED_SERVICE_ITEM', // I think we might delete this
   PAYMENT: 'PAYMENT',
 };
 
