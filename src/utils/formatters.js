@@ -84,6 +84,13 @@ export function formatDateFromIso(date, outputFormat) {
   return formatDate(date, 'YYYY-MM-DDTHH:mm:ss.SSSZ', outputFormat);
 }
 
+export function formatDate4DigitYear(date) {
+  if (date) {
+    return moment(date).format('DD-MMM-YYYY');
+  }
+  return undefined;
+}
+
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
 export function formatOrderType(orderType) {
   return orderType

@@ -111,13 +111,6 @@ export function formatCentsRange(min, max) {
 
 // Office Formatters
 
-export function formatDate4DigitYear(date) {
-  if (date) {
-    return moment(date).format('DD-MMM-YYYY');
-  }
-  return undefined;
-}
-
 export function formatTime(date) {
   if (date) {
     return moment(date).format('HH:mm');
