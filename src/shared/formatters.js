@@ -1,8 +1,6 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
 import path from 'path';
-
-import { DEPARTMENT_INDICATOR_LABELS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
@@ -164,10 +162,6 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
     return `${wholeNumInt.toLocaleString()}.${decimalNum}`;
   }
   return wholeNumInt.toLocaleString();
-};
-
-export const departmentIndicatorLabel = (departmentIndicator) => {
-  return DEPARTMENT_INDICATOR_LABELS[`${departmentIndicator}`] || departmentIndicator;
 };
 
 export const serviceMemberAgencyLabel = (agency) => {

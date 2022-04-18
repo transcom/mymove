@@ -2,7 +2,7 @@ import moment from 'moment';
 import numeral from 'numeral';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
+import { DEPARTMENT_INDICATOR_LABELS, DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -137,6 +137,10 @@ export const departmentIndicatorReadable = (departmentIndicator, missingText) =>
     return missingText;
   }
   return DEPARTMENT_INDICATOR_OPTIONS[`${departmentIndicator}`] || departmentIndicator;
+};
+
+export const departmentIndicatorLabel = (departmentIndicator) => {
+  return DEPARTMENT_INDICATOR_LABELS[`${departmentIndicator}`] || departmentIndicator;
 };
 
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
