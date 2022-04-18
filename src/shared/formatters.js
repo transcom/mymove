@@ -3,7 +3,7 @@ import moment from 'moment';
 import path from 'path';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
-import { MOVE_STATUS_OPTIONS, SERVICE_COUNSELING_MOVE_STATUS_OPTIONS } from 'constants/queues';
+import { SERVICE_COUNSELING_MOVE_STATUS_OPTIONS } from 'constants/queues';
 
 export function formatNumber(num) {
   if (!isFinite(num)) {
@@ -161,10 +161,6 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
     return `${wholeNumInt.toLocaleString()}.${decimalNum}`;
   }
   return wholeNumInt.toLocaleString();
-};
-
-export const moveStatusLabel = (status) => {
-  return MOVE_STATUS_OPTIONS.find((option) => option.value === `${status}`)?.label || status;
 };
 
 export const serviceCounselingMoveStatusLabel = (status) => {
