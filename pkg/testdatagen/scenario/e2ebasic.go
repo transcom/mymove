@@ -1523,71 +1523,53 @@ func serviceMemberWithOrdersAndPPMMove04(appCtx appcontext.AppContext, userUploa
 }
 
 func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	email := "profile_full_ppm@move.draft"
-	uuidStr := "9b9ce6ed-70ba-4edf-b016-488c87fc1250"
-	loginGovID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("9b9ce6ed-70ba-4edf-b016-488c87fc1250"),
+		email:       "profile_full_ppm@move.draft",
+		smID:        testdatagen.ConvertUUIDStringToUUID("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
+		firstName:   "Move",
+		lastName:    "Draft",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("302f3509-562c-4f5c-81c5-b770f4af30e8"),
+		moveLocator: "PPMFUL",
+	}
 
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("6796979019"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30e8"),
-			Locator: "PPMFUL",
-		},
+	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
-	})
+		MTOShipment: models.MTOShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("e245b4e1-96f6-4501-b421-60d535b02568"),
+		},
+		PPMShipment: models.PPMShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("c2983fc5-5298-4f68-83bb-0a6f75c6a07f"),
+			Status: models.PPMShipmentStatusDraft,
+		},
+	}
+
+	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	email := "full_ppm_mobile@complete.profile"
-	uuidStr := "4fd6726d-2d05-4640-96dd-983bec236a9c"
-	loginGovID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("4fd6726d-2d05-4640-96dd-983bec236a9c"),
+		email:       "full_ppm_mobile@complete.profile",
+		smID:        testdatagen.ConvertUUIDStringToUUID("08606458-cee9-4529-a2e6-9121e67dac72"),
+		firstName:   "Complete",
+		lastName:    "Profile",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
+		moveLocator: "PPMMOB",
+	}
 
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Complete"),
-			LastName:      models.StringPointer("Profile"),
-			Edipi:         models.StringPointer("6796979019"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
-			Locator: "PPMMOB",
-		},
+	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
-	})
+		MTOShipment: models.MTOShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("3c0def3a-64af-4715-a2d9-8310c5c48f5d"),
+		},
+		PPMShipment: models.PPMShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("d39f5601-cd10-476c-a802-0ab2bcb8c96b"),
+			Status: models.PPMShipmentStatusDraft,
+		},
+	}
+
+	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -4146,10 +4128,12 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx, userUploader)
 	createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 	createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
-	createUnsubmittedMoveWithFullPPMShipmentComplete1(appCtx, userUploader)
-	createUnsubmittedMoveWithFullPPMShipmentComplete2(appCtx, userUploader)
+	createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx, userUploader)
+	createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx, userUploader)
 	createUnSubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
-	createUnSubmittedMoveWithFinishedPPMShipment(appCtx, userUploader)
+	createUnSubmittedMoveWithFullPPMShipment1(appCtx, userUploader)
+	createUnSubmittedMoveWithFullPPMShipment2(appCtx, userUploader)
+	createUnSubmittedMoveWithFullPPMShipment3(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 	createNTSMoveWithServiceItemsandPaymentRequests(appCtx, userUploader)
 
