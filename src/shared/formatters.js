@@ -111,14 +111,6 @@ export function formatCentsRange(min, max) {
 
 // Office Formatters
 
-// Format a date and include its time, e.g. 03-Jan-2018 21:23
-export function formatDateTime(date) {
-  if (date) {
-    return moment(date).format('DD-MMM-YY HH:mm');
-  }
-  return undefined;
-}
-
 // Format a date, include its time and timezone, e.g. 03-Jan-2018 21:23 ET
 export function formatDateTimeWithTZ(date) {
   if (!date) return undefined;

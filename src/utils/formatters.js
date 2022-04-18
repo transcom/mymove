@@ -98,6 +98,14 @@ export function formatTime(date) {
   return undefined;
 }
 
+// Format a date and include its time, e.g. 03-Jan-2018 21:23
+export function formatDateTime(date) {
+  if (date) {
+    return moment(date).format('DD-MMM-YY HH:mm');
+  }
+  return undefined;
+}
+
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
 export function formatOrderType(orderType) {
   return orderType
