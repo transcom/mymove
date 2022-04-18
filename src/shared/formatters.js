@@ -111,18 +111,6 @@ export function formatCentsRange(min, max) {
 
 // Office Formatters
 
-// Format a date and ignore any time values, e.g. 03-Jan-18
-export function formatDate(date, inputFormat, outputFormat = 'DD-MMM-YY', locale = 'en', isStrict = false) {
-  if (date) {
-    return moment(date, inputFormat, locale, isStrict).format(outputFormat);
-  }
-  return undefined;
-}
-
-export function formatDateFromIso(date, outputFormat) {
-  return formatDate(date, 'YYYY-MM-DDTHH:mm:ss.SSSZ', outputFormat);
-}
-
 export function formatDate4DigitYear(date) {
   if (date) {
     return moment(date).format('DD-MMM-YYYY');

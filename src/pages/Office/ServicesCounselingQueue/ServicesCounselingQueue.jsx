@@ -17,7 +17,8 @@ import {
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useServicesCounselingQueueQueries, useUserQueries } from 'hooks/queries';
 import { DATE_FORMAT_STRING } from 'shared/constants';
-import { formatDateFromIso, serviceMemberAgencyLabel } from 'shared/formatters';
+import { serviceMemberAgencyLabel } from 'shared/formatters';
+import { formatDateFromIso } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 

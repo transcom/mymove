@@ -70,6 +70,20 @@ export const displayDateRange = (dates, formatType = 'long') => {
   return firstDate + span;
 };
 
+// Office Formatters
+
+// Format a date and ignore any time values, e.g. 03-Jan-18
+export function formatDate(date, inputFormat, outputFormat = 'DD-MMM-YY', locale = 'en', isStrict = false) {
+  if (date) {
+    return moment(date, inputFormat, locale, isStrict).format(outputFormat);
+  }
+  return undefined;
+}
+
+export function formatDateFromIso(date, outputFormat) {
+  return formatDate(date, 'YYYY-MM-DDTHH:mm:ss.SSSZ', outputFormat);
+}
+
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
 export function formatOrderType(orderType) {
   return orderType

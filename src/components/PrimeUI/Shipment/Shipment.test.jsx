@@ -3,7 +3,8 @@ import { render, screen } from '@testing-library/react';
 
 import Shipment from './Shipment';
 
-import { formatDateFromIso, formatPrimeAPIFullAddress } from 'shared/formatters';
+import { formatPrimeAPIFullAddress } from 'shared/formatters';
+import { formatDateFromIso } from 'utils/formatters';
 import { MockProviders } from 'testUtils';
 
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';

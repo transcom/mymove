@@ -8,7 +8,7 @@ import MoveHistoryDetailsSelector from './MoveHistoryDetailsSelector';
 import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
 import { useGHCGetMoveHistory } from 'hooks/queries';
-import { formatDateFromIso } from 'shared/formatters';
+import { formatDateFromIso } from 'utils/formatters';
 import { getHistoryLogEventNameDisplay } from 'constants/historyLogUIDisplayName';
 
 const columns = [

@@ -6,12 +6,8 @@ import styles from './PaymentRequestQueue.module.scss';
 import { usePaymentRequestQueueQueries, useUserQueries } from 'hooks/queries';
 import { createHeader } from 'components/Table/utils';
 import { HistoryShape } from 'types/router';
-import {
-  formatDateFromIso,
-  formatAgeToDays,
-  paymentRequestStatusReadable,
-  serviceMemberAgencyLabel,
-} from 'shared/formatters';
+import { formatAgeToDays, paymentRequestStatusReadable, serviceMemberAgencyLabel } from 'shared/formatters';
+import { formatDateFromIso } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';

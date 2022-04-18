@@ -148,4 +148,29 @@ describe('formatters', () => {
       expect(formatters.toDollarString(1234.12)).toEqual('$1,234.12');
     });
   });
+
+  describe('formatDate', () => {
+    it('should be formatted as expected', () => {
+      const inputFormat = 'MMM-DD-YY';
+      const formattedDate = formatters.formatDate('Nov-11-19', inputFormat, 'DD-MMM-YY', 'en', true);
+      expect(formattedDate).toBe('11-Nov-19');
+    });
+
+    it('should be invalid with unexpected input and strict mode on', () => {
+      const inputFormat = 'MMM-DD-YY';
+      const formattedDate = formatters.formatDate('Nov-11-1999', inputFormat, 'DD-MMM-YY', 'en', true);
+      expect(formattedDate).toBe('Invalid date');
+    });
+
+    it('should default to DD-MMM-YY ouptut format', () => {
+      const inputFormat = 'MMM-DD-YY';
+      expect(formatters.formatDate('Nov-11-99', inputFormat)).toBe('11-Nov-99');
+    });
+  });
+
+  describe('formatDateFromIso', () => {
+    it('should be formatted as expected', () => {
+      expect(formatters.formatDateFromIso('2020-08-11T21:00:59.126987Z', 'DD MMM YYYY')).toBe('11 Aug 2020');
+    });
+  });
 });
