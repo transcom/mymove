@@ -19,18 +19,6 @@ describe('formatters', () => {
       expect(formatters.truncateNumber(-50.5555, 3)).toEqual('-50.556');
     });
   });
-  describe('addCommasToNumberString', () => {
-    it('should truncate number based on passed variable returning a number string', () => {
-      expect(formatters.addCommasToNumberString(5000)).toEqual('5,000');
-      expect(formatters.addCommasToNumberString('500000000.0001')).toEqual('500,000,000.0001');
-      expect(formatters.addCommasToNumberString('500000000')).toEqual('500,000,000');
-      expect(formatters.addCommasToNumberString('5000')).toEqual('5,000');
-      expect(formatters.addCommasToNumberString('-5000')).toEqual('-5,000');
-      expect(formatters.addCommasToNumberString('500')).toEqual('500');
-      expect(formatters.addCommasToNumberString('0')).toEqual('0');
-      expect(formatters.addCommasToNumberString('0', 2)).toEqual('0.00');
-    });
-  });
 
   describe('formatDateTimeWithTZ', () => {
     it('should include the timezone shortcode', () => {

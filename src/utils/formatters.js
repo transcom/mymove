@@ -197,6 +197,22 @@ export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
 };
 
+// adds commas to numberString w/o removeing .0000 from the end of the string or rounding
+export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
+  let numToFixed = numOrString;
+  if (!numOrString || numOrString === '0') {
+    numToFixed = (0).toFixed(decimalPlaces);
+  }
+
+  const str = numToFixed.toString();
+  const [wholeNum, decimalNum] = str.split('.');
+  const wholeNumInt = parseInt(wholeNum, 10);
+  if (decimalNum) {
+    return `${wholeNumInt.toLocaleString()}.${decimalNum}`;
+  }
+  return wholeNumInt.toLocaleString();
+};
+
 // Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
 export const formatAgeToDays = (age) => {
   if (age < 1) {
