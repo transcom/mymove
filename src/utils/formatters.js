@@ -188,6 +188,11 @@ export const formatAddressShort = (address) => {
   return `${city}, ${state} ${postalCode}`;
 };
 
+export const formatPrimeAPIFullAddress = (address) => {
+  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
+  return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
+};
+
 // Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
 export const formatAgeToDays = (age) => {
   if (age < 1) {

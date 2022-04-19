@@ -162,8 +162,3 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key: key, value: value }));
 };
-
-export const formatPrimeAPIFullAddress = (address) => {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
-  return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
-};
