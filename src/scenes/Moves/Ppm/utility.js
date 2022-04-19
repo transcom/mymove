@@ -1,4 +1,4 @@
-import { formatCents } from 'shared/formatters';
+import { formatCents } from 'utils/formatters';
 import { MOVE_DOC_TYPE } from 'shared/constants';
 
 export const getNextPage = (nextPage, lastPage, pageToRevisit) => {
