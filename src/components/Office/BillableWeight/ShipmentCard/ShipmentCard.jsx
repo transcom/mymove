@@ -7,8 +7,7 @@ import EditBillableWeight from '../EditBillableWeight/EditBillableWeight';
 import styles from './ShipmentCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import { formatAddressShort } from 'shared/formatters';
-import { formatWeight, formatDateFromIso } from 'utils/formatters';
+import { formatWeight, formatDateFromIso, formatAddressShort } from 'utils/formatters';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { MandatorySimpleAddressShape, SimpleAddressShape } from 'types/address';
 import { ShipmentOptionsOneOf } from 'types/shipment';

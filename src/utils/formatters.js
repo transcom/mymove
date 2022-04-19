@@ -183,6 +183,11 @@ export const filenameFromPath = (filePath) => {
   return path.basename(filePath);
 };
 
+export const formatAddressShort = (address) => {
+  const { city, state, postalCode } = address;
+  return `${city}, ${state} ${postalCode}`;
+};
+
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
 export function formatOrderType(orderType) {
   return orderType

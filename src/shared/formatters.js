@@ -174,11 +174,6 @@ export const formatAgeToDays = (age) => {
   return `${Math.floor(age)} days`;
 };
 
-export const formatAddressShort = (address) => {
-  const { city, state, postalCode } = address;
-  return `${city}, ${state} ${postalCode}`;
-};
-
 export const formatPrimeAPIFullAddress = (address) => {
   const { streetAddress1, streetAddress2, city, state, postalCode } = address;
   return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
