@@ -256,10 +256,6 @@ describe('Home component', () => {
         const ordersStep = wrapper.find('Step[step="2"]');
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
-
-      it('renders the SubmittedPPM helper', () => {
-        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
-      });
     });
 
     describe('for HHG moves (no PPM)', () => {
@@ -355,10 +351,6 @@ describe('Home component', () => {
       it('Orders Step is not editable, upload documents is offered', () => {
         const ordersStep = wrapper.find('Step[step="2"]');
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
-      });
-
-      it('renders the SubmittedPPM helper', () => {
-        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
       });
     });
 
