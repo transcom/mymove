@@ -4006,10 +4006,6 @@ definitions:
       - reServiceID
       - reServiceCode
       - reServiceName
-      - mtoShipmentID
-      - reason
-      - pickupPostalCode
-      - description
     properties:
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -4019,6 +4015,7 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        x-nullable: true
       reServiceID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -4037,15 +4034,18 @@ definitions:
         type: string
       description:
         type: string
+        x-nullable: true
       dimensions:
         $ref: '#/definitions/MTOServiceItemDimensions'
       reason:
         type: string
+        x-nullable: true
       rejectionReason:
         type: string
         x-nullable: true
       pickupPostalCode:
         type: string
+        x-nullable: true
       SITPostalCode:
         type: string
         readOnly: true
