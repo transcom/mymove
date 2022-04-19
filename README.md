@@ -948,7 +948,7 @@ To get Goland to play nicely with `nix`, there's a few things you can set up:
 
 * Update `GOROOT` to `/nix/var/nix/profiles/mymove/bin/go`
   * Note that once you add it, Goland will resolve it to the actual path (the one above is a link), so it’ll look
-    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.18/bin/go`
+    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.18.1/bin/go`
 * Update `GOPATH` to point to the `.gopath` dir in the `mymove` repo
   * You may need to create the `.gopath` dir yourself.
 * Update Node and NPM:

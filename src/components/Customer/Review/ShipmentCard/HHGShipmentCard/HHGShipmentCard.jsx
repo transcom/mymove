@@ -18,6 +18,7 @@ const HHGShipmentCard = ({
   secondaryDeliveryAddress,
   moveId,
   onEditClick,
+  onDeleteClick,
   pickupLocation,
   secondaryPickupAddress,
   receivingAgent,
@@ -28,7 +29,7 @@ const HHGShipmentCard = ({
   shipmentId,
   shipmentNumber,
   shipmentType,
-  showEditBtn,
+  showEditAndDeleteBtn,
 }) => {
   const editPath = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
     moveId,
@@ -45,15 +46,16 @@ const HHGShipmentCard = ({
             </h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          {showEditBtn && (
-            <Button
-              className={styles.editBtn}
-              data-testid="edit-shipment-btn"
-              onClick={() => onEditClick(editPath)}
-              unstyled
-            >
-              Edit
-            </Button>
+          {showEditAndDeleteBtn && (
+            <div className={styles.btnContainer}>
+              <Button onClick={() => onDeleteClick(shipmentId)} unstyled>
+                Delete
+              </Button>
+              |
+              <Button data-testid="edit-shipment-btn" onClick={() => onEditClick(editPath)} unstyled>
+                Edit
+              </Button>
+            </div>
           )}
         </div>
         <dl className={styles.shipmentCardSubsection}>
@@ -91,7 +93,7 @@ HHGShipmentCard.propTypes = {
   shipmentNumber: number.isRequired,
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
-  showEditBtn: bool.isRequired,
+  showEditAndDeleteBtn: bool.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
   secondaryPickupAddress: AddressShape,
@@ -106,6 +108,7 @@ HHGShipmentCard.propTypes = {
   requestedDeliveryDate: string.isRequired,
   destinationZIP: string.isRequired,
   onEditClick: func.isRequired,
+  onDeleteClick: func.isRequired,
   receivingAgent: shape({
     firstName: string,
     lastName: string,

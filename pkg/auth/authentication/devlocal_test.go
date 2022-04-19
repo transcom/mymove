@@ -276,7 +276,6 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 
 	suite.NotEqual(uuid.Nil, serviceMemberID)
 	suite.NotEqual(uuid.Nil, serviceMember.UserID)
-	suite.Equal(false, serviceMember.RequiresAccessCode)
 
 	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusSeeOther {

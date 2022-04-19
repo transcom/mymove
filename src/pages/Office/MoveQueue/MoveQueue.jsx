@@ -6,7 +6,7 @@ import styles from './MoveQueue.module.scss';
 import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
 import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
-import { serviceMemberAgencyLabel } from 'shared/formatters';
+import { serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS } from 'constants/queues';

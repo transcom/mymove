@@ -5,7 +5,7 @@ import { shallow, mount } from 'enzyme';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
-import { toDollarString } from 'shared/formatters';
+import { toDollarString } from 'utils/formatters';
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
 

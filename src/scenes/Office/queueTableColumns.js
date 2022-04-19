@@ -1,6 +1,6 @@
 import React from 'react';
 import { capitalize, memoize } from 'lodash';
-import { formatDate } from 'shared/formatters';
+import { formatDate } from 'utils/formatters';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import moment from 'moment';
 

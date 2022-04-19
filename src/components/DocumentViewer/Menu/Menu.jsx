@@ -9,7 +9,7 @@ import { FilesShape } from '../types';
 
 import styles from './Menu.module.scss';
 
-import { filenameFromPath } from 'shared/formatters';
+import { filenameFromPath } from 'utils/formatters';
 import { formatDate } from 'shared/dates';
 
 const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSelectFile }) => (

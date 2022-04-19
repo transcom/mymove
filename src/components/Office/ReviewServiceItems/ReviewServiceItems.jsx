@@ -16,7 +16,7 @@ import Alert from 'shared/Alert';
 import { ServiceItemCardsShape } from 'types/serviceItems';
 import { MTOServiceItemShape } from 'types/order';
 import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
-import { toDollarString } from 'shared/formatters';
+import { toDollarString } from 'utils/formatters';
 import { PaymentRequestShape } from 'types/index';
 import { AccountingCodesShape } from 'types/accountingCodes';
 

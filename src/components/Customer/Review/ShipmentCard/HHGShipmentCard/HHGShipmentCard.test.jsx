@@ -9,11 +9,12 @@ import { formatCustomerDate } from 'utils/formatters';
 const defaultProps = {
   moveId: 'testMove123',
   editPath: '',
-  onEditClick: () => {},
+  onEditClick: jest.fn(),
+  onDeleteClick: jest.fn(),
   shipmentNumber: 1,
   shipmentId: '#ABC123K',
   shipmentType: 'HHG',
-  showEditBtn: false,
+  showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
     streetAddress1: '17 8th St',

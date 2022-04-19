@@ -11,7 +11,7 @@ import { MtoShipmentShape } from 'types/customerShapes';
 import { customerRoutes } from 'constants/routes';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 
-const PPMShipmentCard = ({ shipment, shipmentNumber, showEditBtn, onEditClick }) => {
+const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEditClick, onDeleteClick }) => {
   const { moveTaskOrderID, id, shipmentType } = shipment;
   const {
     pickupPostalCode,
@@ -42,10 +42,16 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditBtn, onEditClick })
             </h3>
             <p>#{id.substring(0, 8).toUpperCase()}</p>
           </div>
-          {showEditBtn && (
-            <Button className={styles.editBtn} onClick={() => onEditClick(editPath)} unstyled>
-              Edit
-            </Button>
+          {showEditAndDeleteBtn && (
+            <div className={styles.btnContainer}>
+              <Button onClick={() => onDeleteClick(shipment.id)} unstyled>
+                Delete
+              </Button>
+              |
+              <Button onClick={() => onEditClick(editPath)} unstyled>
+                Edit
+              </Button>
+            </div>
           )}
         </div>
 
@@ -107,13 +113,15 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditBtn, onEditClick })
 PPMShipmentCard.propTypes = {
   shipment: MtoShipmentShape.isRequired,
   shipmentNumber: number,
-  showEditBtn: bool.isRequired,
+  showEditAndDeleteBtn: bool.isRequired,
   onEditClick: func,
+  onDeleteClick: func,
 };
 
 PPMShipmentCard.defaultProps = {
   shipmentNumber: undefined,
   onEditClick: undefined,
+  onDeleteClick: undefined,
 };
 
 export default PPMShipmentCard;
