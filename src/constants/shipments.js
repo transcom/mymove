@@ -34,6 +34,10 @@ export const shipmentStatuses = {
   DIVERSION_REQUESTED: 'DIVERSION_REQUESTED',
 };
 
+export const ppmShipmentStatuses = {
+  WAITING_ON_CUSTOMER: 'WAITING_ON_CUSTOMER',
+};
+
 export const shipmentDestinationTypes = {
   HOME_OF_RECORD: 'Home of record (HOR)',
   HOME_OF_SELECTION: 'Home of selection (HOS)',

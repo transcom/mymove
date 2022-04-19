@@ -51,6 +51,7 @@ import { shipmentTypes } from 'constants/shipments';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { updateMTOShipments } from 'store/entities/actions';
+import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -328,6 +329,7 @@ export class Home extends Component {
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
+    const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
 
     return (
       <>
@@ -417,7 +419,7 @@ export class Home extends Component {
                   )}
                   <Step
                     actionBtnLabel={this.shipmentActionBtnLabel}
-                    actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
+                    actionBtnDisabled={!this.hasOrders}
                     actionBtnId="shipment-selection-btn"
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
                     complete={this.hasAnyShipments}
@@ -429,15 +431,18 @@ export class Home extends Component {
                   >
                     {this.hasAnyShipments ? (
                       <div>
-                        {this.hasSubmittedMove && !this.doesPpmAlreadyExist && (
-                          <p className={styles.descriptionExtra}>If you need to add shipments, let your movers know.</p>
-                        )}
                         <ShipmentList
                           shipments={allSortedShipments}
                           onShipmentClick={this.handleShipmentClick}
                           onDeleteClick={this.handleDeleteClick}
                           moveSubmitted={this.hasSubmittedMove}
                         />
+                        {this.hasSubmittedMove && (
+                          <p className={styles.descriptionExtra}>
+                            If you need to change, add, or get rid of shipments, talk to your move counselor or to your
+                            movers.
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <Description>
@@ -474,6 +479,11 @@ export class Home extends Component {
                       </Description>
                     )}
                   </Step>
+                  {!!ppmShipments.length && this.hasSubmittedMove && (
+                    <Step headerText="Manage your PPM" completedHeaderText="Manage your PPM" step="5">
+                      <PPMSummaryList shipments={ppmShipments} />
+                    </Step>
+                  )}
                 </SectionWrapper>
                 <Contact
                   header="Contacts"

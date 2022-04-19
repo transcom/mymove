@@ -1,0 +1,37 @@
+@import 'shared/styles/_basics';
+
+.ppm-shipment {
+  @include u-padding(3);
+  @include u-margin-bottom(2);
+
+  p {
+    @include u-margin(0);
+  }
+
+  ul {
+    @include u-margin(0);
+    @include u-padding-left(2);
+
+    li {
+      font-size: 15px;
+    }
+  }
+
+  .heading-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    button {
+      @include u-margin(0);
+    }
+  }
+
+  .content {
+    @include u-margin-top(2);
+  }
+
+  &:last-of-type {
+    @include u-margin-bottom(0);
+  }
+}
