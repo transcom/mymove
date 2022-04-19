@@ -25,7 +25,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		newPPM := models.PPMShipment{
 			ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
 			ShipmentID:            oldPPMShipment.ShipmentID,
-			Status:                "DRAFT",
+			Status:                models.PPMShipmentStatusDraft,
 			ExpectedDepartureDate: time.Time(time.Date(2022, 12, 11, 0, 0, 0, 0, time.UTC)),
 			PickupPostalCode:      "20636",
 			DestinationPostalCode: "94040",
@@ -51,7 +51,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		newPPM := models.PPMShipment{
 			ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
 			ShipmentID:            oldPPMShipment.ShipmentID,
-			Status:                "DRAFT",
+			Status:                models.PPMShipmentStatusDraft,
 			ExpectedDepartureDate: time.Time(time.Date(2022, 12, 11, 0, 0, 0, 0, time.UTC)),
 			PickupPostalCode:      "20636",
 			DestinationPostalCode: "94040",
@@ -77,7 +77,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		newPPM := models.PPMShipment{
 			ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
 			ShipmentID:            oldPPMShipment.ShipmentID,
-			Status:                "DRAFT",
+			Status:                models.PPMShipmentStatusDraft,
 			ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
 			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
 			DestinationPostalCode: oldPPMShipment.DestinationPostalCode,
@@ -105,7 +105,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		newPPM := models.PPMShipment{
 			ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
 			ShipmentID:            oldPPMShipment.ShipmentID,
-			Status:                "PAYMENT_APPROVED",
+			Status:                models.PPMShipmentStatusPaymentApproved,
 			ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
 			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
 			DestinationPostalCode: "94040",
@@ -129,7 +129,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		newPPM := models.PPMShipment{
 			ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
 			ShipmentID:            oldPPMShipment.ShipmentID,
-			Status:                "DRAFT",
+			Status:                models.PPMShipmentStatusDraft,
 			ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
 			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
 			DestinationPostalCode: "94040",
