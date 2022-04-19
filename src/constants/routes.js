@@ -6,7 +6,6 @@ export const generalRoutes = {
 };
 
 export const customerRoutes = {
-  ACCESS_CODE_PATH: '/access-code',
   CONUS_OCONUS_PATH: '/service-member/conus-oconus',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',

@@ -94,13 +94,6 @@ func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *upload
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
 
-		// Onboarding
-		testdatagen.MakeAccessCode(appCtx.DB(), testdatagen.Assertions{
-			AccessCode: models.AccessCode{
-				Code:     "ABC123",
-				MoveType: models.SelectedMoveTypePPM,
-			},
-		})
 		createUnSubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
 		createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 		createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
