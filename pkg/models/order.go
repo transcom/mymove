@@ -179,6 +179,11 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		return Order{}, err
 	}
 
+	// TODO: Handle case where more than one user is authorized to modify orders
+	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
+		return Order{}, ErrFetchForbidden
+	}
+
 	// Eager loading of nested has_many associations is broken
 	var userUploads UserUploads
 	err = db.Q().
@@ -191,10 +196,19 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 
 	order.UploadedOrders.UserUploads = userUploads
 
-	// TODO: Handle case where more than one user is authorized to modify orders
-	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
-		return Order{}, ErrFetchForbidden
+	// Eager loading of nested has_many associations is broken
+	if order.UploadedAmendedOrders != nil {
+		var amendedUserUploads UserUploads
+		err = db.Q().
+			Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+			Where("document_id = ?", order.UploadedAmendedOrdersID).
+			All(&amendedUserUploads)
+		if err != nil {
+			return Order{}, err
+		}
+		order.UploadedAmendedOrders.UserUploads = amendedUserUploads
 	}
+
 	return order, nil
 }
 

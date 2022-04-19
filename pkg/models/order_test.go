@@ -186,6 +186,53 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	suite.Error(err)
 	suite.Equal(ErrFetchForbidden, err)
+
+	suite.T().Run("successfully excludes deleted orders uploads", func(t *testing.T) {
+		nonDeletedOrdersUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: UserUpload{
+				Document:  nonDeletedOrdersUpload.Document,
+				DeletedAt: TimePointer(time.Now()),
+			},
+		})
+
+		nonDeletedAmendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: UserUpload{
+				UploaderID: nonDeletedOrdersUpload.Document.ServiceMember.UserID,
+			},
+		})
+		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: UserUpload{
+				Document:  nonDeletedAmendedUpload.Document,
+				DeletedAt: TimePointer(time.Now()),
+			},
+		})
+
+		expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: Order{
+				ServiceMember:           nonDeletedOrdersUpload.Document.ServiceMember,
+				ServiceMemberID:         nonDeletedOrdersUpload.Document.ServiceMemberID,
+				UploadedOrders:          nonDeletedOrdersUpload.Document,
+				UploadedOrdersID:        *nonDeletedOrdersUpload.DocumentID,
+				UploadedAmendedOrders:   &nonDeletedAmendedUpload.Document,
+				UploadedAmendedOrdersID: nonDeletedAmendedUpload.DocumentID,
+			},
+		})
+
+		userSession := auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          expectedOrder.ServiceMember.ID,
+			ServiceMemberID: expectedOrder.ServiceMemberID,
+		}
+
+		actualOrder, err := FetchOrderForUser(suite.DB(), &userSession, expectedOrder.ID)
+
+		suite.NoError(err)
+		suite.Len(actualOrder.UploadedOrders.UserUploads, 1)
+		suite.Equal(actualOrder.UploadedOrders.UserUploads[0].ID, nonDeletedOrdersUpload.ID)
+		suite.Len(actualOrder.UploadedAmendedOrders.UserUploads, 1)
+		suite.Equal(actualOrder.UploadedAmendedOrders.UserUploads[0].ID, nonDeletedAmendedUpload.ID)
+	})
 }
 
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
