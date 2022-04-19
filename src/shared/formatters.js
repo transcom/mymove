@@ -13,18 +13,6 @@ export function formatCents(cents) {
   });
 }
 
-// Format a base quantity into a user-friendly number string, e.g. 167000 -> "16.7000"
-export function formatFromBaseQuantity(baseQuantity) {
-  if (!isFinite(baseQuantity)) {
-    return '';
-  }
-
-  return (baseQuantity / 10000).toLocaleString(undefined, {
-    minimumFractionDigits: 4,
-    maximumFractionDigits: 4,
-  });
-}
-
 // Format a base quantity into a user-friendly number, e.g. 167000 -> 16.7
 export function convertFromBaseQuantity(baseQuantity) {
   if (!isFinite(baseQuantity)) {

@@ -426,6 +426,18 @@ export function formatCentsRange(min, max) {
   return `$${formatCents(min)} - ${formatCents(max)}`;
 }
 
+// Format a base quantity into a user-friendly number string, e.g. 167000 -> "16.7000"
+export function formatFromBaseQuantity(baseQuantity) {
+  if (!Number.isFinite(baseQuantity)) {
+    return '';
+  }
+
+  return (baseQuantity / 10000).toLocaleString(undefined, {
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 4,
+  });
+}
+
 // Formats a numeric value amount in the default locale with configurable options
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString
 export function formatAmount(amount, options = { minimumFractionDigits: 2, maximumFractionDigits: 2 }) {
