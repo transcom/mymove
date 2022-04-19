@@ -26,6 +26,28 @@ export function formatToBaseQuantity(baseQuantity) {
   return parseFloat(String(baseQuantity).replace(',', '')) * 10000;
 }
 
+// Format a thousandth of an inch into an inch, e.g. 16700 -> 16.7
+export function convertFromThousandthInchToInch(thousandthInch) {
+  if (!Number.isFinite(thousandthInch)) {
+    return null;
+  }
+
+  return thousandthInch / 1000;
+}
+
+// Format a dimensions object length, width and height to inches
+export function formatToDimensionsInches(dimensions) {
+  if (!dimensions) {
+    return undefined;
+  }
+
+  return {
+    length: convertFromThousandthInchToInch(dimensions.length),
+    width: convertFromThousandthInchToInch(dimensions.width),
+    height: convertFromThousandthInchToInch(dimensions.height),
+  };
+}
+
 // Service Member Formatters
 
 // Format a date in the MM-DD-YYYY format for use in the service member UI.
