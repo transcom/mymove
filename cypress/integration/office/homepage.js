@@ -30,13 +30,13 @@ describe('Office Home Page', function () {
 describe('Office authorization', () => {
   before(() => {
     cy.prepareOfficeApp();
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as(
-      'getCounselingSortedOrders',
-    );
   });
 
   beforeEach(() => {
     cy.clearAllCookies();
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as(
+      'getCounselingSortedOrders',
+    );
   });
 
   it('redirects TOO to TOO homepage', () => {
@@ -53,7 +53,7 @@ describe('Office authorization', () => {
 
   it('redirects Services Counselor to Services Counselor homepage', () => {
     cy.signInAsNewServicesCounselorUser();
-    cy.waitFor('@getCounselingSortedOrders');
+    cy.wait('@getCounselingSortedOrders');
 
     cy.contains('Moves');
     cy.contains('Needs counseling');

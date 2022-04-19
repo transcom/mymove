@@ -17,6 +17,7 @@ describe('Services counselor user', () => {
     );
     cy.intercept('POST', '**/ghc/v1/mto-shipments').as('createShipment');
     cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('patchShipment');
+    cy.intercept('DELETE', '**/ghc/v1/shipments/**').as('deleteShipment');
 
     const userId = 'a6c8663f-998f-4626-a978-ad60da2476ec';
     cy.apiSignInAsUser(userId, ServicesCounselorOfficeUserType);
@@ -34,14 +35,14 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="ShipmentContainer"] .usa-button').should('have.length', 3);
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.waitFor(['@getMTOServiceItems']);
+    cy.wait(['@getMTOServiceItems']);
     // click to trigger confirmation modal
     cy.get('[data-testid="grid"] button').contains('Delete shipment').click();
 
     cy.get('[data-testid="modal"]').should('be.visible');
 
     cy.get('[data-testid="modal"] button').contains('Delete shipment').click({ force: true });
-    cy.waitFor(['@patchServiceCounselingCompleted', '@getMoves']);
+    cy.wait(['@deleteShipment', '@getMoves']);
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').should('have.length', 2);
   });
@@ -50,7 +51,7 @@ describe('Services counselor user', () => {
     navigateToMove('NTSRHG');
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.waitFor(['@getMTOServiceItems']);
+    cy.wait(['@getMTOShipments']);
 
     cy.get('[data-testid="grid"] button').contains('Add or edit codes').click();
 
@@ -73,7 +74,7 @@ describe('Services counselor user', () => {
     navigateToMove('NTSRHG');
 
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.waitFor(['@getMTOServiceItems, @getMoves']);
+    cy.wait(['@getMTOShipments', '@getMoves']);
 
     cy.get('[data-testid="radio"] [for="tacType-NTS"]').click();
     cy.get('[data-testid="radio"] [for="sacType-HHG"]').click();
@@ -100,7 +101,7 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="modal"]').should('be.visible');
 
     cy.get('button').contains('Yes, submit').click();
-    cy.waitFor(['@patchServiceCounselingCompleted', '@getMoves']);
+    cy.wait(['@patchServiceCounselingCompleted', '@getMoves']);
 
     // verify success alert
     cy.contains('Move submitted.');

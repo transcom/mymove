@@ -1,16 +1,18 @@
 import {
+  deleteShipment,
   navigateFromAdvancesPageToReviewPage,
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
   navigateFromEstimatedIncentivePageToAdvancesPage,
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
   navigateFromHomePageToReviewPage,
   navigateFromReviewPageToHomePage,
+  navigateToAgreementAndSign,
   setMobileViewport,
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
   signInAndNavigateFromHomePageToReviewPage,
 } from '../../../support/ppmShared';
 
-import { signAgreement, submitMove } from '../../mymove/utilities/customer';
+import { submitMove } from '../../mymove/utilities/customer';
 
 const fullPPMShipmentFields = [
   ['Expected departure', '15 Mar 2020'],
@@ -18,7 +20,7 @@ const fullPPMShipmentFields = [
   ['Second origin ZIP', '90211'],
   ['Destination ZIP', '30813'],
   ['Second destination ZIP', '30814'],
-  ['Storage expected? (SIT)', 'Yes'],
+  ['Storage expected? (SIT)', 'No'],
   ['Estimated weight', '4,000 lbs'],
   ['Pro-gear', 'Yes, 1,987 lbs'],
   ['Spouse pro-gear', 'Yes, 498 lbs'],
@@ -34,13 +36,24 @@ describe('PPM Onboarding - Review', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
     cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
 
   const viewportType = [
-    { viewport: 'desktop', isMobile: false, userId: '6a7d969a-2347-48c7-9289-0963c447f0a7' }, // complete@ppm.unsubmitted
-    { viewport: 'mobile', isMobile: true, userId: 'fd02a7ac-f9cb-49e0-90ab-93a8443c1fc7' }, // complete2@ppm.unsubmitted
+    { viewport: 'desktop', isMobile: false, userId: 'afcc7029-4810-4f19-999a-2b254c659e19' }, // multiComplete@ppm.unsubmitted
+    { viewport: 'mobile', isMobile: true, userId: '836d8363-1a5a-45b7-aee0-996a97724c24' }, // multiComplete2@ppm.unsubmitted
   ];
+
+  viewportType.forEach(({ viewport, isMobile, userId }) => {
+    it(`navigates to the review page and deletes a shipment -  ${viewport}`, () => {
+      if (isMobile) {
+        setMobileViewport();
+      }
+      signInAndNavigateFromHomePageToReviewPage(userId);
+      deleteShipmentFromCard();
+    });
+  });
 
   viewportType.forEach(({ viewport, isMobile }) => {
     it(`navigates to the review page after finishing editing the PPM shipment - ${viewport}`, () => {
@@ -48,8 +61,8 @@ describe('PPM Onboarding - Review', function () {
         setMobileViewport();
       }
 
-      // complete@ppm.unsubmitted
-      const userId = '6a7d969a-2347-48c7-9289-0963c447f0a7';
+      // multiComplete@ppm.unsubmitted
+      const userId = 'afcc7029-4810-4f19-999a-2b254c659e19';
 
       getToReviewPage(isMobile, userId);
       verifyPPMShipmentCard(fullPPMShipmentFields, true);
@@ -92,6 +105,7 @@ function verifyPPMShipmentCard(shipmentCardFields, isEditable = false) {
 
       if (isEditable) {
         cy.get('button').contains('Edit');
+        cy.get('button').contains('Delete');
       } else {
         cy.get('[data-testid="ShipmentContainer"]').find('button').should('not.exist');
       }
@@ -106,7 +120,7 @@ function verifyPPMShipmentCard(shipmentCardFields, isEditable = false) {
     });
 }
 
-function navigateToAgreementAndSign() {
-  cy.nextPage();
-  signAgreement();
+function deleteShipmentFromCard() {
+  cy.get('[data-testid="ShipmentContainer"]').last().as('shipmentContainer');
+  deleteShipment('@shipmentContainer', 1);
 }
