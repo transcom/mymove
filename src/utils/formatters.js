@@ -48,6 +48,24 @@ export function formatToDimensionsInches(dimensions) {
   };
 }
 
+// Format user-entered dimension into base dimension, e.g. 15.25 -> 15250
+export function formatToThousandthInches(val) {
+  return parseFloat(String(val).replace(',', '')) * 1000;
+}
+
+// Format dimensions object length, width and height to base dimensions
+export function formatDimensionsToThousandthInches(dimensions) {
+  if (!dimensions) {
+    return undefined;
+  }
+
+  return {
+    length: formatToThousandthInches(dimensions.length),
+    width: formatToThousandthInches(dimensions.width),
+    height: formatToThousandthInches(dimensions.height),
+  };
+}
+
 // Service Member Formatters
 
 // Format a date in the MM-DD-YYYY format for use in the service member UI.

@@ -47,23 +47,6 @@ export function convertFromBaseQuantity(baseQuantity) {
   return baseQuantity / 10000;
 }
 
-// Format dimensions object length, width and height to base dimensions
-export function formatDimensionsToThousandthInches(dimensions) {
-  if (!dimensions) {
-    return;
-  }
-
-  dimensions.length = formatToThousandthInches(dimensions.length);
-  dimensions.width = formatToThousandthInches(dimensions.width);
-  dimensions.height = formatToThousandthInches(dimensions.height);
-  return;
-}
-
-// Format user-entered dimension into base dimension, e.g. 15.25 -> 15250
-export function formatToThousandthInches(val) {
-  return parseFloat(String(val).replace(',', '')) * 1000;
-}
-
 export function formatCentsRange(min, max) {
   if (!isFinite(min) || !isFinite(max)) {
     return '';
