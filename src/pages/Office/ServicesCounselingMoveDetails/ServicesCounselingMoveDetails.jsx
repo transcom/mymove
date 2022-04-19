@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
+import { func } from 'prop-types';
 import classnames from 'classnames';
 import 'styles/office.scss';
 import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
@@ -34,7 +35,7 @@ import formattedCustomerName from 'utils/formattedCustomerName';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 
-const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
+const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
   const history = useHistory();
   const [alertMessage, setAlertMessage] = useState(null);
@@ -224,6 +225,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
       setAlertType('error');
     },
   });
+
+  // Keep unapproved shipment count in sync
+  useEffect(() => {
+    setUnapprovedShipmentCount(numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments);
+  }, [numberOfErrorIfMissingForAllShipments, numberOfWarnIfMissingForAllShipments, setUnapprovedShipmentCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -418,6 +424,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
 
 ServicesCounselingMoveDetails.propTypes = {
   infoSavedAlert: AlertStateShape,
+  setUnapprovedShipmentCount: func.isRequired,
 };
 
 ServicesCounselingMoveDetails.defaultProps = {
