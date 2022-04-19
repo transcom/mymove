@@ -413,6 +413,19 @@ export function formatCents(cents, minimumFractionDigits = 2, maximumFractionDig
   return (cents / 100).toLocaleString(undefined, { minimumFractionDigits, maximumFractionDigits });
 }
 
+// Format base quantity as cents
+export function formatBaseQuantityAsDollars(baseQuantity) {
+  return formatCents(baseQuantity / 100);
+}
+
+export function formatCentsRange(min, max) {
+  if (!Number.isFinite(min) || !Number.isFinite(max)) {
+    return '';
+  }
+
+  return `$${formatCents(min)} - ${formatCents(max)}`;
+}
+
 // Formats a numeric value amount in the default locale with configurable options
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString
 export function formatAmount(amount, options = { minimumFractionDigits: 2, maximumFractionDigits: 2 }) {

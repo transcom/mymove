@@ -13,11 +13,6 @@ export function formatCents(cents) {
   });
 }
 
-// Format base quantity as cents
-export function formatBaseQuantityAsDollars(baseQuantity) {
-  return formatCents(baseQuantity / 100);
-}
-
 // Format a base quantity into a user-friendly number string, e.g. 167000 -> "16.7000"
 export function formatFromBaseQuantity(baseQuantity) {
   if (!isFinite(baseQuantity)) {
@@ -37,14 +32,6 @@ export function convertFromBaseQuantity(baseQuantity) {
   }
 
   return baseQuantity / 10000;
-}
-
-export function formatCentsRange(min, max) {
-  if (!isFinite(min) || !isFinite(max)) {
-    return '';
-  }
-
-  return `$${formatCents(min)} - ${formatCents(max)}`;
 }
 
 // Format a date, include its time and timezone, e.g. 03-Jan-2018 21:23 ET
