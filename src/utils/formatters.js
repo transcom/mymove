@@ -34,6 +34,15 @@ export function formatToBaseQuantity(baseQuantity) {
   return parseFloat(String(baseQuantity).replace(',', '')) * 10000;
 }
 
+// Format a base quantity into a user-friendly number, e.g. 167000 -> 16.7
+export function convertFromBaseQuantity(baseQuantity) {
+  if (!Number.isFinite(baseQuantity)) {
+    return null;
+  }
+
+  return baseQuantity / 10000;
+}
+
 // Format a thousandth of an inch into an inch, e.g. 16700 -> 16.7
 export function convertFromThousandthInchToInch(thousandthInch) {
   if (!Number.isFinite(thousandthInch)) {

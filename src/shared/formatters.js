@@ -13,15 +13,6 @@ export function formatCents(cents) {
   });
 }
 
-// Format a base quantity into a user-friendly number, e.g. 167000 -> 16.7
-export function convertFromBaseQuantity(baseQuantity) {
-  if (!isFinite(baseQuantity)) {
-    return null;
-  }
-
-  return baseQuantity / 10000;
-}
-
 // Format a date, include its time and timezone, e.g. 03-Jan-2018 21:23 ET
 export function formatDateTimeWithTZ(date) {
   if (!date) return undefined;
