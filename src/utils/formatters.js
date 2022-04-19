@@ -200,6 +200,15 @@ export function formatDateTimeWithTZ(date) {
   return `${moment(date, moment.ISO_8601, true).format('DD-MMM-YY HH:mm')} ${shortZone}`;
 }
 
+export function formatTimeAgo(date) {
+  if (!date) return undefined;
+
+  return moment(date)
+    .fromNow()
+    .replace('minute', 'min')
+    .replace(/a min\s/, '1 min ');
+}
+
 // maps int to int with ordinal 1 -> 1st, 2 -> 2nd, 3rd ...
 export const formatToOrdinal = (n) => {
   const s = ['th', 'st', 'nd', 'rd'];
