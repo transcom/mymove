@@ -7,7 +7,7 @@ import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
-import { formatCentsRange } from 'shared/formatters';
+import { formatCentsRange } from 'utils/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
