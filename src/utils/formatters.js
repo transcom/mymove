@@ -213,6 +213,17 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
   return wholeNumInt.toLocaleString();
 };
 
+// truncate a number and return appropiate decimal places... (watch out for negitive numbers: floor(-5.1) === -6)
+// see test for examples of how this works
+export const truncateNumber = (num, decimalPlaces = 0) => {
+  if (!num) return num;
+
+  const floatNum = parseFloat(num).toFixed(4);
+  const scale = 10 ** decimalPlaces;
+  const truncatedNbr = Math.floor(floatNum * scale) / scale;
+  return truncatedNbr.toFixed(decimalPlaces).toString();
+};
+
 // Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
 export const formatAgeToDays = (age) => {
   if (age < 1) {

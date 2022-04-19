@@ -132,14 +132,3 @@ export function formatTimeAgo(date) {
     .replace('minute', 'min')
     .replace(/a min\s/, '1 min ');
 }
-
-// truncate a number and return appropiate decimal places... (watch out for negitive numbers: floor(-5.1) === -6)
-// see test for examples of how this works
-export const truncateNumber = (num, decimalPlaces = 0) => {
-  if (!num) return num;
-
-  const floatNum = parseFloat(num).toFixed(4);
-  const scale = Math.pow(10, decimalPlaces);
-  const truncatedNbr = Math.floor(floatNum * scale) / scale;
-  return truncatedNbr.toFixed(decimalPlaces).toString();
-};
