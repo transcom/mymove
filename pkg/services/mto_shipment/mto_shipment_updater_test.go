@@ -2,7 +2,6 @@ package mtoshipment
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -841,7 +840,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 	}
 	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
-	suite.T().Run("Services Counselor is able to update shipments in Submitted status", func(t *testing.T) {
+	suite.RunWithRollback("Services Counselor is able to update shipments in Submitted status", func() {
 		servicesCounselor := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 		session := auth.Session{
@@ -866,7 +865,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 		}
 
 		for _, tt := range statusTests {
-			suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
+			suite.Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func() {
 				shipment := models.MTOShipment{
 					Status: tt.status,
 				}
@@ -881,7 +880,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 		}
 	})
 
-	suite.T().Run("TOO is able to update shipments in approved, cancellation requested, canceled, diversion requested", func(t *testing.T) {
+	suite.RunWithRollback("TOO is able to update shipments in approved, cancellation requested, canceled, diversion requested", func() {
 		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 		session := auth.Session{
@@ -906,7 +905,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 		}
 
 		for _, tt := range statusTests {
-			suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
+			suite.Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func() {
 				shipment := models.MTOShipment{
 					Status: tt.status,
 				}
@@ -921,7 +920,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 		}
 	})
 
-	suite.T().Run("TIO is able to update shipments in approved status", func(t *testing.T) {
+	suite.RunWithRollback("TIO is able to update shipments in approved status", func() {
 		tio := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 		session := auth.Session{
@@ -946,7 +945,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 		}
 
 		for _, tt := range statusTests {
-			suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
+			suite.Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func() {
 				shipment := models.MTOShipment{
 					Status: tt.status,
 				}
