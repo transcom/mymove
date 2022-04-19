@@ -1103,6 +1103,8 @@ jobs:
     working_directory: /mnt/ramdisk
     steps:
       - checkout
+      # use the yarn.lock as a key so that PRs with the same
+      # dependencies will use the same cache
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -1120,10 +1122,16 @@ jobs:
           keys:
             - v2-node-modules-cache-{{ checksum "yarn.lock" }}
       - run: make client_build
-      - save_cache:
-          key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
-          paths:
-            - ./node_modules/.cache
+      # only save the cache on master builds so that PRs don't pollute
+      # the cache
+      - when:
+          condition:
+            equal: [ master, << pipeline.git.branch >>]
+          steps:
+            save_cache:
+              key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
+              paths:
+                - ./node_modules/.cache
       - persist_to_workspace:
           root: .
           paths:
