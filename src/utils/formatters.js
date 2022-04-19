@@ -21,6 +21,11 @@ export function toDollarString(num) {
   return numeral(num).format('$0,0.00');
 }
 
+// Format user-entered base quantity into base quantity, e.g. 16.7000 -> 167000
+export function formatToBaseQuantity(baseQuantity) {
+  return parseFloat(String(baseQuantity).replace(',', '')) * 10000;
+}
+
 // Service Member Formatters
 
 // Format a date in the MM-DD-YYYY format for use in the service member UI.

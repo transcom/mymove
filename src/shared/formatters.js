@@ -47,13 +47,6 @@ export function convertFromBaseQuantity(baseQuantity) {
   return baseQuantity / 10000;
 }
 
-// Format user-entered base quantity into base quantity, e.g. 16.7000 -> 167000
-export function formatToBaseQuantity(baseQuantity) {
-  baseQuantity = parseFloat(String(baseQuantity).replace(',', '')) * 10000;
-
-  return baseQuantity;
-}
-
 // Format a thousandth of an inch into an inch, e.g. 16700 -> 16.7
 export function convertFromThousandthInchToInch(thousandthInch) {
   if (!isFinite(thousandthInch)) {
