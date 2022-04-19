@@ -1,14 +1,6 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
 
-export function formatNumber(num) {
-  if (!isFinite(num)) {
-    return '';
-  }
-
-  return num.toLocaleString();
-}
-
 // Format a number of cents into a string, e.g. $12,345.67
 export function formatCents(cents) {
   if (!isFinite(cents)) {

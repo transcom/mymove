@@ -10,6 +10,14 @@ import { SERVICE_COUNSELING_MOVE_STATUS_OPTIONS, MOVE_STATUS_OPTIONS } from 'con
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
+export function formatNumber(num) {
+  if (!Number.isFinite(num)) {
+    return '';
+  }
+
+  return num.toLocaleString();
+}
+
 /**
  * Formats number into a dollar string. Eg. $1,234.12
  *
