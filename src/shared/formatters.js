@@ -158,7 +158,3 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
   }
   return wholeNumInt.toLocaleString();
 };
-
-export const dropdownInputOptions = (options) => {
-  return Object.entries(options).map(([key, value]) => ({ key: key, value: value }));
-};
