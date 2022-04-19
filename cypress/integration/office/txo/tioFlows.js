@@ -119,7 +119,7 @@ describe('TIO user', () => {
     // View Orders page
     cy.contains('View orders').click();
 
-    cy.waitFor(['@getMoves', '@getOrders', '@getDocuments']);
+    cy.wait(['@getMoves', '@getOrders', '@getDocuments']);
     cy.get('form').within(($form) => {
       cy.get('input[name="tac"]').click().clear().type('E15A');
       cy.get('input[name="sac"]').click().clear().type('4K988AS098F');
