@@ -2,6 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Link as ExternalLink } from '@trussworks/react-uswds';
 
+import styles from './Home.module.scss';
+
+import { customerRoutes } from 'constants/routes';
 import Helper from 'components/Customer/Home/Helper';
 
 export const HelperNeedsOrders = () => (
@@ -30,56 +33,79 @@ export const HelperNeedsSubmitMove = () => (
 );
 
 export const HelperSubmittedMove = () => (
-  <Helper title="Next: Talk to a move counselor">
-    <p>They’ll contact you soon to let you know what to expect and to answer questions.</p>
-    <p>
-      <strong>Tell them or your movers if anything changes about your move.</strong>
-    </p>
-    <p>
-      <strong>If you’re using government-funded movers, they’ll contact you soon to:</strong>
-    </p>
-    <ul>
-      <li>estimate the weight of your move</li>
-      <li>finalize packing and pickup dates</li>
-    </ul>
-    <p>
-      <strong>For more moving tips:</strong>
-    </p>
-    <ul>
-      <li>
-        <ExternalLink
-          variant="external"
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://planmymove.militaryonesource.mil/"
-        >
-          Create a custom checklist at
-        </ExternalLink>{' '}
-        Plan My Move
-      </li>
-      <li>
-        <ExternalLink
-          variant="external"
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://installations.militaryonesource.mil/"
-        >
-          Learn more
-        </ExternalLink>{' '}
-        about your new duty location
-      </li>
-    </ul>
+  <Helper title="Next step: Your move gets approved" className={styles['helper-submitted-section']}>
+    <div>
+      <p>
+        <strong>A move counselor will contact you.</strong> They will confirm the information you entered here, give
+        advice, and answer questions.
+      </p>
+    </div>
+    <div>
+      <p>
+        <strong>For PPM (do it yourself) shipments</strong>
+      </p>
+      <ul className={styles['top-gap']}>
+        <li>You can start packing, but do not move any of your things until you hear that your move is approved</li>
+      </ul>
+    </div>
+    <div>
+      <p>
+        <strong>For HHGs and other shipments using movers</strong>
+      </p>
+      <div className={styles['top-gap']}>
+        <p>Your movers will contact you to:</p>
+        <ul>
+          <li>Estimate the weight of your belongings</li>
+          <li>Finalize dates to pack and pick up your things</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <p>
+        <strong>
+          We recommend visiting &nbsp;
+          <ExternalLink
+            variant="external"
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://planmymove.militaryonesource.mil/"
+          >
+            Plan My Move
+          </ExternalLink>{' '}
+          to make a customized moving checklist.
+        </strong>
+      </p>
+    </div>
   </Helper>
 );
 
-export const HelperSubmittedPPM = () => (
-  <Helper title="For your do-it-yourself shipments (PPMs)">
-    <ul>
-      <li>
-        <Link to="/ppm">Visit the MilMove PPM page</Link> to learn more about DITY shipments and to manage yours.
-      </li>
-      <li>Once you have moved, you’ll request payment using MilMove.</li>
-    </ul>
+export const HelperApprovedMove = () => (
+  <Helper title="Your move is in progress." className={styles['helper-approved-section']}>
+    <div>
+      <p>Talk to your counselor or to your movers to make any changes to your move.</p>
+    </div>
+    <div>
+      <p>
+        <strong>For PPM shipments</strong>
+      </p>
+      <p className={styles['top-gap']}>
+        When you are done moving your things, select <strong>Upload PPM documents</strong> to document your PPM,
+        calculate your final incentive, and create a payment request packet. You will upload weight tickets, receipts,
+        and other documentation that a counselor will review.
+      </p>
+    </div>
+    <div>
+      <p>
+        <strong>If you receive new orders while your move is underway</strong>
+      </p>
+      <ul className={styles['top-gap']}>
+        <li>Talk to your counselor</li>
+        <li>Talk to your movers</li>
+        <li>
+          <Link to={customerRoutes.ORDERS_AMEND_PATH}>Upload a copy of your new orders</Link>
+        </li>
+      </ul>
+    </div>
   </Helper>
 );
 

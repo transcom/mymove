@@ -9,11 +9,11 @@ import { withRouter } from 'react-router-dom';
 import styles from './Home.module.scss';
 import {
   HelperAmendedOrders,
+  HelperApprovedMove,
   HelperNeedsOrders,
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
-  HelperSubmittedPPM,
 } from './HomeHelpers';
 
 import ScrollToTop from 'components/ScrollToTop';
@@ -40,7 +40,8 @@ import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import MOVE_STATUSES from 'constants/moves';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
@@ -119,13 +120,13 @@ export class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
-  get hasPPMShipment() {
-    const { currentPpm } = this.props;
-    return !!Object.keys(currentPpm).length;
+  get isMoveApproved() {
+    const { move } = this.props;
+    return move.status === MOVE_STATUSES.APPROVED;
   }
 
   get shipmentActionBtnLabel() {
-    if (this.hasSubmittedMove && this.hasPPMShipment) {
+    if (this.hasSubmittedMove) {
       return '';
     }
     if (this.hasAnyShipments) {
@@ -166,13 +167,7 @@ export class Home extends Component {
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
     if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
-    if (this.hasPPMShipment)
-      return (
-        <>
-          <HelperSubmittedMove />
-          <HelperSubmittedPPM />
-        </>
-      );
+    if (this.isMoveApproved) return <HelperApprovedMove />;
     return <HelperSubmittedMove />;
   };
 
