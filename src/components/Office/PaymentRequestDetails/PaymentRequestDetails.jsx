@@ -9,7 +9,7 @@ import styles from './PaymentRequestDetails.module.scss';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
 import { MTOServiceItemShape } from 'types/order';
-import { formatDateFromIso } from 'shared/formatters';
+import { formatDateFromIso } from 'utils/formatters';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 import { shipmentModificationTypes } from 'constants/shipments';
 import { AccountingCodesShape } from 'types/accountingCodes';
