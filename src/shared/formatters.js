@@ -163,17 +163,6 @@ export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key: key, value: value }));
 };
 
-// Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
-export const formatAgeToDays = (age) => {
-  if (age < 1) {
-    return 'Less than 1 day';
-  }
-  if (age >= 1 && age < 2) {
-    return '1 day';
-  }
-  return `${Math.floor(age)} days`;
-};
-
 export const formatPrimeAPIFullAddress = (address) => {
   const { streetAddress1, streetAddress2, city, state, postalCode } = address;
   return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;

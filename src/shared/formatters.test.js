@@ -53,17 +53,3 @@ describe('formatters', () => {
     });
   });
 });
-
-describe('formatAgeToDays', () => {
-  it('returns expected string less than 1 day', () => {
-    expect(formatters.formatAgeToDays(0.99)).toEqual('Less than 1 day');
-  });
-
-  it('returns expected string for 1 day', () => {
-    expect(formatters.formatAgeToDays(1.5)).toEqual('1 day');
-  });
-
-  it('returns expected string greater than 1 day', () => {
-    expect(formatters.formatAgeToDays(2.99)).toEqual('2 days');
-  });
-});
