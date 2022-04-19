@@ -99,6 +99,18 @@ executors:
         environment:
           GOPATH: /home/circleci/go
 
+  mymove_compiler_xlarge:
+    # large and no ram disk
+    resource_class: xlarge
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          GOPATH: /home/circleci/go
+
   mymove_ramdisk_compiler:
     # large and no ram disk
     resource_class: large
@@ -1097,14 +1109,18 @@ jobs:
   # items are in the workspace, we don't even have to checkout the
   # code again
   #
-  # the babel/terser cache below takes the compile from ~6-7m to ~4-5m !!
+  # the babel/terser cache below takes the compile step from ~6-7m to ~4-5m !!
   compile_app_client:
-    executor: mymove_ramdisk_compiler
-    working_directory: /mnt/ramdisk
+    # ahobson tested this and saw 75% of the 16GB being used
+    # (according to the resources tab on CircleCI)
+    # if it starts running out of memory, we should move away from
+    # using a ramdisk
+    #
+    # This entire step takes ~6 minutes with xlarge ramdisk
+    # This entire step takes ~7 minutes without xlarge ramdisk
+    executor: mymove_ramdisk_compiler_xlarge
     steps:
       - checkout
-      # use the yarn.lock as a key so that PRs with the same
-      # dependencies will use the same cache
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -1118,6 +1134,9 @@ jobs:
       # cacheDirectory
       #
       # see https://www.npmjs.com/package/terser-webpack-plugin/v/1.4.4#cache
+      #
+      # use the yarn.lock as a key so that PRs with the same
+      # dependencies will use the same cache
       - restore_cache:
           keys:
             - v2-node-modules-cache-{{ checksum "yarn.lock" }}
