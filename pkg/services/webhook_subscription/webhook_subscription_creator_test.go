@@ -3,8 +3,9 @@ package webhooksubscription
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -22,10 +23,8 @@ func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
 
 	// Happy path
 	suite.T().Run("If the subscription is created successfully it should be returned", func(t *testing.T) {
-		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", subscriber.ID)}
-
 		creator := NewWebhookSubscriptionCreator(queryBuilder)
-		webhookSubscription, verrs, err := creator.CreateWebhookSubscription(suite.AppContextForTest(), &webhookSubscriptionInfo, filter)
+		webhookSubscription, verrs, err := creator.CreateWebhookSubscription(suite.AppContextForTest(), &webhookSubscriptionInfo)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(webhookSubscription.ID)
@@ -34,11 +33,15 @@ func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
 	})
 
 	// Bad subscriber ID
-	suite.T().Run("If we are provided a organization that doesn't exist, the create should fail", func(t *testing.T) {
-		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", "b9c41d03-c730-4580-bd37-9ccf4845af6c")}
-
+	suite.T().Run("If we are provided an organization that doesn't exist, the create should fail", func(t *testing.T) {
 		creator := NewWebhookSubscriptionCreator(queryBuilder)
-		_, _, err := creator.CreateWebhookSubscription(suite.AppContextForTest(), &webhookSubscriptionInfo, filter)
+		invalidSubscription := models.WebhookSubscription{
+			SubscriberID: uuid.Must(uuid.FromString("b9c41d03-c730-4580-bd37-9ccf4845af6c")),
+			Status:       models.WebhookSubscriptionStatusActive,
+			EventKey:     "PaymentRequest.Update",
+			CallbackURL:  "",
+		}
+		_, _, err := creator.CreateWebhookSubscription(suite.AppContextForTest(), &invalidSubscription)
 		suite.Error(err)
 		suite.Contains(err.Error(), "not found while looking for SubscriberID")
 	})
