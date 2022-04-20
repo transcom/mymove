@@ -97,7 +97,7 @@ export const createOrdersEvent = buildMoveHistoryEventTemplate({
 
 export const createStandardServiceItemEvent = buildMoveHistoryEventTemplate({
   action: 'INSERT',
-  eventName: 'approveShipment',
+  eventName: moveHistoryOperations.approveShipment,
   tableName: 'mto_service_items',
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Approved service item',
