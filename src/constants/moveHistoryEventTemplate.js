@@ -95,9 +95,9 @@ export const createOrdersEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
-export const createServiceItemEvent = buildMoveHistoryEventTemplate({
+export const createStandardServiceItemEvent = buildMoveHistoryEventTemplate({
   action: 'INSERT',
-  eventName: '*',
+  eventName: 'approveShipment',
   tableName: 'mto_service_items',
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Approved service item',
@@ -223,7 +223,7 @@ const allMoveHistoryEventTemplates = [
   approveShipmentDiversionEvent,
   createMTOShipmentEvent,
   createOrdersEvent,
-  createServiceItemEvent,
+  createStandardServiceItemEvent,
   requestShipmentCancellationEvent,
   requestShipmentDiversionEvent,
   setFinancialReviewFlagEvent,
