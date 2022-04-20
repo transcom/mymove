@@ -37,13 +37,17 @@
       }
     }
 
-    .editBtn {
+    .btnContainer {
       display: inline-flex;
       flex: 0;
       align-items: center;
       min-width: auto;
       @include u-padding-x(0);
       @include u-font('body', 'xs');
+
+      button {
+        @include u-padding(1.5);
+      }
     }
   }
 

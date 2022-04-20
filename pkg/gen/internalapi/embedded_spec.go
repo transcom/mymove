@@ -39,125 +39,6 @@ func init() {
   },
   "basePath": "/internal",
   "paths": {
-    "/access_codes": {
-      "get": {
-        "description": "Fetches the access code for a service member.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Fetches an access code",
-        "operationId": "fetchAccessCode",
-        "responses": {
-          "200": {
-            "description": "access code has been found in system",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to fetch access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/access_codes/invalid": {
-      "patch": {
-        "description": "Updates access code as invalid by associating it with the current service member.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Updates access code as invalid by associating it with the current service member.",
-        "operationId": "claimAccessCode",
-        "parameters": [
-          {
-            "description": "the code the access code represents and verifies if in use",
-            "name": "accessCode",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "code"
-              ],
-              "properties": {
-                "code": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "access code is invalid or valid",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to validate access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/access_codes/valid": {
-      "get": {
-        "description": "Verifies if access code is both unused and correctly associated with a move type.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Validate if an access code has been unused and associated with the correct move type.",
-        "operationId": "validateAccessCode",
-        "parameters": [
-          {
-            "pattern": "^(HHG|PPM)-[A-Z0-9]{6}$",
-            "type": "string",
-            "x-nullable": false,
-            "description": "the code the access code represents and verifies if in use",
-            "name": "code",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "access code is invalid or valid",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to validate access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/addresses/{addressId}": {
       "get": {
         "description": "Returns an address",
@@ -1881,6 +1762,50 @@ func init() {
       }
     },
     "/mto-shipments/{mtoShipmentId}": {
+      "delete": {
+        "description": "Soft deletes a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Soft deletes a shipment by ID",
+        "operationId": "deleteShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be deleted",
+            "name": "mtoShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
@@ -3118,50 +3043,6 @@ func init() {
     }
   },
   "definitions": {
-    "AccessCode": {
-      "type": "object",
-      "required": [
-        "id",
-        "code",
-        "move_type",
-        "created_at"
-      ],
-      "properties": {
-        "claimed_at": {
-          "description": "when the access code was claimed or used",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "example": "2018-04-12T23:20:50.52Z"
-        },
-        "code": {
-          "type": "string",
-          "example": "CODE456"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "move_type": {
-          "type": "string",
-          "title": "Selected Move Type",
-          "enum": [
-            "HHG",
-            "PPM"
-          ]
-        },
-        "service_member_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
     "Address": {
       "description": "A postal address",
       "type": "object",
@@ -6105,8 +5986,7 @@ func init() {
         "user_id",
         "is_profile_complete",
         "created_at",
-        "updated_at",
-        "requires_access_code"
+        "updated_at"
       ],
       "properties": {
         "affiliation": {
@@ -6189,11 +6069,6 @@ func init() {
         "rank": {
           "title": "Rank",
           "$ref": "#/definitions/ServiceMemberRank"
-        },
-        "requires_access_code": {
-          "type": "boolean",
-          "title": "Requires Access Code",
-          "x-nullable": false
         },
         "residential_address": {
           "title": "Residential Address",
@@ -6939,125 +6814,6 @@ func init() {
   },
   "basePath": "/internal",
   "paths": {
-    "/access_codes": {
-      "get": {
-        "description": "Fetches the access code for a service member.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Fetches an access code",
-        "operationId": "fetchAccessCode",
-        "responses": {
-          "200": {
-            "description": "access code has been found in system",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to fetch access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/access_codes/invalid": {
-      "patch": {
-        "description": "Updates access code as invalid by associating it with the current service member.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Updates access code as invalid by associating it with the current service member.",
-        "operationId": "claimAccessCode",
-        "parameters": [
-          {
-            "description": "the code the access code represents and verifies if in use",
-            "name": "accessCode",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "code"
-              ],
-              "properties": {
-                "code": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "access code is invalid or valid",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to validate access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/access_codes/valid": {
-      "get": {
-        "description": "Verifies if access code is both unused and correctly associated with a move type.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Validate if an access code has been unused and associated with the correct move type.",
-        "operationId": "validateAccessCode",
-        "parameters": [
-          {
-            "pattern": "^(HHG|PPM)-[A-Z0-9]{6}$",
-            "type": "string",
-            "x-nullable": false,
-            "description": "the code the access code represents and verifies if in use",
-            "name": "code",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "access code is invalid or valid",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to validate access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/addresses/{addressId}": {
       "get": {
         "description": "Returns an address",
@@ -8793,6 +8549,68 @@ func init() {
       }
     },
     "/mto-shipments/{mtoShipmentId}": {
+      "delete": {
+        "description": "Soft deletes a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Soft deletes a shipment by ID",
+        "operationId": "deleteShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be deleted",
+            "name": "mtoShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
@@ -10069,50 +9887,6 @@ func init() {
     }
   },
   "definitions": {
-    "AccessCode": {
-      "type": "object",
-      "required": [
-        "id",
-        "code",
-        "move_type",
-        "created_at"
-      ],
-      "properties": {
-        "claimed_at": {
-          "description": "when the access code was claimed or used",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "example": "2018-04-12T23:20:50.52Z"
-        },
-        "code": {
-          "type": "string",
-          "example": "CODE456"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "move_type": {
-          "type": "string",
-          "title": "Selected Move Type",
-          "enum": [
-            "HHG",
-            "PPM"
-          ]
-        },
-        "service_member_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
     "Address": {
       "description": "A postal address",
       "type": "object",
@@ -13077,8 +12851,7 @@ func init() {
         "user_id",
         "is_profile_complete",
         "created_at",
-        "updated_at",
-        "requires_access_code"
+        "updated_at"
       ],
       "properties": {
         "affiliation": {
@@ -13161,11 +12934,6 @@ func init() {
         "rank": {
           "title": "Rank",
           "$ref": "#/definitions/ServiceMemberRank"
-        },
-        "requires_access_code": {
-          "type": "boolean",
-          "title": "Requires Access Code",
-          "x-nullable": false
         },
         "residential_address": {
           "title": "Residential Address",

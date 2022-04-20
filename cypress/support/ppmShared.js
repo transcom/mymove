@@ -1,3 +1,5 @@
+import { signAgreement } from '../integration/mymove/utilities/customer';
+
 export function setMobileViewport() {
   cy.viewport(479, 875);
 }
@@ -37,7 +39,7 @@ export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(us
 
   cy.get('h3').should('contain', 'Time to submit your move');
 
-  cy.get('button').contains('PPM').click();
+  cy.get('[data-testid="shipment-list-item-container"] button').contains('Edit').click();
 
   cy.wait('@getShipment');
 
@@ -76,6 +78,7 @@ export function submitsEstimatedWeightsAndProGear() {
   cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
   cy.get('input[name="hasProGear"][value="true"]').check({ force: true });
   cy.get('input[name="proGearWeight"]').clear().type(500).blur();
+  cy.get('input[name="spouseProGearWeight"]').clear().type(400).blur();
   cy.get('button').contains('Save & Continue').should('be.enabled');
 
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
@@ -176,4 +179,24 @@ export function navigateFromReviewPageToHomePage() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.equal('/');
   });
+}
+
+export function navigateToAgreementAndSign() {
+  cy.nextPage();
+  signAgreement();
+}
+
+export function deleteShipment(selector, expectedLength) {
+  cy.get(selector).contains('Delete').click();
+  cy.get('[data-testid="modal"]').within(($modal) => {
+    expect($modal).to.be.visible;
+    cy.get('button').contains('Yes, Delete').click();
+  });
+  cy.wait(['@deleteShipment', '@getShipment']);
+  if (expectedLength > 0) {
+    cy.get(selector).should('have.length', expectedLength);
+  } else {
+    cy.get(selector).should('not.exist');
+  }
+  cy.get('[data-testid="alert"]').should('contain', 'The shipment was deleted.');
 }

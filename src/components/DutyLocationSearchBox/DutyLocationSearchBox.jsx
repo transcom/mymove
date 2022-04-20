@@ -77,7 +77,7 @@ const customStyles = {
 };
 
 export const DutyLocationSearchBoxComponent = (props) => {
-  const { searchDutyLocations, showAddress, title, input, name, errorMsg, displayAddress, hint } = props;
+  const { searchDutyLocations, showAddress, title, input, name, errorMsg, displayAddress, hint, placeholder } = props;
   const { value, onChange, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
@@ -148,7 +148,7 @@ export const DutyLocationSearchBoxComponent = (props) => {
           loadOptions={loadOptions}
           onChange={selectOption}
           onInputChange={changeInputText}
-          placeholder="Start typing a duty location..."
+          placeholder={placeholder || 'Start typing a duty location...'}
           value={hasDutyLocation ? value : null}
           noOptionsMessage={noOptionsMessage}
           styles={customStyles}
@@ -181,6 +181,7 @@ DutyLocationSearchBoxContainer.propTypes = {
     value: DutyLocationShape,
   }),
   hint: PropTypes.node,
+  placeholder: PropTypes.string,
 };
 
 DutyLocationSearchBoxContainer.defaultProps = {
@@ -193,6 +194,7 @@ DutyLocationSearchBoxContainer.defaultProps = {
     value: undefined,
   },
   hint: '',
+  placeholder: 'Start typing a duty location...',
 };
 
 DutyLocationSearchBoxComponent.propTypes = {

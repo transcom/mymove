@@ -254,7 +254,7 @@ const renderMockedComponent = (props) => {
 
 const mockedComponent = (
   <MockProviders initialEntries={[detailsURL]}>
-    <ServicesCounselingMoveDetails />
+    <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
   </MockProviders>
 );
 
@@ -326,6 +326,22 @@ describe('MoveDetails page', () => {
       // In this case, we would expect 3 since this shipment is missing the storage facility
       // and tac type.
       expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('3');
+    });
+
+    it('shares the number of missing shipment information', () => {
+      const moveDetailsQuery = {
+        ...newMoveDetailsQuery,
+        mtoShipments: [ntsrShipmentMissingRequiredInfo],
+      };
+
+      useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
+
+      const mockSetUpapprovedShipmentCount = jest.fn();
+      renderMockedComponent({ setUnapprovedShipmentCount: mockSetUpapprovedShipmentCount });
+
+      // Should have called `setUnapprovedShipmentCount` with 3 missing shipping info
+      expect(mockSetUpapprovedShipmentCount).toHaveBeenCalledTimes(1);
+      expect(mockSetUpapprovedShipmentCount).toHaveBeenCalledWith(3);
     });
 
     /* eslint-disable camelcase */
@@ -461,7 +477,10 @@ describe('MoveDetails page', () => {
     });
 
     it('renders info saved alert', () => {
-      renderMockedComponent({ infoSavedAlert: { alertType: 'success', message: 'great success!' } });
+      renderMockedComponent({
+        infoSavedAlert: { alertType: 'success', message: 'great success!' },
+        setUnapprovedShipmentCount: jest.fn(),
+      });
       expect(screen.getByText('great success!')).toBeInTheDocument();
     });
 
@@ -588,7 +607,9 @@ describe('MoveDetails page', () => {
       ])('shows the "%s" link as expected: %s', async (linkText, route) => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-        const { history } = renderWithRouter(<ServicesCounselingMoveDetails />, { route: detailsURL });
+        const { history } = renderWithRouter(<ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />, {
+          route: detailsURL,
+        });
 
         const link = await screen.findByRole('link', { name: linkText });
 
@@ -609,7 +630,10 @@ describe('MoveDetails page', () => {
         it.each([[SHIPMENT_OPTIONS_URL.HHG], [SHIPMENT_OPTIONS_URL.NTS], [SHIPMENT_OPTIONS_URL.NTSrelease]])(
           'selects the %s option and navigates to the matching form for that shipment type',
           async (shipmentType) => {
-            const { history } = renderWithRouter(<ServicesCounselingMoveDetails />, { route: detailsURL });
+            const { history } = renderWithRouter(
+              <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />,
+              { route: detailsURL },
+            );
 
             const path = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
               moveCode: mockRequestedMoveCode,

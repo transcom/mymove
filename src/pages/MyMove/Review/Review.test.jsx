@@ -177,6 +177,21 @@ describe('Review page', () => {
     expect(submitButton).toBeDisabled();
   });
 
+  it('next button is disabled when a there are no shipments', async () => {
+    selectCurrentMove.mockImplementation(() => testDraftMove);
+    selectMTOShipmentsForCurrentMove.mockImplementation(() => []);
+
+    render(
+      <MockProviders>
+        <ConnectedReview {...testProps} />
+      </MockProviders>,
+    );
+
+    const submitButton = await screen.findByRole('button', { name: 'Next' });
+
+    expect(submitButton).toBeDisabled();
+  });
+
   it('return home button is displayed when move has been submitted', async () => {
     selectCurrentMove.mockImplementation(() => testSubmittedMove);
 

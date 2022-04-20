@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import carImg from 'shared/images/car_mobile.png';
 import boxTruckImg from 'shared/images/box_truck_mobile.png';
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
-import { formatToOrdinal } from 'shared/formatters';
+import { formatToOrdinal } from 'utils/formatters';
 import deleteButtonImg from 'shared/images/delete-doc-button.png';
 import AlertWithDeleteConfirmation from 'shared/AlertWithDeleteConfirmation';
 import { UPLOAD_SCAN_STATUS } from 'shared/constants';

@@ -7,10 +7,13 @@ import { clearFlashMessage as clearFlashMessageAction } from 'store/flash/action
 import { FlashMessageShape } from 'types/flash';
 
 export const FlashMessage = ({ flash, clearFlashMessage }) => {
-  useEffect(() => () => {
-    // Clear this flash message on unmount (this will happen on navigation or if flash state changes)
-    clearFlashMessage(flash?.key);
-  });
+  useEffect(
+    () => () => {
+      // Clear this flash message on unmount (this will happen on navigation or if flash state changes)
+      clearFlashMessage(flash?.key);
+    },
+    [clearFlashMessage, flash?.key],
+  );
   const { message, title, type, slim } = flash;
 
   return (

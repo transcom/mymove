@@ -13,7 +13,6 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from 'constants/routes';
-import { formatSwaggerDate } from 'shared/formatters';
 import scrollToTop from 'shared/scrollToTop';
 import { updatePrimeMTOShipment } from 'services/primeApi';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
@@ -22,7 +21,7 @@ import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { addressSchema } from 'utils/validation';
 import { isValidWeight, isEmpty } from 'shared/utils';
-import { fromPrimeAPIAddressFormat, formatAddressForPrimeAPI } from 'utils/formatters';
+import { fromPrimeAPIAddressFormat, formatAddressForPrimeAPI, formatSwaggerDate } from 'utils/formatters';
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 

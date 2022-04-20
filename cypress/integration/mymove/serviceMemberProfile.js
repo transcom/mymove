@@ -1,32 +1,3 @@
-describe('setting up service member profile requiring an access code', function () {
-  before(() => {
-    cy.prepareCustomerApp();
-  });
-
-  beforeEach(() => {
-    cy.signInAsNewMilMoveUser();
-  });
-
-  it('progresses thru forms', function () {
-    cy.get('body').then(($body) => {
-      if ($body.find('input[name="claim_access_code"]').length) {
-        serviceMemberEntersAccessCode();
-      }
-    });
-    serviceMemberChoosesConusOrOconus();
-    serviceMemberProfile();
-  });
-
-  it.skip('restarts app after every page', function () {
-    serviceMemberProfile(true);
-  });
-});
-
-function serviceMemberEntersAccessCode() {
-  cy.get('input[name="claim_access_code"]').type('PPM-X3FQJK');
-  cy.get('button').contains('Continue').click();
-}
-
 function serviceMemberChoosesConusOrOconus() {
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.location().should((loc) => {

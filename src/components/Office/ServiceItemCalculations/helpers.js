@@ -1,8 +1,8 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
-import { formatCents, toDollarString } from 'shared/formatters';
+import { formatCents } from 'shared/formatters';
 import { formatDate } from 'shared/dates';
-import { formatWeight, formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
+import { formatWeight, formatWeightCWTFromLbs, formatDollarFromMillicents, toDollarString } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const calculation = (value, label, ...details) => {

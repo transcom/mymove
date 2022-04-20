@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import styles from './AuthorizePayment.module.scss';
 
-import { toDollarString } from 'shared/formatters';
+import { toDollarString } from 'utils/formatters';
 
 /**
  * This component represents a section shown in the ReviewDetailsCard at the end of navigation.

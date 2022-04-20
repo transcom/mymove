@@ -54,6 +54,12 @@ const initialState = {
 //   @@swagger/tag.operationId/SUCCESS
 //   ADD_ENTITIES
 export function entitiesReducer(state = initialState, action) {
+  if (action.type === 'UPDATE_MTO_SHIPMENTS_ENTITIY') {
+    return {
+      ...state,
+      mtoShipments: action.entities['mtoShipments'] || {},
+    };
+  }
   if (action.type === ADD_ENTITIES) {
     return mergeEntities(state, action.entities);
   }
