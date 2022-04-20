@@ -83,10 +83,11 @@ const withShipmentProps = {
       shipmentType: 'HHG',
       createdAt: '24 December 2020',
     },
+    {
+      id: 'testMove',
+      shipmentType: 'PPM',
+    },
   ],
-  currentPpm: {
-    id: 'testMove',
-  },
 };
 
 const submittedProps = {
@@ -142,7 +143,20 @@ export const Step4 = () => {
   );
 };
 
-export const SubmittedMove = () => {
+export const SubmittedMoveWithoutPPM = () => {
+  let { mtoShipments } = submittedProps;
+  mtoShipments = mtoShipments.slice(0, 1);
+  const props = { ...submittedProps, mtoShipments };
+  return (
+    <MockProviders>
+      <div className="grid-container usa-prose">
+        <Home {...props} />
+      </div>
+    </MockProviders>
+  );
+};
+
+export const SubmittedMoveWithPPM = () => {
   return (
     <MockProviders>
       <div className="grid-container usa-prose">
