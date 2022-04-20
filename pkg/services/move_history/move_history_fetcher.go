@@ -27,14 +27,20 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			moves.*
 		FROM
 			moves
-		WHERE locator = $1
+		WHERE
+			locator = $1
 	),
 	shipments AS (
 		SELECT
 			mto_shipments.*
 		FROM
 			mto_shipments
-		WHERE move_id = (SELECT moves.id FROM moves)
+		WHERE
+			move_id = (
+				SELECT
+					moves.id
+				FROM
+					moves)
 	),
 	shipment_logs AS (
 		SELECT
@@ -62,7 +68,12 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		FROM
 			orders
 		JOIN moves ON moves.orders_id = orders.id
-		WHERE orders.id = (SELECT moves.orders_id FROM moves)
+	WHERE
+		orders.id = (
+			SELECT
+				moves.orders_id
+			FROM
+				moves)
 	),
 	orders_logs AS (
 		SELECT
@@ -71,27 +82,37 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN orders ON orders.id = audit_history.object_id
-			AND audit_history."table_name" = 'orders'
+			JOIN orders ON orders.id = audit_history.object_id
+				AND audit_history."table_name" = 'orders'
 	),
 	service_items AS (
 		SELECT
-			mto_service_items.*, re_services.name, mto_shipments.shipment_type
+			mto_service_items.*,
+			re_services.name,
+			mto_shipments.shipment_type
 		FROM
 			mto_service_items
 		JOIN re_services ON mto_service_items.re_service_id = re_services.id
 		JOIN mto_shipments ON mto_service_items.mto_shipment_id = mto_shipments.id
-		WHERE mto_shipments.move_id = (SELECT moves.id FROM moves)
+	WHERE
+		mto_shipments.move_id = (
+			SELECT
+				moves.id
+			FROM
+				moves)
 	),
 	service_item_logs AS (
 		SELECT
 			audit_history.*,
-			json_build_object('name', service_items.name, 'shipment_type', service_items.shipment_type)::TEXT AS context,
+			json_build_object('name',
+				service_items.name,
+				'shipment_type',
+				service_items.shipment_type)::TEXT AS context,
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN service_items ON service_items.id = audit_history.object_id
-			AND audit_history."table_name" = 'mto_service_items'
+			JOIN service_items ON service_items.id = audit_history.object_id
+				AND audit_history. "table_name" = 'mto_service_items'
 	),
 	pickup_address_logs AS (
 		SELECT
@@ -118,16 +139,55 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			entitlements.*
 		FROM
 			entitlements
-		WHERE entitlements.id = (SELECT entitlement_id FROM orders)
+	WHERE
+		entitlements.id = (
+			SELECT
+				entitlement_id
+			FROM
+				orders)
 	),
-	entitlements_logs as (
-		SELECT audit_history.*,
+	entitlements_logs AS (
+		SELECT
+			audit_history.*,
 			NULL AS context,
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN entitlements ON entitlements.id = audit_history.object_id
-			AND audit_history."table_name" = 'entitlements'
+			JOIN entitlements ON entitlements.id = audit_history.object_id
+				AND audit_history. "table_name" = 'entitlements'
+	),
+	payment_requests AS (
+		SELECT
+			json_agg(json_build_object('name',
+					re_services.name,
+					'price',
+					payment_service_items.price_cents,
+					'status',
+					payment_service_items.status))::TEXT AS context,
+			payment_requests.id AS id
+		FROM
+			payment_requests
+		JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
+		JOIN mto_service_items ON mto_service_items.id = mto_service_item_id
+		JOIN re_services ON mto_service_items.re_service_id = re_services.id
+	WHERE
+		payment_requests.move_id = (
+			SELECT
+				moves.id
+			FROM
+				moves)
+		GROUP BY
+			payment_requests.id
+	),
+	payment_requests_logs AS (
+		SELECT DISTINCT
+			audit_history.*,
+			context AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+			JOIN payment_requests ON payment_requests.id = audit_history.object_id
+				AND audit_history. "table_name" = 'payment_requests'
 	),
 	combined_logs AS (
 		SELECT
@@ -159,6 +219,11 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			*
 		FROM
 			orders_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			payment_requests_logs
 		UNION ALL
 		SELECT
 			*
