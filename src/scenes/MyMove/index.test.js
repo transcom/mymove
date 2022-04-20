@@ -26,28 +26,6 @@ describe('ConnectedCustomerApp tests', () => {
       });
     });
 
-    it('renders the Access Code route', async () => {
-      const { queryByText } = renderRoute('/access-code', {
-        entities: {
-          user: {
-            userId123: {
-              id: 'userId123',
-              service_member: 'serviceMemberId456',
-            },
-          },
-          serviceMembers: {
-            serviceMemberId456: {
-              id: 'serviceMemberId456',
-            },
-          },
-        },
-      });
-
-      await waitFor(() => {
-        expect(queryByText('Please enter your MilMove access code in the field below.')).toBeInTheDocument();
-      });
-    });
-
     it('renders the Privacy & Security policy route', () => {
       const { queryByText } = renderRoute('/privacy-security');
       expect(queryByText('Privacy & Security Policy')).toBeInTheDocument();

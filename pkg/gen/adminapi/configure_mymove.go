@@ -11,7 +11,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/access_codes"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
@@ -102,11 +101,6 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.WebhookSubscriptionsGetWebhookSubscriptionHandler == nil {
 		api.WebhookSubscriptionsGetWebhookSubscriptionHandler = webhook_subscriptions.GetWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.GetWebhookSubscriptionParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook_subscriptions.GetWebhookSubscription has not yet been implemented")
-		})
-	}
-	if api.AccessCodesIndexAccessCodesHandler == nil {
-		api.AccessCodesIndexAccessCodesHandler = access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
-			return middleware.NotImplemented("operation access_codes.IndexAccessCodes has not yet been implemented")
 		})
 	}
 	if api.AdminUsersIndexAdminUsersHandler == nil {

@@ -9,7 +9,7 @@ import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
 // refactored as part of TRA work to be done differently across the app.
 // For now though, I'm going to be using the `formatDateFromIso` function and
 // then leverage a constant for how the date should be formatted.
-import { formatDateFromIso } from 'shared/formatters';
+import { formatDateFromIso } from 'utils/formatters';
 import { DATE_TIME_FORMAT_STRING } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';

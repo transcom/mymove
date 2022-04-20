@@ -11,7 +11,7 @@ import { SITExtensionShape } from '../../../types/sitExtensions';
 import styles from './ShipmentSITDisplay.module.scss';
 
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
-import { formatDateFromIso, formatDate } from 'shared/formatters';
+import { formatDateFromIso, formatDate } from 'utils/formatters';
 import { utcDateFormat } from 'shared/dates';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';

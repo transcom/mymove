@@ -14,7 +14,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -437,8 +436,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	switch userType {
 	case MilMoveUserType:
 		newServiceMember := models.ServiceMember{
-			UserID:             user.ID,
-			RequiresAccessCode: h.Context.GetFeatureFlag(cli.FeatureFlagAccessCode),
+			UserID: user.ID,
 		}
 		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {

@@ -8,7 +8,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/cli"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -16,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember, requiresAccessCode bool) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
 		orderPayload, _ := payloadForOrdersModel(storer, order)
@@ -27,11 +26,6 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 	for i, contact := range serviceMember.BackupContacts {
 		contactPayload := payloadForBackupContactModel(contact)
 		contactPayloads[i] = &contactPayload
-	}
-
-	// if an existing service member, set requires access code to what they're already set
-	if requiresAccessCode != serviceMember.RequiresAccessCode {
-		requiresAccessCode = serviceMember.RequiresAccessCode
 	}
 
 	var weightAllotment *internalmessages.WeightAllotment
@@ -62,7 +56,6 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		BackupContacts:       contactPayloads,
 		IsProfileComplete:    handlers.FmtBool(serviceMember.IsProfileComplete()),
 		CurrentLocation:      payloadForDutyLocationModel(serviceMember.DutyLocation),
-		RequiresAccessCode:   requiresAccessCode,
 		WeightAllotment:      weightAllotment,
 	}
 	return &serviceMemberPayload
@@ -115,7 +108,6 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				ResidentialAddress:   residentialAddress,
 				BackupMailingAddress: backupMailingAddress,
 				DutyLocation:         dutyLocation,
-				RequiresAccessCode:   h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
 				DutyLocationID:       dutyLocationID,
 			}
 			smVerrs, err := models.SaveServiceMember(appCtx, &newServiceMember)
@@ -135,7 +127,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				appCtx.Session().LastName = *(newServiceMember.LastName)
 			}
 			// And return
-			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
+			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember)
 			responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
 			sessionManager := h.SessionManager(appCtx.Session())
 			return handlers.NewCookieUpdateResponder(params.HTTPRequest, responder, sessionManager, appCtx.Session()), nil
@@ -159,7 +151,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
+			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
 			return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload), nil
 		})
 }
@@ -232,7 +224,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 				serviceMember.Orders[0] = order
 			}
 
-			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
+			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
 			return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload), nil
 		})
 }

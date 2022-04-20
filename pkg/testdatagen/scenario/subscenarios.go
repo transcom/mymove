@@ -94,12 +94,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
 
-		testdatagen.MakeAccessCode(appCtx.DB(), testdatagen.Assertions{
-			AccessCode: models.AccessCode{
-				Code:     "ABC123",
-				MoveType: models.SelectedMoveTypePPM,
-			},
-		})
+		// Onboarding
 		createUnSubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
 		createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 		createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
@@ -111,6 +106,8 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createUnSubmittedMoveWithFullPPMShipment3(appCtx, userUploader)
 		createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
+
+		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader, moveRouter)
 	}
 }
