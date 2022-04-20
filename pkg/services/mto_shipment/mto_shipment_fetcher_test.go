@@ -99,8 +99,8 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 
 		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
 
-		suite.NoError(err, "Expected no error for a move with two shipments")
-		suite.Len(mtoShipments, 1, "Expected a shipment list of length 2")
+		suite.NoError(err, "Expected no error for a move with one deleted and one not deleted shipment")
+		suite.Len(mtoShipments, 1, "Expected a shipment list of length 1")
 
 		suite.Equal(secondShipment.ID.String(), mtoShipments[0].ID.String())
 
