@@ -51,7 +51,7 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 		residentialAddress := models.FetchAddressByID(db, orders.ServiceMember.ResidentialAddressID)
 
 		if residentialAddress == nil {
-			log.Panicf("Could not find residential address to use as pickp zip.")
+			log.Panicf("Could not find residential address to use as pickup zip.")
 		}
 
 		requiredFields.pickupPostalCode = residentialAddress.PostalCode
@@ -69,13 +69,16 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	fullAssertions := Assertions{
 		PPMShipment: models.PPMShipment{
-			Status:              models.PPMShipmentStatusSubmitted,
-			EstimatedWeight:     models.PoundPointer(unit.Pound(4000)),
-			HasProGear:          models.BoolPointer(true),
-			ProGearWeight:       models.PoundPointer(unit.Pound(1150)),
-			SpouseProGearWeight: models.PoundPointer(unit.Pound(450)),
-			EstimatedIncentive:  models.Int32Pointer(567890),
-			AdvanceRequested:    models.BoolPointer(false),
+			Status:                         models.PPMShipmentStatusSubmitted,
+			SecondaryPickupPostalCode:      models.StringPointer("90211"),
+			SecondaryDestinationPostalCode: models.StringPointer("30814"),
+			EstimatedWeight:                models.PoundPointer(unit.Pound(4000)),
+			HasProGear:                     models.BoolPointer(true),
+			ProGearWeight:                  models.PoundPointer(unit.Pound(1987)),
+			SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
+			EstimatedIncentive:             models.Int32Pointer(int32(1000000)),
+			AdvanceRequested:               models.BoolPointer(true),
+			Advance:                        models.CentPointer(unit.Cents(598700)),
 		},
 	}
 

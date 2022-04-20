@@ -10,15 +10,16 @@ import (
 )
 
 type StorageFacility struct {
-	ID           uuid.UUID `json:"id" db:"id"`
-	FacilityName string    `json:"facility_name" db:"facility_name"`
-	Address      Address   `belongs_to:"addresses" fk_id:"address_id"`
-	AddressID    uuid.UUID `json:"address_id" db:"address_id"`
-	LotNumber    *string   `json:"lot_number" db:"lot_number"`
-	Phone        *string   `json:"phone" db:"phone"`
-	Email        *string   `json:"email" db:"email"`
-	CreatedAt    time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+	ID           uuid.UUID  `json:"id" db:"id"`
+	FacilityName string     `json:"facility_name" db:"facility_name"`
+	Address      Address    `belongs_to:"addresses" fk_id:"address_id"`
+	AddressID    uuid.UUID  `json:"address_id" db:"address_id"`
+	LotNumber    *string    `json:"lot_number" db:"lot_number"`
+	Phone        *string    `json:"phone" db:"phone"`
+	Email        *string    `json:"email" db:"email"`
+	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at" db:"updated_at"`
+	DeletedAt    *time.Time `json:"deleted_at" db:"deleted_at"`
 }
 
 type StorageFacilities []StorageFacility

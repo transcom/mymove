@@ -11,7 +11,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
@@ -85,11 +84,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office.CancelMove has not yet been implemented")
 		})
 	}
-	if api.AccesscodeClaimAccessCodeHandler == nil {
-		api.AccesscodeClaimAccessCodeHandler = accesscode.ClaimAccessCodeHandlerFunc(func(params accesscode.ClaimAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation accesscode.ClaimAccessCode has not yet been implemented")
-		})
-	}
 	if api.DocumentsCreateDocumentHandler == nil {
 		api.DocumentsCreateDocumentHandler = documents.CreateDocumentHandlerFunc(func(params documents.CreateDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation documents.CreateDocument has not yet been implemented")
@@ -155,6 +149,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
 		})
 	}
+	if api.MtoShipmentDeleteShipmentHandler == nil {
+		api.MtoShipmentDeleteShipmentHandler = mto_shipment.DeleteShipmentHandlerFunc(func(params mto_shipment.DeleteShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.DeleteShipment has not yet been implemented")
+		})
+	}
 	if api.UploadsDeleteUploadHandler == nil {
 		api.UploadsDeleteUploadHandler = uploads.DeleteUploadHandlerFunc(func(params uploads.DeleteUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUpload has not yet been implemented")
@@ -163,11 +162,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.UploadsDeleteUploadsHandler == nil {
 		api.UploadsDeleteUploadsHandler = uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
-		})
-	}
-	if api.AccesscodeFetchAccessCodeHandler == nil {
-		api.AccesscodeFetchAccessCodeHandler = accesscode.FetchAccessCodeHandlerFunc(func(params accesscode.FetchAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation accesscode.FetchAccessCode has not yet been implemented")
 		})
 	}
 	if api.DpsAuthGetCookieURLHandler == nil {
@@ -378,11 +372,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.OrdersUploadAmendedOrdersHandler == nil {
 		api.OrdersUploadAmendedOrdersHandler = orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
-		})
-	}
-	if api.AccesscodeValidateAccessCodeHandler == nil {
-		api.AccesscodeValidateAccessCodeHandler = accesscode.ValidateAccessCodeHandlerFunc(func(params accesscode.ValidateAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation accesscode.ValidateAccessCode has not yet been implemented")
 		})
 	}
 	if api.EntitlementsValidateEntitlementHandler == nil {

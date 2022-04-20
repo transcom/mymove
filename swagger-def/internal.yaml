@@ -1138,10 +1138,6 @@ definitions:
       updated_at:
         type: string
         format: date-time
-      requires_access_code:
-        type: boolean
-        x-nullable: false
-        title: Requires Access Code
       weight_allotment:
         $ref: '#/definitions/WeightAllotment'
     required:
@@ -1150,7 +1146,6 @@ definitions:
       - is_profile_complete
       - created_at
       - updated_at
-      - requires_access_code
   CreateServiceMemberPayload:
     type: object
     properties:
@@ -2199,40 +2194,6 @@ definitions:
       - valid
       - postal_code
       - postal_code_type
-  AccessCode:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      code:
-        type: string
-        example: CODE456
-      move_type:
-        type: string
-        title: Selected Move Type
-        enum:
-          - HHG
-          - PPM
-      created_at:
-        type: string
-        format: date-time
-      claimed_at:
-        type: string
-        format: date-time
-        example: 2018-04-12T23:20:50.52Z
-        description: when the access code was claimed or used
-        x-nullable: true
-    required:
-      - id
-      - code
-      - move_type
-      - created_at
   Role:
     type: object
     properties:
@@ -2481,13 +2442,13 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
       secondaryPickupPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
@@ -2495,13 +2456,13 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
@@ -2576,25 +2537,25 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
       secondaryPickupPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
       sitExpected:
         type: boolean
@@ -2604,8 +2565,7 @@ definitions:
       - destinationPostalCode
       - sitExpected
   UpdatePPMShipment:
-    type:
-      object
+    type: object
     properties:
       expectedDepartureDate:
         description: >
@@ -2622,28 +2582,28 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       secondaryPickupPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       secondaryDestinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       sitExpected:
@@ -4614,85 +4574,6 @@ paths:
           description: user is not authorized
         '500':
           description: server error
-  /access_codes:
-    get:
-      summary: Fetches an access code
-      description: Fetches the access code for a service member.
-      operationId: fetchAccessCode
-      tags:
-        - accesscode
-      responses:
-        '200':
-          description: access code has been found in system
-          schema:
-            $ref: '#/definitions/AccessCode'
-        '400':
-          description: invalid request
-        '401':
-          description: not authorized to fetch access code
-        '404':
-          description: access code not found in system
-        '500':
-          description: server error
-  /access_codes/valid:
-    get:
-      summary: Validate if an access code has been unused and associated with the correct move type.
-      description: Verifies if access code is both unused and correctly associated with a move type.
-      operationId: validateAccessCode
-      tags:
-        - accesscode
-      parameters:
-        - in: query
-          name: code
-          type: string
-          description: the code the access code represents and verifies if in use
-          pattern: '^(HHG|PPM)-[A-Z0-9]{6}$'
-          x-nullable: false
-      responses:
-        '200':
-          description: access code is invalid or valid
-          schema:
-            $ref: '#/definitions/AccessCode'
-        '400':
-          description: invalid request
-        '401':
-          description: not authorized to validate access code
-        '404':
-          description: access code not found in system
-        '500':
-          description: server error
-  /access_codes/invalid:
-    patch:
-      summary: Updates access code as invalid by associating it with the current service member.
-      description: Updates access code as invalid by associating it with the current service member.
-      operationId: claimAccessCode
-      tags:
-        - accesscode
-      parameters:
-        - in: body
-          name: accessCode
-          description: the code the access code represents and verifies if in use
-          required: true
-          schema:
-            type: object
-            required:
-              - code
-            properties:
-              code:
-                type: string
-      responses:
-        '200':
-          description: access code is invalid or valid
-          schema:
-            $ref: '#/definitions/AccessCode'
-        '400':
-          description: invalid request
-        '401':
-          description: not authorized to validate access code
-        '404':
-          description: access code not found in system
-        '500':
-          description: server error
   /addresses/{addressId}:
     get:
       summary: Returns an address
@@ -4822,6 +4703,36 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a shipment by ID
+      description: Soft deletes a shipment by ID
+      operationId: deleteShipment
+      tags:
+        - mtoShipment
+      produces:
+        - application/json
+      parameters:
+        - description: ID of the shipment to be deleted
+          in: path
+          name: mtoShipmentId
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the shipment
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':

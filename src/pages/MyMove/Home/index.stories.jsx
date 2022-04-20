@@ -27,6 +27,7 @@ const uploadOrdersProps = {
   loadMTOShipments() {},
   history: { push: () => {}, goBack: () => {} },
   getSignedCertification() {},
+  updateShipmentList() {},
   mtoShipments: [],
   mtoShipment: {},
   isLoggedIn: true,

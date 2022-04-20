@@ -28,7 +28,7 @@ describe('Customer NTSr Setup flow', function () {
 });
 
 function customerEditsNTSRShipmentFromHomePage() {
-  cy.get('[data-testid="shipment-list-item-container"]').contains('NTS-release').click();
+  cy.get('[data-testid="shipment-list-item-container"]').eq(1).children().contains('Edit').click();
   cy.get('textarea[data-testid="remarks"]').clear().type('Warning: glass').blur();
 
   cy.get('button').contains('Save').click();

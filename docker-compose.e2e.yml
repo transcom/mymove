@@ -54,7 +54,6 @@ services:
       - DPS_COOKIE_EXPIRES_IN_MINUTES
       - EIA_KEY=db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
       - ENVIRONMENT=test
-      - FEATURE_FLAG_ACCESS_CODE=false
       - HERE_MAPS_APP_CODE
       - HERE_MAPS_APP_ID
       - HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json

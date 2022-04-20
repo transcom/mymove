@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/cli"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -132,14 +131,12 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				}
 			}
 
-			requiresAccessCode := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
-
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			userPayload := internalmessages.LoggedInUserPayload{
 				ID:            handlers.FmtUUID(appCtx.Session().UserID),
-				ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, requiresAccessCode),
+				ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember),
 				FirstName:     appCtx.Session().FirstName,
 				Email:         appCtx.Session().Email,
 			}

@@ -14,7 +14,6 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 
-	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	move "github.com/transcom/mymove/pkg/services/move"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
@@ -135,11 +134,6 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 		postalcodeservice.NewPostalCodeValidator(),
 	}
 
-	// Access Codes
-	internalAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeFetcher()}
-	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeValidator()}
-	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeClaimer()}
-
 	// GHC Endpoint
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
@@ -175,6 +169,11 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 		ctx,
 		fetch.NewListFetcher(builder),
 		fetch.NewFetcher(builder),
+	}
+
+	internalAPI.MtoShipmentDeleteShipmentHandler = DeleteShipmentHandler{
+		ctx,
+		mtoshipment.NewShipmentDeleter(),
 	}
 
 	return internalAPI
