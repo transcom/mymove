@@ -36,6 +36,7 @@ export const shipmentStatuses = {
 
 export const ppmShipmentStatuses = {
   WAITING_ON_CUSTOMER: 'WAITING_ON_CUSTOMER',
+  SUBMITTED: 'SUBMITTED',
 };
 
 export const shipmentDestinationTypes = {

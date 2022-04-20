@@ -1,5 +1,5 @@
 import React from 'react';
-import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import { arrayOf, bool, func, number } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './PPMSummaryList.module.scss';
@@ -7,6 +7,7 @@ import styles from './PPMSummaryList.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import { formatCustomerDate } from 'utils/formatters';
+import { MtoShipmentShape } from 'types/customerShapes';
 
 const ppmContent = (canUpload, approvedOn) => {
   return canUpload ? (
@@ -49,28 +50,24 @@ const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick }) => {
     shipment?.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER;
   return (
     <SectionWrapper className={styles['ppm-shipment']}>
-      <div className={styles['heading-section']}>
-        <strong>{hasMany ? `PPM${index + 1}` : 'PPM'}</strong>
+      <div className={styles['ppm-shipment__heading-section']}>
+        <strong>{hasMany ? `PPM ${index + 1}` : 'PPM'}</strong>
         <Button disabled={!canUpload} onClick={onUploadClick}>
           Upload PPM Documents
         </Button>
       </div>
-      <div className={styles.content}>{ppmContent(canUpload, shipment?.ppmShipment?.approvedAt)}</div>
+      <div className={styles['ppm-shipment__content']}>{ppmContent(canUpload, shipment?.ppmShipment?.approvedAt)}</div>
     </SectionWrapper>
   );
 };
 
-const shipmentShape = shape({
-  id: string.isRequired,
-});
-
 PPMSummaryList.propTypes = {
-  shipments: arrayOf(shipmentShape).isRequired,
+  shipments: arrayOf(MtoShipmentShape).isRequired,
   onUploadClick: func.isRequired,
 };
 
 PPMSummaryListItem.propTypes = {
-  shipment: shipmentShape.isRequired,
+  shipment: MtoShipmentShape.isRequired,
   index: number.isRequired,
   hasMany: bool.isRequired,
   onUploadClick: func.isRequired,

@@ -17,17 +17,18 @@
     }
   }
 
-  .heading-section {
+  .ppm-shipment__heading-section {
     display: flex;
     justify-content: space-between;
     align-items: center;
 
     button {
       @include u-margin(0);
+      width: auto;
     }
   }
 
-  .content {
+  .ppm-shipment__content {
     @include u-margin-top(2);
   }
 

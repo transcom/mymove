@@ -60,14 +60,14 @@ describe('PPMSummaryList component', () => {
     it('should not render numbers next to PPM', () => {
       const props = { ...defaultProps, shipments: shipments.slice(0, 1) };
       render(<PPMSummaryList {...props} />);
-      expect(screen.queryByText('PPM1')).not.toBeInTheDocument();
+      expect(screen.queryByText('PPM 1')).not.toBeInTheDocument();
     });
   });
   describe('there is multiple shipments', () => {
     it('should render numbers next to PPM', () => {
       render(<PPMSummaryList {...defaultProps} />);
-      expect(screen.queryByText('PPM1')).toBeInTheDocument();
-      expect(screen.queryByText('PPM2')).toBeInTheDocument();
+      expect(screen.queryByText('PPM 1')).toBeInTheDocument();
+      expect(screen.queryByText('PPM 2')).toBeInTheDocument();
     });
   });
 });
