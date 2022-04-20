@@ -871,8 +871,8 @@ jobs:
       - announce_failure
 
   integration_tests_office:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 8 files here
-    parallelism: 8
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 12 files here
+    parallelism: 12
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
