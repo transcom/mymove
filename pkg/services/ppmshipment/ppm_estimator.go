@@ -36,6 +36,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	}
 	// Check that all the required fields we need are present.
 	err = validatePPMShipment(appCtx, *newPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
+	// If a field does not pass validation return nil as error handling is happening in the validator
 	if err != nil {
 		switch err.(type) {
 		case apperror.InvalidInputError:
@@ -49,6 +50,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		newPPMShipment.EstimatedIncentive = oldPPMShipment.EstimatedIncentive
 		return oldPPMShipment.EstimatedIncentive, nil
 	}
+	// Clear out advance and advance requested fields when the estimated incentive is reset.
 	newPPMShipment.AdvanceRequested = nil
 	newPPMShipment.Advance = nil
 	// TODO: Call the pricer to calculate the incentive
