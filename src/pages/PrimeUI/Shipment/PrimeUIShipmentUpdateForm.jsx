@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { ResidentialAddressShape } from 'types/address';
-import { formatWeight } from 'utils/formatters';
-import { dropdownInputOptions, formatDate } from 'shared/formatters';
+import { formatWeight, formatDate } from 'utils/formatters';
+import { dropdownInputOptions } from 'shared/formatters';
 import { formatAddress } from 'utils/shipmentDisplay';
 import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';

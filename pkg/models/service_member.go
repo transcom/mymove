@@ -65,7 +65,6 @@ type ServiceMember struct {
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
 	DutyLocationID         *uuid.UUID                `json:"duty_location_id" db:"duty_location_id"`
 	DutyLocation           DutyLocation              `belongs_to:"duty_locations" fk_id:"duty_location_id"`
-	RequiresAccessCode     bool                      `json:"requires_access_code" db:"requires_access_code"`
 }
 
 // ServiceMembers is not required by pop and may be deleted

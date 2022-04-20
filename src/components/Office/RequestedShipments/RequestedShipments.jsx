@@ -11,7 +11,7 @@ import { serviceItemCodes } from 'content/serviceItems';
 import { shipmentTypeLabels } from 'content/shipments';
 import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview/ShipmentApprovalPreview';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
-import { formatDateFromIso } from 'shared/formatters';
+import { formatDateFromIso } from 'utils/formatters';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { tooRoutes } from 'constants/routes';

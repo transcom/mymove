@@ -19,7 +19,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
@@ -78,9 +77,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeCancelMoveHandler: office.CancelMoveHandlerFunc(func(params office.CancelMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.CancelMove has not yet been implemented")
 		}),
-		AccesscodeClaimAccessCodeHandler: accesscode.ClaimAccessCodeHandlerFunc(func(params accesscode.ClaimAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation accesscode.ClaimAccessCode has not yet been implemented")
-		}),
 		DocumentsCreateDocumentHandler: documents.CreateDocumentHandlerFunc(func(params documents.CreateDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation documents.CreateDocument has not yet been implemented")
 		}),
@@ -128,9 +124,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		UploadsDeleteUploadsHandler: uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
-		}),
-		AccesscodeFetchAccessCodeHandler: accesscode.FetchAccessCodeHandlerFunc(func(params accesscode.FetchAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation accesscode.FetchAccessCode has not yet been implemented")
 		}),
 		DpsAuthGetCookieURLHandler: dps_auth.GetCookieURLHandlerFunc(func(params dps_auth.GetCookieURLParams) middleware.Responder {
 			return middleware.NotImplemented("operation dps_auth.GetCookieURL has not yet been implemented")
@@ -258,9 +251,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrdersUploadAmendedOrdersHandler: orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
 		}),
-		AccesscodeValidateAccessCodeHandler: accesscode.ValidateAccessCodeHandlerFunc(func(params accesscode.ValidateAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation accesscode.ValidateAccessCode has not yet been implemented")
-		}),
 		PostalCodesValidatePostalCodeWithRateDataHandler: postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
 		}),
@@ -318,8 +308,6 @@ type MymoveAPI struct {
 	OfficeApproveReimbursementHandler office.ApproveReimbursementHandler
 	// OfficeCancelMoveHandler sets the operation handler for the cancel move operation
 	OfficeCancelMoveHandler office.CancelMoveHandler
-	// AccesscodeClaimAccessCodeHandler sets the operation handler for the claim access code operation
-	AccesscodeClaimAccessCodeHandler accesscode.ClaimAccessCodeHandler
 	// DocumentsCreateDocumentHandler sets the operation handler for the create document operation
 	DocumentsCreateDocumentHandler documents.CreateDocumentHandler
 	// MoveDocsCreateGenericMoveDocumentHandler sets the operation handler for the create generic move document operation
@@ -352,8 +340,6 @@ type MymoveAPI struct {
 	UploadsDeleteUploadHandler uploads.DeleteUploadHandler
 	// UploadsDeleteUploadsHandler sets the operation handler for the delete uploads operation
 	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
-	// AccesscodeFetchAccessCodeHandler sets the operation handler for the fetch access code operation
-	AccesscodeFetchAccessCodeHandler accesscode.FetchAccessCodeHandler
 	// DpsAuthGetCookieURLHandler sets the operation handler for the get cookie URL operation
 	DpsAuthGetCookieURLHandler dps_auth.GetCookieURLHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
@@ -438,8 +424,6 @@ type MymoveAPI struct {
 	BackupContactsUpdateServiceMemberBackupContactHandler backup_contacts.UpdateServiceMemberBackupContactHandler
 	// OrdersUploadAmendedOrdersHandler sets the operation handler for the upload amended orders operation
 	OrdersUploadAmendedOrdersHandler orders.UploadAmendedOrdersHandler
-	// AccesscodeValidateAccessCodeHandler sets the operation handler for the validate access code operation
-	AccesscodeValidateAccessCodeHandler accesscode.ValidateAccessCodeHandler
 	// PostalCodesValidatePostalCodeWithRateDataHandler sets the operation handler for the validate postal code with rate data operation
 	PostalCodesValidatePostalCodeWithRateDataHandler postal_codes.ValidatePostalCodeWithRateDataHandler
 
@@ -537,9 +521,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeCancelMoveHandler == nil {
 		unregistered = append(unregistered, "office.CancelMoveHandler")
 	}
-	if o.AccesscodeClaimAccessCodeHandler == nil {
-		unregistered = append(unregistered, "accesscode.ClaimAccessCodeHandler")
-	}
 	if o.DocumentsCreateDocumentHandler == nil {
 		unregistered = append(unregistered, "documents.CreateDocumentHandler")
 	}
@@ -587,9 +568,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UploadsDeleteUploadsHandler == nil {
 		unregistered = append(unregistered, "uploads.DeleteUploadsHandler")
-	}
-	if o.AccesscodeFetchAccessCodeHandler == nil {
-		unregistered = append(unregistered, "accesscode.FetchAccessCodeHandler")
 	}
 	if o.DpsAuthGetCookieURLHandler == nil {
 		unregistered = append(unregistered, "dps_auth.GetCookieURLHandler")
@@ -717,9 +695,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrdersUploadAmendedOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.UploadAmendedOrdersHandler")
 	}
-	if o.AccesscodeValidateAccessCodeHandler == nil {
-		unregistered = append(unregistered, "accesscode.ValidateAccessCodeHandler")
-	}
 	if o.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		unregistered = append(unregistered, "postal_codes.ValidatePostalCodeWithRateDataHandler")
 	}
@@ -831,10 +806,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/cancel"] = office.NewCancelMove(o.context, o.OfficeCancelMoveHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/access_codes/invalid"] = accesscode.NewClaimAccessCode(o.context, o.AccesscodeClaimAccessCodeHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -899,10 +870,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/uploads"] = uploads.NewDeleteUploads(o.context, o.UploadsDeleteUploadsHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/access_codes"] = accesscode.NewFetchAccessCode(o.context, o.AccesscodeFetchAccessCodeHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -1071,10 +1038,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/orders/{ordersId}/upload_amended_orders"] = orders.NewUploadAmendedOrders(o.context, o.OrdersUploadAmendedOrdersHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/access_codes/valid"] = accesscode.NewValidateAccessCode(o.context, o.AccesscodeValidateAccessCodeHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
