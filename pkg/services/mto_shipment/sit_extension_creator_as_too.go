@@ -26,7 +26,7 @@ func NewCreateSITExtensionAsTOO() services.SITExtensionCreatorAsTOO {
 
 // CreateSITExtensionAsTOO creates a SIT Extension with a status of APPROVED and updates the MTO Shipment's SIT days allowance
 func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.AppContext, sitExtension *models.SITExtension, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
-	shipment, err := f.findShipment(appCtx, shipmentID)
+	shipment, err := FindShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -76,22 +76,6 @@ func (f *sitExtensionCreatorAsTOO) updateSitDaysAllowance(appCtx appcontext.AppC
 		switch err {
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(shipment.ID, "looking for MTOShipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
-	return &shipment, nil
-}
-
-func (f *sitExtensionCreatorAsTOO) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Find(&shipment, shipmentID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
 		default:
 			return nil, apperror.NewQueryError("MTOShipment", err, "")
 		}

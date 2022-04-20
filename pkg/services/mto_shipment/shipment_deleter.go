@@ -1,8 +1,6 @@
 package mtoshipment
 
 import (
-	"database/sql"
-
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -24,7 +22,7 @@ func NewShipmentDeleter() services.ShipmentDeleter {
 
 // DeleteShipment soft deletes the shipment
 func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (uuid.UUID, error) {
-	shipment, err := f.findShipment(appCtx, shipmentID)
+	shipment, err := FindShipment(appCtx, shipmentID, "MoveTaskOrder")
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -54,22 +52,6 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 	}
 
 	return shipment.MoveTaskOrderID, err
-}
-
-func (f *shipmentDeleter) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope()).Eager("MoveTaskOrder").Find(&shipment, shipmentID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
-	return &shipment, nil
 }
 
 func (f *shipmentDeleter) verifyShipmentCanBeDeleted(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {

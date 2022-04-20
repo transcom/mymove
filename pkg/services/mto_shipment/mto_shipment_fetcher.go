@@ -70,3 +70,25 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 
 	return shipments, nil
 }
+
+func FindShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error) {
+	var shipment models.MTOShipment
+	findShipmentQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())
+
+	if len(eagerAssociations) > 0 {
+		findShipmentQuery.Eager(eagerAssociations...)
+	}
+
+	err := findShipmentQuery.Find(&shipment, shipmentID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
+	}
+
+	return &shipment, nil
+}

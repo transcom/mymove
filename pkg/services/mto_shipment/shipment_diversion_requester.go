@@ -1,10 +1,6 @@
 package mtoshipment
 
 import (
-	"database/sql"
-
-	"github.com/transcom/mymove/pkg/db/utilities"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -29,7 +25,7 @@ func NewShipmentDiversionRequester(router services.ShipmentRouter) services.Ship
 
 // RequestShipmentDiversion Requests the shipment diversion
 func (f *shipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
-	shipment, err := f.findShipment(appCtx, shipmentID)
+	shipment, err := FindShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -52,20 +48,4 @@ func (f *shipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext.
 	}
 
 	return shipment, err
-}
-
-func (f *shipmentDiversionRequester) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope()).Find(&shipment, shipmentID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
-	return &shipment, nil
 }

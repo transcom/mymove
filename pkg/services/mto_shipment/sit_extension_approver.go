@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/transcom/mymove/pkg/db/utilities"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -29,7 +27,7 @@ func NewSITExtensionApprover(moveRouter services.MoveRouter) services.SITExtensi
 
 // ApproveSITExtension approves the SIT Extension and also updates the shipment's SIT days allowance
 func (f *sitExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, approvedDays int, officeRemarks *string, eTag string) (*models.MTOShipment, error) {
-	shipment, err := f.findShipment(appCtx, shipmentID)
+	shipment, err := FindShipment(appCtx, shipmentID, "MoveTaskOrder")
 	if err != nil {
 		return nil, err
 	}
@@ -49,22 +47,6 @@ func (f *sitExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext,
 	}
 
 	return f.approveSITExtension(appCtx, *shipment, *sitExtension, approvedDays, officeRemarks)
-}
-
-func (f *sitExtensionApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope()).EagerPreload("MoveTaskOrder").Find(&shipment, shipmentID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
-	return &shipment, nil
 }
 
 func (f *sitExtensionApprover) findSITExtension(appCtx appcontext.AppContext, sitExtensionID uuid.UUID) (*models.SITExtension, error) {
