@@ -68,6 +68,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   let shipmentsInfo = [];
   let disableSubmit = false;
+  let disableSubmitDueToMissingOrderInfo = false;
   let numberOfErrorIfMissingForAllShipments = 0;
   let numberOfWarnIfMissingForAllShipments = 0;
 
@@ -82,6 +83,9 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
     errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
   }
+
+  if (!order.department_indicator || !order.order_number || !order.order_type_detail || !order.tac)
+    disableSubmitDueToMissingOrderInfo = true;
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
@@ -167,9 +171,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const ordersInfo = {
     currentDutyLocation: order.originDutyLocation,
     newDutyLocation: order.destinationDutyLocation,
+    departmentIndicator: order.department_indicator,
     issuedDate: order.date_issued,
     reportByDate: order.report_by_date,
     ordersType: order.order_type,
+    ordersNumber: order.order_number,
+    ordersTypeDetail: order.order_type_detail,
     tacMDC: order.tac,
     sacSDN: order.sac,
     NTStac: order.ntsTac,
@@ -308,7 +315,9 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {counselorCanEdit && (
                 <Button
-                  disabled={!mtoShipments.length || allShipmentsDeleted || disableSubmit}
+                  disabled={
+                    !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
+                  }
                   type="button"
                   onClick={handleShowCancellationModal}
                 >
@@ -377,7 +386,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 )
               }
             >
-              <OrdersList ordersInfo={ordersInfo} showMissingWarnings={false} />
+              <OrdersList ordersInfo={ordersInfo} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">

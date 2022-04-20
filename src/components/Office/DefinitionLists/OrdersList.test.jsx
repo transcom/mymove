@@ -45,14 +45,14 @@ const ordersInfoMissing = {
 
 describe('OrdersList', () => {
   it('renders formatted orders info', () => {
-    render(<OrdersList ordersInfo={ordersInfo} showMissingWarnings />);
+    render(<OrdersList ordersInfo={ordersInfo} />);
     Object.keys(expectedRenderedOrdersInfo).forEach((key) => {
       expect(screen.getByText(expectedRenderedOrdersInfo[key])).toBeInTheDocument();
     });
   });
 
   it('renders missing orders info as warning if showMissingWarnings is included', () => {
-    render(<OrdersList ordersInfo={ordersInfoMissing} showMissingWarnings />);
+    render(<OrdersList ordersInfo={ordersInfoMissing} />);
     expect(screen.getByTestId('departmentIndicator').textContent).toEqual('Missing');
     expect(screen.getByTestId('ordersNumber').textContent).toEqual('Missing');
     expect(screen.getByTestId('ordersType').textContent).toEqual('Missing');
