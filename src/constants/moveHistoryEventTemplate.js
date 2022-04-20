@@ -63,6 +63,14 @@ export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
   getEventNameDisplay: () => 'Updated move',
 });
 
+export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateAllowance,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated allowances',
+});
+
 export const approveShipmentEvent = buildMoveHistoryEventTemplate({
   action: '*',
   eventName: moveHistoryOperations.approveShipment,
@@ -229,6 +237,7 @@ const allMoveHistoryEventTemplates = [
   updateServiceItemStatusEvent,
   uploadAmendedOrdersEvent,
   updateBillableWeightEvent,
+  updateAllowanceEvent,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {

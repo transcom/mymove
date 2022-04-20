@@ -73,6 +73,12 @@ export const dbFieldToDisplayName = {
   tac_type: 'TAC type',
   sac_type: 'SAC type',
   authorized_weight: 'Authorized weight',
+  storage_in_transit: 'Storage in transit (SIT)',
+  dependents_authorized: 'Dependents',
+  pro_gear_weight: 'Pro-gear',
+  pro_gear_weight_spouse: 'Spouse pro-gear',
+  required_medical_equipment_weight: 'RME',
+  organizational_clothing_and_individual_equipment: 'OCIE',
 };
 
 export const eventNamesWithLabeledDetails = {
