@@ -839,6 +839,39 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
+func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("cde987a1-a717-4a61-98b5-1f05e2e0844d"),
+		email:       "readyToFinish@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("dfbba0fc-2a70-485e-9eb2-ac80f3861032"),
+		firstName:   "Ready",
+		lastName:    "Finish",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("26b960d8-a96d-4450-a441-673ccd7cc3c7"),
+		moveLocator: "REAFIN",
+	}
+
+	approvedAt := time.Now()
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("2ed2998e-ae36-46cd-af83-c3ecee55fe3e"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         testdatagen.ConvertUUIDStringToUUID("b9ae4c25-1376-4b9b-8781-106b5ae7ecab"),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+}
+
 func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	/*
 	 * A service member with orders and a full PPM Shipment.

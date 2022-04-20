@@ -89,12 +89,11 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
+func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
 
-		// Onboarding
 		testdatagen.MakeAccessCode(appCtx.DB(), testdatagen.Assertions{
 			AccessCode: models.AccessCode{
 				Code:     "ABC123",
@@ -112,6 +111,7 @@ func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *upload
 		createUnSubmittedMoveWithFullPPMShipment3(appCtx, userUploader)
 		createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
+		createApprovedMoveWithPPM(appCtx, userUploader, moveRouter)
 	}
 }
 
