@@ -8,6 +8,7 @@ import {
   eventNamesWithServiceItemDetails,
   eventNamesWithPlainTextDetails,
   HistoryLogRecordShape,
+  eventNamesWithPaymentRequests,
 } from 'constants/historyLogUIDisplayName';
 
 const formatChangedValues = (values) => {
@@ -37,6 +38,16 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
 
   if (eventNamesWithPlainTextDetails[historyRecord.eventName]) {
     return <PlainTextDetails historyRecord={historyRecord} />;
+  }
+
+  if (eventNamesWithPaymentRequests[historyRecord.eventName]) {
+    return (
+      <div>
+        {JSON.parse(historyRecord.context).map((paymentService) => {
+          return <div>{paymentService.name}</div>;
+        })}
+      </div>
+    );
   }
 
   return (

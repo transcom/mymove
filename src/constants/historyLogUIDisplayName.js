@@ -93,6 +93,10 @@ export const eventNamesWithServiceItemDetails = {
   createMTOServiceItem: 'Requested service item', // prime.yaml
 };
 
+export const eventNamesWithPaymentRequests = {
+  updatePaymentRequestStatus: 'Submitted payment request',
+};
+
 export const eventNamesWithEmptyDetails = {
   createOrders: 'Submitted orders', // internal.yaml
   uploadAmendedOrders: 'Updated orders', // internal.yaml
@@ -174,6 +178,7 @@ export const historyLogEventNameDisplay = {
   createMTOServiceItem: 'Requested service item', // prime.yaml
   updateBillableWeight: 'Update move',
   acknowledgeExcessWeightRisk: 'Updated move',
+  updatePaymentRequestStatus: 'Submitted payment request',
 };
 
 export function getHistoryLogEventNameDisplay({ eventName /* operationId */, changedValues }) {
