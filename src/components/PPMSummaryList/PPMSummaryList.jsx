@@ -1,5 +1,5 @@
 import React from 'react';
-import { arrayOf, bool, number, shape, string } from 'prop-types';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './PPMSummaryList.module.scss';
@@ -28,22 +28,32 @@ const ppmContent = (canUpload, approvedOn) => {
   );
 };
 
-const PPMSummaryList = ({ shipments }) => {
+const PPMSummaryList = ({ shipments, onUploadClick }) => {
   const { length } = shipments;
   return shipments.map((shipment, i) => {
-    return <PPMSummaryListItem key={shipment.id} shipment={shipment} hasMany={length > 1} index={i} />;
+    return (
+      <PPMSummaryListItem
+        key={shipment.id}
+        shipment={shipment}
+        hasMany={length > 1}
+        index={i}
+        onUploadClick={() => onUploadClick(shipment.id)}
+      />
+    );
   });
 };
 
-const PPMSummaryListItem = ({ shipment, hasMany, index }) => {
+const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick }) => {
   const canUpload =
     shipment.status === shipmentStatuses.APPROVED &&
     shipment?.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER;
   return (
     <SectionWrapper className={styles['ppm-shipment']}>
       <div className={styles['heading-section']}>
-        <strong>{hasMany ? `PPM ${index + 1}` : 'PPM'}</strong>
-        <Button disabled={!canUpload}>Upload PPM Documents</Button>
+        <strong>{hasMany ? `PPM${index + 1}` : 'PPM'}</strong>
+        <Button disabled={!canUpload} onClick={onUploadClick}>
+          Upload PPM Documents
+        </Button>
       </div>
       <div className={styles.content}>{ppmContent(canUpload, shipment?.ppmShipment?.approvedAt)}</div>
     </SectionWrapper>
@@ -56,12 +66,14 @@ const shipmentShape = shape({
 
 PPMSummaryList.propTypes = {
   shipments: arrayOf(shipmentShape).isRequired,
+  onUploadClick: func.isRequired,
 };
 
 PPMSummaryListItem.propTypes = {
   shipment: shipmentShape.isRequired,
   index: number.isRequired,
   hasMany: bool.isRequired,
+  onUploadClick: func.isRequired,
 };
 
 export default PPMSummaryList;

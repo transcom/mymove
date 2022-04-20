@@ -269,6 +269,15 @@ export class Home extends Component {
     history.push(path);
   };
 
+  handlePPMUploadClick = (shipmentId) => {
+    const { move, history } = this.props;
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+      moveId: move.id,
+      mtoShipmentId: shipmentId,
+    });
+    history.push(path);
+  };
+
   sortAllShipments = (mtoShipments, currentPpm) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     if (Object.keys(currentPpm).length) {
@@ -481,7 +490,7 @@ export class Home extends Component {
                   </Step>
                   {!!ppmShipments.length && this.hasSubmittedMove && (
                     <Step headerText="Manage your PPM" completedHeaderText="Manage your PPM" step="5">
-                      <PPMSummaryList shipments={ppmShipments} />
+                      <PPMSummaryList shipments={ppmShipments} onUploadClick={this.handlePPMUploadClick} />
                     </Step>
                   )}
                 </SectionWrapper>
