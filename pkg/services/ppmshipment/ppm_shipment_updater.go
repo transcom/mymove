@@ -48,11 +48,12 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, err
 	}
 
-	_, err = f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+	estimatedIncentive, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
 	if err != nil {
 		return nil, err
 	}
 
+	updatedPPMShipment.EstimatedIncentive = estimatedIncentive
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
 

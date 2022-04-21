@@ -40,7 +40,6 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		suite.Equal(oldPPMShipment.Advance, newPPM.Advance)
 		suite.Equal(oldPPMShipment.AdvanceRequested, newPPM.AdvanceRequested)
 		suite.Equal(int32(1000000), *ppmEstimate)
-		suite.Equal(int32(1000000), *newPPM.EstimatedIncentive)
 	})
 
 	suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
