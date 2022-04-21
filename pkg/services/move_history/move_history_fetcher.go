@@ -59,9 +59,13 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	orders AS (
 		SELECT
 			orders.*
+			-- dl_origin_name."name" AS origin_dl_name,
+			-- dl_new_name."name" AS new_dl_name
 		FROM
 			orders
 		JOIN moves ON moves.orders_id = orders.id
+		JOIN duty_location_names AS dl_origin_name ON orders.origin_duty_location_id = dl_origin_name.duty_location_id
+		JOIN duty_location_names AS dl_new_name ON orders.new_duty_location_id = dl_new_name.duty_location_id
 		WHERE orders.id = (SELECT moves.orders_id FROM moves)
 	),
 	orders_logs AS (
