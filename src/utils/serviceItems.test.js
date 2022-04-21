@@ -1,7 +1,6 @@
-import { formatToThousandthInches } from '../shared/formatters';
-
 import { sortServiceItemsByGroup, formatDimensions } from './serviceItems';
 
+import { formatToThousandthInches } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
 

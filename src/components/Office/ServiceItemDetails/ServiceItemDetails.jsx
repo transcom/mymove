@@ -6,8 +6,7 @@ import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 import styles from './ServiceItemDetails.module.scss';
 
 import { formatDate } from 'shared/dates';
-import { convertFromThousandthInchToInch } from 'shared/formatters';
-import { formatWeight } from 'utils/formatters';
+import { formatWeight, convertFromThousandthInchToInch } from 'utils/formatters';
 
 function generateDetailText(details, id, className) {
   const detailList = Object.keys(details).map((detail) => (
