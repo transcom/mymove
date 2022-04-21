@@ -79,7 +79,7 @@ type moveCreatorInfo struct {
 	moveLocator string
 }
 
-func createGenericUnSubmittedMove(appCtx appcontext.AppContext, moveInfo moveCreatorInfo, assertions testdatagen.Assertions) models.Move {
+func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo moveCreatorInfo, assertions testdatagen.Assertions) models.Move {
 	if moveInfo.userID.IsNil() || moveInfo.email == "" || moveInfo.smID.IsNil() || moveInfo.firstName == "" || moveInfo.lastName == "" || moveInfo.moveID.IsNil() || moveInfo.moveLocator == "" {
 		log.Panic("All moveInfo fields must have non-zero values.")
 	}
@@ -659,12 +659,12 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	}
 }
 
-func createGenericUnSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo moveCreatorInfo, useMinimalPPMShipment bool, assertions testdatagen.Assertions) models.Move {
+func createGenericMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo moveCreatorInfo, useMinimalPPMShipment bool, assertions testdatagen.Assertions) models.Move {
 	if assertions.PPMShipment.ID.IsNil() {
 		log.Panic("PPMShipment ID cannot be nil.")
 	}
 
-	move := createGenericUnSubmittedMove(appCtx, moveInfo, assertions)
+	move := createGenericPPMRelatedMove(appCtx, moveInfo, assertions)
 
 	fullAssertions := testdatagen.Assertions{
 		Move: move,
@@ -702,7 +702,7 @@ func createUnSubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, u
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
 }
 
 func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -729,7 +729,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appconte
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
 }
 
 func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -758,7 +758,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, true, assertions)
 }
 
 func createUnSubmittedMoveWithFullPPMShipment1(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -786,7 +786,7 @@ func createUnSubmittedMoveWithFullPPMShipment1(appCtx appcontext.AppContext, use
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -811,7 +811,7 @@ func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, use
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -836,7 +836,7 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -868,7 +868,7 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 }
 
@@ -897,7 +897,7 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 		},
 	}
 
-	move := createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	move := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	err := moveRouter.Submit(appCtx, &move)
 
@@ -934,7 +934,7 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext
 		},
 	}
 
-	move := createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	move := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
@@ -963,7 +963,7 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext
 		},
 	}
 
-	move := createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	move := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
@@ -1058,7 +1058,7 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 		},
 	}
 
-	move := createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	move := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
