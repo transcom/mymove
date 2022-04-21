@@ -46,7 +46,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		}
 	}
 
-	if newPPMShipment.ExpectedDepartureDate == oldPPMShipment.ExpectedDepartureDate && newPPMShipment.PickupPostalCode == oldPPMShipment.PickupPostalCode && newPPMShipment.DestinationPostalCode == oldPPMShipment.DestinationPostalCode && newPPMShipment.EstimatedWeight == oldPPMShipment.EstimatedWeight {
+	if oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate) && newPPMShipment.PickupPostalCode == oldPPMShipment.PickupPostalCode && newPPMShipment.DestinationPostalCode == oldPPMShipment.DestinationPostalCode && newPPMShipment.EstimatedWeight == oldPPMShipment.EstimatedWeight {
 		newPPMShipment.EstimatedIncentive = oldPPMShipment.EstimatedIncentive
 		return oldPPMShipment.EstimatedIncentive, nil
 	}
