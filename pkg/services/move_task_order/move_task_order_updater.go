@@ -115,14 +115,6 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 					return err
 				}
 
-				// Due to a Pop bug, we cannot EagerPreload "PPMShipment" likely because it is a pointer and
-				// a "has_one" field.  This seems similar to other EagerPreload issues we've found (and
-				// sometimes fixed): https://github.com/gobuffalo/pop/issues?q=author%3Areggieriser
-				loadErr := appCtx.DB().Load(&move.MTOShipments[i], "PPMShipment")
-				if loadErr != nil {
-					return apperror.NewQueryError("PPMShipment", err, "")
-				}
-
 				if move.MTOShipments[i].PPMShipment != nil {
 					move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
