@@ -856,7 +856,6 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			if move.ShipmentGBLOC[0].GBLOC != nil {
 				gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
 			}
-			// gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
 		} else {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
