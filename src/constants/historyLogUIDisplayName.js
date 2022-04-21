@@ -33,6 +33,8 @@ export const dbFieldToDisplayName = {
   issue_date: 'Orders date',
   orders_type: 'Orders type',
   orders_type_detail: 'Orders type detail',
+  origin_duty_location_id: 'Origin duty location',
+  new_duty_location_id: 'New duty location',
   orders_number: 'Orders number',
   tac: 'HHG TAC',
   sac: 'HHG SAC',
