@@ -8,6 +8,7 @@ const {
   updateMoveTaskOrderStatusEvent,
   updateServiceItemStatusEvent,
   acknowledgeExcessWeightRiskEvent,
+  createStandardServiceItemEvent,
 } = require('./moveHistoryEventTemplate');
 
 describe('moveHistoryEventTemplate', () => {
@@ -26,6 +27,7 @@ describe('moveHistoryEventTemplate', () => {
 
   describe('when given an Approved shipment history record', () => {
     const item = {
+      action: 'UPDATE',
       changedValues: { status: 'APPROVED' },
       eventName: 'approveShipment',
       oldValues: { shipment_type: 'HHG' },
@@ -63,6 +65,24 @@ describe('moveHistoryEventTemplate', () => {
     it('correctly matches the Submitted orders event', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(createOrdersEvent);
+    });
+  });
+
+  describe('when given a Create standard service item history record', () => {
+    const item = {
+      action: 'INSERT',
+      context: {
+        shipment_type: 'HHG',
+        name: 'Domestic linehaul',
+      },
+      eventName: 'approveShipment',
+      tableName: 'mto_service_items',
+    };
+    it('correctly matches the Create standard service item event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(createStandardServiceItemEvent);
+      expect(result.getEventNameDisplay(result)).toEqual('Approved service item');
+      expect(result.getDetailsPlainText(item)).toEqual('HHG shipment, Domestic linehaul');
     });
   });
 
@@ -113,6 +133,7 @@ describe('moveHistoryEventTemplate', () => {
 
   describe('when given an Approved service item history record', () => {
     const item = {
+      action: 'UPDATE',
       changedValues: { status: 'APPROVED' },
       context: { name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
       eventName: 'updateMTOServiceItemStatus',
