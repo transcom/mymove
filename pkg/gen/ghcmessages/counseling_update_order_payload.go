@@ -20,6 +20,9 @@ import (
 // swagger:model CounselingUpdateOrderPayload
 type CounselingUpdateOrderPayload struct {
 
+	// department indicator
+	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
+
 	// Orders date
 	//
 	// The date and time that these orders were cut.
@@ -42,9 +45,16 @@ type CounselingUpdateOrderPayload struct {
 	// Example: F8J1
 	NtsTac nullable.String `json:"ntsTac,omitempty"`
 
+	// Orders Number
+	// Example: 030-00362
+	OrdersNumber *string `json:"ordersNumber,omitempty"`
+
 	// orders type
 	// Required: true
 	OrdersType *OrdersType `json:"ordersType"`
+
+	// orders type detail
+	OrdersTypeDetail *OrdersTypeDetail `json:"ordersTypeDetail,omitempty"`
 
 	// origin duty location Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -75,6 +85,10 @@ type CounselingUpdateOrderPayload struct {
 func (m *CounselingUpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateDepartmentIndicator(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateIssueDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -92,6 +106,10 @@ func (m *CounselingUpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOrdersType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrdersTypeDetail(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -114,6 +132,25 @@ func (m *CounselingUpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CounselingUpdateOrderPayload) validateDepartmentIndicator(formats strfmt.Registry) error {
+	if swag.IsZero(m.DepartmentIndicator) { // not required
+		return nil
+	}
+
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("departmentIndicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("departmentIndicator")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -201,6 +238,25 @@ func (m *CounselingUpdateOrderPayload) validateOrdersType(formats strfmt.Registr
 	return nil
 }
 
+func (m *CounselingUpdateOrderPayload) validateOrdersTypeDetail(formats strfmt.Registry) error {
+	if swag.IsZero(m.OrdersTypeDetail) { // not required
+		return nil
+	}
+
+	if m.OrdersTypeDetail != nil {
+		if err := m.OrdersTypeDetail.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ordersTypeDetail")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ordersTypeDetail")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CounselingUpdateOrderPayload) validateOriginDutyLocationID(formats strfmt.Registry) error {
 
 	if err := validate.Required("originDutyLocationId", "body", m.OriginDutyLocationID); err != nil {
@@ -264,6 +320,10 @@ func (m *CounselingUpdateOrderPayload) validateTac(formats strfmt.Registry) erro
 func (m *CounselingUpdateOrderPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateDepartmentIndicator(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateNtsSac(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -276,6 +336,10 @@ func (m *CounselingUpdateOrderPayload) ContextValidate(ctx context.Context, form
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateOrdersTypeDetail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSac(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -283,6 +347,22 @@ func (m *CounselingUpdateOrderPayload) ContextValidate(ctx context.Context, form
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CounselingUpdateOrderPayload) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("departmentIndicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("departmentIndicator")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -322,6 +402,22 @@ func (m *CounselingUpdateOrderPayload) contextValidateOrdersType(ctx context.Con
 				return ve.ValidateName("ordersType")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("ordersType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CounselingUpdateOrderPayload) contextValidateOrdersTypeDetail(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OrdersTypeDetail != nil {
+		if err := m.OrdersTypeDetail.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ordersTypeDetail")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ordersTypeDetail")
 			}
 			return err
 		}
