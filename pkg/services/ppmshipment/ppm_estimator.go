@@ -46,8 +46,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		}
 	}
 
-	if oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate) && newPPMShipment.PickupPostalCode == oldPPMShipment.PickupPostalCode && newPPMShipment.DestinationPostalCode == oldPPMShipment.DestinationPostalCode && newPPMShipment.EstimatedWeight == oldPPMShipment.EstimatedWeight {
-		newPPMShipment.EstimatedIncentive = oldPPMShipment.EstimatedIncentive
+	if oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate) && newPPMShipment.PickupPostalCode == oldPPMShipment.PickupPostalCode && newPPMShipment.DestinationPostalCode == oldPPMShipment.DestinationPostalCode && *newPPMShipment.EstimatedWeight == *oldPPMShipment.EstimatedWeight {
 		return oldPPMShipment.EstimatedIncentive, nil
 	}
 	// Clear out advance and advance requested fields when the estimated incentive is reset.

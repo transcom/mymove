@@ -86,14 +86,13 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			SitExpected:           oldPPMShipment.SitExpected,
 		}
 
-		_, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-
+		estimatedIncentive, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 		suite.NilOrNoVerrs(err)
 		suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
-		suite.Equal(oldPPMShipment.EstimatedWeight, newPPM.EstimatedWeight)
+		suite.Equal(*oldPPMShipment.EstimatedWeight, *newPPM.EstimatedWeight)
 		suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
-		suite.Equal(oldPPMShipment.ExpectedDepartureDate, newPPM.ExpectedDepartureDate)
-		suite.Equal(oldPPMShipment.EstimatedIncentive, newPPM.EstimatedIncentive)
+		suite.True(oldPPMShipment.ExpectedDepartureDate.Equal(newPPM.ExpectedDepartureDate))
+		suite.Equal(*oldPPMShipment.EstimatedIncentive, *estimatedIncentive)
 	})
 	suite.Run("Estimated Incentive - Failure - is not created when status is not DRAFT", func() {
 		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
