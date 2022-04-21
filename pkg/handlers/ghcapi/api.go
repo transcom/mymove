@@ -152,11 +152,6 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		moveTaskOrderUpdater,
 	}
 
-	ghcAPI.MoveTaskOrderUpdateMTOStatusServiceCounselingPPMApprovedHandler = UpdateMTOStatusServiceCounselingPPMApprovedHandler{
-		ctx,
-		moveTaskOrderUpdater,
-	}
-
 	ghcAPI.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler = UpdateMTOReviewedBillableWeightsAtHandlerFunc{
 		ctx,
 		moveTaskOrderUpdater,

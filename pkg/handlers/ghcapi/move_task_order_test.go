@@ -248,14 +248,6 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 }
 
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusNeedsServiceCounseling,
-		},
-		Order: order,
-	})
-
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
@@ -268,96 +260,14 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
 
-	params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
-		HTTPRequest:     request,
-		MoveTaskOrderID: moveTaskOrder.ID.String(),
-		IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
-	}
-
 	suite.T().Run("Successful move status update to Service Counseling Completed - Integration", func(t *testing.T) {
-		response := handler.Handle(params)
-		suite.IsNotErrResponse(response)
-		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedOK)
-		moveTaskOrderPayload := moveTaskOrderResponse.Payload
-
-		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
-		suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
-		suite.NotNil(moveTaskOrderPayload.ServiceCounselingCompletedAt)
-		suite.EqualValues(models.MoveStatusServiceCounselingCompleted, moveTaskOrderPayload.Status)
-	})
-
-	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func(t *testing.T) {
-		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
-			HTTPRequest:     request,
-			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),
-		}
-		response := handler.Handle(params)
-		suite.IsNotErrResponse(response)
-
-		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedNotFound{}, response)
-	})
-
-	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func(t *testing.T) {
-		moveTaskOrder = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-			Order: order,
-		})
-		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
-			HTTPRequest:     request,
-			MoveTaskOrderID: moveTaskOrder.ID.String(),
-		}
-		response := handler.Handle(params)
-		suite.IsNotErrResponse(response)
-
-		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed{}, response)
-	})
-
-	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, state conflict - Integration", func(t *testing.T) {
-		moveTaskOrder = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusDRAFT,
-			},
-			Order: order,
-		})
-
-		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
-			HTTPRequest:     request,
-			MoveTaskOrderID: moveTaskOrder.ID.String(),
-			IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
-		}
-		response := handler.Handle(params)
-		suite.IsNotErrResponse(response)
-
-		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedConflict{}, response)
-	})
-}
-
-func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingPPMApprovedHandler() {
-	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-ppm-approved", nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	request = suite.AuthenticateUserRequest(request, requestUser)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
-	handler := UpdateMTOStatusServiceCounselingPPMApprovedHandler{
-		context,
-		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
-	}
-
-	suite.T().Run("Successful move status update to Service Counseling PPM Approved - Integration", func(t *testing.T) {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
 			},
 		})
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
 
-		params := move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedParams{
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
 			MoveTaskOrderID: move.ID.String(),
 			IfMatch:         etag.GenerateEtag(move.UpdatedAt),
@@ -365,42 +275,33 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingPPMApprovedHandle
 
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingPPMApprovedOK)
+		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedOK)
 		moveTaskOrderPayload := moveTaskOrderResponse.Payload
 
-		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedOK{}, response)
+		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
 		suite.Equal(strfmt.UUID(move.ID.String()), moveTaskOrderPayload.ID)
-		suite.EqualValues(models.MoveStatusAPPROVED, moveTaskOrderPayload.Status)
+		suite.NotNil(moveTaskOrderPayload.ServiceCounselingCompletedAt)
+		suite.EqualValues(models.MoveStatusServiceCounselingCompleted, moveTaskOrderPayload.Status)
 	})
 
-	suite.T().Run("Unsuccessful move status update to Service Counseling PPM Approved, not found - Integration", func(t *testing.T) {
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-		})
-
-		params := move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedParams{
+	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func(t *testing.T) {
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),
 		}
 
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedNotFound{}, response)
+		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedNotFound{}, response)
 	})
 
-	suite.T().Run("Unsuccessful move status update to Service Counseling PPM Approved, eTag does not match - Integration", func(t *testing.T) {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-		})
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func(t *testing.T) {
+		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
 
-		params := move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedParams{
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
 			MoveTaskOrderID: move.ID.String(),
 			IfMatch:         etag.GenerateEtag(time.Now()),
@@ -408,17 +309,20 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingPPMApprovedHandle
 
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedPreconditionFailed{}, response)
+		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Unsuccessful move status update to Service Counseling PPM Approved, state conflict - Integration", func(t *testing.T) {
+	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, state conflict - Integration", func(t *testing.T) {
 		draftMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusDRAFT,
 			},
 		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: draftMove,
+		})
 
-		params := move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedParams{
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
 			MoveTaskOrderID: draftMove.ID.String(),
 			IfMatch:         etag.GenerateEtag(draftMove.UpdatedAt),
@@ -426,22 +330,22 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingPPMApprovedHandle
 
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedConflict{}, response)
+		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedConflict{}, response)
 	})
 
-	suite.T().Run("Unsuccessful move status update to Service Counseling PPM Approved, misc mocked errors - Integration", func(t *testing.T) {
+	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, misc mocked errors - Integration", func(t *testing.T) {
 		testCases := []struct {
 			mockError       error
 			handlerResponse middleware.Responder
 		}{
-			{apperror.InvalidInputError{}, &move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedUnprocessableEntity{}},
-			{apperror.QueryError{}, &move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedInternalServerError{}},
-			{errors.New("generic error"), &move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedInternalServerError{}},
+			{apperror.InvalidInputError{}, &move_task_order.UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity{}},
+			{apperror.QueryError{}, &move_task_order.UpdateMTOStatusServiceCounselingCompletedInternalServerError{}},
+			{errors.New("generic error"), &move_task_order.UpdateMTOStatusServiceCounselingCompletedInternalServerError{}},
 		}
 
 		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
-		params := move_task_order.UpdateMTOStatusServiceCounselingPPMApprovedParams{
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
 			MoveTaskOrderID: move.ID.String(),
 			IfMatch:         eTag,
@@ -449,13 +353,13 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingPPMApprovedHandle
 
 		for _, testCase := range testCases {
 			mockUpdater := mocks.MoveTaskOrderUpdater{}
-			mockUpdater.On("UpdateStatusServiceCounselingPPMApproved",
+			mockUpdater.On("UpdateStatusServiceCounselingCompleted",
 				mock.AnythingOfType("*appcontext.appContext"),
 				move.ID,
 				eTag,
 			).Return(&models.Move{}, testCase.mockError)
 
-			handler := UpdateMTOStatusServiceCounselingPPMApprovedHandler{
+			handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
 				context,
 				&mockUpdater,
 			}

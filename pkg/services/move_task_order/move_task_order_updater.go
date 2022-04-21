@@ -50,90 +50,39 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 		return &models.Move{}, err
 	}
 
-	// check if status is in the right state
-	// needs to be in MoveStatusNeedsServiceCounseling
-	if move.Status != models.MoveStatusNeedsServiceCounseling {
-		err = errors.Wrap(models.ErrInvalidTransition,
-			fmt.Sprintf("Cannot move to Service Counseling Completed state when the Move is not in a Needs Service Counseling state for status: %s", move.Status))
-
-		return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
+	if len(move.MTOShipments) == 0 {
+		return &models.Move{}, apperror.NewConflictError(move.ID, "No shipments associated with move")
 	}
 
+	ppmOnlyMove := true
 	for _, s := range move.MTOShipments {
 		if s.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && s.StorageFacilityID == nil {
 			return &models.Move{}, apperror.NewConflictError(
 				s.ID, "NTS-release shipment must include facility info")
 		}
-	}
-
-	// update field for move
-	now := time.Now()
-	move.ServiceCounselingCompletedAt = &now
-	// set status to service counseling completed
-	move.Status = models.MoveStatusServiceCounselingCompleted
-
-	// Check the If-Match header against existing eTag before updating
-	encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
-	if encodedUpdatedAt != eTag {
-		return nil, apperror.NewPreconditionFailedError(move.ID, err)
-	}
-
-	verrs, err = appCtx.DB().ValidateAndSave(move)
-	if verrs != nil && verrs.HasAny() {
-		return &models.Move{}, apperror.NewInvalidInputError(move.ID, nil, verrs, "")
-	}
-	if err != nil {
-		switch err.(type) {
-		case query.StaleIdentifierError:
-			return nil, apperror.NewPreconditionFailedError(move.ID, err)
-		default:
-			return &models.Move{}, err
+		if s.ShipmentType != models.MTOShipmentTypePPM {
+			ppmOnlyMove = false
 		}
 	}
 
-	return move, nil
-}
-
-func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingPPMApproved(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
-	var err error
-	var verrs *validate.Errors
-
-	searchParams := services.MoveTaskOrderFetcherParams{
-		IncludeHidden:   false,
-		MoveTaskOrderID: moveTaskOrderID,
+	// check if status is in the right state
+	// needs to be in MoveStatusNeedsServiceCounseling
+	targetState := models.MoveStatusServiceCounselingCompleted
+	if ppmOnlyMove {
+		targetState = models.MoveStatusAPPROVED
 	}
-	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
-	if err != nil {
-		return &models.Move{}, err
+	if move.Status != models.MoveStatusNeedsServiceCounseling {
+		err = errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Cannot move to %s state when the Move is not in a %s state for status: %s", targetState, models.MoveStatusNeedsServiceCounseling, move.Status))
+		return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		// check if status is in the right state
-		// needs to be in MoveStatusNeedsServiceCounseling
-		if move.Status != models.MoveStatusNeedsServiceCounseling {
-			err = errors.Wrap(models.ErrInvalidTransition,
-				fmt.Sprintf("Cannot move to Approved state when the move is not in a Needs Service Counseling state for status: %s", move.Status))
-
-			return apperror.NewConflictError(move.ID, err.Error())
-		}
-
-		if len(move.MTOShipments) == 0 {
-			return apperror.NewConflictError(move.ID, "No shipments associated with move")
-		}
-
-		ppmOnlyMove := true
-		for _, s := range move.MTOShipments {
-			if s.ShipmentType != models.MTOShipmentTypePPM {
-				ppmOnlyMove = false
-				break
-			}
-		}
-		if !ppmOnlyMove {
-			return apperror.NewConflictError(move.ID, "Move should only contain PPM shipments")
-		}
-
-		// Set move status to APPROVED
-		move.Status = models.MoveStatusAPPROVED
+		// update field for move
+		now := time.Now()
+		move.ServiceCounselingCompletedAt = &now
+		// set status to service counseling completed
+		move.Status = targetState
 
 		// Check the If-Match header against existing eTag before updating
 		encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
@@ -149,37 +98,41 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingPPMApproved(appCtx ap
 			return err
 		}
 
-		// Set MTO shipment status to APPROVED and set PPM shipment status to WAITING_ON_CUSTOMER
-		// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
-		// statuses when we return the entire move tree.
-		for i := range move.MTOShipments { // We should only have PPM shipments if we get to here.
-			move.MTOShipments[i].Status = models.MTOShipmentStatusApproved
+		// If this is a PPM-only move, then we also need to adjust other statuses:
+		//   - set MTO shipment status to APPROVED
+		//   - set PPM shipment status to WAITING_ON_CUSTOMER
+		if ppmOnlyMove {
+			// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
+			// statuses when we return the entire move tree.
+			for i := range move.MTOShipments { // We should only have PPM shipments if we get to here.
+				move.MTOShipments[i].Status = models.MTOShipmentStatusApproved
 
-			verrs, err = appCtx.DB().ValidateAndSave(&move.MTOShipments[i])
-			if verrs != nil && verrs.HasAny() {
-				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, nil, verrs, "")
-			}
-			if err != nil {
-				return err
-			}
-
-			// Due to a Pop bug, we cannot EagerPreload "PPMShipment" likely because it is a pointer and
-			// a "has_one" field.  This seems similar to other EagerPreload issues we've found (and
-			// sometimes fixed): https://github.com/gobuffalo/pop/issues?q=author%3Areggieriser
-			loadErr := appCtx.DB().Load(&move.MTOShipments[i], "PPMShipment")
-			if loadErr != nil {
-				return apperror.NewQueryError("PPMShipment", err, "")
-			}
-
-			if move.MTOShipments[i].PPMShipment != nil {
-				move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
-
-				verrs, err = appCtx.DB().ValidateAndSave(move.MTOShipments[i].PPMShipment)
+				verrs, err = appCtx.DB().ValidateAndSave(&move.MTOShipments[i])
 				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(move.MTOShipments[i].PPMShipment.ID, nil, verrs, "")
+					return apperror.NewInvalidInputError(move.MTOShipments[i].ID, nil, verrs, "")
 				}
 				if err != nil {
 					return err
+				}
+
+				// Due to a Pop bug, we cannot EagerPreload "PPMShipment" likely because it is a pointer and
+				// a "has_one" field.  This seems similar to other EagerPreload issues we've found (and
+				// sometimes fixed): https://github.com/gobuffalo/pop/issues?q=author%3Areggieriser
+				loadErr := appCtx.DB().Load(&move.MTOShipments[i], "PPMShipment")
+				if loadErr != nil {
+					return apperror.NewQueryError("PPMShipment", err, "")
+				}
+
+				if move.MTOShipments[i].PPMShipment != nil {
+					move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+
+					verrs, err = appCtx.DB().ValidateAndSave(move.MTOShipments[i].PPMShipment)
+					if verrs != nil && verrs.HasAny() {
+						return apperror.NewInvalidInputError(move.MTOShipments[i].PPMShipment.ID, nil, verrs, "")
+					}
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}

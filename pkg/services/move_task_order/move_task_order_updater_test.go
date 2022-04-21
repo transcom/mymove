@@ -24,15 +24,7 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusServiceCounselingCompleted() {
-	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
-	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusNeedsServiceCounseling,
-		},
-		Order: expectedOrder,
-	})
 	moveRouter := moverouter.NewMoveRouter()
-
 	queryBuilder := query.NewQueryBuilder()
 	mtoUpdater := NewMoveTaskOrderUpdater(
 		queryBuilder,
@@ -40,15 +32,44 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		moveRouter,
 	)
 
-	suite.RunWithRollback("MTO status is updated successfully", func() {
-		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
+	suite.RunWithRollback("Move status is updated successfully (with HHG shipment)", func() {
+		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+		})
+		eTag := etag.GenerateEtag(move.UpdatedAt)
 
-		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTO.ID, eTag)
+		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
 
 		suite.NoError(err)
 		suite.NotZero(actualMTO.ID)
 		suite.NotNil(actualMTO.ServiceCounselingCompletedAt)
-		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, actualMTO.Status)
+	})
+
+	suite.RunWithRollback("Move/shipment/PPM statuses are updated successfully (with PPM shipment)", func() {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+		})
+		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+
+		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
+
+		suite.NoError(err)
+		suite.NotZero(actualMTO.ID)
+		suite.NotNil(actualMTO.ServiceCounselingCompletedAt)
+		suite.Equal(models.MoveStatusAPPROVED, actualMTO.Status)
+		for _, shipment := range actualMTO.MTOShipments {
+			suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
+			ppmShipment := *shipment.PPMShipment
+			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
+		}
 	})
 
 	suite.RunWithRollback("MTO status is updated successfully with facility info", func() {
@@ -78,7 +99,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 				Status:       models.MoveStatusNeedsServiceCounseling,
 				MTOShipments: mtoShipments,
 			},
-			Order: expectedOrder,
 		})
 		eTag := etag.GenerateEtag(expectedMTOWithFacility.UpdatedAt)
 
@@ -95,7 +115,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
 			},
-			Order: expectedOrder,
 		})
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -117,82 +136,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.Contains(err.Error(), "NTS-release shipment must include facility info")
 	})
 
-	suite.RunWithRollback("MTO status is in a conflicted state", func() {
-		expectedMTO = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusDRAFT,
-			},
-			Order: expectedOrder,
-		})
-		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
-
-		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTO.ID, eTag)
-
-		suite.IsType(apperror.ConflictError{}, err)
-	})
-
-	suite.RunWithRollback("Etag is stale", func() {
-		expectedMTO = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-			Order: expectedOrder,
-		})
-		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTO.ID, eTag)
-
-		suite.Error(err)
-		suite.IsType(apperror.PreconditionFailedError{}, err)
-	})
-}
-
-func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusServiceCounselingPPMApproved() {
-	moveRouter := moverouter.NewMoveRouter()
-	queryBuilder := query.NewQueryBuilder()
-	mtoUpdater := NewMoveTaskOrderUpdater(
-		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
-		moveRouter,
-	)
-
-	suite.RunWithRollback("Move/shipment/PPM statuses are updated successfully", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-		})
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-		eTag := etag.GenerateEtag(move.UpdatedAt)
-
-		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingPPMApproved(suite.AppContextForTest(), move.ID, eTag)
-
-		suite.NoError(err)
-		suite.NotZero(actualMTO.ID)
-		suite.Equal(models.MoveStatusAPPROVED, actualMTO.Status)
-		for _, shipment := range actualMTO.MTOShipments {
-			suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
-			ppmShipment := *shipment.PPMShipment
-			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
-		}
-	})
-
-	suite.RunWithRollback("Bad move status", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		})
-		eTag := etag.GenerateEtag(move.UpdatedAt)
-
-		_, err := mtoUpdater.UpdateStatusServiceCounselingPPMApproved(suite.AppContextForTest(), move.ID, eTag)
-
-		suite.Error(err)
-		suite.IsType(apperror.ConflictError{}, err)
-		suite.Contains(err.Error(), "Cannot move to Approved state")
-	})
-
 	suite.RunWithRollback("No shipments on move", func() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -201,46 +144,39 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		})
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
-		_, err := mtoUpdater.UpdateStatusServiceCounselingPPMApproved(suite.AppContextForTest(), move.ID, eTag)
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "No shipments associated with move")
 	})
 
-	suite.RunWithRollback("Move has a non-PPM shipment", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+	suite.RunWithRollback("MTO status is in a conflicted state", func() {
+		draftMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
+				Status: models.MoveStatusDRAFT,
 			},
 		})
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
+			Move: draftMove,
 		})
-		eTag := etag.GenerateEtag(move.UpdatedAt)
+		eTag := etag.GenerateEtag(draftMove.UpdatedAt)
 
-		_, err := mtoUpdater.UpdateStatusServiceCounselingPPMApproved(suite.AppContextForTest(), move.ID, eTag)
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), draftMove.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Contains(err.Error(), "Move should only contain PPM shipments")
+		suite.Contains(err.Error(), "Cannot move to")
 	})
 
 	suite.RunWithRollback("Etag is stale", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-		})
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
-		badEtag := etag.GenerateEtag(time.Now())
+		eTag := etag.GenerateEtag(time.Now())
 
-		_, err := mtoUpdater.UpdateStatusServiceCounselingPPMApproved(suite.AppContextForTest(), move.ID, badEtag)
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
