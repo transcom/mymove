@@ -143,6 +143,9 @@ func GetHasManyForeignKeyAssociations(model interface{}) []interface{} {
 //     All(&moves)
 //
 // You won't be able to use this if you have given your table name(s) an alias, so just fall back to a normal where.
+// You also cannot combine Scopes with RawQuery, which disregards any Join, Where, Scope, or Eager that may have been
+// chained to the query.
+//
 // https://gobuffalo.io/documentation/database/scoping/
 func ExcludeDeletedScope(models ...interface{}) pop.ScopeFunc {
 	return func(q *pop.Query) *pop.Query {
