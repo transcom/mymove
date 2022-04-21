@@ -237,7 +237,6 @@ export const updateOrderEvent = buildMoveHistoryEventTemplate({
   tableName: 'orders',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated orders',
-  getDetailsPlainText: () => '-',
 });
 
 export const undefinedEvent = buildMoveHistoryEventTemplate({
