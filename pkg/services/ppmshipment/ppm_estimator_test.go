@@ -57,6 +57,8 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			DestinationPostalCode: "94040",
 			EstimatedWeight:       &estimatedWeight,
 			SitExpected:           models.BoolPointer(false),
+			AdvanceRequested:      models.BoolPointer(true),
+			Advance:               models.CentPointer(unit.Cents(498700)),
 		}
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
@@ -75,7 +77,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		ppmEstimator := NewEstimatePPM()
 
 		newPPM := models.PPMShipment{
-			ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
+			ID:                    oldPPMShipment.ID,
 			ShipmentID:            oldPPMShipment.ShipmentID,
 			Status:                models.PPMShipmentStatusDraft,
 			ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
@@ -111,19 +113,17 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			DestinationPostalCode: "94040",
 			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
 			SitExpected:           oldPPMShipment.SitExpected,
+			EstimatedIncentive:    models.Int32Pointer(int32(500000)),
 		}
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 		suite.NilOrNoVerrs(err)
 		suite.Nil(ppmEstimate)
+		suite.Equal(models.Int32Pointer(int32(500000)), newPPM.EstimatedIncentive)
 	})
 
 	suite.Run("Estimated Incentive - Failure - is not created when Estimated Weight is missing", func() {
-		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: models.Int32Pointer(int32(1000000)),
-			},
-		})
+		oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
 		ppmEstimator := NewEstimatePPM()
 
 		newPPM := models.PPMShipment{
