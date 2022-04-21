@@ -193,6 +193,15 @@ export const uploadAmendedOrdersEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
+export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updatePaymentRequestStatus,
+  tableName: 'payment_requests',
+  detailsType: detailsTypes.PAYMENT,
+  getEventNameDisplay: () => 'Submitted payment request',
+  getDetailsPlainText: () => '-',
+});
+
 export const undefinedEvent = buildMoveHistoryEventTemplate({
   action: '*',
   eventName: '*',
@@ -220,6 +229,7 @@ const allMoveHistoryEventTemplates = [
   updateMoveTaskOrderStatusEvent,
   updateServiceItemStatusEvent,
   uploadAmendedOrdersEvent,
+  updatePaymentRequestStatus,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {
