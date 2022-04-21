@@ -81,6 +81,15 @@ export const dbFieldToDisplayName = {
   organizational_clothing_and_individual_equipment: 'OCIE',
 };
 
+export const dbWeightFields = [
+  'billable_weight_cap',
+  'prime_estimated_weight',
+  'authorized_weight',
+  'pro_gear_weight',
+  'pro_gear_weight_spouse',
+  'required_medical_equipment_weight',
+];
+
 export const eventNamesWithLabeledDetails = {
   counselingUpdateOrder: 'Updated orders', // ghc.yaml
   updateOrder: 'Updated orders', // ghc.yaml
