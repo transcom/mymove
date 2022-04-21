@@ -102,7 +102,7 @@ export const createStandardServiceItemEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Approved service item',
   getDetailsPlainText: (historyRecord) => {
-    return `${shipmentTypes[historyRecord.context?.shipment_type]} shipment, ${historyRecord.context?.name}`;
+    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, ${historyRecord.context[0]?.name}`;
   },
 });
 
@@ -191,7 +191,7 @@ export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
     }
   },
   getDetailsPlainText: (historyRecord) => {
-    return `${shipmentTypes[historyRecord.context?.shipment_type]} shipment, ${historyRecord.context?.name}`;
+    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, ${historyRecord.context[0]?.name}`;
   },
 });
 
