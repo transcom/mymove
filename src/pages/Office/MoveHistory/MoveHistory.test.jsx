@@ -108,6 +108,7 @@ jest.mock('hooks/queries', () => ({
               tac_type: '',
               uses_external_vendor: '',
             },
+            tableName: 'mto_shipments',
           },
         ],
       },
