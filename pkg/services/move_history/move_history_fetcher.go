@@ -58,20 +58,20 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	),
 	orders AS (
 		SELECT
-			orders.*
-			-- dl_origin_name."name" AS origin_dl_name,
-			-- dl_new_name."name" AS new_dl_name
+			orders.*,
+			lookup_dl_origin_name."name" AS origin_duty_location_name,
+			lookup_dl_new_name."name" AS new_duty_location_name
 		FROM
 			orders
 		JOIN moves ON moves.orders_id = orders.id
-		JOIN duty_location_names AS dl_origin_name ON orders.origin_duty_location_id = dl_origin_name.duty_location_id
-		JOIN duty_location_names AS dl_new_name ON orders.new_duty_location_id = dl_new_name.duty_location_id
+		JOIN duty_locations AS lookup_dl_origin_name ON orders.origin_duty_location_id = lookup_dl_origin_name.id
+		JOIN duty_locations AS lookup_dl_new_name ON orders.new_duty_location_id = lookup_dl_new_name.id
 		WHERE orders.id = (SELECT moves.orders_id FROM moves)
 	),
 	orders_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			json_build_object('origin_duty_location_name', orders.origin_duty_location_name, 'new_duty_location_name', orders.new_duty_location_name)::TEXT AS context,
 			NULL AS context_id
 		FROM
 			audit_history
