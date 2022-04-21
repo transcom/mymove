@@ -89,7 +89,7 @@ export const HelperApprovedMove = () => (
         <strong>For PPM shipments</strong>
       </p>
       <p className={styles['top-gap']}>
-        When you are done moving your things, select <strong>Upload PPM documents</strong> to document your PPM,
+        When you are done moving your things, select <strong>Upload PPM Documents</strong> to document your PPM,
         calculate your final incentive, and create a payment request packet. You will upload weight tickets, receipts,
         and other documentation that a counselor will review.
       </p>
