@@ -249,9 +249,6 @@ bin/generate-deploy-notes: cmd/generate-deploy-notes
 bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
-bin/generate-access-codes: cmd/generate_access_codes
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
-
 bin/generate-shipment-summary: cmd/generate-shipment-summary
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate-shipment-summary
 
@@ -377,7 +374,6 @@ build_tools: bin/gin \
 	bin/big-cat \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
-	bin/generate-access-codes \
 	bin/generate-payment-request-edi \
 	bin/generate-shipment-summary \
 	bin/generate-test-data \
@@ -1129,8 +1125,8 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-3d4d7c108724ebcbe7d986d63dcd6fb8a4246633
-	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-3d4d7c108724ebcbe7d986d63dcd6fb8a4246633 bash
+	docker pull milmove/circleci-docker:milmove-app-f678d1c6a5e2085f733f5408b7affd628f9f3576
+	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-f678d1c6a5e2085f733f5408b7affd628f9f3576 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

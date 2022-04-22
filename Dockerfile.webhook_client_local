@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-3d4d7c108724ebcbe7d986d63dcd6fb8a4246633 as builder
+FROM milmove/circleci-docker:milmove-app-f678d1c6a5e2085f733f5408b7affd628f9f3576 as builder
 
 # Prepare public DOD certificates.
 # hadolint ignore=DL3002
@@ -18,6 +18,8 @@ WORKDIR /home/circleci/project
 
 RUN make clean
 RUN make bin/rds-ca-us-gov-west-1-2017-root.pem
+RUN make bin/rds-ca-rsa4096-g1.pem
+
 RUN make bin/webhook-client
 
 #########
@@ -35,6 +37,7 @@ COPY --from=builder --chown=root:root /home/circleci/project/config/tls/devlocal
 COPY --from=builder --chown=root:root /home/circleci/project/config/tls/devlocal-mtls.key /config/tls/devlocal-mtls.key
 
 # Public root certificate for RDS in us-gov-west-1.
+COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
 
 # The main webhook-client binary.

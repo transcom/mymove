@@ -31,7 +31,6 @@ import (
 
 // Assertions defines assertions about what the data contains
 type Assertions struct {
-	AccessCode                               models.AccessCode
 	Address                                  models.Address
 	AdminUser                                models.AdminUser
 	TestDataAuditHistory                     TestDataAuditHistory

@@ -30,10 +30,24 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			UsesExternalVendor: true,
 		},
 	})
+	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+		Move: expectedMTO,
+		MTOShipment: models.MTOShipment{
+			DeletedAt: models.TimePointer(time.Now()),
+		},
+	})
+
+	mtoWithAllShipmentsDelted := testdatagen.MakeDefaultMove(suite.DB())
+	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+		Move: mtoWithAllShipmentsDelted,
+		MTOShipment: models.MTOShipment{
+			DeletedAt: models.TimePointer(time.Now()),
+		},
+	})
 
 	mtoFetcher := NewMoveTaskOrderFetcher()
 
-	suite.T().Run("Success with Prime-available move by ID, fetch all shipments", func(t *testing.T) {
+	suite.T().Run("Success with Prime-available move by ID, fetch all non-deleted shipments", func(t *testing.T) {
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:   false,
 			MoveTaskOrderID: expectedMTO.ID,
@@ -54,7 +68,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Len(actualMTO.MTOShipments, 2)
 	})
 
-	suite.T().Run("Success with Prime-available move by Locator, no external shipments", func(t *testing.T) {
+	suite.T().Run("Success with Prime-available move by Locator, no deleted or external shipments", func(t *testing.T) {
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:            false,
 			Locator:                  expectedMTO.Locator,
@@ -77,6 +91,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			suite.Equal(expectedMTO.ID.String(), actualMTO.ID.String())
 			suite.Equal(primeShipment.ID.String(), actualMTO.MTOShipments[0].ID.String())
 		}
+	})
+
+	suite.T().Run("Success with move that has only deleted shipments", func(t *testing.T) {
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: mtoWithAllShipmentsDelted.ID,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.Equal(mtoWithAllShipmentsDelted.ID, actualMTO.ID)
+		suite.Len(actualMTO.MTOShipments, 0)
 	})
 
 	suite.T().Run("Failure - nil searchParams", func(t *testing.T) {

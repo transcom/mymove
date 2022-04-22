@@ -43,6 +43,7 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving user upload %v, %v", verrs, err))
 		}
+		userUpload.Document = document
 	} else {
 		// If no UserUploader is being stored, use asserted fields
 

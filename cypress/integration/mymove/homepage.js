@@ -30,7 +30,7 @@ describe('The Home Page', function () {
   });
 
   const editTestCases = [
-    { canEditOrDelete: true, moveSubmitted: false, userID: '1b16773e-995b-4efe-ad1c-bef2ae1253f8' }, // finished@ppm.unsubmitted
+    { canEditOrDelete: true, moveSubmitted: false, userID: '1b16773e-995b-4efe-ad1c-bef2ae1253f8' }, // full@ppm.unsubmitted
     { canEditOrDelete: false, moveSubmitted: true, userID: '2d6a16ec-c031-42e2-aa55-90a1e29b961a' }, // new@ppm.submitted
   ];
 

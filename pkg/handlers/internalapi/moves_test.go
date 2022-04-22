@@ -230,9 +230,6 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// And: Returned query to have a submitted status
 		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 		// And: Expect move's PPM's advance to have "Requested" status
-		suite.Assertions.Equal(
-			internalmessages.ReimbursementStatusREQUESTED,
-			*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
 		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
 
 		// Test that the move was submitted within a few seconds of the current time.

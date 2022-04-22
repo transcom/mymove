@@ -172,15 +172,6 @@ const InternalCreateWeightTicketDocumentEndpointKey = "Internal.CreateWeightTick
 // InternalValidatePostalCodeWithRateDataEndpointKey is the key for the validatePostalCodeWithRateData endpoint in internal
 const InternalValidatePostalCodeWithRateDataEndpointKey = "Internal.ValidatePostalCodeWithRateData"
 
-// InternalFetchAccessCodeEndpointKey is the key for the fetchAccessCode endpoint in internal
-const InternalFetchAccessCodeEndpointKey = "Internal.FetchAccessCode"
-
-// InternalValidateAccessCodeEndpointKey is the key for the validateAccessCode endpoint in internal
-const InternalValidateAccessCodeEndpointKey = "Internal.ValidateAccessCode"
-
-// InternalClaimAccessCodeEndpointKey is the key for the claimAccessCode endpoint in internal
-const InternalClaimAccessCodeEndpointKey = "Internal.ClaimAccessCode"
-
 // InternalShowAddressEndpointKey is the key for the showAddress endpoint in internal
 const InternalShowAddressEndpointKey = "Internal.ShowAddress"
 
@@ -408,18 +399,6 @@ var internalEndpoints = EndpointMapType{
 	InternalValidatePostalCodeWithRateDataEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "validatePostalCodeWithRateData",
-	},
-	InternalFetchAccessCodeEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "fetchAccessCode",
-	},
-	InternalValidateAccessCodeEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "validateAccessCode",
-	},
-	InternalClaimAccessCodeEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "claimAccessCode",
 	},
 	InternalShowAddressEndpointKey: {
 		APIName:     InternalAPIName,

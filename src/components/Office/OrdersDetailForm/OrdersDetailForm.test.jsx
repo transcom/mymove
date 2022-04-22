@@ -6,7 +6,7 @@ import { Formik } from 'formik';
 import OrdersDetailForm from './OrdersDetailForm';
 
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import { dropdownInputOptions } from 'shared/formatters';
+import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 
 const dutyLocation = {

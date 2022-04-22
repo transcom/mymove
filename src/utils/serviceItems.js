@@ -1,5 +1,5 @@
 import { dateSort } from 'shared/utils';
-import { convertFromThousandthInchToInch } from 'shared/formatters';
+import { convertFromThousandthInchToInch } from 'utils/formatters';
 
 function sortServiceItemsIntoShipments(serviceItems) {
   // Make a copy so we're not mutating the props

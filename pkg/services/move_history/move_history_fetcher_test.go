@@ -79,13 +79,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 			if h.TableName == "addresses" {
 				if *h.ObjectID == updateAddress.ID {
 					if h.OldData != nil {
-						oldData := removeEscapeJSON(h.OldData)
+						oldData := removeEscapeJSONtoObject(h.OldData)
 						if oldData["city"] == oldAddress.City && oldData["state"] == oldAddress.State && oldData["postal_code"] == oldAddress.PostalCode {
 							verifyOldPickupAddress = true
 						}
 					}
 					if h.ChangedData != nil {
-						changedData := removeEscapeJSON(h.ChangedData)
+						changedData := removeEscapeJSONtoObject(h.ChangedData)
 						if changedData["city"] == updateAddress.City && changedData["state"] == updateAddress.State && changedData["postal_code"] == updateAddress.PostalCode {
 							verifyNewPickupAddress = true
 						}
@@ -94,13 +94,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 			} else if h.TableName == "orders" {
 				if *h.ObjectID == approvedMove.Orders.ID {
 					if h.OldData != nil {
-						oldData := removeEscapeJSON(h.OldData)
+						oldData := removeEscapeJSONtoObject(h.OldData)
 						if len(oldData["sac"]) == 0 {
 							verifyOldSAC = true
 						}
 					}
 					if h.ChangedData != nil {
-						changedData := removeEscapeJSON(h.ChangedData)
+						changedData := removeEscapeJSONtoObject(h.ChangedData)
 						if changedData["sac"] == updateSAC {
 							verifyNewSAC = true
 						}
@@ -108,21 +108,21 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 				}
 			} else if h.TableName == "entitlements" {
 				if h.ChangedData != nil {
-					oldData := removeEscapeJSON(h.OldData)
+					oldData := removeEscapeJSONtoObject(h.OldData)
 					if len(oldData["authorized_weight"]) == 0 {
 						verifyDBAuthorizedWeight = true
 					}
 				}
 			} else if h.TableName == "moves" {
 				if h.OldData != nil {
-					oldData := removeEscapeJSON(h.OldData)
+					oldData := removeEscapeJSONtoObject(h.OldData)
 					if len(oldData["tio_remarks"]) == 0 {
 						verifyOldTIORemarks = true
 					}
 				}
 				if *h.ObjectID == approvedMove.ID {
 					if h.ChangedData != nil {
-						changedData := removeEscapeJSON(h.ChangedData)
+						changedData := removeEscapeJSONtoObject(h.ChangedData)
 						if changedData["tio_remarks"] == tioRemarks {
 							verifyTIORemarks = true
 						}
@@ -160,8 +160,19 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 
 }
 
-func removeEscapeJSON(data *string) map[string]string {
+func removeEscapeJSONtoObject(data *string) map[string]string {
 	var result map[string]string
+	if data == nil || *data == "" {
+		return result
+	}
+	var byteData = []byte(*data)
+
+	_ = json.Unmarshal(byteData, &result)
+	return result
+}
+
+func removeEscapeJSONtoArray(data *string) []map[string]string {
+	var result []map[string]string
 	if data == nil || *data == "" {
 		return result
 	}
@@ -294,8 +305,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 			if h.TableName == "mto_service_items" {
 				if *h.ObjectID == updatedServiceItem.ID {
 					if h.Context != nil {
-						context := removeEscapeJSON(h.Context)
-						if context != nil && context["name"] == serviceItem.ReService.Name && context["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) {
+						context := removeEscapeJSONtoArray(h.Context)
+						if context != nil && context[0]["name"] == serviceItem.ReService.Name && context[0]["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) {
 							verifyServiceItemStatusContext = true
 						}
 					}
