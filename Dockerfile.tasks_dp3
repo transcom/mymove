@@ -10,9 +10,9 @@ COPY config/tls/api.loadtest.dp3.us.chain.der.p7b /config/tls/api.loadtest.dp3.u
 # Exp Environment Certs
 COPY config/tls/api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.der.p7b
 
+#AWS GovCloud RDS cert
 COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
-COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
-COPY bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
+
 COPY bin/milmove-tasks /bin/milmove-tasks
 
 WORKDIR /bin
