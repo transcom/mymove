@@ -122,40 +122,48 @@ type UpdateMTOServiceItemHandler struct {
 
 // Handle handler that updates an MTOServiceItem. Only a limited number of service items and fields may be updated.
 func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	mtoServiceItem, verrs := payloads.MTOServiceItemModelFromUpdate(params.MtoServiceItemID, params.Body)
-	if verrs != nil && verrs.HasAny() {
-		return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs))
-	}
-
-	eTag := params.IfMatch
-	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemPrime(appCtx, mtoServiceItem, eTag)
-
-	if err != nil {
-		appCtx.Logger().Error("primeapi.UpdateMTOServiceItemHandler error", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.NotFoundError:
-			return mtoserviceitemops.NewUpdateMTOServiceItemNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
-		case apperror.InvalidInputError:
-			return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors))
-		case apperror.ConflictError:
-			return mtoserviceitemops.NewUpdateMTOServiceItemConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
-		case apperror.PreconditionFailedError:
-			return mtoserviceitemops.NewUpdateMTOServiceItemPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest)))
-		case apperror.QueryError:
-			if e.Unwrap() != nil {
-				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				appCtx.Logger().Error("primeapi.UpdateMTOServiceItemHandler query error", zap.Error(e.Unwrap()))
+			mtoServiceItem, verrs := payloads.MTOServiceItemModelFromUpdate(params.MtoServiceItemID, params.Body)
+			if verrs != nil && verrs.HasAny() {
+				return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+					verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
 			}
-			return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
-		default:
-			return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
-		}
-	}
 
-	return mtoserviceitemops.NewUpdateMTOServiceItemOK().WithPayload(payloads.MTOServiceItem(updatedMTOServiceItem))
+			eTag := params.IfMatch
+			updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemPrime(appCtx, mtoServiceItem, eTag)
+
+			if err != nil {
+				appCtx.Logger().Error("primeapi.UpdateMTOServiceItemHandler error", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return mtoserviceitemops.NewUpdateMTOServiceItemNotFound().WithPayload(
+						payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.InvalidInputError:
+					return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(
+						payloads.ValidationError(e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
+				case apperror.ConflictError:
+					return mtoserviceitemops.NewUpdateMTOServiceItemConflict().WithPayload(
+						payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.PreconditionFailedError:
+					return mtoserviceitemops.NewUpdateMTOServiceItemPreconditionFailed().WithPayload(
+						payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the internal error (usually a pq error) for better debugging
+						appCtx.Logger().Error("primeapi.UpdateMTOServiceItemHandler query error", zap.Error(e.Unwrap()))
+					}
+					return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				default:
+					return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
+			}
+
+			return mtoserviceitemops.NewUpdateMTOServiceItemOK().WithPayload(payloads.MTOServiceItem(updatedMTOServiceItem)), nil
+		})
 }
 
 // GetMapKeys is a helper function that returns the keys that are MTOServiceItemModelTypes from the map
