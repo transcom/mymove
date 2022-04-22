@@ -1,6 +1,4 @@
-import { formatCentsTruncateWhole } from './formatters';
-
-import { formatCentsRange } from 'shared/formatters';
+import { formatCentsTruncateWhole, formatCentsRange } from './formatters';
 
 export const hasShortHaulError = (error) => error?.statusCode === 409;
 

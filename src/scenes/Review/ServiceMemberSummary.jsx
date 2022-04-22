@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
-import { formatDateSM } from 'shared/formatters';
+import { formatDateSM } from 'utils/formatters';
 import { getFullSMName } from 'utils/moveSetupFlow';
 import Address from './Address';
 

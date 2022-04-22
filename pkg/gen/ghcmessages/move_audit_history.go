@@ -41,7 +41,7 @@ type MoveAuditHistory struct {
 	ClientQuery *string `json:"clientQuery,omitempty"`
 
 	// context
-	Context map[string]string `json:"context,omitempty"`
+	Context []map[string]string `json:"context"`
 
 	// id column for the context table the record belongs to
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054

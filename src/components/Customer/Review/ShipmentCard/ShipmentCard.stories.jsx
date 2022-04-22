@@ -22,6 +22,7 @@ export default {
   ],
 };
 
+const noop = () => {};
 const hhgDefaultProps = {
   moveId: 'testMove123',
   shipmentNumber: 1,
@@ -50,14 +51,18 @@ const hhgDefaultProps = {
   },
   remarks:
     'This is 500 characters of customer remarks right here. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-  showEditBtn: true,
+  showEditAndDeleteBtn: true,
+  onEditClick: noop,
+  onDeleteClick: noop,
 };
 
 const ntsDefaultProps = {
   moveId: 'testMove123',
   shipmentType: 'HHG_INTO_NTS_DOMESTIC',
   shipmentId: 'ABC123K',
-  showEditBtn: true,
+  showEditAndDeleteBtn: true,
+  onEditClick: noop,
+  onDeleteClick: noop,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
     streetAddress1: '17 8th St',
@@ -80,7 +85,9 @@ const ntsrDefaultProps = {
   shipmentNumber: 1,
   shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
   shipmentId: 'ABC123K',
-  showEditBtn: true,
+  showEditAndDeleteBtn: true,
+  onEditClick: noop,
+  onDeleteClick: noop,
   requestedDeliveryDate: new Date('03/01/2020').toISOString(),
   receivingAgent: {
     firstName: 'Dorothy',
@@ -112,7 +119,9 @@ const ppmShipmentDefaultProps = {
 const ppmDefaultProps = {
   ...ppmShipmentDefaultProps,
   shipmentNumber: 1,
-  showEditBtn: true,
+  showEditAndDeleteBtn: true,
+  onEditClick: noop,
+  onDeleteClick: noop,
 };
 
 const ppmShipmentSecondaryZIPProps = {

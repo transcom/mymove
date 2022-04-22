@@ -14,7 +14,6 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 
-	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	move "github.com/transcom/mymove/pkg/services/move"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
@@ -42,6 +41,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
+	ppmEstimator := ppmshipment.NewEstimatePPM()
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{ctx, officeuser.NewOfficeUserFetcherPop()}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{ctx}
@@ -119,7 +119,6 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{ctx, moveRouter}
 
 	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{ctx}
-	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{ctx}
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{ctx}
 
@@ -133,11 +132,6 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 		ctx,
 		postalcodeservice.NewPostalCodeValidator(),
 	}
-
-	// Access Codes
-	internalAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeFetcher()}
-	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeValidator()}
-	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeClaimer()}
 
 	// GHC Endpoint
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
@@ -167,7 +161,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 			ctx.NotificationSender(),
 			paymentRequestShipmentRecalculator,
 		),
-		ppmshipment.NewPPMShipmentUpdater(),
+		ppmshipment.NewPPMShipmentUpdater(ppmEstimator),
 	}
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{

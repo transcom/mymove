@@ -2,6 +2,7 @@ import React from 'react';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './ShipmentList.module.scss';
 
@@ -13,8 +14,9 @@ import { shipmentIsOverweight } from 'utils/shipmentWeights';
 export const ShipmentListItem = ({
   shipment,
   onShipmentClick,
+  onDeleteClick,
   shipmentNumber,
-  canEdit,
+  canEditOrDelete,
   showNumber,
   showShipmentWeight,
   isOverweight,
@@ -31,17 +33,11 @@ export const ShipmentListItem = ({
   });
 
   return (
-    <button
-      type="button"
+    <div
       className={`${styles['shipment-list-item-container']} ${shipmentClassName} ${
         showShipmentWeight && styles['shipment-display']
       }`}
       data-testid="shipment-list-item-container"
-      onClick={() => {
-        if (!canEdit) return;
-        onShipmentClick();
-      }}
-      tabIndex="0"
     >
       <strong>
         {shipmentTypes[shipment.shipmentType]}
@@ -55,21 +51,34 @@ export const ShipmentListItem = ({
         <div className={styles.shipmentWeight}>{formatWeight(shipment.calculatedBillableWeight)}</div>
       )}
       {(isOverweight || isMissingWeight) && (
-        <div>
+        <div className={styles['warning-section']}>
           <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
           <span className={styles.warningText}>{isOverweight ? 'Over weight' : 'Missing weight'}</span>
         </div>
       )}
-      {canEdit ? <FontAwesomeIcon icon="pen" className={styles.edit} /> : <div className={styles.noEdit} />}
-    </button>
+      {canEditOrDelete ? (
+        <div className={styles['shipment-btns']}>
+          <Button className={styles['edit-btn']} onClick={onDeleteClick} type="button">
+            Delete
+          </Button>
+          |
+          <Button className={styles['edit-btn']} onClick={onShipmentClick} type="button">
+            Edit
+          </Button>
+        </div>
+      ) : (
+        <div className={styles.noEdit} />
+      )}
+    </div>
   );
 };
 
 ShipmentListItem.propTypes = {
   shipment: shape({ id: string.isRequired, shipmentType: string.isRequired }).isRequired,
   onShipmentClick: func,
+  onDeleteClick: func,
   shipmentNumber: number.isRequired,
-  canEdit: bool.isRequired,
+  canEditOrDelete: bool.isRequired,
   showNumber: bool,
   showShipmentWeight: bool,
   isOverweight: bool,
@@ -82,9 +91,10 @@ ShipmentListItem.defaultProps = {
   isOverweight: false,
   isMissingWeight: false,
   onShipmentClick: null,
+  onDeleteClick: null,
 };
 
-const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentWeight }) => {
+const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted, showShipmentWeight }) => {
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
   shipments.forEach((shipment) => {
@@ -106,12 +116,12 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
           shipmentNumbersByType[shipmentType] = 1;
         }
         const shipmentNumber = shipmentNumbersByType[shipmentType];
-        let canEdit = !moveSubmitted;
+        let canEditOrDelete = !moveSubmitted;
         let isOverweight;
         let isMissingWeight;
         let showNumber = shipmentCountByType[shipmentType] > 1;
         if (showShipmentWeight) {
-          canEdit = false;
+          canEditOrDelete = false;
           showNumber = false;
           switch (shipmentType) {
             case SHIPMENT_OPTIONS.NTSR:
@@ -132,10 +142,11 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
             shipmentNumber={shipmentNumber}
             showNumber={showNumber}
             showShipmentWeight={showShipmentWeight}
-            canEdit={canEdit}
+            canEditOrDelete={canEditOrDelete}
             isOverweight={isOverweight}
             isMissingWeight={isMissingWeight}
             onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType)}
+            onDeleteClick={() => onDeleteClick(shipment.id)}
             shipment={shipment}
           />
         );
@@ -153,6 +164,7 @@ ShipmentList.propTypes = {
     }),
   ).isRequired,
   onShipmentClick: func,
+  onDeleteClick: func,
   moveSubmitted: bool.isRequired,
   showShipmentWeight: bool,
 };
@@ -160,6 +172,7 @@ ShipmentList.propTypes = {
 ShipmentList.defaultProps = {
   showShipmentWeight: false,
   onShipmentClick: null,
+  onDeleteClick: null,
 };
 
 export default ShipmentList;

@@ -91,11 +91,8 @@ type CreateWebhookSubscriptionHandler struct {
 func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.CreateWebhookSubscriptionParams) middleware.Responder {
 	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	subscription := payloads.WebhookSubscriptionModelFromCreate(params.WebhookSubscription)
-	subscriberIDFilter := []services.QueryFilter{
-		h.NewQueryFilter("id", "=", subscription.SubscriberID),
-	}
 
-	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(appCtx, subscription, subscriberIDFilter)
+	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(appCtx, subscription)
 
 	if verrs != nil {
 		appCtx.Logger().Error("Error saving webhook subscription", zap.Error(verrs))

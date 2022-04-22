@@ -276,6 +276,18 @@ export async function patchMTOShipment(mtoShipmentId, mtoShipment, ifMatchETag) 
   );
 }
 
+export async function deleteMTOShipment(mtoShipmentId) {
+  return makeInternalRequest(
+    'mtoShipment.deleteShipment',
+    {
+      mtoShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 /** PPMS */
 export async function getPPMsForMove(moveId) {
   return makeInternalRequest(
@@ -367,18 +379,6 @@ export async function requestPayment(ppmId) {
     'ppm.requestPPMPayment',
     {
       personallyProcuredMoveId: ppmId,
-    },
-    {
-      normalize: false,
-    },
-  );
-}
-
-export async function validateEntitlement(moveId) {
-  return makeInternalRequest(
-    'entitlements.validateEntitlement',
-    {
-      moveId,
     },
     {
       normalize: false,

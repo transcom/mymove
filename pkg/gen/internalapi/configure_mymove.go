@@ -11,7 +11,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
@@ -83,11 +82,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.OfficeCancelMoveHandler == nil {
 		api.OfficeCancelMoveHandler = office.CancelMoveHandlerFunc(func(params office.CancelMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.CancelMove has not yet been implemented")
-		})
-	}
-	if api.AccesscodeClaimAccessCodeHandler == nil {
-		api.AccesscodeClaimAccessCodeHandler = accesscode.ClaimAccessCodeHandlerFunc(func(params accesscode.ClaimAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation accesscode.ClaimAccessCode has not yet been implemented")
 		})
 	}
 	if api.DocumentsCreateDocumentHandler == nil {
@@ -168,11 +162,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.UploadsDeleteUploadsHandler == nil {
 		api.UploadsDeleteUploadsHandler = uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
-		})
-	}
-	if api.AccesscodeFetchAccessCodeHandler == nil {
-		api.AccesscodeFetchAccessCodeHandler = accesscode.FetchAccessCodeHandlerFunc(func(params accesscode.FetchAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation accesscode.FetchAccessCode has not yet been implemented")
 		})
 	}
 	if api.DpsAuthGetCookieURLHandler == nil {
@@ -383,16 +372,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.OrdersUploadAmendedOrdersHandler == nil {
 		api.OrdersUploadAmendedOrdersHandler = orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
-		})
-	}
-	if api.AccesscodeValidateAccessCodeHandler == nil {
-		api.AccesscodeValidateAccessCodeHandler = accesscode.ValidateAccessCodeHandlerFunc(func(params accesscode.ValidateAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation accesscode.ValidateAccessCode has not yet been implemented")
-		})
-	}
-	if api.EntitlementsValidateEntitlementHandler == nil {
-		api.EntitlementsValidateEntitlementHandler = entitlements.ValidateEntitlementHandlerFunc(func(params entitlements.ValidateEntitlementParams) middleware.Responder {
-			return middleware.NotImplemented("operation entitlements.ValidateEntitlement has not yet been implemented")
 		})
 	}
 	if api.PostalCodesValidatePostalCodeWithRateDataHandler == nil {

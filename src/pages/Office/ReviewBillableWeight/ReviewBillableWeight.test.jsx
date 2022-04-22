@@ -4,8 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import ReviewBillableWeight from './ReviewBillableWeight';
 
-import { formatWeight } from 'utils/formatters';
-import { formatDateFromIso } from 'shared/formatters';
+import { formatWeight, formatDateFromIso } from 'utils/formatters';
 import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
 

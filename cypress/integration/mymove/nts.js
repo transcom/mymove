@@ -46,7 +46,7 @@ function customerSubmitsNTSShipmentMoveFromHomePage() {
 }
 
 function customerEditsNTSShipmentFromHomePage() {
-  cy.get('[data-testid="shipment-list-item-container"]').contains('NTS').click();
+  cy.get('[data-testid="shipment-list-item-container"]').eq(0).children().contains('Edit').click();
   cy.get('textarea[data-testid="remarks"]').clear().type('Warning: glass').blur();
   cy.get('input[name="secondaryPickup.address.city"]').clear().type('The Hills');
   cy.get('button').contains('Save').click();

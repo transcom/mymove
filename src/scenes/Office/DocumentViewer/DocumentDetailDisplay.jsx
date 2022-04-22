@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { get } from 'lodash';
 
 import { renderStatusIcon } from 'shared/utils';
-import { formatDate } from 'shared/formatters';
+import { formatDate } from 'utils/formatters';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 import { WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
 

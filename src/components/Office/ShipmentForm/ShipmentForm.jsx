@@ -10,7 +10,7 @@ import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOption
 import styles from './ShipmentForm.module.scss';
 
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
-import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
+import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
@@ -23,8 +23,7 @@ import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFa
 import StorageFacilityAddress from 'components/Office/StorageFacilityAddress/StorageFacilityAddress';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
-import { dropdownInputOptions } from 'shared/formatters';
-import { formatWeight } from 'utils/formatters';
+import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { shipmentDestinationTypes } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -242,13 +241,12 @@ const ShipmentForm = ({
 
         return (
           <>
-            {isCancelModalVisible && (
-              <SCRequestShipmentCancellationModal
-                shipmentID={mtoShipment.id}
-                onClose={setIsCancelModalVisible}
-                onSubmit={handleDeleteShipment}
-              />
-            )}
+            <ConnectedDestructiveShipmentConfirmationModal
+              isOpen={isCancelModalVisible}
+              shipmentID={mtoShipment.id}
+              onClose={setIsCancelModalVisible}
+              onSubmit={handleDeleteShipment}
+            />
             {errorMessage && (
               <Alert type="error" heading="An error occurred">
                 {errorMessage}

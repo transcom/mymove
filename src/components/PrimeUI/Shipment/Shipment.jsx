@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { formatPrimeAPIShipmentAddress } from 'utils/shipmentDisplay';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { shipmentTypeLabels } from 'content/shipments';
-import { formatDateFromIso } from 'shared/formatters';
+import { formatDateFromIso } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { shipmentDestinationTypes } from 'constants/shipments';

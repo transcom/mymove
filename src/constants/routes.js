@@ -6,7 +6,6 @@ export const generalRoutes = {
 };
 
 export const customerRoutes = {
-  ACCESS_CODE_PATH: '/access-code',
   CONUS_OCONUS_PATH: '/service-member/conus-oconus',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',
@@ -45,6 +44,7 @@ export const servicesCounselingRoutes = {
   QUEUE_VIEW_PATH: '/counseling/queue',
   SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-:shipmentType`,
   SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId`,
+  MOVE_HISTORY_PATH: `${BASE_MOVE_PATH}/history`,
 };
 
 export const tioRoutes = {
