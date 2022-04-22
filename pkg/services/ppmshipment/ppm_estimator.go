@@ -55,6 +55,6 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 
 	// TODO: Call the pricer to calculate the incentive
 
-	estimatedIncentive := int32(100000000)
+	estimatedIncentive := int32(1000000)
 	return &estimatedIncentive, nil
 }
