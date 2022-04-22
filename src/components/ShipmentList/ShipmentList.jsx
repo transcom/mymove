@@ -125,8 +125,9 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
         let canEditOrDelete = !moveSubmitted;
         let isOverweight;
         let isMissingWeight;
-        let isIncomplete;
         let showNumber = shipmentCountByType[shipmentType] > 1;
+        const ppmIsIncomplete = shipmentType === SHIPMENT_OPTIONS.PPM && !isPPMShipmentComplete(shipment);
+
         if (showShipmentWeight) {
           canEditOrDelete = false;
           showNumber = false;
@@ -143,11 +144,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
               }
           }
         }
-        if (shipmentType === SHIPMENT_OPTIONS.PPM) {
-          if (!isPPMShipmentComplete(shipment)) {
-            isIncomplete = true;
-          }
-        }
+
         return (
           <ShipmentListItem
             key={shipment.id}
@@ -156,7 +153,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
             showShipmentWeight={showShipmentWeight}
             canEditOrDelete={canEditOrDelete}
             isOverweight={isOverweight}
-            showIncomplete={isIncomplete}
+            showIncomplete={ppmIsIncomplete}
             isMissingWeight={isMissingWeight}
             onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType)}
             onDeleteClick={() => onDeleteClick(shipment.id)}
