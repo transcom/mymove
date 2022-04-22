@@ -6,6 +6,9 @@ set -eux -o pipefail
 # INTEGRATION TESTS START
 #
 
+# The prime-api-client is mostly deprecated, but we haven't updated
+# the mtls e2e tests with an alternative, so keep using it for now
+
 ##Integration test for Prime API
 ##Return moves from the list-moves endpoint where is_available_for_prime is true
 function prime_api_client () {
@@ -20,13 +23,18 @@ function prime_api_client () {
 
 
 # wait for 5 minutes for the server to be ready
+# don't try to parse the output with jq because
+# 1. the first attempt will also include logs of the client retrying
+# 2. it is helpful to see the raw json returned from the first request
+#    if debugging is necessary
 prime_api_client --wait 5m list-moves
+
 # now that the server is ready, actually run the tests and parse the JSON response
 
 # Integration test/health check for Prime API
 # Return moves from the list-moves endpoint where available_to_prime_at
 # is NOT NULL
-moves=$(prime_api_client --wait 5m list-moves)
+moves=$(prime_api_client list-moves)
 #Returns move IDs from the list-moves response (this would fail if API returns 500/400)
 moveID=$(echo "$moves" | jq '.[0] | .id')
 echo "$moveID"
