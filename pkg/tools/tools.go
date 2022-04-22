@@ -11,7 +11,7 @@ import (
 	// Install for hot reloading server
 	_ "github.com/codegangsta/gin"
 	// Install for managing the database
-	_ "github.com/gobuffalo/pop/v5/soda"
+	_ "github.com/gobuffalo/pop/v6/soda"
 
 	// Install for autogenerating mocks
 	_ "github.com/vektra/mockery/v2"

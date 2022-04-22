@@ -34,7 +34,6 @@ require (
 	github.com/gobuffalo/fizz v1.14.0
 	github.com/gobuffalo/flect v0.2.5
 	github.com/gobuffalo/nulls v0.4.1 // indirect
-	github.com/gobuffalo/pop/v5 v5.3.4
 	github.com/gobuffalo/validate/v3 v3.3.1
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/uuid v4.2.0+incompatible
@@ -84,6 +83,7 @@ require (
 )
 
 require (
+	github.com/gobuffalo/pop/v6 v6.0.0
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/rickar/cal/v2 v2.1.3
 	github.com/trussworks/otelhttp v0.0.0-20211201183707-a6d8db57ed9b
@@ -135,7 +135,6 @@ require (
 	github.com/gobuffalo/helpers v0.6.4 // indirect
 	github.com/gobuffalo/logger v1.0.6 // indirect
 	github.com/gobuffalo/packd v1.0.1 // indirect
-	github.com/gobuffalo/packr/v2 v2.8.0 // indirect
 	github.com/gobuffalo/plush/v4 v4.1.9 // indirect
 	github.com/gobuffalo/tags/v3 v3.1.2 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
@@ -165,7 +164,6 @@ require (
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/keybase/go-keychain v0.0.0-20190712205309-48d3d31d256d // indirect
 	github.com/kr/fs v0.1.0 // indirect
@@ -173,7 +171,6 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/markbates/errx v1.1.0 // indirect
 	github.com/markbates/oncer v1.0.0 // indirect
 	github.com/markbates/safe v1.0.1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
