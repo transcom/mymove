@@ -92,24 +92,21 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 func subScenarioPPMOnboarding(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
 		createTXO(appCtx)
+		createTXOServicesCounselor(appCtx)
 		createTXOUSMC(appCtx)
 
-		// Onboarding
-		testdatagen.MakeAccessCode(appCtx.DB(), testdatagen.Assertions{
-			AccessCode: models.AccessCode{
-				Code:     "ABC123",
-				MoveType: models.SelectedMoveTypePPM,
-			},
-		})
 		createUnSubmittedMoveWithMinimumPPMShipment(appCtx, userUploader)
 		createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 		createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
-		createUnsubmittedMoveWithFullPPMShipmentComplete1(appCtx, userUploader)
-		createUnsubmittedMoveWithFullPPMShipmentComplete2(appCtx, userUploader)
+		createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx, userUploader)
+		createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx, userUploader)
 		createSubmittedMoveWithFullPPMShipmentComplete(appCtx, userUploader)
-		createUnSubmittedMoveWithFinishedPPMShipment(appCtx, userUploader)
+		createUnSubmittedMoveWithFullPPMShipment1(appCtx, userUploader)
+		createUnSubmittedMoveWithFullPPMShipment2(appCtx, userUploader)
+		createUnSubmittedMoveWithFullPPMShipment3(appCtx, userUploader)
 		createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
+		createNeedsServicesCounselingWithoutCompletedOrders(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypePPM, nil, "SCPPM1")
 	}
 }
 

@@ -149,4 +149,7 @@ export function submitMove(actionToWaitOn) {
   cy.get('.usa-alert--success').within(() => {
     cy.contains('You’ve submitted your move request.');
   });
+
+  // ensure that shipment list doesn't have a button to edit or delete
+  cy.get('[data-testid="shipment-list-item-container"] button').should('not.exist');
 }

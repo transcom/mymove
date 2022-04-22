@@ -26,9 +26,9 @@ func TestUtilitiesSuite(t *testing.T) {
 }
 
 func (suite *UtilitiesSuite) TestSoftDestroy_NotModel() {
-	accessCodeFetcher := &mocks.AccessCodeFetcher{}
+	arbitaryFetcher := &mocks.AdminUserFetcher{}
 
-	err := utilities.SoftDestroy(suite.DB(), &accessCodeFetcher)
+	err := utilities.SoftDestroy(suite.DB(), &arbitaryFetcher)
 
 	suite.Equal("can only soft delete type model", err.Error())
 }

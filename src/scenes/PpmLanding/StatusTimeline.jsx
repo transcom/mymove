@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { filter, findLast } from 'lodash';
 
-import { displayDateRange } from 'shared/formatters';
+import { displayDateRange } from 'utils/formatters';
 import './StatusTimeline.scss';
 
 function getCurrentStatus(statuses) {

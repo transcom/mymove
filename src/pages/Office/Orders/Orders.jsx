@@ -1,10 +1,11 @@
 import React, { useEffect, useReducer } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
-import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import ordersFormValidationSchema from './ordersFormValidationSchema';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
@@ -12,7 +13,7 @@ import { getTacValid, updateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
-import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
+import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
@@ -23,23 +24,6 @@ import { LOA_TYPE } from 'shared/constants';
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
-
-const validationSchema = Yup.object({
-  originDutyLocation: Yup.object().defined('Required'),
-  newDutyLocation: Yup.object().required('Required'),
-  issueDate: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  reportByDate: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  departmentIndicator: Yup.string().required('Required'),
-  ordersNumber: Yup.string().required('Required'),
-  ordersType: Yup.string().required('Required'),
-  ordersTypeDetail: Yup.string().required('Required'),
-  tac: Yup.string().min(4, 'Enter a 4-character TAC').required('Required'),
-  sac: Yup.string(),
-});
 
 const Orders = () => {
   const history = useHistory();
@@ -180,7 +164,7 @@ const Orders = () => {
 
   return (
     <div className={styles.sidebar}>
-      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+      <Formik initialValues={initialValues} validationSchema={ordersFormValidationSchema} onSubmit={onSubmit}>
         {(formik) => {
           // onBlur, if the value has 4 digits, run validator and show warning if invalid
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;

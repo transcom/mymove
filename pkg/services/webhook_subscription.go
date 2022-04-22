@@ -16,7 +16,7 @@ type WebhookSubscriptionFetcher interface {
 // WebhookSubscriptionCreator is the exported interface for creating an admin user
 //go:generate mockery --name WebhookSubscriptionCreator --disable-version-string
 type WebhookSubscriptionCreator interface {
-	CreateWebhookSubscription(appCtx appcontext.AppContext, subscription *models.WebhookSubscription, subscriberIDFilter []QueryFilter) (*models.WebhookSubscription, *validate.Errors, error)
+	CreateWebhookSubscription(appCtx appcontext.AppContext, subscription *models.WebhookSubscription) (*models.WebhookSubscription, *validate.Errors, error)
 }
 
 //WebhookSubscriptionUpdater is the service object interface for UpdateWebhookSubscription

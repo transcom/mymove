@@ -431,6 +431,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
+		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
 		body := ghcmessages.CounselingUpdateOrderPayload{
 			IssueDate:            &dateIssued,
@@ -438,6 +440,11 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 			OriginDutyLocationID: handlers.FmtUUID(updatedOriginDutyLocation.ID),
 			OrdersType:           ghcmessages.NewOrdersType(ordersType),
 			ReportByDate:         &reportByDate,
+			DepartmentIndicator:  &deptIndicator,
+			OrdersNumber:         handlers.FmtString("ORDER100"),
+			OrdersTypeDetail:     &ordersTypeDetail,
+			Tac:                  handlers.FmtString("E19A"),
+			Sac:                  nullable.NewString("987654321"),
 		}
 
 		eTag := etag.GenerateEtag(order.UpdatedAt)
@@ -455,6 +462,44 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.Equal(time.Time(*body.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*body.ReportByDate), updatedOrder.ReportByDate)
 		suite.EqualValues(*body.OrdersType, updatedOrder.OrdersType)
+		suite.EqualValues(*body.OrdersTypeDetail, *updatedOrder.OrdersTypeDetail)
+		suite.EqualValues(body.OrdersNumber, updatedOrder.OrdersNumber)
+		suite.EqualValues(body.DepartmentIndicator, updatedOrder.DepartmentIndicator)
+		suite.EqualValues(body.Tac, updatedOrder.TAC)
+		suite.EqualValues(body.Sac.Value, updatedOrder.SAC)
+	})
+
+	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		updatedDestinationDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		updatedOriginDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		ordersType := ghcmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
+		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.CounselingUpdateOrderPayload{
+			DepartmentIndicator:  &deptIndicator,
+			IssueDate:            &dateIssued,
+			NewDutyLocationID:    handlers.FmtUUID(updatedDestinationDutyLocation.ID),
+			OriginDutyLocationID: handlers.FmtUUID(updatedOriginDutyLocation.ID),
+			OrdersNumber:         handlers.FmtString("ORDER100"),
+			OrdersType:           ghcmessages.NewOrdersType(ordersType),
+			OrdersTypeDetail:     &ordersTypeDetail,
+			ReportByDate:         &reportByDate,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
+
+		// check that we get back a validation error
+		suite.EqualError(err, fmt.Sprintf("Invalid input for ID: %s. TransportationAccountingCode cannot be blank.", order.ID))
+		suite.Nil(updatedOrder)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 }
 

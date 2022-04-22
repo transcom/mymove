@@ -63,7 +63,7 @@ func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orde
 
 	orderToUpdate := orderFromCounselingPayload(*order, payload)
 
-	return f.updateOrder(appCtx, orderToUpdate)
+	return f.updateOrder(appCtx, orderToUpdate, CheckRequiredFields())
 }
 
 // UpdateAllowanceAsTOO updates an allowance as permitted by a service counselor
@@ -287,16 +287,26 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.NewDutyLocationID = newDutyLocationID
 	}
 
+	if payload.DepartmentIndicator != nil {
+		departmentIndicator := (*string)(payload.DepartmentIndicator)
+		order.DepartmentIndicator = departmentIndicator
+	}
+
 	if payload.IssueDate != nil {
 		order.IssueDate = time.Time(*payload.IssueDate)
 	}
 
-	if payload.ReportByDate != nil {
-		order.ReportByDate = time.Time(*payload.ReportByDate)
+	if payload.OrdersNumber != nil {
+		order.OrdersNumber = payload.OrdersNumber
 	}
 
-	if payload.OrdersType != nil {
-		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
+	if payload.OrdersTypeDetail != nil {
+		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)
+		order.OrdersTypeDetail = &orderTypeDetail
+	}
+
+	if payload.ReportByDate != nil {
+		order.ReportByDate = time.Time(*payload.ReportByDate)
 	}
 
 	if payload.Sac.Present {
@@ -327,6 +337,10 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		} else {
 			order.NtsTAC = nil
 		}
+	}
+
+	if payload.OrdersType != nil {
+		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
 	}
 
 	return order

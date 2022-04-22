@@ -48,7 +48,7 @@ import {
   approveBasics,
   cancelMove,
 } from 'shared/Entities/modules/moves';
-import { formatDate } from 'shared/formatters';
+import { formatDate } from 'utils/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 const BasicsTabContent = (props) => {

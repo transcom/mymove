@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import styles from './ReviewAccountingCodes.module.scss';
 
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { toDollarString } from 'shared/formatters';
+import { toDollarString } from 'utils/formatters';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { ServiceItemCardsShape } from 'types/serviceItems';
 import { shipmentTypeLabels } from 'content/shipments';
