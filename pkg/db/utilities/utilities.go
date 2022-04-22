@@ -2,9 +2,11 @@ package utilities
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"time"
 
+	"github.com/gobuffalo/flect"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 
@@ -128,4 +130,39 @@ func GetHasManyForeignKeyAssociations(model interface{}) []interface{} {
 		}
 	}
 	return hasManyForeignKeyAssociations
+}
+
+// ExcludeDeletedScope is a chainable way to remove soft deleted models from your queries using Pop's Scope() command
+// If you are filtering the same model that is being returned you can call this with no arguments and it should give
+// you the desired behavior: db.Scope(utilities.ExcludedDeletedScope()).All(&mtoShipments).
+//
+// If you are filtering on a join table(s) or need to disambiguate multiple tables with deleted_at columns, then you
+// will need to pass in the model(s) so we can derive the real table names:
+// db.Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).
+//     Join("mto_shipments", "mto_shipments.move_id = moves.id").
+//     All(&moves)
+//
+// You won't be able to use this if you have given your table name(s) an alias, so just fall back to a normal where.
+// You also cannot combine Scopes with RawQuery, which disregards any Join, Where, Scope, or Eager that may have been
+// chained to the query.
+//
+// https://gobuffalo.io/documentation/database/scoping/
+func ExcludeDeletedScope(models ...interface{}) pop.ScopeFunc {
+	return func(q *pop.Query) *pop.Query {
+		if len(models) == 0 {
+			q.Where("deleted_at IS NULL")
+		}
+		for _, model := range models {
+			var tableName string
+			// Some models override the table name instead of the snake case pluralizing of the model name
+			if modelTable, ok := model.(pop.TableNameAble); ok {
+				tableName = modelTable.TableName()
+			} else {
+				modelType := reflect.TypeOf(model)
+				tableName = flect.Pluralize(flect.Underscore(modelType.Name()))
+			}
+			q.Where(fmt.Sprintf("%s.deleted_at IS NULL", tableName))
+		}
+		return q
+	}
 }

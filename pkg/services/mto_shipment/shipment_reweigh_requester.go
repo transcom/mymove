@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -23,7 +22,7 @@ func NewShipmentReweighRequester() services.ShipmentReweighRequester {
 
 // RequestShipmentReweigh Requests the shipment reweigh
 func (f *shipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID, requester models.ReweighRequester) (*models.Reweigh, error) {
-	shipment, err := f.findShipment(appCtx, shipmentID)
+	shipment, err := FindShipment(appCtx, shipmentID, "Reweigh")
 	if err != nil {
 		return nil, err
 	}
@@ -31,25 +30,6 @@ func (f *shipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppC
 	reweigh, err := f.createReweigh(appCtx, shipment, requester, checkReweighAllowed())
 
 	return reweigh, err
-}
-
-func (f *shipmentReweighRequester) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-
-	err := appCtx.DB().Q().
-		Eager("Reweigh").
-		Find(&shipment, shipmentID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
-	return &shipment, nil
 }
 
 func (f *shipmentReweighRequester) createReweigh(appCtx appcontext.AppContext, shipment *models.MTOShipment, requester models.ReweighRequester, checks ...validator) (*models.Reweigh, error) {
