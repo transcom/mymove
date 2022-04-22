@@ -3,9 +3,9 @@
 // on the move.  Advance requested is the last required field that would mean they're finished.
 export function isPPMShipmentComplete(mtoShipment) {
   if (mtoShipment?.ppmShipment?.advanceRequested != null) {
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
 export default isPPMShipmentComplete;

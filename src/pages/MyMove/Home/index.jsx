@@ -414,7 +414,7 @@ export class Home extends Component {
                     actionBtnDisabled={!this.hasOrders}
                     actionBtnId="shipment-selection-btn"
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-                    complete={this.hasAnyShipments}
+                    complete={this.hasPPMShipments ? this.hasCompletedPPMShipments : this.hasAnyShipments}
                     completedHeaderText="Shipments"
                     headerText="Set up shipments"
                     secondaryBtn={this.hasAnyShipments}

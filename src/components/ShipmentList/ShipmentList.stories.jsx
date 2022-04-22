@@ -86,8 +86,8 @@ WithWeightsMultiple.args = {
 };
 WithWeightsMultiple.decorators = generateDecorator('Multiple Shipments');
 
-export const WithPPMs = Template.bind({});
-WithPPMs.args = {
+export const WithPpms = Template.bind({});
+WithPpms.args = {
   shipments: [
     {
       id: '0001',
@@ -107,4 +107,4 @@ WithPPMs.args = {
     },
   ],
 };
-WithPPMs.decorators = generateDecorator('With PPM Shipments');
+WithPpms.decorators = generateDecorator('With PPM Shipments');

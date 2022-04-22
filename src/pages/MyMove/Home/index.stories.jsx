@@ -34,7 +34,6 @@ const uploadOrdersProps = {
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
   isProfileComplete: true,
-  currentPpm: {},
   orders: {},
   location: {},
   move: {
