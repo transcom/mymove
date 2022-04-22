@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
-import { formatCentsRange } from 'shared/formatters';
+import { formatCentsRange } from 'utils/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';

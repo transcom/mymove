@@ -13,7 +13,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { ServiceItemDetailsShape } from 'types/serviceItems';
-import { formatDateFromIso } from 'shared/formatters';
+import { formatDateFromIso } from 'utils/formatters';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const rejectionSchema = Yup.object().shape({

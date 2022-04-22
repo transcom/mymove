@@ -805,8 +805,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 		// on the very first sign in, a user's `CurrentMilSessionId` would be
 		// empty, which was misleading and prevented us from revoking their session.
 		newServiceMember := models.ServiceMember{
-			UserID:             user.ID,
-			RequiresAccessCode: h.Context.GetFeatureFlag(cli.FeatureFlagAccessCode),
+			UserID: user.ID,
 		}
 		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {

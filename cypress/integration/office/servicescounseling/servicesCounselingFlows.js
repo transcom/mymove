@@ -63,7 +63,7 @@ describe('Services counselor user', () => {
 
     // click submit
     cy.get('button').contains('Yes, submit').click();
-    cy.waitFor(['@patchServiceCounselingCompleted', '@getMoves']);
+    cy.wait(['@patchServiceCounselingCompleted', '@getMoves']);
 
     // verify success alert
     cy.contains('Move submitted.');

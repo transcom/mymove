@@ -1,8 +1,6 @@
 package mtoshipment
 
 import (
-	"database/sql"
-
 	"github.com/pkg/errors"
 
 	"github.com/gofrs/uuid"
@@ -86,8 +84,11 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 }
 
 func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress", "StorageFacility").Find(&shipment, shipmentID)
+	shipment, err := FindShipment(appCtx, shipmentID, "MoveTaskOrder", "PickupAddress", "DestinationAddress", "StorageFacility")
+
+	if err != nil {
+		return nil, err
+	}
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
 	// cannot eager load the address as "StorageFacility.Address" because
@@ -97,15 +98,10 @@ func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID
 	}
 
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
+		return nil, apperror.NewQueryError("MTOShipment", err, "")
 	}
 
-	return &shipment, nil
+	return shipment, nil
 }
 
 func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {

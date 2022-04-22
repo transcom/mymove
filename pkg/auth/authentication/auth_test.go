@@ -20,14 +20,12 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/alexedwards/scs/v2/memstore"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -696,12 +694,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Prepare the callback handler
 	callbackPort := 1234
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	authContext.SetFeatureFlag(
-		FeatureFlag{
-			Name:   cli.FeatureFlagAccessCode,
-			Active: *swag.Bool(true),
-		},
-	)
+
 	mockSender := setUpMockNotificationSender() // We should get an email for this activity
 	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	h := CallbackHandler{
@@ -754,15 +747,6 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Verify the service member that was created is associated with the user
 	// that was created
 	suite.Equal(foundUser.ID, serviceMember.UserID)
-
-	// Verify that the service member's RequiresAccessCode field was created
-	// and that it matches the `FEATURE_FLAG_ACCESS_CODE` env var as simulated
-	// above via `authContext.SetFeatureFlag`. Note that this only tests that
-	// if the feature flag is set in the authContext, that its value is used to
-	// set the `RequiresAccessCode` field. It does not test that the flag is
-	// set in the authContext in serve.go. For that, we need an end to end test.
-	// This is needed by the /users/logged_in endpoint.
-	suite.Equal(true, serviceMember.RequiresAccessCode)
 
 	// Verify handler redirects to landing URL
 	suite.Equal(http.StatusTemporaryRedirect, rr.Code, "handler did not redirect")

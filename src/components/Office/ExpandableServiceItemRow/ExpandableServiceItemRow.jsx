@@ -9,7 +9,8 @@ import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
 import { PaymentServiceItemShape } from 'types';
 import { MTOServiceItemShape } from 'types/order';
-import { formatCents, toDollarString } from 'shared/formatters';
+import { formatCents } from 'shared/formatters';
+import { toDollarString } from 'utils/formatters';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 
 const ExpandableServiceItemRow = ({

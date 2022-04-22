@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
+import { func } from 'prop-types';
 import classnames from 'classnames';
 import 'styles/office.scss';
 import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
@@ -24,17 +25,17 @@ import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirm
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 
-const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
+const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
   const history = useHistory();
   const [alertMessage, setAlertMessage] = useState(null);
@@ -67,6 +68,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
 
   let shipmentsInfo = [];
   let disableSubmit = false;
+  let disableSubmitDueToMissingOrderInfo = false;
   let numberOfErrorIfMissingForAllShipments = 0;
   let numberOfWarnIfMissingForAllShipments = 0;
 
@@ -81,6 +83,9 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
     errorIfMissing.HHG_SHORTHAUL_DOMESTIC = ['destinationType'];
     errorIfMissing.HHG_LONGHAUL_DOMESTIC = ['destinationType'];
   }
+
+  if (!order.department_indicator || !order.order_number || !order.order_type_detail || !order.tac)
+    disableSubmitDueToMissingOrderInfo = true;
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
@@ -166,9 +171,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
   const ordersInfo = {
     currentDutyLocation: order.originDutyLocation,
     newDutyLocation: order.destinationDutyLocation,
+    departmentIndicator: order.department_indicator,
     issuedDate: order.date_issued,
     reportByDate: order.report_by_date,
     ordersType: order.order_type,
+    ordersNumber: order.order_number,
+    ordersTypeDetail: order.order_type_detail,
     tacMDC: order.tac,
     sacSDN: order.sac,
     NTStac: order.ntsTac,
@@ -224,6 +232,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
       setAlertType('error');
     },
   });
+
+  // Keep unapproved shipment count in sync
+  useEffect(() => {
+    setUnapprovedShipmentCount(numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments);
+  }, [numberOfErrorIfMissingForAllShipments, numberOfWarnIfMissingForAllShipments, setUnapprovedShipmentCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -302,7 +315,9 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {counselorCanEdit && (
                 <Button
-                  disabled={!mtoShipments.length || allShipmentsDeleted || disableSubmit}
+                  disabled={
+                    !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
+                  }
                   type="button"
                   onClick={handleShowCancellationModal}
                 >
@@ -371,7 +386,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
                 )
               }
             >
-              <OrdersList ordersInfo={ordersInfo} showMissingWarnings={false} />
+              <OrdersList ordersInfo={ordersInfo} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">
@@ -418,6 +433,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert }) => {
 
 ServicesCounselingMoveDetails.propTypes = {
   infoSavedAlert: AlertStateShape,
+  setUnapprovedShipmentCount: func.isRequired,
 };
 
 ServicesCounselingMoveDetails.defaultProps = {

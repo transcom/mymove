@@ -385,15 +385,3 @@ export async function requestPayment(ppmId) {
     },
   );
 }
-
-export async function validateEntitlement(moveId) {
-  return makeInternalRequest(
-    'entitlements.validateEntitlement',
-    {
-      moveId,
-    },
-    {
-      normalize: false,
-    },
-  );
-}

@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"testing"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -79,6 +80,29 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 
 		suite.Equal(firstShipment.ID.String(), mtoShipments[0].ID.String())
 		suite.Equal(secondShipment.ID.String(), mtoShipments[1].ID.String())
+
+	})
+
+	suite.T().Run("Returns only non-deleted shipments", func(t *testing.T) {
+		db := appCtx.DB()
+		move := testdatagen.MakeMove(db, testdatagen.Assertions{})
+
+		testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				DeletedAt: models.TimePointer(time.Now()),
+			},
+		})
+		secondShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+			Move: move,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
+
+		suite.NoError(err, "Expected no error for a move with one deleted and one not deleted shipment")
+		suite.Len(mtoShipments, 1, "Expected a shipment list of length 1")
+
+		suite.Equal(secondShipment.ID.String(), mtoShipments[0].ID.String())
 
 	})
 

@@ -8,8 +8,8 @@ import MoveHistoryDetailsSelector from './MoveHistoryDetailsSelector';
 import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
 import { useGHCGetMoveHistory } from 'hooks/queries';
-import { formatDateFromIso } from 'shared/formatters';
-import { getHistoryLogEventNameDisplay } from 'constants/historyLogUIDisplayName';
+import { formatDateFromIso } from 'utils/formatters';
+import getMoveHistoryEventTemplate from 'constants/moveHistoryEventTemplate';
 
 const columns = [
   createHeader(
@@ -19,12 +19,10 @@ const columns = [
   ),
   createHeader(
     'Event',
-    (row) => (
-      <div className={styles.event}>
-        {getHistoryLogEventNameDisplay({ eventName: row.eventName, changedValues: row.changedValues })}
-      </div>
-    ),
-    { id: 'move-history-event' },
+    (row) => <div className={styles.event}>{getMoveHistoryEventTemplate(row).getEventNameDisplay(row)}</div>,
+    {
+      id: 'move-history-event',
+    },
   ),
   createHeader(
     'Details',

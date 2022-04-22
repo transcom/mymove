@@ -132,9 +132,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Logging
 	cli.InitLoggingFlags(flag)
 
-	// Feature Flags
-	cli.InitFeatureFlags(flag)
-
 	// pprof flags
 	cli.InitDebugFlags(flag)
 
@@ -235,10 +232,6 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	if err := cli.CheckLogging(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckFeatureFlag(v); err != nil {
 		return err
 	}
 
@@ -643,11 +636,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	handlerContext.SetGexSender(gexRequester)
 
-	// Set feature flags
-	handlerContext.SetFeatureFlag(
-		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
-	)
-
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
 	// test ICNs in Syncada.
@@ -1013,12 +1001,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
-	authContext.SetFeatureFlag(
-		authentication.FeatureFlag{
-			Name:   cli.FeatureFlagAccessCode,
-			Active: v.GetBool(cli.FeatureFlagAccessCode),
-		},
-	)
 	authMux := root.PathPrefix("/auth/").Subrouter()
 	authMux.Use(middleware.NoCache(logger))
 	authMux.Use(otelmux.Middleware("auth"))

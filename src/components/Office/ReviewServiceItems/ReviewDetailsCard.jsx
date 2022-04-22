@@ -5,7 +5,7 @@ import styles from './ReviewDetailsCard.module.scss';
 import PaymentReviewed from './PaymentReviewed';
 import ReviewAccountingCodes from './ReviewAccountingCodes';
 
-import { toDollarString } from 'shared/formatters';
+import { toDollarString } from 'utils/formatters';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { ServiceItemCardsShape } from 'types/serviceItems';
 
