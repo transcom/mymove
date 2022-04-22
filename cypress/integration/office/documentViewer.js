@@ -62,36 +62,6 @@ describe('The document viewer', function () {
       cy.get('button.submit', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
     });
 
-    it('can edit an uploaded weight ticket set', () => {
-      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-testid="doc-link"]')
-        .find('a')
-        .contains('Weight ticket document')
-        .should('have.attr', 'href')
-        .then((href) => {
-          cy.patientVisit(href);
-        });
-      cy.contains('Details').click();
-
-      cy.contains('Edit').click();
-
-      cy.get('select[name="moveDocument.weight_ticket_set_type"]').select('CAR');
-      cy.get('input[name="moveDocument.vehicle_make"]').type('Herbie');
-      cy.get('input[name="moveDocument.vehicle_model"]').type('Hotrod');
-      cy.get('input[name="moveDocument.empty_weight"]').type('1000');
-      cy.get('input[name="moveDocument.full_weight"]').type('2000');
-
-      cy.get('select[name="moveDocument.status"]').select('OK');
-
-      cy.get('button').contains('Save').should('not.be.disabled').click();
-
-      cy.contains('Car');
-      cy.contains('Herbie');
-      cy.contains('Hotrod');
-      cy.contains('1,000');
-      cy.contains('2,000');
-    });
-
     it('shows the newly uploaded document in the document list tab', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('All Documents (2)');

@@ -12,7 +12,7 @@ import { DropdownInput } from 'components/form/fields/DropdownInput';
 import { DutyLocationInput } from 'components/form/fields/DutyLocationInput';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { dropdownInputOptions } from 'shared/formatters';
+import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
 

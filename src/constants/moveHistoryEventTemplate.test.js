@@ -9,6 +9,7 @@ const {
   updateServiceItemStatusEvent,
   acknowledgeExcessWeightRiskEvent,
   createStandardServiceItemEvent,
+  createBasicServiceItemEvent,
 } = require('./moveHistoryEventTemplate');
 
 describe('moveHistoryEventTemplate', () => {
@@ -65,6 +66,23 @@ describe('moveHistoryEventTemplate', () => {
     it('correctly matches the Submitted orders event', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(createOrdersEvent);
+    });
+  });
+
+  describe('when given a Create basic service item history record', () => {
+    const item = {
+      action: 'INSERT',
+      context: {
+        name: 'Domestic linehaul',
+      },
+      eventName: 'updateMoveTaskOrderStatus',
+      tableName: 'mto_service_items',
+    };
+    it('correctly matches the Create basic service item event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(createBasicServiceItemEvent);
+      expect(result.getEventNameDisplay(result)).toEqual('Approved service item');
+      expect(result.getDetailsPlainText(item)).toEqual('Domestic linehaul');
     });
   });
 
