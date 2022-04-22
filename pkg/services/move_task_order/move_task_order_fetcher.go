@@ -122,8 +122,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		filteredShipments = models.MTOShipments{}
 	}
 	for i, shipment := range mto.MTOShipments {
-		// Skip any shipments that use an external vendor (if requested)
-		if searchParams.ExcludeExternalShipments && shipment.UsesExternalVendor {
+		// Skip any shipments that are deleted or use an external vendor (if requested)
+		if shipment.DeletedAt != nil || (searchParams.ExcludeExternalShipments && shipment.UsesExternalVendor) {
 			continue
 		}
 

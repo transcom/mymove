@@ -374,11 +374,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
 		})
 	}
-	if api.EntitlementsValidateEntitlementHandler == nil {
-		api.EntitlementsValidateEntitlementHandler = entitlements.ValidateEntitlementHandlerFunc(func(params entitlements.ValidateEntitlementParams) middleware.Responder {
-			return middleware.NotImplemented("operation entitlements.ValidateEntitlement has not yet been implemented")
-		})
-	}
 	if api.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		api.PostalCodesValidatePostalCodeWithRateDataHandler = postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")

@@ -3997,11 +3997,7 @@ func init() {
         "moveTaskOrderID",
         "reServiceID",
         "reServiceCode",
-        "reServiceName",
-        "mtoShipmentID",
-        "reason",
-        "pickupPostalCode",
-        "description"
+        "reServiceName"
       ],
       "properties": {
         "SITPostalCode": {
@@ -4026,7 +4022,8 @@ func init() {
           "format": "date"
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "dimensions": {
           "$ref": "#/definitions/MTOServiceItemDimensions"
@@ -4063,10 +4060,12 @@ func init() {
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupPostalCode": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "quantity": {
           "type": "integer"
@@ -4086,7 +4085,8 @@ func init() {
           "type": "string"
         },
         "reason": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "rejectedAt": {
           "type": "string",
@@ -4574,9 +4574,12 @@ func init() {
           "x-nullable": true
         },
         "context": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
           },
           "x-nullable": true
         },
@@ -10986,11 +10989,7 @@ func init() {
         "moveTaskOrderID",
         "reServiceID",
         "reServiceCode",
-        "reServiceName",
-        "mtoShipmentID",
-        "reason",
-        "pickupPostalCode",
-        "description"
+        "reServiceName"
       ],
       "properties": {
         "SITPostalCode": {
@@ -11015,7 +11014,8 @@ func init() {
           "format": "date"
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "dimensions": {
           "$ref": "#/definitions/MTOServiceItemDimensions"
@@ -11052,10 +11052,12 @@ func init() {
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupPostalCode": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "quantity": {
           "type": "integer"
@@ -11075,7 +11077,8 @@ func init() {
           "type": "string"
         },
         "reason": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "rejectedAt": {
           "type": "string",
@@ -11563,9 +11566,12 @@ func init() {
           "x-nullable": true
         },
         "context": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
           },
           "x-nullable": true
         },

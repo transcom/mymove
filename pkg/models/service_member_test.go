@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -202,7 +203,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		ServiceMemberID: serviceMember.ID,
 	}
 
-	actualOrder, err := serviceMember.FetchLatestOrder(session, suite.DB())
+	actualOrder, err := FetchLatestOrder(session, suite.DB())
 
 	if suite.NoError(err) {
 		suite.Equal(order.Grade, actualOrder.Grade)
@@ -223,4 +224,67 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 	if suite.Error(err) {
 		suite.Equal(ErrFetchNotFound, err)
 	}
+
+	suite.T().Run("successfully returns orders without any existing uploads", func(t *testing.T) {
+		expectedOrder := testdatagen.MakeOrderWithoutUpload(suite.DB(), testdatagen.Assertions{})
+
+		userSession := auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          expectedOrder.ServiceMember.ID,
+			ServiceMemberID: expectedOrder.ServiceMemberID,
+		}
+
+		actualOrder, err = FetchLatestOrder(&userSession, suite.DB())
+
+		suite.NoError(err)
+		suite.Equal(expectedOrder.ID, actualOrder.ID)
+		suite.Len(actualOrder.UploadedOrders.UserUploads, 0)
+	})
+
+	suite.T().Run("successfully returns non deleted orders and amended orders uploads", func(t *testing.T) {
+		nonDeletedOrdersUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: UserUpload{
+				Document:  nonDeletedOrdersUpload.Document,
+				DeletedAt: TimePointer(time.Now()),
+			},
+		})
+
+		nonDeletedAmendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: UserUpload{
+				UploaderID: nonDeletedOrdersUpload.Document.ServiceMember.UserID,
+			},
+		})
+		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: UserUpload{
+				Document:  nonDeletedAmendedUpload.Document,
+				DeletedAt: TimePointer(time.Now()),
+			},
+		})
+
+		expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: Order{
+				ServiceMember:           nonDeletedOrdersUpload.Document.ServiceMember,
+				ServiceMemberID:         nonDeletedOrdersUpload.Document.ServiceMemberID,
+				UploadedOrders:          nonDeletedOrdersUpload.Document,
+				UploadedOrdersID:        *nonDeletedOrdersUpload.DocumentID,
+				UploadedAmendedOrders:   &nonDeletedAmendedUpload.Document,
+				UploadedAmendedOrdersID: nonDeletedAmendedUpload.DocumentID,
+			},
+		})
+
+		userSession := auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          expectedOrder.ServiceMember.ID,
+			ServiceMemberID: expectedOrder.ServiceMemberID,
+		}
+
+		actualOrder, err = FetchLatestOrder(&userSession, suite.DB())
+
+		suite.NoError(err)
+		suite.Len(actualOrder.UploadedOrders.UserUploads, 1)
+		suite.Equal(actualOrder.UploadedOrders.UserUploads[0].ID, nonDeletedOrdersUpload.ID)
+		suite.Len(actualOrder.UploadedAmendedOrders.UserUploads, 1)
+		suite.Equal(actualOrder.UploadedAmendedOrders.UserUploads[0].ID, nonDeletedAmendedUpload.ID)
+	})
 }

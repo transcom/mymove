@@ -17,7 +17,7 @@ import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { counselingUpdateAllowance } from 'services/ghcApi';
-import { dropdownInputOptions } from 'shared/formatters';
+import { dropdownInputOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 

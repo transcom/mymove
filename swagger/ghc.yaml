@@ -2562,9 +2562,11 @@ definitions:
         pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         x-nullable: true
       context:
-        type: object
-        additionalProperties:
-          type: string
+        type: array
+        items:
+          type: object
+          additionalProperties:
+            type: string
         x-nullable: true
       contextId:
         description: id column for the context table the record belongs to
@@ -4016,10 +4018,6 @@ definitions:
       - reServiceID
       - reServiceCode
       - reServiceName
-      - mtoShipmentID
-      - reason
-      - pickupPostalCode
-      - description
     properties:
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -4029,6 +4027,7 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        x-nullable: true
       reServiceID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -4047,15 +4046,18 @@ definitions:
         type: string
       description:
         type: string
+        x-nullable: true
       dimensions:
         $ref: '#/definitions/MTOServiceItemDimensions'
       reason:
         type: string
+        x-nullable: true
       rejectionReason:
         type: string
         x-nullable: true
       pickupPostalCode:
         type: string
+        x-nullable: true
       SITPostalCode:
         type: string
         readOnly: true
