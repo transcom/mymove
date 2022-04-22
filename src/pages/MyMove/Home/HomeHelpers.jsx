@@ -63,7 +63,7 @@ export const HelperSubmittedMove = () => (
     <div>
       <p>
         <strong>
-          We recommend visiting &nbsp;
+          We recommend visiting&nbsp;
           <ExternalLink
             variant="external"
             target="_blank"
