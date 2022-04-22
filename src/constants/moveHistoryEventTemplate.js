@@ -72,9 +72,9 @@ export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
 });
 
 export const approveShipmentEvent = buildMoveHistoryEventTemplate({
-  action: '*',
+  action: 'UPDATE',
   eventName: moveHistoryOperations.approveShipment,
-  tableName: '*',
+  tableName: 'mto_shipments',
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Approved shipment',
   getDetailsPlainText: (historyRecord) => {
@@ -109,6 +109,17 @@ export const createOrdersEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Submitted orders',
   getDetailsPlainText: () => '-',
+});
+
+export const createStandardServiceItemEvent = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.approveShipment,
+  tableName: 'mto_service_items',
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: () => 'Approved service item',
+  getDetailsPlainText: (historyRecord) => {
+    return `${shipmentTypes[historyRecord.context?.shipment_type]} shipment, ${historyRecord.context?.name}`;
+  },
 });
 
 export const requestShipmentCancellationEvent = buildMoveHistoryEventTemplate({
@@ -181,7 +192,7 @@ export const updateMoveTaskOrderStatusEvent = buildMoveHistoryEventTemplate({
 });
 
 export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
-  action: '*',
+  action: 'UPDATE',
   eventName: moveHistoryOperations.updateServiceItemStatus,
   tableName: 'mto_service_items',
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -228,6 +239,7 @@ const allMoveHistoryEventTemplates = [
   approveShipmentDiversionEvent,
   createMTOShipmentEvent,
   createOrdersEvent,
+  createStandardServiceItemEvent,
   requestShipmentCancellationEvent,
   requestShipmentDiversionEvent,
   setFinancialReviewFlagEvent,
