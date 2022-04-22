@@ -87,16 +87,16 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/rickar/cal/v2 v2.1.3
 	github.com/trussworks/otelhttp v0.0.0-20211201183707-a6d8db57ed9b
-	go.opentelemetry.io/contrib/detectors/aws/ecs v1.5.0
+	go.opentelemetry.io/contrib/detectors/aws/ecs v1.6.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.31.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.30.0
-	go.opentelemetry.io/contrib/propagators/aws v1.5.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.31.0
+	go.opentelemetry.io/contrib/propagators/aws v1.6.0
 	go.opentelemetry.io/otel v1.6.3
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.29.0
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.27.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.5.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.5.0
-	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.27.0
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.29.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.6.3
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.6.3
+	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.29.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.6.3
 	go.opentelemetry.io/otel/metric v0.29.0
 	go.opentelemetry.io/otel/sdk v1.6.3
