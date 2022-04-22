@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/go-openapi/swag"
@@ -149,13 +151,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
 
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
-		"MTOShipments.MTOAgents",
-		"MTOShipments.PickupAddress",
-		"MTOShipments.SecondaryPickupAddress",
-		"MTOShipments.DestinationAddress",
-		"MTOShipments.SecondaryDeliveryAddress",
-		"MTOShipments.PPMShipment",
+	err := db.Q().Eager(
 		"SignedCertifications",
 		"Orders.ServiceMember",
 		"Orders.UploadedAmendedOrders",
@@ -169,6 +165,20 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
+
+	var shipments MTOShipments
+	err = db.Q().Scope(utilities.ExcludeDeletedScope()).Eager("MTOAgents",
+		"PickupAddress",
+		"SecondaryPickupAddress",
+		"DestinationAddress",
+		"SecondaryDeliveryAddress",
+		"PPMShipment").Where("mto_shipments.move_id = ?", move.ID).All(&shipments)
+
+	if err != nil {
+		return nil, err
+	}
+
+	move.MTOShipments = shipments
 
 	// Eager loading of nested has_many associations is broken
 	for i, moveDoc := range move.MoveDocuments {

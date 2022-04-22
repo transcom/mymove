@@ -725,7 +725,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appconte
 			ID:                 testdatagen.ConvertUUIDStringToUUID("65eea403-89ac-4c2d-9b1c-0dcc8805258f"),
 			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
 			HasProGear:         models.BoolPointer(false),
-			EstimatedIncentive: models.Int32Pointer(int32(10000)),
+			EstimatedIncentive: models.Int32Pointer(int32(1000000)),
 		},
 	}
 

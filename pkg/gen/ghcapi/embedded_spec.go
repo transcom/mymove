@@ -4574,9 +4574,12 @@ func init() {
           "x-nullable": true
         },
         "context": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
           },
           "x-nullable": true
         },
@@ -11563,9 +11566,12 @@ func init() {
           "x-nullable": true
         },
         "context": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
           },
           "x-nullable": true
         },

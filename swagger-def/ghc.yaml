@@ -2463,9 +2463,11 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
       context:
-        type: object
-        additionalProperties:
-          type: string
+        type: array
+        items:
+          type: object
+          additionalProperties:
+            type: string
         x-nullable: true
       contextId:
         description: id column for the context table the record belongs to

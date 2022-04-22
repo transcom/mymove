@@ -111,6 +111,17 @@ export const createOrdersEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
+export const createBasicServiceItemEvent = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.updateMoveTaskOrderStatus,
+  tableName: 'mto_service_items',
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: () => 'Approved service item',
+  getDetailsPlainText: (historyRecord) => {
+    return `${historyRecord.context?.name}`;
+  },
+});
+
 export const createStandardServiceItemEvent = buildMoveHistoryEventTemplate({
   action: 'INSERT',
   eventName: moveHistoryOperations.approveShipment,
@@ -118,7 +129,7 @@ export const createStandardServiceItemEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Approved service item',
   getDetailsPlainText: (historyRecord) => {
-    return `${shipmentTypes[historyRecord.context?.shipment_type]} shipment, ${historyRecord.context?.name}`;
+    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, ${historyRecord.context[0]?.name}`;
   },
 });
 
@@ -207,7 +218,7 @@ export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
     }
   },
   getDetailsPlainText: (historyRecord) => {
-    return `${shipmentTypes[historyRecord.context?.shipment_type]} shipment, ${historyRecord.context?.name}`;
+    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, ${historyRecord.context[0]?.name}`;
   },
 });
 
@@ -239,6 +250,7 @@ const allMoveHistoryEventTemplates = [
   approveShipmentDiversionEvent,
   createMTOShipmentEvent,
   createOrdersEvent,
+  createBasicServiceItemEvent,
   createStandardServiceItemEvent,
   requestShipmentCancellationEvent,
   requestShipmentDiversionEvent,
