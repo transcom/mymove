@@ -124,7 +124,7 @@ export class Home extends Component {
     return mtoShipments?.some((shipment) => shipment.ppmShipment);
   }
 
-  get hasCompletedPPMShipments() {
+  get hasAllCompletedPPMShipments() {
     const { mtoShipments } = this.props;
     return mtoShipments?.filter((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM)?.every((s) => isPPMShipmentComplete(s));
   }
@@ -414,7 +414,7 @@ export class Home extends Component {
                     actionBtnDisabled={!this.hasOrders}
                     actionBtnId="shipment-selection-btn"
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-                    complete={this.hasPPMShipments ? this.hasCompletedPPMShipments : this.hasAnyShipments}
+                    complete={this.hasPPMShipments ? this.hasAllCompletedPPMShipments : this.hasAnyShipments}
                     completedHeaderText="Shipments"
                     headerText="Set up shipments"
                     secondaryBtn={this.hasAnyShipments}
@@ -442,7 +442,7 @@ export class Home extends Component {
                     )}
                   </Step>
                   <Step
-                    actionBtnDisabled={this.hasPPMShipments ? !this.hasCompletedPPMShipments : !this.hasAnyShipments}
+                    actionBtnDisabled={this.hasPPMShipments ? !this.hasAllCompletedPPMShipments : !this.hasAnyShipments}
                     actionBtnId="review-and-submit-btn"
                     actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review your request'}
                     complete={this.hasSubmittedMove}
