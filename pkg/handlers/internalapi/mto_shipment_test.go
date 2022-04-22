@@ -1018,7 +1018,8 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.Equal(expectedShipment.PPMShipment.HasProGear, returnedShipment.PpmShipment.HasProGear)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.ProGearWeight, returnedShipment.PpmShipment.ProGearWeight)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.SpouseProGearWeight, returnedShipment.PpmShipment.SpouseProGearWeight)
-				suite.EqualInt32Int64Pointers(expectedShipment.PPMShipment.EstimatedIncentive, returnedShipment.PpmShipment.EstimatedIncentive)
+				//suite.EqualInt32Int64Pointers(expectedShipment.PPMShipment.EstimatedIncentive, returnedShipment.PpmShipment.EstimatedIncentive)
+				suite.Equal(expectedShipment.PPMShipment.EstimatedIncentive, returnedShipment.PpmShipment.EstimatedIncentive)
 				if expectedShipment.PPMShipment.Advance != nil {
 					suite.Equal(expectedShipment.PPMShipment.Advance.Int64(), *returnedShipment.PpmShipment.Advance)
 				} else {

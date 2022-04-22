@@ -100,8 +100,8 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 	}
 
 	if ppmShipment.EstimatedIncentive != nil {
-		int64EstimatedIncentive := int64(*ppmShipment.EstimatedIncentive)
-		payloadPPMShipment.EstimatedIncentive = &int64EstimatedIncentive
+		centEstimatedIncentive := handlers.FmtCost(ppmShipment.EstimatedIncentive)
+		payloadPPMShipment.EstimatedIncentive = centEstimatedIncentive
 	}
 
 	return payloadPPMShipment

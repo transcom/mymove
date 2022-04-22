@@ -725,7 +725,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appconte
 			ID:                 testdatagen.ConvertUUIDStringToUUID("65eea403-89ac-4c2d-9b1c-0dcc8805258f"),
 			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
 			HasProGear:         models.BoolPointer(false),
-			EstimatedIncentive: models.Int32Pointer(int32(10000)),
+			EstimatedIncentive: models.CentPointer(unit.Cents(10000)),
 		},
 	}
 
@@ -752,7 +752,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 			ID:                 testdatagen.ConvertUUIDStringToUUID("9160a396-9b60-41c2-af7a-aa03d5002c71"),
 			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
 			HasProGear:         models.BoolPointer(false),
-			EstimatedIncentive: models.Int32Pointer(int32(10000000)),
+			EstimatedIncentive: models.CentPointer(unit.Cents(10000000)),
 			Advance:            models.CentPointer(unit.Cents(30000)),
 			AdvanceRequested:   models.BoolPointer(true),
 		},

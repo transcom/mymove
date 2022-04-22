@@ -3,6 +3,8 @@ package payloads
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -134,7 +136,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	}
 
 	// Temporarily hard code this value, until we determine this
-	estimatedIncentive := int32(1000000)
+	estimatedIncentive := unit.Cents(1000000)
 
 	ppmModel := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
