@@ -101,6 +101,15 @@ describe('Home component', () => {
       { id: '4323', createdAt: moment().add(2, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
       { id: '4324', createdAt: moment().add(3, 'days'), shipmentType: SHIPMENT_OPTIONS.NTS },
       { id: '4325', createdAt: moment().add(4, 'days'), shipmentType: SHIPMENT_OPTIONS.NTSR },
+      {
+        id: '4327',
+        createdAt: moment().add(5, 'days'),
+        shipmentType: SHIPMENT_OPTIONS.PPM,
+        ppmShipment: {
+          id: '0001',
+          advanceRequested: null,
+        },
+      },
     ];
 
     const wrapper = mountHomeWithProviders({
@@ -111,12 +120,13 @@ describe('Home component', () => {
     });
 
     it('contains ppm and hhg cards if those shipments exist', () => {
-      expect(wrapper.find('ShipmentListItem').length).toBe(5);
+      expect(wrapper.find('ShipmentListItem').length).toBe(6);
       expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('HHG 1');
       expect(wrapper.find('ShipmentListItem').at(1).text()).toContain('PPM');
       expect(wrapper.find('ShipmentListItem').at(2).text()).toContain('HHG 2');
       expect(wrapper.find('ShipmentListItem').at(3).text()).toContain('NTS');
       expect(wrapper.find('ShipmentListItem').at(4).text()).toContain('NTS-release');
+      expect(wrapper.find('ShipmentListItem').at(5).text()).toContain('PPM 2');
     });
 
     it('handles edit click to edit hhg shipment route', () => {
@@ -161,6 +171,64 @@ describe('Home component', () => {
       wrapper.find('ShipmentListItem').at(4).find('button').at(1).simulate('click');
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSRShipmentPath);
+    });
+  });
+
+  describe('if the user has complete PPMs', () => {
+    const completePPMShipment = [
+      {
+        id: '4327',
+        createdAt: moment().add(5, 'days'),
+        shipmentType: SHIPMENT_OPTIONS.PPM,
+        ppmShipment: {
+          id: '0001',
+          advanceRequested: true,
+        },
+      },
+    ];
+
+    const wrapper = mountHomeWithProviders({
+      orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Location' } },
+      uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
+      mtoShipments: completePPMShipment,
+      move: { id: 'testMoveId', status: 'DRAFT' },
+    });
+
+    it('does not display incomplete for a complete PPM', () => {
+      expect(wrapper.find('ShipmentListItem').at(0)).not.toContain('Incomplete');
+    });
+
+    it('does not disable the review and submit button', () => {
+      expect(wrapper.find('button[data-testid="review-and-submit-btn"]').prop('disabled')).toBe(false);
+    });
+  });
+
+  describe('if the user has incomplete PPMs', () => {
+    const incompletePPMShipment = [
+      {
+        id: '4327',
+        createdAt: moment().add(5, 'days'),
+        shipmentType: SHIPMENT_OPTIONS.PPM,
+        ppmShipment: {
+          id: '0001',
+          advanceRequested: null,
+        },
+      },
+    ];
+
+    const wrapper = mountHomeWithProviders({
+      orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Location' } },
+      uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
+      mtoShipments: incompletePPMShipment,
+      move: { id: 'testMoveId', status: 'DRAFT' },
+    });
+
+    it('displays incomplete for an incomplete PPM', () => {
+      expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('Incomplete');
+    });
+
+    it('disables the review and submit button', () => {
+      expect(wrapper.find('button[data-testid="review-and-submit-btn"]').prop('disabled')).toBe(true);
     });
   });
 
@@ -452,4 +520,3 @@ describe('Home component', () => {
     });
   });
 });
-// expect(screen.getByRole('button', { name: /^Review and submit /i })).to.be.disabled();
