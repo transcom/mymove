@@ -31,7 +31,7 @@ references:
   dp3-branch: &dp3-branch mb-11923-clean-dp3-docker
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
-  dp3-env: &dp3-env exp
+  dp3-env: &dp3-env demo
 
   # set acceptance-branch to the branch you want to ENABLE acceptance
   # tests, or `placeholder_branch_name` if you don't want to run them
