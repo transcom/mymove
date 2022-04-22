@@ -500,7 +500,6 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 
 		suite.Run("failure estimatedWeight cannot be nil", func() {
 			shipmentID := uuid.Must(uuid.NewV4())
-			estimatedWeight := unit.Pound(4000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:      shipmentID,
@@ -509,11 +508,11 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 
 			newPPMShipment := models.PPMShipment{
 				ShipmentID:      shipmentID,
-				EstimatedWeight: &estimatedWeight,
+				EstimatedWeight: nil,
 			}
 
 			err := checkEstimatedWeight().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
-			suite.Error(err)
+			suite.Equal("cannot be empty", err.Error())
 		})
 	})
 }
