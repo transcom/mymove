@@ -1,6 +1,8 @@
 package mtoshipment
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -75,6 +77,28 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 
 		suite.Equal(firstShipment.ID.String(), mtoShipments[0].ID.String())
 		suite.Equal(secondShipment.ID.String(), mtoShipments[1].ID.String())
+
+	})
+
+	suite.Run("Returns only non-deleted shipments", func() {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				DeletedAt: models.TimePointer(time.Now()),
+			},
+		})
+		secondShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
+
+		suite.NoError(err, "Expected no error for a move with one deleted and one not deleted shipment")
+		suite.Len(mtoShipments, 1, "Expected a shipment list of length 1")
+
+		suite.Equal(secondShipment.ID.String(), mtoShipments[0].ID.String())
 
 	})
 

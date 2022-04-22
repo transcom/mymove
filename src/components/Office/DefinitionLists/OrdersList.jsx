@@ -6,9 +6,13 @@ import styles from './OfficeDefinitionLists.module.scss';
 
 import { OrdersInfoShape } from 'types/order';
 import { formatDate } from 'shared/dates';
-import { departmentIndicatorReadable, ordersTypeReadable, ordersTypeDetailReadable } from 'shared/formatters';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-import { formatLabelReportByDate } from 'utils/formatters';
+import {
+  formatLabelReportByDate,
+  departmentIndicatorReadable,
+  ordersTypeReadable,
+  ordersTypeDetailReadable,
+} from 'utils/formatters';
 
 const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
   const { ordersType } = ordersInfo;
@@ -105,9 +109,13 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
   );
 };
 
+OrdersList.defaultProps = {
+  showMissingWarnings: true,
+};
+
 OrdersList.propTypes = {
   ordersInfo: OrdersInfoShape.isRequired,
-  showMissingWarnings: PropTypes.bool.isRequired,
+  showMissingWarnings: PropTypes.bool,
 };
 
 export default OrdersList;

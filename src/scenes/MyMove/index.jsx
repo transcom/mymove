@@ -55,7 +55,6 @@ import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipme
 import Home from 'pages/MyMove/Home';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
-const AccessCode = lazy(() => import('shared/User/AccessCode'));
 const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
 const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
 const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
@@ -140,7 +139,6 @@ export class CustomerApp extends Component {
                 <Switch>
                   {/* no auth */}
                   <Route path={generalRoutes.SIGN_IN_PATH} component={SignIn} />
-                  <Route path={customerRoutes.ACCESS_CODE_PATH} component={AccessCode} />
                   <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} component={PrivacyPolicyStatement} />
                   <Route path={generalRoutes.ACCESSIBILITY_PATH} component={AccessibilityStatement} />
 

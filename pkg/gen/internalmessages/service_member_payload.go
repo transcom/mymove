@@ -83,10 +83,6 @@ type ServiceMemberPayload struct {
 	// Rank
 	Rank *ServiceMemberRank `json:"rank,omitempty"`
 
-	// Requires Access Code
-	// Required: true
-	RequiresAccessCode bool `json:"requires_access_code"`
-
 	// Residential Address
 	ResidentialAddress *Address `json:"residential_address,omitempty"`
 
@@ -164,10 +160,6 @@ func (m *ServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRank(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRequiresAccessCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -382,15 +374,6 @@ func (m *ServiceMemberPayload) validateRank(formats strfmt.Registry) error {
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *ServiceMemberPayload) validateRequiresAccessCode(formats strfmt.Registry) error {
-
-	if err := validate.Required("requires_access_code", "body", bool(m.RequiresAccessCode)); err != nil {
-		return err
 	}
 
 	return nil

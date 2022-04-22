@@ -368,7 +368,7 @@ const MoveDetails = ({
                 </Link>
               }
             >
-              <OrdersList ordersInfo={ordersInfo} showMissingWarnings />
+              <OrdersList ordersInfo={ordersInfo} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">

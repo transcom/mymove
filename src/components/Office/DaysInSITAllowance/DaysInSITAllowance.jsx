@@ -6,8 +6,7 @@ import { ShipmentPaymentSITBalanceShape } from '../../../types/serviceItems';
 
 import styles from './DaysInSITAllowance.module.scss';
 
-import { formatDate } from 'shared/formatters';
-import { formatDaysInTransit } from 'utils/formatters';
+import { formatDate, formatDaysInTransit } from 'utils/formatters';
 
 const DaysInSITAllowance = ({ className, shipmentPaymentSITBalance }) => {
   const {

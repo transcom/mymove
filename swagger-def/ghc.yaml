@@ -2698,6 +2698,16 @@ definitions:
         title: Report-by date
       ordersType:
         $ref: '#/definitions/OrdersType'
+      ordersTypeDetail:
+        $ref: '#/definitions/OrdersTypeDetail'
+      ordersNumber:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: '030-00362'
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+        x-nullable: true
       originDutyLocationId:
         type: string
         format: uuid

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/getlantern/deepcopy"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -258,18 +260,20 @@ func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.Ap
 func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 
-	err := appCtx.DB().EagerPreload(
-		"MoveTaskOrder",
-		"PickupAddress",
-		"DestinationAddress",
-		"SecondaryPickupAddress",
-		"SecondaryDeliveryAddress",
-		"MTOAgents",
-		"SITExtensions",
-		"MTOServiceItems.ReService",
-		"MTOServiceItems.Dimensions",
-		"MTOServiceItems.CustomerContacts",
-		"StorageFacility.Address").Find(&shipment, mtoShipmentID)
+	err := appCtx.DB().
+		Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"MoveTaskOrder",
+			"PickupAddress",
+			"DestinationAddress",
+			"SecondaryPickupAddress",
+			"SecondaryDeliveryAddress",
+			"MTOAgents",
+			"SITExtensions",
+			"MTOServiceItems.ReService",
+			"MTOServiceItems.Dimensions",
+			"MTOServiceItems.CustomerContacts",
+			"StorageFacility.Address").Find(&shipment, mtoShipmentID)
 
 	if err != nil {
 		switch err {

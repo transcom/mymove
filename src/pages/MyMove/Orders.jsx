@@ -19,10 +19,9 @@ import {
 import { withContext } from 'shared/AppContext';
 import { formatDateForSwagger } from 'shared/dates';
 import { OrdersShape } from 'types/customerShapes';
-import { formatYesNoInputValue, formatYesNoAPIValue } from 'utils/formatters';
+import { formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import { dropdownInputOptions } from 'shared/formatters';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 import { DutyLocationShape } from 'types';
 import { customerRoutes, generalRoutes } from 'constants/routes';

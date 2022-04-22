@@ -13,7 +13,7 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { DropdownInput } from 'components/form/fields';
 import { sitExtensionReasons } from 'constants/sitExtensions';
-import { dropdownInputOptions } from 'shared/formatters';
+import { dropdownInputOptions } from 'utils/formatters';
 
 const reviewSITExtensionSchema = Yup.object().shape({
   requestReason: Yup.string().required('Required'),

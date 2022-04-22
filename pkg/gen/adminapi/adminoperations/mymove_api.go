@@ -19,7 +19,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/access_codes"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
@@ -87,9 +86,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		WebhookSubscriptionsGetWebhookSubscriptionHandler: webhook_subscriptions.GetWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.GetWebhookSubscriptionParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook_subscriptions.GetWebhookSubscription has not yet been implemented")
-		}),
-		AccessCodesIndexAccessCodesHandler: access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
-			return middleware.NotImplemented("operation access_codes.IndexAccessCodes has not yet been implemented")
 		}),
 		AdminUsersIndexAdminUsersHandler: admin_users.IndexAdminUsersHandlerFunc(func(params admin_users.IndexAdminUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.IndexAdminUsers has not yet been implemented")
@@ -197,8 +193,6 @@ type MymoveAPI struct {
 	UsersGetUserHandler users.GetUserHandler
 	// WebhookSubscriptionsGetWebhookSubscriptionHandler sets the operation handler for the get webhook subscription operation
 	WebhookSubscriptionsGetWebhookSubscriptionHandler webhook_subscriptions.GetWebhookSubscriptionHandler
-	// AccessCodesIndexAccessCodesHandler sets the operation handler for the index access codes operation
-	AccessCodesIndexAccessCodesHandler access_codes.IndexAccessCodesHandler
 	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
 	AdminUsersIndexAdminUsersHandler admin_users.IndexAdminUsersHandler
 	// ElectronicOrderIndexElectronicOrdersHandler sets the operation handler for the index electronic orders operation
@@ -338,9 +332,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.WebhookSubscriptionsGetWebhookSubscriptionHandler == nil {
 		unregistered = append(unregistered, "webhook_subscriptions.GetWebhookSubscriptionHandler")
-	}
-	if o.AccessCodesIndexAccessCodesHandler == nil {
-		unregistered = append(unregistered, "access_codes.IndexAccessCodesHandler")
 	}
 	if o.AdminUsersIndexAdminUsersHandler == nil {
 		unregistered = append(unregistered, "admin_users.IndexAdminUsersHandler")
@@ -519,10 +510,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/webhook_subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewGetWebhookSubscription(o.context, o.WebhookSubscriptionsGetWebhookSubscriptionHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/access_codes"] = access_codes.NewIndexAccessCodes(o.context, o.AccessCodesIndexAccessCodesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
