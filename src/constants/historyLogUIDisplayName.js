@@ -12,50 +12,6 @@ export const HistoryLogRecordShape = PropTypes.shape({
   tableName: PropTypes.string,
 });
 
-/*
-export const modelToDisplayName = {
-  updatedAt: 'Updated at',
-  diversion: 'Diversion',
-  billableWeightCap: 'Billable weight cap',
-  usesExternalVendor: 'Uses external vendor',
-  requestedDeliveryDate: 'Requested delivery date',
-  scheduledPickupDate: 'Scheduled pickup date',
-  status: 'Status',
-  customerRemarks: 'Customer remarks',
-  approvedDate: 'Approved date',
-  actualPickupDate: 'Actual pickup date',
-  primeEstimatedEeight: 'Prime estimated weight',
-  counselorRemarks: 'Counselor remarks',
-  serviceOrderNumber: 'Service order number',
-  tacType: 'TAC type',
-  sacType: 'SAC type',
-};
-
-export const dbFieldsToModel = {
-  updated_at: 'updatedAt',
-  diversion: 'diversion',
-  billable_weight_cap: 'billableWeightCap',
-  uses_external_vendor: 'usesExternalVendor',
-  requested_delivery_date: 'requesteDeliveryDate',
-  scheduled_pickup_date: 'scheduledPickupDate',
-  status: 'status',
-  customer_remarks: 'customerRemarks',
-  approved_date: 'approvedDate',
-  actual_pickup_date: 'actualPickupDate',
-  prime_estimated_weight: 'primeEstimatedWeight',
-  counselor_remarks: 'counselorRemarks',
-  street_address_1: 'streetAddress1',
-  street_address_2: 'streetAddress2',
-  street_address_3: 'streetAddress3',
-  postal_code: 'postalCode',
-  city: 'city',
-  country: 'country',
-  service_order_number: 'serviceOrderNumber',
-  tac_type: 'tacType',
-  sac_type: 'sacType',
-};
-*/
-
 export const dbFieldToDisplayName = {
   updated_at: 'Updated at',
   diversion: 'Diversion',
@@ -73,7 +29,22 @@ export const dbFieldToDisplayName = {
   tac_type: 'TAC type',
   sac_type: 'SAC type',
   authorized_weight: 'Authorized weight',
+  storage_in_transit: 'Storage in transit (SIT)',
+  dependents_authorized: 'Dependents',
+  pro_gear_weight: 'Pro-gear',
+  pro_gear_weight_spouse: 'Spouse pro-gear',
+  required_medical_equipment_weight: 'RME',
+  organizational_clothing_and_individual_equipment: 'OCIE',
 };
+
+export const dbWeightFields = [
+  'billable_weight_cap',
+  'prime_estimated_weight',
+  'authorized_weight',
+  'pro_gear_weight',
+  'pro_gear_weight_spouse',
+  'required_medical_equipment_weight',
+];
 
 export const eventNamesWithLabeledDetails = {
   counselingUpdateOrder: 'Updated orders', // ghc.yaml
