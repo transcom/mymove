@@ -38,58 +38,31 @@ func NewMoveTaskOrderUpdater(builder UpdateMoveTaskOrderQueryBuilder, serviceIte
 
 // UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
 func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
-	var err error
-	var verrs *validate.Errors
-
+	// Fetch the move and associations.
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden:   false,
 		MoveTaskOrderID: moveTaskOrderID,
 	}
-	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
-	if err != nil {
-		return &models.Move{}, err
+	move, fetchErr := o.FetchMoveTaskOrder(appCtx, &searchParams)
+	if fetchErr != nil {
+		return &models.Move{}, fetchErr
 	}
 
-	if len(move.MTOShipments) == 0 {
-		return &models.Move{}, apperror.NewConflictError(move.ID, "No shipments associated with move")
-	}
-
-	ppmOnlyMove := true
-	for _, s := range move.MTOShipments {
-		if s.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && s.StorageFacilityID == nil {
-			return &models.Move{}, apperror.NewConflictError(
-				s.ID, "NTS-release shipment must include facility info")
-		}
-		if s.ShipmentType != models.MTOShipmentTypePPM {
-			ppmOnlyMove = false
-		}
-	}
-
-	// check if status is in the right state
-	// needs to be in MoveStatusNeedsServiceCounseling
-	targetState := models.MoveStatusServiceCounselingCompleted
-	if ppmOnlyMove {
-		targetState = models.MoveStatusAPPROVED
-	}
-	if move.Status != models.MoveStatusNeedsServiceCounseling {
-		err = errors.Wrap(models.ErrInvalidTransition,
-			fmt.Sprintf("Cannot move to %s state when the Move is not in a %s state for status: %s", targetState, models.MoveStatusNeedsServiceCounseling, move.Status))
-		return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
+	// Check the If-Match header against existing eTag before updating.
+	encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
+	if encodedUpdatedAt != eTag {
+		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, nil)
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		// update field for move
-		now := time.Now()
-		move.ServiceCounselingCompletedAt = &now
-		// set status to service counseling completed
-		move.Status = targetState
-
-		// Check the If-Match header against existing eTag before updating
-		encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
-		if encodedUpdatedAt != eTag {
-			return apperror.NewPreconditionFailedError(move.ID, err)
+		// Update move status, verifying that move/shipments are in expected state.
+		err := o.moveRouter.CompleteServiceCounseling(appCtx, move)
+		if err != nil {
+			return apperror.NewConflictError(move.ID, err.Error())
 		}
 
+		// Save the move.
+		var verrs *validate.Errors
 		verrs, err = appCtx.DB().ValidateAndSave(move)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(move.ID, nil, verrs, "")
@@ -98,9 +71,19 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 			return err
 		}
 
+		ppmOnlyMove := true
+		for _, s := range move.MTOShipments {
+			if s.ShipmentType != models.MTOShipmentTypePPM {
+				ppmOnlyMove = false
+				break
+			}
+		}
+
 		// If this is a PPM-only move, then we also need to adjust other statuses:
 		//   - set MTO shipment status to APPROVED
 		//   - set PPM shipment status to WAITING_ON_CUSTOMER
+		// TODO: Perhaps this could be part of the shipment router. PPMs are a separate model/table,
+		//   so would need to figure out how they factor in.
 		if ppmOnlyMove {
 			// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
 			// statuses when we return the entire move tree.

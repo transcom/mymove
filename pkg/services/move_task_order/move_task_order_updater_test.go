@@ -166,7 +166,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Contains(err.Error(), "Cannot move to")
+		suite.Contains(err.Error(), "The status for the Move")
 	})
 
 	suite.RunWithRollback("Etag is stale", func() {
