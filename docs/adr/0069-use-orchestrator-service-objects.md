@@ -45,6 +45,8 @@ Initial success would be:
 
 Long-term, we would ideally:
 
+* Expand documentation to have helpful information to help people decide when to use orchestration service objects vs
+  having service objects take other service objects as dependencies or some other method.
 * Evaluate how the existing `MTOShipment` service objects handle `MTOAgents`, `MTOServiceItems`, and shipment routing
   and see if they could/should move to using the orchestration service objects.
 * Evaluate other service objects to see if the can benefit from having a higher level orchestration service object.
