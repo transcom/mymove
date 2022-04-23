@@ -120,22 +120,22 @@ codebase that's easier to test since each service object can be isolated as need
   without worrying about other things, while the `PPMShipment` service objects would know to call the `MTOShipment`
   service objects as needed so they wouldn't need something else to coordinate the calls.
 * `+` It is easier to mock out service objects if they are separate objects than if they are all lumped into a single one.
-* `-` This puts business logic in the handlers. Ideally handlers should only focus on translating data from the protocol
-  layer to the service layer and vice-versa.
+* `-` This puts business logic and database details/transactions in the handlers. Ideally handlers should only focus on
+  translating data from the protocol layer to the service layer and vice-versa.
 
 ### Option 2: Use separate service objects and the handler orchestrates the calls
 
 * `+` Keeps service objects from getting too large since each will encapsulate the logic they need for their own work.
 * `+` It is easier to mock out service objects if they are separate objects than if they are all lumped into a single one.
-* `-` This puts business logic in the handlers. Ideally handlers should only focus on translating data from the protocol
-  layer to the service layer and vice-versa.
+* `-` This puts business logic and database details/transactions in the handlers. Ideally handlers should only focus on
+  translating data from the protocol layer to the service layer and vice-versa.
 * `-` Testing at the handler level takes more setup than testing at a service object level so testing the orchestration
   of service objects would take more work this way.
 
 ### Option 3: Update existing service objects to contain the new logic
 
-* `+` Leaves business logic out of the handlers. Ideally handlers should only focus on translating data from the
-  protocol layer to the service layer and vice-versa.
+* `+` Leaves business logic and database details/transactions out of the handlers. Ideally handlers should only focus on
+  translating data from the protocol layer to the service layer and vice-versa.
 * `-` This makes our service objects become incredibly large and hard to maintain. As it is, we already have some
   service objects, like the `MTOShipment` ones, that contain a large amount of logic and can be hard to parse through.
 * `-` Related to the point above, but finding the logic for a specific type of change, e.g. tracking how PPMs change,
@@ -144,8 +144,8 @@ codebase that's easier to test since each service object can be isolated as need
 
 ### Option 4: Have separate service objects, but the handler just calls the existing service objects. Then we update the existing service objects to call the new service objects as needed
 
-* `+` Leaves business logic out of the handlers. Ideally handlers should only focus on translating data from the
-  protocol layer to the service layer and vice-versa.
+* `+` Leaves business logic and database details/transactions out of the handlers. Ideally handlers should only focus on
+  translating data from the protocol layer to the service layer and vice-versa.
 * `+` This makes service objects work as standalone objects. E.g. the `PPMShipment` service objects can do their thing
   without worrying about other things, while the `MTOShipment` service objects would know to call the `PPMShipment`
   service objects as needed so they wouldn't need something else to coordinate the calls.
@@ -159,8 +159,8 @@ codebase that's easier to test since each service object can be isolated as need
 
 ### Option 5: Have composable service objects and create orchestrator service objects that then call the appropriate service objects
 
-* `+` Leaves business logic out of the handlers. Ideally handlers should only focus on translating data from the
-  protocol layer to the service layer and vice-versa.
+* `+` Leaves business logic and database details/transactions out of the handlers. Ideally handlers should only focus on
+  translating data from the protocol layer to the service layer and vice-versa.
 * `+` Keeps service objects from getting too large since each can focus on doing their own thing.
 * `+` The orchestration service objects could serve as a nice way of viewing all the steps needed for an action at a
   high level.
@@ -173,8 +173,8 @@ codebase that's easier to test since each service object can be isolated as need
 
 * `+` No extra work is needed right now.
 * `-` We are left with code that implements most of the options and is inconsistent even within the same service objects.
-* `-` This leaves some cases of business logic being in the handlers. Ideally handlers should only focus on translating
-  data from the protocol layer to the service layer and vice-versa.
+* `-` This leaves some cases of business logic and database details/transactions in the handlers. Ideally handlers
+  should only focus on translating data from the protocol layer to the service layer and vice-versa.
 * `-` We are left without a standard that would help guide future folks.
 
 ## Resources
