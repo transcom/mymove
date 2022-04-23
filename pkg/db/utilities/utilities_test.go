@@ -1,7 +1,10 @@
 package utilities_test
 
 import (
+	"context"
 	"testing"
+
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/stretchr/testify/suite"
 
@@ -168,4 +171,34 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 	suite.NotNil(document.DeletedAt)
 	suite.NotNil(document.UserUploads[0].DeletedAt)
 	suite.NotNil(document.UserUploads[1].DeletedAt)
+}
+
+func (suite *UtilitiesSuite) TestExcludeDeletedScope() {
+	suite.Run("successfully adds scope with no model args", func() {
+		query := suite.DB().Q().Scope(utilities.ExcludeDeletedScope())
+
+		sqlString, _ := query.ToSQL(pop.NewModel(models.MTOShipment{}, context.Background()))
+		suite.Contains(sqlString, "WHERE deleted_at IS NULL")
+	})
+
+	suite.Run("successfully adds scope with default reflection table name", func() {
+		query := suite.DB().Q().Scope(utilities.ExcludeDeletedScope(models.UserUpload{}))
+
+		sqlString, _ := query.ToSQL(pop.NewModel(models.UserUpload{}, context.Background()))
+		suite.Contains(sqlString, "WHERE user_uploads.deleted_at IS NULL")
+	})
+
+	suite.Run("successfully adds scope with overridden table name", func() {
+		query := suite.DB().Q().Scope(utilities.ExcludeDeletedScope(models.Reimbursement{}))
+
+		sqlString, _ := query.ToSQL(pop.NewModel(models.Reimbursement{}, context.Background()))
+		suite.Contains(sqlString, "WHERE archived_reimbursements.deleted_at IS NULL")
+	})
+
+	suite.Run("successfully adds scope when there are multiple models", func() {
+		query := suite.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{}, models.UserUpload{}))
+
+		sqlString, _ := query.ToSQL(pop.NewModel(models.MTOShipment{}, context.Background()))
+		suite.Contains(sqlString, "WHERE mto_shipments.deleted_at IS NULL AND user_uploads.deleted_at IS NULL")
+	})
 }

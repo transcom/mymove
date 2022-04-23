@@ -27,7 +27,7 @@ func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtension
 
 // DenySITExtension denies the SIT Extension
 func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOShipment, error) {
-	shipment, err := f.findShipment(appCtx, shipmentID)
+	shipment, err := FindShipment(appCtx, shipmentID, "MoveTaskOrder")
 	if err != nil {
 		return nil, err
 	}
@@ -51,22 +51,6 @@ func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, ship
 	// return &updatedShipment, err
 
 	return f.denySITExtension(appCtx, *shipment, *sitExtension, officeRemarks)
-}
-
-func (f *sitExtensionDenier) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&shipment, shipmentID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
-	return &shipment, nil
 }
 
 func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitExtensionID uuid.UUID) (*models.SITExtension, error) {

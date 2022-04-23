@@ -1,8 +1,6 @@
 package webhooksubscription
 
 import (
-	"database/sql"
-
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -17,22 +15,19 @@ type webhookSubscriptionCreator struct {
 }
 
 // CreateWebhookSubscription creates admin user
-func (o *webhookSubscriptionCreator) CreateWebhookSubscription(appCtx appcontext.AppContext, subscription *models.WebhookSubscription, subscriberIDFilter []services.QueryFilter) (*models.WebhookSubscription, *validate.Errors, error) {
-	var contractor models.Contractor
+func (o *webhookSubscriptionCreator) CreateWebhookSubscription(appCtx appcontext.AppContext, subscription *models.WebhookSubscription) (*models.WebhookSubscription, *validate.Errors, error) {
+	return o.createWebhookSubscription(appCtx, subscription, checkSubscriberExists(o.builder))
+}
+
+// createWebhookSubscription creates admin user
+func (o *webhookSubscriptionCreator) createWebhookSubscription(appCtx appcontext.AppContext, subscription *models.WebhookSubscription, checks ...webhookSubscriptionValidator) (*models.WebhookSubscription, *validate.Errors, error) {
 	var verrs *validate.Errors
 	var err error
 
-	// check to see if subscriber exists
-	fetchErr := o.builder.FetchOne(appCtx, &contractor, subscriberIDFilter)
-	if fetchErr != nil {
-		switch fetchErr {
-		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(subscription.SubscriberID, "while looking for SubscriberID")
-		default:
-			return nil, nil, apperror.NewQueryError("Contractor", fetchErr, "")
-		}
+	e := validateWebhookSubscription(appCtx, *subscription, checks...)
+	if e != nil {
+		return nil, nil, e
 	}
-
 	verrs, err = o.builder.CreateOne(appCtx, subscription)
 	if verrs != nil && verrs.HasAny() {
 		return nil, verrs, nil

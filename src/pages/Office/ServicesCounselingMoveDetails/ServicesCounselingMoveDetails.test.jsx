@@ -222,6 +222,7 @@ const newMoveDetailsQuery = {
     order_number: 'ORDER3',
     order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
+    department_indicator: 'ARMY',
     tac: '9999',
   },
   mtoShipments,
@@ -506,6 +507,21 @@ describe('MoveDetails page', () => {
         useMoveDetailsQueries.mockReturnValue({
           ...newMoveDetailsQuery,
           mtoShipments: deletedMtoShipments,
+        });
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
+      });
+
+      it('submit move details button is disabled when required orders information is missing', async () => {
+        useMoveDetailsQueries.mockReturnValue({
+          ...newMoveDetailsQuery,
+          order: {
+            ...newMoveDetailsQuery.order,
+            department_indicator: undefined,
+          },
         });
 
         render(mockedComponent);

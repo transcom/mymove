@@ -725,7 +725,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appconte
 			ID:                 testdatagen.ConvertUUIDStringToUUID("65eea403-89ac-4c2d-9b1c-0dcc8805258f"),
 			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
 			HasProGear:         models.BoolPointer(false),
-			EstimatedIncentive: models.Int32Pointer(int32(10000)),
+			EstimatedIncentive: models.Int32Pointer(int32(1000000)),
 		},
 	}
 
@@ -5376,9 +5376,68 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 }
 
 /*
-	Create Needs Service Counseling - pass in orders, shipment type, destination type, locator
+	Create Needs Service Counseling - pass in orders with all required information, shipment type, destination type, locator
 */
 func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
+	db := appCtx.DB()
+	submittedAt := time.Now()
+	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
+	ordersNumber := "8675309"
+	departmentIndicator := "ARMY"
+	tac := "E19A"
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: true,
+		},
+		Order: models.Order{
+			OrdersType:          ordersType,
+			OrdersTypeDetail:    &hhgPermitted,
+			OrdersNumber:        &ordersNumber,
+			DepartmentIndicator: &departmentIndicator,
+			TAC:                 &tac,
+		},
+	})
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     locator,
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: orders,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	destinationAddress := testdatagen.MakeDefaultAddress(db)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          shipmentType,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			DestinationAddressID:  &destinationAddress.ID,
+			DestinationType:       destinationType,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          shipmentType,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
+/*
+	Create Needs Service Counseling without all required order information
+*/
+func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
