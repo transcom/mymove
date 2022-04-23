@@ -6,6 +6,14 @@ why we use service objects.
 
 ## Problem statement
 
+### Service Object Background
+
+We introduced service objects in [ADR-0033 Service Object Layer](./0033-service-object-layer.md). We use them to leave
+business logic and database details/transactions out of the handlers. Ideally handlers should only focus on translating
+data from the protocol layer to the service layer and vice-versa. Service objects also allow us to more easily re-use
+business logic across the codebase as needed, including re-using service objects across handlers to keep things
+consistent across our endpoints and APIs as a whole.
+
 ### Summary
 
 There are actions that require several things to happen across related models, e.g. creating an `MTOShipment` may also
