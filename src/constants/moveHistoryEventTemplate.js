@@ -55,22 +55,6 @@ export const acknowledgeExcessWeightRiskEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => 'Dismissed excess weight alert',
 });
 
-export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
-  action: 'UPDATE',
-  eventName: moveHistoryOperations.updateBillableWeight,
-  tableName: 'entitlements',
-  detailsType: detailsTypes.LABELED,
-  getEventNameDisplay: () => 'Updated move',
-});
-
-export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
-  action: 'UPDATE',
-  eventName: moveHistoryOperations.updateAllowance,
-  tableName: 'entitlements',
-  detailsType: detailsTypes.LABELED,
-  getEventNameDisplay: () => 'Updated allowances',
-});
-
 export const approveShipmentEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.approveShipment,
@@ -179,6 +163,22 @@ export const submitMoveForApprovalEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
+export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateAllowance,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated allowances',
+});
+
+export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateBillableWeight,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated move',
+});
+
 export const updateMoveTaskOrderEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.updateMoveTaskOrder,
@@ -256,12 +256,12 @@ const allMoveHistoryEventTemplates = [
   requestShipmentDiversionEvent,
   setFinancialReviewFlagEvent,
   submitMoveForApprovalEvent,
+  updateAllowanceEvent,
+  updateBillableWeightEvent,
   updateMoveTaskOrderEvent,
   updateMoveTaskOrderStatusEvent,
   updateServiceItemStatusEvent,
   uploadAmendedOrdersEvent,
-  updateBillableWeightEvent,
-  updateAllowanceEvent,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {
