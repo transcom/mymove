@@ -61,7 +61,7 @@ const shipmentSelectionProps = {
     origin_duty_location: {
       name: 'NAS Norfolk',
     },
-    report_by_date: '25 December 2020',
+    report_by_date: '2020-12-25',
   },
   uploadedOrderDocuments: [
     {
@@ -81,7 +81,7 @@ const withShipmentProps = {
     {
       id: 'testShipment1',
       shipmentType: 'HHG',
-      createdAt: '24 December 2020',
+      createdAt: '2020-12-24',
     },
     {
       id: 'testMove',
@@ -95,7 +95,7 @@ const submittedProps = {
   move: {
     ...withShipmentProps.move,
     status: 'SUBMITTED',
-    submitted_at: '24 December 2020',
+    submitted_at: '2020-12-24',
   },
 };
 
