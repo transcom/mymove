@@ -157,7 +157,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			json_agg(json_build_object('name',
 					re_services.name,
 					'price',
-					payment_service_items.price_cents,
+					payment_service_items.price_cents::TEXT,
 					'status',
 					payment_service_items.status))::TEXT AS context,
 			payment_requests.id AS id
