@@ -10,10 +10,11 @@ import (
 )
 
 type ppmShipmentUpdater struct {
-	checks []ppmShipmentValidator
+	checks    []ppmShipmentValidator
+	estimator services.PPMEstimator
 }
 
-func NewPPMShipmentUpdater() services.PPMShipmentUpdater {
+func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator) services.PPMShipmentUpdater {
 	return &ppmShipmentUpdater{
 		checks: []ppmShipmentValidator{
 			checkShipmentType(),
@@ -22,6 +23,7 @@ func NewPPMShipmentUpdater() services.PPMShipmentUpdater {
 			checkRequiredFields(),
 			checkAdvance(),
 		},
+		estimator: ppmEstimator,
 	}
 }
 
@@ -38,9 +40,6 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 	if err != nil {
 		return nil, err
 	}
-	// if etag.GenerateEtag(oldPPMShipment.UpdatedAt) != eTag {
-	// 	return nil, apperror.NewPreconditionFailedError(ppmShipment.ID, nil)
-	// }
 
 	updatedPPMShipment := mergePPMShipment(*ppmShipment, oldPPMShipment)
 
@@ -49,6 +48,12 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, err
 	}
 
+	estimatedIncentive, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedPPMShipment.EstimatedIncentive = estimatedIncentive
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
 

@@ -5,8 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './PpmMoveDetails.module.scss';
 
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { formatCents } from 'shared/formatters';
-import { formatCentsRange } from 'utils/formatters';
+import { formatCentsRange, formatCents } from 'utils/formatters';
 import { getIncentiveRange } from 'utils/incentives';
 import { selectPPMEstimateRange, selectReimbursementById } from 'store/entities/selectors';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';

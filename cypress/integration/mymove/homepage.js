@@ -45,7 +45,7 @@ describe('The Home Page', function () {
       cy.wait('@getShipment');
 
       if (moveSubmitted) {
-        cy.get('h3').should('contain', 'Next: Talk to a move counselor');
+        cy.get('h3').should('contain', 'Next step: Your move gets approved');
       } else {
         cy.get('h3').should('contain', 'Time to submit your move');
       }

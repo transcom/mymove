@@ -312,12 +312,7 @@ type ShowServiceMemberOrdersHandler struct {
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), appCtx.Session().ServiceMemberID)
-			if err != nil {
-				return servicememberop.NewShowServiceMemberOrdersNotFound(), err
-			}
-
-			order, err := serviceMember.FetchLatestOrder(appCtx.Session(), appCtx.DB())
+			order, err := models.FetchLatestOrder(appCtx.Session(), appCtx.DB())
 			if err != nil {
 				return servicememberop.NewShowServiceMemberOrdersNotFound(), err
 			}

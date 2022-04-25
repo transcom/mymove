@@ -1,7 +1,7 @@
 import { filter, get } from 'lodash';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
-import { formatCents } from 'shared/formatters';
+import { formatCents } from 'utils/formatters';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getTabularExpenses, getPpmExpenseSummary } from 'scenes/Office/Ppm/ducks';
 import { connect } from 'react-redux';
