@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './PaymentDetails.module.scss';
 
-import { HistoryLogRecordShape } from 'constants/historyLogUIDisplayName';
+import { HistoryLogContextShape } from 'constants/historyLogUIDisplayName';
 
 const iconToDisplay = (statusToFilter) => {
   if (statusToFilter === 'Approved') {
@@ -41,21 +41,21 @@ const filterContextStatus = (context, statusToFilter) => {
   );
 };
 
-const PaymentDetails = ({ historyRecord }) => {
+const PaymentDetails = ({ context }) => {
   return (
     <div className={styles.PaymentDetails}>
-      {filterContextStatus(historyRecord.context, 'Approved')}
-      {filterContextStatus(historyRecord.context, 'Rejected')}
+      {filterContextStatus(context, 'Approved')}
+      {filterContextStatus(context, 'Rejected')}
     </div>
   );
 };
 
 PaymentDetails.propTypes = {
-  historyRecord: HistoryLogRecordShape,
+  context: HistoryLogContextShape,
 };
 
 PaymentDetails.defaultProps = {
-  historyRecord: {},
+  context: {},
 };
 
 export default PaymentDetails;
