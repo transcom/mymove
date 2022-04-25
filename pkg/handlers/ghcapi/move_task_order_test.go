@@ -249,8 +249,6 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	request = suite.AuthenticateUserRequest(request, requestUser)
 	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
@@ -259,6 +257,9 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		context,
 		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
+
+	requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 	suite.T().Run("Successful move status update to Service Counseling Completed - Integration", func(t *testing.T) {
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -283,6 +284,19 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		suite.Equal(strfmt.UUID(move.ID.String()), moveTaskOrderPayload.ID)
 		suite.NotNil(moveTaskOrderPayload.ServiceCounselingCompletedAt)
 		suite.EqualValues(models.MoveStatusServiceCounselingCompleted, moveTaskOrderPayload.Status)
+	})
+
+	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, forbidden - Integration", func(t *testing.T) {
+		forbiddenUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		forbiddenRequest := suite.AuthenticateOfficeRequest(request, forbiddenUser)
+
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+			HTTPRequest: forbiddenRequest,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedForbidden{}, response)
 	})
 
 	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func(t *testing.T) {
