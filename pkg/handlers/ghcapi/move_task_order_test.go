@@ -277,6 +277,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		suite.IsNotErrResponse(response)
 		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedOK)
 		moveTaskOrderPayload := moveTaskOrderResponse.Payload
+		suite.NoError(moveTaskOrderPayload.Validate(strfmt.Default))
 
 		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
 		suite.Equal(strfmt.UUID(move.ID.String()), moveTaskOrderPayload.ID)
