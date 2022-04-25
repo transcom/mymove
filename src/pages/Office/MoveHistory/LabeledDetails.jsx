@@ -2,6 +2,7 @@ import React from 'react';
 
 import { HistoryLogValuesShape, dbFieldToDisplayName, dbWeightFields } from 'constants/historyLogUIDisplayName';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import { formatMoveHistoryFullAddress } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
   const displayName = dbFieldToDisplayName[fieldName];
@@ -20,14 +21,22 @@ const retrieveTextToDisplay = (fieldName, value) => {
 };
 
 const LabeledDetails = ({ changedValues }) => {
+  const changedValuesWithFormattedAddress = {
+    ...changedValues,
+    address: formatMoveHistoryFullAddress(changedValues),
+  };
+
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
-    return changedValues[dbField];
+    return changedValuesWithFormattedAddress[dbField];
   });
 
   return (
     <div>
       {dbFieldsToDisplay.map((modelField) => {
-        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValues[modelField]);
+        const { displayName, displayValue } = retrieveTextToDisplay(
+          modelField,
+          changedValuesWithFormattedAddress[modelField],
+        );
 
         return (
           <div key={modelField} className={descriptionListStyles.row}>

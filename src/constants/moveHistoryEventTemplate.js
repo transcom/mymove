@@ -202,6 +202,22 @@ export const updateMoveTaskOrderStatusEvent = buildMoveHistoryEventTemplate({
   },
 });
 
+export const updateMTOShipmentAddresses = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'addresses',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+});
+
+export const updateMTOShipment = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'mto_shipments',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+});
+
 export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.updateServiceItemStatus,
@@ -260,6 +276,8 @@ const allMoveHistoryEventTemplates = [
   updateBillableWeightEvent,
   updateMoveTaskOrderEvent,
   updateMoveTaskOrderStatusEvent,
+  updateMTOShipment,
+  updateMTOShipmentAddresses,
   updateServiceItemStatusEvent,
   uploadAmendedOrdersEvent,
 ];

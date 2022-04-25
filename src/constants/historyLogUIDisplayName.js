@@ -35,6 +35,8 @@ export const dbFieldToDisplayName = {
   pro_gear_weight_spouse: 'Spouse pro-gear',
   required_medical_equipment_weight: 'RME',
   organizational_clothing_and_individual_equipment: 'OCIE',
+  requested_pickup_date: 'Requested pickup date',
+  address: 'Address',
 };
 
 export const dbWeightFields = [
