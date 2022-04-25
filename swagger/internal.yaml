@@ -4729,29 +4729,6 @@ paths:
           description: List of weights allotted entitlement
           schema:
             $ref: '#/definitions/IndexEntitlements'
-  /entitlements/{moveId}:
-    get:
-      summary: >-
-        Validates that the stored weight estimate is below the allotted
-        entitlement range for a service member
-      description: Determine whether weight estimate is below entitlement
-      operationId: validateEntitlement
-      tags:
-        - entitlements
-      parameters:
-        - name: moveId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-      responses:
-        '200':
-          description: weight estimate is below allotted entitlement
-        '404':
-          description: personally procured move not found
-        '409':
-          description: Requested weight estimate is above allotted entitlement
   /calendar/available_move_dates:
     get:
       summary: Returns available dates for the move calendar
