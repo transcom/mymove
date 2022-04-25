@@ -58,7 +58,7 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 		// Update move status, verifying that move/shipments are in expected state.
 		err := o.moveRouter.CompleteServiceCounseling(appCtx, move)
 		if err != nil {
-			return apperror.NewConflictError(move.ID, err.Error())
+			return err
 		}
 
 		// Save the move.
