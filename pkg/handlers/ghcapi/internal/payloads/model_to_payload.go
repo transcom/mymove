@@ -919,6 +919,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 	for i, paymentRequest := range *paymentRequests {
 		moveTaskOrder := paymentRequest.MoveTaskOrder
 		orders := moveTaskOrder.Orders
+		var gbloc ghcmessages.GBLOC
+		if moveTaskOrder.ShipmentGBLOC[0].GBLOC != nil {
+			gbloc = ghcmessages.GBLOC(*moveTaskOrder.ShipmentGBLOC[0].GBLOC)
+		}
 
 		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
 			ID:                 *handlers.FmtUUID(paymentRequest.ID),
@@ -928,7 +932,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			Age:                math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
-			OriginGBLOC:        ghcmessages.GBLOC(*moveTaskOrder.ShipmentGBLOC[0].GBLOC),
+			OriginGBLOC:        gbloc,
 			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
 		}
 
