@@ -61,7 +61,7 @@ const shipmentSelectionProps = {
     origin_duty_location: {
       name: 'NAS Norfolk',
     },
-    report_by_date: '25 December 2020',
+    report_by_date: '2020-12-25',
   },
   uploadedOrderDocuments: [
     {
@@ -81,12 +81,13 @@ const withShipmentProps = {
     {
       id: 'testShipment1',
       shipmentType: 'HHG',
-      createdAt: '24 December 2020',
+      createdAt: '2020-12-24',
+    },
+    {
+      id: 'testMove',
+      shipmentType: 'PPM',
     },
   ],
-  currentPpm: {
-    id: 'testMove',
-  },
 };
 
 const submittedProps = {
@@ -94,7 +95,7 @@ const submittedProps = {
   move: {
     ...withShipmentProps.move,
     status: 'SUBMITTED',
-    submitted_at: '24 December 2020',
+    submitted_at: '2020-12-24',
   },
 };
 
@@ -142,7 +143,20 @@ export const Step4 = () => {
   );
 };
 
-export const SubmittedMove = () => {
+export const SubmittedMoveWithoutPPM = () => {
+  let { mtoShipments } = submittedProps;
+  mtoShipments = mtoShipments.slice(0, 1);
+  const props = { ...submittedProps, mtoShipments };
+  return (
+    <MockProviders>
+      <div className="grid-container usa-prose">
+        <Home {...props} />
+      </div>
+    </MockProviders>
+  );
+};
+
+export const SubmittedMoveWithPPM = () => {
   return (
     <MockProviders>
       <div className="grid-container usa-prose">
