@@ -102,7 +102,7 @@ export const createBasicServiceItemEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Approved service item',
   getDetailsPlainText: (historyRecord) => {
-    return `${historyRecord.context?.name}`;
+    return `${historyRecord.context[0]?.name}`;
   },
 });
 
