@@ -136,9 +136,11 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 		mto.MTOShipments[i].Reweigh = reweigh
 
-		loadErr := appCtx.DB().Load(&mto.MTOShipments[i], "PPMShipment")
-		if loadErr != nil {
-			return &models.Move{}, apperror.NewQueryError("PPMShipment", err, "")
+		if mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
+			loadErr := appCtx.DB().Load(&mto.MTOShipments[i], "PPMShipment")
+			if loadErr != nil {
+				return &models.Move{}, apperror.NewQueryError("PPMShipment", err, "")
+			}
 		}
 
 		filteredShipments = append(filteredShipments, mto.MTOShipments[i])
