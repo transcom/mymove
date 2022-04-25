@@ -1,9 +1,8 @@
-DROP VIEW move_to_gbloc;
 -- This view still finds the GBLOC for the first shipment of each move. PPM shipments
 -- don't have full address information, though, so this looks to the postal code field
 -- on PPM shipments to match it to a GBLOC. NTS-Release shipments won't have a match,
 -- but they are handled in a different spot, so the null value is ok here.
-CREATE VIEW move_to_gbloc AS
+CREATE OR REPLACE VIEW move_to_gbloc AS
 SELECT DISTINCT ON (sh.move_id) sh.move_id AS move_id, COALESCE(pctg.gbloc, pctg_ppm.gbloc) AS gbloc
 FROM mto_shipments sh
      -- try the pickup_address path
