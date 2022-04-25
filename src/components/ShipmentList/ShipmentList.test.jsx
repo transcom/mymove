@@ -7,6 +7,10 @@ import ShipmentList from './ShipmentList';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatWeight } from 'utils/formatters';
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 describe('ShipmentList component', () => {
   const shipments = [
     { id: 'ID-1', shipmentType: SHIPMENT_OPTIONS.PPM },
