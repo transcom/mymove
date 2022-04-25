@@ -5,7 +5,7 @@ import { isEmpty } from 'lodash';
 import moment from 'moment';
 
 import Alert from 'shared/Alert';
-import { formatCents } from 'shared/formatters';
+import { formatCents } from 'utils/formatters';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import scrollToTop from 'shared/scrollToTop';

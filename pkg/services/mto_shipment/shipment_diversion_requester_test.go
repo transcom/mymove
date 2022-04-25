@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"testing"
 	"time"
 
 	"github.com/stretchr/testify/mock"
@@ -20,7 +19,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 	router := NewShipmentRouter()
 	requester := NewShipmentDiversionRequester(router)
 
-	suite.T().Run("If the shipment diversion is requested successfully, it should update the shipment status in the DB", func(t *testing.T) {
+	suite.Run("If the shipment diversion is requested successfully, it should update the shipment status in the DB", func() {
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
@@ -42,7 +41,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		suite.Equal(divertedShipment.ID, fetchedShipment.ID)
 	})
 
-	suite.T().Run("When status transition is not allowed, returns a ConflictStatusError", func(t *testing.T) {
+	suite.Run("When status transition is not allowed, returns a ConflictStatusError", func() {
 		rejectionReason := "a rejection reason"
 		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -58,7 +57,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		suite.IsType(ConflictStatusError{}, err)
 	})
 
-	suite.T().Run("Passing in a stale identifier returns a PreconditionFailedError", func(t *testing.T) {
+	suite.Run("Passing in a stale identifier returns a PreconditionFailedError", func() {
 		staleETag := etag.GenerateEtag(time.Now())
 		staleShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -72,7 +71,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
+	suite.Run("Passing in a bad shipment id returns a Not Found error", func() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
@@ -82,7 +81,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("It calls RequestDiversion on the ShipmentRouter", func(t *testing.T) {
+	suite.Run("It calls RequestDiversion on the ShipmentRouter", func() {
 		shipmentRouter := &mocks.ShipmentRouter{}
 		requester := NewShipmentDiversionRequester(shipmentRouter)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -101,6 +100,6 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		_, err = requester.RequestShipmentDiversion(suite.AppContextForTest(), shipment.ID, eTag)
 
 		suite.NoError(err)
-		shipmentRouter.AssertNumberOfCalls(t, "RequestDiversion", 1)
+		shipmentRouter.AssertNumberOfCalls(suite.T(), "RequestDiversion", 1)
 	})
 }

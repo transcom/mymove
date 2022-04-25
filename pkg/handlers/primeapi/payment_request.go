@@ -31,110 +31,115 @@ type CreatePaymentRequestHandler struct {
 func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymentRequestParams) middleware.Responder {
 	// TODO: authorization to create payment request
 
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	payload := params.Body
-	if payload == nil {
-		errPayload := payloads.ClientError(handlers.SQLErrMessage, "Invalid payment request: params Body is nil", h.GetTraceIDFromRequest(params.HTTPRequest))
-		appCtx.Logger().Error("Invalid payment request: params Body is nil", zap.Any("payload", errPayload))
-		return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload)
-	}
-
-	appCtx.Logger().Info("primeapi.CreatePaymentRequestHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-
-	moveTaskOrderIDString := payload.MoveTaskOrderID.String()
-	mtoID, err := uuid.FromString(moveTaskOrderIDString)
-	if err != nil {
-		appCtx.Logger().Error("Invalid payment request: params MoveTaskOrderID cannot be converted to a UUID",
-			zap.String("MoveTaskOrderID", moveTaskOrderIDString), zap.Error(err))
-		// create a custom verrs for returning a 422
-		verrs :=
-			&validate.Errors{Errors: map[string][]string{
-				"move_id": {"id cannot be converted to UUID"},
-			},
+			payload := params.Body
+			if payload == nil {
+				err := apperror.NewBadDataError("Invalid payment request: params Body is nil")
+				errPayload := payloads.ClientError(handlers.SQLErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
+				appCtx.Logger().Error(err.Error(), zap.Any("payload", errPayload))
+				return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload), err
 			}
-		errPayload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
-		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
-	}
 
-	isFinal := false
-	if payload.IsFinal != nil {
-		isFinal = *payload.IsFinal
-	}
+			appCtx.Logger().Info("primeapi.CreatePaymentRequestHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
-	paymentRequest := models.PaymentRequest{
-		IsFinal:         isFinal,
-		MoveTaskOrderID: mtoID,
-	}
-
-	// Build up the paymentRequest.PaymentServiceItems using the incoming payload to offload Swagger data coming
-	// in from the API. These paymentRequest.PaymentServiceItems will be used as a temp holder to process the incoming API data
-	var verrs *validate.Errors
-	paymentRequest.PaymentServiceItems, verrs, err = h.buildPaymentServiceItems(appCtx, payload)
-
-	if err != nil || verrs.HasAny() {
-
-		appCtx.Logger().Error("could not build service items", zap.Error(err))
-		// TODO: do not bail out before creating the payment request, we need the failed record
-		//       we should create the failed record and store it as failed with a rejection
-		errPayload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
-		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
-	}
-
-	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(appCtx, &paymentRequest)
-	if err != nil {
-		appCtx.Logger().Error("Error creating payment request", zap.Error(err))
-		switch e := err.(type) {
-		case apperror.InvalidCreateInputError:
-			verrs := e.ValidationErrors
-			detail := err.Error()
-			payload := payloads.ValidationError(detail, h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
-
-			appCtx.Logger().Error("Payment Request",
-				zap.Any("payload", payload))
-			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
-
-		case apperror.NotFoundError:
-			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
-
-			appCtx.Logger().Error("Payment Request",
-				zap.Any("payload", payload))
-			return paymentrequestop.NewCreatePaymentRequestNotFound().WithPayload(payload)
-		case apperror.ConflictError:
-			payload := payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
-
-			appCtx.Logger().Error("Payment Request",
-				zap.Any("payload", payload))
-			return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payload)
-		case apperror.InvalidInputError:
-			payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), &validate.Errors{})
-
-			appCtx.Logger().Error("Payment Request",
-				zap.Any("payload", payload))
-			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
-		case apperror.QueryError:
-			if e.Unwrap() != nil {
-				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				appCtx.Logger().Error("primeapi.CreatePaymentRequestHandler query error", zap.Error(e.Unwrap()))
+			moveTaskOrderIDString := payload.MoveTaskOrderID.String()
+			mtoID, err := uuid.FromString(moveTaskOrderIDString)
+			if err != nil {
+				appCtx.Logger().Error("Invalid payment request: params MoveTaskOrderID cannot be converted to a UUID",
+					zap.String("MoveTaskOrderID", moveTaskOrderIDString), zap.Error(err))
+				// create a custom verrs for returning a 422
+				verrs :=
+					&validate.Errors{Errors: map[string][]string{
+						"move_id": {"id cannot be converted to UUID"},
+					},
+					}
+				errPayload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
+				return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload), err
 			}
-			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
 
-		case *apperror.BadDataError:
-			payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
+			isFinal := false
+			if payload.IsFinal != nil {
+				isFinal = *payload.IsFinal
+			}
 
-			appCtx.Logger().Error("Payment Request",
-				zap.Any("payload", payload))
-			return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(payload)
-		default:
-			appCtx.Logger().Error("Payment Request",
-				zap.Any("payload", payload))
-			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest)))
-		}
-	}
+			paymentRequest := models.PaymentRequest{
+				IsFinal:         isFinal,
+				MoveTaskOrderID: mtoID,
+			}
 
-	returnPayload := payloads.PaymentRequest(createdPaymentRequest)
-	appCtx.Logger().Info("Successful payment request creation for mto ID", zap.String("moveID", moveTaskOrderIDString))
-	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
+			// Build up the paymentRequest.PaymentServiceItems using the incoming payload to offload Swagger data coming
+			// in from the API. These paymentRequest.PaymentServiceItems will be used as a temp holder to process the incoming API data
+			var verrs *validate.Errors
+			paymentRequest.PaymentServiceItems, verrs, err = h.buildPaymentServiceItems(appCtx, payload)
+
+			if err != nil || verrs.HasAny() {
+
+				appCtx.Logger().Error("could not build service items", zap.Error(err))
+				// TODO: do not bail out before creating the payment request, we need the failed record
+				//       we should create the failed record and store it as failed with a rejection
+				errPayload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
+				return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload), err
+			}
+
+			createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(appCtx, &paymentRequest)
+			if err != nil {
+				appCtx.Logger().Error("Error creating payment request", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.InvalidCreateInputError:
+					verrs := e.ValidationErrors
+					detail := err.Error()
+					payload := payloads.ValidationError(detail, h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
+
+					appCtx.Logger().Error("Payment Request",
+						zap.Any("payload", payload))
+					return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload), err
+
+				case apperror.NotFoundError:
+					payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
+
+					appCtx.Logger().Error("Payment Request",
+						zap.Any("payload", payload))
+					return paymentrequestop.NewCreatePaymentRequestNotFound().WithPayload(payload), err
+				case apperror.ConflictError:
+					payload := payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
+
+					appCtx.Logger().Error("Payment Request",
+						zap.Any("payload", payload))
+					return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payload), err
+				case apperror.InvalidInputError:
+					payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), &validate.Errors{})
+
+					appCtx.Logger().Error("Payment Request",
+						zap.Any("payload", payload))
+					return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload), err
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the internal error (usually a pq error) for better debugging
+						appCtx.Logger().Error("primeapi.CreatePaymentRequestHandler query error", zap.Error(e.Unwrap()))
+					}
+					return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+
+				case *apperror.BadDataError:
+					payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
+
+					appCtx.Logger().Error("Payment Request",
+						zap.Any("payload", payload))
+					return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(payload), err
+				default:
+					appCtx.Logger().Error("Payment Request",
+						zap.Any("payload", payload))
+					return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
+			}
+
+			returnPayload := payloads.PaymentRequest(createdPaymentRequest)
+			appCtx.Logger().Info("Successful payment request creation for mto ID", zap.String("moveID", moveTaskOrderIDString))
+			return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload), nil
+		})
 }
 
 func (h CreatePaymentRequestHandler) buildPaymentServiceItems(appCtx appcontext.AppContext, payload *primemessages.CreatePaymentRequest) (models.PaymentServiceItems, *validate.Errors, error) {

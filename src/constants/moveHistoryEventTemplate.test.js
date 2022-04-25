@@ -89,10 +89,12 @@ describe('moveHistoryEventTemplate', () => {
   describe('when given a Create standard service item history record', () => {
     const item = {
       action: 'INSERT',
-      context: {
-        shipment_type: 'HHG',
-        name: 'Domestic linehaul',
-      },
+      context: [
+        {
+          shipment_type: 'HHG',
+          name: 'Domestic linehaul',
+        },
+      ],
       eventName: 'approveShipment',
       tableName: 'mto_service_items',
     };
@@ -153,7 +155,7 @@ describe('moveHistoryEventTemplate', () => {
     const item = {
       action: 'UPDATE',
       changedValues: { status: 'APPROVED' },
-      context: { name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
+      context: [{ name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' }],
       eventName: 'updateMTOServiceItemStatus',
       tableName: 'mto_service_items',
     };

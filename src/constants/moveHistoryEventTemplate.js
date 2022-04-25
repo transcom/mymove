@@ -55,6 +55,22 @@ export const acknowledgeExcessWeightRiskEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => 'Dismissed excess weight alert',
 });
 
+export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateBillableWeight,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated move',
+});
+
+export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateAllowance,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated allowances',
+});
+
 export const approveShipmentEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.approveShipment,
@@ -113,7 +129,7 @@ export const createStandardServiceItemEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Approved service item',
   getDetailsPlainText: (historyRecord) => {
-    return `${shipmentTypes[historyRecord.context?.shipment_type]} shipment, ${historyRecord.context?.name}`;
+    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, ${historyRecord.context[0]?.name}`;
   },
 });
 
@@ -202,7 +218,7 @@ export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
     }
   },
   getDetailsPlainText: (historyRecord) => {
-    return `${shipmentTypes[historyRecord.context?.shipment_type]} shipment, ${historyRecord.context?.name}`;
+    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, ${historyRecord.context[0]?.name}`;
   },
 });
 
@@ -244,6 +260,8 @@ const allMoveHistoryEventTemplates = [
   updateMoveTaskOrderStatusEvent,
   updateServiceItemStatusEvent,
   uploadAmendedOrdersEvent,
+  updateBillableWeightEvent,
+  updateAllowanceEvent,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {
