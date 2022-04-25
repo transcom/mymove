@@ -63,7 +63,7 @@ describe('PPMSummaryList component', () => {
       expect(screen.queryByText('PPM 1')).not.toBeInTheDocument();
     });
   });
-  describe('there is multiple shipments', () => {
+  describe('there are multiple shipments', () => {
     it('should render numbers next to PPM', () => {
       render(<PPMSummaryList {...defaultProps} />);
       expect(screen.queryByText('PPM 1')).toBeInTheDocument();
