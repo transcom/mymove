@@ -149,7 +149,7 @@ func (suite *webServerSuite) patchContext(ctx map[string]string) map[string]stri
 	}
 
 	// Always set the root cert to something on the local system.
-	newValue := filepath.Join(os.Getenv("TEST_ACC_CWD"), "bin/rds-ca-us-gov-west-1-2017-root.pem")
+	newValue := filepath.Join(os.Getenv("TEST_ACC_CWD"), "bin/rds-ca-rsa4096-g1.pem")
 	ctx["DB_SSL_ROOT_CERT"] = newValue
 
 	// Always set the migration path to something on the local system.
