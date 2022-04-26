@@ -19,4 +19,5 @@ FROM mto_shipments sh
         FROM ppm_shipments ppm
         JOIN postal_code_to_gblocs pctg ON ppm.pickup_postal_code = pctg.postal_code
      ) pctg_ppm ON pctg_ppm.shipment_id = sh.id
+WHERE sh.deleted_at IS NULL
 ORDER BY sh.move_id, sh.created_at;
