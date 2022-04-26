@@ -74,7 +74,7 @@ describe('moveHistoryEventTemplate', () => {
       action: 'INSERT',
       context: [
         {
-          name: 'Domestic linehaul',
+          name: 'Move management',
         },
       ],
       eventName: 'updateMoveTaskOrderStatus',
@@ -84,7 +84,7 @@ describe('moveHistoryEventTemplate', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(createBasicServiceItemEvent);
       expect(result.getEventNameDisplay(result)).toEqual('Approved service item');
-      expect(result.getDetailsPlainText(item)).toEqual('Domestic linehaul');
+      expect(result.getDetailsPlainText(item)).toEqual('Move management');
     });
   });
 
