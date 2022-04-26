@@ -720,4 +720,3 @@
 20220412195727_add_deletedAt_to_storage_facilities_and_mto_agents.up.sql
 20220412203950_create_move_history_trigger_for_entitlements.up.sql
 20220418182209_remove_access_code.up.sql
-20220420195400_update_move_to_gbloc_view_for_ppm_shipments.up.sql
