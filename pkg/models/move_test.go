@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -125,6 +126,32 @@ func (suite *ModelSuite) TestFetchMove() {
 		// Attempt to fetch this move. We should receive an error.
 		_, err := FetchMove(suite.DB(), session, hiddenMove.ID)
 		suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
+	})
+
+	suite.T().Run("deleted shipments are excluded from the results", func(t *testing.T) {
+		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mto := mtoShipment.MoveTaskOrder
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: MTOShipment{
+				ShipmentType: MTOShipmentTypeHHG,
+				Status:       MTOShipmentStatusSubmitted,
+				DeletedAt:    TimePointer(time.Now()),
+			},
+			Move: mto,
+		})
+
+		session := &auth.Session{
+			UserID:          mto.Orders.ServiceMember.UserID,
+			ServiceMemberID: mto.Orders.ServiceMemberID,
+			ApplicationName: auth.MilApp,
+		}
+
+		actualMove, err := FetchMove(suite.DB(), session, mto.ID)
+
+		suite.NoError(err)
+		suite.Len(actualMove.MTOShipments, 1)
+
+		suite.Equal(mtoShipment.ID, actualMove.MTOShipments[0].ID)
 	})
 }
 

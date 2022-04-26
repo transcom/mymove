@@ -50,7 +50,7 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 		"hhg_onboarding":               subScenarioHHGOnboarding(appCtx, userUploader),
 		"hhg_services_counseling":      subScenarioHHGServicesCounseling(appCtx, userUploader, allDutyLocations, originDutyLocationsInGBLOC),
 		"payment_request_calculations": subScenarioPaymentRequestCalculations(appCtx, userUploader, primeUploader, moveRouter),
-		"ppm_onboarding":               subScenarioPPMOnboarding(appCtx, userUploader, moveRouter),
+		"ppm_customer_flow":            subScenarioPPMCustomerFlow(appCtx, userUploader, moveRouter),
 		"ppm_and_hhg":                  subScenarioPPMAndHHG(appCtx, userUploader, moveRouter),
 		"ppm_office_queue":             subScenarioPPMOfficeQueue(appCtx, userUploader, moveRouter),
 		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(appCtx, allDutyLocations, originDutyLocationsInGBLOC),

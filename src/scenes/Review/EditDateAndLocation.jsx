@@ -14,7 +14,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatDateForSwagger } from 'shared/dates';
 import scrollToTop from 'shared/scrollToTop';
-import { formatCents } from 'shared/formatters';
+import { formatCents } from 'utils/formatters';
 import { calculatePPMSITEstimate, getPPMsForMove, patchPPM, persistPPMEstimate } from 'services/internalApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { updatePPM, updatePPMs, updatePPMSitEstimate } from 'store/entities/actions';

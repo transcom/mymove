@@ -88,8 +88,8 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		ActionTstampClk:      strfmt.DateTime(auditHistory.ActionTstampClk),
 		ActionTstampStm:      strfmt.DateTime(auditHistory.ActionTstampStm),
 		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
-		ChangedValues:        removeEscapeJSON(auditHistory.ChangedData),
-		OldValues:            removeEscapeJSON(auditHistory.OldData),
+		ChangedValues:        removeEscapeJSONtoObject(auditHistory.ChangedData),
+		OldValues:            removeEscapeJSONtoObject(auditHistory.OldData),
 		ClientQuery:          auditHistory.ClientQuery,
 		EventName:            auditHistory.EventName,
 		ID:                   strfmt.UUID(auditHistory.ID.String()),
@@ -100,7 +100,7 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		SessionUserLastName:  auditHistory.SessionUserLastName,
 		SessionUserEmail:     auditHistory.SessionUserEmail,
 		SessionUserTelephone: auditHistory.SessionUserTelephone,
-		Context:              removeEscapeJSON(auditHistory.Context),
+		Context:              removeEscapeJSONtoArray(auditHistory.Context),
 		ContextID:            auditHistory.ContextID,
 		StatementOnly:        auditHistory.StatementOnly,
 		TableName:            auditHistory.TableName,
@@ -111,7 +111,7 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 	return payload
 }
 
-func removeEscapeJSON(data *string) map[string]string {
+func removeEscapeJSONtoObject(data *string) map[string]string {
 	var result map[string]string
 	if data == nil || *data == "" {
 		return result
@@ -121,6 +121,17 @@ func removeEscapeJSON(data *string) map[string]string {
 	_ = json.Unmarshal(byteData, &result)
 	return result
 
+}
+
+func removeEscapeJSONtoArray(data *string) []map[string]string {
+	var result []map[string]string
+	if data == nil || *data == "" {
+		return result
+	}
+	var byteData = []byte(*data)
+
+	_ = json.Unmarshal(byteData, &result)
+	return result
 }
 
 func moveHistoryRecords(auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {

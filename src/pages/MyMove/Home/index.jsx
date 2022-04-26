@@ -9,11 +9,11 @@ import { withRouter } from 'react-router-dom';
 import styles from './Home.module.scss';
 import {
   HelperAmendedOrders,
+  HelperApprovedMove,
   HelperNeedsOrders,
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
-  HelperSubmittedPPM,
 } from './HomeHelpers';
 
 import ScrollToTop from 'components/ScrollToTop';
@@ -40,7 +40,8 @@ import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import MOVE_STATUSES from 'constants/moves';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
@@ -50,6 +51,7 @@ import { shipmentTypes } from 'constants/shipments';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { updateMTOShipments } from 'store/entities/actions';
+import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -119,13 +121,13 @@ export class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
-  get hasPPMShipment() {
-    const { currentPpm } = this.props;
-    return !!Object.keys(currentPpm).length;
+  get isMoveApproved() {
+    const { move } = this.props;
+    return move.status === MOVE_STATUSES.APPROVED;
   }
 
   get shipmentActionBtnLabel() {
-    if (this.hasSubmittedMove && this.hasPPMShipment) {
+    if (this.hasSubmittedMove) {
       return '';
     }
     if (this.hasAnyShipments) {
@@ -166,13 +168,7 @@ export class Home extends Component {
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
     if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
-    if (this.hasPPMShipment)
-      return (
-        <>
-          <HelperSubmittedMove />
-          <HelperSubmittedPPM />
-        </>
-      );
+    if (this.isMoveApproved) return <HelperApprovedMove />;
     return <HelperSubmittedMove />;
   };
 
@@ -273,6 +269,15 @@ export class Home extends Component {
     history.push(path);
   };
 
+  handlePPMUploadClick = (shipmentId) => {
+    const { move, history } = this.props;
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+      moveId: move.id,
+      mtoShipmentId: shipmentId,
+    });
+    history.push(path);
+  };
+
   sortAllShipments = (mtoShipments, currentPpm) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     if (Object.keys(currentPpm).length) {
@@ -333,6 +338,7 @@ export class Home extends Component {
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
+    const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
 
     return (
       <>
@@ -422,7 +428,7 @@ export class Home extends Component {
                   )}
                   <Step
                     actionBtnLabel={this.shipmentActionBtnLabel}
-                    actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
+                    actionBtnDisabled={!this.hasOrders}
                     actionBtnId="shipment-selection-btn"
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
                     complete={this.hasAnyShipments}
@@ -434,15 +440,18 @@ export class Home extends Component {
                   >
                     {this.hasAnyShipments ? (
                       <div>
-                        {this.hasSubmittedMove && !this.doesPpmAlreadyExist && (
-                          <p className={styles.descriptionExtra}>If you need to add shipments, let your movers know.</p>
-                        )}
                         <ShipmentList
                           shipments={allSortedShipments}
                           onShipmentClick={this.handleShipmentClick}
                           onDeleteClick={this.handleDeleteClick}
                           moveSubmitted={this.hasSubmittedMove}
                         />
+                        {this.hasSubmittedMove && (
+                          <p className={styles.descriptionExtra}>
+                            If you need to change, add, or get rid of shipments, talk to your move counselor or to your
+                            movers.
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <Description>
@@ -479,6 +488,11 @@ export class Home extends Component {
                       </Description>
                     )}
                   </Step>
+                  {!!ppmShipments.length && this.hasSubmittedMove && (
+                    <Step headerText="Manage your PPM" completedHeaderText="Manage your PPM" step="5">
+                      <PPMSummaryList shipments={ppmShipments} onUploadClick={this.handlePPMUploadClick} />
+                    </Step>
+                  )}
                 </SectionWrapper>
                 <Contact
                   header="Contacts"

@@ -22,7 +22,7 @@ export function signInAndNavigateFromHomePageToReviewPage(userId, isMoveSubmitte
 
 export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   if (isMoveSubmitted) {
-    cy.get('h3').contains('Next: Talk to a move counselor');
+    cy.get('h3').contains('Next step: Your move gets approved');
 
     cy.get('button').contains('Review your request').click();
   } else {

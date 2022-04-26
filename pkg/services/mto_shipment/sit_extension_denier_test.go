@@ -1,8 +1,6 @@
 package mtoshipment
 
 import (
-	"testing"
-
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
@@ -18,7 +16,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 	moveRouter := moverouter.NewMoveRouter()
 	sitExtensionDenier := NewSITExtensionDenier(moveRouter)
 
-	suite.T().Run("Returns an error when shipment is not found", func(t *testing.T) {
+	suite.Run("Returns an error when shipment is not found", func() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		officeRemarks := "office remarks"
 		eTag := ""
@@ -29,7 +27,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when SIT extension is not found", func(t *testing.T) {
+	suite.Run("Returns an error when SIT extension is not found", func() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		officeRemarks := "office remarks"
@@ -41,7 +39,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when etag does not match", func(t *testing.T) {
+	suite.Run("Returns an error when etag does not match", func() {
 		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
@@ -56,7 +54,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		suite.Contains(err.Error(), mtoShipment.ID.String())
 	})
 
-	suite.T().Run("Returns an error when shipment ID from SIT extension and shipment ID found do not match", func(t *testing.T) {
+	suite.Run("Returns an error when shipment ID from SIT extension and shipment ID found do not match", func() {
 		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		otherMtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
@@ -72,7 +70,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		suite.Contains(err.Error(), otherMtoShipment.ID.String())
 	})
 
-	suite.T().Run("Updates the SIT extension's status to DENIED and approves move when all fields are valid", func(t *testing.T) {
+	suite.Run("Updates the SIT extension's status to DENIED and approves move when all fields are valid", func() {
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -102,7 +100,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		suite.Equal(models.MoveStatusAPPROVED, shipmentInDB.MoveTaskOrder.Status)
 	})
 
-	suite.T().Run("Sets move to approvals requested if there are remaining pending SIT extensions", func(t *testing.T) {
+	suite.Run("Sets move to approvals requested if there are remaining pending SIT extensions", func() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 
@@ -479,6 +480,73 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+	})
+}
+
+func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
+	moveRouter := NewMoveRouter()
+
+	suite.Run("status changed to service counseling completed", func() {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		hhgShipment := testdatagen.MakeStubbedShipment(suite.DB())
+		move.MTOShipments = models.MTOShipments{hhgShipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, move.Status)
+	})
+
+	suite.Run("status changed to approved", func() {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		ppmShipment := testdatagen.MakeStubbedPPMShipment(suite.DB())
+		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+	})
+
+	suite.Run("no shipments present", func() {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "No shipments associated with move")
+	})
+
+	suite.Run("move has unexpected existing status", func() {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusDRAFT)
+		ppmShipment := testdatagen.MakeStubbedPPMShipment(suite.DB())
+		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "The status for the Move")
+	})
+
+	suite.Run("NTS-release with no facility info", func() {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		ntsrShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ID:           uuid.Must(uuid.NewV4()),
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			},
+			Move: move,
+			Stub: true,
+		})
+		move.MTOShipments = models.MTOShipments{ntsrShipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "NTS-release shipment must include facility info")
 	})
 }
 

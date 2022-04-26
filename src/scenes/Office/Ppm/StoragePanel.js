@@ -9,7 +9,7 @@ import Alert from 'shared/Alert';
 import { editablePanelify, PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
-import { formatCents } from '../../../shared/formatters';
+import { formatCents } from 'utils/formatters';
 import { convertDollarsToCents } from '../../../shared/utils';
 import { getDocsByStatusAndType } from './ducks';
 

@@ -4,6 +4,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -326,9 +328,9 @@ func (s *ServiceMember) IsProfileComplete() bool {
 }
 
 // FetchLatestOrder gets the latest order for a service member
-func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) {
+func FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) {
 	var order Order
-	query := db.Where("orders.service_member_id = $1", s.ID).Order("created_at desc")
+	query := db.Where("orders.service_member_id = $1", session.ServiceMemberID).Order("created_at desc")
 	err := query.EagerPreload("ServiceMember.User",
 		"OriginDutyLocation.Address",
 		"OriginDutyLocation.TransportationOffice",
@@ -347,37 +349,28 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 	}
 
 	// Eager loading of nested has_many associations is broken
-	err = db.Load(&order.UploadedOrders, "UserUploads.Upload")
+	var userUploads UserUploads
+	err = db.Q().
+		Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+		Where("document_id = ?", order.UploadedOrdersID).
+		All(&userUploads)
 	if err != nil {
 		return Order{}, err
 	}
 
-	// Only return user uploads that haven't been deleted
-	userUploads := order.UploadedOrders.UserUploads
-	relevantUploads := make([]UserUpload, 0, len(userUploads))
-	for _, userUpload := range userUploads {
-		if userUpload.DeletedAt == nil {
-			relevantUploads = append(relevantUploads, userUpload)
-		}
-	}
-	order.UploadedOrders.UserUploads = relevantUploads
+	order.UploadedOrders.UserUploads = userUploads
 
 	// Eager loading of nested has_many associations is broken
 	if order.UploadedAmendedOrders != nil {
-		err = db.Load(order.UploadedAmendedOrders, "UserUploads.Upload")
+		var amendedUserUploads UserUploads
+		err = db.Q().
+			Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+			Where("document_id = ?", order.UploadedAmendedOrdersID).
+			All(&amendedUserUploads)
 		if err != nil {
 			return Order{}, err
 		}
-
-		// Only return user uploads that haven't been deleted
-		userUploads := order.UploadedAmendedOrders.UserUploads
-		relevantUploads := make([]UserUpload, 0, len(userUploads))
-		for _, userUpload := range userUploads {
-			if userUpload.DeletedAt == nil {
-				relevantUploads = append(relevantUploads, userUpload)
-			}
-		}
-		order.UploadedAmendedOrders.UserUploads = relevantUploads
+		order.UploadedAmendedOrders.UserUploads = amendedUserUploads
 	}
 
 	// User must be logged in service member

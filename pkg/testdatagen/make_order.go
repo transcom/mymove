@@ -218,6 +218,78 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 	return order
 }
 
+// MakeOrderWithoutUpload only includes fields that the service member would have supplied prior to uploading their
+// documents
+func MakeOrderWithoutUpload(db *pop.Connection, assertions Assertions) models.Order {
+	// Create new relational data if not provided
+	sm := assertions.Order.ServiceMember
+	// ID is required because it must be populated for Eager saving to work.
+	if isZeroUUID(assertions.Order.ServiceMemberID) {
+		sm = MakeExtendedServiceMember(db, assertions)
+	}
+
+	dutyLocation := assertions.Order.NewDutyLocation
+	// Note above
+	if isZeroUUID(assertions.Order.NewDutyLocationID) {
+		dutyLocation = FetchOrMakeDefaultNewOrdersDutyLocation(db)
+	}
+
+	document := MakeDocument(db, Assertions{
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	})
+
+	var ordersNumber *string
+	if assertions.Order.OrdersNumber != nil {
+		ordersNumber = assertions.Order.OrdersNumber
+	}
+
+	hasDependents := assertions.Order.HasDependents || false
+	spouseHasProGear := assertions.Order.SpouseHasProGear || false
+	grade := "E_1"
+
+	entitlement := assertions.Entitlement
+	if isZeroUUID(entitlement.ID) {
+		assertions.Order.Grade = &grade
+		entitlement = MakeEntitlement(db, assertions)
+	}
+
+	originDutyLocation := assertions.OriginDutyLocation
+	if isZeroUUID(originDutyLocation.ID) {
+		originDutyLocation = MakeDutyLocation(db, assertions)
+	}
+
+	order := models.Order{
+		ServiceMember:        sm,
+		ServiceMemberID:      sm.ID,
+		NewDutyLocation:      dutyLocation,
+		NewDutyLocationID:    dutyLocation.ID,
+		UploadedOrders:       document,
+		UploadedOrdersID:     document.ID,
+		IssueDate:            time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+		ReportByDate:         time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
+		OrdersType:           internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:         ordersNumber,
+		HasDependents:        hasDependents,
+		SpouseHasProGear:     spouseHasProGear,
+		Status:               models.OrderStatusDRAFT,
+		Grade:                &grade,
+		Entitlement:          &entitlement,
+		EntitlementID:        &entitlement.ID,
+		OriginDutyLocation:   &originDutyLocation,
+		OriginDutyLocationID: &originDutyLocation.ID,
+	}
+
+	// Overwrite values with those from assertions
+	mergeModels(&order, assertions.Order)
+
+	mustCreate(db, &order, assertions.Stub)
+
+	return order
+}
+
 // MakeDefaultOrder return an Order with default values
 func MakeDefaultOrder(db *pop.Connection) models.Order {
 	return MakeOrder(db, Assertions{})

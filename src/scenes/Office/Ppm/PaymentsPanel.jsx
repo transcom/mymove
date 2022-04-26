@@ -21,8 +21,7 @@ import { selectReimbursementById } from 'store/entities/selectors';
 
 import { no_op } from 'shared/utils';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
-import { formatCents } from 'shared/formatters';
-import { formatDate } from 'utils/formatters';
+import { formatDate, formatCents } from 'utils/formatters';
 
 import './PaymentsPanel.css';
 import Alert from 'shared/Alert';
