@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// THIS CODE IS DEPRECATED
 type estimateCalculator struct {
 	planner route.Planner
 }

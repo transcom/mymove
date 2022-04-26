@@ -23,6 +23,7 @@ const moveHistoryOperations = {
   updateMTOShipmentAddress: 'updateMTOShipmentAddress', // prime.yaml
   uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
+  updateBillableWeight: 'updateBillableWeight',
 };
 
 export default moveHistoryOperations;

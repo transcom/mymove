@@ -119,3 +119,17 @@ func checkAdvance() ppmShipmentValidator {
 		return verrs
 	})
 }
+
+// checkEstimatedWeight() checks that the weight estimate is availabele to the PPM Estimator
+func checkEstimatedWeight() ppmShipmentValidator {
+	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+
+		// Check that we have something in the estimatedWeight field.
+		if newPPMShipment.EstimatedWeight == nil {
+			verrs.Add("estimatedWeight", "cannot be empty")
+		}
+
+		return verrs
+	})
+}

@@ -9,10 +9,8 @@ import {
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
-  HelperSubmittedPPM,
   HelperAmendedOrders,
 } from 'pages/MyMove/Home/HomeHelpers';
-import { MockProviders } from 'testUtils';
 
 const title = 'Next step: Add your orders';
 const separator = '\n';
@@ -52,9 +50,4 @@ export const NeedsOrders = () => <HelperNeedsOrders />;
 export const NeedsShipment = () => <HelperNeedsShipment />;
 export const NeedsSubmitMove = () => <HelperNeedsSubmitMove />;
 export const SubmittedMove = () => <HelperSubmittedMove />;
-export const SubmittedPPM = () => (
-  <MockProviders initialEntries={['/']}>
-    <HelperSubmittedPPM />
-  </MockProviders>
-);
 export const AmendedOrders = () => <HelperAmendedOrders />;

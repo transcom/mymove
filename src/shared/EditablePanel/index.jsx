@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { get } from 'lodash';
 
-import { formatCents } from 'shared/formatters';
-import { formatDate } from 'utils/formatters';
+import { formatDate, formatCents } from 'utils/formatters';
 import Alert from 'shared/Alert';
 
 import './index.css';

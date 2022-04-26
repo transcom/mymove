@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -11,7 +10,7 @@ import (
 func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 	sitStatusService := NewShipmentSITStatus()
 
-	suite.T().Run("returns nil when the shipment has no service items", func(t *testing.T) {
+	suite.Run("returns nil when the shipment has no service items", func() {
 		submittedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{})
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), submittedShipment)
@@ -19,7 +18,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Nil(sitStatus)
 	})
 
-	suite.T().Run("returns nil when the shipment has no SIT service items", func(t *testing.T) {
+	suite.Run("returns nil when the shipment has no SIT service items", func() {
 		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status:          models.MTOShipmentStatusApproved,
@@ -32,7 +31,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Nil(sitStatus)
 	})
 
-	suite.T().Run("returns nil when the shipment has a SIT service item with entry date in the future", func(t *testing.T) {
+	suite.Run("returns nil when the shipment has a SIT service item with entry date in the future", func() {
 		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
@@ -58,7 +57,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Nil(sitStatus)
 	})
 
-	suite.T().Run("includes SIT service item that has departed storage", func(t *testing.T) {
+	suite.Run("includes SIT service item that has departed storage", func() {
 		shipmentSITAllowance := int(90)
 		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -95,7 +94,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Equal("", sitStatus.Location) // No current SIT so it will receive the zero value of empty
 	})
 
-	suite.T().Run("calculates status for a shipment currently in SIT", func(t *testing.T) {
+	suite.Run("calculates status for a shipment currently in SIT", func() {
 		shipmentSITAllowance := int(90)
 		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -133,7 +132,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Len(sitStatus.PastSITs, 0)
 	})
 
-	suite.T().Run("combines SIT days sum for shipment with past and current SIT", func(t *testing.T) {
+	suite.Run("combines SIT days sum for shipment with past and current SIT", func() {
 		shipmentSITAllowance := int(90)
 		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -189,7 +188,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(pastDOPSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
 	})
 
-	suite.T().Run("combines SIT days sum for shipment with past origin and current destination SIT", func(t *testing.T) {
+	suite.Run("combines SIT days sum for shipment with past origin and current destination SIT", func() {
 		shipmentSITAllowance := int(90)
 		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -245,7 +244,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(pastDOPSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
 	})
 
-	suite.T().Run("returns negative days remaining when days in SIT exceeds shipment allowance", func(t *testing.T) {
+	suite.Run("returns negative days remaining when days in SIT exceeds shipment allowance", func() {
 		shipmentSITAllowance := int(90)
 		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -301,7 +300,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(pastDOPSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
 	})
 
-	suite.T().Run("excludes SIT service items that have not been approved by the TOO", func(t *testing.T) {
+	suite.Run("excludes SIT service items that have not been approved by the TOO", func() {
 		shipmentSITAllowance := int(90)
 		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{

@@ -55,6 +55,22 @@ export const acknowledgeExcessWeightRiskEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => 'Dismissed excess weight alert',
 });
 
+export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateBillableWeight,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated move',
+});
+
+export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateAllowance,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated allowances',
+});
+
 export const approveShipmentEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.approveShipment,
@@ -254,6 +270,8 @@ const allMoveHistoryEventTemplates = [
   updateServiceItemStatusEvent,
   uploadAmendedOrdersEvent,
   updatePaymentRequestStatus,
+  updateBillableWeightEvent,
+  updateAllowanceEvent,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {
