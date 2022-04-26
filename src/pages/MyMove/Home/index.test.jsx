@@ -3,6 +3,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import moment from 'moment';
 import { generatePath } from 'react-router';
+import { render, screen } from '@testing-library/react';
 
 import { Home } from './index';
 
@@ -234,41 +235,14 @@ describe('Home component', () => {
       };
       const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
       const move = { id: 'testMoveId', status: 'SUBMITTED' };
-      const currentPpm = { id: 'mockPpm ' };
-
+      const mtoShipments = [{ id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm' } }];
       const wrapper = mountHomeWithProviders({
         orders,
         uploadedOrderDocuments,
         move,
-        currentPpm,
+        mtoShipments,
       });
-
-      it('renders the SubmittedMove helper', () => {
-        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
-      });
-
-      it('Profile step is editable', () => {
-        const profileStep = wrapper.find('Step[step="1"]');
-        expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
-      });
-
-      it('Orders Step allows document uploads', () => {
-        const ordersStep = wrapper.find('Step[step="2"]');
-        expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
-      });
-
-      it('renders the SubmittedPPM helper', () => {
-        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
-      });
-    });
-
-    describe('for HHG moves (no PPM)', () => {
-      const wrapper = mountHomeWithProviders({
-        orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Location' } },
-        uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
-        mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
-        move: { id: 'testMoveId', status: 'SUBMITTED' },
-      });
+      const props = { ...defaultProps, orders, uploadedOrderDocuments, move, mtoShipments };
 
       it('renders the SubmittedMove helper', () => {
         expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
@@ -283,15 +257,30 @@ describe('Home component', () => {
         const ordersStep = wrapper.find('Step[step="2"]');
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
+
+      it('renders Step 5', () => {
+        render(<Home {...props} />);
+        expect(screen.getByText('Manage your PPM')).toBeInTheDocument();
+      });
+
+      it('add shipments button no longer present', () => {
+        render(<Home {...props} />);
+        expect(screen.queryByRole('button', { name: 'Add another shipment' })).not.toBeInTheDocument();
+      });
     });
 
-    describe('for NTS moves (no PPM)', () => {
+    describe('for HHG moves (no PPM)', () => {
+      const orders = { id: 'testOrder123', new_duty_location: { name: 'Test Duty Location' } };
+      const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
+      const mtoShipments = [{ id: 'test123', shipmentType: 'HHG' }];
+      const move = { id: 'testMoveId', status: 'SUBMITTED' };
       const wrapper = mountHomeWithProviders({
-        orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Location' } },
-        uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
-        mtoShipments: [{ id: 'test123', shipmentType: 'NTS' }],
-        move: { id: 'testMoveId', status: 'SUBMITTED' },
+        orders,
+        uploadedOrderDocuments,
+        mtoShipments,
+        move,
       });
+      const props = { ...defaultProps, orders, uploadedOrderDocuments, mtoShipments, move };
 
       it('renders the SubmittedMove helper', () => {
         expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
@@ -302,9 +291,57 @@ describe('Home component', () => {
         expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       });
 
-      it('Orders Step is not editable, upload documents offered', () => {
+      it('Orders Step is not editable, upload documents is offered', () => {
         const ordersStep = wrapper.find('Step[step="2"]');
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
+      });
+
+      it('does not render Step 5', () => {
+        render(<Home {...props} />);
+        expect(screen.queryByText('Manage your PPM')).not.toBeInTheDocument();
+      });
+
+      it('add shipments button no longer present', () => {
+        render(<Home {...props} />);
+        expect(screen.queryByRole('button', { name: 'Add another shipment' })).not.toBeInTheDocument();
+      });
+    });
+
+    describe('for NTS moves (no PPM)', () => {
+      const orders = { id: 'testOrder123', new_duty_location: { name: 'Test Duty Location' } };
+      const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
+      const mtoShipments = [{ id: 'test123', shipmentType: 'NTS' }];
+      const move = { id: 'testMoveId', status: 'SUBMITTED' };
+      const wrapper = mountHomeWithProviders({
+        orders,
+        uploadedOrderDocuments,
+        mtoShipments,
+        move,
+      });
+      const props = { ...defaultProps, orders, uploadedOrderDocuments, mtoShipments, move };
+
+      it('renders the SubmittedMove helper', () => {
+        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
+      });
+
+      it('Profile step is editable', () => {
+        const profileStep = wrapper.find('Step[step="1"]');
+        expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
+      });
+
+      it('Orders Step is not editable, upload documents is offered', () => {
+        const ordersStep = wrapper.find('Step[step="2"]');
+        expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
+      });
+
+      it('does not render Step 5', () => {
+        render(<Home {...props} />);
+        expect(screen.queryByText('Manage your PPM')).not.toBeInTheDocument();
+      });
+
+      it('add shipments button no longer present', () => {
+        render(<Home {...props} />);
+        expect(screen.queryByRole('button', { name: 'Add another shipment' })).not.toBeInTheDocument();
       });
     });
 
@@ -318,7 +355,10 @@ describe('Home component', () => {
       };
       const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
       const move = { id: 'testMoveId', status: 'SUBMITTED', submitted_at: submittedAt };
-      const currentPpm = { id: 'mockCombo' };
+      const mtoShipments = [
+        { id: 'test122', shipmentType: 'HHG' },
+        { id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm' } },
+      ];
       const wrapper = mount(
         <MockProviders initialEntries={['/']}>
           <Home
@@ -326,10 +366,11 @@ describe('Home component', () => {
             orders={orders}
             uploadedOrderDocuments={uploadedOrderDocuments}
             move={move}
-            currentPpm={currentPpm}
+            mtoShipments={mtoShipments}
           />
         </MockProviders>,
       );
+      const props = { ...defaultProps, orders, uploadedOrderDocuments, move, mtoShipments };
 
       it('renders submitted date at step 4', () => {
         expect(wrapper.find('[data-testid="move-submitted-description"]').text()).toBe(
@@ -357,8 +398,14 @@ describe('Home component', () => {
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
 
-      it('renders the SubmittedPPM helper', () => {
-        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
+      it('renders Step 5', () => {
+        render(<Home {...props} />);
+        expect(screen.getByText('Manage your PPM')).toBeInTheDocument();
+      });
+
+      it('add shipments button no longer present', () => {
+        render(<Home {...props} />);
+        expect(screen.queryByRole('button', { name: 'Add another shipment' })).not.toBeInTheDocument();
       });
     });
 

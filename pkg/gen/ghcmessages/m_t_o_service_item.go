@@ -40,8 +40,7 @@ type MTOServiceItem struct {
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
 
 	// description
-	// Required: true
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 
 	// dimensions
 	Dimensions MTOServiceItemDimensions `json:"dimensions,omitempty"`
@@ -71,13 +70,11 @@ type MTOServiceItem struct {
 
 	// mto shipment ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-	// Required: true
 	// Format: uuid
-	MtoShipmentID *strfmt.UUID `json:"mtoShipmentID"`
+	MtoShipmentID *strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
 	// pickup postal code
-	// Required: true
-	PickupPostalCode *string `json:"pickupPostalCode"`
+	PickupPostalCode *string `json:"pickupPostalCode,omitempty"`
 
 	// quantity
 	Quantity int64 `json:"quantity,omitempty"`
@@ -100,8 +97,7 @@ type MTOServiceItem struct {
 	ReServiceName *string `json:"reServiceName"`
 
 	// reason
-	// Required: true
-	Reason *string `json:"reason"`
+	Reason *string `json:"reason,omitempty"`
 
 	// rejected at
 	// Format: date-time
@@ -153,10 +149,6 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDescription(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDimensions(formats); err != nil {
 		res = append(res, err)
 	}
@@ -177,10 +169,6 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validatePickupPostalCode(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateReServiceCode(formats); err != nil {
 		res = append(res, err)
 	}
@@ -190,10 +178,6 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceName(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -274,15 +258,6 @@ func (m *MTOServiceItem) validateDeletedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("deletedAt", "body", "date", m.DeletedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateDescription(formats strfmt.Registry) error {
-
-	if err := validate.Required("description", "body", m.Description); err != nil {
 		return err
 	}
 
@@ -381,21 +356,11 @@ func (m *MTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error 
 }
 
 func (m *MTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
-
-	if err := validate.Required("mtoShipmentID", "body", m.MtoShipmentID); err != nil {
-		return err
+	if swag.IsZero(m.MtoShipmentID) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validatePickupPostalCode(formats strfmt.Registry) error {
-
-	if err := validate.Required("pickupPostalCode", "body", m.PickupPostalCode); err != nil {
 		return err
 	}
 
@@ -427,15 +392,6 @@ func (m *MTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
 func (m *MTOServiceItem) validateReServiceName(formats strfmt.Registry) error {
 
 	if err := validate.Required("reServiceName", "body", m.ReServiceName); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateReason(formats strfmt.Registry) error {
-
-	if err := validate.Required("reason", "body", m.Reason); err != nil {
 		return err
 	}
 

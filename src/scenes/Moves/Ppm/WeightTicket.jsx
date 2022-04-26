@@ -28,7 +28,7 @@ import { getNextPage } from './utility';
 import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
-import { formatToOrdinal } from 'shared/formatters';
+import { formatToOrdinal } from 'utils/formatters';
 
 import './PPMPaymentRequest.css';
 

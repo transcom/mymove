@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi"
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
-	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
@@ -113,13 +112,6 @@ func NewAdminAPI(ctx handlers.HandlerContext) *adminops.MymoveAPI {
 		ctx,
 		electronicorder.NewElectronicOrdersCategoricalCountsFetcher(queryBuilder),
 		query.NewQueryFilter,
-	}
-
-	adminAPI.AccessCodesIndexAccessCodesHandler = IndexAccessCodesHandler{
-		ctx,
-		accesscodeservice.NewAccessCodeListFetcher(queryBuilder),
-		query.NewQueryFilter,
-		pagination.NewPagination,
 	}
 
 	adminAPI.AdminUsersIndexAdminUsersHandler = IndexAdminUsersHandler{

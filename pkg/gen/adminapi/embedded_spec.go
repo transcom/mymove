@@ -36,69 +36,6 @@ func init() {
   },
   "basePath": "/admin/v1",
   "paths": {
-    "/access_codes": {
-      "get": {
-        "description": "Returns a list of access codes",
-        "tags": [
-          "access_codes"
-        ],
-        "summary": "List access codes",
-        "operationId": "indexAccessCodes",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "filter",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "name": "order",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/AccessCodes"
-            },
-            "headers": {
-              "Content-Range": {
-                "type": "string",
-                "description": "Used for pagination"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "access codes not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/admin_users": {
       "get": {
         "description": "Returns a list of admin users",
@@ -1432,37 +1369,6 @@ func init() {
     }
   },
   "definitions": {
-    "AccessCode": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "string",
-          "example": "CODE456"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "locator": {
-          "type": "string",
-          "example": "11232"
-        },
-        "moveType": {
-          "type": "string",
-          "title": "Selected Move Type",
-          "enum": [
-            "PPM"
-          ]
-        }
-      }
-    },
-    "AccessCodes": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/AccessCode"
-      }
-    },
     "Address": {
       "type": "object",
       "required": [
@@ -2664,69 +2570,6 @@ func init() {
   },
   "basePath": "/admin/v1",
   "paths": {
-    "/access_codes": {
-      "get": {
-        "description": "Returns a list of access codes",
-        "tags": [
-          "access_codes"
-        ],
-        "summary": "List access codes",
-        "operationId": "indexAccessCodes",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "filter",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "name": "order",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/AccessCodes"
-            },
-            "headers": {
-              "Content-Range": {
-                "type": "string",
-                "description": "Used for pagination"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "access codes not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/admin_users": {
       "get": {
         "description": "Returns a list of admin users",
@@ -4060,37 +3903,6 @@ func init() {
     }
   },
   "definitions": {
-    "AccessCode": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "string",
-          "example": "CODE456"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "locator": {
-          "type": "string",
-          "example": "11232"
-        },
-        "moveType": {
-          "type": "string",
-          "title": "Selected Move Type",
-          "enum": [
-            "PPM"
-          ]
-        }
-      }
-    },
-    "AccessCodes": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/AccessCode"
-      }
-    },
     "Address": {
       "type": "object",
       "required": [

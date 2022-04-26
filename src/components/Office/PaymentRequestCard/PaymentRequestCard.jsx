@@ -11,7 +11,7 @@ import styles from './PaymentRequestCard.module.scss';
 import { HistoryShape } from 'types/router';
 import { PaymentRequestShape } from 'types';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
-import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
+import { toDollarString, formatDateFromIso, formatCents } from 'utils/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import ConnectedAcountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
 import { groupByShipment } from 'utils/serviceItems';

@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -13,7 +12,7 @@ import (
 )
 
 func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
-	suite.T().Run("Returns an error when shipment is not found", func(t *testing.T) {
+	suite.Run("Returns an error when shipment is not found", func() {
 		shipmentDeleter := NewShipmentDeleter()
 		uuid := uuid.Must(uuid.NewV4())
 
@@ -23,7 +22,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when the Move is neither in Draft nor in NeedsServiceCounseling status", func(t *testing.T) {
+	suite.Run("Returns an error when the Move is neither in Draft nor in NeedsServiceCounseling status", func() {
 		shipmentDeleter := NewShipmentDeleter()
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		move := shipment.MoveTaskOrder
@@ -36,7 +35,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		suite.IsType(apperror.ForbiddenError{}, err)
 	})
 
-	suite.T().Run("Soft deletes the shipment when it is found", func(t *testing.T) {
+	suite.Run("Soft deletes the shipment when it is found", func() {
 		shipmentDeleter := NewShipmentDeleter()
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 
@@ -74,7 +73,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		}
 	})
 
-	suite.T().Run("Returns not found error when the shipment is already deleted", func(t *testing.T) {
+	suite.Run("Returns not found error when the shipment is already deleted", func() {
 		shipmentDeleter := NewShipmentDeleter()
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)

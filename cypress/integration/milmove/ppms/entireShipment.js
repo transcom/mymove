@@ -69,6 +69,7 @@ function navigateHappyPathWithDelete(userId, isMobile = false) {
   submitsAdvancePage(true, isMobile);
   navigateToAgreementAndSign();
   submitMove('@signedCertifications');
+  verifyStep5ExistsAndBtnIsDisabled();
 }
 
 function navigateHappyPathWithEditsAndBacks(userId, isMobile = false) {
@@ -85,7 +86,9 @@ function navigateHappyPathWithEditsAndBacks(userId, isMobile = false) {
   submitsAdvancePage(true, isMobile);
 
   navigateToAgreementAndSign();
+
   submitMove('@signedCertifications');
+  verifyStep5ExistsAndBtnIsDisabled();
 }
 
 // update the form values by submitting and then return to the page to verify if the values persist and then return to the next page
@@ -136,4 +139,11 @@ function verifyShipmentSpecificInfoOnEstimatedIncentivePage() {
 function customerDeletesExistingShipment() {
   cy.get('[data-testid="shipment-list-item-container"]').as('shipmentListContainer');
   deleteShipment('@shipmentListContainer', 0);
+}
+
+function verifyStep5ExistsAndBtnIsDisabled() {
+  cy.get('[data-testid="stepContainer5"]').within(() => {
+    cy.get('button').contains('Upload PPM Documents').should('be.disabled');
+    cy.get('p').contains('After a counselor approves your PPM, you will be able to:');
+  });
 }

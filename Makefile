@@ -127,7 +127,7 @@ setup:
 deps_nix: install_pre_commit deps_shared ## Nix equivalent (kind of) of `deps` target.
 
 .PHONY: deps_shared
-deps_shared: client_deps bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem bin/rds-ca-rsa4096-g1.pem ## install dependencies
+deps_shared: client_deps bin/rds-ca-2019-root.pem bin/rds-ca-rsa4096-g1.pem ## install dependencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -231,10 +231,6 @@ bin/rds-ca-2019-root.pem:
 	mkdir -p bin/
 	curl -sSo bin/rds-ca-2019-root.pem https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
 
-bin/rds-ca-us-gov-west-1-2017-root.pem:
-	mkdir -p bin/
-	curl -sSo bin/rds-ca-us-gov-west-1-2017-root.pem https://s3.us-gov-west-1.amazonaws.com/rds-downloads/rds-ca-us-gov-west-1-2017-root.pem
-
 ### MilMove Targets
 
 bin/big-cat: cmd/big-cat
@@ -248,9 +244,6 @@ bin/generate-deploy-notes: cmd/generate-deploy-notes
 
 bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
-
-bin/generate-access-codes: cmd/generate_access_codes
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
 bin/generate-shipment-summary: cmd/generate-shipment-summary
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate-shipment-summary
@@ -373,11 +366,9 @@ build_tools: bin/gin \
 	bin/mockery \
 	bin/rds-ca-rsa4096-g1.pem \
 	bin/rds-ca-2019-root.pem \
-	bin/rds-ca-us-gov-west-1-2017-root.pem \
 	bin/big-cat \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
-	bin/generate-access-codes \
 	bin/generate-payment-request-edi \
 	bin/generate-shipment-summary \
 	bin/generate-test-data \
@@ -400,7 +391,7 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # acceptance_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: acceptance_test
-acceptance_test: bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem bin/rds-ca-rsa4096-g1.pem ## Run acceptance tests
+acceptance_test: bin/rds-ca-2019-root.pem bin/rds-ca-rsa4096-g1.pem ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."

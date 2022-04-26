@@ -39,125 +39,6 @@ func init() {
   },
   "basePath": "/internal",
   "paths": {
-    "/access_codes": {
-      "get": {
-        "description": "Fetches the access code for a service member.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Fetches an access code",
-        "operationId": "fetchAccessCode",
-        "responses": {
-          "200": {
-            "description": "access code has been found in system",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to fetch access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/access_codes/invalid": {
-      "patch": {
-        "description": "Updates access code as invalid by associating it with the current service member.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Updates access code as invalid by associating it with the current service member.",
-        "operationId": "claimAccessCode",
-        "parameters": [
-          {
-            "description": "the code the access code represents and verifies if in use",
-            "name": "accessCode",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "code"
-              ],
-              "properties": {
-                "code": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "access code is invalid or valid",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to validate access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/access_codes/valid": {
-      "get": {
-        "description": "Verifies if access code is both unused and correctly associated with a move type.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Validate if an access code has been unused and associated with the correct move type.",
-        "operationId": "validateAccessCode",
-        "parameters": [
-          {
-            "pattern": "^(HHG|PPM)-[A-Z0-9]{6}$",
-            "type": "string",
-            "x-nullable": false,
-            "description": "the code the access code represents and verifies if in use",
-            "name": "code",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "access code is invalid or valid",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to validate access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/addresses/{addressId}": {
       "get": {
         "description": "Returns an address",
@@ -547,37 +428,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/IndexEntitlements"
             }
-          }
-        }
-      }
-    },
-    "/entitlements/{moveId}": {
-      "get": {
-        "description": "Determine whether weight estimate is below entitlement",
-        "tags": [
-          "entitlements"
-        ],
-        "summary": "Validates that the stored weight estimate is below the allotted entitlement range for a service member",
-        "operationId": "validateEntitlement",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "weight estimate is below allotted entitlement"
-          },
-          "404": {
-            "description": "personally procured move not found"
-          },
-          "409": {
-            "description": "Requested weight estimate is above allotted entitlement"
           }
         }
       }
@@ -3162,50 +3012,6 @@ func init() {
     }
   },
   "definitions": {
-    "AccessCode": {
-      "type": "object",
-      "required": [
-        "id",
-        "code",
-        "move_type",
-        "created_at"
-      ],
-      "properties": {
-        "claimed_at": {
-          "description": "when the access code was claimed or used",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "example": "2018-04-12T23:20:50.52Z"
-        },
-        "code": {
-          "type": "string",
-          "example": "CODE456"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "move_type": {
-          "type": "string",
-          "title": "Selected Move Type",
-          "enum": [
-            "HHG",
-            "PPM"
-          ]
-        },
-        "service_member_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
     "Address": {
       "description": "A postal address",
       "type": "object",
@@ -6149,8 +5955,7 @@ func init() {
         "user_id",
         "is_profile_complete",
         "created_at",
-        "updated_at",
-        "requires_access_code"
+        "updated_at"
       ],
       "properties": {
         "affiliation": {
@@ -6233,11 +6038,6 @@ func init() {
         "rank": {
           "title": "Rank",
           "$ref": "#/definitions/ServiceMemberRank"
-        },
-        "requires_access_code": {
-          "type": "boolean",
-          "title": "Requires Access Code",
-          "x-nullable": false
         },
         "residential_address": {
           "title": "Residential Address",
@@ -6983,125 +6783,6 @@ func init() {
   },
   "basePath": "/internal",
   "paths": {
-    "/access_codes": {
-      "get": {
-        "description": "Fetches the access code for a service member.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Fetches an access code",
-        "operationId": "fetchAccessCode",
-        "responses": {
-          "200": {
-            "description": "access code has been found in system",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to fetch access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/access_codes/invalid": {
-      "patch": {
-        "description": "Updates access code as invalid by associating it with the current service member.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Updates access code as invalid by associating it with the current service member.",
-        "operationId": "claimAccessCode",
-        "parameters": [
-          {
-            "description": "the code the access code represents and verifies if in use",
-            "name": "accessCode",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "code"
-              ],
-              "properties": {
-                "code": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "access code is invalid or valid",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to validate access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/access_codes/valid": {
-      "get": {
-        "description": "Verifies if access code is both unused and correctly associated with a move type.",
-        "tags": [
-          "accesscode"
-        ],
-        "summary": "Validate if an access code has been unused and associated with the correct move type.",
-        "operationId": "validateAccessCode",
-        "parameters": [
-          {
-            "pattern": "^(HHG|PPM)-[A-Z0-9]{6}$",
-            "type": "string",
-            "x-nullable": false,
-            "description": "the code the access code represents and verifies if in use",
-            "name": "code",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "access code is invalid or valid",
-            "schema": {
-              "$ref": "#/definitions/AccessCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "not authorized to validate access code"
-          },
-          "404": {
-            "description": "access code not found in system"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/addresses/{addressId}": {
       "get": {
         "description": "Returns an address",
@@ -7491,37 +7172,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/IndexEntitlements"
             }
-          }
-        }
-      }
-    },
-    "/entitlements/{moveId}": {
-      "get": {
-        "description": "Determine whether weight estimate is below entitlement",
-        "tags": [
-          "entitlements"
-        ],
-        "summary": "Validates that the stored weight estimate is below the allotted entitlement range for a service member",
-        "operationId": "validateEntitlement",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "weight estimate is below allotted entitlement"
-          },
-          "404": {
-            "description": "personally procured move not found"
-          },
-          "409": {
-            "description": "Requested weight estimate is above allotted entitlement"
           }
         }
       }
@@ -10175,50 +9825,6 @@ func init() {
     }
   },
   "definitions": {
-    "AccessCode": {
-      "type": "object",
-      "required": [
-        "id",
-        "code",
-        "move_type",
-        "created_at"
-      ],
-      "properties": {
-        "claimed_at": {
-          "description": "when the access code was claimed or used",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "example": "2018-04-12T23:20:50.52Z"
-        },
-        "code": {
-          "type": "string",
-          "example": "CODE456"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "move_type": {
-          "type": "string",
-          "title": "Selected Move Type",
-          "enum": [
-            "HHG",
-            "PPM"
-          ]
-        },
-        "service_member_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
     "Address": {
       "description": "A postal address",
       "type": "object",
@@ -13183,8 +12789,7 @@ func init() {
         "user_id",
         "is_profile_complete",
         "created_at",
-        "updated_at",
-        "requires_access_code"
+        "updated_at"
       ],
       "properties": {
         "affiliation": {
@@ -13267,11 +12872,6 @@ func init() {
         "rank": {
           "title": "Rank",
           "$ref": "#/definitions/ServiceMemberRank"
-        },
-        "requires_access_code": {
-          "type": "boolean",
-          "title": "Requires Access Code",
-          "x-nullable": false
         },
         "residential_address": {
           "title": "Residential Address",

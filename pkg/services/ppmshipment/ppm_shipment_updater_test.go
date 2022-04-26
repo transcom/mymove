@@ -17,22 +17,22 @@ func createDefaultPPMShipment() *models.PPMShipment {
 }
 
 func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
-	// eTag := etag.GenerateEtag(oldPPMShipment.UpdatedAt)
 	suite.Run("UpdatePPMShipment - Success", func() {
 		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
-		ppmShipmentUpdater := NewPPMShipmentUpdater()
+		ppmEstimator := NewEstimatePPM()
+		ppmShipmentUpdater := NewPPMShipmentUpdater(ppmEstimator)
 
 		newPPM := createDefaultPPMShipment()
 		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), newPPM, oldPPMShipment.ShipmentID)
 
 		suite.NilOrNoVerrs(err)
 		suite.Equal(newPPM.PickupPostalCode, updatedPPMShipment.PickupPostalCode)
-		// suite.True(updatedPPMShipment.SitExpected)
 		suite.Equal(*oldPPMShipment.ProGearWeight, *updatedPPMShipment.ProGearWeight)
 	})
 
 	suite.Run("Not Found Error", func() {
-		ppmShipmentUpdater := NewPPMShipmentUpdater()
+		ppmEstimator := NewEstimatePPM()
+		ppmShipmentUpdater := NewPPMShipmentUpdater(ppmEstimator)
 
 		newPPM := createDefaultPPMShipment()
 		updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), newPPM, uuid.Nil)
@@ -41,16 +41,4 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
-
-	// suite.Run("Precondition Failed", func() {
-	// 	oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
-	// 	ppmShipmentUpdater := NewPPMShipmentUpdater()
-
-	// 	newPPM := createDefaultPPMShipment()
-	// 	updatedPPMShipment, err := ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), newPPM, oldPPMShipment.ShipmentID)
-
-	// 	suite.Nil(updatedPPMShipment)
-	// 	suite.Error(err)
-	// 	suite.IsType(apperror.PreconditionFailedError{}, err)
-	// })
 }

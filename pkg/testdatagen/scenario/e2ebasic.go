@@ -1544,7 +1544,7 @@ func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploa
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1569,7 +1569,7 @@ func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploa
 		},
 	}
 
-	createGenericUnSubmittedMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1614,44 +1614,6 @@ func serviceMemberWithOrdersAndPPMMove08(appCtx appcontext.AppContext, userUploa
 		Move: models.Move{
 			ID:       uuid.FromStringOrNil("2b485ded-a395-4dbb-9aa7-3f902dd4ccea"),
 			OrdersID: orders.ID,
-		},
-	})
-}
-
-func serviceMemberWithPPMMoveWithAccessCode(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	email := "accesscode@mail.com"
-	uuidStr := "1dc93d47-0f3e-4686-9dcf-5d940d0d3ed9"
-	loginGovID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-	sm := models.ServiceMember{
-		ID:            uuid.FromStringOrNil("09229b74-6da8-47d0-86b7-7c91e991b970"),
-		UserID:        uuid.FromStringOrNil(uuidStr),
-		FirstName:     models.StringPointer("Claimed"),
-		LastName:      models.StringPointer("Access Code"),
-		Edipi:         models.StringPointer("163105198"),
-		PersonalEmail: models.StringPointer(email),
-	}
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: sm,
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("7201788b-92f4-430b-8541-6430b2cc7f3e"),
-			Locator: "CLAIMD",
-		},
-		UserUploader: userUploader,
-	})
-	testdatagen.MakeAccessCode(appCtx.DB(), testdatagen.Assertions{
-		AccessCode: models.AccessCode{
-			Code:            "ZYX321",
-			MoveType:        models.SelectedMoveTypePPM,
-			ServiceMember:   sm,
-			ServiceMemberID: &sm.ID,
 		},
 	})
 }
@@ -4008,22 +3970,6 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		InnerJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
 		All(&originDutyLocationsInGBLOC)
 
-	/*
-	* Creates two valid, unclaimed access codes
-	 */
-	testdatagen.MakeAccessCode(appCtx.DB(), testdatagen.Assertions{
-		AccessCode: models.AccessCode{
-			Code:     "X3FQJK",
-			MoveType: models.SelectedMoveTypeHHG,
-		},
-	})
-	testdatagen.MakeAccessCode(appCtx.DB(), testdatagen.Assertions{
-		AccessCode: models.AccessCode{
-			Code:     "ABC123",
-			MoveType: models.SelectedMoveTypePPM,
-		},
-	})
-
 	// Create one webhook subscription for PaymentRequestUpdate
 	testdatagen.MakeWebhookSubscription(appCtx.DB(), testdatagen.Assertions{
 		WebhookSubscription: models.WebhookSubscription{
@@ -4070,7 +4016,6 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithOrdersAndPPMMove06(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove07(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove08(appCtx, userUploader)
-	serviceMemberWithPPMMoveWithAccessCode(appCtx, userUploader)
 
 	//destination type
 	hos := models.DestinationTypeHomeOfSelection
@@ -4135,6 +4080,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createUnSubmittedMoveWithFullPPMShipment2(appCtx, userUploader)
 	createUnSubmittedMoveWithFullPPMShipment3(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
+	createApprovedMoveWithPPM(appCtx, userUploader)
 	createNTSMoveWithServiceItemsandPaymentRequests(appCtx, userUploader)
 
 	// TIO

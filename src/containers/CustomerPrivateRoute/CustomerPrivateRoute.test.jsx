@@ -61,129 +61,39 @@ describe('ConnectedCustomerPrivateRoute', () => {
     });
 
     describe('and is logged in', () => {
-      describe('and does not require an access code', () => {
-        const wrapper = mount(
-          <MockProviders
-            initialState={{
-              auth: {
-                isLoading: false,
-                isLoggedIn: true,
-              },
-              entities: {
-                user: {
-                  userId123: {
-                    id: 'userId123',
-                    service_member: 'serviceMember456',
-                  },
-                },
-                serviceMembers: {
-                  serviceMember456: {
-                    id: 'serviceMember456',
-                    requires_access_code: false,
-                  },
+      const wrapper = mount(
+        <MockProviders
+          initialState={{
+            auth: {
+              isLoading: false,
+              isLoggedIn: true,
+            },
+            entities: {
+              user: {
+                userId123: {
+                  id: 'userId123',
+                  service_member: 'serviceMember456',
                 },
               },
-            }}
-            initialEntries={['/']}
-          >
-            <ConnectedCustomerPrivateRoute path="/" component={MyPrivateComponent} />
-          </MockProviders>,
-        );
+              serviceMembers: {
+                serviceMember456: {
+                  id: 'serviceMember456',
+                },
+              },
+            },
+          }}
+          initialEntries={['/']}
+        >
+          <ConnectedCustomerPrivateRoute path="/" component={MyPrivateComponent} />
+        </MockProviders>,
+      );
 
-        it('does not render the loading placeholder', () => {
-          expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
-        });
-
-        it('renders the requested component', () => {
-          expect(wrapper.contains(<div>My page</div>)).toEqual(true);
-        });
+      it('does not render the loading placeholder', () => {
+        expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
       });
 
-      describe('and requires an access code but doesn’t have one', () => {
-        const wrapper = mount(
-          <MockProviders
-            initialState={{
-              auth: {
-                isLoading: false,
-                isLoggedIn: true,
-              },
-              entities: {
-                user: {
-                  userId123: {
-                    id: 'userId123',
-                    service_member: 'serviceMember456',
-                  },
-                },
-                serviceMembers: {
-                  serviceMember456: {
-                    id: 'serviceMember456',
-                    requires_access_code: true,
-                  },
-                },
-              },
-            }}
-            initialEntries={['/']}
-          >
-            <ConnectedCustomerPrivateRoute path="/" component={MyPrivateComponent} />
-          </MockProviders>,
-        );
-
-        it('does not render the loading placeholder', () => {
-          expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
-        });
-        it('does not render the requested component', () => {
-          expect(wrapper.contains(<div>My page</div>)).toEqual(false);
-        });
-
-        it('redirects to the access code URL', () => {
-          const redirect = wrapper.find('Redirect');
-          expect(redirect).toHaveLength(1);
-          expect(redirect.prop('to')).toEqual('/access-code');
-        });
-      });
-
-      describe('and requires an access code and has one', () => {
-        const wrapper = mount(
-          <MockProviders
-            initialState={{
-              auth: {
-                isLoading: false,
-                isLoggedIn: true,
-              },
-              entities: {
-                accessCodes: {
-                  accessCodeTest: {
-                    id: 'accessCodeTest',
-                    code: 'TEST_ACCESS_CODE',
-                  },
-                },
-                user: {
-                  userId123: {
-                    id: 'userId123',
-                    service_member: 'serviceMember456',
-                  },
-                },
-                serviceMembers: {
-                  serviceMember456: {
-                    id: 'serviceMember456',
-                    requires_access_code: true,
-                  },
-                },
-              },
-            }}
-            initialEntries={['/']}
-          >
-            <ConnectedCustomerPrivateRoute path="/" component={MyPrivateComponent} />
-          </MockProviders>,
-        );
-
-        it('does not render the loading placeholder', () => {
-          expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
-        });
-
-        it('renders the requested component', () => {
-          expect(wrapper.contains(<div>My page</div>)).toEqual(true);
-        });
+      it('renders the requested component', () => {
+        expect(wrapper.contains(<div>My page</div>)).toEqual(true);
       });
     });
   });
