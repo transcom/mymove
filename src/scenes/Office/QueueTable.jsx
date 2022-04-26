@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 import Alert from 'shared/Alert';
-import { formatTimeAgo } from 'shared/formatters';
+import { formatTimeAgo } from 'utils/formatters';
 import { logOut as logOutAction } from 'store/auth/actions';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { defaultColumns } from './queueTableColumns';

@@ -146,9 +146,9 @@ export function submitMove(actionToWaitOn) {
     cy.wait(actionToWaitOn);
   }
 
-  cy.get('.usa-alert--success').within(() => {
-    cy.contains('You’ve submitted your move request.');
-  });
+  cy.get('.usa-alert--success').contains('You’ve submitted your move request.');
+
+  cy.get('h3').contains('Next step: Your move gets approved');
 
   // ensure that shipment list doesn't have a button to edit or delete
   cy.get('[data-testid="shipment-list-item-container"] button').should('not.exist');

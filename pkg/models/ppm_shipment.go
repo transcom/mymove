@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -69,9 +71,8 @@ func (p PPMShipment) TableName() string {
 func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UUID) (*PPMShipment, error) {
 	var ppmShipment PPMShipment
 
-	err := db.EagerPreload("Shipment").
+	err := db.Scope(utilities.ExcludeDeletedScope()).EagerPreload("Shipment").
 		Where("ppm_shipments.shipment_id = ?", mtoShipmentID).
-		Where("ppm_shipments.deleted_at is null").
 		First(&ppmShipment)
 
 	if err != nil {

@@ -41,6 +41,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
+	ppmEstimator := ppmshipment.NewEstimatePPM()
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{ctx, officeuser.NewOfficeUserFetcherPop()}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{ctx}
@@ -118,7 +119,6 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{ctx, moveRouter}
 
 	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{ctx}
-	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{ctx}
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{ctx}
 
@@ -161,7 +161,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 			ctx.NotificationSender(),
 			paymentRequestShipmentRecalculator,
 		),
-		ppmshipment.NewPPMShipmentUpdater(),
+		ppmshipment.NewPPMShipmentUpdater(ppmEstimator),
 	}
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{

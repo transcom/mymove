@@ -6,8 +6,7 @@ import { object, string, shape, bool, number } from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
 
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { formatCentsRange, formatCents } from 'shared/formatters';
-import { formatDateSM } from 'utils/formatters';
+import { formatDateSM, formatCentsRange, formatCents } from 'utils/formatters';
 import { hasShortHaulError } from 'utils/incentives';
 import {
   selectServiceMemberFromLoggedInUser,

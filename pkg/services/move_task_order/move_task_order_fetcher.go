@@ -117,13 +117,16 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	}
 
 	// Filtering external vendor shipments in code since we can't do it easily in Pop without a raw query.
+	// Also, due to a Pop bug, we cannot EagerPreload "Reweigh" or "PPMShipment" likely because they are both
+	// a pointer and "has_one" field, so we're loading those here.  This seems similar to other EagerPreload
+	// issues we've found (and sometimes fixed): https://github.com/gobuffalo/pop/issues?q=author%3Areggieriser
 	var filteredShipments models.MTOShipments
 	if mto.MTOShipments != nil {
 		filteredShipments = models.MTOShipments{}
 	}
 	for i, shipment := range mto.MTOShipments {
-		// Skip any shipments that use an external vendor (if requested)
-		if searchParams.ExcludeExternalShipments && shipment.UsesExternalVendor {
+		// Skip any shipments that are deleted or use an external vendor (if requested)
+		if shipment.DeletedAt != nil || (searchParams.ExcludeExternalShipments && shipment.UsesExternalVendor) {
 			continue
 		}
 
@@ -132,6 +135,13 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			return &models.Move{}, err
 		}
 		mto.MTOShipments[i].Reweigh = reweigh
+
+		if mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
+			loadErr := appCtx.DB().Load(&mto.MTOShipments[i], "PPMShipment")
+			if loadErr != nil {
+				return &models.Move{}, apperror.NewQueryError("PPMShipment", err, "")
+			}
+		}
 
 		filteredShipments = append(filteredShipments, mto.MTOShipments[i])
 	}

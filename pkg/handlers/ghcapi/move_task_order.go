@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/transcom/mymove/pkg/services/event"
 
@@ -137,14 +138,7 @@ type UpdateMTOStatusServiceCounselingCompletedHandlerFunc struct {
 func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params movetaskorderops.UpdateMTOStatusServiceCounselingCompletedParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			eTag := params.IfMatch
-
-			// TODO - Revisit authorization for Service Counselor role
-			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-
-			mto, err := h.moveTaskOrderStatusUpdater.UpdateStatusServiceCounselingCompleted(appCtx, moveTaskOrderID, eTag)
-
-			if err != nil {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc error", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
@@ -162,9 +156,25 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 				case apperror.ConflictError:
 					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedConflict().
 						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				case apperror.ForbiddenError:
+					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedForbidden().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
 					return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedInternalServerError(), err
 				}
+			}
+
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
+			}
+
+			eTag := params.IfMatch
+			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+			mto, err := h.moveTaskOrderStatusUpdater.UpdateStatusServiceCounselingCompleted(appCtx, moveTaskOrderID, eTag)
+
+			if err != nil {
+				return handleError(err)
 			}
 
 			moveTaskOrderPayload := payloads.Move(mto)

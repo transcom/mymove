@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { FormSection, getFormValues, reduxForm } from 'redux-form';
 
 import { editablePanelify, PanelField, PanelSwaggerField } from 'shared/EditablePanel';
-import { formatCentsRange } from 'shared/formatters';
+import { formatCentsRange } from 'utils/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';

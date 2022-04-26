@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import * as formatters from './formatters';
 
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
@@ -9,11 +11,6 @@ describe('formatters', () => {
     });
     it('should format signature date to YYYY-MM-DD', () => {
       expect(formatters.formatSignatureDate('2020-09-27T00:00:00Z')).toBe('2020-09-27');
-    });
-  });
-  describe('format order type for customer app', () => {
-    it('should format order type to be human readable', () => {
-      expect(formatters.formatOrderType('PERMANENT_CHANGE_OF_STATION')).toBe('Permanent change of station');
     });
   });
 
@@ -240,6 +237,20 @@ describe('formatters', () => {
 
     it('returns expected string greater than 1 day', () => {
       expect(formatters.formatAgeToDays(2.99)).toEqual('2 days');
+    });
+  });
+
+  describe('formatTimeAgo', () => {
+    it('should account for 1 minute correctly', () => {
+      let time = new Date();
+      let formattedTime = formatters.formatTimeAgo(time);
+
+      expect(formattedTime).toEqual('a few seconds ago');
+
+      time = moment().subtract(1, 'minute').toDate();
+      formattedTime = formatters.formatTimeAgo(time);
+
+      expect(formattedTime).toEqual('1 min ago');
     });
   });
 });
