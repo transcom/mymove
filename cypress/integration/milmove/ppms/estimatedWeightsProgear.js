@@ -63,7 +63,7 @@ function invalidInputs() {
   // pro gear violates max
   cy.get('input[name="hasProGear"][value="true"]').check({ force: true });
   cy.get('input[name="proGearWeight"]').type(5000).blur();
-  cy.get('@errorMessage').contains('Enter a weight less than 2,000 lbs');
+  cy.get('@errorMessage').contains('Enter a weight 2,000 lbs or less');
   cy.get('input[name="proGearWeight"]').clear().type(500).blur();
   cy.get('@errorMessage').should('not.exist');
 
@@ -77,7 +77,7 @@ function invalidInputs() {
 
   // spouse pro gear max violation
   cy.get('input[name="spouseProGearWeight"]').clear().type(1000).blur();
-  cy.get('@errorMessage').contains('Enter a weight less than 500 lbs');
+  cy.get('@errorMessage').contains('Enter a weight 500 lbs or less');
   cy.get('input[name="spouseProGearWeight"]').clear().type(100).blur();
   cy.get('@errorMessage').should('not.exist');
 }
