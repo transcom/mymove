@@ -5,8 +5,11 @@ import styles from './PaymentDetails.module.scss';
 
 import { HistoryLogContextShape } from 'constants/historyLogUIDisplayName';
 
+const APPROVED_STRING = 'Approved';
+const REJECTED_STRING = 'Rejected';
+
 const iconToDisplay = (statusToFilter) => {
-  if (statusToFilter === 'Approved') {
+  if (statusToFilter === APPROVED_STRING) {
     return <FontAwesomeIcon icon="check" className={styles.successCheck} />;
   }
   return <FontAwesomeIcon icon="times" className={styles.rejectTimes} />;
@@ -44,8 +47,8 @@ const filterContextStatus = (context, statusToFilter) => {
 const PaymentDetails = ({ context }) => {
   return (
     <div className={styles.PaymentDetails}>
-      {filterContextStatus(context, 'Approved')}
-      {filterContextStatus(context, 'Rejected')}
+      {filterContextStatus(context, APPROVED_STRING)}
+      {filterContextStatus(context, REJECTED_STRING)}
     </div>
   );
 };
