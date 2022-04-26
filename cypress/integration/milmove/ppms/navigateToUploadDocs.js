@@ -33,7 +33,7 @@ describe('PPM Request Payment - Begin providing documents flow', () => {
 function verifyHomePageAfterCounseling() {
   cy.get('h3').should('contain', 'Your move is in progress.');
   cy.get('[data-testid="stepContainer5"]').within(() => {
-    cy.get('p').contains('25 Apr 2022');
+    cy.get('p').contains('15 Apr 2022');
     cy.get('button').contains('Upload PPM Documents').should('be.enabled').click();
     cy.location().should((loc) => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
