@@ -72,9 +72,9 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		SELECT
 			audit_history.*,
 			NULLIF(
-				jsonb_strip_nulls(
+				jsonb_agg(jsonb_strip_nulls(
 					jsonb_build_object('origin_duty_location_name', old_duty.name, 'new_duty_location_name', new_duty.name)
-				)::TEXT, '{}'::TEXT
+				))::TEXT, '[{}]'::TEXT
 			) AS context,
  			NULL AS context_id
 		FROM
@@ -84,6 +84,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		JOIN jsonb_to_record(audit_history.changed_data) as c(origin_duty_location_id TEXT, new_duty_location_id TEXT) on TRUE
 		LEFT JOIN duty_locations AS old_duty on uuid(c.origin_duty_location_id) = old_duty.id
 		LEFT JOIN duty_locations AS new_duty on uuid(c.new_duty_location_id) = new_duty.id
+		GROUP BY audit_history.id
 	),
 	service_items AS (
 		SELECT
