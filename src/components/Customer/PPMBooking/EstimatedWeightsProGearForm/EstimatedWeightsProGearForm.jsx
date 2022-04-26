@@ -28,12 +28,10 @@ const validationSchema = Yup.object().shape({
       then: (schema) =>
         schema
           .required(`Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.`)
-          .max(2000, 'Enter a weight less than 2,000 lbs'),
-      otherwise: Yup.number().min(0, 'Enter a weight 0lbs or greater').max(2000, 'Enter a weight less than 2,000 lbs'),
+          .max(2000, 'Enter a weight 2,000 lbs or less'),
+      otherwise: Yup.number().min(0, 'Enter a weight 0lbs or greater').max(2000, 'Enter a weight 2,000 lbs or less'),
     }),
-  spouseProGearWeight: Yup.number()
-    .min(0, 'Enter a weight 0lbs or greater')
-    .max(500, 'Enter a weight less than 500 lbs'),
+  spouseProGearWeight: Yup.number().min(0, 'Enter a weight 0lbs or greater').max(500, 'Enter a weight 500 lbs or less'),
 });
 
 const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSubmit, onBack }) => {
