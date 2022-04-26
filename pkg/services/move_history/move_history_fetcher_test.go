@@ -368,8 +368,10 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
-		suite.Contains(moveHistoryData.AuditHistories[0].Context, "APPROVED")
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
+		contextValue := *moveHistoryData.AuditHistories[0].Context
+		suite.Contains(contextValue, "APPROVED")
+
 	})
 }
