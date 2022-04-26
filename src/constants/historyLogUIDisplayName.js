@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 export const HistoryLogValuesShape = PropTypes.object;
-export const HistoryLogContextShape = PropTypes.object;
+export const HistoryLogContextShape = PropTypes.array;
 
 export const HistoryLogRecordShape = PropTypes.shape({
   action: PropTypes.string,
