@@ -80,7 +80,7 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) {
 		func(ctx context.Context) {
 			dbStats, dberr := stats.DBStats(appCtx)
 			if dberr == nil {
-				poolIdle.Observe(ctx, int64(dbStats.Idle))
+				dbWait.Observe(ctx, int64(dbStats.Idle))
 			}
 		})
 
