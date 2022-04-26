@@ -10,7 +10,10 @@ const {
   acknowledgeExcessWeightRiskEvent,
   createStandardServiceItemEvent,
   createBasicServiceItemEvent,
+  updateOrderEvent,
 } = require('./moveHistoryEventTemplate');
+
+const { detailsTypes } = require('constants/moveHistoryEventTemplate');
 
 describe('moveHistoryEventTemplate', () => {
   describe('when given an Acknowledge excess weight risk history record', () => {
@@ -193,6 +196,28 @@ describe('moveHistoryEventTemplate', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(updateMoveTaskOrderStatusEvent);
       expect(result.getDetailsPlainText(item)).toEqual('Rejected Move Task Order (MTO)');
+    });
+  });
+
+  describe('when given an Order update history record', () => {
+    const item = {
+      action: 'UPDATE',
+      eventName: 'updateOrder',
+      tableName: 'orders',
+      detailsType: detailsTypes.LABELED,
+      changedValues: { old_duty_location_id: 'ID1', new_duty_location_id: 'ID2' },
+      context: [{ old_duty_location_name: 'old name', new_duty_location_name: 'new name' }],
+    };
+    it('correctly matches the Update orders event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(updateOrderEvent);
+      // expect to have merged context and changedValues
+      expect(result.getDetailsLabeledDetails({ context: item.context, changedValues: item.changedValues })).toEqual({
+        old_duty_location_id: 'ID1',
+        new_duty_location_id: 'ID2',
+        old_duty_location_name: 'old name',
+        new_duty_location_name: 'new name',
+      });
     });
   });
 });

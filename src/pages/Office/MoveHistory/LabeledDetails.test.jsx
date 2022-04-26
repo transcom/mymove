@@ -19,6 +19,17 @@ describe('LabeledDetails', () => {
       pro_gear_weight_spouse: '50',
       required_medical_equipment_weight: '300',
       organizational_clothing_and_individual_equipment: 'false',
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      orders_type_detail: 'HHG_PERMITTED',
+      origin_duty_location_name: 'Origin duty location name',
+      new_duty_location_name: 'New duty location name',
+      orders_number: '1111',
+      tac: '2222',
+      sac: '3333',
+      nts_tac: '4444',
+      nts_sac: '5555',
+      department_indicator: 'AIR_FORCE',
+      grade: 'E_1',
     };
     it.each([
       ['Customer remarks', ': Test customer remarks'],
@@ -33,7 +44,16 @@ describe('LabeledDetails', () => {
       ['Pro-gear', ': 100 lbs'],
       ['Spouse pro-gear', ': 50 lbs'],
       ['RME', ': 300 lbs'],
-      ['OCIE', ': false'],
+      ['Orders type', ': Permanent Change Of Station (PCS)'],
+      ['Orders type detail', ': Shipment of HHG Permitted'],
+      ['Origin duty location name', ': Origin duty location name'],
+      ['New duty location name', ': New duty location name'],
+      ['Orders number', ': 1111'],
+      ['HHG TAC', ': 2222'],
+      ['NTS TAC', ': 3333'],
+      ['HHG SAC', ': 4444'],
+      ['NTS SAC', ': 5555'],
+      ['Dept. indicator', ': Air Force'],
     ])('it renders %s%s', (displayName, value) => {
       render(<LabeledDetails changedValues={changedValues} />);
 
