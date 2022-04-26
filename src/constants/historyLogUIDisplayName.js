@@ -1,7 +1,14 @@
 import PropTypes from 'prop-types';
 
+import {
+  ORDERS_BRANCH_OPTIONS,
+  ORDERS_RANK_OPTIONS,
+  ORDERS_TYPE_DETAILS_OPTIONS,
+  ORDERS_TYPE_OPTIONS,
+} from 'constants/orders';
+
 export const HistoryLogValuesShape = PropTypes.object;
-export const HistoryLogContextShape = PropTypes.object;
+export const HistoryLogContextShape = PropTypes.arrayOf(PropTypes.object);
 
 export const HistoryLogRecordShape = PropTypes.shape({
   action: PropTypes.string,
@@ -48,6 +55,7 @@ export const dbFieldToDisplayName = {
   pro_gear_weight_spouse: 'Spouse pro-gear',
   required_medical_equipment_weight: 'RME',
   organizational_clothing_and_individual_equipment: 'OCIE',
+  grade: 'Rank',
 };
 
 export const dbWeightFields = [
@@ -58,6 +66,14 @@ export const dbWeightFields = [
   'pro_gear_weight_spouse',
   'required_medical_equipment_weight',
 ];
+
+// This is to map the human-readable text to the options
+export const optionFields = {
+  ...ORDERS_BRANCH_OPTIONS,
+  ...ORDERS_TYPE_DETAILS_OPTIONS,
+  ...ORDERS_TYPE_OPTIONS,
+  ...ORDERS_RANK_OPTIONS,
+};
 
 export const eventNamesWithLabeledDetails = {
   counselingUpdateOrder: 'Updated orders', // ghc.yaml
