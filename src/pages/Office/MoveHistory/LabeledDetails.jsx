@@ -20,10 +20,19 @@ const retrieveTextToDisplay = (fieldName, value) => {
   };
 };
 
-const LabeledDetails = ({ changedValues }) => {
+const LabeledDetails = ({ changedValues, oldValues }) => {
+  const backfilledChangedValues = {
+    street_address_1: oldValues.street_address_1,
+    street_address_2: oldValues.street_address_2,
+    city: oldValues.city,
+    state: oldValues.state,
+    postal_code: oldValues.postal_code,
+    ...changedValues,
+  };
+
   const changedValuesWithFormattedAddress = {
     ...changedValues,
-    address: formatMoveHistoryFullAddress(changedValues),
+    address: formatMoveHistoryFullAddress(backfilledChangedValues),
   };
 
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
@@ -50,10 +59,12 @@ const LabeledDetails = ({ changedValues }) => {
 
 LabeledDetails.propTypes = {
   changedValues: HistoryLogValuesShape,
+  oldValues: HistoryLogValuesShape,
 };
 
 LabeledDetails.defaultProps = {
   changedValues: {},
+  oldValues: {},
 };
 
 export default LabeledDetails;

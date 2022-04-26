@@ -9,7 +9,7 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
   const eventTemplate = getMoveHistoryEventTemplate(historyRecord);
   switch (eventTemplate.detailsType) {
     case detailsTypes.LABELED:
-      return <LabeledDetails changedValues={historyRecord.changedValues} />;
+      return <LabeledDetails changedValues={historyRecord.changedValues} oldValues={historyRecord.oldValues} />;
     case detailsTypes.PLAIN_TEXT:
     default:
       return <div>{eventTemplate.getDetailsPlainText(historyRecord)}</div>;
