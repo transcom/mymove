@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -332,21 +334,15 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
-	ppmType := "FULL"
 	params := movetaskorderops.UpdateMTOPostCounselingInformationParams{
 		HTTPRequest:     req,
 		MoveTaskOrderID: mto.ID.String(),
-		Body: movetaskorderops.UpdateMTOPostCounselingInformationBody{
-			PpmType:            ppmType,
-			PpmEstimatedWeight: 3000,
-			PointOfContact:     "user@prime.com",
-		},
-		IfMatch: eTag,
+		IfMatch:         eTag,
 	}
 
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
 		// Create two shipments, one prime, one external.  Only prime one should be returned.
-		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+		primeShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			MTOShipment: models.MTOShipment{
 				UsesExternalVendor: false,
@@ -383,12 +379,14 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 		suite.Equal(mto.ID.String(), okPayload.ID.String())
 		suite.NotNil(okPayload.ETag)
-		suite.Equal(okPayload.PpmType, "FULL")
-		suite.Equal(okPayload.PpmEstimatedWeight, int64(3000))
 
 		if suite.Len(okPayload.MtoShipments, 1) {
-			suite.Equal(primeShipment.ID.String(), okPayload.MtoShipments[0].ID.String())
+			suite.Equal(primeShipment.ID.String(), okPayload.MtoShipments[0].PpmShipment.ID.String())
+			suite.Equal(primeShipment.ShipmentID.String(), okPayload.MtoShipments[0].ID.String())
 		}
+
+		suite.NotNil(okPayload.PrimeCounselingCompletedAt)
+		suite.Equal(primemessages.PPMShipmentStatusWAITINGONCUSTOMER, okPayload.MtoShipments[0].PpmShipment.Status)
 	})
 
 	suite.T().Run("Unsuccessful patch - Integration Test - patch fail MTO not available", func(t *testing.T) {
@@ -400,16 +398,10 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", defaultMTO.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
-		ppmType := "FULL"
 		defaultMTOParams := movetaskorderops.UpdateMTOPostCounselingInformationParams{
 			HTTPRequest:     req,
 			MoveTaskOrderID: defaultMTO.ID.String(),
-			Body: movetaskorderops.UpdateMTOPostCounselingInformationBody{
-				PpmType:            ppmType,
-				PpmEstimatedWeight: 3000,
-				PointOfContact:     "user@prime.com",
-			},
-			IfMatch: eTag,
+			IfMatch:         eTag,
 		}
 
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()

@@ -6,15 +6,9 @@ package move_task_order
 // Editing this file might prove futile when you re-run the generate command
 
 import (
-	"context"
-	"encoding/json"
 	"net/http"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // UpdateMTOPostCounselingInformationHandlerFunc turns a function with the right signature into a update m t o post counseling information handler
@@ -65,102 +59,4 @@ func (o *UpdateMTOPostCounselingInformation) ServeHTTP(rw http.ResponseWriter, r
 	res := o.Handler.Handle(Params) // actually handle the request
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
-}
-
-// UpdateMTOPostCounselingInformationBody update m t o post counseling information body
-//
-// swagger:model UpdateMTOPostCounselingInformationBody
-type UpdateMTOPostCounselingInformationBody struct {
-
-	// UUID for the move task order to use.
-	MoveTaskOrderID string `json:"moveTaskOrderID,omitempty"`
-
-	// Email or id of a contact person for this update.
-	PointOfContact string `json:"pointOfContact,omitempty"`
-
-	// The estimated weight determined post counseling.
-	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
-
-	// Sets a ppmType to an allowed value.
-	// Enum: [FULL PARTIAL]
-	PpmType string `json:"ppmType,omitempty"`
-}
-
-// Validate validates this update m t o post counseling information body
-func (o *UpdateMTOPostCounselingInformationBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validatePpmType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var updateMTOPostCounselingInformationBodyTypePpmTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["FULL","PARTIAL"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		updateMTOPostCounselingInformationBodyTypePpmTypePropEnum = append(updateMTOPostCounselingInformationBodyTypePpmTypePropEnum, v)
-	}
-}
-
-const (
-
-	// UpdateMTOPostCounselingInformationBodyPpmTypeFULL captures enum value "FULL"
-	UpdateMTOPostCounselingInformationBodyPpmTypeFULL string = "FULL"
-
-	// UpdateMTOPostCounselingInformationBodyPpmTypePARTIAL captures enum value "PARTIAL"
-	UpdateMTOPostCounselingInformationBodyPpmTypePARTIAL string = "PARTIAL"
-)
-
-// prop value enum
-func (o *UpdateMTOPostCounselingInformationBody) validatePpmTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, updateMTOPostCounselingInformationBodyTypePpmTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *UpdateMTOPostCounselingInformationBody) validatePpmType(formats strfmt.Registry) error {
-	if swag.IsZero(o.PpmType) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validatePpmTypeEnum("body"+"."+"ppmType", "body", o.PpmType); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this update m t o post counseling information body based on context it is used
-func (o *UpdateMTOPostCounselingInformationBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *UpdateMTOPostCounselingInformationBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *UpdateMTOPostCounselingInformationBody) UnmarshalBinary(b []byte) error {
-	var res UpdateMTOPostCounselingInformationBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
 }

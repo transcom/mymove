@@ -162,27 +162,6 @@ paths:
       tags:
         - moveTaskOrder
       parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            type: object
-            properties:
-              moveTaskOrderID:
-                description: UUID for the move task order to use.
-                type: string
-              ppmType:
-                description: Sets a ppmType to an allowed value.
-                type: string
-                enum:
-                  - FULL
-                  - PARTIAL
-              ppmEstimatedWeight:
-                description: The estimated weight determined post counseling.
-                type: integer
-              pointOfContact:
-                type: string
-                description: Email or id of a contact person for this update.
         - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
@@ -1202,6 +1181,11 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       paymentRequests:
         $ref: '#/definitions/PaymentRequests'
       mtoServiceItems:
@@ -1739,6 +1723,8 @@ definitions:
         readOnly: true
         example: MTO Shipment not good enough
         x-nullable: true
+      ppmShipment:
+        $ref: 'definitions/PPMShipment.yaml'
       eTag:
         description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
         type: string
@@ -1781,6 +1767,7 @@ definitions:
       - MOTORHOME
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
+      - PPM
     x-display-value:
       HHG: Household goods move (HHG)
       HHG_LONGHAUL_DOMESTIC: Domestic Longhaul HHG

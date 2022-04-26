@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	move_task_order "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -64,13 +62,13 @@ func (_m *MoveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveTaskO
 	return r0, r1
 }
 
-// UpdatePostCounselingInfo provides a mock function with given fields: appCtx, moveTaskOrderID, body, eTag
-func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, body move_task_order.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
-	ret := _m.Called(appCtx, moveTaskOrderID, body, eTag)
+// UpdatePostCounselingInfo provides a mock function with given fields: appCtx, moveTaskOrderID, eTag
+func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
+	ret := _m.Called(appCtx, moveTaskOrderID, eTag)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, move_task_order.UpdateMTOPostCounselingInformationBody, string) *models.Move); ok {
-		r0 = rf(appCtx, moveTaskOrderID, body, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.Move); ok {
+		r0 = rf(appCtx, moveTaskOrderID, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -78,8 +76,8 @@ func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCo
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, move_task_order.UpdateMTOPostCounselingInformationBody, string) error); ok {
-		r1 = rf(appCtx, moveTaskOrderID, body, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
+		r1 = rf(appCtx, moveTaskOrderID, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

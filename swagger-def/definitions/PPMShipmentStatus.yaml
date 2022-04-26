@@ -1,0 +1,9 @@
+type: string
+readOnly: true
+enum:
+  - DRAFT
+  - SUBMITTED
+  - WAITING_ON_CUSTOMER
+  - NEEDS_ADVANCE_APPROVAL
+  - NEEDS_PAYMENT_APPROVAL
+  - PAYMENT_APPROVED
