@@ -1,8 +1,6 @@
 package mtoshipment
 
 import (
-	"fmt"
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -832,16 +830,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 	mockSender := setUpMockNotificationSender()
 	mtoShipmentUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
-	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
-		MaxDaysTransitTime: 12,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     10000,
-		DistanceMilesLower: 0,
-		DistanceMilesUpper: 10000,
-	}
-	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
-
-	suite.T().Run("Services Counselor is able to update shipments in Submitted status", func(t *testing.T) {
+	suite.Run("Services Counselor is able to update shipments in Submitted status", func() {
 		servicesCounselor := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 		session := auth.Session{
@@ -866,22 +855,21 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 		}
 
 		for _, tt := range statusTests {
-			suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
-				shipment := models.MTOShipment{
-					Status: tt.status,
-				}
+			shipment := models.MTOShipment{
+				Status: tt.status,
+			}
 
-				updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
+			updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
 
-				suite.NoError(err)
+			suite.NoError(err)
 
-				suite.Equal(tt.updatable, updatable,
-					"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
-			})
+			suite.Equal(tt.updatable, updatable,
+				"Shipment with status = %v. Expected %v, got %v", tt.name, tt.updatable, updatable)
+
 		}
 	})
 
-	suite.T().Run("TOO is able to update shipments in approved, cancellation requested, canceled, diversion requested", func(t *testing.T) {
+	suite.Run("TOO is able to update shipments in approved, cancellation requested, canceled, diversion requested", func() {
 		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 		session := auth.Session{
@@ -906,22 +894,20 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 		}
 
 		for _, tt := range statusTests {
-			suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
-				shipment := models.MTOShipment{
-					Status: tt.status,
-				}
+			shipment := models.MTOShipment{
+				Status: tt.status,
+			}
 
-				updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
+			updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
 
-				suite.NoError(err)
+			suite.NoError(err)
 
-				suite.Equal(tt.updatable, updatable,
-					"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
-			})
+			suite.Equal(tt.updatable, updatable,
+				"Shipment with status = %v. Expected %v, got %v", tt.name, tt.updatable, updatable)
 		}
 	})
 
-	suite.T().Run("TIO is able to update shipments in approved status", func(t *testing.T) {
+	suite.Run("TIO is able to update shipments in approved status", func() {
 		tio := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 		session := auth.Session{
@@ -946,18 +932,16 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentWithDifferentRoles() 
 		}
 
 		for _, tt := range statusTests {
-			suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
-				shipment := models.MTOShipment{
-					Status: tt.status,
-				}
+			shipment := models.MTOShipment{
+				Status: tt.status,
+			}
 
-				updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
+			updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(suite.AppContextForTest(), &shipment, &session)
 
-				suite.NoError(err)
+			suite.NoError(err)
 
-				suite.Equal(tt.updatable, updatable,
-					"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
-			})
+			suite.Equal(tt.updatable, updatable,
+				"Shipment with status = %v. Expected %v, got %v", tt.name, tt.updatable, updatable)
 		}
 	})
 }

@@ -107,6 +107,7 @@ export const PPMShipmentShape = shape({
   estimatedIncentive: number,
   advance: number,
   advanceRequested: bool,
+  status: string,
 });
 
 export const MtoShipmentShape = shape({
@@ -121,6 +122,7 @@ export const MtoShipmentShape = shape({
   secondaryDeliveryAddress: AddressShape,
   secondaryPickupAddress: AddressShape,
   ppmShipment: PPMShipmentShape,
+  status: string,
 });
 
 export const HhgShipmentShape = MtoShipmentShape;

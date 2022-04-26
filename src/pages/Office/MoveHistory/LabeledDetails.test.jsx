@@ -12,20 +12,34 @@ describe('LabeledDetails', () => {
       tac_type: 'HHG',
       sac_type: 'NTS',
       service_order_number: '1234',
+      authorized_weight: '500',
+      storage_in_transit: '5',
+      dependents_authorized: 'true',
+      pro_gear_weight: '100',
+      pro_gear_weight_spouse: '50',
+      required_medical_equipment_weight: '300',
+      organizational_clothing_and_individual_equipment: 'false',
     };
     it.each([
-      ['Customer remarks', 'Test customer remarks'],
-      ['Counselor remarks', 'Test counselor remarks'],
-      ['Billable weight cap', '400'],
-      ['TAC type', 'HHG'],
-      ['SAC type', 'NTS'],
-      ['Service order number', '1234'],
-    ])('it renders %s: %s', (displayName, value) => {
+      ['Customer remarks', ': Test customer remarks'],
+      ['Counselor remarks', ': Test counselor remarks'],
+      ['Billable weight cap', ': 400 lbs'],
+      ['TAC type', ': HHG'],
+      ['SAC type', ': NTS'],
+      ['Service order number', ': 1234'],
+      ['Authorized weight', ': 500 lbs'],
+      ['Storage in transit (SIT)', ': 5 days'],
+      ['Dependents', ': true'],
+      ['Pro-gear', ': 100 lbs'],
+      ['Spouse pro-gear', ': 50 lbs'],
+      ['RME', ': 300 lbs'],
+      ['OCIE', ': false'],
+    ])('it renders %s%s', (displayName, value) => {
       render(<LabeledDetails changedValues={changedValues} />);
 
       expect(screen.getByText(displayName)).toBeInTheDocument();
 
-      expect(screen.getByText(value, { exact: false })).toBeInTheDocument();
+      expect(screen.getByText(value)).toBeInTheDocument();
     });
   });
 

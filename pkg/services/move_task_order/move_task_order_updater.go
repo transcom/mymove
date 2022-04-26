@@ -38,57 +38,85 @@ func NewMoveTaskOrderUpdater(builder UpdateMoveTaskOrderQueryBuilder, serviceIte
 
 // UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
 func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
-	var err error
-	var verrs *validate.Errors
-
+	// Fetch the move and associations.
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden:   false,
 		MoveTaskOrderID: moveTaskOrderID,
 	}
-	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
-	if err != nil {
-		return &models.Move{}, err
+	move, fetchErr := o.FetchMoveTaskOrder(appCtx, &searchParams)
+	if fetchErr != nil {
+		return &models.Move{}, fetchErr
 	}
 
-	// check if status is in the right state
-	// needs to be in MoveStatusNeedsServiceCounseling
-	if move.Status != models.MoveStatusNeedsServiceCounseling {
-		err = errors.Wrap(models.ErrInvalidTransition,
-			fmt.Sprintf("Cannot move to Service Counseling Completed state when the Move is not in a Needs Service Counseling state for status: %s", move.Status))
-
-		return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
-	}
-
-	for _, s := range move.MTOShipments {
-		if s.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && s.StorageFacilityID == nil {
-			return &models.Move{}, apperror.NewConflictError(
-				s.ID, "NTS-release shipment must include facility info")
-		}
-	}
-
-	// update field for move
-	now := time.Now()
-	move.ServiceCounselingCompletedAt = &now
-	// set status to service counseling completed
-	move.Status = models.MoveStatusServiceCounselingCompleted
-
-	// Check the If-Match header against existing eTag before updating
+	// Check the If-Match header against existing eTag before updating.
 	encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
 	if encodedUpdatedAt != eTag {
-		return nil, apperror.NewPreconditionFailedError(move.ID, err)
+		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, nil)
 	}
 
-	verrs, err = appCtx.DB().ValidateAndSave(move)
-	if verrs != nil && verrs.HasAny() {
-		return &models.Move{}, apperror.NewInvalidInputError(move.ID, nil, verrs, "")
-	}
-	if err != nil {
-		switch err.(type) {
-		case query.StaleIdentifierError:
-			return nil, apperror.NewPreconditionFailedError(move.ID, err)
-		default:
-			return &models.Move{}, err
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		// Update move status, verifying that move/shipments are in expected state.
+		err := o.moveRouter.CompleteServiceCounseling(appCtx, move)
+		if err != nil {
+			return err
 		}
+
+		// Save the move.
+		var verrs *validate.Errors
+		verrs, err = appCtx.DB().ValidateAndSave(move)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(move.ID, nil, verrs, "")
+		}
+		if err != nil {
+			return err
+		}
+
+		ppmOnlyMove := true
+		for _, s := range move.MTOShipments {
+			if s.ShipmentType != models.MTOShipmentTypePPM {
+				ppmOnlyMove = false
+				break
+			}
+		}
+
+		// If this is a PPM-only move, then we also need to adjust other statuses:
+		//   - set MTO shipment status to APPROVED
+		//   - set PPM shipment status to WAITING_ON_CUSTOMER
+		// TODO: Perhaps this could be part of the shipment router. PPMs are a separate model/table,
+		//   so would need to figure out how they factor in.
+		if ppmOnlyMove {
+			// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
+			// statuses when we return the entire move tree.
+			for i := range move.MTOShipments { // We should only have PPM shipments if we get to here.
+				move.MTOShipments[i].Status = models.MTOShipmentStatusApproved
+
+				verrs, err = appCtx.DB().ValidateAndSave(&move.MTOShipments[i])
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(move.MTOShipments[i].ID, nil, verrs, "")
+				}
+				if err != nil {
+					return err
+				}
+
+				if move.MTOShipments[i].PPMShipment != nil {
+					move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+
+					verrs, err = appCtx.DB().ValidateAndSave(move.MTOShipments[i].PPMShipment)
+					if verrs != nil && verrs.HasAny() {
+						return apperror.NewInvalidInputError(move.MTOShipments[i].PPMShipment.ID, nil, verrs, "")
+					}
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return &models.Move{}, transactionError
 	}
 
 	return move, nil

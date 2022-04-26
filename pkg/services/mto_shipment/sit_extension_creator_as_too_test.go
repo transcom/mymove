@@ -1,8 +1,6 @@
 package mtoshipment
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -13,7 +11,7 @@ import (
 )
 
 func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
-	suite.T().Run("Returns an error when shipment is not found", func(t *testing.T) {
+	suite.Run("Returns an error when shipment is not found", func() {
 		sitExtensionCreator := NewCreateSITExtensionAsTOO()
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		requestedDays := 45
@@ -33,7 +31,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when etag does not match", func(t *testing.T) {
+	suite.Run("Returns an error when etag does not match", func() {
 		sitExtensionCreator := NewCreateSITExtensionAsTOO()
 		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		requestedDays := 45
@@ -54,7 +52,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		suite.Contains(err.Error(), mtoShipment.ID.String())
 	})
 
-	suite.T().Run("Creates one approved SIT extension when all fields are valid and updates the shipment's SIT days allowance", func(t *testing.T) {
+	suite.Run("Creates one approved SIT extension when all fields are valid and updates the shipment's SIT days allowance", func() {
 		sitExtensionCreator := NewCreateSITExtensionAsTOO()
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
