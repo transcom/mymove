@@ -432,37 +432,6 @@ func init() {
         }
       }
     },
-    "/entitlements/{moveId}": {
-      "get": {
-        "description": "Determine whether weight estimate is below entitlement",
-        "tags": [
-          "entitlements"
-        ],
-        "summary": "Validates that the stored weight estimate is below the allotted entitlement range for a service member",
-        "operationId": "validateEntitlement",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "weight estimate is below allotted entitlement"
-          },
-          "404": {
-            "description": "personally procured move not found"
-          },
-          "409": {
-            "description": "Requested weight estimate is above allotted entitlement"
-          }
-        }
-      }
-    },
     "/estimates/ppm": {
       "get": {
         "description": "Calculates a reimbursement range for a PPM move (excluding SIT)",
@@ -7205,37 +7174,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/IndexEntitlements"
             }
-          }
-        }
-      }
-    },
-    "/entitlements/{moveId}": {
-      "get": {
-        "description": "Determine whether weight estimate is below entitlement",
-        "tags": [
-          "entitlements"
-        ],
-        "summary": "Validates that the stored weight estimate is below the allotted entitlement range for a service member",
-        "operationId": "validateEntitlement",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "weight estimate is below allotted entitlement"
-          },
-          "404": {
-            "description": "personally procured move not found"
-          },
-          "409": {
-            "description": "Requested weight estimate is above allotted entitlement"
           }
         }
       }
