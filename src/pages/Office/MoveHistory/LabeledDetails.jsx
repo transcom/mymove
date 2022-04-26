@@ -1,26 +1,15 @@
 import React from 'react';
 
-import { HistoryLogValuesShape, dbFieldToDisplayName, dbWeightFields } from 'constants/historyLogUIDisplayName';
+import {
+  HistoryLogValuesShape,
+  dbFieldToDisplayName,
+  dbWeightFields,
+  HistoryLogContextShape,
+} from 'constants/historyLogUIDisplayName';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatMoveHistoryFullAddress } from 'utils/formatters';
 
-const retrieveTextToDisplay = (fieldName, value) => {
-  const displayName = dbFieldToDisplayName[fieldName];
-  let displayValue = value;
-
-  if (displayName === dbFieldToDisplayName.storage_in_transit) {
-    displayValue = `${displayValue} days`;
-  } else if (dbWeightFields.includes(fieldName)) {
-    displayValue = `${displayValue} lbs`;
-  }
-
-  return {
-    displayName,
-    displayValue,
-  };
-};
-
-const LabeledDetails = ({ changedValues, oldValues }) => {
+const LabeledDetails = ({ changedValues, oldValues, context }) => {
   const backfilledChangedValues = {
     street_address_1: oldValues.street_address_1,
     street_address_2: oldValues.street_address_2,
@@ -38,6 +27,30 @@ const LabeledDetails = ({ changedValues, oldValues }) => {
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
     return changedValuesWithFormattedAddress[dbField];
   });
+
+  const retrieveTextToDisplay = (fieldName, value) => {
+    let displayName = dbFieldToDisplayName[fieldName];
+    let displayValue = value;
+
+    if (displayName === dbFieldToDisplayName.storage_in_transit) {
+      displayValue = `${displayValue} days`;
+    } else if (dbWeightFields.includes(fieldName)) {
+      displayValue = `${displayValue} lbs`;
+    } else if (displayName === dbFieldToDisplayName.address) {
+      const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
+
+      if (addressType === 'pickupAddress') {
+        displayName = 'Origin address';
+      } else if (addressType === 'destinationAddress') {
+        displayName = 'Destination address';
+      }
+    }
+
+    return {
+      displayName,
+      displayValue,
+    };
+  };
 
   return (
     <div>
@@ -60,11 +73,13 @@ const LabeledDetails = ({ changedValues, oldValues }) => {
 LabeledDetails.propTypes = {
   changedValues: HistoryLogValuesShape,
   oldValues: HistoryLogValuesShape,
+  context: HistoryLogContextShape,
 };
 
 LabeledDetails.defaultProps = {
   changedValues: {},
   oldValues: {},
+  context: [],
 };
 
 export default LabeledDetails;

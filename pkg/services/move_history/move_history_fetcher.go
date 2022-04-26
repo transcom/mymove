@@ -102,22 +102,28 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	pickup_address_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			json_agg(json_build_object('addressType',
+					'pickupAddress'::TEXT))::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
 		JOIN shipments ON shipments.pickup_address_id = audit_history.object_id
 			AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
 	),
 	destination_address_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			json_agg(json_build_object('addressType',
+					'destinationAddress'::TEXT))::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
 		JOIN shipments ON shipments.destination_address_id = audit_history.object_id
 			AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
 	),
 	entitlements AS (
 		SELECT
