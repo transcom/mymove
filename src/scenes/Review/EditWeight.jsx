@@ -6,8 +6,7 @@ import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert';
-import { formatCents } from 'shared/formatters';
-import { formatCentsRange } from 'utils/formatters';
+import { formatCentsRange, formatCents } from 'utils/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';

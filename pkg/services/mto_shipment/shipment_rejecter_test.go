@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"testing"
 	"time"
 
 	"github.com/stretchr/testify/mock"
@@ -21,7 +20,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 	approver := NewShipmentRejecter(router)
 	reason := "reason"
 
-	suite.T().Run("If the shipment rejection is approved successfully, it should update the shipment status in the DB", func(t *testing.T) {
+	suite.Run("If the shipment rejection is approved successfully, it should update the shipment status in the DB", func() {
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
@@ -40,7 +39,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		suite.Equal(&reason, fetchedShipment.RejectionReason)
 	})
 
-	suite.T().Run("When status transition is not allowed, returns a ConflictStatusError", func(t *testing.T) {
+	suite.Run("When status transition is not allowed, returns a ConflictStatusError", func() {
 		rejectionReason := "goods already shipped"
 		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -56,7 +55,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		suite.IsType(ConflictStatusError{}, err)
 	})
 
-	suite.T().Run("Passing in a stale identifier returns a PreconditionFailedError", func(t *testing.T) {
+	suite.Run("Passing in a stale identifier returns a PreconditionFailedError", func() {
 		staleETag := etag.GenerateEtag(time.Now())
 		staleShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 
@@ -66,7 +65,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
+	suite.Run("Passing in a bad shipment id returns a Not Found error", func() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
@@ -76,7 +75,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Passing in an empty rejection reason returns an InvalidInputError", func(t *testing.T) {
+	suite.Run("Passing in an empty rejection reason returns an InvalidInputError", func() {
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		emptyReason := ""
@@ -87,7 +86,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("It calls Reject on the ShipmentRouter", func(t *testing.T) {
+	suite.Run("It calls Reject on the ShipmentRouter", func() {
 		shipmentRouter := &mocks.ShipmentRouter{}
 		rejecter := NewShipmentRejecter(shipmentRouter)
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
@@ -102,6 +101,6 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		_, err = rejecter.RejectShipment(suite.AppContextForTest(), shipment.ID, eTag, &reason)
 
 		suite.NoError(err)
-		shipmentRouter.AssertNumberOfCalls(t, "Reject", 1)
+		shipmentRouter.AssertNumberOfCalls(suite.T(), "Reject", 1)
 	})
 }

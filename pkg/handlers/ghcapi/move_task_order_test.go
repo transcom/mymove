@@ -10,10 +10,13 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -245,17 +248,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 }
 
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusNeedsServiceCounseling,
-		},
-		Order: order,
-	})
-
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	request = suite.AuthenticateUserRequest(request, requestUser)
 	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
@@ -265,69 +258,131 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
 
-	params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
-		HTTPRequest:     request,
-		MoveTaskOrderID: moveTaskOrder.ID.String(),
-		IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
-	}
+	requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 	suite.T().Run("Successful move status update to Service Counseling Completed - Integration", func(t *testing.T) {
+		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+		})
+
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: move.ID.String(),
+			IfMatch:         etag.GenerateEtag(move.UpdatedAt),
+		}
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedOK)
 		moveTaskOrderPayload := moveTaskOrderResponse.Payload
+		suite.NoError(moveTaskOrderPayload.Validate(strfmt.Default))
 
-		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
-		suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
+		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
+		suite.Equal(strfmt.UUID(move.ID.String()), moveTaskOrderPayload.ID)
 		suite.NotNil(moveTaskOrderPayload.ServiceCounselingCompletedAt)
 		suite.EqualValues(models.MoveStatusServiceCounselingCompleted, moveTaskOrderPayload.Status)
 	})
 
+	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, forbidden - Integration", func(t *testing.T) {
+		forbiddenUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		forbiddenRequest := suite.AuthenticateOfficeRequest(request, forbiddenUser)
+
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+			HTTPRequest: forbiddenRequest,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedForbidden{}, response)
+	})
+
 	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func(t *testing.T) {
-		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),
 		}
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
-		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedNotFound{}, response)
+		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedNotFound{}, response)
 	})
 
 	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func(t *testing.T) {
-		moveTaskOrder = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
-			},
-			Order: order,
+		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
 		})
-		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
-			MoveTaskOrderID: moveTaskOrder.ID.String(),
+			MoveTaskOrderID: move.ID.String(),
+			IfMatch:         etag.GenerateEtag(time.Now()),
 		}
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-
-		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed{}, response)
+		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed{}, response)
 	})
 
 	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, state conflict - Integration", func(t *testing.T) {
-		moveTaskOrder = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		draftMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusDRAFT,
 			},
-			Order: order,
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: draftMove,
 		})
 
-		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
-			MoveTaskOrderID: moveTaskOrder.ID.String(),
-			IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+			MoveTaskOrderID: draftMove.ID.String(),
+			IfMatch:         etag.GenerateEtag(draftMove.UpdatedAt),
 		}
+
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
+		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedConflict{}, response)
+	})
 
-		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedConflict{}, response)
+	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, misc mocked errors - Integration", func(t *testing.T) {
+		testCases := []struct {
+			mockError       error
+			handlerResponse middleware.Responder
+		}{
+			{apperror.InvalidInputError{}, &move_task_order.UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity{}},
+			{apperror.QueryError{}, &move_task_order.UpdateMTOStatusServiceCounselingCompletedInternalServerError{}},
+			{errors.New("generic error"), &move_task_order.UpdateMTOStatusServiceCounselingCompletedInternalServerError{}},
+		}
+
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: move.ID.String(),
+			IfMatch:         eTag,
+		}
+
+		for _, testCase := range testCases {
+			mockUpdater := mocks.MoveTaskOrderUpdater{}
+			mockUpdater.On("UpdateStatusServiceCounselingCompleted",
+				mock.AnythingOfType("*appcontext.appContext"),
+				move.ID,
+				eTag,
+			).Return(&models.Move{}, testCase.mockError)
+
+			handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
+				context,
+				&mockUpdater,
+			}
+
+			response := handler.Handle(params)
+			suite.IsNotErrResponse(response)
+			suite.IsType(testCase.handlerResponse, response)
+		}
 	})
 }
 
