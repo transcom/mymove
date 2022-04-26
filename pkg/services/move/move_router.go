@@ -353,22 +353,42 @@ func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, mov
 
 }
 
-// CompleteServiceCounseling sets the move status to "Service Counseling Completed",
-// which makes the move available to the TOO. This gets called when the Service
-// Counselor is done reviewing the move and submits it.
+// CompleteServiceCounseling sets the move status to:
+//   - "Service Counseling Completed" if a non-PPM move
+//   - "Approved" if a PPM-only move
+// This makes the move available to the TOO.  This gets called when the Service Counselor is done
+// reviewing the move and submits it.
 func (router moveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error {
+	// Verify shipments are present.
+	if len(move.MTOShipments) == 0 {
+		return apperror.NewConflictError(move.ID, "No shipments associated with move")
+	}
+
+	// Verify the shipment's existing status.
 	if move.Status != models.MoveStatusNeedsServiceCounseling {
-		return errors.Wrap(
-			models.ErrInvalidTransition,
-			fmt.Sprintf("The status for the Move with ID %s can only be set to 'Service Counseling Completed' from the 'Needs Service Counseling' status, but its current status is %s.",
-				move.ID, move.Status,
-			),
-		)
+		return apperror.NewConflictError(move.ID, fmt.Sprintf("The status for the Move with ID %s can only be set to 'Service Counseling Completed' from the 'Needs Service Counseling' status, but its current status is %s.", move.ID, move.Status))
+	}
+
+	// Examine shipments for valid state and how to transition.
+	ppmOnlyMove := true
+	for _, s := range move.MTOShipments {
+		if s.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && s.StorageFacilityID == nil {
+			return apperror.NewConflictError(s.ID, "NTS-release shipment must include facility info")
+		}
+		if s.ShipmentType != models.MTOShipmentTypePPM {
+			ppmOnlyMove = false
+		}
+	}
+
+	// Set target state based on associated shipments.
+	targetState := models.MoveStatusServiceCounselingCompleted
+	if ppmOnlyMove {
+		targetState = models.MoveStatusAPPROVED
 	}
 
 	now := time.Now()
 	move.ServiceCounselingCompletedAt = &now
-	move.Status = models.MoveStatusServiceCounselingCompleted
+	move.Status = targetState
 
 	return nil
 }
