@@ -3,8 +3,6 @@ package payloads
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -135,9 +133,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		return nil
 	}
 
-	// Temporarily hard code this value, until we determine this
-	estimatedIncentive := unit.Cents(1000000)
-
 	ppmModel := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
@@ -148,7 +143,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
-		EstimatedIncentive:             &estimatedIncentive,
 		Advance:                        handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
 		AdvanceRequested:               ppmShipment.AdvanceRequested,
 	}
