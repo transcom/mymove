@@ -570,3 +570,30 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	suite.Equal(1, moveCount)
 	suite.Len(moves, 1)
 }
+
+func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
+	postalCode := "90210"
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+	})
+	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		PPMShipment: models.PPMShipment{
+			PickupPostalCode: postalCode,
+		},
+	})
+
+	// Make a TOO user and the postal code to GBLOC link.
+	tooOfficeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, "FOO")
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), ppmShipment.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
+
+	orderFetcher := NewOrderFetcher()
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), tooOfficeUser.ID, &services.ListOrderParams{})
+	suite.FatalNoError(err)
+	suite.Equal(1, moveCount)
+	suite.Len(moves, 1)
+}
