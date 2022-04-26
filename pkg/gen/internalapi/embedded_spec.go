@@ -5147,12 +5147,14 @@ func init() {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "advanceRequested": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "approvedAt": {
           "type": "string",
@@ -11977,12 +11979,14 @@ func init() {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "advanceRequested": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "approvedAt": {
           "type": "string",
