@@ -53,7 +53,6 @@ describe('PPMSummaryList component', () => {
       render(<PPMSummaryList {...props} />);
       expect(screen.queryByText(`PPM approved: 15 Apr 2022.`)).toBeInTheDocument();
     });
-    // QQQQ: Add test for AOA
   });
 
   describe('there is only one shipment', () => {
