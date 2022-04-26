@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/services/reweigh"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
@@ -428,5 +429,42 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
+	})
+
+	suite.T().Run("has audit history records for reweighs", func(t *testing.T) {
+		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), nil, testdatagen.Assertions{})
+		// Create a valid reweigh for the move
+		newReweigh := &models.Reweigh{
+			RequestedAt: time.Now(),
+			RequestedBy: models.ReweighRequesterTOO,
+			Shipment:    shipment,
+			ShipmentID:  shipment.ID,
+		}
+		reweighCreator := reweigh.NewReweighCreator()
+		createdReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
+		suite.NoError(err)
+
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(5)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyReweighHistoryFound := false
+		verifyReweighContext := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "reweighs" && *h.ObjectID == createdReweigh.ID {
+				verifyReweighHistoryFound = true
+				if h.Context != nil {
+					context := removeEscapeJSONtoArray(h.Context)
+					if context != nil && context[0]["shipment_type"] == string(shipment.ShipmentType) {
+						verifyReweighContext = true
+					}
+				}
+				break
+			}
+		}
+		suite.True(verifyReweighHistoryFound, "AuditHistories contains an AuditHistory with a Reweigh creation")
+		suite.True(verifyReweighContext, "Reweigh creation AuditHistory contains a context with the appropriate shipment type")
 	})
 }
