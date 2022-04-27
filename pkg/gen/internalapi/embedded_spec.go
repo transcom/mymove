@@ -5181,6 +5181,7 @@ func init() {
         },
         "estimatedIncentive": {
           "type": "integer",
+          "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -6340,6 +6341,7 @@ func init() {
         },
         "estimatedIncentive": {
           "type": "integer",
+          "format": "cents",
           "x-nullable": true
         },
         "estimatedWeight": {
@@ -12013,6 +12015,7 @@ func init() {
         },
         "estimatedIncentive": {
           "type": "integer",
+          "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -13176,6 +13179,7 @@ func init() {
         },
         "estimatedIncentive": {
           "type": "integer",
+          "format": "cents",
           "x-nullable": true
         },
         "estimatedWeight": {

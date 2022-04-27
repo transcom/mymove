@@ -2505,6 +2505,7 @@ definitions:
         x-omitempty: false
       estimatedIncentive:
         type: integer
+        format: cents
         x-nullable: true
         x-omitempty: false
       advance:
@@ -2647,6 +2648,7 @@ definitions:
         x-nullable: true
       estimatedIncentive:
         type: integer
+        format: cents
         x-nullable: true
       advance:
         description: |
