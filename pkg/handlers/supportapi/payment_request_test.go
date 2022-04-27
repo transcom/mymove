@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"os"
-	"testing"
 	"time"
 
 	"github.com/benbjohnson/clock"
@@ -44,17 +43,15 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
-	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	paymentRequestID := paymentRequest.ID
-
-	suite.T().Run("successful status update of payment request", func(t *testing.T) {
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+	suite.Run("successful status update of payment request", func() {
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequest.ID), nil)
 		eTag := etag.GenerateEtag(paymentRequest.UpdatedAt)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
 			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil, ETag: eTag},
-			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 			IfMatch:          eTag,
 		}
 		queryBuilder := query.NewQueryBuilder()
@@ -74,7 +71,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
 	})
 
-	suite.T().Run("successful status update of prime-available payment request", func(t *testing.T) {
+	suite.Run("successful status update of prime-available payment request", func() {
 		availableMove := testdatagen.MakeAvailableMove(suite.DB())
 		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: availableMove,
@@ -113,7 +110,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		suite.HasWebhookNotification(availablePaymentRequestID, traceID)
 	})
 
-	suite.T().Run("unsuccessful status update of payment request (500)", func(t *testing.T) {
+	suite.Run("unsuccessful status update of payment request (500)", func() {
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, errors.New("Something bad happened")).Once()
 
@@ -121,13 +119,13 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
 			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
-			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
@@ -145,7 +143,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	})
 
-	suite.T().Run("unsuccessful status update of payment request, not found (404)", func(t *testing.T) {
+	suite.Run("unsuccessful status update of payment request, not found (404)", func() {
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, apperror.NewNotFoundError(paymentRequest.ID, "")).Once()
 
@@ -153,13 +152,13 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
 			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
-			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
@@ -174,7 +173,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	})
 
-	suite.T().Run("unsuccessful status update of payment request, precondition failed (412)", func(t *testing.T) {
+	suite.Run("unsuccessful status update of payment request, precondition failed (412)", func() {
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, apperror.PreconditionFailedError{}).Once()
 
@@ -182,13 +182,13 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
 			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
-			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
@@ -202,7 +202,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed(), response)
 
 	})
-	suite.T().Run("unsuccessful status update of payment request, conflict error (409)", func(t *testing.T) {
+	suite.Run("unsuccessful status update of payment request, conflict error (409)", func() {
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, apperror.ConflictError{}).Once()
 
@@ -210,13 +211,13 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
 			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
-			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
@@ -228,14 +229,12 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusConflict(), response)
-
 	})
 }
 
 func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
-	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	mto := testdatagen.MakeDefaultMove(suite.DB())
-	suite.T().Run("successful get an MTO with payment requests", func(t *testing.T) {
+	suite.Run("successful get an MTO with payment requests", func() {
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		mtoID := paymentRequest.MoveTaskOrderID
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mtoID), nil)
 
@@ -257,12 +256,13 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 		suite.Equal(len(paymentRequestsPayload), 1)
 	})
 
-	suite.T().Run("successful get an MTO with no payment requests", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mto.ID), nil)
+	suite.Run("successful get an MTO with no payment requests", func() {
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", paymentRequest.MoveTaskOrder.ID), nil)
 
 		params := paymentrequestop.ListMTOPaymentRequestsParams{
 			HTTPRequest:     req,
-			MoveTaskOrderID: strfmt.UUID(mto.ID.String()),
+			MoveTaskOrderID: strfmt.UUID(paymentRequest.MoveTaskOrder.ID.String()),
 		}
 
 		handler := ListMTOPaymentRequestsHandler{
@@ -280,78 +280,82 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
-	currentTimeStr := time.Now().Format("20060102")
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameContractCode,
-			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
-		},
-		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTimeStr,
-		},
-		{
-			Key:     models.ServiceItemParamNameReferenceDate,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTimeStr,
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightBilled,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "4242",
-		},
-		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
-		},
-	}
-	paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
-		suite.DB(),
-		models.ReServiceCodeDLH,
-		basicPaymentServiceItemParams,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status: models.PaymentServiceItemStatusApproved,
+	setupTestData := func() models.PaymentRequest {
+		currentTimeStr := time.Now().Format("20060102")
+		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+			{
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
-		},
-	)
+			{
+				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   currentTimeStr,
+			},
+			{
+				Key:     models.ServiceItemParamNameReferenceDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   currentTimeStr,
+			},
+			{
+				Key:     models.ServiceItemParamNameWeightBilled,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "4242",
+			},
+			{
+				Key:     models.ServiceItemParamNameDistanceZip3,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "2424",
+			},
+		}
+		paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDLH,
+			basicPaymentServiceItemParams,
+			testdatagen.Assertions{
+				PaymentServiceItem: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusApproved,
+				},
+			},
+		)
 
-	// Add a price to the service item.
-	priceCents := unit.Cents(250000)
-	paymentServiceItem.PriceCents = &priceCents
-	suite.MustSave(&paymentServiceItem)
+		// Add a price to the service item.
+		priceCents := unit.Cents(250000)
+		paymentServiceItem.PriceCents = &priceCents
+		suite.MustSave(&paymentServiceItem)
 
-	paymentRequestID := paymentServiceItem.PaymentRequestID
-	strfmtPaymentRequestID := strfmt.UUID(paymentRequestID.String())
+		return paymentServiceItem.PaymentRequest
+	}
 
-	icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
-	handler := GetPaymentRequestEDIHandler{
-		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock()),
+	setupHandler := func() GetPaymentRequestEDIHandler {
+		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
+		return GetPaymentRequestEDIHandler{
+			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
+			GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock()),
+		}
 	}
 
 	urlFormat := "/payment-requests/%s/edi"
 
-	suite.T().Run("successful get of EDI for payment request", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+	suite.Run("successful get of EDI for payment request", func() {
+		paymentRequest := setupTestData()
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequest.ID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
 			HTTPRequest:      req,
-			PaymentRequestID: strfmtPaymentRequestID,
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
-		response := handler.Handle(params)
+		response := setupHandler().Handle(params)
 
 		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIOK(), response)
 
 		ediResponse := response.(*paymentrequestop.GetPaymentRequestEDIOK)
 		ediPayload := ediResponse.Payload
 
-		suite.Equal(ediPayload.ID, strfmtPaymentRequestID)
+		suite.Equal(ediPayload.ID, strfmt.UUID(paymentRequest.ID.String()))
 
 		// Check to make sure EDI is there and starts with expected segment.
 		edi := ediPayload.Edi
@@ -360,7 +364,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		}
 	})
 
-	suite.T().Run("failure due to incorrectly formatted payment request ID", func(t *testing.T) {
+	suite.Run("failure due to incorrectly formatted payment request ID", func() {
 		invalidID := "12345"
 		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, invalidID), nil)
 
@@ -369,21 +373,22 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 			PaymentRequestID: strfmt.UUID(invalidID),
 		}
 
-		response := handler.Handle(params)
+		response := setupHandler().Handle(params)
 
 		suite.IsType(paymentrequestop.NewGetPaymentRequestEDINotFound(), response)
 	})
 
-	suite.T().Run("failure due to a validation error", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+	suite.Run("failure due to a validation error", func() {
+		paymentRequest := setupTestData()
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequest.ID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
 			HTTPRequest:      req,
-			PaymentRequestID: strfmtPaymentRequestID,
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
-		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, apperror.NewInvalidInputError(paymentRequestID, nil, validate.NewErrors(), ""))
+		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, apperror.NewInvalidInputError(paymentRequest.ID, nil, validate.NewErrors(), ""))
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
 			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
@@ -396,16 +401,17 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity(), response)
 	})
 
-	suite.T().Run("failure due to a conflict error", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+	suite.Run("failure due to a conflict error", func() {
+		paymentRequest := setupTestData()
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequest.ID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
 			HTTPRequest:      req,
-			PaymentRequestID: strfmtPaymentRequestID,
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
-		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, apperror.NewConflictError(paymentRequestID, "conflict error"))
+		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, apperror.NewConflictError(paymentRequest.ID, "conflict error"))
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
 			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
@@ -418,7 +424,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIConflict(), response)
 	})
 
-	suite.T().Run("failure due to payment request ID not found", func(t *testing.T) {
+	suite.Run("failure due to payment request ID not found", func() {
 		notFoundID := uuid.Must(uuid.NewV4())
 		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, notFoundID), nil)
 
@@ -427,17 +433,18 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 			PaymentRequestID: strfmt.UUID(notFoundID.String()),
 		}
 
-		response := handler.Handle(params)
+		response := setupHandler().Handle(params)
 
 		suite.IsType(paymentrequestop.NewGetPaymentRequestEDINotFound(), response)
 	})
 
-	suite.T().Run("failure when generating EDI", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+	suite.Run("failure when generating EDI", func() {
+		paymentRequest := setupTestData()
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequest.ID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
 			HTTPRequest:      req,
-			PaymentRequestID: strfmtPaymentRequestID,
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
@@ -536,6 +543,7 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 	}
 	return prs
 }
+
 func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	err := os.Setenv("GEX_SFTP_PORT", "1234")
@@ -551,42 +559,48 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 	err = os.Setenv("GEX_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
 	suite.FatalNoError(err)
 
-	reviewedPRs := suite.createPaymentRequest(4)
+	setupTestData := func() (models.PaymentRequest, models.PaymentRequests) {
+		reviewedPRs := suite.createPaymentRequest(4)
 
-	sentToGEXTime := time.Now()
-	paymentRequestForUpdate := models.PaymentRequest{
-		ID:                              reviewedPRs[0].ID,
-		MoveTaskOrder:                   reviewedPRs[0].MoveTaskOrder,
-		MoveTaskOrderID:                 reviewedPRs[0].MoveTaskOrderID,
-		IsFinal:                         reviewedPRs[0].IsFinal,
-		Status:                          models.PaymentRequestStatusSentToGex,
-		RejectionReason:                 reviewedPRs[0].RejectionReason,
-		SentToGexAt:                     &sentToGEXTime,
-		PaymentRequestNumber:            reviewedPRs[0].PaymentRequestNumber,
-		SequenceNumber:                  reviewedPRs[0].SequenceNumber,
-		RecalculationOfPaymentRequestID: reviewedPRs[0].RecalculationOfPaymentRequestID,
-	}
-	paymentRequestReviewedFetcher := &mocks.PaymentRequestReviewedFetcher{}
-	paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(reviewedPRs, nil)
-
-	paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-	paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(&paymentRequestForUpdate, nil)
-
-	paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-	paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(reviewedPRs[0], nil)
-
-	handler := ProcessReviewedPaymentRequestsHandler{
-		HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-		PaymentRequestFetcher:         paymentRequestFetcher,
-		PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
-		PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
+		sentToGEXTime := time.Now()
+		return models.PaymentRequest{
+			ID:                              reviewedPRs[0].ID,
+			MoveTaskOrder:                   reviewedPRs[0].MoveTaskOrder,
+			MoveTaskOrderID:                 reviewedPRs[0].MoveTaskOrderID,
+			IsFinal:                         reviewedPRs[0].IsFinal,
+			Status:                          models.PaymentRequestStatusSentToGex,
+			RejectionReason:                 reviewedPRs[0].RejectionReason,
+			SentToGexAt:                     &sentToGEXTime,
+			PaymentRequestNumber:            reviewedPRs[0].PaymentRequestNumber,
+			SequenceNumber:                  reviewedPRs[0].SequenceNumber,
+			RecalculationOfPaymentRequestID: reviewedPRs[0].RecalculationOfPaymentRequestID,
+		}, reviewedPRs
 	}
 
-	handler.SetICNSequencer(sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName))
+	setupHandler := func(paymentRequestForUpdate models.PaymentRequest, reviewedPRs models.PaymentRequests) ProcessReviewedPaymentRequestsHandler {
+		paymentRequestReviewedFetcher := &mocks.PaymentRequestReviewedFetcher{}
+		paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(reviewedPRs, nil)
+
+		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(&paymentRequestForUpdate, nil)
+
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(reviewedPRs[0], nil)
+
+		handler := ProcessReviewedPaymentRequestsHandler{
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			PaymentRequestFetcher:         paymentRequestFetcher,
+			PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
+			PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
+		}
+		handler.SetICNSequencer(sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName))
+
+		return handler
+	}
 
 	urlFormat := "/payment-requests/process-reviewed"
 
-	suite.T().Run("successful update of reviewed payment requests with send to syncada true", func(t *testing.T) {
+	suite.Run("successful update of reviewed payment requests with send to syncada true", func() {
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
@@ -604,12 +618,13 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 			},
 		}
 
-		response := handler.Handle(params)
+		response := setupHandler(setupTestData()).Handle(params)
 
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
 	})
 
-	suite.T().Run("successful update of reviewed payment requests with send to syncada false", func(t *testing.T) {
+	suite.Run("successful update of reviewed payment requests with send to syncada false", func() {
+		handler := setupHandler(setupTestData())
 		// Ensure that there are reviewed payment requests
 		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 		suite.Equal(4, len(reviewedPaymentRequests))
@@ -641,7 +656,8 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
 	})
 
-	suite.T().Run("successful update of reviewed payment requests with send to syncada false, when no status flag is set", func(t *testing.T) {
+	suite.Run("successful update of reviewed payment requests with send to syncada false, when no status flag is set", func() {
+		handler := setupHandler(setupTestData())
 		// Ensure that there are reviewed payment requests
 		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 		suite.Equal(4, len(reviewedPaymentRequests))
@@ -668,7 +684,8 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
 	})
 
-	suite.T().Run("successful update of a given reviewed payment request", func(t *testing.T) {
+	suite.Run("successful update of a given reviewed payment request", func() {
+		handler := setupHandler(setupTestData())
 		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 
 		paymentRequestID := reviewedPaymentRequests[0].ID
@@ -697,7 +714,8 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
 	})
 
-	suite.T().Run("fail if required send to syncada flag is not set", func(t *testing.T) {
+	suite.Run("fail if required send to syncada flag is not set", func() {
+		handler := setupHandler(setupTestData())
 		// Ensure that there are reviewed payment requests
 		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest(suite.AppContextForTest())
 		suite.Equal(4, len(reviewedPaymentRequests))
@@ -715,7 +733,8 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest(), response)
 	})
 
-	suite.T().Run("fail if paymentRequestId is supplied but not found", func(t *testing.T) {
+	suite.Run("fail if paymentRequestId is supplied but not found", func() {
+		paymentRequestForUpdate, reviewedPRs := setupTestData()
 		paymentRequestReviewedFetcher := &mocks.PaymentRequestReviewedFetcher{}
 		paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(reviewedPRs, nil)
 
@@ -754,7 +773,8 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsNotFound(), response)
 	})
 
-	suite.T().Run("fail if reviewed payment request are not retrieved", func(t *testing.T) {
+	suite.Run("fail if reviewed payment request are not retrieved", func() {
+		paymentRequestForUpdate, reviewedPRs := setupTestData()
 		var nilReviewedPrs models.PaymentRequests
 		paymentRequestReviewedFetcher := &mocks.PaymentRequestReviewedFetcher{}
 		paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nilReviewedPrs, errors.New("Reviewed Payment Requests notretrieved"))
@@ -799,7 +819,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 	method := "POST"
 	urlFormat := "/payment-requests/%s/recalculate"
 
-	suite.T().Run("golden path", func(t *testing.T) {
+	suite.Run("golden path", func() {
 		samplePaymentRequest := models.PaymentRequest{
 			ID:                              uuid.Must(uuid.NewV4()),
 			MoveTaskOrderID:                 uuid.Must(uuid.NewV4()),
@@ -826,7 +846,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 		}
 		response := handler.Handle(params)
 
-		mockRecalculator.AssertExpectations(t)
+		mockRecalculator.AssertExpectations(suite.T())
 
 		if suite.IsType(paymentrequestop.NewRecalculatePaymentRequestCreated(), response) {
 			paymentRequestResponse := response.(*paymentrequestop.RecalculatePaymentRequestCreated)
@@ -882,7 +902,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 
 	for _, testCase := range errorTestCases {
 		testName := fmt.Sprintf("%T error from service should produce %T response type", testCase.testErr, testCase.responseType)
-		suite.T().Run(testName, func(t *testing.T) {
+		suite.Run(testName, func() {
 			mockRecalculator := &mocks.PaymentRequestRecalculator{}
 			mockRecalculator.On("RecalculatePaymentRequest",
 				mock.AnythingOfType("*appcontext.appContext"),
@@ -900,7 +920,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 			}
 			response := handler.Handle(params)
 
-			mockRecalculator.AssertExpectations(t)
+			mockRecalculator.AssertExpectations(suite.T())
 
 			suite.IsType(testCase.responseType, response)
 		})
