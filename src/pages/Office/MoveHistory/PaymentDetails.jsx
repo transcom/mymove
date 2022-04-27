@@ -5,8 +5,8 @@ import styles from './PaymentDetails.module.scss';
 
 import { HistoryLogContextShape } from 'constants/historyLogUIDisplayName';
 
-const APPROVED_STRING = 'Approved';
-const REJECTED_STRING = 'Rejected';
+const APPROVED_STRING = 'approved';
+const DENIED_STRING = 'denied';
 
 const iconToDisplay = (statusToFilter) => {
   if (statusToFilter === APPROVED_STRING) {
@@ -20,7 +20,7 @@ const filterContextStatus = (context, statusToFilter) => {
   let sum = 0;
   context.forEach((value) => {
     if (value.status === statusToFilter.toUpperCase()) {
-      const price = parseFloat(value.price);
+      const price = parseFloat(value.price) / 100;
       sum += price;
       contextToDisplay.push(
         <div className={styles.serviceItemRow} key={`${value.name}`}>
@@ -30,10 +30,11 @@ const filterContextStatus = (context, statusToFilter) => {
       );
     }
   });
+  const statusTitle = statusToFilter.toUpperCase() === APPROVED_STRING.toUpperCase() ? 'Approved' : 'Rejected';
   return (
     <div>
       <div className={styles.statusRow}>
-        <b>{statusToFilter} service items total: </b>
+        <b>{statusTitle} service items total: </b>
         <div>
           {iconToDisplay(statusToFilter)} &nbsp;
           <b>${sum.toFixed(2)}</b>
@@ -48,7 +49,7 @@ const PaymentDetails = ({ context }) => {
   return (
     <div className={styles.PaymentDetails}>
       {filterContextStatus(context, APPROVED_STRING)}
-      {filterContextStatus(context, REJECTED_STRING)}
+      {filterContextStatus(context, DENIED_STRING)}
     </div>
   );
 };
