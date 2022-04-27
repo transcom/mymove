@@ -632,3 +632,49 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	suite.Equal(0, moveCount)
 	suite.Len(moves, 0)
 }
+
+func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmentButOtherExists() {
+	postalCode := "90210"
+	deletedAt := time.Now()
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+	})
+	// This shipment is created first, but later deleted
+	ppmShipment1 := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		PPMShipment: models.PPMShipment{
+			PickupPostalCode: postalCode,
+			CreatedAt:        time.Now(),
+		},
+	})
+	// This shipment is created after the first one, but not deleted
+	testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		PPMShipment: models.PPMShipment{
+			PickupPostalCode: postalCode,
+			CreatedAt:        time.Now().Add(time.Minute * time.Duration(1)),
+		},
+	})
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status:      models.MTOShipmentStatusSubmitted,
+			DeletedAt:   &deletedAt,
+			PPMShipment: &ppmShipment1,
+		},
+	})
+
+	// Make a TOO user and the postal code to GBLOC link.
+	tooOfficeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode, "FOO")
+	testdatagen.MakePostalCodeToGBLOC(suite.DB(), ppmShipment1.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
+
+	orderFetcher := NewOrderFetcher()
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), tooOfficeUser.ID, &services.ListOrderParams{})
+	suite.FatalNoError(err)
+	suite.Equal(1, moveCount)
+	suite.Len(moves, 1)
+}
