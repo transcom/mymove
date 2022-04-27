@@ -4,12 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './PaymentDetails.module.scss';
 
 import { HistoryLogContextShape } from 'constants/historyLogUIDisplayName';
-
-const APPROVED_STRING = 'approved';
-const DENIED_STRING = 'denied';
+import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const iconToDisplay = (statusToFilter) => {
-  if (statusToFilter === APPROVED_STRING) {
+  if (statusToFilter.toUpperCase() === PAYMENT_SERVICE_ITEM_STATUS.APPROVED) {
     return <FontAwesomeIcon icon="check" className={styles.successCheck} />;
   }
   return <FontAwesomeIcon icon="times" className={styles.rejectTimes} />;
@@ -30,7 +28,7 @@ const filterContextStatus = (context, statusToFilter) => {
       );
     }
   });
-  const statusTitle = statusToFilter.toUpperCase() === APPROVED_STRING.toUpperCase() ? 'Approved' : 'Rejected';
+  const statusTitle = statusToFilter.toUpperCase() === PAYMENT_SERVICE_ITEM_STATUS.APPROVED ? 'Approved' : 'Rejected';
   return (
     <div>
       <div className={styles.statusRow}>
@@ -48,8 +46,8 @@ const filterContextStatus = (context, statusToFilter) => {
 const PaymentDetails = ({ context }) => {
   return (
     <div className={styles.PaymentDetails}>
-      {filterContextStatus(context, APPROVED_STRING)}
-      {filterContextStatus(context, DENIED_STRING)}
+      {filterContextStatus(context, PAYMENT_SERVICE_ITEM_STATUS.APPROVED)}
+      {filterContextStatus(context, PAYMENT_SERVICE_ITEM_STATUS.DENIED)}
     </div>
   );
 };
