@@ -3,6 +3,8 @@ package services
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -20,5 +22,5 @@ type PPMShipmentUpdater interface {
 
 // PPMEstimator estimates the cost of a PPM shipment
 type PPMEstimator interface {
-	EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*int32, error)
+	EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error)
 }

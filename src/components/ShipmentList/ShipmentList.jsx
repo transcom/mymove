@@ -2,14 +2,16 @@ import React from 'react';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button } from '@trussworks/react-uswds';
+import { Tag, Button } from '@trussworks/react-uswds';
 
 import styles from './ShipmentList.module.scss';
 
+import { isPPMShipmentComplete } from 'utils/shipments';
 import { formatWeight } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentTypes } from 'constants/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
+import { PPMShipmentShape } from 'types/customerShapes';
 
 export const ShipmentListItem = ({
   shipment,
@@ -18,6 +20,7 @@ export const ShipmentListItem = ({
   shipmentNumber,
   canEditOrDelete,
   showNumber,
+  showIncomplete,
   showShipmentWeight,
   isOverweight,
   isMissingWeight,
@@ -44,9 +47,10 @@ export const ShipmentListItem = ({
         {showNumber && ` ${shipmentNumber}`}
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}
-      {!showShipmentWeight && (
+      {!showShipmentWeight && !showIncomplete && (
         <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
       )}{' '}
+      {showIncomplete && <Tag>Incomplete</Tag>}
       {showShipmentWeight && (
         <div className={styles.shipmentWeight}>{formatWeight(shipment.calculatedBillableWeight)}</div>
       )}
@@ -80,6 +84,7 @@ ShipmentListItem.propTypes = {
   shipmentNumber: number.isRequired,
   canEditOrDelete: bool.isRequired,
   showNumber: bool,
+  showIncomplete: bool,
   showShipmentWeight: bool,
   isOverweight: bool,
   isMissingWeight: bool,
@@ -87,6 +92,7 @@ ShipmentListItem.propTypes = {
 
 ShipmentListItem.defaultProps = {
   showNumber: true,
+  showIncomplete: false,
   showShipmentWeight: false,
   isOverweight: false,
   isMissingWeight: false,
@@ -120,6 +126,8 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
         let isOverweight;
         let isMissingWeight;
         let showNumber = shipmentCountByType[shipmentType] > 1;
+        const ppmIsIncomplete = shipmentType === SHIPMENT_OPTIONS.PPM && !isPPMShipmentComplete(shipment);
+
         if (showShipmentWeight) {
           canEditOrDelete = false;
           showNumber = false;
@@ -136,6 +144,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
               }
           }
         }
+
         return (
           <ShipmentListItem
             key={shipment.id}
@@ -144,6 +153,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
             showShipmentWeight={showShipmentWeight}
             canEditOrDelete={canEditOrDelete}
             isOverweight={isOverweight}
+            showIncomplete={ppmIsIncomplete}
             isMissingWeight={isMissingWeight}
             onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType)}
             onDeleteClick={() => onDeleteClick(shipment.id)}
@@ -161,6 +171,7 @@ ShipmentList.propTypes = {
       id: string.isRequired,
       shipmentType: string.isRequired,
       reweigh: shape({ id: string.isRequired, weight: number }),
+      ppmShipment: PPMShipmentShape,
     }),
   ).isRequired,
   onShipmentClick: func,

@@ -2496,6 +2496,7 @@ definitions:
         x-omitempty: false
       estimatedIncentive:
         type: integer
+        format: cents
         x-nullable: true
         x-omitempty: false
       advance:
@@ -2504,11 +2505,13 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+        x-omitempty: false
       advanceRequested:
         description: >
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
+        x-omitempty: false
       eTag:
         description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
         type: string
@@ -2632,6 +2635,7 @@ definitions:
         x-nullable: true
       estimatedIncentive:
         type: integer
+        format: cents
         x-nullable: true
       advance:
         description: >
