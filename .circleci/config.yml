@@ -100,7 +100,7 @@ executors:
           GOPATH: /home/circleci/go
 
   mymove_compiler_xlarge:
-    # large and no ram disk
+    # xlarge and no ram disk
     resource_class: xlarge
     working_directory: ~/transcom/mymove
     docker:
@@ -112,7 +112,7 @@ executors:
           GOPATH: /home/circleci/go
 
   mymove_ramdisk_compiler:
-    # large and no ram disk
+    # large with ram disk
     resource_class: large
     working_directory: /mnt/ramdisk
     docker:
@@ -124,7 +124,7 @@ executors:
           GOPATH: /home/circleci/go
 
   mymove_ramdisk_compiler_xlarge:
-    # large and no ram disk
+    # xlarge with ram disk
     resource_class: xlarge
     working_directory: /mnt/ramdisk
     docker:
