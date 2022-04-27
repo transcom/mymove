@@ -237,7 +237,6 @@ export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
   tableName: 'payment_requests',
   detailsType: detailsTypes.PAYMENT,
   getEventNameDisplay: () => 'Submitted payment request',
-  getDetailsPlainText: () => '-',
 });
 
 export const undefinedEvent = buildMoveHistoryEventTemplate({
