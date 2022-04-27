@@ -25,6 +25,7 @@ import (
 type paymentRequestCreator struct {
 	planner route.Planner
 	pricer  services.ServiceItemPricer
+	checks  []paymentRequestValidator
 }
 
 // NewPaymentRequestCreator returns a new payment request creator
@@ -32,14 +33,25 @@ func NewPaymentRequestCreator(planner route.Planner, pricer services.ServiceItem
 	return &paymentRequestCreator{
 		planner: planner,
 		pricer:  pricer,
+		checks: []paymentRequestValidator{
+			checkMTOIDField(),
+		},
 	}
 }
 
-func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
+func (p *paymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
+	return p.CreatePaymentRequest(appCtx, paymentRequest, p.checks...)
+}
+
+func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequestArg *models.PaymentRequest, checks ...paymentRequestValidator) (*models.PaymentRequest, error) {
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var err error
 		now := time.Now()
 
+		err = validatePaymentRequest(appCtx, *paymentRequestArg, nil, checks...)
+		if err != nil {
+			return err
+		}
 		// Gather information for logging
 		mtoMessageString := " MTO ID <" + paymentRequestArg.MoveTaskOrderID.String() + ">"
 		prMessageString := " paymentRequestID <" + paymentRequestArg.ID.String() + ">"
@@ -250,10 +262,6 @@ func (p *paymentRequestCreator) validShipment(appCtx appcontext.AppContext, ship
 }
 
 func (p *paymentRequestCreator) createPaymentRequestSaveToDB(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
-	// Verify that the MTO ID exists
-	if paymentRequest.MoveTaskOrderID == uuid.Nil {
-		return nil, apperror.NewInvalidCreateInputError(nil, "Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create")
-	}
 
 	// Lock on the parent row to keep multiple transactions from getting this count at the same time
 	// for the same move_id.  This should block if another payment request comes in for the
