@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -31,11 +30,10 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexMovesHandler() {
-	// test that everything is wired up correctly
-	m := testdatagen.MakeDefaultMove(suite.DB())
 	req := httptest.NewRequest("GET", "/moves", nil)
 
-	suite.T().Run("integration test ok response", func(t *testing.T) {
+	suite.Run("integration test ok response", func() {
+		m := testdatagen.MakeDefaultMove(suite.DB())
 		params := moveop.IndexMovesParams{
 			HTTPRequest: req,
 		}
@@ -54,7 +52,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(m.ID.String(), okResponse.Payload[0].ID.String())
 	})
-	suite.T().Run("test failed response", func(t *testing.T) {
+	suite.Run("test failed response", func() {
 		params := moveop.IndexMovesParams{
 			HTTPRequest: req,
 		}
@@ -82,7 +80,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 }
 
 func (suite *HandlerSuite) TestIndexMovesHandlerHelpers() {
-	suite.T().Run("test filters present", func(t *testing.T) {
+	suite.Run("test filters present", func() {
 		s := `{"locator":"TEST123"}`
 		qfs := generateQueryFilters(suite.Logger(), &s, locatorFilterConverters)
 		expectedFilters := []services.QueryFilter{
@@ -93,28 +91,30 @@ func (suite *HandlerSuite) TestIndexMovesHandlerHelpers() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveHandler() {
-	defaultMove := testdatagen.MakeDefaultMove(suite.DB())
-
-	// Create handler and request:
-	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
-	handler := UpdateMoveHandler{
-		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-		movetaskorder.NewMoveTaskOrderUpdater(
-			builder,
-			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
-			moveRouter,
-		),
+	setupHandler := func() UpdateMoveHandler {
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		return UpdateMoveHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			movetaskorder.NewMoveTaskOrderUpdater(
+				builder,
+				mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+				moveRouter,
+			),
+		}
 	}
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	setupRequest := func(move models.Move) *http.Request {
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/moves/%s", move.ID), nil)
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		return suite.AuthenticateUserRequest(req, requestUser)
+	}
 
 	show := true
 	// Case: Move is successfully updated
-	suite.T().Run("200 - OK response", func(t *testing.T) {
+	suite.Run("200 - OK response", func() {
+		defaultMove := testdatagen.MakeDefaultMove(suite.DB())
 		params := moveop.UpdateMoveParams{
-			HTTPRequest: req,
+			HTTPRequest: setupRequest(defaultMove),
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),
 			Move: &adminmessages.MoveUpdatePayload{
 				Show: &show,
@@ -124,20 +124,20 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		suite.NoError(params.Move.Validate(strfmt.Default))
 
 		// Run handler and check response
-		response := handler.Handle(params)
+		response := setupHandler().Handle(params)
 		suite.IsType(&moveop.UpdateMoveOK{}, response)
 
 		// Check values
 		moveOK := response.(*moveop.UpdateMoveOK)
-		suite.Equal(moveOK.Payload.ID.String(), defaultMove.ID.String())
-		suite.Equal(*moveOK.Payload.Show, *params.Move.Show)
+		suite.Equal(defaultMove.ID.String(), moveOK.Payload.ID.String())
+		suite.Equal(*params.Move.Show, *moveOK.Payload.Show)
 	})
 
 	// Case: Move is not found
-	suite.T().Run("404 - Move not found", func(t *testing.T) {
+	suite.Run("404 - Move not found", func() {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		params := moveop.UpdateMoveParams{
-			HTTPRequest: req,
+			HTTPRequest: setupRequest(models.Move{ID: badUUID}),
 			MoveID:      *handlers.FmtUUID(badUUID),
 			Move: &adminmessages.MoveUpdatePayload{
 				Show: &show,
@@ -147,19 +147,16 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		suite.NoError(params.Move.Validate(strfmt.Default))
 
 		// Run handler and check response
-		response := handler.Handle(params)
+		response := setupHandler().Handle(params)
 		suite.IsType(&moveop.UpdateMoveNotFound{}, response)
 	})
 }
 
 func (suite *HandlerSuite) TestGetMoveHandler() {
-	// test that everything is wired up correctly
-	defaultMove := testdatagen.MakeDefaultMove(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
-
-	suite.T().Run("200 - OK response", func(t *testing.T) {
+	suite.Run("200 - OK response", func() {
+		defaultMove := testdatagen.MakeDefaultMove(suite.DB())
 		params := moveop.GetMoveParams{
-			HTTPRequest: req,
+			HTTPRequest: httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID), nil),
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),
 		}
 		handler := GetMoveHandler{
@@ -173,7 +170,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		suite.Equal(defaultMove.ID.String(), okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("500 - Internal Server Error for No SQL Rows Returned", func(t *testing.T) {
+	suite.Run("500 - Internal Server Error for No SQL Rows Returned", func() {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		badReq := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", badUUID), nil)
 		params := moveop.GetMoveParams{
