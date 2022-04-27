@@ -253,16 +253,16 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 		paymentRequestsPayload := paymentRequestsResponse.Payload
 
 		suite.IsType(paymentrequestop.NewListMTOPaymentRequestsOK(), response)
-		suite.Equal(len(paymentRequestsPayload), 1)
+		suite.Equal(1, len(paymentRequestsPayload))
 	})
 
 	suite.Run("successful get an MTO with no payment requests", func() {
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", paymentRequest.MoveTaskOrder.ID), nil)
+		mto := testdatagen.MakeDefaultMove(suite.DB())
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mto.ID), nil)
 
 		params := paymentrequestop.ListMTOPaymentRequestsParams{
 			HTTPRequest:     req,
-			MoveTaskOrderID: strfmt.UUID(paymentRequest.MoveTaskOrder.ID.String()),
+			MoveTaskOrderID: strfmt.UUID(mto.ID.String()),
 		}
 
 		handler := ListMTOPaymentRequestsHandler{
@@ -275,7 +275,7 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 		paymentRequestsPayload := paymentRequestsResponse.Payload
 
 		suite.IsType(paymentrequestop.NewListMTOPaymentRequestsOK(), response)
-		suite.Equal(len(paymentRequestsPayload), 0)
+		suite.Equal(0, len(paymentRequestsPayload))
 	})
 }
 
