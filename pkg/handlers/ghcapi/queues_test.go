@@ -95,23 +95,24 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 	suite.Run("displays move attributes for all move types returned by ListOrders", func() {
+		gbloc := "LKNQ"
 		stub := testdatagen.Assertions{Stub: true}
 
 		// Stub HHG move
 		hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), stub)
-		hhgMove.ShipmentGBLOC = append(hhgMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: "LKNQ"})
+		hhgMove.ShipmentGBLOC = append(hhgMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		// Stub HHG_PPM move
 		hhgPPMMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), stub)
-		hhgPPMMove.ShipmentGBLOC = append(hhgPPMMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: "LKNQ"})
+		hhgPPMMove.ShipmentGBLOC = append(hhgPPMMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		// Stub NTS move
 		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), stub)
-		ntsMove.ShipmentGBLOC = append(ntsMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: "LKNQ"})
+		ntsMove.ShipmentGBLOC = append(ntsMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		// Stub NTSR move
 		ntsrMove := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), stub)
-		ntsrMove.ShipmentGBLOC = append(ntsrMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: "LKNQ"})
+		ntsrMove.ShipmentGBLOC = append(ntsrMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		var expectedMoves []models.Move
 		expectedMoves = append(expectedMoves, hhgMove, hhgPPMMove, ntsMove, ntsrMove)

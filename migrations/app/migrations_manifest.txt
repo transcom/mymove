@@ -722,3 +722,4 @@
 20220418182209_remove_access_code.up.sql
 20220420162556_create_indexes_for_mto_shipments_deleted_at.up.sql
 20220425211936_create_move_history_triggers_for_reweighs.up.sql
+20220426195320_update_move_to_gbloc_view_for_ppm_shipments.up.sql
