@@ -70,7 +70,7 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		if billableWeightInputs.CalculatedBillableWeight == nil {
 			return "", fmt.Errorf("got a nil calculated billable weight from service for MTOShipmentID [%s]", r.MTOShipment.ID)
 		}
-
+		// skip for PPM estimator no minimum
 		value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*billableWeightInputs.CalculatedBillableWeight))
 	}
 

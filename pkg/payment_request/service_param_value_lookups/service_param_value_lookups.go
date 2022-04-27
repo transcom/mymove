@@ -27,37 +27,76 @@ type ServiceItemParamKeyData struct {
 	paramCache       *ServiceParamsCache
 }
 
+func NewServiceItemParamKeyData(planner route.Planner, lookups map[models.ServiceItemParamName]ServiceItemParamKeyLookup, mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment) ServiceItemParamKeyData {
+	return ServiceItemParamKeyData{
+		planner:          planner,
+		lookups:          lookups,
+		MTOServiceItem:   mtoServiceItem,
+		MTOServiceItemID: mtoServiceItem.ID,
+		mtoShipmentID:    &mtoShipment.ID,
+		MoveTaskOrderID:  mtoShipment.MoveTaskOrderID,
+		ContractCode:     ghcrateengine.DefaultContractCode,
+	}
+}
+
 // ServiceItemParamKeyLookup does lookup on service item parameter keys
 type ServiceItemParamKeyLookup interface {
 	lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error)
+}
+
+// We don't have comprehensive lookups for all SYSTEM and PRIME params so we need a list of those that do exist.
+var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
+	models.ServiceItemParamNameActualPickupDate,
+	models.ServiceItemParamNameRequestedPickupDate,
+	models.ServiceItemParamNameReferenceDate,
+	models.ServiceItemParamNameDistanceZip5,
+	models.ServiceItemParamNameDistanceZip3,
+	models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+	models.ServiceItemParamNameWeightAdjusted,
+	models.ServiceItemParamNameWeightBilled,
+	models.ServiceItemParamNameWeightEstimated,
+	models.ServiceItemParamNameWeightOriginal,
+	models.ServiceItemParamNameWeightReweigh,
+	models.ServiceItemParamNameZipPickupAddress,
+	models.ServiceItemParamNameZipDestAddress,
+	models.ServiceItemParamNameMTOAvailableToPrimeAt,
+	models.ServiceItemParamNameServiceAreaOrigin,
+	models.ServiceItemParamNameServiceAreaDest,
+	models.ServiceItemParamNameContractCode,
+	models.ServiceItemParamNameCubicFeetBilled,
+	models.ServiceItemParamNamePSILinehaulDom,
+	models.ServiceItemParamNamePSILinehaulDomPrice,
+	models.ServiceItemParamNameEIAFuelPrice,
+	models.ServiceItemParamNameServicesScheduleOrigin,
+	models.ServiceItemParamNameServicesScheduleDest,
+	models.ServiceItemParamNameSITScheduleOrigin,
+	models.ServiceItemParamNameSITScheduleDest,
+	models.ServiceItemParamNameNumberDaysSIT,
+	models.ServiceItemParamNameZipSITDestHHGFinalAddress,
+	models.ServiceItemParamNameZipSITOriginHHGOriginalAddress,
+	models.ServiceItemParamNameZipSITOriginHHGActualAddress,
+	models.ServiceItemParamNameDistanceZipSITDest,
+	models.ServiceItemParamNameDistanceZipSITOrigin,
+	models.ServiceItemParamNameCubicFeetCrating,
+	models.ServiceItemParamNameDimensionHeight,
+	models.ServiceItemParamNameDimensionLength,
+	models.ServiceItemParamNameDimensionWidth,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
 func ServiceParamLookupInitialize(
 	appCtx appcontext.AppContext,
 	planner route.Planner,
-	mtoServiceItemID uuid.UUID,
+	mtoServiceItem models.MTOServiceItem,
 	paymentRequestID uuid.UUID,
 	moveTaskOrderID uuid.UUID,
 	paramCache *ServiceParamsCache,
 ) (*ServiceItemParamKeyData, error) {
 
-	// Get the MTOServiceItem
-	var mtoServiceItem models.MTOServiceItem
-	err := appCtx.DB().Eager("ReService").Find(&mtoServiceItem, mtoServiceItemID)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItem")
-		default:
-			return nil, apperror.NewQueryError("MTOServiceItem", err, "")
-		}
-	}
-
 	s := ServiceItemParamKeyData{
 		planner:          planner,
 		lookups:          make(map[models.ServiceItemParamName]ServiceItemParamKeyLookup),
-		MTOServiceItemID: mtoServiceItemID,
+		MTOServiceItemID: mtoServiceItem.ID,
 		MTOServiceItem:   mtoServiceItem,
 		PaymentRequestID: paymentRequestID,
 		MoveTaskOrderID:  moveTaskOrderID,
@@ -89,7 +128,7 @@ func ServiceParamLookupInitialize(
 
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
-		err = appCtx.DB().Load(&mtoServiceItem, "Dimensions")
+		err := appCtx.DB().Load(&mtoServiceItem, "Dimensions")
 		if err != nil {
 			return nil, err
 		}
@@ -97,13 +136,16 @@ func ServiceParamLookupInitialize(
 	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT:
 		// load destination address from final address on service item
 		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
-			err = appCtx.DB().Load(&mtoServiceItem, "SITDestinationFinalAddress")
+			err := appCtx.DB().Load(&mtoServiceItem, "SITDestinationFinalAddress")
 			if err != nil {
 				return nil, err
 			}
 			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
 		}
 	}
+
+	mtoServiceItem.SITDestinationFinalAddress = &sitDestinationFinalAddress
+	mtoServiceItem.Dimensions = serviceItemDimensions
 
 	// Load shipment fields for service items that need them
 	var mtoShipment models.MTOShipment
@@ -115,7 +157,7 @@ func ServiceParamLookupInitialize(
 		if mtoServiceItem.MTOShipmentID == nil {
 			return nil, apperror.NewNotFoundError(uuid.Nil, "looking for MTOShipment")
 		}
-		err = appCtx.DB().Eager("PickupAddress", "DestinationAddress", "StorageFacility").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		err := appCtx.DB().Eager("PickupAddress", "DestinationAddress", "StorageFacility").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -145,9 +187,12 @@ func ServiceParamLookupInitialize(
 		}
 	}
 
+	mtoShipment.PickupAddress = &pickupAddress
+	mtoShipment.DestinationAddress = &destinationAddress
+
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT:
-		err = appCtx.DB().Load(&mtoShipment, "SITExtensions")
+		err := appCtx.DB().Load(&mtoShipment, "SITExtensions")
 		if err != nil {
 			return nil, err
 		}
@@ -162,291 +207,21 @@ func ServiceParamLookupInitialize(
 		s.lookups[key] = notImplementedLookup
 	}
 
-	//
-	// Begin setting lookup functions if they are needed for the given ReServiceCode
-	//
-
-	var paramKey models.ServiceItemParamName
-
 	// ReService code for current MTO Service Item
 	serviceItemCode := mtoServiceItem.ReService.Code
 
-	paramKey = models.ServiceItemParamNameActualPickupDate
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ActualPickupDateLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
+	paramKeyLookups := InitializeLookups(mtoShipment, mtoServiceItem)
 
-	paramKey = models.ServiceItemParamNameRequestedPickupDate
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, RequestedPickupDateLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
+	for _, paramKeyName := range ServiceItemParamsWithLookups {
+		lookup, ok := paramKeyLookups[paramKeyName]
+		if !ok {
+			return nil, fmt.Errorf("no lookup was found for service item param key name %s", paramKeyName)
+		}
 
-	paramKey = models.ServiceItemParamNameReferenceDate
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ReferenceDateLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameDistanceZip5
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, DistanceZip5Lookup{
-		PickupAddress:      pickupAddress,
-		DestinationAddress: destinationAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-	paramKey = models.ServiceItemParamNameDistanceZip3
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, DistanceZip3Lookup{
-		PickupAddress:      pickupAddress,
-		DestinationAddress: destinationAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, FSCWeightBasedDistanceMultiplierLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameWeightAdjusted
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, WeightAdjustedLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameWeightBilled
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, WeightBilledLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameWeightEstimated
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, WeightEstimatedLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameWeightOriginal
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, WeightOriginalLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameWeightReweigh
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, WeightReweighLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameZipPickupAddress
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ZipAddressLookup{
-		Address: pickupAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameZipDestAddress
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ZipAddressLookup{
-		Address: destinationAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameMTOAvailableToPrimeAt
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, MTOAvailableToPrimeAtLookup{})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameServiceAreaOrigin
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ServiceAreaLookup{
-		Address: pickupAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameServiceAreaDest
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ServiceAreaLookup{
-		Address: destinationAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameContractCode
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ContractCodeLookup{})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameCubicFeetBilled
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, CubicFeetBilledLookup{
-		Dimensions: serviceItemDimensions,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNamePSILinehaulDom
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, PSILinehaulDomLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNamePSILinehaulDomPrice
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, PSILinehaulDomPriceLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameEIAFuelPrice
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, EIAFuelPriceLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameServicesScheduleOrigin
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ServicesScheduleLookup{
-		Address: pickupAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameServicesScheduleDest
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ServicesScheduleLookup{
-		Address: destinationAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameSITScheduleOrigin
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, SITScheduleLookup{
-		Address: pickupAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameSITScheduleDest
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, SITScheduleLookup{
-		Address: destinationAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameNumberDaysSIT
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, NumberDaysSITLookup{
-		MTOShipment: mtoShipment,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameZipSITDestHHGFinalAddress
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ZipAddressLookup{
-		Address: sitDestinationFinalAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameZipSITOriginHHGOriginalAddress
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ZipSITOriginHHGOriginalAddressLookup{
-		ServiceItem: mtoServiceItem,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameZipSITOriginHHGActualAddress
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, ZipSITOriginHHGActualAddressLookup{
-		ServiceItem: mtoServiceItem,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameDistanceZipSITDest
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, DistanceZipSITDestLookup{
-		DestinationAddress:      destinationAddress,
-		FinalDestinationAddress: sitDestinationFinalAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameDistanceZipSITOrigin
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, DistanceZipSITOriginLookup{
-		ServiceItem: mtoServiceItem,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameCubicFeetCrating
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, CubicFeetCratingLookup{
-		Dimensions: serviceItemDimensions,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameDimensionHeight
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, DimensionHeightLookup{
-		Dimensions: serviceItemDimensions,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameDimensionLength
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, DimensionLengthLookup{
-		Dimensions: serviceItemDimensions,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	paramKey = models.ServiceItemParamNameDimensionWidth
-	err = s.setLookup(appCtx, serviceItemCode, paramKey, DimensionWidthLookup{
-		Dimensions: serviceItemDimensions,
-	})
-	if err != nil {
-		return nil, err
+		err := s.setLookup(appCtx, serviceItemCode, paramKeyName, lookup)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &s, nil
@@ -460,6 +235,155 @@ func (s *ServiceItemParamKeyData) setLookup(appCtx appcontext.AppContext, servic
 		return err
 	}
 	return nil
+}
+
+func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
+	lookups := map[models.ServiceItemParamName]ServiceItemParamKeyLookup{}
+
+	if serviceItem.SITDestinationFinalAddress == nil {
+		serviceItem.SITDestinationFinalAddress = &models.Address{}
+	}
+
+	lookups[models.ServiceItemParamNameActualPickupDate] = ActualPickupDateLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameRequestedPickupDate] = RequestedPickupDateLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameReferenceDate] = ReferenceDateLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameDistanceZip5] = DistanceZip5Lookup{
+		PickupAddress:      *shipment.PickupAddress,
+		DestinationAddress: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameDistanceZip3] = DistanceZip3Lookup{
+		PickupAddress:      *shipment.PickupAddress,
+		DestinationAddress: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier] = FSCWeightBasedDistanceMultiplierLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameWeightAdjusted] = WeightAdjustedLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameWeightBilled] = WeightBilledLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameWeightEstimated] = WeightEstimatedLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameWeightOriginal] = WeightOriginalLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameWeightReweigh] = WeightReweighLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameZipPickupAddress] = ZipAddressLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameZipDestAddress] = ZipAddressLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt] = MTOAvailableToPrimeAtLookup{}
+
+	lookups[models.ServiceItemParamNameServiceAreaOrigin] = ServiceAreaLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameServiceAreaDest] = ServiceAreaLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameContractCode] = ContractCodeLookup{}
+
+	lookups[models.ServiceItemParamNameCubicFeetBilled] = CubicFeetBilledLookup{
+		Dimensions: serviceItem.Dimensions,
+	}
+
+	lookups[models.ServiceItemParamNamePSILinehaulDom] = PSILinehaulDomLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNamePSILinehaulDomPrice] = PSILinehaulDomPriceLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameEIAFuelPrice] = EIAFuelPriceLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameServicesScheduleOrigin] = ServicesScheduleLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameServicesScheduleDest] = ServicesScheduleLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameSITScheduleOrigin] = SITScheduleLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameSITScheduleDest] = SITScheduleLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameNumberDaysSIT] = NumberDaysSITLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameZipSITDestHHGFinalAddress] = ZipAddressLookup{
+		Address: *serviceItem.SITDestinationFinalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameZipSITOriginHHGOriginalAddress] = ZipSITOriginHHGOriginalAddressLookup{
+		ServiceItem: serviceItem,
+	}
+
+	lookups[models.ServiceItemParamNameZipSITOriginHHGActualAddress] = ZipSITOriginHHGActualAddressLookup{
+		ServiceItem: serviceItem,
+	}
+
+	lookups[models.ServiceItemParamNameDistanceZipSITDest] = DistanceZipSITDestLookup{
+		DestinationAddress:      *shipment.DestinationAddress,
+		FinalDestinationAddress: *serviceItem.SITDestinationFinalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameDistanceZipSITOrigin] = DistanceZipSITOriginLookup{
+		ServiceItem: serviceItem,
+	}
+
+	lookups[models.ServiceItemParamNameCubicFeetCrating] = CubicFeetCratingLookup{
+		Dimensions: serviceItem.Dimensions,
+	}
+
+	lookups[models.ServiceItemParamNameDimensionHeight] = DimensionHeightLookup{
+		Dimensions: serviceItem.Dimensions,
+	}
+
+	lookups[models.ServiceItemParamNameDimensionLength] = DimensionLengthLookup{
+		Dimensions: serviceItem.Dimensions,
+	}
+
+	lookups[models.ServiceItemParamNameDimensionWidth] = DimensionWidthLookup{
+		Dimensions: serviceItem.Dimensions,
+	}
+
+	return lookups
 }
 
 // serviceItemNeedsParamKey wrapper for using paramCache.ServiceItemNeedsParamKey, if s.paramCache is nil

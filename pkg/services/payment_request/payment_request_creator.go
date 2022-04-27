@@ -148,7 +148,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			}
 
 			// Get values for needed service item params (do lookups)
-			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(txnAppCtx, p.planner, paymentServiceItem.MTOServiceItemID, paymentRequestArg.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
+			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(txnAppCtx, p.planner, paymentServiceItem.MTOServiceItem, paymentRequestArg.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
 			if err != nil {
 				return err
 			}

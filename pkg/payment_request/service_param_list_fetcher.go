@@ -24,3 +24,28 @@ func (p *RequestPaymentHelper) FetchServiceParamList(appCtx appcontext.AppContex
 
 	return serviceParams, err
 }
+
+// FetchDistinctSystemServiceParamList fetches the service param list.  Returns a slice of ServiceItemParamKey models, each with an
+// eagerly fetched ServiceItemParamKey association.
+func (p *RequestPaymentHelper) FetchDistinctSystemServiceParamList(appCtx appcontext.AppContext, mtoServiceItems []models.MTOServiceItem) ([]models.ServiceItemParamKey, error) {
+	serviceItemCodes := make([]models.ReServiceCode, len(mtoServiceItems))
+	for i, mtoServiceItem := range mtoServiceItems {
+		serviceItemCodes[i] = mtoServiceItem.ReService.Code
+	}
+
+	// Get all service item system param keys
+	var serviceItemParmKeys []models.ServiceItemParamKey
+	err := appCtx.DB().Q().
+		Select("uuid_nil() as id, key, service_item_param_keys.description, type, origin, service_item_param_keys.created_at, service_item_param_keys.updated_at").
+		InnerJoin("service_params", "service_params.service_item_param_key_id = service_item_param_keys.id").
+		InnerJoin("re_services", "re_services.id = service_params.service_id").
+		Where("origin IN (?)", models.ServiceItemParamOriginSystem, models.ServiceItemParamOriginPrime).
+		Where("re_services.code IN (?)", serviceItemCodes).
+		GroupBy("key", "description", "type", "origin", "service_item_param_keys.created_at", "service_item_param_keys.updated_at").
+		All(&serviceItemParmKeys)
+	if err != nil {
+		return nil, fmt.Errorf("failure fetching service params for RE Service Item IDs <%s>: %w", serviceItemCodes, err)
+	}
+
+	return serviceItemParmKeys, err
+}

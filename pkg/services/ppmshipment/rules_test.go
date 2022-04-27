@@ -514,6 +514,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 
 			err := checkEstimatedWeight().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
 			suite.Error(err)
+			suite.Equal("", err.Error())
 		})
 	})
 }
