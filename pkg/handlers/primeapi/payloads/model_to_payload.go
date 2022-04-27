@@ -409,6 +409,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		SitExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -416,11 +417,6 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 		Advance:                        handlers.FmtCost(ppmShipment.Advance),
 		AdvanceRequested:               ppmShipment.AdvanceRequested,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
-	}
-
-	if ppmShipment.EstimatedIncentive != nil {
-		int64EstimatedIncentive := int64(*ppmShipment.EstimatedIncentive)
-		payloadPPMShipment.EstimatedIncentive = &int64EstimatedIncentive
 	}
 
 	return payloadPPMShipment

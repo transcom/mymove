@@ -105,6 +105,7 @@ properties:
     x-omitempty: false
   estimatedIncentive:
     type: integer
+    format: cents
     x-nullable: true
     x-omitempty: false
   advance:
