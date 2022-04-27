@@ -916,6 +916,7 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	userID := uuid.Must(uuid.NewV4())
 	email := "complete@ppm.submitted"
 	loginGovUUID := uuid.Must(uuid.NewV4())
+	submittedAt := time.Now()
 
 	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
 		User: models.User{
@@ -945,6 +946,7 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 			Locator:          locator,
 			SelectedMoveType: &ppmMoveType,
 			Status:           models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt:      &submittedAt,
 		},
 	})
 
