@@ -157,6 +157,17 @@ export const requestShipmentDiversionEvent = buildMoveHistoryEventTemplate({
   },
 });
 
+export const requestShipmentReweighEvent = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.requestShipmentReweigh,
+  tableName: 'reweighs',
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsPlainText: (historyRecord) => {
+    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, reweigh requested`;
+  },
+});
+
 export const setFinancialReviewFlagEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.setFinancialReviewFlag,
@@ -279,6 +290,7 @@ const allMoveHistoryEventTemplates = [
   createStandardServiceItemEvent,
   requestShipmentCancellationEvent,
   requestShipmentDiversionEvent,
+  requestShipmentReweighEvent,
   setFinancialReviewFlagEvent,
   submitMoveForApprovalEvent,
   updateMoveTaskOrderEvent,

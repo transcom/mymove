@@ -147,6 +147,27 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		JOIN entitlements ON entitlements.id = audit_history.object_id
 			AND audit_history."table_name" = 'entitlements'
 	),
+	reweighs AS (
+		SELECT
+			reweighs.id,
+			json_agg(json_build_object(
+					'shipment_type',
+					shipments.shipment_type))::TEXT AS context
+		FROM
+			reweighs
+			JOIN shipments ON reweighs.shipment_id = shipments.id
+		GROUP BY
+			reweighs.id
+	),
+	reweigh_logs as (
+		SELECT audit_history.*,
+			context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN reweighs ON reweighs.id = audit_history.object_id
+			AND audit_history."table_name" = 'reweighs'
+	),
 	combined_logs AS (
 		SELECT
 			*
@@ -172,6 +193,11 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			*
 		FROM
 			entitlements_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			reweigh_logs
 		UNION ALL
 		SELECT
 			*
