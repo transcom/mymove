@@ -2,6 +2,7 @@ package movehistory
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -155,6 +157,61 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		_, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.T().Run("returns Orders fields and context", func(t *testing.T) {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+			},
+			Move: approvedMove,
+		})
+
+		// Make sure we're testing for all the things that we can update on the Orders page
+		// README: This list of properties below here is taken from
+		// swagger-def/ghc.yaml#UpdateOrderPayload
+		// README: issueDate, reportByDate, ordersType, ordersTypeDetail,
+		// originDutyLocationId, newDutyLocationId, ordersNumber, tac, sac,
+		// ntsTac, ntsSac, departmentIndicator, ordersAcknowledgement
+		// originDutyLocationID := uuid.FromStringOrNil("2d5ada83-e09a-47f8-8de6-83ec51694a86")
+		// newDutyLocationID := uuid.FromStringOrNil("9bf1b353-12c3-453f-b28c-1fd98f9b092f")
+		orderNumber := "030-00362"
+		tac := "1234"
+		sac := "2345"
+		ntsTac := "3456"
+		ntsSac := "4567"
+
+		approvedMove.Orders.IssueDate = now.AddDate(0, 0, 20)
+		approvedMove.Orders.ReportByDate = now.AddDate(0, 0, 25)
+		approvedMove.Orders.OrdersType = internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		approvedMove.Orders.OrdersTypeDetail = internalmessages.NewOrdersTypeDetail(internalmessages.OrdersTypeDetailHHGPERMITTED)
+		// approvedMove.Orders.OriginDutyLocationID = &originDutyLocationID
+		// approvedMove.Orders.NewDutyLocationID = newDutyLocationID
+		approvedMove.Orders.OrdersNumber = &orderNumber
+		approvedMove.Orders.TAC = &tac
+		approvedMove.Orders.SAC = &sac
+		approvedMove.Orders.NtsTAC = &ntsTac
+		approvedMove.Orders.NtsSAC = &ntsSac
+		approvedMove.Orders.DepartmentIndicator = (*string)(internalmessages.NewDeptIndicator(internalmessages.DeptIndicatorARMY))
+		approvedMove.Orders.AmendedOrdersAcknowledgedAt = &now
+
+		suite.MustSave(&approvedMove.Orders)
+		suite.MustSave(&approvedMove)
+
+		parameters := services.FetchMoveHistoryParams{
+			Locator: approvedMove.Locator,
+			Page:    swag.Int64(1),
+			PerPage: swag.Int64(20),
+		}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &parameters)
+		suite.FatalNoError(err)
+
+		fmt.Print(moveHistoryData.AuditHistories[0])
 	})
 
 }
