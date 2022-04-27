@@ -237,6 +237,28 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		}
 	})
 
+	suite.T().Run("Success - returns shipment with attached PpmShipment", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      move.Locator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+		suite.Equal(move.ID.String(), movePayload.ID.String())
+		suite.NotNil(movePayload.MtoShipments[0].PpmShipment)
+	})
+
 	suite.T().Run("Failure 'Not Found' for non-available move", func(t *testing.T) {
 		failureMove := testdatagen.MakeDefaultMove(suite.DB()) // default is not available to Prime
 		params := movetaskorderops.GetMoveTaskOrderParams{
