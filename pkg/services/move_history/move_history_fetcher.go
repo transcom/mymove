@@ -141,6 +141,22 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		JOIN entitlements ON entitlements.id = audit_history.object_id
 			AND audit_history."table_name" = 'entitlements'
 	),
+	agents AS (
+		SELECT
+			mto_agents.id
+		FROM
+			mto_agents
+		JOIN shipments ON mto_agents.mto_shipment_id = shipments.id
+	),
+	agents_logs AS (
+		SELECT audit_history.*,
+			NULL AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN agents ON agents.id = audit_history.object_id
+			AND audit_history."table_name" = 'mto_agents'
+	),
 	combined_logs AS (
 		SELECT
 			*
@@ -171,6 +187,11 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			*
 		FROM
 			orders_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			agents_logs
 		UNION ALL
 		SELECT
 			*
