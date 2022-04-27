@@ -183,6 +183,9 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 				case apperror.PreconditionFailedError:
 					return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed().WithPayload(
 						payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.ConflictError:
+					return movetaskorderops.NewUpdateMTOPostCounselingInformationConflict().WithPayload(
+						payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.InvalidInputError:
 					return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
 						payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err

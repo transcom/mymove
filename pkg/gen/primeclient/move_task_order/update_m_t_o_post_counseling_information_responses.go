@@ -47,6 +47,12 @@ func (o *UpdateMTOPostCounselingInformationReader) ReadResponse(response runtime
 			return nil, err
 		}
 		return nil, result
+	case 409:
+		result := NewUpdateMTOPostCounselingInformationConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 412:
 		result := NewUpdateMTOPostCounselingInformationPreconditionFailed()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -187,6 +193,38 @@ func (o *UpdateMTOPostCounselingInformationNotFound) GetPayload() *primemessages
 }
 
 func (o *UpdateMTOPostCounselingInformationNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewUpdateMTOPostCounselingInformationConflict creates a UpdateMTOPostCounselingInformationConflict with default headers values
+func NewUpdateMTOPostCounselingInformationConflict() *UpdateMTOPostCounselingInformationConflict {
+	return &UpdateMTOPostCounselingInformationConflict{}
+}
+
+/* UpdateMTOPostCounselingInformationConflict describes a response with status code 409, with default header values.
+
+The request could not be processed because of conflict in the current state of the resource.
+*/
+type UpdateMTOPostCounselingInformationConflict struct {
+	Payload *primemessages.ClientError
+}
+
+func (o *UpdateMTOPostCounselingInformationConflict) Error() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationConflict  %+v", 409, o.Payload)
+}
+func (o *UpdateMTOPostCounselingInformationConflict) GetPayload() *primemessages.ClientError {
+	return o.Payload
+}
+
+func (o *UpdateMTOPostCounselingInformationConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
 

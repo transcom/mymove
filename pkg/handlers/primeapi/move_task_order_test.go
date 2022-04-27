@@ -355,6 +355,15 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 				UsesExternalVendor: true,
 			},
 		})
+		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+			Move: mto,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeCS, // CS - Counseling Services
+			},
+		})
 
 		queryBuilder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(queryBuilder)
@@ -467,6 +476,29 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationNotFound{}, response)
+	})
+
+	suite.T().Run("Patch failure - 409", func(t *testing.T) {
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MoveTaskOrderUpdater{}
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
+
+		handler := UpdateMTOPostCounselingInformationHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			&mockFetcher,
+			&mockUpdater,
+			mtoChecker,
+		}
+
+		mockUpdater.On("UpdatePostCounselingInfo",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, apperror.ConflictError{})
+
+		response := handler.Handle(params)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationConflict{}, response)
 	})
 
 	suite.T().Run("Patch failure - 422", func(t *testing.T) {

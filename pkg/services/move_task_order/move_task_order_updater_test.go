@@ -208,6 +208,15 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 				UsesExternalVendor: true,
 			},
 		})
+		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+			Move: expectedMTO,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeCS, // CS - Counseling Services
+			},
+		})
 
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
@@ -239,7 +248,31 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, actualMTO.MTOShipments[0].PPMShipment.Status)
 	})
 
+	suite.RunWithRollback("Counseling isn't an approved service item", func() {
+		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: false,
+			},
+		})
+		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
+		_, err := mtoUpdater.UpdatePostCounselingInfo(suite.AppContextForTest(), expectedMTO.ID, eTag)
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+	})
+
 	suite.RunWithRollback("Etag is stale", func() {
+		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+			Move: expectedMTO,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeCS, // CS - Counseling Services
+			},
+		})
+
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoUpdater.UpdatePostCounselingInfo(suite.AppContextForTest(), expectedMTO.ID, eTag)
 

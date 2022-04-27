@@ -305,6 +305,17 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCon
 		return &models.Move{}, fetchErr
 	}
 
+	approvedForPrimeCounseling := false
+	for _, serviceItem := range moveTaskOrder.MTOServiceItems {
+		if serviceItem.ReService.Code == models.ReServiceCodeCS && serviceItem.Status == models.MTOServiceItemStatusApproved {
+			approvedForPrimeCounseling = true
+			break
+		}
+	}
+	if !approvedForPrimeCounseling {
+		return &models.Move{}, apperror.NewConflictError(moveTaskOrderID, "Counseling is not an approved service item")
+	}
+
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// Check the If-Match header against existing eTag before updating.
 		encodedUpdatedAt := etag.GenerateEtag(moveTaskOrder.UpdatedAt)
