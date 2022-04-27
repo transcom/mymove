@@ -8,18 +8,18 @@ describe('PaymentDetails', () => {
     const context = [
       {
         name: 'Test Service',
-        price: '101',
+        price: '10123',
         status: 'APPROVED',
       },
       {
         name: 'Domestic uncrating',
-        price: '55',
+        price: '5555',
         status: 'APPROVED',
       },
     ];
     it.each([
-      ['Test Service', '101'],
-      ['Domestic uncrating', '55'],
+      ['Test Service', '101.23'],
+      ['Domestic uncrating', '55.55'],
     ])('it renders %s: %s', (displayName, value) => {
       render(<PaymentDetails context={context} />);
 
@@ -33,18 +33,18 @@ describe('PaymentDetails', () => {
     const context = [
       {
         name: 'Test Service',
-        price: '101',
+        price: '10123',
         status: 'APPROVED',
       },
       {
         name: 'Domestic uncrating',
-        price: '55',
+        price: '5555',
         status: 'APPROVED',
       },
     ];
 
     render(<PaymentDetails context={context} />);
 
-    expect(screen.getByText(156, { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(156.78, { exact: false })).toBeInTheDocument();
   });
 });
