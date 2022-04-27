@@ -7,7 +7,7 @@ import {
   HistoryLogContextShape,
 } from 'constants/historyLogUIDisplayName';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-import { formatMoveHistoryFullAddress } from 'utils/formatters';
+import { formatMoveHistoryFullAddress, formatMoveHistoryAgent } from 'utils/formatters';
 
 const LabeledDetails = ({ changedValues, oldValues, context }) => {
   const backfilledChangedValues = {
@@ -16,16 +16,21 @@ const LabeledDetails = ({ changedValues, oldValues, context }) => {
     city: oldValues.city,
     state: oldValues.state,
     postal_code: oldValues.postal_code,
+    email: oldValues.email,
+    first_name: oldValues.first_name,
+    last_name: oldValues.last_name,
+    phone: oldValues.phone,
     ...changedValues,
   };
 
-  const changedValuesWithFormattedAddress = {
+  const changedValuesWithFormattedItems = {
     ...changedValues,
     address: formatMoveHistoryFullAddress(backfilledChangedValues),
+    agent: formatMoveHistoryAgent(backfilledChangedValues),
   };
 
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
-    return changedValuesWithFormattedAddress[dbField];
+    return changedValuesWithFormattedItems[dbField];
   });
 
   const retrieveTextToDisplay = (fieldName, value) => {
@@ -44,6 +49,14 @@ const LabeledDetails = ({ changedValues, oldValues, context }) => {
       } else if (addressType === 'destinationAddress') {
         displayName = 'Destination address';
       }
+    } else if (displayName === dbFieldToDisplayName.agent) {
+      const agentType = changedValues.agent_type ?? oldValues.agent_type;
+
+      if (agentType === 'RECEIVING_AGENT') {
+        displayName = 'Receiving agent';
+      } else if (agentType === 'RELEASING_AGENT') {
+        displayName = 'Releasing agent';
+      }
     }
 
     return {
@@ -57,7 +70,7 @@ const LabeledDetails = ({ changedValues, oldValues, context }) => {
       {dbFieldsToDisplay.map((modelField) => {
         const { displayName, displayValue } = retrieveTextToDisplay(
           modelField,
-          changedValuesWithFormattedAddress[modelField],
+          changedValuesWithFormattedItems[modelField],
         );
 
         return (

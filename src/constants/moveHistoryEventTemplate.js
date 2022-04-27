@@ -86,6 +86,14 @@ export const createMTOShipmentEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
+export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'mto_agents',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+});
+
 export const createOrdersEvent = buildMoveHistoryEventTemplate({
   action: 'INSERT',
   eventName: moveHistoryOperations.createOrders,
@@ -218,6 +226,14 @@ export const updateMTOShipment = buildMoveHistoryEventTemplate({
   getEventNameDisplay: () => 'Updated shipment',
 });
 
+export const updateMTOShipmentAgent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'mto_agents',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+});
+
 export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.updateServiceItemStatus,
@@ -265,6 +281,7 @@ const allMoveHistoryEventTemplates = [
   approveShipmentEvent,
   approveShipmentDiversionEvent,
   createMTOShipmentEvent,
+  createMTOShipmentAgentEvent,
   createOrdersEvent,
   createBasicServiceItemEvent,
   createStandardServiceItemEvent,
@@ -278,6 +295,7 @@ const allMoveHistoryEventTemplates = [
   updateMoveTaskOrderStatusEvent,
   updateMTOShipment,
   updateMTOShipmentAddresses,
+  updateMTOShipmentAgent,
   updateServiceItemStatusEvent,
   uploadAmendedOrdersEvent,
 ];

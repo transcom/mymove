@@ -37,6 +37,7 @@ export const dbFieldToDisplayName = {
   organizational_clothing_and_individual_equipment: 'OCIE',
   requested_pickup_date: 'Requested pickup date',
   address: 'Address',
+  agent: 'Agent',
 };
 
 export const dbWeightFields = [

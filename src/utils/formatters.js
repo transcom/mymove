@@ -203,6 +203,34 @@ export const formatMoveHistoryFullAddress = (address) => {
   return formattedAddress;
 };
 
+export const formatMoveHistoryAgent = (agent) => {
+  let formattedAgent = '';
+
+  if (agent.first_name) {
+    formattedAgent += `${agent.first_name}`;
+  }
+
+  if (agent.last_name) {
+    formattedAgent += ` ${agent.last_name}`;
+  }
+
+  if (agent.phone) {
+    formattedAgent += `, ${agent.phone}`;
+  }
+
+  if (agent.email) {
+    formattedAgent += `, ${agent.email}`;
+  }
+
+  if (formattedAgent[0] === ',') {
+    formattedAgent = formattedAgent.substring(1);
+  }
+
+  formattedAgent = formattedAgent.trim();
+
+  return formattedAgent;
+};
+
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
 };
