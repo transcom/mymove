@@ -37,7 +37,6 @@ bin/
 .env.development.local
 .env.test.local
 .env.production.local
-.idea
 .vscode
 *.swp
 *.sublime-*

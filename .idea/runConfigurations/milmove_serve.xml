@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="milmove serve" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="mymove" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="serve" />
+    <kind value="DIRECTORY" />
+    <package value="github.com/transcom/mymove" />
+    <directory value="$PROJECT_DIR$/cmd/milmove" />
+    <filePath value="$PROJECT_DIR$" />
+    <output_directory value="$PROJECT_DIR$/bin" />
+    <method v="2" />
+  </configuration>
+</component>

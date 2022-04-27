@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="generate-test-data dev-seed" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="mymove" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="--named-scenario=&quot;dev_seed&quot; --db-env=&quot;development&quot; --named-sub-scenario=&quot;&quot;" />
+    <kind value="DIRECTORY" />
+    <package value="github.com/transcom/mymove" />
+    <directory value="$PROJECT_DIR$/cmd/generate-test-data" />
+    <filePath value="$PROJECT_DIR$" />
+    <output_directory value="$PROJECT_DIR$/bin" />
+    <method v="2" />
+  </configuration>
+</component>
