@@ -2,7 +2,6 @@ package supportapi
 
 import (
 	"net/http/httptest"
-	"testing"
 
 	"github.com/gofrs/uuid"
 
@@ -19,7 +18,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateWebhookNotification() {
 
-	suite.T().Run("Success createWebhookNotification 201 Created", func(t *testing.T) {
+	suite.Run("Success createWebhookNotification 201 Created", func() {
 
 		// TESTCASE SCENARIO
 		// Under test: CreateWebhookNotificationHandler
@@ -63,7 +62,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 		suite.NotNil(responsePayload.UpdatedAt)
 	})
 
-	suite.T().Run("Success createWebhookNotification 201 Created from empty payload", func(t *testing.T) {
+	suite.Run("Success createWebhookNotification 201 Created from empty payload", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateWebhookNotificationHandler
 		// Mocked:     None
@@ -99,7 +98,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 		suite.NotNil(responsePayload.UpdatedAt)
 	})
 
-	suite.T().Run("Failed createWebhookNotification 500 Failed due to non-existent MTO id", func(t *testing.T) {
+	suite.Run("Failed createWebhookNotification 500 Failed due to non-existent MTO id", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateWebhookNotificationHandler
 		// Mocked:     None
