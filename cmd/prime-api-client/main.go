@@ -25,7 +25,7 @@ func initRootFlags(flag *pflag.FlagSet) {
 	flag.Bool(utils.InsecureFlag, false, "Skip TLS verification and validation")
 	flag.String(utils.FilenameFlag, "", "The name of the file being passed in")
 	flag.String(utils.IDFlag, "", "The UUID of the object being retrieved or updated")
-	flag.Duration(utils.WaitFlag, time.Second*60, "duration to wait for server to respond")
+	flag.Duration(utils.WaitFlag, time.Second*30, "duration to wait for server to respond")
 }
 
 func main() {
