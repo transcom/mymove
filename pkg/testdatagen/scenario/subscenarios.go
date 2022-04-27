@@ -64,6 +64,7 @@ func subScenarioPPMOfficeQueue(appCtx appcontext.AppContext, userUploader *uploa
 		createPPMWithPaymentRequest(appCtx, userUploader, moveRouter)
 		createCanceledPPM(appCtx, userUploader, moveRouter)
 		createPPMReadyToRequestPayment(appCtx, userUploader, moveRouter)
+		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 	}
 }
 
