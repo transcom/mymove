@@ -23,6 +23,7 @@ const buildMoveHistoryEventTemplate = ({
   getDetailsPlainText = () => {
     return 'Undefined details';
   },
+  getDetailsLabeledDetails = null,
 }) => {
   const eventType = {};
   eventType.action = action;
@@ -31,6 +32,7 @@ const buildMoveHistoryEventTemplate = ({
   eventType.detailsType = detailsType;
   eventType.getEventNameDisplay = getEventNameDisplay;
   eventType.getDetailsPlainText = getDetailsPlainText;
+  eventType.getDetailsLabeledDetails = getDetailsLabeledDetails;
 
   eventType.matches = (other) => {
     if (eventType === undefined || other === undefined) {
@@ -231,6 +233,29 @@ export const uploadAmendedOrdersEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
+export const updateOrderEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: '*',
+  tableName: 'orders',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated orders',
+  getDetailsLabeledDetails: ({ changedValues, context }) => {
+    let newChangedValues;
+
+    if (context) {
+      newChangedValues = {
+        ...changedValues,
+        ...context[0],
+      };
+    } else {
+      newChangedValues = changedValues;
+    }
+
+    // merge context with change values for only this event
+    return newChangedValues;
+  },
+});
+
 export const undefinedEvent = buildMoveHistoryEventTemplate({
   action: '*',
   eventName: '*',
@@ -258,6 +283,7 @@ const allMoveHistoryEventTemplates = [
   submitMoveForApprovalEvent,
   updateMoveTaskOrderEvent,
   updateMoveTaskOrderStatusEvent,
+  updateOrderEvent,
   updateServiceItemStatusEvent,
   uploadAmendedOrdersEvent,
   updateBillableWeightEvent,

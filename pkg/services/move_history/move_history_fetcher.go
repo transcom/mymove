@@ -64,15 +64,27 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		JOIN moves ON moves.orders_id = orders.id
 		WHERE orders.id = (SELECT moves.orders_id FROM moves)
 	),
+	-- Context is null if empty, {}, object
+    -- Joining the jsonb changed_data for every record to surface duty location ids.
+    -- Left join duty_locations since we don't expect origin/new duty locations to change every time.
+    -- Convert changed_data.origin_duty_location_id and changed_data.new_duty_location_id to UUID type to take advantage of indexing.
 	orders_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
-			NULL AS context_id
+			NULLIF(
+				jsonb_agg(jsonb_strip_nulls(
+					jsonb_build_object('origin_duty_location_name', old_duty.name, 'new_duty_location_name', new_duty.name)
+				))::TEXT, '[{}]'::TEXT
+			) AS context,
+ 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN orders ON orders.id = audit_history.object_id
 			AND audit_history."table_name" = 'orders'
+		JOIN jsonb_to_record(audit_history.changed_data) as c(origin_duty_location_id TEXT, new_duty_location_id TEXT) on TRUE
+		LEFT JOIN duty_locations AS old_duty on uuid(c.origin_duty_location_id) = old_duty.id
+		LEFT JOIN duty_locations AS new_duty on uuid(c.new_duty_location_id) = new_duty.id
+		GROUP BY audit_history.id
 	),
 	service_items AS (
 		SELECT
