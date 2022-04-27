@@ -15,7 +15,7 @@ type PaymentRequestCreator struct {
 }
 
 // CreatePaymentRequest provides a mock function with given fields: appCtx, paymentRequest
-func (_m *PaymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
+func (_m *PaymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
 	ret := _m.Called(appCtx, paymentRequest)
 
 	var r0 *models.PaymentRequest
