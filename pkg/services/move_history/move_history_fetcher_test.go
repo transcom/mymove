@@ -2,7 +2,6 @@ package movehistory
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -161,6 +160,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 
 	suite.T().Run("returns Orders fields and context", func(t *testing.T) {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		order := approvedMove.Orders
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
@@ -171,6 +171,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 			},
 			Move: approvedMove,
 		})
+
+		changeOldDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		changeNewDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
 
 		// Make sure we're testing for all the things that we can update on the Orders page
 		// README: This list of properties below here is taken from
@@ -186,22 +189,26 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		ntsTac := "3456"
 		ntsSac := "4567"
 
-		approvedMove.Orders.IssueDate = now.AddDate(0, 0, 20)
-		approvedMove.Orders.ReportByDate = now.AddDate(0, 0, 25)
-		approvedMove.Orders.OrdersType = internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-		approvedMove.Orders.OrdersTypeDetail = internalmessages.NewOrdersTypeDetail(internalmessages.OrdersTypeDetailHHGPERMITTED)
-		// approvedMove.Orders.OriginDutyLocationID = &originDutyLocationID
-		// approvedMove.Orders.NewDutyLocationID = newDutyLocationID
-		approvedMove.Orders.OrdersNumber = &orderNumber
-		approvedMove.Orders.TAC = &tac
-		approvedMove.Orders.SAC = &sac
-		approvedMove.Orders.NtsTAC = &ntsTac
-		approvedMove.Orders.NtsSAC = &ntsSac
-		approvedMove.Orders.DepartmentIndicator = (*string)(internalmessages.NewDeptIndicator(internalmessages.DeptIndicatorARMY))
-		approvedMove.Orders.AmendedOrdersAcknowledgedAt = &now
+		order.IssueDate = now.AddDate(0, 0, 20)
+		order.ReportByDate = now.AddDate(0, 0, 25)
+		order.OrdersType = internalmessages.OrdersTypeRETIREMENT
+		order.OrdersTypeDetail = internalmessages.NewOrdersTypeDetail(internalmessages.OrdersTypeDetailDELAYEDAPPROVAL)
+		order.OriginDutyLocationID = &changeOldDutyLocation.ID
+		order.OriginDutyLocation = &changeOldDutyLocation
+		order.NewDutyLocationID = changeNewDutyLocation.ID
+		order.NewDutyLocation = changeNewDutyLocation
+		order.OrdersNumber = &orderNumber
+		order.TAC = &tac
+		order.SAC = &sac
+		order.NtsTAC = &ntsTac
+		order.NtsSAC = &ntsSac
+		order.DepartmentIndicator = (*string)(internalmessages.NewDeptIndicator(internalmessages.DeptIndicatorARMY))
+		order.AmendedOrdersAcknowledgedAt = &now
+		// this is gathered on the customer flow
+		rank := string(models.ServiceMemberRankE9SPECIALSENIORENLISTED)
+		order.Grade = &rank
 
-		suite.MustSave(&approvedMove.Orders)
-		suite.MustSave(&approvedMove)
+		suite.MustSave(&order)
 
 		parameters := services.FetchMoveHistoryParams{
 			Locator: approvedMove.Locator,
@@ -211,7 +218,40 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &parameters)
 		suite.FatalNoError(err)
 
-		fmt.Print(moveHistoryData.AuditHistories[0])
+		foundUpdateOrderRecord := false
+		for _, historyRecord := range moveHistoryData.AuditHistories {
+			if *historyRecord.ObjectID == order.ID && historyRecord.Action == "UPDATE" {
+				changedData := removeEscapeJSONtoObject(historyRecord.ChangedData)
+				// Date format here: https://go.dev/src/time/format.go
+				suite.Equal(order.IssueDate.Format("2006-01-02"), changedData["issue_date"])
+				suite.Equal(order.ReportByDate.Format("2006-01-02"), changedData["report_by_date"])
+				suite.Equal(string(order.OrdersType), changedData["orders_type"])
+				suite.Equal((string)(*order.OrdersTypeDetail), changedData["orders_type_detail"])
+				suite.Equal(order.OriginDutyLocationID.String(), changedData["origin_duty_location_id"])
+				suite.Equal(order.NewDutyLocationID.String(), changedData["new_duty_location_id"])
+				suite.Equal(*order.OrdersNumber, changedData["orders_number"])
+				suite.Equal(*order.TAC, changedData["tac"])
+				suite.Equal(*order.SAC, changedData["sac"])
+				suite.Equal(*order.NtsTAC, changedData["nts_tac"])
+				suite.Equal(*order.NtsSAC, changedData["nts_sac"])
+				suite.Equal(*order.DepartmentIndicator, changedData["department_indicator"])
+				suite.Equal(order.AmendedOrdersAcknowledgedAt.Format("2006-01-02T15:04:05.000000"), changedData["amended_orders_acknowledged_at"])
+
+				// rank/grade is also on orders
+				suite.Equal(*order.Grade, changedData["grade"])
+
+				// test context as well
+				context := removeEscapeJSONtoArray(historyRecord.Context)[0]
+				suite.Equal(order.OriginDutyLocation.Name, context["origin_duty_location_name"])
+				suite.Equal(order.NewDutyLocation.Name, context["new_duty_location_name"])
+
+				foundUpdateOrderRecord = true
+				break
+			}
+		}
+
+		// double check that we found the record we're looking for
+		suite.True(foundUpdateOrderRecord)
 	})
 
 }
