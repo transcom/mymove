@@ -2,13 +2,13 @@ package adminapi
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/stretchr/testify/mock"
 
 	electronicorderop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 
 	"net/http/httptest"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -17,17 +17,19 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/electronic_orders/totals", nil)
-	req = suite.AuthenticateAdminRequest(req, requestUser)
+	setupRequest := func() *http.Request {
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		req := httptest.NewRequest("GET", "/electronic_orders/totals", nil)
+		return suite.AuthenticateAdminRequest(req, requestUser)
+	}
 
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 	filter := "Issuer.eq:marines"
 
-	suite.T().Run("successful response", func(t *testing.T) {
+	suite.Run("successful response", func() {
 		params := electronicorderop.GetElectronicOrdersTotalsParams{
-			HTTPRequest: req,
+			HTTPRequest: setupRequest(),
 			Filter:      []string{filter},
 		}
 
@@ -47,9 +49,9 @@ func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
 		suite.IsType(&electronicorderop.GetElectronicOrdersTotalsOK{}, response)
 	})
 
-	suite.T().Run("error response", func(t *testing.T) {
+	suite.Run("error response", func() {
 		params := electronicorderop.GetElectronicOrdersTotalsParams{
-			HTTPRequest: req,
+			HTTPRequest: setupRequest(),
 			Filter:      []string{filter},
 		}
 
@@ -70,5 +72,4 @@ func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
 		handler.Handle(params)
 		suite.Error(err, "An error happened")
 	})
-
 }

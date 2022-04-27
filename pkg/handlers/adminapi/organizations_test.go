@@ -3,7 +3,6 @@ package adminapi
 import (
 	"net/http"
 	"net/http/httptest"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	organization2 "github.com/transcom/mymove/pkg/services/organization"
@@ -20,24 +19,17 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
-	// replace this with generated UUID when filter param is built out
-	uuidString := "5ce7162a-8d5c-41fc-b0e7-bae726f98fa2"
-	id, _ := uuid.FromString(uuidString)
-	assertions := testdatagen.Assertions{
-		Organization: models.Organization{
-			ID: id,
-		},
+	setupRequest := func() *http.Request {
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		req := httptest.NewRequest("GET", "/organizations", nil)
+		return suite.AuthenticateUserRequest(req, requestUser)
 	}
-	testdatagen.MakeOrganization(suite.DB(), assertions)
-
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/organizations", nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	// test that everything is wired up
-	suite.T().Run("integration test ok response", func(t *testing.T) {
+	suite.Run("integration test ok response", func() {
+		org := testdatagen.MakeDefaultOrganization(suite.DB())
 		params := organization.IndexOrganizationsParams{
-			HTTPRequest: req,
+			HTTPRequest: setupRequest(),
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOrganizationsHandler{
@@ -52,16 +44,17 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 		suite.IsType(&organization.IndexOrganizationsOK{}, response)
 		okResponse := response.(*organization.IndexOrganizationsOK)
 		suite.Len(okResponse.Payload, 1)
-		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
+		suite.Equal(org.ID.String(), okResponse.Payload[0].ID.String())
 	})
 
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
-	suite.T().Run("successful response", func(t *testing.T) {
+	suite.Run("successful response", func() {
+		id, _ := uuid.FromString("5ce7162a-8d5c-41fc-b0e7-bae726f98fa2")
 		org := models.Organization{ID: id}
 		params := organization.IndexOrganizationsParams{
-			HTTPRequest: req,
+			HTTPRequest: setupRequest(),
 		}
 		organizationListFetcher := &mocks.OrganizationListFetcher{}
 		organizationListFetcher.On("FetchOrganizationList",
@@ -87,12 +80,12 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 		suite.IsType(&organization.IndexOrganizationsOK{}, response)
 		okResponse := response.(*organization.IndexOrganizationsOK)
 		suite.Len(okResponse.Payload, 1)
-		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
+		suite.Equal(id.String(), okResponse.Payload[0].ID.String())
 	})
 
-	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
+	suite.Run("unsuccesful response when fetch fails", func() {
 		params := organization.IndexOrganizationsParams{
-			HTTPRequest: req,
+			HTTPRequest: setupRequest(),
 		}
 		expectedError := models.ErrFetchNotFound
 		organizationListFetcher := &mocks.OrganizationListFetcher{}
