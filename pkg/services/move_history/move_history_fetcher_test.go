@@ -181,8 +181,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// README: issueDate, reportByDate, ordersType, ordersTypeDetail,
 		// originDutyLocationId, newDutyLocationId, ordersNumber, tac, sac,
 		// ntsTac, ntsSac, departmentIndicator, ordersAcknowledgement
-		// originDutyLocationID := uuid.FromStringOrNil("2d5ada83-e09a-47f8-8de6-83ec51694a86")
-		// newDutyLocationID := uuid.FromStringOrNil("9bf1b353-12c3-453f-b28c-1fd98f9b092f")
 		orderNumber := "030-00362"
 		tac := "1234"
 		sac := "2345"
