@@ -912,6 +912,68 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 	}
 }
 
+func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string) {
+	userID := uuid.Must(uuid.NewV4())
+	email := "complete@ppm.submitted"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            userID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			UserID:        userID,
+			FirstName:     models.StringPointer("PPMSC"),
+			LastName:      models.StringPointer("Submitted"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: smWithPPM.ID,
+			ServiceMember:   smWithPPM,
+		},
+		UserUploader: userUploader,
+		Move: models.Move{
+			Locator:          locator,
+			SelectedMoveType: &ppmMoveType,
+			Status:           models.MoveStatusNeedsServiceCounseling,
+		},
+	})
+
+	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ShipmentType:    models.MTOShipmentTypePPM,
+			Status:          models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:   move,
+			MoveTaskOrderID: move.ID,
+		},
+	})
+
+	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: mtoShipment,
+		PPMShipment: models.PPMShipment{
+			Status: models.PPMShipmentStatusSubmitted,
+		},
+	})
+
+	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:           move.ID,
+			SubmittingUserID: userID,
+		},
+	})
+
+}
+
 func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	/*
 	 * A service member with orders and two full PPM Shipments.
