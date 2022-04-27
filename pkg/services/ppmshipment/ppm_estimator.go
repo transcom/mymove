@@ -5,6 +5,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // estimatePPM Struct
@@ -23,11 +24,11 @@ func NewEstimatePPM() services.PPMEstimator {
 }
 
 // EstimateIncentiveWithDefaultChecks func that returns the estimate hard coded to 12K (because it'll be clear that the value is coming from teh service)
-func (f *estimatePPM) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*int32, error) {
+func (f *estimatePPM) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error) {
 	return f.estimateIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
 }
 
-func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*int32, error) {
+func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*unit.Cents, error) {
 	// Check that the PPMShipment has an ID
 	var err error
 
@@ -55,6 +56,6 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 
 	// TODO: Call the pricer to calculate the incentive
 
-	estimatedIncentive := int32(1000000)
+	estimatedIncentive := unit.Cents(1000000)
 	return &estimatedIncentive, nil
 }

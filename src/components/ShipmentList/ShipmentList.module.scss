@@ -1,5 +1,6 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
 
 .shipment-list-item-container {
   display: flex;
@@ -16,7 +17,10 @@
 
   strong {
     white-space: nowrap;
-    @include u-minw(15);
+    @media (min-width: $tablet) {
+      @include u-minw(15);
+    }
+    @include u-minw(7);
     text-align: left;
   }
 

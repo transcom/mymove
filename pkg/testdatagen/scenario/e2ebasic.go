@@ -4080,6 +4080,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createUnSubmittedMoveWithFullPPMShipment2(appCtx, userUploader)
 	createUnSubmittedMoveWithFullPPMShipment3(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
+	createApprovedMoveWithPPM(appCtx, userUploader)
 	createNTSMoveWithServiceItemsandPaymentRequests(appCtx, userUploader)
 
 	// TIO
