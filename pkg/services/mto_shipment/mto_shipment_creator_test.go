@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -19,7 +20,7 @@ import (
 type createShipmentSubtestData struct {
 	appCtx          appcontext.AppContext
 	move            models.Move
-	shipmentCreator mtoShipmentCreator
+	shipmentCreator services.MTOShipmentCreator
 }
 
 func (suite *MTOShipmentServiceSuite) createSubtestData(assertions testdatagen.Assertions) (subtestData *createShipmentSubtestData) {
@@ -30,18 +31,10 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(assertions testdatagen.A
 	subtestData.appCtx = suite.AppContextForTest()
 
 	builder := query.NewQueryBuilder()
-	createNewBuilder := func() createMTOShipmentQueryBuilder {
-		return builder
-	}
 	moveRouter := moverouter.NewMoveRouter()
 	fetcher := fetch.NewFetcher(builder)
 
-	subtestData.shipmentCreator = mtoShipmentCreator{
-		builder,
-		fetcher,
-		createNewBuilder,
-		moveRouter,
-	}
+	subtestData.shipmentCreator = NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 	return subtestData
 }
