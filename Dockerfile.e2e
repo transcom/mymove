@@ -10,6 +10,7 @@ COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/milmove /bin/milmove
 COPY bin/generate-test-data /bin/generate-test-data
+COPY bin/prime-api-client /bin/prime-api-client
 
 COPY migrations/app/schema /migrate/schema
 COPY migrations/app/secure /migrate/secure
@@ -19,10 +20,11 @@ COPY build /build
 COPY config /config
 COPY swagger /swagger
 COPY pkg/testdatagen/testdata /pkg/testdatagen/testdata
+COPY scripts /scripts
 
 # Install tools needed in container
 # hadolint ignore=DL3018
-RUN apk update && apk add ca-certificates --no-cache
+RUN apk update && apk add ca-certificates --no-cache && apk add jq bash --no-cache
 RUN update-ca-certificates
 
 WORKDIR /

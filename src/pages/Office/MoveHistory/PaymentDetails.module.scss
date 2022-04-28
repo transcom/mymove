@@ -1,0 +1,27 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/colors';
+
+.PaymentDetails {
+  .paymentAmount {
+    float: right;
+  }
+  .serviceItemName {
+    float: left;
+  }
+  .serviceItemRow {
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+  }
+  .statusRow {
+    display: flex;
+    justify-content: space-between;
+  }
+  .successCheck {
+    color: $success;
+  }
+  .rejectTimes {
+    color: $error;
+  }
+}

@@ -85,3 +85,26 @@ WithWeightsMultiple.args = {
   showShipmentWeight: true,
 };
 WithWeightsMultiple.decorators = generateDecorator('Multiple Shipments');
+
+export const WithPpms = Template.bind({});
+WithPpms.args = {
+  shipments: [
+    {
+      id: '0001',
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: 'completePPM',
+        advanceRequested: false,
+      },
+    },
+    {
+      id: '0002',
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: 'completePPM',
+        advanceRequested: null,
+      },
+    },
+  ],
+};
+WithPpms.decorators = generateDecorator('With PPM Shipments');

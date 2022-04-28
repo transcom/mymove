@@ -27,14 +27,20 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			moves.*
 		FROM
 			moves
-		WHERE locator = $1
+		WHERE
+			locator = $1
 	),
 	shipments AS (
 		SELECT
 			mto_shipments.*
 		FROM
 			mto_shipments
-		WHERE move_id = (SELECT moves.id FROM moves)
+		WHERE
+			move_id = (
+				SELECT
+					moves.id
+				FROM
+					moves)
 	),
 	shipment_logs AS (
 		SELECT
@@ -62,17 +68,34 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		FROM
 			orders
 		JOIN moves ON moves.orders_id = orders.id
-		WHERE orders.id = (SELECT moves.orders_id FROM moves)
+	WHERE
+		orders.id = (
+			SELECT
+				moves.orders_id
+			FROM
+				moves)
 	),
+	-- Context is null if empty, {}, object
+    -- Joining the jsonb changed_data for every record to surface duty location ids.
+    -- Left join duty_locations since we don't expect origin/new duty locations to change every time.
+    -- Convert changed_data.origin_duty_location_id and changed_data.new_duty_location_id to UUID type to take advantage of indexing.
 	orders_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
-			NULL AS context_id
+			NULLIF(
+				jsonb_agg(jsonb_strip_nulls(
+					jsonb_build_object('origin_duty_location_name', old_duty.name, 'new_duty_location_name', new_duty.name)
+				))::TEXT, '[{}]'::TEXT
+			) AS context,
+ 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN orders ON orders.id = audit_history.object_id
 			AND audit_history."table_name" = 'orders'
+		JOIN jsonb_to_record(audit_history.changed_data) as c(origin_duty_location_id TEXT, new_duty_location_id TEXT) on TRUE
+		LEFT JOIN duty_locations AS old_duty on uuid(c.origin_duty_location_id) = old_duty.id
+		LEFT JOIN duty_locations AS new_duty on uuid(c.new_duty_location_id) = new_duty.id
+		GROUP BY audit_history.id
 	),
 	service_items AS (
 		SELECT
@@ -124,16 +147,76 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			entitlements.*
 		FROM
 			entitlements
-		WHERE entitlements.id = (SELECT entitlement_id FROM orders)
+	WHERE
+		entitlements.id = (
+			SELECT
+				entitlement_id
+			FROM
+				orders)
 	),
-	entitlements_logs as (
-		SELECT audit_history.*,
+	entitlements_logs AS (
+		SELECT
+			audit_history.*,
 			NULL AS context,
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN entitlements ON entitlements.id = audit_history.object_id
-			AND audit_history."table_name" = 'entitlements'
+			JOIN entitlements ON entitlements.id = audit_history.object_id
+				AND audit_history. "table_name" = 'entitlements'
+	),
+	payment_requests AS (
+		SELECT
+			json_agg(json_build_object('name',
+					re_services.name,
+					'price',
+					payment_service_items.price_cents::TEXT,
+					'status',
+					payment_service_items.status))::TEXT AS context,
+			payment_requests.id AS id
+		FROM
+			payment_requests
+		JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
+		JOIN mto_service_items ON mto_service_items.id = mto_service_item_id
+		JOIN re_services ON mto_service_items.re_service_id = re_services.id
+	WHERE
+		payment_requests.move_id = (
+			SELECT
+				moves.id
+			FROM
+				moves)
+		GROUP BY
+			payment_requests.id
+	),
+	payment_requests_logs AS (
+		SELECT DISTINCT
+			audit_history.*,
+			context AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+			JOIN payment_requests ON payment_requests.id = audit_history.object_id
+				AND audit_history. "table_name" = 'payment_requests'
+	),
+	reweighs AS (
+		SELECT
+			reweighs.id,
+			json_agg(json_build_object(
+					'shipment_type',
+					shipments.shipment_type))::TEXT AS context
+		FROM
+			reweighs
+			JOIN shipments ON reweighs.shipment_id = shipments.id
+		GROUP BY
+			reweighs.id
+	),
+	reweigh_logs as (
+		SELECT audit_history.*,
+			context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN reweighs ON reweighs.id = audit_history.object_id
+			AND audit_history."table_name" = 'reweighs'
 	),
 	combined_logs AS (
 		SELECT
@@ -164,7 +247,17 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		SELECT
 			*
 		FROM
+			reweigh_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
 			orders_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			payment_requests_logs
 		UNION ALL
 		SELECT
 			*

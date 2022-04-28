@@ -25,11 +25,11 @@ type PPMShipment struct {
 
 	// The amount request for an advance, or null if no advance is requested
 	//
-	Advance *int64 `json:"advance,omitempty"`
+	Advance *int64 `json:"advance"`
 
 	// Indicates whether an advance has been requested for the PPM shipment.
 	//
-	AdvanceRequested *bool `json:"advanceRequested,omitempty"`
+	AdvanceRequested *bool `json:"advanceRequested"`
 
 	// approved at
 	// Format: date-time

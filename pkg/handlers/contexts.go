@@ -6,7 +6,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 

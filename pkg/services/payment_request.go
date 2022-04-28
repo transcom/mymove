@@ -13,7 +13,7 @@ import (
 // PaymentRequestCreator is the exported interface for creating a payment request
 //go:generate mockery --name PaymentRequestCreator --disable-version-string
 type PaymentRequestCreator interface {
-	CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error)
+	CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error)
 }
 
 // PaymentRequestRecalculator is the exported interface for recalculating a payment request

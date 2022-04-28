@@ -34,7 +34,6 @@ const uploadOrdersProps = {
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
   isProfileComplete: true,
-  currentPpm: {},
   orders: {},
   location: {},
   move: {
@@ -86,6 +85,24 @@ const withShipmentProps = {
     {
       id: 'testMove',
       shipmentType: 'PPM',
+    },
+    {
+      id: 'testShipment2',
+      shipmentType: 'PPM',
+      createdAt: '24 December 2020',
+      ppmShipment: {
+        id: 'ppmShipmentIncomplete',
+        advanceRequested: null,
+      },
+    },
+    {
+      id: 'completePPM',
+      shipmentType: 'PPM',
+      createdAt: '24 December 2020',
+      ppmShipment: {
+        id: 'ppmShipmentComplete',
+        advanceRequested: true,
+      },
     },
   ],
 };

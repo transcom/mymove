@@ -150,6 +150,15 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	}
 
 	cause := errors.Cause(err)
+
+	// pop/v6 now returns wrapped errors, so we have to unwrap if possible
+	type unwrapper interface {
+		Unwrap() error
+	}
+	unwrappable, ok := cause.(unwrapper)
+	if ok {
+		cause = unwrappable.Unwrap()
+	}
 	switch e := cause.(type) {
 	case route.Error:
 		skipLogger.Info("Encountered error using route planner", zap.Error(e))

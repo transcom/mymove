@@ -6,7 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/db/utilities"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -55,7 +55,7 @@ type PPMShipment struct {
 	HasProGear                     *bool             `json:"has_pro_gear" db:"has_pro_gear"`
 	ProGearWeight                  *unit.Pound       `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound       `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
-	EstimatedIncentive             *int32            `json:"estimated_incentive" db:"estimated_incentive"`
+	EstimatedIncentive             *unit.Cents       `json:"estimated_incentive" db:"estimated_incentive"`
 	Advance                        *unit.Cents       `json:"advance" db:"advance"`
 	AdvanceRequested               *bool             `json:"advance_requested" db:"advance_requested"`
 }

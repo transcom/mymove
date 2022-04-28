@@ -1,6 +1,6 @@
 package appctx_linter_tests
 
-import pop "github.com/gobuffalo/pop/v5"
+import pop "github.com/gobuffalo/pop/v6"
 
 type AppContext struct {
 	ID          string
