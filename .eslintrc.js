@@ -37,6 +37,16 @@ module.exports = {
     'react/jsx-curly-brace-presence': 'error',
     'react/require-default-props': 'warn',
     'no-unused-vars': 'warn',
+    'sort-imports': [
+      'error',
+      {
+        ignoreCase: false,
+        ignoreDeclarationSort: false,
+        ignoreMemberSort: false,
+        memberSyntaxSortOrder: ['single', 'multiple', 'all', 'none'],
+        allowSeparatedGroups: false,
+      },
+    ],
     'import/order': [
       'error',
       {
