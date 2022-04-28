@@ -1,7 +1,7 @@
 import moveHistoryOperations from './moveHistoryOperations';
 import { shipmentTypes } from './shipments';
 
-import { formatMoveHistoryFullAddress } from 'utils/formatters';
+import { formatMoveHistoryFullAddress, formatMoveHistoryAgent } from 'utils/formatters';
 
 function propertiesMatch(p1, p2) {
   return p1 === '*' || p2 === '*' || p1 === p2;
@@ -96,6 +96,35 @@ export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   tableName: 'mto_agents',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
+    let newChangedValues = {
+      email: oldValues.email,
+      first_name: oldValues.first_name,
+      last_name: oldValues.last_name,
+      phone: oldValues.phone,
+      ...changedValues,
+    };
+
+    const agent = formatMoveHistoryAgent(newChangedValues);
+
+    const agentType = changedValues.agent_type ?? oldValues.agent_type;
+
+    let agentLabel = '';
+    if (agentType === 'RECEIVING_AGENT') {
+      agentLabel = 'receiving_agent';
+    } else if (agentType === 'RELEASING_AGENT') {
+      agentLabel = 'releasing_agent';
+    }
+
+    newChangedValues = {
+      ...changedValues,
+    };
+
+    newChangedValues[agentLabel] = agent;
+
+    // merge context with change values for only this event
+    return newChangedValues;
+  },
 });
 
 export const createOrdersEvent = buildMoveHistoryEventTemplate({
@@ -286,6 +315,35 @@ export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   tableName: 'mto_agents',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
+    let newChangedValues = {
+      email: oldValues.email,
+      first_name: oldValues.first_name,
+      last_name: oldValues.last_name,
+      phone: oldValues.phone,
+      ...changedValues,
+    };
+
+    const agent = formatMoveHistoryAgent(newChangedValues);
+
+    const agentType = changedValues.agent_type ?? oldValues.agent_type;
+
+    let agentLabel = '';
+    if (agentType === 'RECEIVING_AGENT') {
+      agentLabel = 'receiving_agent';
+    } else if (agentType === 'RELEASING_AGENT') {
+      agentLabel = 'releasing_agent';
+    }
+
+    newChangedValues = {
+      ...changedValues,
+    };
+
+    newChangedValues[agentLabel] = agent;
+
+    // merge context with change values for only this event
+    return newChangedValues;
+  },
 });
 
 export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({

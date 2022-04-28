@@ -56,11 +56,11 @@ export const dbFieldToDisplayName = {
   required_medical_equipment_weight: 'RME',
   organizational_clothing_and_individual_equipment: 'OCIE',
   requested_pickup_date: 'Requested pickup date',
-  address: 'Address',
-  agent: 'Agent',
   grade: 'Rank',
   pickup_address: 'Origin address',
   destination_address: 'Destination address',
+  receiving_agent: 'Receiving agent',
+  releasing_agent: 'Releasing agent',
 };
 
 export const dbWeightFields = [
