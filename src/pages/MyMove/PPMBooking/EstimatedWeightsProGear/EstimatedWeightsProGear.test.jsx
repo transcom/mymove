@@ -18,10 +18,6 @@ const mockGoBack = jest.fn();
 const mockMoveId = uuidv4();
 const mockMTOShipmentId = uuidv4();
 
-const shipmentEditPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
-  moveId: mockMoveId,
-  mtoShipmentId: mockMTOShipmentId,
-});
 const estimatedIncentivePath = generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -207,7 +203,7 @@ describe('EstimatedWeightsProGear page', () => {
 
     userEvent.click(backButton);
 
-    expect(mockPush).toHaveBeenCalledWith(shipmentEditPath);
+    expect(mockGoBack).toHaveBeenCalled();
   });
 
   it('calls the patch shipment endpoint when save & continue is clicked', async () => {

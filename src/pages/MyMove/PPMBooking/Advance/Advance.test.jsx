@@ -23,10 +23,6 @@ const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
 });
-const estimatedIncentivePath = generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, {
-  moveId: mockMoveId,
-  mtoShipmentId: mockMTOShipmentId,
-});
 
 const mockMTOShipment = {
   id: mockMTOShipmentId,
@@ -166,7 +162,7 @@ describe('Advance page', () => {
 
     userEvent.click(backButton);
 
-    expect(mockPush).toHaveBeenCalledWith(estimatedIncentivePath);
+    expect(mockGoBack).toHaveBeenCalled();
   });
 
   it('calls the patch shipment endpoint when save & continue is clicked', async () => {
