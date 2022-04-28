@@ -10,7 +10,6 @@
 package mtoserviceitem
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -35,15 +34,20 @@ import (
 )
 
 func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
+
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
-	serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+	setupServiceItem := func() (models.MTOServiceItem, string) {
+		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+		return serviceItem, eTag
+	}
 
 	// Test not found error
-	suite.T().Run("Not Found Error", func(t *testing.T) {
+	suite.Run("Not Found Error", func() {
+		serviceItem, eTag := setupServiceItem()
 		notFoundUUID := "00000000-0000-0000-0000-000000000001"
 		notFoundServiceItem := serviceItem
 		notFoundServiceItem.ID = uuid.FromStringOrNil(notFoundUUID)
@@ -57,7 +61,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	// Test validation error
-	suite.T().Run("Validation Error", func(t *testing.T) {
+	suite.Run("Validation Error", func() {
+		serviceItem, eTag := setupServiceItem()
 		invalidServiceItem := serviceItem
 		invalidServiceItem.MoveTaskOrderID = serviceItem.ID // invalid Move ID
 
@@ -73,7 +78,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	// Test precondition failed (stale eTag)
-	suite.T().Run("Precondition Failed", func(t *testing.T) {
+	suite.Run("Precondition Failed", func() {
+		serviceItem, _ := setupServiceItem()
 		newServiceItem := serviceItem
 		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.AppContextForTest(), &newServiceItem, "bloop")
 
@@ -83,7 +89,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	// Test successful update
-	suite.T().Run("Success", func(t *testing.T) {
+	suite.Run("Success", func() {
+		serviceItem, eTag := setupServiceItem()
 		reason := "because we did this service"
 		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
 
@@ -122,14 +129,18 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	// Set up the data needed for updateMTOServiceItemData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker()
-	oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-	oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: testdatagen.MakeAvailableMove(suite.DB()),
-	})
 	now := time.Now()
 
+	// setupTestData := func() (models.MTOServiceItem, models.MTOServiceItem){
+	// 	oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+	// 	oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+	// 		Move: testdatagen.MakeAvailableMove(suite.DB()),
+	// 	})
+	// 	return oldServiceItem, oldServiceItemPrime
+
+	// }
 	// Test with bad string key
-	suite.T().Run("bad validatorKey - failure", func(t *testing.T) {
+	suite.Run("bad validatorKey - failure", func() {
 		serviceItemData := updateMTOServiceItemData{}
 		fakeKey := "FakeKey"
 		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, fakeKey)
@@ -140,7 +151,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	})
 
 	// Test successful Basic validation
-	suite.T().Run("UpdateMTOServiceItemBasicValidator - success", func(t *testing.T) {
+	suite.Run("UpdateMTOServiceItemBasicValidator - success", func() {
+		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		newServiceItem := models.MTOServiceItem{
 			ID:              oldServiceItem.ID,
 			MTOShipmentID:   oldServiceItem.MTOShipmentID,
@@ -159,7 +171,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	})
 
 	// Test unsuccessful Basic validation
-	suite.T().Run("UpdateMTOServiceItemBasicValidator - failure", func(t *testing.T) {
+	suite.Run("UpdateMTOServiceItemBasicValidator - failure", func() {
+		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		newServiceItem := models.MTOServiceItem{
 			ID:            oldServiceItem.ID,
 			MTOShipmentID: &oldServiceItem.ID, // bad value
@@ -177,7 +190,10 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	})
 
 	// Test successful Prime validation
-	suite.T().Run("UpdateMTOServiceItemPrimeValidator - success", func(t *testing.T) {
+	suite.Run("UpdateMTOServiceItemPrimeValidator - success", func() {
+		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()),
+		})
 		newServiceItemPrime := oldServiceItemPrime
 
 		// Change something allowed by Prime:
@@ -198,7 +214,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	})
 
 	// Test unsuccessful Prime validation - Not available to Prime
-	suite.T().Run("UpdateMTOServiceItemPrimeValidator - not available failure", func(t *testing.T) {
+	suite.Run("UpdateMTOServiceItemPrimeValidator - not available failure", func() {
+		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		newServiceItemNotPrime := oldServiceItem // this service item should not be Prime-available
 
 		serviceItemData := updateMTOServiceItemData{
@@ -215,7 +232,10 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	})
 
 	// Test unsuccessful Prime validation - Invalid input
-	suite.T().Run("UpdateMTOServiceItemPrimeValidator - invalid input failure", func(t *testing.T) {
+	suite.Run("UpdateMTOServiceItemPrimeValidator - invalid input failure", func() {
+		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()),
+		})
 		newServiceItemPrime := oldServiceItemPrime
 
 		// Change something unavailable to Prime:
@@ -241,7 +261,10 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	})
 
 	// Test unsuccessful Prime validation - Payment requests
-	suite.T().Run("UpdateMTOServiceItemPrimeValidator - payment request failure", func(t *testing.T) {
+	suite.Run("UpdateMTOServiceItemPrimeValidator - payment request failure", func() {
+		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()),
+		})
 		newServiceItemPrime := oldServiceItemPrime
 
 		// Create payment requests for service item:
@@ -265,7 +288,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	})
 
 	// Test with empty string key (successful Base validation)
-	suite.T().Run("empty validatorKey - success", func(t *testing.T) {
+	suite.Run("empty validatorKey - success", func() {
+		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		newServiceItem := oldServiceItem
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: newServiceItem,
@@ -348,7 +372,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 
 	// Test that the move's status changes to Approved when the service item's
 	// status is no longer SUBMITTED
-	suite.T().Run("When TOO reviews move and approves service item", func(t *testing.T) {
+	suite.Run("When TOO reviews move and approves service item", func() {
 		eTag, serviceItem, move := suite.createServiceItem()
 
 		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
@@ -371,7 +395,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 
 	// Test that the move's status changes to Approvals Requested if any of its service
 	// items' status is SUBMITTED
-	suite.T().Run("When move is approved and service item is submitted", func(t *testing.T) {
+	suite.Run("When move is approved and service item is submitted", func() {
 		eTag, serviceItem, move := suite.createServiceItem()
 		move.Status = models.MoveStatusAPPROVED
 		suite.MustSave(&move)
@@ -395,7 +419,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 
 	// Test that the move's status changes to Approved if the service item is
 	// rejected
-	suite.T().Run("When TOO reviews move and rejects service item", func(t *testing.T) {
+	suite.Run("When TOO reviews move and rejects service item", func() {
 		eTag, serviceItem, move := suite.createServiceItem()
 		rejectionReason = swag.String("incomplete")
 
@@ -419,7 +443,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	// Test that a service item's status can only be updated if the Move's status
 	// is either Approved or Approvals Requested. Neither the Move's status nor
 	// the service item's status should be changed if the requirements aren't met.
-	suite.T().Run("When the Move has not been approved yet", func(t *testing.T) {
+	suite.Run("When the Move has not been approved yet", func() {
 		eTag, serviceItem, move := suite.createServiceItemForUnapprovedMove()
 
 		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
@@ -438,7 +462,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(updatedServiceItem)
 	})
 
-	suite.T().Run("does not approve the move if unacknowledged amended orders exist", func(t *testing.T) {
+	suite.Run("does not approve the move if unacknowledged amended orders exist", func() {
 
 		eTag, serviceItem, move := suite.createServiceItemForMoveWithUnacknowledgedAmendedOrders()
 		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
@@ -458,7 +482,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NotNil(updatedServiceItem)
 	})
 
-	suite.T().Run("Returns an error when eTag is stale", func(t *testing.T) {
+	suite.Run("Returns an error when eTag is stale", func() {
 		_, serviceItem, _ := suite.createServiceItem()
 		rejectionReason = swag.String("incomplete")
 
