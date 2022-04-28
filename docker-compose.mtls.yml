@@ -4,45 +4,25 @@ services:
   database:
     image: postgres:12.7
     restart: always
-    ports:
-      - '6432:5432'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_DB=dev_db
-
-  milmove_migrate:
-    depends_on:
-      - database
-    image: 021081706899.dkr.ecr.us-gov-west-1.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
-    links:
-      - database
-    environment:
-      - DB_ENV=development
-      - DB_HOST=database
-      - DB_NAME=dev_db
-      - DB_PASSWORD=mysecretpassword
-      - DB_PORT=5432
-      - DB_SSL_MODE=disable
-      - DB_USER=postgres
-      - ENVIRONMENT=test
-      - MIGRATION_PATH=file:///migrate/schema;file:///migrate/secure
-      - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
-    entrypoint:
-      - '/bin/milmove'
-      - 'migrate'
-    volumes:
-      - ./migrations/app/secure:/migrate/secure
+    tmpfs:
+      - /var/lib/postgresql/data
 
   milmove:
     depends_on:
       - database
-      - milmove_migrate
-    image: 021081706899.dkr.ecr.us-gov-west-1.amazonaws.com/app:git-branch-placeholder_branch_name
-    links:
-      - database
-    ports:
-      - '9443:9443'
+    networks:
+      default:
+        aliases:
+          - primelocal
+    image: ${MILMOVE_MTLS_IMAGE:-milmove_mtls:local}
+    entrypoint:
+      - "/bin/sh"
+      - "-c"
+      - "/bin/milmove migrate && /bin/generate-test-data --named-scenario='e2e_basic' && /bin/milmove serve"
     environment:
       - CLIENT_AUTH_SECRET_KEY
       - CSRF_AUTH_KEY
@@ -77,6 +57,8 @@ services:
       - LOGIN_GOV_MY_CLIENT_ID
       - LOGIN_GOV_OFFICE_CLIENT_ID
       - LOGIN_GOV_SECRET_KEY
+      - MIGRATION_PATH=file:///migrate/schema;file:///migrate/secure
+      - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
       - MOVE_MIL_DOD_TLS_KEY
@@ -87,7 +69,10 @@ services:
       - SERVE_API_SUPPORT=true
       - STORAGE_BACKEND=local
       - TZ=UTC
-    extra_hosts:
-      - "primelocal:127.0.0.1"
-    volumes:
-      - ./tmp:/tmp
+
+# use a custom external network to ensure consistent naming in
+# circleci and locally
+networks:
+  default:
+    external: true
+    name: e2e_mtls

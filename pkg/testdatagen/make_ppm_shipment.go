@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -76,7 +76,7 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 			HasProGear:                     models.BoolPointer(true),
 			ProGearWeight:                  models.PoundPointer(unit.Pound(1987)),
 			SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
-			EstimatedIncentive:             models.Int32Pointer(int32(1000000)),
+			EstimatedIncentive:             models.CentPointer(unit.Cents(1000000)),
 			AdvanceRequested:               models.BoolPointer(true),
 			Advance:                        models.CentPointer(unit.Cents(598700)),
 		},

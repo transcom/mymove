@@ -1,5 +1,9 @@
 # *Service Object Layer*
 
+**NOTE:** [ADR-0069 Use orchestrator service objects](./0069-use-orchestrator-service-objects.md) expands on service
+objects when it comes to how they should interact with each other when they're closely related. While it doesn't
+supersede this one, it may be helpful to read after reading this one.
+
 Currently the web service is built as two layers, Web Handlers ([pkg/handlers](https://github.com/transcom/mymove/tree/master/pkg/handlers)) which implement interfaces based on the swagger definitions of the services provided by the server and Model Objects ([pkg/models]((https://github.com/transcom/mymove/tree/master/pkg/models))) which marshal object representations of data in and out of the database.
 
 We are currently coming across a number of issues which suggest that we have reached the limits of what such a naive, two-layer design can easily support, viz:

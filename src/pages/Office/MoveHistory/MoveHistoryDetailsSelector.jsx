@@ -8,9 +8,16 @@ import getMoveHistoryEventTemplate, { detailsTypes } from 'constants/moveHistory
 
 const MoveHistoryDetailsSelector = ({ historyRecord }) => {
   const eventTemplate = getMoveHistoryEventTemplate(historyRecord);
+
   switch (eventTemplate.detailsType) {
     case detailsTypes.LABELED:
-      return <LabeledDetails changedValues={historyRecord.changedValues} />;
+      return (
+        <LabeledDetails
+          changedValues={historyRecord.changedValues}
+          context={historyRecord.context}
+          getDetailsLabeledDetails={eventTemplate.getDetailsLabeledDetails}
+        />
+      );
     case detailsTypes.PAYMENT:
       return <PaymentDetails context={historyRecord.context} />;
     case detailsTypes.PLAIN_TEXT:

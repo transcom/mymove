@@ -73,6 +73,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0066](0066-use-custom-nullable-types-for-patch-requests.md) - Use custom nullable types for patch requests
 - [ADR-0067](0067-ppm-db-design.md) - Add a child table to mto_shipments for PPMs
 - [ADR-0068](0068-use-fake-data-factories-with-fake-data-generators-to-create-test-data.md) - Use fake data factories with fake data generators to create test data
+- [ADR-0069](0069-use-orchestrator-service-objects.md) - Use orchestrator service objects
 
 <!-- adrlogstop -->
 

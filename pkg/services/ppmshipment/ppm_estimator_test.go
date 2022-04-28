@@ -15,7 +15,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		//oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
 		oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: models.Int32Pointer(int32(500000)),
+				EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
 			},
 			Stub: true,
 		})
@@ -39,7 +39,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		suite.NotEqualValues(oldPPMShipment.EstimatedWeight, newPPM.EstimatedWeight)
 		suite.Equal(oldPPMShipment.Advance, newPPM.Advance)
 		suite.Equal(oldPPMShipment.AdvanceRequested, newPPM.AdvanceRequested)
-		suite.Equal(int32(1000000), *ppmEstimate)
+		suite.Equal(unit.Cents(1000000), *ppmEstimate)
 	})
 
 	suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
@@ -64,13 +64,13 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		suite.NilOrNoVerrs(err)
 		suite.Nil(newPPM.Advance)
 		suite.Nil(newPPM.AdvanceRequested)
-		suite.Equal(int32(1000000), *ppmEstimate)
+		suite.Equal(unit.Cents(1000000), *ppmEstimate)
 	})
 
 	suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
 		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: models.Int32Pointer(int32(500000)),
+				EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
 			},
 		})
 		ppmEstimator := NewEstimatePPM()
@@ -97,7 +97,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 	suite.Run("Estimated Incentive - Failure - is not created when status is not DRAFT", func() {
 		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: models.Int32Pointer(int32(500000)),
+				EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
 			},
 		})
 		ppmEstimator := NewEstimatePPM()
@@ -111,13 +111,13 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			DestinationPostalCode: "94040",
 			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
 			SitExpected:           oldPPMShipment.SitExpected,
-			EstimatedIncentive:    models.Int32Pointer(int32(500000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(500000)),
 		}
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 		suite.NilOrNoVerrs(err)
 		suite.Nil(ppmEstimate)
-		suite.Equal(models.Int32Pointer(int32(500000)), newPPM.EstimatedIncentive)
+		suite.Equal(models.CentPointer(unit.Cents(500000)), newPPM.EstimatedIncentive)
 	})
 
 	suite.Run("Estimated Incentive - Failure - is not created when Estimated Weight is missing", func() {

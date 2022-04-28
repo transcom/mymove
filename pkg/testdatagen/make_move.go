@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
