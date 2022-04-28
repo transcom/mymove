@@ -6,11 +6,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/services"
 
-	"github.com/transcom/mymove/pkg/services/fetch"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	"github.com/transcom/mymove/pkg/services/query"
-
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -27,19 +22,22 @@ func (suite *PPMShipmentSuite) createSubtestData() (subtestData *createShipmentS
 	// Create new move
 	subtestData = &createShipmentSubtestData{}
 
-	builder := query.NewQueryBuilder()
-	fetcher := fetch.NewFetcher(builder)
-	moveRouter := moverouter.NewMoveRouter()
-	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-	subtestData.ppmShipmentCreator = NewPPMShipmentCreator(mtoShipmentCreator)
+	subtestData.ppmShipmentCreator = NewPPMShipmentCreator()
 
 	subtestData.move = testdatagen.MakeDefaultMove(suite.DB())
 
+	mtoShipment := testdatagen.MakeBaseMTOShipment(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			MoveTaskOrderID: subtestData.move.ID,
+			ShipmentType:    models.MTOShipmentTypePPM,
+			Status:          models.MTOShipmentStatusDraft,
+		},
+	})
+
 	// Create a valid ppm shipment associated with a move
 	subtestData.newPPMShipment = &models.PPMShipment{
-		Shipment: models.MTOShipment{
-			MoveTaskOrderID: subtestData.move.ID,
-		},
+		ShipmentID: mtoShipment.ID,
+		Shipment:   mtoShipment,
 	}
 
 	return subtestData
@@ -66,13 +64,16 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	})
 
 	// InvalidInputError
-	suite.T().Run("A PPM shipment with validation errors returns an InvalidInputError with a bad UUID", func(t *testing.T) {
-		blankPPMShipment := models.PPMShipment{}
+	suite.T().Run("Returns an InvalidInputError if MTOShipment type is not PPM", func(t *testing.T) {
 		subtestData := suite.createSubtestData()
-		createdPPMShipment, err := subtestData.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &blankPPMShipment)
+
+		subtestData.newPPMShipment.Shipment.ShipmentType = models.MTOShipmentTypeHHG
+
+		createdPPMShipment, err := subtestData.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), subtestData.newPPMShipment)
 
 		suite.Error(err)
 		suite.Nil(createdPPMShipment)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Equal("MTO shipment type must be PPM shipment", err.Error())
 	})
 }

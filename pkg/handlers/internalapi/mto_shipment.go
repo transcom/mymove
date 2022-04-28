@@ -3,8 +3,6 @@ package internalapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
-
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -53,16 +51,43 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 			var err error
-			var ppmShipment *models.PPMShipment
-			if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
-				// Return a PPM Shipment with an MTO Shipment inside
-				ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
+
+			isPPMShipment := mtoShipment.ShipmentType != "" && mtoShipment.ShipmentType == models.MTOShipmentTypePPM
+
+			if isPPMShipment {
+				mtoShipment.Status = models.MTOShipmentStatusDraft
 			} else {
 				// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
 				mtoShipment.Status = models.MTOShipmentStatusSubmitted
-				serviceItemsList := make(models.MTOServiceItems, 0)
-				mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
 			}
+
+			err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+				mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(txnAppCtx, mtoShipment, nil)
+
+				if err != nil {
+					return err
+				}
+
+				if !isPPMShipment {
+					return nil
+				}
+
+				var ppmShipment *models.PPMShipment
+
+				mtoShipment.PPMShipment.ShipmentID = mtoShipment.ID
+				mtoShipment.PPMShipment.Shipment = *mtoShipment
+
+				ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
+
+				if err != nil {
+					return err
+				}
+
+				// update with latest version of MTOShipment, which should now have a PPMShipment attached.
+				mtoShipment = &ppmShipment.Shipment
+
+				return nil
+			})
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
@@ -111,10 +136,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
-			if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
-				// Return an mtoShipment that has a ppmShipment
-				mtoShipment = &ppmShipment.Shipment
-			}
 			returnPayload := payloads.MTOShipment(mtoShipment)
 			return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload), nil
 		})
