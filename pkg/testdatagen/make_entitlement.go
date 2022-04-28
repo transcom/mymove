@@ -2,7 +2,7 @@ package testdatagen
 
 import (
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
 )

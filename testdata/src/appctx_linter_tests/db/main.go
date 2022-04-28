@@ -1,6 +1,6 @@
 package db
 
-import pop "github.com/gobuffalo/pop/v5"
+import pop "github.com/gobuffalo/pop/v6"
 
 // These should be ignored because the package is on the allow list.
 
