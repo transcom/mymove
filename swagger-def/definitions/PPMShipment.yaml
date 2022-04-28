@@ -128,14 +128,3 @@ properties:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
     type: string
     readOnly: true
-required:
-  - id
-  - shipmentId
-  - createdAt
-  - updatedAt
-  - status
-  - expectedDepartureDate
-  - pickupPostalCode
-  - destinationPostalCode
-  - sitExpected
-  - eTag

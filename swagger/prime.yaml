@@ -3042,17 +3042,6 @@ definitions:
           header for any updates.
         type: string
         readOnly: true
-    required:
-      - id
-      - shipmentId
-      - createdAt
-      - updatedAt
-      - status
-      - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
-      - sitExpected
-      - eTag
   ExcessWeightRecord:
     description: >-
       A document uploaded by the movers proving that the customer has been

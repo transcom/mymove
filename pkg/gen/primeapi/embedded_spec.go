@@ -2416,18 +2416,6 @@ func init() {
     },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
-      "required": [
-        "id",
-        "shipmentId",
-        "createdAt",
-        "updatedAt",
-        "status",
-        "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
-        "sitExpected",
-        "eTag"
-      ],
       "properties": {
         "actualMoveDate": {
           "type": "string",
@@ -6251,18 +6239,6 @@ func init() {
     },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
-      "required": [
-        "id",
-        "shipmentId",
-        "createdAt",
-        "updatedAt",
-        "status",
-        "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
-        "sitExpected",
-        "eTag"
-      ],
       "properties": {
         "actualMoveDate": {
           "type": "string",
