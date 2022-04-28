@@ -38,7 +38,7 @@ module.exports = {
     'react/require-default-props': 'warn',
     'no-unused-vars': 'warn',
     'sort-imports': [
-      'error',
+      'warn',
       {
         ignoreCase: false,
         ignoreDeclarationSort: false,
