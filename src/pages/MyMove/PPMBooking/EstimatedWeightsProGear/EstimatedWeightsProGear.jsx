@@ -15,6 +15,7 @@ import {
   selectMTOShipmentById,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
+import ScrollToTop from 'components/ScrollToTop';
 
 const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -27,7 +28,7 @@ const EstimatedWeightsProGear = () => {
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const handleBack = () => {
-    history.push(generatePath(customerRoutes.SHIPMENT_EDIT_PATH, { moveId, mtoShipmentId }));
+    history.goBack();
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -60,6 +61,7 @@ const EstimatedWeightsProGear = () => {
 
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
+      <ScrollToTop />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

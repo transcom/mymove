@@ -12,6 +12,7 @@ import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
+import ScrollToTop from 'components/ScrollToTop';
 
 const Advance = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -21,7 +22,7 @@ const Advance = () => {
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const handleBack = () => {
-    history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
+    history.goBack();
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -60,6 +61,7 @@ const Advance = () => {
 
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
+      <ScrollToTop />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

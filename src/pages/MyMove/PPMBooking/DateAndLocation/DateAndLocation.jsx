@@ -8,13 +8,14 @@ import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { DutyLocationShape } from 'types';
 import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
 import { validatePostalCode } from 'utils/validation';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import { formatDateForSwagger } from 'shared/dates';
 import { updateMTOShipment } from 'store/entities/actions';
+import ScrollToTop from 'components/ScrollToTop';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -25,11 +26,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
   const isNewShipment = !mtoShipment?.id;
 
   const handleBack = () => {
-    if (isNewShipment) {
-      history.push(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
-    }
-
-    history.push(generalRoutes.HOME_PATH);
+    history.goBack();
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -95,6 +92,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
 
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
+      <ScrollToTop />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
