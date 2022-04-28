@@ -9,7 +9,9 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/services/reweigh"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
@@ -155,6 +157,101 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		_, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.T().Run("returns Orders fields and context", func(t *testing.T) {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		order := approvedMove.Orders
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+			},
+			Move: approvedMove,
+		})
+
+		changeOldDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+		changeNewDutyLocation := testdatagen.MakeDefaultDutyLocation(suite.DB())
+
+		// Make sure we're testing for all the things that we can update on the Orders page
+		// README: This list of properties below here is taken from
+		// swagger-def/ghc.yaml#UpdateOrderPayload
+		// README: issueDate, reportByDate, ordersType, ordersTypeDetail,
+		// originDutyLocationId, newDutyLocationId, ordersNumber, tac, sac,
+		// ntsTac, ntsSac, departmentIndicator, ordersAcknowledgement
+		orderNumber := "030-00362"
+		tac := "1234"
+		sac := "2345"
+		ntsTac := "3456"
+		ntsSac := "4567"
+
+		order.IssueDate = now.AddDate(0, 0, 20)
+		order.ReportByDate = now.AddDate(0, 0, 25)
+		order.OrdersType = internalmessages.OrdersTypeRETIREMENT
+		order.OrdersTypeDetail = internalmessages.NewOrdersTypeDetail(internalmessages.OrdersTypeDetailDELAYEDAPPROVAL)
+		order.OriginDutyLocationID = &changeOldDutyLocation.ID
+		order.OriginDutyLocation = &changeOldDutyLocation
+		order.NewDutyLocationID = changeNewDutyLocation.ID
+		order.NewDutyLocation = changeNewDutyLocation
+		order.OrdersNumber = &orderNumber
+		order.TAC = &tac
+		order.SAC = &sac
+		order.NtsTAC = &ntsTac
+		order.NtsSAC = &ntsSac
+		order.DepartmentIndicator = (*string)(internalmessages.NewDeptIndicator(internalmessages.DeptIndicatorARMY))
+		order.AmendedOrdersAcknowledgedAt = &now
+		// this is gathered on the customer flow
+		rank := string(models.ServiceMemberRankE9SPECIALSENIORENLISTED)
+		order.Grade = &rank
+
+		suite.MustSave(&order)
+
+		parameters := services.FetchMoveHistoryParams{
+			Locator: approvedMove.Locator,
+			Page:    swag.Int64(1),
+			PerPage: swag.Int64(20),
+		}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &parameters)
+		suite.FatalNoError(err)
+
+		foundUpdateOrderRecord := false
+		for _, historyRecord := range moveHistoryData.AuditHistories {
+			if *historyRecord.ObjectID == order.ID && historyRecord.Action == "UPDATE" {
+				changedData := removeEscapeJSONtoObject(historyRecord.ChangedData)
+				// Date format here: https://go.dev/src/time/format.go
+				suite.Equal(order.IssueDate.Format("2006-01-02"), changedData["issue_date"])
+				suite.Equal(order.ReportByDate.Format("2006-01-02"), changedData["report_by_date"])
+				suite.Equal(string(order.OrdersType), changedData["orders_type"])
+				suite.Equal((string)(*order.OrdersTypeDetail), changedData["orders_type_detail"])
+				suite.Equal(order.OriginDutyLocationID.String(), changedData["origin_duty_location_id"])
+				suite.Equal(order.NewDutyLocationID.String(), changedData["new_duty_location_id"])
+				suite.Equal(*order.OrdersNumber, changedData["orders_number"])
+				suite.Equal(*order.TAC, changedData["tac"])
+				suite.Equal(*order.SAC, changedData["sac"])
+				suite.Equal(*order.NtsTAC, changedData["nts_tac"])
+				suite.Equal(*order.NtsSAC, changedData["nts_sac"])
+				suite.Equal(*order.DepartmentIndicator, changedData["department_indicator"])
+				//TODO: make a better comparison test for time
+				//suite.Equal(order.AmendedOrdersAcknowledgedAt.Format("2006-01-02T15:04:05.000000"), changedData["amended_orders_acknowledged_at"])
+
+				// rank/grade is also on orders
+				suite.Equal(*order.Grade, changedData["grade"])
+
+				// test context as well
+				context := removeEscapeJSONtoArray(historyRecord.Context)[0]
+				suite.Equal(order.OriginDutyLocation.Name, context["origin_duty_location_name"])
+				suite.Equal(order.NewDutyLocation.Name, context["new_duty_location_name"])
+
+				foundUpdateOrderRecord = true
+				break
+			}
+		}
+
+		// double check that we found the record we're looking for
+		suite.True(foundUpdateOrderRecord)
 	})
 
 }
@@ -333,5 +430,42 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
+	})
+
+	suite.T().Run("has audit history records for reweighs", func(t *testing.T) {
+		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), nil, testdatagen.Assertions{})
+		// Create a valid reweigh for the move
+		newReweigh := &models.Reweigh{
+			RequestedAt: time.Now(),
+			RequestedBy: models.ReweighRequesterTOO,
+			Shipment:    shipment,
+			ShipmentID:  shipment.ID,
+		}
+		reweighCreator := reweigh.NewReweighCreator()
+		createdReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
+		suite.NoError(err)
+
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(5)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyReweighHistoryFound := false
+		verifyReweighContext := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "reweighs" && *h.ObjectID == createdReweigh.ID {
+				verifyReweighHistoryFound = true
+				if h.Context != nil {
+					context := removeEscapeJSONtoArray(h.Context)
+					if context != nil && context[0]["shipment_type"] == string(shipment.ShipmentType) {
+						verifyReweighContext = true
+					}
+				}
+				break
+			}
+		}
+		suite.True(verifyReweighHistoryFound, "AuditHistories contains an AuditHistory with a Reweigh creation")
+		suite.True(verifyReweighContext, "Reweigh creation AuditHistory contains a context with the appropriate shipment type")
 	})
 }

@@ -1,15 +1,17 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {
   HistoryLogValuesShape,
   dbFieldToDisplayName,
   dbWeightFields,
   HistoryLogContextShape,
+  optionFields,
 } from 'constants/historyLogUIDisplayName';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatMoveHistoryFullAddress, formatMoveHistoryAgent } from 'utils/formatters';
 
-const LabeledDetails = ({ changedValues, oldValues, context }) => {
+const LabeledDetails = ({ changedValues, oldValues, context, getDetailsLabeledDetails }) => {
   const backfilledChangedValues = {
     street_address_1: oldValues.street_address_1,
     street_address_2: oldValues.street_address_2,
@@ -23,11 +25,16 @@ const LabeledDetails = ({ changedValues, oldValues, context }) => {
     ...changedValues,
   };
 
-  const changedValuesWithFormattedItems = {
+  let changedValuesWithFormattedItems = {
     ...changedValues,
     address: formatMoveHistoryFullAddress(backfilledChangedValues),
     agent: formatMoveHistoryAgent(backfilledChangedValues),
   };
+
+  // run custom function to mutate changedValues to display if not null
+  if (getDetailsLabeledDetails) {
+    changedValuesWithFormattedItems = getDetailsLabeledDetails({ changedValuesWithFormattedItems, context });
+  }
 
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
     return changedValuesWithFormattedItems[dbField];
@@ -41,6 +48,8 @@ const LabeledDetails = ({ changedValues, oldValues, context }) => {
       displayValue = `${displayValue} days`;
     } else if (dbWeightFields.includes(fieldName)) {
       displayValue = `${displayValue} lbs`;
+    } else if (optionFields[displayValue]) {
+      displayValue = optionFields[displayValue];
     } else if (displayName === dbFieldToDisplayName.address) {
       const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
 
@@ -87,12 +96,14 @@ LabeledDetails.propTypes = {
   changedValues: HistoryLogValuesShape,
   oldValues: HistoryLogValuesShape,
   context: HistoryLogContextShape,
+  getDetailsLabeledDetails: PropTypes.func,
 };
 
 LabeledDetails.defaultProps = {
   changedValues: {},
   oldValues: {},
   context: [],
+  getDetailsLabeledDetails: null,
 };
 
 export default LabeledDetails;

@@ -76,7 +76,7 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 			HasProGear:                     models.BoolPointer(true),
 			ProGearWeight:                  models.PoundPointer(unit.Pound(1987)),
 			SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
-			EstimatedIncentive:             models.Int32Pointer(int32(1000000)),
+			EstimatedIncentive:             models.CentPointer(unit.Cents(1000000)),
 			AdvanceRequested:               models.BoolPointer(true),
 			Advance:                        models.CentPointer(unit.Cents(598700)),
 		},

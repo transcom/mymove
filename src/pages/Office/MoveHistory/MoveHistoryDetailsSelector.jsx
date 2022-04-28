@@ -7,6 +7,7 @@ import getMoveHistoryEventTemplate, { detailsTypes } from 'constants/moveHistory
 
 const MoveHistoryDetailsSelector = ({ historyRecord }) => {
   const eventTemplate = getMoveHistoryEventTemplate(historyRecord);
+
   switch (eventTemplate.detailsType) {
     case detailsTypes.LABELED:
       return (
@@ -14,6 +15,7 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
           changedValues={historyRecord.changedValues}
           oldValues={historyRecord.oldValues}
           context={historyRecord.context}
+          getDetailsLabeledDetails={eventTemplate.getDetailsLabeledDetails}
         />
       );
     case detailsTypes.PLAIN_TEXT:

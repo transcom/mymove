@@ -1,7 +1,14 @@
 import PropTypes from 'prop-types';
 
+import {
+  ORDERS_BRANCH_OPTIONS,
+  ORDERS_RANK_OPTIONS,
+  ORDERS_TYPE_DETAILS_OPTIONS,
+  ORDERS_TYPE_OPTIONS,
+} from 'constants/orders';
+
 export const HistoryLogValuesShape = PropTypes.object;
-export const HistoryLogContextShape = PropTypes.array;
+export const HistoryLogContextShape = PropTypes.arrayOf(PropTypes.object);
 
 export const HistoryLogRecordShape = PropTypes.shape({
   action: PropTypes.string,
@@ -29,6 +36,19 @@ export const dbFieldToDisplayName = {
   tac_type: 'TAC type',
   sac_type: 'SAC type',
   authorized_weight: 'Authorized weight',
+  report_by_date: 'Report by date',
+  issue_date: 'Orders date',
+  orders_type: 'Orders type',
+  orders_type_detail: 'Orders type detail',
+  origin_duty_location_name: 'Origin duty location name',
+  new_duty_location_name: 'New duty location name',
+  orders_number: 'Orders number',
+  tac: 'HHG TAC',
+  sac: 'HHG SAC',
+  nts_tac: 'NTS TAC',
+  nts_sac: 'NTS SAC',
+  department_indicator: 'Dept. indicator',
+  amended_orders_acknowledged_at: 'Amended orders acknowledged at',
   storage_in_transit: 'Storage in transit (SIT)',
   dependents_authorized: 'Dependents',
   pro_gear_weight: 'Pro-gear',
@@ -38,6 +58,7 @@ export const dbFieldToDisplayName = {
   requested_pickup_date: 'Requested pickup date',
   address: 'Address',
   agent: 'Agent',
+  grade: 'Rank',
 };
 
 export const dbWeightFields = [
@@ -48,6 +69,14 @@ export const dbWeightFields = [
   'pro_gear_weight_spouse',
   'required_medical_equipment_weight',
 ];
+
+// This is to map the human-readable text to the options
+export const optionFields = {
+  ...ORDERS_BRANCH_OPTIONS,
+  ...ORDERS_TYPE_DETAILS_OPTIONS,
+  ...ORDERS_TYPE_OPTIONS,
+  ...ORDERS_RANK_OPTIONS,
+};
 
 export const eventNamesWithLabeledDetails = {
   counselingUpdateOrder: 'Updated orders', // ghc.yaml
