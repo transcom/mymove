@@ -3,7 +3,7 @@ package appcontext
 import (
 	"context"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"

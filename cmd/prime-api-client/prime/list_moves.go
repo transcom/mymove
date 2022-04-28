@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // InitListMovesFlags declares which flags are enabled
@@ -77,22 +78,38 @@ func ListMoves(cmd *cobra.Command, args []string) error {
 		}()
 	}
 
-	params.SetTimeout(time.Second * 30)
-	resp, err := primeGateway.MoveTaskOrder.ListMoves(&params)
-	if err != nil {
-		return utils.HandleGatewayError(err, logger)
-	}
+	startTime := time.Now()
 
-	payload := resp.GetPayload()
-	if payload != nil {
-		payload, errJSONMarshall := json.Marshal(payload)
-		if errJSONMarshall != nil {
-			logger.Fatal(errJSONMarshall)
+	// this wait retry logic would need to be replicated to all
+	// commands, so start with list moves for now
+	wait := v.GetDuration(utils.WaitFlag)
+	params.SetTimeout(wait)
+	var payload primemessages.ListMoves
+	// loop until we either time out or get a successful response
+	for {
+		resp, err := primeGateway.MoveTaskOrder.ListMoves(&params)
+		if err != nil {
+			currentTime := time.Now()
+			if currentTime.Sub(startTime) > wait {
+				// the request timed out, so return the error
+				return utils.HandleGatewayError(err, logger)
+			}
+			logger.Printf("Problem with request: %s, Sleeping 1s\n", err)
+			time.Sleep(1 * time.Second)
+		} else {
+			payload = resp.GetPayload()
+			if payload != nil {
+				payload, errJSONMarshall := json.Marshal(payload)
+				if errJSONMarshall != nil {
+					logger.Fatal(errJSONMarshall)
+				}
+				fmt.Println(string(payload))
+			} else {
+				logger.Fatal(resp.Error())
+			}
+
+			return nil
 		}
-		fmt.Println(string(payload))
-	} else {
-		logger.Fatal(resp.Error())
 	}
 
-	return nil
 }
