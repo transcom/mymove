@@ -432,7 +432,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NoError(err)
 
 	})
-  
+
 	suite.T().Run("approved payment request shows up", func(t *testing.T) {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		cents := unit.Cents(1000)
@@ -470,8 +470,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NoError(err)
 		contextValue := *moveHistoryData.AuditHistories[0].Context
 		suite.Contains(contextValue, "APPROVED")
-  })
-  
+	})
+
 	suite.T().Run("has audit history records for reweighs", func(t *testing.T) {
 		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), nil, testdatagen.Assertions{})
 		// Create a valid reweigh for the move
