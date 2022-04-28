@@ -59,6 +59,8 @@ export const dbFieldToDisplayName = {
   address: 'Address',
   agent: 'Agent',
   grade: 'Rank',
+  pickup_address: 'Origin address',
+  destination_address: 'Destination address',
 };
 
 export const dbWeightFields = [

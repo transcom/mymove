@@ -9,15 +9,10 @@ import {
   optionFields,
 } from 'constants/historyLogUIDisplayName';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-import { formatMoveHistoryFullAddress, formatMoveHistoryAgent } from 'utils/formatters';
+import { formatMoveHistoryAgent } from 'utils/formatters';
 
 const LabeledDetails = ({ changedValues, oldValues, context, getDetailsLabeledDetails }) => {
   const backfilledChangedValues = {
-    street_address_1: oldValues.street_address_1,
-    street_address_2: oldValues.street_address_2,
-    city: oldValues.city,
-    state: oldValues.state,
-    postal_code: oldValues.postal_code,
     email: oldValues.email,
     first_name: oldValues.first_name,
     last_name: oldValues.last_name,
@@ -27,13 +22,12 @@ const LabeledDetails = ({ changedValues, oldValues, context, getDetailsLabeledDe
 
   let changedValuesWithFormattedItems = {
     ...changedValues,
-    address: formatMoveHistoryFullAddress(backfilledChangedValues),
     agent: formatMoveHistoryAgent(backfilledChangedValues),
   };
 
   // run custom function to mutate changedValues to display if not null
   if (getDetailsLabeledDetails) {
-    changedValuesWithFormattedItems = getDetailsLabeledDetails({ changedValuesWithFormattedItems, context });
+    changedValuesWithFormattedItems = getDetailsLabeledDetails({ changedValuesWithFormattedItems, oldValues, context });
   }
 
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
@@ -50,14 +44,6 @@ const LabeledDetails = ({ changedValues, oldValues, context, getDetailsLabeledDe
       displayValue = `${displayValue} lbs`;
     } else if (optionFields[displayValue]) {
       displayValue = optionFields[displayValue];
-    } else if (displayName === dbFieldToDisplayName.address) {
-      const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
-
-      if (addressType === 'pickupAddress') {
-        displayName = 'Origin address';
-      } else if (addressType === 'destinationAddress') {
-        displayName = 'Destination address';
-      }
     } else if (displayName === dbFieldToDisplayName.agent) {
       const agentType = changedValues.agent_type ?? oldValues.agent_type;
 

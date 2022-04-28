@@ -1,6 +1,8 @@
 import moveHistoryOperations from './moveHistoryOperations';
 import { shipmentTypes } from './shipments';
 
+import { formatMoveHistoryFullAddress } from 'utils/formatters';
+
 function propertiesMatch(p1, p2) {
   return p1 === '*' || p2 === '*' || p1 === p2;
 }
@@ -223,20 +225,50 @@ export const updateMoveTaskOrderStatusEvent = buildMoveHistoryEventTemplate({
   },
 });
 
-export const updateMTOShipmentAddresses = buildMoveHistoryEventTemplate({
-  action: 'UPDATE',
-  eventName: moveHistoryOperations.updateMTOShipment,
-  tableName: 'addresses',
-  detailsType: detailsTypes.LABELED,
-  getEventNameDisplay: () => 'Updated shipment',
-});
-
 export const updateMTOShipment = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: 'mto_shipments',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
+});
+
+export const updateMTOShipmentAddresses = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'addresses',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ changedValues, oldValues, context }) => {
+    let newChangedValues = {
+      street_address_1: oldValues.street_address_1,
+      street_address_2: oldValues.street_address_2,
+      city: oldValues.city,
+      state: oldValues.state,
+      postal_code: oldValues.postal_code,
+      ...changedValues,
+    };
+
+    const address = formatMoveHistoryFullAddress(newChangedValues);
+
+    const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
+
+    let addressLabel = '';
+    if (addressType === 'pickupAddress') {
+      addressLabel = 'pickup_address';
+    } else if (addressType === 'destinationAddress') {
+      addressLabel = 'destination_address';
+    }
+
+    newChangedValues = {
+      ...changedValues,
+    };
+
+    newChangedValues[addressLabel] = address;
+
+    // merge context with change values for only this event
+    return newChangedValues;
+  },
 });
 
 export const updateMTOShipmentAgent = buildMoveHistoryEventTemplate({
