@@ -86,7 +86,7 @@ require (
 require (
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/rickar/cal/v2 v2.1.3
-	github.com/trussworks/otelhttp v0.0.0-20220422154947-ddcc47b22c78
+	github.com/trussworks/otelhttp v0.0.0-20220428162739-458ecc428855
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.6.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.31.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.31.0
