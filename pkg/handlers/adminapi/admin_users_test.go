@@ -24,21 +24,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
-	// replace this with generated UUID when filter param is built out
-	uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
-	id, _ := uuid.FromString(uuidString)
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-
 	setupRequest := func() *http.Request {
-		assertions := testdatagen.Assertions{
-			AdminUser: models.AdminUser{
-				ID: id,
-			},
-		}
-		testdatagen.MakeAdminUser(suite.DB(), assertions)
-		testdatagen.MakeDefaultAdminUser(suite.DB())
-
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("GET", "/admin_users", nil)
 		return suite.AuthenticateAdminRequest(req, requestUser)
@@ -46,9 +32,12 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
-		req := setupRequest()
+		adminUsers := models.AdminUsers{
+			testdatagen.MakeDefaultAdminUser(suite.DB()),
+			testdatagen.MakeDefaultAdminUser(suite.DB()),
+		}
 		params := adminuserop.IndexAdminUsersParams{
-			HTTPRequest: req,
+			HTTPRequest: setupRequest(),
 		}
 
 		queryBuilder := query.NewQueryBuilder()
@@ -64,39 +53,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 		suite.IsType(&adminuserop.IndexAdminUsersOK{}, response)
 		okResponse := response.(*adminuserop.IndexAdminUsersOK)
 		suite.Len(okResponse.Payload, 2)
-		suite.Equal(id.String(), okResponse.Payload[0].ID.String())
-	})
-
-	suite.Run("successful response", func() {
-		adminUser := models.AdminUser{ID: id}
-		params := adminuserop.IndexAdminUsersParams{
-			HTTPRequest: setupRequest(),
-		}
-		adminUserListFetcher := &mocks.AdminUserListFetcher{}
-		adminUserListFetcher.On("FetchAdminUserList",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(models.AdminUsers{adminUser}, nil).Once()
-		adminUserListFetcher.On("FetchAdminUserCount",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-		).Return(1, nil).Once()
-		handler := IndexAdminUsersHandler{
-			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			NewQueryFilter:       newQueryFilter,
-			AdminUserListFetcher: adminUserListFetcher,
-			NewPagination:        pagination.NewPagination,
-		}
-
-		response := handler.Handle(params)
-
-		suite.IsType(&adminuserop.IndexAdminUsersOK{}, response)
-		okResponse := response.(*adminuserop.IndexAdminUsersOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
+		suite.Equal(adminUsers[0].ID.String(), okResponse.Payload[0].ID.String())
 	})
 
 	suite.Run("unsuccesful response when fetch fails", func() {
@@ -118,7 +75,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 		).Return(0, expectedError).Once()
 		handler := IndexAdminUsersHandler{
 			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			NewQueryFilter:       newQueryFilter,
+			NewQueryFilter:       newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 			AdminUserListFetcher: adminUserListFetcher,
 			NewPagination:        pagination.NewPagination,
 		}
