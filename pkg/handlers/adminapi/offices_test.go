@@ -3,7 +3,6 @@ package adminapi
 import (
 	"net/http"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	officeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
@@ -40,39 +39,6 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		okResponse := response.(*officeop.IndexOfficesOK)
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(to.ID.String(), okResponse.Payload[0].ID.String())
-	})
-
-	suite.Run("successful response", func() {
-		id, _ := uuid.FromString("d874d002-5582-4a91-97d3-786e8f66c763")
-		office := models.TransportationOffice{ID: id}
-		params := officeop.IndexOfficesParams{
-			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/offices"),
-		}
-		officeListFetcher := &mocks.OfficeListFetcher{}
-		officeListFetcher.On("FetchOfficeList",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(models.TransportationOffices{office}, nil).Once()
-		officeListFetcher.On("FetchOfficeCount",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-		).Return(1, nil).Once()
-		handler := IndexOfficesHandler{
-			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			NewQueryFilter:    newQueryFilter,
-			OfficeListFetcher: officeListFetcher,
-			NewPagination:     pagination.NewPagination,
-		}
-
-		response := handler.Handle(params)
-
-		suite.IsType(&officeop.IndexOfficesOK{}, response)
-		okResponse := response.(*officeop.IndexOfficesOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(id.String(), okResponse.Payload[0].ID.String())
 	})
 
 	suite.Run("unsuccesful response when fetch fails", func() {

@@ -6,7 +6,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	organization2 "github.com/transcom/mymove/pkg/services/organization"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/handlers"
@@ -40,42 +39,6 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 		suite.Equal(org.ID.String(), okResponse.Payload[0].ID.String())
 	})
 
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-
-	suite.Run("successful response", func() {
-		id, _ := uuid.FromString("5ce7162a-8d5c-41fc-b0e7-bae726f98fa2")
-		org := models.Organization{ID: id}
-		params := organization.IndexOrganizationsParams{
-			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/organizations"),
-		}
-		organizationListFetcher := &mocks.OrganizationListFetcher{}
-		organizationListFetcher.On("FetchOrganizationList",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(models.Organizations{org}, nil).Once()
-		organizationListFetcher.On("FetchOrganizationCount",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-		).Return(1, nil).Once()
-		handler := IndexOrganizationsHandler{
-			HandlerContext:          handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			NewQueryFilter:          newQueryFilter,
-			OrganizationListFetcher: organizationListFetcher,
-			NewPagination:           pagination.NewPagination,
-		}
-
-		response := handler.Handle(params)
-
-		suite.IsType(&organization.IndexOrganizationsOK{}, response)
-		okResponse := response.(*organization.IndexOrganizationsOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(id.String(), okResponse.Payload[0].ID.String())
-	})
-
 	suite.Run("unsuccesful response when fetch fails", func() {
 		params := organization.IndexOrganizationsParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/organizations"),
@@ -96,7 +59,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 		).Return(0, expectedError).Once()
 		handler := IndexOrganizationsHandler{
 			HandlerContext:          handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			NewQueryFilter:          newQueryFilter,
+			NewQueryFilter:          newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 			OrganizationListFetcher: organizationListFetcher,
 			NewPagination:           pagination.NewPagination,
 		}
