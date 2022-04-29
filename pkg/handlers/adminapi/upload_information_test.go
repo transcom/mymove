@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -72,7 +71,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 	}
 
 	// test that everything is wired up
-	suite.T().Run("integration test ok response", func(t *testing.T) {
+	suite.Run("integration test ok response", func() {
 		uploadInstance, move := setupTestData()
 		params := uploadop.GetUploadParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/uploads/%s", uploadInstance.UploadID.String())),
@@ -93,7 +92,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		suite.Equal(move.Locator, *okResponse.Payload.MoveLocator)
 	})
 
-	suite.T().Run("unsuccessful response when fetch fails", func(t *testing.T) {
+	suite.Run("unsuccessful response when fetch fails", func() {
 		uploadInstance, _ := setupTestData()
 		params := uploadop.GetUploadParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/uploads/%s", uploadInstance.UploadID.String())),
