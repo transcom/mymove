@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -48,6 +49,18 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		approvedMove.Orders.Entitlement.DBAuthorizedWeight = &updateDBAuthorizedWeight
 		suite.MustSave(&approvedMove.Orders)
 
+		// update Agent
+		updateAgent := models.MTOAgent{
+			ID:            uuid.Must(uuid.NewV4()),
+			MTOShipmentID: approvedShipment.ID,
+			MTOShipment:   approvedShipment,
+			MTOAgentType:  models.MTOAgentReceiving,
+		}
+		approvedShipment.MTOAgents = models.MTOAgents{
+			updateAgent,
+		}
+		suite.MustSave(updateAgent)
+
 		// update Pickup Address
 		oldAddress := *approvedShipment.PickupAddress
 		updateAddress := approvedShipment.PickupAddress
@@ -68,6 +81,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		verifyOldPickupAddress := false
 		verifyNewPickupAddress := false
+		// agent update
+		verifyNewAgent := false
 		// orders update
 		verifyOldSAC := false
 		verifyNewSAC := false
@@ -108,6 +123,15 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 						}
 					}
 				}
+			} else if h.TableName == "mto_agents" {
+				if *h.ObjectID == approvedMove.Orders.ID {
+					if h.ChangedData != nil {
+						changedData := removeEscapeJSONtoObject(h.ChangedData)
+						if changedData["agent_type"] == string(models.MTOAgentReceiving) {
+							verifyNewAgent = true
+						}
+					}
+				}
 			} else if h.TableName == "entitlements" {
 				if h.ChangedData != nil {
 					oldData := removeEscapeJSONtoObject(h.OldData)
@@ -141,6 +165,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		suite.True(verifyOldPickupAddress, "verifyOldPickupAddress")
 		suite.True(verifyNewPickupAddress, "verifyNewPickupAddress")
+		// agent update
+		suite.True(verifyNewAgent, "verifyNewAgent")
 		// orders update
 		suite.True(verifyOldSAC, "verifyOldSAC")
 		suite.True(verifyNewSAC, "verifyNewSAC")
