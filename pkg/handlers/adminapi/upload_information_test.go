@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -23,60 +22,61 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetUploadHandler() {
-	sm := testdatagen.MakeDefaultServiceMember(suite.DB())
-	suite.MustSave(&sm)
+	setupTestData := func() (models.UserUpload, models.Move) {
+		sm := testdatagen.MakeDefaultServiceMember(suite.DB())
+		suite.MustSave(&sm)
 
-	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-		},
-	})
-	suite.MustSave(&orders)
+		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ServiceMemberID: sm.ID,
+				ServiceMember:   sm,
+			},
+		})
+		suite.MustSave(&orders)
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Orders:   orders,
-			OrdersID: orders.ID,
-		},
-	})
-	suite.MustSave(&move)
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Orders:   orders,
+				OrdersID: orders.ID,
+			},
+		})
+		suite.MustSave(&move)
 
-	document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
-		Document: models.Document{
-			ServiceMember:   sm,
-			ServiceMemberID: sm.ID,
-		},
-	})
-	suite.MustSave(&document)
+		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
+			Document: models.Document{
+				ServiceMember:   sm,
+				ServiceMemberID: sm.ID,
+			},
+		})
+		suite.MustSave(&document)
 
-	uploadID, _ := uuid.NewV4()
-	uploadUserAssertions := models.UserUpload{
-		Document:   document,
-		DocumentID: &document.ID,
-		CreatedAt:  time.Now(),
-		UploaderID: sm.UserID,
-		Upload: models.Upload{
-			ID:          uploadID,
-			Filename:    "FileName",
-			Bytes:       int64(15),
-			ContentType: "application/pdf",
-			CreatedAt:   time.Now(),
-		},
+		uploadID, _ := uuid.NewV4()
+		uploadUserAssertions := models.UserUpload{
+			Document:   document,
+			DocumentID: &document.ID,
+			CreatedAt:  time.Now(),
+			UploaderID: sm.UserID,
+			Upload: models.Upload{
+				ID:          uploadID,
+				Filename:    "FileName",
+				Bytes:       int64(15),
+				ContentType: "application/pdf",
+				CreatedAt:   time.Now(),
+			},
+		}
+
+		uploadInstance := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{UserUpload: uploadUserAssertions})
+		suite.MustSave(&uploadInstance)
+
+		return uploadInstance, move
 	}
-
-	uploadInstance := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{UserUpload: uploadUserAssertions})
-	suite.MustSave(&uploadInstance)
-
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/uploads/%s", uploadID.String()), nil)
-	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	// test that everything is wired up
 	suite.T().Run("integration test ok response", func(t *testing.T) {
+		uploadInstance, move := setupTestData()
 		params := uploadop.GetUploadParams{
-			HTTPRequest: req,
-			UploadID:    *handlers.FmtUUID(uploadID),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/uploads/%s", uploadInstance.UploadID.String())),
+			UploadID:    *handlers.FmtUUID(uploadInstance.UploadID),
 		}
 
 		uploadInformationFetcher := upload.NewUploadInformationFetcher()
@@ -89,37 +89,15 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 
 		suite.IsType(&uploadop.GetUploadOK{}, response)
 		okResponse := response.(*uploadop.GetUploadOK)
-		suite.Equal(*handlers.FmtUUID(uploadID), okResponse.Payload.ID)
+		suite.Equal(*handlers.FmtUUID(uploadInstance.UploadID), okResponse.Payload.ID)
 		suite.Equal(move.Locator, *okResponse.Payload.MoveLocator)
 	})
 
-	suite.T().Run("successful response", func(t *testing.T) {
-		uploaded := services.UploadInformation{UploadID: uploadID}
-		params := uploadop.GetUploadParams{
-			HTTPRequest: req,
-			UploadID:    *handlers.FmtUUID(uploadID),
-		}
-		uploadInformationFetcher := &mocks.UploadInformationFetcher{}
-		uploadInformationFetcher.On("FetchUploadInformation",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-		).Return(uploaded, nil).Once()
-		handler := GetUploadHandler{
-			HandlerContext:           handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			UploadInformationFetcher: uploadInformationFetcher,
-		}
-
-		response := handler.Handle(params)
-
-		suite.IsType(&uploadop.GetUploadOK{}, response)
-		okResponse := response.(*uploadop.GetUploadOK)
-		suite.Equal(*handlers.FmtUUID(uploadID), okResponse.Payload.ID)
-	})
-
 	suite.T().Run("unsuccessful response when fetch fails", func(t *testing.T) {
+		uploadInstance, _ := setupTestData()
 		params := uploadop.GetUploadParams{
-			HTTPRequest: req,
-			UploadID:    *handlers.FmtUUID(uploadID),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/uploads/%s", uploadInstance.UploadID.String())),
+			UploadID:    *handlers.FmtUUID(uploadInstance.UploadID),
 		}
 		expectedError := models.ErrFetchNotFound
 		uploadInformationFetcher := &mocks.UploadInformationFetcher{}
