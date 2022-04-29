@@ -239,7 +239,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.T().Run("Success - returns shipment with attached PpmShipment", func(t *testing.T) {
 		move := testdatagen.MakeAvailableMove(suite.DB())
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
 
@@ -257,6 +257,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NoError(movePayload.Validate(strfmt.Default))
 		suite.Equal(move.ID.String(), movePayload.ID.String())
 		suite.NotNil(movePayload.MtoShipments[0].PpmShipment)
+		suite.Equal(ppmShipment.ShipmentID.String(), movePayload.MtoShipments[0].PpmShipment.ShipmentID.String())
+		suite.Equal(ppmShipment.ID.String(), movePayload.MtoShipments[0].PpmShipment.ID.String())
 	})
 
 	suite.T().Run("Failure 'Not Found' for non-available move", func(t *testing.T) {

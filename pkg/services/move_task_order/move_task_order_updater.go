@@ -331,12 +331,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCon
 			return apperror.NewInvalidInputError(moveTaskOrderID, nil, verrs, "")
 		}
 		if err != nil {
-			switch err.(type) {
-			case query.StaleIdentifierError:
-				return apperror.NewPreconditionFailedError(moveTaskOrderID, err)
-			default:
-				return err
-			}
+			return err
 		}
 
 		// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
