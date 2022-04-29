@@ -440,167 +440,198 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 // UPDATE
 //
 
-// getDefaultMTOShipmentAndParams generates a set of default params and an MTOShipment
-func (suite *HandlerSuite) getDefaultMTOShipmentAndParams() (mtoshipmentops.UpdateMTOShipmentParams, *models.MTOShipment) {
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
-
-	originalShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMember:   serviceMember,
-			ServiceMemberID: serviceMember.ID,
-		},
-	})
-
-	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
-	pickupAddress.StreetAddress1 = "123 Fake Test St NW"
-
-	secondaryPickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
-	secondaryPickupAddress.StreetAddress1 = "89999 Other Test St NW"
-
-	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
-	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
-
-	secondaryDeliveryAddress := testdatagen.MakeDefaultAddress(suite.DB())
-	secondaryDeliveryAddress.StreetAddress1 = "9999 Test Fake Rd SE"
-
-	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
-	agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
-		FirstName: mtoAgent.FirstName,
-		LastName:  mtoAgent.LastName,
-		Email:     mtoAgent.Email,
-		Phone:     mtoAgent.Phone,
-		AgentType: internalmessages.MTOAgentType(mtoAgent.MTOAgentType),
-	}}
-
-	customerRemarks := ""
-
-	req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
-	req = suite.AuthenticateRequest(req, serviceMember)
-
-	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
-
-	payload := internalmessages.UpdateShipment{
-		Agents:          agents,
-		CustomerRemarks: &customerRemarks,
-		DestinationAddress: &internalmessages.Address{
-			City:           &destinationAddress.City,
-			Country:        destinationAddress.Country,
-			PostalCode:     &destinationAddress.PostalCode,
-			State:          &destinationAddress.State,
-			StreetAddress1: &destinationAddress.StreetAddress1,
-			StreetAddress2: destinationAddress.StreetAddress2,
-			StreetAddress3: destinationAddress.StreetAddress3,
-		},
-		SecondaryDeliveryAddress: &internalmessages.Address{
-			City:           &secondaryDeliveryAddress.City,
-			Country:        secondaryDeliveryAddress.Country,
-			PostalCode:     &secondaryDeliveryAddress.PostalCode,
-			State:          &secondaryDeliveryAddress.State,
-			StreetAddress1: &secondaryDeliveryAddress.StreetAddress1,
-			StreetAddress2: secondaryDeliveryAddress.StreetAddress2,
-			StreetAddress3: secondaryDeliveryAddress.StreetAddress3,
-		},
-		PickupAddress: &internalmessages.Address{
-			City:           &pickupAddress.City,
-			Country:        pickupAddress.Country,
-			PostalCode:     &pickupAddress.PostalCode,
-			State:          &pickupAddress.State,
-			StreetAddress1: &pickupAddress.StreetAddress1,
-			StreetAddress2: pickupAddress.StreetAddress2,
-			StreetAddress3: pickupAddress.StreetAddress3,
-		},
-		SecondaryPickupAddress: &internalmessages.Address{
-			City:           &secondaryPickupAddress.City,
-			Country:        secondaryPickupAddress.Country,
-			PostalCode:     &secondaryPickupAddress.PostalCode,
-			State:          &secondaryPickupAddress.State,
-			StreetAddress1: &secondaryPickupAddress.StreetAddress1,
-			StreetAddress2: secondaryPickupAddress.StreetAddress2,
-			StreetAddress3: secondaryPickupAddress.StreetAddress3,
-		},
-		RequestedPickupDate:   strfmt.Date(*originalShipment.RequestedPickupDate),
-		RequestedDeliveryDate: strfmt.Date(*originalShipment.RequestedDeliveryDate),
-		ShipmentType:          internalmessages.MTOShipmentTypeHHG,
-	}
-
-	params := mtoshipmentops.UpdateMTOShipmentParams{
-		HTTPRequest:   req,
-		MtoShipmentID: *handlers.FmtUUID(originalShipment.ID),
-		Body:          &payload,
-		IfMatch:       eTag,
-	}
-
-	return params, &originalShipment
-}
-
-// getDefaultPPMShipmentAndParams generates a set of default params and a PPMShipment
-func (suite *HandlerSuite) getDefaultPPMShipmentAndParams() (mtoshipmentops.UpdateMTOShipmentParams, *models.PPMShipment) {
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
-	originalPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMember:   serviceMember,
-			ServiceMemberID: serviceMember.ID,
-		},
-	})
-	originalShipment := originalPPMShipment.Shipment
-
-	req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
-	req = suite.AuthenticateRequest(req, serviceMember)
-
-	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
-
-	customerRemarks := "testing"
-	payload := internalmessages.UpdateShipment{
-		CustomerRemarks: &customerRemarks,
-	}
-
-	params := mtoshipmentops.UpdateMTOShipmentParams{
-		HTTPRequest:   req,
-		MtoShipmentID: *handlers.FmtUUID(originalShipment.ID),
-		Body:          &payload,
-		IfMatch:       eTag,
-	}
-
-	return params, &originalPPMShipment
-}
-
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
+	// Setup in this area should only be for objects that can be created once for all the sub-tests. Any model data,
+	// mocks, or objects that can be modified in subtests should instead be set up in getDefaultMTOShipmentAndParams or
+	// getDefaultPPMShipmentAndParams.
+	testMTOShipmentObjects := suite.setUpMTOShipmentObjects()
+
 	planner := &routemocks.Planner{}
+
 	planner.On("TransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveRouter := moverouter.NewMoveRouter()
+
 	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
-	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(testMTOShipmentObjects.builder)
+
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 
-	builder := query.NewQueryBuilder()
-	fetcher := fetch.NewFetcher(builder)
-	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-	ppmEstimator := ppmshipment.NewEstimatePPM()
-	ppmUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator)
+	mtoShipmentUpdater := mtoshipment.NewMTOShipmentUpdater(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, planner, testMTOShipmentObjects.moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 
-	suite.Run("Successful PATCH - Integration Test", func() {
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			updater,
-			ppmUpdater,
+	ppmEstimator := ppmshipment.NewEstimatePPM()
+
+	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator)
+
+	type mtoUpdateSubtestData struct {
+		mtoShipment *models.MTOShipment
+		params      mtoshipmentops.UpdateMTOShipmentParams
+		handler     UpdateMTOShipmentHandler
+	}
+
+	// getDefaultMTOShipmentAndParams generates a set of default params and an MTOShipment
+	getDefaultMTOShipmentAndParams := func(appCtx appcontext.AppContext) *mtoUpdateSubtestData {
+		serviceMember := testdatagen.MakeDefaultServiceMember(appCtx.DB())
+
+		originalShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ServiceMember:   serviceMember,
+				ServiceMemberID: serviceMember.ID,
+			},
+		})
+
+		pickupAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
+		pickupAddress.StreetAddress1 = "123 Fake Test St NW"
+
+		secondaryPickupAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
+		secondaryPickupAddress.StreetAddress1 = "89999 Other Test St NW"
+
+		destinationAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
+		destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
+
+		secondaryDeliveryAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
+		secondaryDeliveryAddress.StreetAddress1 = "9999 Test Fake Rd SE"
+
+		mtoAgent := testdatagen.MakeDefaultMTOAgent(appCtx.DB())
+		agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
+			FirstName: mtoAgent.FirstName,
+			LastName:  mtoAgent.LastName,
+			Email:     mtoAgent.Email,
+			Phone:     mtoAgent.Phone,
+			AgentType: internalmessages.MTOAgentType(mtoAgent.MTOAgentType),
+		}}
+
+		customerRemarks := ""
+
+		req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
+		req = suite.AuthenticateRequest(req, serviceMember)
+
+		eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
+
+		payload := internalmessages.UpdateShipment{
+			Agents:          agents,
+			CustomerRemarks: &customerRemarks,
+			DestinationAddress: &internalmessages.Address{
+				City:           &destinationAddress.City,
+				Country:        destinationAddress.Country,
+				PostalCode:     &destinationAddress.PostalCode,
+				State:          &destinationAddress.State,
+				StreetAddress1: &destinationAddress.StreetAddress1,
+				StreetAddress2: destinationAddress.StreetAddress2,
+				StreetAddress3: destinationAddress.StreetAddress3,
+			},
+			SecondaryDeliveryAddress: &internalmessages.Address{
+				City:           &secondaryDeliveryAddress.City,
+				Country:        secondaryDeliveryAddress.Country,
+				PostalCode:     &secondaryDeliveryAddress.PostalCode,
+				State:          &secondaryDeliveryAddress.State,
+				StreetAddress1: &secondaryDeliveryAddress.StreetAddress1,
+				StreetAddress2: secondaryDeliveryAddress.StreetAddress2,
+				StreetAddress3: secondaryDeliveryAddress.StreetAddress3,
+			},
+			PickupAddress: &internalmessages.Address{
+				City:           &pickupAddress.City,
+				Country:        pickupAddress.Country,
+				PostalCode:     &pickupAddress.PostalCode,
+				State:          &pickupAddress.State,
+				StreetAddress1: &pickupAddress.StreetAddress1,
+				StreetAddress2: pickupAddress.StreetAddress2,
+				StreetAddress3: pickupAddress.StreetAddress3,
+			},
+			SecondaryPickupAddress: &internalmessages.Address{
+				City:           &secondaryPickupAddress.City,
+				Country:        secondaryPickupAddress.Country,
+				PostalCode:     &secondaryPickupAddress.PostalCode,
+				State:          &secondaryPickupAddress.State,
+				StreetAddress1: &secondaryPickupAddress.StreetAddress1,
+				StreetAddress2: secondaryPickupAddress.StreetAddress2,
+				StreetAddress3: secondaryPickupAddress.StreetAddress3,
+			},
+			RequestedPickupDate:   strfmt.Date(*originalShipment.RequestedPickupDate),
+			RequestedDeliveryDate: strfmt.Date(*originalShipment.RequestedDeliveryDate),
+			ShipmentType:          internalmessages.MTOShipmentTypeHHG,
 		}
 
-		params, oldShipment := suite.getDefaultMTOShipmentAndParams()
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(originalShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
 
-		response := handler.Handle(params)
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			mtoShipmentUpdater,
+			ppmShipmentUpdater,
+		}
+
+		return &mtoUpdateSubtestData{
+			mtoShipment: &originalShipment,
+			params:      params,
+			handler:     handler,
+		}
+	}
+
+	// getDefaultPPMShipmentAndParams generates a set of default params and a PPMShipment
+	getDefaultPPMShipmentAndParams := func(appCtx appcontext.AppContext) *mtoUpdateSubtestData {
+		serviceMember := testdatagen.MakeDefaultServiceMember(appCtx.DB())
+
+		originalPPMShipment := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ServiceMember:   serviceMember,
+				ServiceMemberID: serviceMember.ID,
+			},
+		})
+		originalShipment := originalPPMShipment.Shipment
+
+		req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
+		req = suite.AuthenticateRequest(req, serviceMember)
+
+		eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
+
+		customerRemarks := "testing"
+		payload := internalmessages.UpdateShipment{
+			CustomerRemarks: &customerRemarks,
+		}
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(originalShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			mtoShipmentUpdater,
+			ppmShipmentUpdater,
+		}
+
+		return &mtoUpdateSubtestData{
+			mtoShipment: &originalShipment,
+			params:      params,
+			handler:     handler,
+		}
+	}
+
+	suite.Run("Successful PATCH - Integration Test", func() {
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+		params := subtestData.params
+
+		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
 
-		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
+		suite.Equal(subtestData.mtoShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *updatedShipment.SecondaryPickupAddress.StreetAddress1)
@@ -614,18 +645,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(params.Body.Agents[0].Email, updatedShipment.Agents[0].Email)
 		suite.Equal(params.Body.Agents[0].Phone, updatedShipment.Agents[0].Phone)
 		suite.Equal(params.Body.Agents[0].AgentType, updatedShipment.Agents[0].AgentType)
-		suite.Equal(oldShipment.ID.String(), string(updatedShipment.Agents[0].MtoShipmentID))
+		suite.Equal(subtestData.mtoShipment.ID.String(), string(updatedShipment.Agents[0].MtoShipmentID))
 		suite.NotEmpty(updatedShipment.Agents[0].ID)
 	})
 
 	suite.Run("Successful PATCH with PPMShipment - Integration Test", func() {
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			updater,
-			ppmUpdater,
-		}
+		subtestData := getDefaultPPMShipmentAndParams(suite.AppContextForTest())
 
-		params, existingPPMShipment := suite.getDefaultPPMShipmentAndParams()
+		params := subtestData.params
+		existingPPMShipment := subtestData.mtoShipment.PPMShipment
 
 		estimatedWeight := int64(6000)
 		proGearWeight := int64(1000)
@@ -638,7 +666,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 		params.Body.PpmShipment = updatedPPM
 
-		response := handler.Handle(params)
+		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 
@@ -665,18 +693,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("Successful PATCH - Can update shipment status", func() {
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			updater,
-			ppmUpdater,
-		}
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
 
 		expectedStatus := internalmessages.MTOShipmentStatusSUBMITTED
 
-		params, _ := suite.getDefaultMTOShipmentAndParams()
-		params.Body.Status = expectedStatus
+		subtestData.params.Body.Status = expectedStatus
 
-		response := handler.Handle(params)
+		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 
@@ -686,156 +709,87 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			updater,
-			ppmUpdater,
-		}
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
 
-		params, _ := suite.getDefaultMTOShipmentAndParams()
-		params.Body = nil
+		subtestData.params.Body = nil
 
-		response := handler.Handle(params)
+		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentBadRequest{}, response)
 	})
 
 	suite.Run("PATCH failure - 400 -- invalid requested status update", func() {
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			updater,
-			ppmUpdater,
-		}
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
 
-		params, _ := suite.getDefaultMTOShipmentAndParams()
-		params.Body.Status = internalmessages.MTOShipmentStatusREJECTED
+		subtestData.params.Body.Status = internalmessages.MTOShipmentStatusREJECTED
 
-		response := handler.Handle(params)
+		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentBadRequest{}, response)
 	})
 
 	suite.Run("PATCH failure - 401- permission denied - not authenticated", func() {
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			updater,
-			ppmUpdater,
-		}
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
 
-		params, oldShipment := suite.getDefaultMTOShipmentAndParams()
-		updateURI := "/mto-shipments/" + oldShipment.ID.String()
+		updateURI := "/mto-shipments/" + subtestData.mtoShipment.ID.String()
 
 		unauthorizedReq := httptest.NewRequest("PATCH", updateURI, nil)
-		params.HTTPRequest = unauthorizedReq
+		subtestData.params.HTTPRequest = unauthorizedReq
 
-		response := handler.Handle(params)
+		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnauthorized{}, response)
 	})
 
 	suite.Run("PATCH failure - 403- permission denied - wrong application / user", func() {
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		appCtx := suite.AppContextForTest()
 
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			updater,
-			ppmUpdater,
-		}
+		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
 
-		params, oldShipment := suite.getDefaultMTOShipmentAndParams()
-		updateURI := "/mto-shipments/" + oldShipment.ID.String()
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+
+		updateURI := "/mto-shipments/" + subtestData.mtoShipment.ID.String()
 
 		unauthorizedReq := httptest.NewRequest("PATCH", updateURI, nil)
 		unauthorizedReq = suite.AuthenticateOfficeRequest(unauthorizedReq, officeUser)
-		params.HTTPRequest = unauthorizedReq
+		subtestData.params.HTTPRequest = unauthorizedReq
 
-		response := handler.Handle(params)
+		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentForbidden{}, response)
 	})
 
 	suite.Run("PATCH failure - 404 -- not found", func() {
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			updater,
-			ppmUpdater,
-		}
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
 
-		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
-		params, _ := suite.getDefaultMTOShipmentAndParams()
-		params.MtoShipmentID = *uuidString
+		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("d874d002-5582-4a91-97d3-786e8f66c763"))
+		subtestData.params.MtoShipmentID = *uuidString
 
-		response := handler.Handle(params)
+		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			updater,
-			ppmUpdater,
-		}
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
 
-		params, _ := suite.getDefaultMTOShipmentAndParams()
-		params.IfMatch = "intentionally-bad-if-match-header-value"
+		subtestData.params.IfMatch = "intentionally-bad-if-match-header-value"
 
-		response := handler.Handle(params)
+		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
 	})
 
-	//TODO: when the address bug (MB-3691) gets fixed, this test should pass
-	// Update: This test is not passing due swagger validation failing and no server-side validation
-	// happening. These changes weren't covered in MB-3691, so we'll need to do addt'l
-	// work to fix. Since we have refactoring slated for addresses, we can do then.
-	// suite.Run("PATCH failure - 422 -- invalid input", func() {
-	// 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
-	// 	fetcher := fetch.NewFetcher(builder)
-	// 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner)
-	// 	handler := UpdateMTOShipmentHandler{
-	// 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	// 		updater,
-	// 	}
-
-	// 	oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-	// 	oldShipment.RequestedPickupDate = nil
-
-	// 	req := httptest.NewRequest("PATCH", "/mto-shipments/"+oldShipment.ID.String(), nil)
-	// 	req = suite.AuthenticateRequest(req, serviceMember)
-	// 	// invalid zip
-	// 	payloadDestinationAddress := &internalmessages.Address{
-	// 		City:           swag.String("Stumptown"),
-	// 		Country:        swag.String("USA"),
-	// 		ID:             "6e07a670-a072-4014-be9f-4926c1389f9a",
-	// 		State:          swag.String("CA"),
-	// 		StreetAddress1: swag.String("321 Main St."),
-	// 		PostalCode:     swag.String("123"),
-	// 	}
-
-	// 	payload := internalmessages.UpdateShipment{
-	// 		DestinationAddress: payloadDestinationAddress,
-	// 	}
-	// 	eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-	// 	params := mtoshipmentops.UpdateMTOShipmentParams{
-	// 		HTTPRequest:   req,
-	// 		MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
-	// 		Body:          &payload,
-	// 		IfMatch:       eTag,
-	// 	}
-
-	// 	response := handler.Handle(params)
-	// 	suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
-
-	// })
-
 	suite.Run("PATCH failure - 500", func() {
-		mockUpdater := mocks.MTOShipmentUpdater{}
+		appCtx := suite.AppContextForTest()
 
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+
+		mockUpdater := mocks.MTOShipmentUpdater{}
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
 			&mockUpdater,
-			ppmUpdater,
+			ppmShipmentUpdater,
 		}
 
 		err := errors.New("ServerError")
@@ -847,9 +801,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.Anything,
 		).Return(nil, err)
 
-		params, _ := suite.getDefaultMTOShipmentAndParams()
-
-		response := handler.Handle(params)
+		response := handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, response)
 
