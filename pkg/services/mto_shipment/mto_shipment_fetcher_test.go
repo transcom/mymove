@@ -157,4 +157,18 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Equal(storageFacility.Address.ID.String(), actualShipment.StorageFacility.Address.ID.String())
 		suite.Equal(reweigh.ID.String(), actualShipment.Reweigh.ID.String())
 	})
+	suite.Run("Loads PPM associations", func() {
+		//not reusing the test above because the fetcher only loads PPM associations if the shipment type is PPM
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
+
+		suite.NoError(err)
+		suite.NotNil(mtoShipments[0].PPMShipment)
+		suite.Equal(ppmShipment.ID.String(), mtoShipments[0].PPMShipment.ID.String())
+		suite.Equal(ppmShipment.ShipmentID.String(), mtoShipments[0].ID.String())
+	})
 }

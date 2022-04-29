@@ -66,6 +66,13 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 		if loadErr != nil {
 			return nil, err
 		}
+
+		if shipments[i].ShipmentType == models.MTOShipmentTypePPM {
+			loadErr := appCtx.DB().Load(&shipments[i], "PPMShipment")
+			if loadErr != nil {
+				return nil, apperror.NewQueryError("PPMShipment", err, "")
+			}
+		}
 	}
 
 	return shipments, nil

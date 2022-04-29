@@ -99,6 +99,10 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	})
 
+	testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+	})
+
 	// testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
 
 	year, month, day := time.Now().Date()
@@ -171,7 +175,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
-		suite.Len(okResponse.Payload, 3)
+		suite.Len(okResponse.Payload, 4)
 
 		payloadShipment := okResponse.Payload[0]
 		suite.Equal(shipments[0].ID.String(), payloadShipment.ID.String())
@@ -202,6 +206,11 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		// This one has a destination shipment type
 		payloadShipment3 := okResponse.Payload[2]
 		suite.Equal(string(models.DestinationTypeHomeOfRecord), string(*payloadShipment3.DestinationType))
+
+		payloadShipment4 := okResponse.Payload[3]
+		suite.NotNil(payloadShipment4.PpmShipment)
+		suite.Equal(shipments[3].ID.String(), payloadShipment4.PpmShipment.ID.String())
+		suite.Equal(shipments[3].PPMShipment.ID.String(), payloadShipment4.ID.String())
 
 	})
 
