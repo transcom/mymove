@@ -864,7 +864,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
 			// though there can never be more than one GBLOC for a move.
-			gbloc = ghcmessages.GBLOC(move.ShipmentGBLOC[0].GBLOC)
+			if move.ShipmentGBLOC[0].GBLOC != nil {
+				gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
+			}
 		} else {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
@@ -928,6 +930,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 	for i, paymentRequest := range *paymentRequests {
 		moveTaskOrder := paymentRequest.MoveTaskOrder
 		orders := moveTaskOrder.Orders
+		var gbloc ghcmessages.GBLOC
+		if moveTaskOrder.ShipmentGBLOC[0].GBLOC != nil {
+			gbloc = ghcmessages.GBLOC(*moveTaskOrder.ShipmentGBLOC[0].GBLOC)
+		}
 
 		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
 			ID:                 *handlers.FmtUUID(paymentRequest.ID),
@@ -937,7 +943,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			Age:                math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
-			OriginGBLOC:        ghcmessages.GBLOC(moveTaskOrder.ShipmentGBLOC[0].GBLOC),
+			OriginGBLOC:        gbloc,
 			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
 		}
 

@@ -36,7 +36,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
 
 	// Payment Request 1
-	paymentRequest1, err := creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequestArg)
+	paymentRequest1, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
 	// Add a couple of proof of service docs and prime uploads.
@@ -64,7 +64,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 	// Create additional payment request for same shipment
 	// Payment Request 2
 	var paymentRequest2 *models.PaymentRequest
-	paymentRequest2, err = creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequestArg2)
+	paymentRequest2, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg2)
 	suite.FatalNoError(err)
 
 	// Add a couple of proof of service docs and prime uploads.
@@ -148,7 +148,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 	// Setup baseline move/shipment/service items data along with needed rate data.
 	_ /*move*/, paymentRequestArg := suite.setupRecalculateData1()
 
-	paidPaymentRequest, err := creator.CreatePaymentRequest(suite.AppContextForTest(), &paymentRequestArg)
+	paidPaymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
 	suite.T().Run("Fail to find shipment ID", func(t *testing.T) {
