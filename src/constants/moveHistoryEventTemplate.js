@@ -122,7 +122,6 @@ export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
 
     newChangedValues[agentLabel] = agent;
 
-    // merge context with change values for only this event
     return newChangedValues;
   },
 });
@@ -304,7 +303,6 @@ export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
 
     newChangedValues[addressLabel] = address;
 
-    // merge context with change values for only this event
     return newChangedValues;
   },
 });
@@ -341,7 +339,6 @@ export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
 
     newChangedValues[agentLabel] = agent;
 
-    // merge context with change values for only this event
     return newChangedValues;
   },
 });
