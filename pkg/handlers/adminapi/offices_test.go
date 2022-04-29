@@ -2,7 +2,6 @@ package adminapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -18,12 +17,6 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexOfficesHandler() {
-	setupRequest := func() *http.Request {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("GET", "/offices", nil)
-		return suite.AuthenticateUserRequest(req, requestUser)
-	}
-
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
@@ -31,7 +24,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 	suite.Run("integration test ok response", func() {
 		to := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 		params := officeop.IndexOfficesParams{
-			HTTPRequest: setupRequest(),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/offices"),
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficesHandler{
@@ -53,7 +46,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		id, _ := uuid.FromString("d874d002-5582-4a91-97d3-786e8f66c763")
 		office := models.TransportationOffice{ID: id}
 		params := officeop.IndexOfficesParams{
-			HTTPRequest: setupRequest(),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/offices"),
 		}
 		officeListFetcher := &mocks.OfficeListFetcher{}
 		officeListFetcher.On("FetchOfficeList",
@@ -84,7 +77,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 
 	suite.Run("unsuccesful response when fetch fails", func() {
 		params := officeop.IndexOfficesParams{
-			HTTPRequest: setupRequest(),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/offices"),
 		}
 		expectedError := models.ErrFetchNotFound
 		officeListFetcher := &mocks.OfficeListFetcher{}

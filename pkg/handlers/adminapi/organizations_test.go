@@ -2,7 +2,6 @@ package adminapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	organization2 "github.com/transcom/mymove/pkg/services/organization"
@@ -19,17 +18,11 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
-	setupRequest := func() *http.Request {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("GET", "/organizations", nil)
-		return suite.AuthenticateUserRequest(req, requestUser)
-	}
-
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
 		org := testdatagen.MakeDefaultOrganization(suite.DB())
 		params := organization.IndexOrganizationsParams{
-			HTTPRequest: setupRequest(),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/organizations"),
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOrganizationsHandler{
@@ -54,7 +47,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 		id, _ := uuid.FromString("5ce7162a-8d5c-41fc-b0e7-bae726f98fa2")
 		org := models.Organization{ID: id}
 		params := organization.IndexOrganizationsParams{
-			HTTPRequest: setupRequest(),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/organizations"),
 		}
 		organizationListFetcher := &mocks.OrganizationListFetcher{}
 		organizationListFetcher.On("FetchOrganizationList",
@@ -85,7 +78,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 
 	suite.Run("unsuccesful response when fetch fails", func() {
 		params := organization.IndexOrganizationsParams{
-			HTTPRequest: setupRequest(),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/organizations"),
 		}
 		expectedError := models.ErrFetchNotFound
 		organizationListFetcher := &mocks.OrganizationListFetcher{}
