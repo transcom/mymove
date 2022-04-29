@@ -16,7 +16,7 @@ import (
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -318,7 +318,16 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		if errCompile != nil {
 			return errors.Wrap(errCompile, "Error compiling migration")
 		}
-		migrator.Migrations[migration.Direction] = append(migrator.Migrations[migration.Direction], *migration)
+
+		// the custom builder ensures the direction is only up, but
+		// let's have some belts and suspenders and ensure the
+		// migration direction is up
+		switch migration.Direction {
+		case "up":
+			migrator.UpMigrations.Migrations = append(migrator.UpMigrations.Migrations, *migration)
+		default:
+			panic("got unknown migration direction " + migration.Direction)
+		}
 	}
 
 	errSchemaMigrations := migrator.CreateSchemaMigrations()

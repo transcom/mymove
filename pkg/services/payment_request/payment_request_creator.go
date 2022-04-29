@@ -10,7 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 

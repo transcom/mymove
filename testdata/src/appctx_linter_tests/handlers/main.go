@@ -1,6 +1,6 @@
 package handlers
 
-import pop "github.com/gobuffalo/pop/v5"
+import pop "github.com/gobuffalo/pop/v6"
 
 // TestAppContext Test pop connection in struct.
 type TestAppContext struct { // want "Please remove pop.Connection from the struct if not in allowed places. See pkg/appcontext-linter/appctx.go for valid placements."

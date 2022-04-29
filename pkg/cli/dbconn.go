@@ -11,7 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/jmoiron/sqlx"
 	"github.com/luna-duclos/instrumentedsql"
 	"github.com/pkg/errors"
