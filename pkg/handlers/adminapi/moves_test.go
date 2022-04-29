@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -30,12 +29,10 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexMovesHandler() {
-	req := httptest.NewRequest("GET", "/moves", nil)
-
 	suite.Run("integration test ok response", func() {
 		m := testdatagen.MakeDefaultMove(suite.DB())
 		params := moveop.IndexMovesParams{
-			HTTPRequest: req,
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/moves"),
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexMovesHandler{
@@ -54,7 +51,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 	})
 	suite.Run("test failed response", func() {
 		params := moveop.IndexMovesParams{
-			HTTPRequest: req,
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/moves"),
 		}
 		expectedError := models.ErrFetchNotFound
 		moveListFetcher := &mocks.MoveListFetcher{}
@@ -103,18 +100,13 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 			),
 		}
 	}
-	setupRequest := func(move models.Move) *http.Request {
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/moves/%s", move.ID), nil)
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		return suite.AuthenticateUserRequest(req, requestUser)
-	}
-
 	show := true
+
 	// Case: Move is successfully updated
 	suite.Run("200 - OK response", func() {
 		defaultMove := testdatagen.MakeDefaultMove(suite.DB())
 		params := moveop.UpdateMoveParams{
-			HTTPRequest: setupRequest(defaultMove),
+			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/moves/%s", defaultMove.ID)),
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),
 			Move: &adminmessages.MoveUpdatePayload{
 				Show: &show,
@@ -137,7 +129,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 	suite.Run("404 - Move not found", func() {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		params := moveop.UpdateMoveParams{
-			HTTPRequest: setupRequest(models.Move{ID: badUUID}),
+			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/moves/%s", badUUID)),
 			MoveID:      *handlers.FmtUUID(badUUID),
 			Move: &adminmessages.MoveUpdatePayload{
 				Show: &show,
@@ -156,7 +148,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	suite.Run("200 - OK response", func() {
 		defaultMove := testdatagen.MakeDefaultMove(suite.DB())
 		params := moveop.GetMoveParams{
-			HTTPRequest: httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID), nil),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID)),
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),
 		}
 		handler := GetMoveHandler{
@@ -172,9 +164,8 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 	suite.Run("500 - Internal Server Error for No SQL Rows Returned", func() {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
-		badReq := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", badUUID), nil)
 		params := moveop.GetMoveParams{
-			HTTPRequest: badReq,
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/moves/%s", badUUID)),
 			MoveID:      *handlers.FmtUUID(badUUID),
 		}
 

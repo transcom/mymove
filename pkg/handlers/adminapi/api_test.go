@@ -1,7 +1,11 @@
 package adminapi
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -31,6 +35,12 @@ func (hs *HandlerSuite) AfterTest() {
 		// nolint:errcheck
 		file.Data.Close()
 	}
+}
+
+func (hs *HandlerSuite) setupAuthenticatedRequest(method string, url string) *http.Request {
+	requestUser := testdatagen.MakeStubbedUser(hs.DB())
+	req := httptest.NewRequest(method, url, nil)         // We never need to set a body here for these tests, instead
+	return hs.AuthenticateAdminRequest(req, requestUser) // we use the generated Params types to set the request body.
 }
 
 // TestHandlerSuite creates our test suite

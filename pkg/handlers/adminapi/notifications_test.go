@@ -2,7 +2,6 @@ package adminapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 
 	"github.com/stretchr/testify/mock"
 
@@ -17,18 +16,12 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexNotificationsHandler() {
-	setupRequest := func() *http.Request {
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("GET", "/notifications", nil)
-		return suite.AuthenticateAdminRequest(req, requestUser)
-	}
-
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
 		notification0 := testdatagen.MakeDefaultNotification(suite.DB())
 		testdatagen.MakeDefaultNotification(suite.DB())
 		params := notificationsop.IndexNotificationsParams{
-			HTTPRequest: setupRequest(),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/notifications"),
 		}
 
 		queryBuilder := query.NewQueryBuilder()
@@ -51,7 +44,7 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 		queryFilter := mocks.QueryFilter{}
 		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 		params := notificationsop.IndexNotificationsParams{
-			HTTPRequest: setupRequest(),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/notifications"),
 		}
 		expectedError := models.ErrFetchNotFound
 		listFetcher := &mocks.ListFetcher{}
