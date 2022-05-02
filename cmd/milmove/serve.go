@@ -690,6 +690,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// now that we have the appcontext, register telemetry observers
 	telemetry.RegisterDBStatsObserver(appCtx, telemetryConfig)
 	telemetry.RegisterRuntimeObserver(appCtx, telemetryConfig)
+	telemetry.RegisterMilmoveDataObserver(appCtx, telemetryConfig)
 
 	// Create a connection to Redis
 	redisPool, errRedisConnection := cli.InitRedis(appCtx, v)
