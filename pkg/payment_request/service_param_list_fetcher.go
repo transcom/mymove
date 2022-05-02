@@ -35,7 +35,7 @@ func (p *RequestPaymentHelper) FetchServiceParamsForServiceItems(appCtx appconte
 
 	// Get all service item system param keys
 	var serviceParams models.ServiceParams
-	err := appCtx.DB().Q().
+	err := appCtx.DB().EagerPreload("ServiceItemParamKey", "Service").
 		InnerJoin("service_item_param_keys", "service_params.service_item_param_key_id = service_item_param_keys.id").
 		InnerJoin("re_services", "re_services.id = service_params.service_id").
 		Where("origin IN (?)", models.ServiceItemParamOriginSystem, models.ServiceItemParamOriginPrime).
