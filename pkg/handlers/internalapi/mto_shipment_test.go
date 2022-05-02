@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/unit"
 
@@ -609,7 +611,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-	ppmEstimator := ppmshipment.NewEstimatePPM(planner)
+	ppmEstimator := ppmshipment.NewEstimatePPM(planner, &paymentrequesthelper.RequestPaymentHelper{})
 	ppmUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator)
 
 	suite.Run("Successful PATCH - Integration Test", func() {

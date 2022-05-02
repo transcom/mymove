@@ -2,6 +2,7 @@ package ppmshipment
 
 import (
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -16,18 +17,20 @@ import (
 
 // estimatePPM Struct
 type estimatePPM struct {
-	checks  []ppmShipmentValidator
-	planner route.Planner
+	checks               []ppmShipmentValidator
+	planner              route.Planner
+	paymentRequestHelper paymentrequesthelper.Helper
 }
 
 // NewEstimatePPM returns the estimatePPM (pass in checkRequiredFields() and checkEstimatedWeight)
-func NewEstimatePPM(planner route.Planner) services.PPMEstimator {
+func NewEstimatePPM(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper) services.PPMEstimator {
 	return &estimatePPM{
 		checks: []ppmShipmentValidator{
 			checkRequiredFields(),
 			checkEstimatedWeight(),
 		},
-		planner: planner,
+		planner:              planner,
+		paymentRequestHelper: paymentRequestHelper,
 	}
 }
 
@@ -72,12 +75,14 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 }
 
 func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment models.PPMShipment) (*unit.Cents, error) {
+	logger := appCtx.Logger()
+
 	serviceItemsToPrice := f.estimateServiceItems(ppmShipment.ShipmentID)
 
-	paymentHelper := paymentrequesthelper.RequestPaymentHelper{}
 	// Get a unique list of all pricing params needed to calculate the estimate across all service items
-	paramsForServiceItems, err := paymentHelper.FetchDistinctSystemServiceParamList(appCtx, serviceItemsToPrice)
+	paramsForServiceItems, err := f.paymentRequestHelper.FetchDistinctSystemServiceParamList(appCtx, serviceItemsToPrice)
 	if err != nil {
+		logger.Error("fetching distinct PPM estimate ServiceItemParamKeys failed", zap.Error(err))
 		return nil, err
 	}
 
@@ -88,6 +93,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment mo
 	for _, serviceItem := range serviceItemsToPrice {
 		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
+			logger.Error("not able to find pricer for service item", zap.Error(err))
 			return nil, err
 		}
 
@@ -100,6 +106,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment mo
 		var shipmentWithDistance models.MTOShipment
 		err = appCtx.DB().Find(&shipmentWithDistance, mtoShipment.ID)
 		if err != nil {
+			logger.Error("could not find shipment in the database")
 			return nil, err
 		}
 		serviceItem.MTOShipment = shipmentWithDistance
@@ -108,6 +115,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment mo
 		for _, param := range paramsForServiceItems {
 			paramValue, valueErr := keyData.ServiceParamValue(appCtx, param.Key)
 			if valueErr != nil {
+				logger.Error("could not calculate param value lookup", zap.Error(err))
 				return nil, valueErr
 			}
 
@@ -122,8 +130,8 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment mo
 		}
 
 		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues)
-
 		if err != nil {
+			logger.Error("unable to calculate service item price", zap.Error(err))
 			return nil, err
 		}
 
