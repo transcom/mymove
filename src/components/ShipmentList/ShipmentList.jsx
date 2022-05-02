@@ -46,6 +46,7 @@ export const ShipmentListItem = ({
         {shipmentTypes[shipment.shipmentType]}
         {showNumber && ` ${shipmentNumber}`}
       </strong>{' '}
+      <span>Shipment ID:</span>
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
         <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
