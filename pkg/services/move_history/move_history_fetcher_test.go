@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -41,6 +40,16 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 			Move: approvedMove,
 		})
 
+		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOAgent: models.MTOAgent{
+				FirstName:    swag.String("Test1"),
+				LastName:     swag.String("Agent"),
+				Email:        swag.String("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReceiving,
+			},
+			MTOShipment: approvedShipment,
+		})
+
 		// update HHG SAC
 		updateSAC := "23456"
 		approvedMove.Orders.SAC = &updateSAC
@@ -48,18 +57,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		updateDBAuthorizedWeight := 500
 		approvedMove.Orders.Entitlement.DBAuthorizedWeight = &updateDBAuthorizedWeight
 		suite.MustSave(&approvedMove.Orders)
-
-		// update Agent
-		updateAgent := models.MTOAgent{
-			ID:            uuid.Must(uuid.NewV4()),
-			MTOShipmentID: approvedShipment.ID,
-			MTOShipment:   approvedShipment,
-			MTOAgentType:  models.MTOAgentReceiving,
-		}
-		approvedShipment.MTOAgents = models.MTOAgents{
-			updateAgent,
-		}
-		suite.MustSave(updateAgent)
 
 		// update Pickup Address
 		oldAddress := *approvedShipment.PickupAddress
@@ -124,12 +121,10 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 					}
 				}
 			} else if h.TableName == "mto_agents" {
-				if *h.ObjectID == approvedMove.Orders.ID {
-					if h.ChangedData != nil {
-						changedData := removeEscapeJSONtoObject(h.ChangedData)
-						if changedData["agent_type"] == string(models.MTOAgentReceiving) {
-							verifyNewAgent = true
-						}
+				if h.ChangedData != nil {
+					changedData := removeEscapeJSONtoObject(h.ChangedData)
+					if changedData["agent_type"] == string(models.MTOAgentReceiving) {
+						verifyNewAgent = true
 					}
 				}
 			} else if h.TableName == "entitlements" {
