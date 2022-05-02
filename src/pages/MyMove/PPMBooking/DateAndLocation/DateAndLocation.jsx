@@ -8,7 +8,7 @@ import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { DutyLocationShape } from 'types';
 import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
 import { validatePostalCode } from 'utils/validation';
-import { customerRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
@@ -24,9 +24,12 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
   const dispatch = useDispatch();
 
   const isNewShipment = !mtoShipment?.id;
-
   const handleBack = () => {
-    history.goBack();
+    if (isNewShipment) {
+      history.push(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
+    } else {
+      history.push(generalRoutes.HOME_PATH);
+    }
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {

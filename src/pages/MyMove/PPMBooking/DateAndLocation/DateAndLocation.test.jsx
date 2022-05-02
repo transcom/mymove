@@ -4,12 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { generatePath, MemoryRouter } from 'react-router';
 
 import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation';
-import { customerRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 
 const mockPush = jest.fn();
-const mockGoBack = jest.fn();
 
 const mockMoveId = 'move123';
 
@@ -17,7 +16,6 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useHistory: () => ({
     push: mockPush,
-    goBack: mockGoBack,
   }),
   useParams: () => ({
     moveId: mockMoveId,
@@ -92,10 +90,14 @@ describe('DateAndLocation component', () => {
     it('routes back to the new shipment type screen when back is clicked', async () => {
       render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
 
+      const selectShipmentType = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
+        moveId: mockMoveId,
+      });
+
       const backButton = await screen.getByRole('button', { name: 'Back' });
       userEvent.click(backButton);
 
-      expect(mockGoBack).toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
     });
 
     it('calls create shipment endpoint and formats required payload values', async () => {
@@ -243,9 +245,11 @@ describe('DateAndLocation component', () => {
     it('routes back to the home page screen when back is clicked', async () => {
       render(<DateAndLocation {...defaultProps} {...fullShipmentProps} />, { wrapper: MemoryRouter });
 
+      const selectShipmentType = generatePath(generalRoutes.HOME_PATH);
+
       userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
-      expect(mockGoBack).toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
     });
 
     it('displays an error alert when the update shipment fails', async () => {

@@ -22,7 +22,7 @@ const Advance = () => {
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
   const handleBack = () => {
-    history.goBack();
+    history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {

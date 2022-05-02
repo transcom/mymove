@@ -20,7 +20,7 @@ const EstimatedIncentive = () => {
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const shipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const handleBack = () => {
-    history.goBack();
+    history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, { moveId, mtoShipmentId }));
   };
 
   const handleNext = () => {
