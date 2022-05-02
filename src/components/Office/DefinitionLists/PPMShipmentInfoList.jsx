@@ -7,21 +7,21 @@ import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
-import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
-import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
+import { setFlagStyles, setDisplayFlags, getDisplayFlags } from 'utils/displayFlags';
 
 const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing }) => {
   const {
-    requestedPickupDate,
-    pickupAddress,
-    secondaryPickupAddress,
-    destinationAddress,
-    destinationType,
-    displayDestinationType,
-    secondaryDeliveryAddress,
-    agents,
-    counselorRemarks,
-    customerRemarks,
+    advanceRequested,
+    destinationPostalCode,
+    estimatedIncentive,
+    estimatedWeight,
+    expectedDepartureDate,
+    pickupPostalCode,
+    proGearWeight,
+    secondaryDestinationPostalCode,
+    secondaryPickupPostalCode,
+    sitExpected,
+    spouseProGearWeight,
   } = shipment;
 
   setFlagStyles({
@@ -31,83 +31,103 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, null, null, shipment);
 
-  const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
-  const requestedPickupDateElement = (
-    <div className={requestedPickupDateElementFlags.classes}>
-      <dt>Requested pickup date</dt>
-      <dd data-testid="requestedPickupDate">{requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')}</dd>
-    </div>
-  );
-
-  const pickupAddressElementFlags = getDisplayFlags('pickupAddress');
-  const pickupAddressElement = (
-    <div className={pickupAddressElementFlags.classes}>
-      <dt>Origin address</dt>
-      <dd data-testid="pickupAddress">{pickupAddress && formatAddress(pickupAddress)}</dd>
-    </div>
-  );
-
-  const secondaryPickupAddressElementFlags = getDisplayFlags('secondaryPickupAddress');
-  const secondaryPickupAddressElement = (
-    <div className={secondaryPickupAddressElementFlags.classes}>
-      <dt>Second pickup address</dt>
-      <dd data-testid="secondaryPickupAddress">
-        {secondaryPickupAddress ? formatAddress(secondaryPickupAddress) : '—'}
+  const expectedDepartureDateElementFlags = getDisplayFlags('expectedDepartureDate');
+  const expectedDepartureDateElement = (
+    <div className={expectedDepartureDateElementFlags.classes}>
+      <dt>Departure date</dt>
+      <dd data-testid="expectedDepartureDate">
+        {expectedDepartureDate && formatDate(expectedDepartureDate, 'DD MMM YYYY')}
       </dd>
     </div>
   );
 
-  const destinationTypeFlags = getDisplayFlags('destinationType');
-  const destinationTypeElement = (
-    <div className={destinationTypeFlags.classes}>
-      <dt>Destination type</dt>
-      <dd data-testid="destinationType">{destinationType || getMissingOrDash('destinationType')}</dd>
+  const originZIPElementFlags = getDisplayFlags('originZIP');
+  const originZIPElement = (
+    <div className={originZIPElementFlags.classes}>
+      <dt>Origin ZIP</dt>
+      <dd data-testid="originZIP">{pickupPostalCode}</dd>
     </div>
   );
 
-  const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
-  const destinationAddressElement = (
-    <div className={destinationAddressElementFlags.classes}>
-      <dt>Destination address</dt>
-      <dd data-testid="destinationAddress">{formatAddress(destinationAddress)}</dd>
+  const secondOriginZIPElementFlags = getDisplayFlags('secondOriginZIP');
+  const secondOriginZIPElement = (
+    <div className={secondOriginZIPElementFlags.classes}>
+      <dt>Second origin ZIP</dt>
+      <dd data-testid="secondOriginZIP">{secondaryPickupPostalCode}</dd>
     </div>
   );
 
-  const secondaryDeliveryAddressElementFlags = getDisplayFlags('secondaryDeliveryAddress');
-  const secondaryDeliveryAddressElement = (
-    <div className={secondaryDeliveryAddressElementFlags.classes}>
-      <dt>Second destination address</dt>
-      <dd data-testid="secondaryDeliveryAddress">
-        {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
-      </dd>
+  const destinationZIPElementFlags = getDisplayFlags('DestinationZIP');
+  const destinationZIPElement = (
+    <div className={destinationZIPElementFlags.classes}>
+      <dt>Destination ZIP</dt>
+      <dd data-testid="destinationZIP">{destinationPostalCode}</dd>
     </div>
   );
 
-  const agentsElementFlags = getDisplayFlags('agents');
-  const agentsElement = agents
-    ? agents.map((agent) => (
-        <div className={agentsElementFlags.classes} key={`${agent.agentType}-${agent.email}`}>
-          <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
-          <dd data-testid={agent.agentType}>{formatAgent(agent)}</dd>
-        </div>
-      ))
-    : null;
-
-  const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
-  const counselorRemarksElement = (
-    <div className={counselorRemarksElementFlags.classes}>
-      <dt>Counselor remarks</dt>
-      <dd data-testid="counselorRemarks">{counselorRemarks || '—'}</dd>
+  const secondDestinationZIPElementFlags = getDisplayFlags('secondDestinationZIP');
+  const secondDestinationZIPElement = (
+    <div className={secondDestinationZIPElementFlags.classes}>
+      <dt>Second destination ZIP</dt>
+      <dd data-testid="secondDestinationZIP">{secondaryDestinationPostalCode}</dd>
     </div>
   );
 
-  const customerRemarksElementFlags = getDisplayFlags('customerRemarks');
-  const customerRemarksElement = (
-    <div className={customerRemarksElementFlags.classes}>
-      <dt>Customer remarks</dt>
-      <dd data-testid="customerRemarks">{customerRemarks || '—'}</dd>
+  const sitPlannedElementFlags = getDisplayFlags('sitPlanned');
+  const sitPlannedElement = (
+    <div className={sitPlannedElementFlags.classes}>
+      <dt>SIT planned?</dt>
+      <dd data-testid="sitPlanned">{sitExpected ? 'yes' : 'no'}</dd>
     </div>
   );
+
+  const estimatedWeightElementFlags = getDisplayFlags('estimatedWeight');
+  const estimatedWeightElement = (
+    <div className={estimatedWeightElementFlags.classes}>
+      <dt>Estimated weight</dt>
+      <dd data-testid="estimatedWeight">{estimatedWeight}</dd>
+    </div>
+  );
+
+  const proGearWeightElementFlags = getDisplayFlags('proGearWeight');
+  const proGearWeightElement = (
+    <div className={proGearWeightElementFlags.classes}>
+      <dt>Pro-gear</dt>
+      <dd data-testid="proGearWeight">{proGearWeight}</dd>
+    </div>
+  );
+
+  const spouseProGearElementFlags = getDisplayFlags('spouseProGear');
+  const spouseProGearElement = (
+    <div className={spouseProGearElementFlags.classes}>
+      <dt>Spouse pro-gear</dt>
+      <dd data-testid="spouseProGear">{spouseProGearWeight}</dd>
+    </div>
+  );
+
+  const estimatedIncentiveElementFlags = getDisplayFlags('estimatedIncentive');
+  const estimatedIncentiveElement = (
+    <div className={estimatedIncentiveElementFlags.classes}>
+      <dt>Estimated Incentive</dt>
+      <dd data-testid="estimatedIncentive">{estimatedIncentive}</dd>
+    </div>
+  );
+
+  const advanceRequestedElementFlags = getDisplayFlags('advanceRequested');
+  const advanceRequestedElement = (
+    <div className={advanceRequestedElementFlags.classes}>
+      <dt>Advance requested?</dt>
+      <dd data-testid="advanceRequested">{advanceRequested ? 'yes' : 'no'}</dd>
+    </div>
+  );
+
+  // const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
+  // const counselorRemarksElement = (
+  //   <div className={counselorRemarksElementFlags.classes}>
+  //     <dt>Counselor remarks</dt>
+  //     <dd data-testid="counselorRemarks">{counselorRemarks || '—'}</dd>
+  //   </div>
+  // );
 
   return (
     <dl
@@ -118,17 +138,20 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
         styles.compact,
         className,
       )}
-      data-testid="shipment-info-list"
+      data-testid="ppm-shipment-info-list"
     >
-      {requestedPickupDateElement}
-      {pickupAddressElement}
-      {secondaryPickupAddress && secondaryPickupAddressElement}
-      {destinationAddressElement}
-      {displayDestinationType && destinationTypeElement}
-      {secondaryDeliveryAddress && secondaryDeliveryAddressElement}
-      {agents && agentsElement}
-      {counselorRemarksElement}
-      {customerRemarksElement}
+      {expectedDepartureDateElement}
+      {originZIPElement}
+      {secondOriginZIPElement}
+      {destinationZIPElement}
+      {secondDestinationZIPElement}
+      {sitPlannedElement}
+      {estimatedWeightElement}
+      {proGearWeightElement}
+      {spouseProGearElement}
+      {estimatedIncentiveElement}
+      {advanceRequestedElement}
+      {/* {counselorRemarksElement} */}
     </dl>
   );
 };
