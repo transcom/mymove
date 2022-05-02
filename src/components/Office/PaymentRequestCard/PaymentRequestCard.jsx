@@ -254,6 +254,7 @@ PaymentRequestCard.propTypes = {
   hasBillableWeightIssues: bool.isRequired,
   shipmentsInfo: arrayOf(
     shape({
+      id: string,
       mtoShipmentID: string,
       shipmentAddress: node,
       departureDate: string,
