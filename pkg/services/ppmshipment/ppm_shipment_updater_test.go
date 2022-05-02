@@ -21,7 +21,7 @@ func createDefaultPPMShipment() *models.PPMShipment {
 }
 
 func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
-	ppmEstimator := NewEstimatePPM(&mocks.Planner{}, &prhelpermocks.PaymentRequestHelper{})
+	ppmEstimator := NewEstimatePPM(&mocks.Planner{}, &prhelpermocks.Helper{})
 
 	suite.Run("UpdatePPMShipment - Success", func() {
 		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())

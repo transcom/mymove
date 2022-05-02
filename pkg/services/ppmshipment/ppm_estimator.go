@@ -74,15 +74,18 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	return &incentiveNumeric, nil
 }
 
+// calculatePrice returns an estimated incentive value for the ppm shipment as if we were pricing the service items for
+// an HHG shipment with the same values for a payment request.  In this case we're not persisting service items,
+// MTOServiceItems or PaymentRequestServiceItems, to the database to avoid unnecessary work and get a quicker result.
 func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment models.PPMShipment) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
-	serviceItemsToPrice := f.estimateServiceItems(ppmShipment.ShipmentID)
+	serviceItemsToPrice := estimateServiceItems(ppmShipment.ShipmentID)
 
-	// Get a unique list of all pricing params needed to calculate the estimate across all service items
-	paramsForServiceItems, err := f.paymentRequestHelper.FetchDistinctSystemServiceParamList(appCtx, serviceItemsToPrice)
+	// Get a list of all the pricing params needed to calculate the price for each service item
+	paramsForServiceItems, err := f.paymentRequestHelper.FetchServiceParamsForServiceItems(appCtx, serviceItemsToPrice)
 	if err != nil {
-		logger.Error("fetching distinct PPM estimate ServiceItemParamKeys failed", zap.Error(err))
+		logger.Error("fetching PPM estimate ServiceParams failed", zap.Error(err))
 		return nil, err
 	}
 
@@ -97,12 +100,16 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment mo
 			return nil, err
 		}
 
+		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
+		// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
+		// rather than optimizing I think.
 		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(mtoShipment, serviceItem)
 
+		// This is the struct that gets passed to every param lookup() method that was initialized above
 		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment)
 
-		// the distance value gets saved to the mto shipment model to reduce repeated api calls, we'll need to update
-		// our in memory copy for pricers like FSC that try using that value directly.
+		// The distance value gets saved to the mto shipment model to reduce repeated api calls. We'll need to update
+		// our in memory copy for pricers, like FSC, that try using that saved value directly.
 		var shipmentWithDistance models.MTOShipment
 		err = appCtx.DB().Find(&shipmentWithDistance, mtoShipment.ID)
 		if err != nil {
@@ -112,18 +119,24 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment mo
 		serviceItem.MTOShipment = shipmentWithDistance
 
 		var paramValues models.PaymentServiceItemParams
-		for _, param := range paramsForServiceItems {
-			paramValue, valueErr := keyData.ServiceParamValue(appCtx, param.Key)
+		for _, param := range paramsForServiceCode(serviceItem.ReService.Code, paramsForServiceItems) {
+			paramKey := param.ServiceItemParamKey
+			// This is where the lookup() method of each service item param is actually evaluated
+			paramValue, valueErr := keyData.ServiceParamValue(appCtx, paramKey.Key)
 			if valueErr != nil {
 				logger.Error("could not calculate param value lookup", zap.Error(err))
 				return nil, valueErr
 			}
 
+			// Gather all the param values for the service item to pass to the pricer's Price() method
 			paymentServiceItemParam := models.PaymentServiceItemParam{
+				// Some pricers like Fuel Surcharge try to requery the shipment through the service item, this is a
+				// workaround to avoid a not found error because our PPM shipment has no service items saved in the db.
+				// I think the FSC service item should really be relying on one of the zip distance params.
 				PaymentServiceItem: models.PaymentServiceItem{
 					MTOServiceItem: serviceItem,
 				},
-				ServiceItemParamKey: param,
+				ServiceItemParamKey: paramKey,
 				Value:               paramValue,
 			}
 			paramValues = append(paramValues, paymentServiceItemParam)
@@ -141,6 +154,8 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment mo
 	return &totalPrice, nil
 }
 
+// mapPPMShipmentFields remaps our PPMShipment specific information into the fields where the service param lookups
+// expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
 func mapPPMShipmentFields(ppmShipment models.PPMShipment) models.MTOShipment {
 
 	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
@@ -152,7 +167,9 @@ func mapPPMShipmentFields(ppmShipment models.PPMShipment) models.MTOShipment {
 	return ppmShipment.Shipment
 }
 
-func (f estimatePPM) estimateServiceItems(mtoShipmentID uuid.UUID) []models.MTOServiceItem {
+// estimateServiceItems returns a list of the MTOServiceItems that makeup the price of the estimated incentive.  These
+// are the same non-accesorial service items that get auto-created and approved when the TOO approves an HHG shipment.
+func estimateServiceItems(mtoShipmentID uuid.UUID) []models.MTOServiceItem {
 	return []models.MTOServiceItem{
 		{ReService: models.ReService{Code: models.ReServiceCodeDLH}, MTOShipmentID: &mtoShipmentID},
 		{ReService: models.ReService{Code: models.ReServiceCodeFSC}, MTOShipmentID: &mtoShipmentID},
@@ -161,4 +178,16 @@ func (f estimatePPM) estimateServiceItems(mtoShipmentID uuid.UUID) []models.MTOS
 		{ReService: models.ReService{Code: models.ReServiceCodeDPK}, MTOShipmentID: &mtoShipmentID},
 		{ReService: models.ReService{Code: models.ReServiceCodeDUPK}, MTOShipmentID: &mtoShipmentID},
 	}
+}
+
+// paramsForServiceCode filters the list of all service params for service items, to only those matching the service
+// item code.  This allows us to make one initial query to the database instead of six just to filter by service item.
+func paramsForServiceCode(code models.ReServiceCode, serviceParams models.ServiceParams) models.ServiceParams {
+	var serviceItemParams models.ServiceParams
+	for _, serviceParam := range serviceParams {
+		if serviceParam.Service.Code == code {
+			serviceItemParams = append(serviceItemParams, serviceParam)
+		}
+	}
+	return serviceItemParams
 }
