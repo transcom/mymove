@@ -29,6 +29,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
           <Tag>diversion requested</Tag>
         )}
       </div>
+      <h3>Shipment ID: {shipmentInfo.shipmentID}</h3>
       <div className={styles.row}>
         <small>
           {`${shipmentInfo.originCity}, ${shipmentInfo.originState} ${shipmentInfo.originPostalCode} to
