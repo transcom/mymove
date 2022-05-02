@@ -32,9 +32,10 @@ describe('components/Office/ShipmentCustomerSIT', () => {
   });
 
   it('disables Calculate SIT button until all fields filled out', async () => {
+    const onCalculateClick = jest.fn();
     render(
       <Formik initialValues={{}}>
-        <ShipmentCustomerSIT />
+        <ShipmentCustomerSIT onCalculateClick={onCalculateClick} />
       </Formik>,
     );
 
@@ -46,5 +47,16 @@ describe('components/Office/ShipmentCustomerSIT', () => {
     userEvent.type(screen.getByLabelText('Estimated storage end'), '09 May 2022');
 
     await waitFor(() => expect(screen.getByRole('button', { name: 'Calculate SIT' })).toBeEnabled());
+
+    userEvent.click(screen.getByRole('button', { name: 'Calculate SIT' }));
+
+    await waitFor(() =>
+      expect(onCalculateClick).toBeCalledWith({
+        location: 'destination',
+        weight: '5725',
+        start: '02 May 2022',
+        end: '09 May 2022',
+      }),
+    );
   });
 });
