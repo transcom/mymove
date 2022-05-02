@@ -21,7 +21,7 @@ func MakeReDomesticOtherPrice(db *pop.Connection, assertions Assertions) models.
 
 	reService := assertions.ReService
 	if assertions.ReDomesticOtherPrice.Service.ID != uuid.Nil {
-		reService = assertions.ReDomesticServiceAreaPrice.Service
+		reService = assertions.ReDomesticOtherPrice.Service
 	}
 
 	if reService.ID == uuid.Nil {
