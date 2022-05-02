@@ -79,7 +79,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	// third shipment with destination address and type
 	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	destinationType := models.DestinationTypeHomeOfRecord
-	_ = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+	thirdShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -97,6 +97,10 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		MTOServiceItem: models.MTOServiceItem{
 			MTOShipmentID: &mtoShipment.ID,
 		},
+	})
+
+	ppm := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
 	})
 
 	// testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
@@ -138,7 +142,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	})
 
-	subtestData.shipments = models.MTOShipments{mtoShipment, secondShipment}
+	subtestData.shipments = models.MTOShipments{mtoShipment, secondShipment, thirdShipment, ppm.Shipment}
 	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
@@ -171,7 +175,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
-		suite.Len(okResponse.Payload, 3)
+		suite.Len(okResponse.Payload, 4)
 
 		payloadShipment := okResponse.Payload[0]
 		suite.Equal(shipments[0].ID.String(), payloadShipment.ID.String())
@@ -203,6 +207,10 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		payloadShipment3 := okResponse.Payload[2]
 		suite.Equal(string(models.DestinationTypeHomeOfRecord), string(*payloadShipment3.DestinationType))
 
+		payloadShipment4 := okResponse.Payload[3]
+		suite.NotNil(payloadShipment4.PpmShipment)
+		suite.Equal(shipments[3].ID.String(), payloadShipment4.PpmShipment.ShipmentID.String())
+		suite.Equal(shipments[3].PPMShipment.ID.String(), payloadShipment4.PpmShipment.ID.String())
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {

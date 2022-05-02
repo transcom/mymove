@@ -157,7 +157,6 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 			eTag := params.IfMatch
-			appCtx.Logger().Info("primeapi.UpdateMTOPostCounselingInformationHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
 			mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, mtoID)
 
@@ -174,7 +173,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 					handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", mtoID), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(appCtx, mtoID, params.Body, eTag)
+			mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(appCtx, mtoID, eTag)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
 				switch e := err.(type) {
@@ -184,6 +183,9 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 				case apperror.PreconditionFailedError:
 					return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed().WithPayload(
 						payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.ConflictError:
+					return movetaskorderops.NewUpdateMTOPostCounselingInformationConflict().WithPayload(
+						payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.InvalidInputError:
 					return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
 						payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err

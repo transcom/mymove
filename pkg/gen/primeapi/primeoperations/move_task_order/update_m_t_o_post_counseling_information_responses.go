@@ -189,6 +189,50 @@ func (o *UpdateMTOPostCounselingInformationNotFound) WriteResponse(rw http.Respo
 	}
 }
 
+// UpdateMTOPostCounselingInformationConflictCode is the HTTP code returned for type UpdateMTOPostCounselingInformationConflict
+const UpdateMTOPostCounselingInformationConflictCode int = 409
+
+/*UpdateMTOPostCounselingInformationConflict The request could not be processed because of conflict in the current state of the resource.
+
+swagger:response updateMTOPostCounselingInformationConflict
+*/
+type UpdateMTOPostCounselingInformationConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ClientError `json:"body,omitempty"`
+}
+
+// NewUpdateMTOPostCounselingInformationConflict creates UpdateMTOPostCounselingInformationConflict with default headers values
+func NewUpdateMTOPostCounselingInformationConflict() *UpdateMTOPostCounselingInformationConflict {
+
+	return &UpdateMTOPostCounselingInformationConflict{}
+}
+
+// WithPayload adds the payload to the update m t o post counseling information conflict response
+func (o *UpdateMTOPostCounselingInformationConflict) WithPayload(payload *primemessages.ClientError) *UpdateMTOPostCounselingInformationConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o post counseling information conflict response
+func (o *UpdateMTOPostCounselingInformationConflict) SetPayload(payload *primemessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMTOPostCounselingInformationConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateMTOPostCounselingInformationPreconditionFailedCode is the HTTP code returned for type UpdateMTOPostCounselingInformationPreconditionFailed
 const UpdateMTOPostCounselingInformationPreconditionFailedCode int = 412
 
