@@ -47,14 +47,12 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 	}
 
 	setupPricerData := func() {
-		ghcDieselFuelPrice := models.GHCDieselFuelPrice{
-			FuelPriceInMillicents: unit.Millicents(281400),
-			PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
-		}
-		err := suite.DB().Save(&ghcDieselFuelPrice)
-		if err != nil {
-			suite.Fail("failed to save GHC Diesel Fuel Price setup data to database")
-		}
+		testdatagen.MakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
+			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
+				FuelPriceInMillicents: unit.Millicents(281400),
+				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
+			},
+		})
 
 		originDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
@@ -130,83 +128,53 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			},
 		})
 
-		dopServiceItem := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReContract:            originDomesticServiceArea.Contract,
+			ReDomesticServiceArea: originDomesticServiceArea,
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDOP,
 			},
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				IsPeakPeriod: false,
+				PriceCents:   unit.Cents(404),
+			},
 		})
 
-		ddpServiceItem := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReContract:            destDomesticServiceArea.Contract,
+			ReDomesticServiceArea: destDomesticServiceArea,
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDDP,
 			},
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				IsPeakPeriod: false,
+				PriceCents:   unit.Cents(832),
+			},
 		})
 
-		dopDomesticServiceAreaPrice := models.ReDomesticServiceAreaPrice{
-			ContractID:            originDomesticServiceArea.ContractID,
-			DomesticServiceAreaID: originDomesticServiceArea.ID,
-			Service:               dopServiceItem,
-			ServiceID:             dopServiceItem.ID,
-			IsPeakPeriod:          false,
-			PriceCents:            unit.Cents(404),
-		}
-
-		err = suite.DB().Save(&dopDomesticServiceAreaPrice)
-		if err != nil {
-			suite.Fail("failed to save DOP Domestic Service Area Price setup data to database")
-		}
-
-		ddpDomesticServiceAreaPrice := models.ReDomesticServiceAreaPrice{
-			ContractID:            destDomesticServiceArea.ContractID,
-			DomesticServiceAreaID: destDomesticServiceArea.ID,
-			Service:               ddpServiceItem,
-			ServiceID:             ddpServiceItem.ID,
-			IsPeakPeriod:          false,
-			PriceCents:            unit.Cents(832),
-		}
-
-		err = suite.DB().Save(&ddpDomesticServiceAreaPrice)
-		if err != nil {
-			suite.Fail("failed to save DDP Domestic Service Area Price setup data to database")
-		}
-
-		dpkServiceItem := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReContract: originDomesticServiceArea.Contract,
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDPK,
 			},
-		})
-
-		dupkServiceItem := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDUPK,
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				IsPeakPeriod: false,
+				Schedule:     3,
+				PriceCents:   7395,
 			},
 		})
 
-		dpkDomesticOtherPrice := models.ReDomesticOtherPrice{
-			ContractID:   originDomesticServiceArea.ContractID,
-			ServiceID:    dpkServiceItem.ID,
-			IsPeakPeriod: false,
-			Schedule:     3,
-			PriceCents:   7395,
-		}
-
-		err = suite.DB().Save(&dpkDomesticOtherPrice)
-		if err != nil {
-			suite.Fail("failed to save DPK Domestic Other Price setup data to database")
-		}
-
-		dupkDomesticOtherPrice := models.ReDomesticOtherPrice{
-			ContractID:   destDomesticServiceArea.ContractID,
-			ServiceID:    dupkServiceItem.ID,
-			IsPeakPeriod: false,
-			Schedule:     2,
-			PriceCents:   597,
-		}
-
-		err = suite.DB().Save(&dupkDomesticOtherPrice)
-		if err != nil {
-			suite.Fail("failed to save DUPK Domestic Other Price setup data to database")
-		}
+		testdatagen.MakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReContract: destDomesticServiceArea.Contract,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDUPK,
+			},
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				IsPeakPeriod: false,
+				Schedule:     2,
+				PriceCents:   597,
+			},
+		})
 	}
 
 	suite.Run("Estimated Incentive - Success", func() {
