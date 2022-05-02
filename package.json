@@ -20,7 +20,7 @@
     "filepond-polyfill": "^1.0.2",
     "formik": "^2.2.9",
     "history": "^4.10.1",
-    "http-proxy-middleware": "^2.0.1",
+    "http-proxy-middleware": "^2.0.6",
     "is-mobile": "3.0.0",
     "jest-canvas-mock": "^2.3.1",
     "js-cookie": "^3.0.1",
