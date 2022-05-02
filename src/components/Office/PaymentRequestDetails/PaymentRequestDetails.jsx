@@ -112,6 +112,7 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus, t
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
               {modificationType && <ShipmentModificationTag shipmentModificationType={modificationType} />}
             </h3>
+            <h4>Shipment ID: {shipment.id}</h4>
           </div>
           <div>
             <p>
@@ -174,6 +175,7 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus, t
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
   shipment: PropTypes.shape({
+    id: PropTypes.string,
     address: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     modificationType: PropTypes.oneOfType([
       PropTypes.string,
@@ -193,6 +195,7 @@ PaymentRequestDetails.propTypes = {
 
 PaymentRequestDetails.defaultProps = {
   shipment: {
+    id: '',
     departureDate: '',
     address: '',
     modificationType: '',
