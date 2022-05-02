@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/go-logr/zapr"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
@@ -53,6 +54,14 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		logger.Info("opentelemetry not enabled")
 		return shutdown
 	}
+
+	// convert our zap logger to the go-logr interface expected by otel
+	otel.SetLogger(zapr.NewLogger(logger))
+
+	// explicitly set error handler
+	otel.SetErrorHandler(otel.ErrorHandlerFunc(func(err error) {
+		logger.Error("opentelemetry error", zap.Error(err))
+	}))
 
 	var spanExporter sdktrace.SpanExporter
 	var metricExporter sdkmetric.Exporter
