@@ -1,79 +1,137 @@
 package ppmshipment
 
 import (
-	"testing"
-	"time"
+	"fmt"
 
-	"github.com/transcom/mymove/pkg/services"
+	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type createShipmentSubtestData struct {
-	move               models.Move
-	newPPMShipment     *models.PPMShipment
-	ppmShipmentCreator services.PPMShipmentCreator
-}
-
-func (suite *PPMShipmentSuite) createSubtestData() (subtestData *createShipmentSubtestData) {
-	// Create new move
-	subtestData = &createShipmentSubtestData{}
-
-	subtestData.ppmShipmentCreator = NewPPMShipmentCreator()
-
-	subtestData.move = testdatagen.MakeDefaultMove(suite.DB())
-
-	mtoShipment := testdatagen.MakeBaseMTOShipment(suite.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			MoveTaskOrderID: subtestData.move.ID,
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusDraft,
-		},
-	})
-
-	// Create a valid ppm shipment associated with a move
-	subtestData.newPPMShipment = &models.PPMShipment{
-		ShipmentID: mtoShipment.ID,
-		Shipment:   mtoShipment,
-	}
-
-	return subtestData
-}
-
 func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
-	suite.T().Run("CreatePPMShipment - Success", func(t *testing.T) {
+	// One-time test setup
+	ppmShipmentCreator := NewPPMShipmentCreator()
+
+	type createShipmentSubtestData struct {
+		move           models.Move
+		newPPMShipment *models.PPMShipment
+	}
+
+	// createSubtestData - Sets up objects/data that need to be set up on a per-test basis.
+	createSubtestData := func(appCtx appcontext.AppContext, assertions testdatagen.Assertions) (subtestData *createShipmentSubtestData) {
+		subtestData = &createShipmentSubtestData{}
+
+		subtestData.move = testdatagen.MakeMove(appCtx.DB(), assertions)
+
+		fullAssertions := testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrderID: subtestData.move.ID,
+				ShipmentType:    models.MTOShipmentTypePPM,
+				Status:          models.MTOShipmentStatusDraft,
+			},
+		}
+
+		testdatagen.MergeModels(&fullAssertions, assertions)
+
+		mtoShipment := testdatagen.MakeBaseMTOShipment(appCtx.DB(), fullAssertions)
+
+		// Initialize a valid PPMShipment properly with the MTOShipment
+		subtestData.newPPMShipment = &models.PPMShipment{
+			ShipmentID: mtoShipment.ID,
+			Shipment:   mtoShipment,
+		}
+
+		testdatagen.MergeModels(subtestData.newPPMShipment, assertions.PPMShipment)
+
+		return subtestData
+	}
+
+	suite.Run("Can successfully create a PPMShipment", func() {
 		// Under test:	CreatePPMShipment
 		// Set up:		Established valid shipment and valid new PPM shipment
 		// Expected:	New PPM shipment successfully created
+		appCtx := suite.AppContextForTest()
 
-		// Set required fields to their pointer values:
-		subtestData := suite.createSubtestData()
-		subtestData.newPPMShipment.ExpectedDepartureDate = time.Now()
-		subtestData.newPPMShipment.PickupPostalCode = "90909"
-		subtestData.newPPMShipment.DestinationPostalCode = "90905"
-		subtestData.newPPMShipment.SitExpected = models.BoolPointer(false)
+		// Set required fields for PPMShipment
+		subtestData := createSubtestData(appCtx, testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+				PickupPostalCode:      "90909",
+				DestinationPostalCode: "90905",
+				SitExpected:           models.BoolPointer(false),
+			},
+		})
 
-		createdPPMShipment, err := subtestData.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), subtestData.newPPMShipment)
+		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
 		suite.Nil(err)
 		suite.NotNil(createdPPMShipment)
 	})
 
-	// InvalidInputError
-	suite.T().Run("Returns an InvalidInputError if MTOShipment type is not PPM", func(t *testing.T) {
-		subtestData := suite.createSubtestData()
+	var invalidInputTests = []struct {
+		name             string
+		assertions       testdatagen.Assertions
+		expectedErrorMsg string
+	}{
+		{
+			"MTOShipment type is not PPM",
+			testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
+			},
+			"MTO shipment type must be PPM shipment",
+		},
+		{
+			"MTOShipment is not a draft shipment",
+			testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+			"Must have a DRAFT status associated with MTO shipment",
+		},
+		{
+			"missing MTOShipment ID",
+			testdatagen.Assertions{PPMShipment: models.PPMShipment{
+				ShipmentID: uuid.Nil,
+			}},
+			"Invalid input found while validating the PPM shipment.",
+		},
+		{
+			"already has a PPMShipment ID",
+			testdatagen.Assertions{PPMShipment: models.PPMShipment{
+				ID: uuid.Must(uuid.NewV4()),
+			}},
+			"Invalid input found while validating the PPM shipment.",
+		},
+		{
+			"missing a required field",
+			testdatagen.Assertions{}, // Passing in blank assertions, leaving out required fields.
+			"Invalid input found while validating the PPM shipment.",
+		},
+	}
 
-		subtestData.newPPMShipment.Shipment.ShipmentType = models.MTOShipmentTypeHHG
+	for _, tt := range invalidInputTests {
+		tt := tt
 
-		createdPPMShipment, err := subtestData.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), subtestData.newPPMShipment)
+		suite.Run(fmt.Sprintf("Returns an InvalidInputError if %s", tt.name), func() {
+			appCtx := suite.AppContextForTest()
 
-		suite.Error(err)
-		suite.Nil(createdPPMShipment)
-		suite.IsType(apperror.InvalidInputError{}, err)
-		suite.Equal("MTO shipment type must be PPM shipment", err.Error())
-	})
+			subtestData := createSubtestData(appCtx, tt.assertions)
+
+			createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
+
+			suite.Error(err)
+			suite.Nil(createdPPMShipment)
+
+			suite.IsType(apperror.InvalidInputError{}, err)
+
+			suite.Equal(tt.expectedErrorMsg, err.Error())
+		})
+	}
 }
