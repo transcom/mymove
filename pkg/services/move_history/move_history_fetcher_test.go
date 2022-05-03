@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 )
@@ -430,6 +431,45 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
+	})
+
+	suite.T().Run("approved payment request shows up", func(t *testing.T) {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		cents := unit.Cents(1000)
+		approvedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPending,
+			},
+			Move: approvedMove,
+		})
+
+		testServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: approvedMove,
+		})
+
+		paymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Name: "Test",
+			},
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status:     models.PaymentServiceItemStatusRequested,
+				PriceCents: &cents,
+			},
+			PaymentRequest: approvedPaymentRequest,
+			MTOServiceItem: testServiceItem,
+		})
+
+		approvedPaymentRequest.Status = models.PaymentRequestStatusReviewed
+		suite.MustSave(&approvedPaymentRequest)
+		paymentServiceItem.Status = models.PaymentServiceItemStatusApproved
+		suite.MustSave(&paymentServiceItem)
+
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+		contextValue := *moveHistoryData.AuditHistories[0].Context
+		suite.Contains(contextValue, "APPROVED")
 	})
 
 	suite.T().Run("has audit history records for reweighs", func(t *testing.T) {
