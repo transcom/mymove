@@ -2,22 +2,21 @@ package telemetry
 
 import (
 	"context"
+	"sync"
+	"time"
 
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/instrument"
-	"go.opentelemetry.io/otel/metric/instrument/asyncint64"
 
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 )
 
-const milmoveDataTelemetryVersion = "0.1"
-
-type tableStatGauge struct {
-	liveGauge asyncint64.Gauge
-	deadGauge asyncint64.Gauge
+type tableStatMetrics struct {
+	liveTuples instrument.Int64ObservableGauge
+	deadTuples instrument.Int64ObservableGauge
 }
 
 type pgStatLiveDead struct {
@@ -40,81 +39,110 @@ type pgStatLiveDead struct {
 const liveDeadQuery = `
 SELECT relname, n_live_tup, n_dead_tup
 FROM pg_stat_user_tables
+ORDER BY relname
 `
 
-func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Meter) {
+func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Meter) error {
+
+	// this should be configurable
+	const minDuration = time.Second * 60
+
+	var lock sync.Mutex
 
 	// do the query once at register time to get the list of tables
 	// and create the gauges
 
+	// lock prevents a race between batch observer and instrument registration.
+	lock.Lock()
+	defer lock.Unlock()
+
 	allStats := []pgStatLiveDead{}
+
 	err := appCtx.DB().RawQuery(liveDeadQuery).All(&allStats)
 	if err != nil {
-		appCtx.Logger().Fatal("Cannot get initial list of tables for table stats", zap.Error(err))
-		return
+		appCtx.Logger().Error("Cannot get initial list of tables for table stats", zap.Error(err))
+		return err
 	}
-	tableNameGaugeMap := make(map[string]tableStatGauge)
+	tableNameMetricMap := make(map[string]tableStatMetrics)
 	tableAllInstruments := []instrument.Asynchronous{}
 
 	for i := range allStats {
 		tableName := allStats[i].TableName
-		liveGaugeName := "milmovedata." + tableName + ".live"
-		liveGaugeDesc := "The total number of live tuples in the " + tableName + " table"
+		liveMetricName := tableName + ".live"
+		liveMetricDesc := "The total number of live tuples in the " + tableName + " table"
 
-		deadGaugeName := "milmovedata." + tableName + ".dead"
-		deadGaugeDesc := "The total number of dead tuples in the " + tableName + " table"
-		liveGauge, lerr := meter.AsyncInt64().Gauge(liveGaugeName, instrument.WithDescription(liveGaugeDesc))
+		deadMetricName := tableName + ".dead"
+		deadMetricDesc := "The total number of dead tuples in the " + tableName + " table"
+		liveTuples, lerr := meter.Int64ObservableGauge(
+			liveMetricName,
+			instrument.WithDescription(liveMetricDesc),
+		)
 		if lerr != nil {
-			appCtx.Logger().Error("Error creating live guage", zap.Any("liveGauge", liveGaugeName), zap.Error(lerr))
-			continue
+			appCtx.Logger().Error("Error creating live counter", zap.Any("liveCounter", liveMetricName), zap.Error(lerr))
+			return lerr
 		}
-		deadGauge, derr := meter.AsyncInt64().Gauge(deadGaugeName, instrument.WithDescription(deadGaugeDesc))
+		deadTuples, derr := meter.Int64ObservableGauge(
+			deadMetricName,
+			instrument.WithDescription(deadMetricDesc),
+		)
 		if derr != nil {
-			appCtx.Logger().Error("Error creating dead guage", zap.Any("deadGauge", deadGaugeName), zap.Error(derr))
-			continue
+			appCtx.Logger().Error("Error creating dead counter", zap.Any("deadCounter", deadMetricName), zap.Error(derr))
+			return derr
 		}
-		tableNameGaugeMap[tableName] = tableStatGauge{
-			liveGauge: liveGauge,
-			deadGauge: deadGauge,
+		tableNameMetricMap[tableName] = tableStatMetrics{
+			liveTuples: liveTuples,
+			deadTuples: deadTuples,
 		}
-		tableAllInstruments = append(tableAllInstruments, liveGauge)
-		tableAllInstruments = append(tableAllInstruments, deadGauge)
+		tableAllInstruments = append(tableAllInstruments, liveTuples)
+		tableAllInstruments = append(tableAllInstruments, deadTuples)
 	}
 
-	err = meter.RegisterCallback(tableAllInstruments,
-		func(ctx context.Context) {
+	lastStats := time.Now()
+	_, err = meter.RegisterCallback(
+		func(ctx context.Context, observer metric.Observer) error {
+			lock.Lock()
+			defer lock.Unlock()
+
+			now := time.Now()
+
+			// round to nearest second
+			diff := now.Sub(lastStats).Round(time.Second)
+			if diff < minDuration {
+				appCtx.Logger().Warn("Skipping data telemetry update")
+				return nil
+			}
 
 			allStats := []pgStatLiveDead{}
 			aerr := appCtx.DB().RawQuery(liveDeadQuery).All(&allStats)
 			if aerr != nil {
 				appCtx.Logger().Fatal("Cannot get live/dead stats", zap.Error(aerr))
-				return
+				return aerr
 			}
 
 			for i := range allStats {
 				tableName := allStats[i].TableName
-				tableNameGaugeMap[tableName].liveGauge.Observe(ctx, allStats[i].LiveTupleCount)
-				tableNameGaugeMap[tableName].deadGauge.Observe(ctx, allStats[i].DeadTupleCount)
+				observer.ObserveInt64(tableNameMetricMap[tableName].liveTuples, allStats[i].LiveTupleCount)
+				observer.ObserveInt64(tableNameMetricMap[tableName].deadTuples, allStats[i].DeadTupleCount)
 			}
 
-		})
+			lastStats = now
+			return nil
+		}, tableAllInstruments...)
 
-	if err != nil {
-		appCtx.Logger().Fatal("Failed to register live/dead callback", zap.Error(err))
-	}
+	return err
 
 }
 
-func RegisterMilmoveDataObserver(appCtx appcontext.AppContext, config *Config) {
+func RegisterMilmoveDataObserver(appCtx appcontext.AppContext, config *Config) error {
 	if !config.Enabled {
-		return
+		return nil
 	}
 
 	meterProvider := global.MeterProvider()
 
 	milmoveDataMeter := meterProvider.Meter("github.com/transcom/mymove/data",
-		metric.WithInstrumentationVersion(milmoveDataTelemetryVersion))
+		metric.WithInstrumentationVersion("0.4"))
 
-	registerTableLiveDeadCallback(appCtx, milmoveDataMeter)
+	return registerTableLiveDeadCallback(appCtx, milmoveDataMeter)
 
 }

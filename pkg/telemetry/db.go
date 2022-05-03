@@ -2,11 +2,12 @@ package telemetry
 
 import (
 	"context"
+	"sync"
+	"time"
 
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/instrument"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/stats"
@@ -32,9 +33,12 @@ const dbTelemetryVersion = "0.1"
 
 // RegisterDBStatsObserver creates a custom metric that is updated
 // automatically using an observer
-func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) {
+func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) error {
+	// this should be configurable
+	const minDuration = time.Second * 15
+
 	if !config.Enabled {
-		return
+		return nil
 	}
 
 	meterProvider := global.MeterProvider()
@@ -42,49 +46,43 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) {
 	dbMeter := meterProvider.Meter("github.com/transcom/mymove/db",
 		metric.WithInstrumentationVersion(dbTelemetryVersion))
 
-	poolInUse, _ := dbMeter.Int64ObservableUpDownCounter(dbPoolInUseName, instrument.WithDescription(dbPoolInUseDesc))
+	// lock prevents a race between batch observer and instrument registration.
+	var lock sync.Mutex
 
-	_, err := dbMeter.RegisterCallback(
+	lock.Lock()
+	defer lock.Unlock()
+
+	poolInUse, err := dbMeter.Int64ObservableUpDownCounter(dbPoolInUseName, instrument.WithDescription(dbPoolInUseDesc))
+	if err != nil {
+		return err
+	}
+
+	poolIdle, err := dbMeter.Int64ObservableUpDownCounter(dbPoolIdleName, instrument.WithDescription(dbPoolIdleDesc))
+	if err != nil {
+		return err
+	}
+
+	dbWait, err := dbMeter.Int64ObservableUpDownCounter(dbWaitDurationName, instrument.WithDescription(dbWaitDurationDesc))
+	if err != nil {
+		return err
+	}
+
+	_, err = dbMeter.RegisterCallback(
 		func(ctx context.Context, observer metric.Observer) error {
+			lock.Lock()
+			defer lock.Unlock()
 			dbStats, dberr := stats.DBStats(appCtx)
 			if dberr == nil {
 				observer.ObserveInt64(poolInUse, int64(dbStats.InUse))
-			}
-			return dberr
-		}, poolInUse)
-
-	if err != nil {
-		appCtx.Logger().Fatal("Failed to start db instrumentation", zap.Error(err))
-	}
-
-	poolIdle, _ := dbMeter.Int64ObservableUpDownCounter(dbPoolIdleName, instrument.WithDescription(dbPoolIdleDesc))
-
-	_, err = dbMeter.RegisterCallback(
-		func(ctx context.Context, observer metric.Observer) error {
-			dbStats, dberr := stats.DBStats(appCtx)
-			if dberr == nil {
 				observer.ObserveInt64(poolIdle, int64(dbStats.Idle))
-			}
-			return dberr
-		}, poolIdle)
-
-	if err != nil {
-		appCtx.Logger().Fatal("Failed to start db instrumentation", zap.Error(err))
-	}
-
-	dbWait, _ := dbMeter.Int64ObservableUpDownCounter(dbWaitDurationName, instrument.WithDescription(dbWaitDurationDesc))
-
-	_, err = dbMeter.RegisterCallback(
-		func(ctx context.Context, observer metric.Observer) error {
-			dbStats, dberr := stats.DBStats(appCtx)
-			if dberr == nil {
 				observer.ObserveInt64(dbWait, int64(dbStats.WaitDuration))
 			}
 			return dberr
-		}, dbWait)
+		}, poolInUse, poolIdle, dbWait)
 
 	if err != nil {
-		appCtx.Logger().Fatal("Failed to start db instrumentation", zap.Error(err))
+		return err
 	}
 
+	return nil
 }
