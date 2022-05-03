@@ -21,6 +21,12 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
       );
     case detailsTypes.PAYMENT:
       return <PaymentDetails context={historyRecord.context} />;
+    case detailsTypes.STATUS:
+      return (
+        <div>
+          <b>Status</b>: {eventTemplate.getStatusDetails()}
+        </div>
+      );
     case detailsTypes.PLAIN_TEXT:
     default:
       return <div>{eventTemplate.getDetailsPlainText(historyRecord)}</div>;
