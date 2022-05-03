@@ -12,6 +12,8 @@ const {
   createBasicServiceItemEvent,
   updateOrderEvent,
   requestShipmentReweighEvent,
+  createPaymentRequestReweighUpdate,
+  createPaymentRequestShipmentUpdate,
 } = require('./moveHistoryEventTemplate');
 
 const { detailsTypes } = require('constants/moveHistoryEventTemplate');
@@ -235,6 +237,32 @@ describe('moveHistoryEventTemplate', () => {
         old_duty_location_name: 'old name',
         new_duty_location_name: 'new name',
       });
+    });
+  });
+
+  describe('when given a payment request is created through reweigh', () => {
+    const item = {
+      action: 'INSERT',
+      eventName: 'updateReweigh',
+      tableName: 'payment_requests',
+    };
+    it('correctly matches the Request shipment reweigh event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(createPaymentRequestReweighUpdate);
+      expect(result.getStatusDetails(item)).toEqual('Pending');
+    });
+  });
+
+  describe('when given a payment request is created through shipment update', () => {
+    const item = {
+      action: 'INSERT',
+      eventName: 'updateMTOShipment',
+      tableName: 'payment_requests',
+    };
+    it('correctly matches the Request shipment reweigh event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(createPaymentRequestShipmentUpdate);
+      expect(result.getStatusDetails(item)).toEqual('Pending');
     });
   });
 });

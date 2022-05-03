@@ -128,6 +128,7 @@ export default function ReviewBillableWeight() {
         ifMatchETag: order.eTag,
         body: {
           authorizedWeight: Number(formValues.billableWeight),
+          tioRemarks: formValues.billableWeightJustification,
         },
       };
       const movePayload = {

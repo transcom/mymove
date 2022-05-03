@@ -10,6 +10,7 @@ export const detailsTypes = {
   LABELED: 'LABELED',
   LABELED_SHIPMENT: 'LABELED_SHIPMENT',
   PAYMENT: 'PAYMENT',
+  STATUS: 'STATUS',
 };
 
 const buildMoveHistoryEventTemplate = ({
@@ -23,6 +24,9 @@ const buildMoveHistoryEventTemplate = ({
   getDetailsPlainText = () => {
     return 'Undefined details';
   },
+  getStatusDetails = () => {
+    return 'Undefined status';
+  },
   getDetailsLabeledDetails = null,
 }) => {
   const eventType = {};
@@ -32,6 +36,7 @@ const buildMoveHistoryEventTemplate = ({
   eventType.detailsType = detailsType;
   eventType.getEventNameDisplay = getEventNameDisplay;
   eventType.getDetailsPlainText = getDetailsPlainText;
+  eventType.getStatusDetails = getStatusDetails;
   eventType.getDetailsLabeledDetails = getDetailsLabeledDetails;
 
   eventType.matches = (other) => {
@@ -252,6 +257,28 @@ export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
   getEventNameDisplay: () => 'Submitted payment request',
 });
 
+export const createPaymentRequestReweighUpdate = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.updateReweigh,
+  tableName: 'payment_requests',
+  detailsType: detailsTypes.STATUS,
+  getEventNameDisplay: () => 'Created payment request',
+  getStatusDetails: () => {
+    return 'Pending';
+  },
+});
+
+export const createPaymentRequestShipmentUpdate = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'payment_requests',
+  detailsType: detailsTypes.STATUS,
+  getEventNameDisplay: () => 'Created payment request',
+  getStatusDetails: () => {
+    return 'Pending';
+  },
+});
+
 export const updateOrderEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: '*',
@@ -309,6 +336,8 @@ const allMoveHistoryEventTemplates = [
   updatePaymentRequestStatus,
   updateBillableWeightEvent,
   updateAllowanceEvent,
+  createPaymentRequestReweighUpdate,
+  createPaymentRequestShipmentUpdate,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {

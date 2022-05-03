@@ -24,6 +24,7 @@ const moveHistoryOperations = {
   uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
   updateBillableWeight: 'updateBillableWeight',
+  updateReweigh: 'updateReweigh',
 };
 
 export default moveHistoryOperations;

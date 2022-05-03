@@ -8,6 +8,8 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
+	testing "testing"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -101,4 +103,14 @@ func (_m *ExcessWeightRiskManager) UpdateMaxBillableWeightAsTIO(appCtx appcontex
 	}
 
 	return r0, r1, r2
+}
+
+// NewExcessWeightRiskManager creates a new instance of ExcessWeightRiskManager. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewExcessWeightRiskManager(t testing.TB) *ExcessWeightRiskManager {
+	mock := &ExcessWeightRiskManager{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }
