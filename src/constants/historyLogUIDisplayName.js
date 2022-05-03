@@ -57,6 +57,7 @@ export const dbFieldToDisplayName = {
   required_medical_equipment_weight: 'RME',
   organizational_clothing_and_individual_equipment: 'OCIE',
   grade: 'Rank',
+  shipment_type: 'Shipment type',
 };
 
 export const dbWeightFields = [
