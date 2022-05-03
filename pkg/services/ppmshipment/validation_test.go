@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -108,6 +109,58 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 
 		// Check if new fields are updated
 		suite.Equal(*newPPMShipment.ProGearWeight, *mergedPPMShipment.ProGearWeight)
+	})
+
+	suite.Run("Can remove advance", func() {
+		oldPPM := models.PPMShipment{
+			ID:                    uuid.Must(uuid.NewV4()),
+			ShipmentID:            uuid.Must(uuid.NewV4()),
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+			PickupPostalCode:      "79912",
+			DestinationPostalCode: "90909",
+			SitExpected:           models.BoolPointer(false),
+			EstimatedWeight:       models.PoundPointer(4000),
+			HasProGear:            models.BoolPointer(true),
+			ProGearWeight:         models.PoundPointer(1000),
+			SpouseProGearWeight:   models.PoundPointer(0),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			AdvanceRequested:      models.BoolPointer(true),
+			Advance:               models.CentPointer(unit.Cents(300000)),
+		}
+
+		newPPM := models.PPMShipment{
+			AdvanceRequested: models.BoolPointer(false),
+		}
+
+		mergedPPMShipment := mergePPMShipment(newPPM, &oldPPM)
+
+		suite.Equal(*newPPM.AdvanceRequested, *mergedPPMShipment.AdvanceRequested)
+		suite.Nil(mergedPPMShipment.Advance)
+	})
+
+	suite.Run("Can remove pro grear", func() {
+		oldPPM := models.PPMShipment{
+			ID:                    uuid.Must(uuid.NewV4()),
+			ShipmentID:            uuid.Must(uuid.NewV4()),
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+			PickupPostalCode:      "79912",
+			DestinationPostalCode: "90909",
+			SitExpected:           models.BoolPointer(false),
+			EstimatedWeight:       models.PoundPointer(4000),
+			HasProGear:            models.BoolPointer(true),
+			ProGearWeight:         models.PoundPointer(1000),
+			SpouseProGearWeight:   models.PoundPointer(0),
+		}
+
+		newPPM := models.PPMShipment{
+			HasProGear: models.BoolPointer(false),
+		}
+
+		mergedPPMShipment := mergePPMShipment(newPPM, &oldPPM)
+
+		suite.Equal(*newPPM.HasProGear, *mergedPPMShipment.HasProGear)
+		suite.Nil(mergedPPMShipment.ProGearWeight)
+		suite.Nil(mergedPPMShipment.SpouseProGearWeight)
 	})
 
 	suite.Run("Passing nil to required fields", func() {
