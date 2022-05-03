@@ -10,6 +10,8 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
+	testing "testing"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -69,4 +71,14 @@ func (_m *PaymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcon
 	}
 
 	return r0, r1
+}
+
+// NewPaymentRequestListFetcher creates a new instance of PaymentRequestListFetcher. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewPaymentRequestListFetcher(t testing.TB) *PaymentRequestListFetcher {
+	mock := &PaymentRequestListFetcher{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

@@ -8,6 +8,8 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
+	testing "testing"
+
 	time "time"
 )
 
@@ -35,4 +37,14 @@ func (_m *SyncadaSFTPReader) FetchAndProcessSyncadaFiles(appCtx appcontext.AppCo
 	}
 
 	return r0, r1
+}
+
+// NewSyncadaSFTPReader creates a new instance of SyncadaSFTPReader. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewSyncadaSFTPReader(t testing.TB) *SyncadaSFTPReader {
+	mock := &SyncadaSFTPReader{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

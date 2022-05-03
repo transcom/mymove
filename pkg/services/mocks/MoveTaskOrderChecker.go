@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
+	testing "testing"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -33,4 +35,14 @@ func (_m *MoveTaskOrderChecker) MTOAvailableToPrime(appCtx appcontext.AppContext
 	}
 
 	return r0, r1
+}
+
+// NewMoveTaskOrderChecker creates a new instance of MoveTaskOrderChecker. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewMoveTaskOrderChecker(t testing.TB) *MoveTaskOrderChecker {
+	mock := &MoveTaskOrderChecker{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

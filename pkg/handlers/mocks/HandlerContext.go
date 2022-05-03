@@ -30,6 +30,8 @@ import (
 
 	storage "github.com/transcom/mymove/pkg/storage"
 
+	testing "testing"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -366,4 +368,14 @@ func (_m *HandlerContext) UseSecureCookie() bool {
 	}
 
 	return r0
+}
+
+// NewHandlerContext creates a new instance of HandlerContext. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewHandlerContext(t testing.TB) *HandlerContext {
+	mock := &HandlerContext{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }
