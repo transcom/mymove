@@ -250,16 +250,16 @@ export const updateOrderEvent = buildMoveHistoryEventTemplate({
   tableName: 'orders',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated orders',
-  getDetailsLabeledDetails: ({ changedValues, context }) => {
+  getDetailsLabeledDetails: (historyRecord) => {
     let newChangedValues;
 
-    if (context) {
+    if (historyRecord.context) {
       newChangedValues = {
-        ...changedValues,
-        ...context[0],
+        ...historyRecord.changedValues,
+        ...historyRecord.context[0],
       };
     } else {
-      newChangedValues = changedValues;
+      newChangedValues = historyRecord.changedValues;
     }
 
     // merge context with change values for only this event
@@ -282,16 +282,11 @@ export const updateMTOShipmentBillableWeightEvent = buildMoveHistoryEventTemplat
   tableName: 'mto_shipments',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsLabeledDetails: ({ changedValues, context }) => {
-    let v;
-
-    if (context) {
-      v = { ...changedValues, ...context[0] };
-    } else {
-      v = changedValues;
-    }
-
-    return v;
+  getDetailsLabeledDetails: (historyRecord) => {
+    return {
+      shipment_type: historyRecord.oldValues.shipment_type,
+      ...historyRecord.changedValues,
+    };
   },
 });
 

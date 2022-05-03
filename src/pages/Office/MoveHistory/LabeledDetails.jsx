@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  HistoryLogValuesShape,
+  HistoryLogRecordShape,
   dbFieldToDisplayName,
   dbWeightFields,
   optionFields,
@@ -27,11 +27,11 @@ const retrieveTextToDisplay = (fieldName, value) => {
   };
 };
 
-const LabeledDetails = ({ changedValues, context, getDetailsLabeledDetails }) => {
-  let changeValuesToUse = changedValues;
+const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
+  let changeValuesToUse = historyRecord.changedValues;
   // run custom function to mutate changedValues to display if not null
   if (getDetailsLabeledDetails) {
-    changeValuesToUse = getDetailsLabeledDetails({ changedValues, context });
+    changeValuesToUse = getDetailsLabeledDetails(historyRecord);
   }
 
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
@@ -54,14 +54,12 @@ const LabeledDetails = ({ changedValues, context, getDetailsLabeledDetails }) =>
 };
 
 LabeledDetails.propTypes = {
-  changedValues: HistoryLogValuesShape,
-  context: PropTypes.arrayOf(PropTypes.object),
+  historyRecord: HistoryLogRecordShape,
   getDetailsLabeledDetails: PropTypes.func,
 };
 
 LabeledDetails.defaultProps = {
-  changedValues: {},
-  context: null,
+  historyRecord: {},
   getDetailsLabeledDetails: null,
 };
 

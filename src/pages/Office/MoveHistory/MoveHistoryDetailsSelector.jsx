@@ -12,8 +12,7 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
     case detailsTypes.LABELED:
       return (
         <LabeledDetails
-          changedValues={historyRecord.changedValues}
-          context={historyRecord.context}
+          historyRecord={historyRecord}
           getDetailsLabeledDetails={eventTemplate.getDetailsLabeledDetails}
         />
       );
