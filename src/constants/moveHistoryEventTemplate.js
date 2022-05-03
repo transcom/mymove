@@ -267,15 +267,6 @@ export const updateOrderEvent = buildMoveHistoryEventTemplate({
   },
 });
 
-export const updateMTOReviewdBillableWeightsAtEvent = buildMoveHistoryEventTemplate({
-  action: 'UPDATE',
-  eventName: moveHistoryOperations.UpdateMTOReviewedBillableWeightsAt,
-  tableName: 'moves',
-  detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: () => 'Updated shipment',
-  getDetailsPlainText: (historyRecord) => historyRecord.changedValues?.billable_weights_reviewed_at,
-});
-
 export const updateMTOShipmentBillableWeightEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.updateMTOShipment,
@@ -323,7 +314,6 @@ const allMoveHistoryEventTemplates = [
   uploadAmendedOrdersEvent,
   updateBillableWeightEvent,
   updateAllowanceEvent,
-  updateMTOReviewdBillableWeightsAtEvent,
   updateMTOShipmentBillableWeightEvent,
 ];
 
