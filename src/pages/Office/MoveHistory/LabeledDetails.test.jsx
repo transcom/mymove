@@ -38,7 +38,8 @@ describe('LabeledDetails', () => {
     it.each([
       ['Customer remarks', ': Test customer remarks'],
       ['Counselor remarks', ': Test counselor remarks'],
-      ['Billable weight cap', ': 400 lbs'],
+      ['Billable weight remarks', ': Test TIO remarks'],
+      ['Billable weight', ': 400 lbs'],
       ['TAC type', ': HHG'],
       ['SAC type', ': NTS'],
       ['Service order number', ': 1234'],
@@ -58,6 +59,7 @@ describe('LabeledDetails', () => {
       ['HHG SAC', ': 4444'],
       ['NTS SAC', ': 5555'],
       ['Dept. indicator', ': Air Force'],
+      ['Shipment type', ': (Shipment Type) HHG'],
     ])('it renders %s%s', (displayName, value) => {
       render(<LabeledDetails historyRecord={historyRecord} />);
 
@@ -78,7 +80,7 @@ describe('LabeledDetails', () => {
 
     render(<LabeledDetails historyRecord={historyRecord} />);
 
-    expect(screen.getByText('Billable weight cap')).toBeInTheDocument();
+    expect(screen.getByText('Billable weight')).toBeInTheDocument();
 
     expect(screen.getByText(200, { exact: false })).toBeInTheDocument();
 
