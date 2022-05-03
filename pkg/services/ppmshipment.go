@@ -19,6 +19,7 @@ type PPMShipmentUpdater interface {
 }
 
 // PPMEstimator estimates the cost of a PPM shipment
+//go:generate mockery --name PPMEstimator --disable-version-string
 type PPMEstimator interface {
 	EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*int32, error)
 }
