@@ -339,6 +339,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     </option>
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+                    <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
                   </ButtonDropdown>
                 )
               }

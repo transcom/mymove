@@ -103,6 +103,8 @@ const ShipmentForm = ({
   const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
+  const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
+
   const showAccountingCodes = isNTS || isNTSR;
 
   const isTOO = userRole === roleTypes.TOO;
@@ -140,6 +142,11 @@ const ShipmentForm = ({
     usesExternalVendor,
     destinationType,
   }) => {
+    if (isPPM) {
+      // todo
+      return;
+    }
+
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
       delete deliveryDetails.address;
@@ -455,14 +462,16 @@ const ShipmentForm = ({
                 )}
 
                 <div className={`${formStyles.formActions} ${styles.buttonGroup}`}>
-                  <Button
-                    data-testid="submitForm"
-                    disabled={isSubmitting || !isValid}
-                    type="submit"
-                    onClick={handleSubmit}
-                  >
-                    Save
-                  </Button>
+                  {!isPPM && (
+                    <Button
+                      data-testid="submitForm"
+                      disabled={isSubmitting || !isValid}
+                      type="submit"
+                      onClick={handleSubmit}
+                    >
+                      Save
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     secondary
@@ -472,6 +481,16 @@ const ShipmentForm = ({
                   >
                     Cancel
                   </Button>
+                  {isPPM && (
+                    <Button
+                      data-testid="submitForm"
+                      disabled={isSubmitting || !isValid}
+                      type="submit"
+                      onClick={handleSubmit}
+                    >
+                      Save and Continue
+                    </Button>
+                  )}
                 </div>
               </Form>
             </div>
