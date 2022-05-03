@@ -6,7 +6,7 @@ require (
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.6
 	github.com/DATA-DOG/go-txdb v0.1.5
-	github.com/XSAM/otelsql v0.12.0
+	github.com/XSAM/otelsql v0.14.1
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/aws/aws-sdk-go v1.43.41
@@ -19,14 +19,14 @@ require (
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-openapi/errors v0.20.2
 	github.com/go-openapi/loads v0.21.1
-	github.com/go-openapi/runtime v0.23.3
-	github.com/go-openapi/spec v0.20.5
+	github.com/go-openapi/runtime v0.24.0
+	github.com/go-openapi/spec v0.20.6
 	github.com/go-openapi/strfmt v0.21.2
 	github.com/go-openapi/swag v0.21.1
 	github.com/go-openapi/validate v0.21.0
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
-	github.com/go-playground/validator/v10 v10.10.1
+	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gobuffalo/envy v1.10.1
 	github.com/gobuffalo/fizz v1.14.0
 	github.com/gobuffalo/flect v0.2.5
@@ -48,8 +48,8 @@ require (
 	github.com/leodido/go-urn v1.2.1
 	github.com/lib/pq v1.10.5
 	github.com/luna-duclos/instrumentedsql v1.1.3
-	github.com/markbates/goth v1.69.0
-	github.com/mitchellh/mapstructure v1.4.3
+	github.com/markbates/goth v1.71.1
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
@@ -66,7 +66,7 @@ require (
 	github.com/tealeg/xlsx/v3 v3.2.4
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/trussworks/otelhttp v0.0.0-20220428162739-458ecc428855
-	github.com/vektra/mockery/v2 v2.10.6
+	github.com/vektra/mockery/v2 v2.12.1
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
@@ -83,7 +83,7 @@ require (
 
 require (
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.7.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.31.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.32.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.32.0
 	go.opentelemetry.io/contrib/propagators/aws v1.7.0
 	go.opentelemetry.io/otel v1.7.0
@@ -97,7 +97,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.7.0
 	go.opentelemetry.io/otel/sdk/metric v0.30.0
 	go.opentelemetry.io/otel/trace v1.7.0
-	gotest.tools/gotestsum v1.7.0
+	gotest.tools/gotestsum v1.8.0
 )
 
 require (

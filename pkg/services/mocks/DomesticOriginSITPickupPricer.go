@@ -10,6 +10,8 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
+	testing "testing"
+
 	time "time"
 
 	unit "github.com/transcom/mymove/pkg/unit"
@@ -78,4 +80,14 @@ func (_m *DomesticOriginSITPickupPricer) PriceUsingParams(appCtx appcontext.AppC
 	}
 
 	return r0, r1, r2
+}
+
+// NewDomesticOriginSITPickupPricer creates a new instance of DomesticOriginSITPickupPricer. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewDomesticOriginSITPickupPricer(t testing.TB) *DomesticOriginSITPickupPricer {
+	mock := &DomesticOriginSITPickupPricer{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

@@ -456,6 +456,42 @@ func SITStatuses(shipmentSITStatuses map[string]services.SITStatus) map[string]*
 	return sitStatuses
 }
 
+// PPMShipment payload
+func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
+	if ppmShipment == nil || ppmShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadPPMShipment := &ghcmessages.PPMShipment{
+		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
+		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
+		Status:                         ghcmessages.PPMShipmentStatus(ppmShipment.Status),
+		ExpectedDepartureDate:          *handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
+		ActualMoveDate:                 handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
+		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
+		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
+		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
+		PickupPostalCode:               ppmShipment.PickupPostalCode,
+		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+		DestinationPostalCode:          ppmShipment.DestinationPostalCode,
+		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		SitExpected:                    *ppmShipment.SitExpected,
+		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
+		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
+		HasProGear:                     ppmShipment.HasProGear,
+		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		Advance:                        handlers.FmtCost(ppmShipment.Advance),
+		AdvanceRequested:               ppmShipment.AdvanceRequested,
+		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+	}
+
+	return payloadPPMShipment
+}
+
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
@@ -490,6 +526,7 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
+		PpmShipment:                 PPMShipment(mtoShipment.PPMShipment),
 	}
 
 	if sitStatusPayload != nil {
