@@ -61,7 +61,7 @@ const EstimatedWeightsProGear = () => {
 
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
-      <ScrollToTop />
+      <ScrollToTop otherDep={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
