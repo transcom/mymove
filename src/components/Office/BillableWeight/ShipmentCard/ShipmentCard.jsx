@@ -96,6 +96,7 @@ export default function ShipmentCard({
     <ShipmentContainer shipmentType={shipmentType} className={styles.container}>
       <header>
         <h2>{shipmentTypeLabels[shipmentType]}</h2>
+        <h3>Shipment ID: </h3>
 
         <section>
           <span>
