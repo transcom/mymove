@@ -17,7 +17,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -368,9 +367,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 	var autoReweighShipments models.MTOShipments
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
-		encodedUpdatedAt := etag.GenerateEtag(newShipment.UpdatedAt)
-
-		if encodedUpdatedAt != eTag {
+		if newShipment.UpdatedAt.Equal(dbShipment.UpdatedAt) {
 			return StaleIdentifierError{StaleIdentifier: eTag}
 		}
 

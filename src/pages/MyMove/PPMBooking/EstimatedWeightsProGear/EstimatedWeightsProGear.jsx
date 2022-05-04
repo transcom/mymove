@@ -15,6 +15,7 @@ import {
   selectMTOShipmentById,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -57,6 +58,10 @@ const EstimatedWeightsProGear = () => {
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
       });
   };
+
+  if (!serviceMember || !orders || !mtoShipment) {
+    return <LoadingPlaceholder />;
+  }
 
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
