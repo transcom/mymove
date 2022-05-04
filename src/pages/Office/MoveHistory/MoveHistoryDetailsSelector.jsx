@@ -14,6 +14,7 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
       return (
         <LabeledDetails
           changedValues={historyRecord.changedValues}
+          oldValues={historyRecord.oldValues}
           context={historyRecord.context}
           getDetailsLabeledDetails={eventTemplate.getDetailsLabeledDetails}
         />
@@ -37,7 +38,7 @@ MoveHistoryDetailsSelector.propTypes = {
 };
 
 MoveHistoryDetailsSelector.defaultProps = {
-  historyRecord: {},
+  historyRecord: [],
 };
 
 export default MoveHistoryDetailsSelector;
