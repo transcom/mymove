@@ -50,7 +50,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{ctx}
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{ctx}
 	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{ctx}
-	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{ctx}
+	//internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{ctx}
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{ctx}
 	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{ctx}
 	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler{ctx}
