@@ -367,7 +367,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 	var autoReweighShipments models.MTOShipments
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
-		if newShipment.UpdatedAt.Equal(dbShipment.UpdatedAt) {
+		if !newShipment.UpdatedAt.Equal(dbShipment.UpdatedAt) {
 			return StaleIdentifierError{StaleIdentifier: eTag}
 		}
 
