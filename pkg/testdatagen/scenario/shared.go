@@ -4371,6 +4371,47 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 	})
 }
 
+func createQaeCsr(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
+	email := "qae_csr_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
+	/* A user with tio role */
+	qaeCsrRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaeCsrRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeQaeCsr in the DB: %w", err))
+	}
+
+	qaeCsrUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            qaeCsrUUID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{qaeCsrRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
+			Email:  email,
+			Active: true,
+			UserID: &qaeCsrUUID,
+		},
+	})
+}
+
 func createTXO(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	/* A user with both too and tio roles */

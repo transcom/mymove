@@ -277,7 +277,8 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 				OR roles.role_type = 'transportation_invoicing_officer'
 				OR roles.role_type = 'ppm_office_users'
 				OR role_type = 'services_counselor'
-				OR role_type = 'contracting_officer')
+				OR role_type = 'contracting_officer'
+				OR role_type = 'qae_csr')
 		LEFT JOIN office_users ON office_users.user_id = session_userid
 	ORDER BY
 		action_tstamp_tx DESC`
