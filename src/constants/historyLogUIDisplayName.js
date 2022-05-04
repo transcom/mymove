@@ -63,14 +63,24 @@ export const dbFieldToDisplayName = {
   releasing_agent: 'Releasing agent',
 };
 
-export const dbWeightFields = [
-  'billable_weight_cap',
-  'prime_estimated_weight',
-  'authorized_weight',
-  'pro_gear_weight',
-  'pro_gear_weight_spouse',
-  'required_medical_equipment_weight',
-];
+export const dbWeightFields = {
+  billable_weight_cap: 'billable_weight_cap',
+  prime_estimated_weight: 'prime_estimated_weight',
+  authorized_weight: 'authorized_weight',
+  pro_gear_weight: 'pro_gear_weight',
+  pro_gear_weight_spouse: 'pro_gear_weight_spouse',
+  required_medical_equipment_weight: 'required_medical_equipment_weight',
+};
+
+export const dbDateFields = {
+  requested_delivery_date: 'requested_delivery_date',
+  scheduled_pickup_date: 'scheduled_pickup_date',
+  approved_date: 'approved_date',
+  actual_pickup_date: 'actual_pickup_date',
+  report_by_date: 'report_by_date',
+  issue_date: 'issue_date',
+  requested_pickup_date: 'requested_pickup_date',
+};
 
 // This is to map the human-readable text to the options
 export const optionFields = {
