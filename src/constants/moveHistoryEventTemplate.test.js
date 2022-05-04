@@ -5,6 +5,7 @@ const {
   approveShipmentEvent,
   approveShipmentDiversionEvent,
   createOrdersEvent,
+  createMTOShipmentAddressesEvent,
   createMTOShipmentAgentEvent,
   requestShipmentCancellationEvent,
   setFinancialReviewFlagEvent,
@@ -321,6 +322,61 @@ describe('moveHistoryEventTemplate', () => {
         postal_code: '90211',
         street_address_1: '12 Any Street',
         street_address_2: 'P.O. Box 1234',
+      });
+    });
+  });
+
+  describe('when given an mto shipment insert with address table history record', () => {
+    const item = {
+      action: 'INSERT',
+      eventName: '',
+      tableName: 'addresses',
+      detailsType: detailsTypes.LABELED,
+      changedValues: {
+        city: 'Beverly Hills',
+        postal_code: '90211',
+        street_address_1: '12 Any Street',
+        street_address_2: 'P.O. Box 1234',
+        state: 'CA',
+      },
+      context: [{ addressType: 'pickupAddress' }],
+    };
+
+    it('correctly matches the insert mto shipment address event for pickup addresses', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(createMTOShipmentAddressesEvent);
+      // expect to have formatted the adddresses correctly
+      expect(
+        result.getDetailsLabeledDetails({
+          changedValues: item.changedValues,
+          context: item.context,
+        }),
+      ).toEqual({
+        pickup_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
+        city: 'Beverly Hills',
+        postal_code: '90211',
+        street_address_1: '12 Any Street',
+        street_address_2: 'P.O. Box 1234',
+        state: 'CA',
+      });
+    });
+
+    it('correctly matches the insert mto shipment address event for destination addresses', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(createMTOShipmentAddressesEvent);
+      // expect to have formatted the adddresses correctly
+      expect(
+        result.getDetailsLabeledDetails({
+          changedValues: item.changedValues,
+          context: [{ addressType: 'destinationAddress' }],
+        }),
+      ).toEqual({
+        destination_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
+        city: 'Beverly Hills',
+        postal_code: '90211',
+        street_address_1: '12 Any Street',
+        street_address_2: 'P.O. Box 1234',
+        state: 'CA',
       });
     });
   });

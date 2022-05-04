@@ -106,6 +106,34 @@ export const createMTOShipmentEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
+export const createMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: '',
+  tableName: 'addresses',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ changedValues, context }) => {
+    const address = formatMoveHistoryFullAddress(changedValues);
+
+    const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
+
+    let addressLabel = '';
+    if (addressType === 'pickupAddress') {
+      addressLabel = 'pickup_address';
+    } else if (addressType === 'destinationAddress') {
+      addressLabel = 'destination_address';
+    }
+
+    const newChangedValues = {
+      ...changedValues,
+    };
+
+    newChangedValues[addressLabel] = address;
+
+    return newChangedValues;
+  },
+});
+
 export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   action: 'INSERT',
   eventName: moveHistoryOperations.updateMTOShipment,
@@ -439,6 +467,7 @@ const allMoveHistoryEventTemplates = [
   approveShipmentEvent,
   approveShipmentDiversionEvent,
   createMTOShipmentEvent,
+  createMTOShipmentAddressesEvent,
   createMTOShipmentAgentEvent,
   createOrdersEvent,
   createPaymentRequestReweighUpdate,
