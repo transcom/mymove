@@ -1,6 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import styles from './LabeledDetails.module.scss';
+
+import { shipmentTypes } from 'constants/shipments';
 import {
   HistoryLogRecordShape,
   dbFieldToDisplayName,
@@ -29,9 +32,17 @@ const retrieveTextToDisplay = (fieldName, value) => {
 
 const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
   let changeValuesToUse = historyRecord.changedValues;
+  let shipmentDisplay = '';
   // run custom function to mutate changedValues to display if not null
   if (getDetailsLabeledDetails) {
     changeValuesToUse = getDetailsLabeledDetails(historyRecord);
+  }
+
+  // Check for shipment_type in values that need changing
+  if (changeValuesToUse.shipment_type !== null) {
+    shipmentDisplay = shipmentTypes[changeValuesToUse.shipment_type];
+    shipmentDisplay += ' shipment';
+    delete changeValuesToUse.shipment_type;
   }
 
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
@@ -40,6 +51,7 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
 
   return (
     <div>
+      <span className={styles.shipmentType}>{shipmentDisplay}</span>
       {dbFieldsToDisplay.map((modelField) => {
         const { displayName, displayValue } = retrieveTextToDisplay(modelField, changeValuesToUse[modelField]);
 
