@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/etag"
+
 	"github.com/transcom/mymove/pkg/db/utilities"
 
 	"github.com/getlantern/deepcopy"
@@ -367,7 +369,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 	var autoReweighShipments models.MTOShipments
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
-		if !newShipment.UpdatedAt.Equal(dbShipment.UpdatedAt) {
+		updatedAt, err := etag.DecodeEtag(eTag)
+		if err != nil {
+			return StaleIdentifierError{StaleIdentifier: eTag}
+		}
+
+		if !updatedAt.Equal(dbShipment.UpdatedAt) {
 			return StaleIdentifierError{StaleIdentifier: eTag}
 		}
 
