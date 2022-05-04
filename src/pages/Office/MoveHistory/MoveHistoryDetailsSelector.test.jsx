@@ -34,7 +34,7 @@ describe('MoveHistoryDetailsSelector', () => {
     };
     it('renders the labeled details appropriately', () => {
       render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
-      expect(screen.getByText('Billable weight cap')).toBeInTheDocument();
+      expect(screen.getByText('Billable weight')).toBeInTheDocument();
       expect(screen.getByText(200, { exact: false })).toBeInTheDocument();
       expect(screen.getByText('Customer remarks')).toBeInTheDocument();
       expect(screen.getByText('Test customer remarks', { exact: false })).toBeInTheDocument();
