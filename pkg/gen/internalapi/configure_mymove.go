@@ -359,11 +359,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.UpdatePersonallyProcuredMove has not yet been implemented")
 		})
 	}
-	if api.PpmUpdatePersonallyProcuredMoveEstimateHandler == nil {
-		api.PpmUpdatePersonallyProcuredMoveEstimateHandler = ppm.UpdatePersonallyProcuredMoveEstimateHandlerFunc(func(params ppm.UpdatePersonallyProcuredMoveEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.UpdatePersonallyProcuredMoveEstimate has not yet been implemented")
-		})
-	}
 	if api.BackupContactsUpdateServiceMemberBackupContactHandler == nil {
 		api.BackupContactsUpdateServiceMemberBackupContactHandler = backup_contacts.UpdateServiceMemberBackupContactHandlerFunc(func(params backup_contacts.UpdateServiceMemberBackupContactParams) middleware.Responder {
 			return middleware.NotImplemented("operation backup_contacts.UpdateServiceMemberBackupContact has not yet been implemented")
