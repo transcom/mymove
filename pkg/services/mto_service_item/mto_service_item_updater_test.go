@@ -131,14 +131,6 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	checker := movetaskorder.NewMoveTaskOrderChecker()
 	now := time.Now()
 
-	// setupTestData := func() (models.MTOServiceItem, models.MTOServiceItem){
-	// 	oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-	// 	oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-	// 		Move: testdatagen.MakeAvailableMove(suite.DB()),
-	// 	})
-	// 	return oldServiceItem, oldServiceItemPrime
-
-	// }
 	// Test with bad string key
 	suite.Run("bad validatorKey - failure", func() {
 		serviceItemData := updateMTOServiceItemData{}

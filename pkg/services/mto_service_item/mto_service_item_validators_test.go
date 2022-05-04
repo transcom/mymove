@@ -288,7 +288,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		// Under test:  getVerrs returns a list of validation errors
 		// Set up:      Create a service item, edit the non-prime fields and linked ids
 		//              Run 2 validations that should fail
-		// Expected outcome: No errors
+		// Expected outcome: InvalidInput error
 
 		oldServiceItem, newServiceItem := setupTestData()
 
