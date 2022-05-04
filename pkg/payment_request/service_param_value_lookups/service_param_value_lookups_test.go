@@ -466,13 +466,24 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 	})
 
-	suite.Run("nil MTOServiceItemID", func() {
+	suite.Run("Non-basic MTOServiceItem is missing a MTOShipmentID", func() {
 		badMTOServiceItem := models.MTOServiceItem{ID: uuid.Must(uuid.NewV4())}
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, badMTOServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), fmt.Sprintf("ID: %s not found looking for MTOServiceItem", badMTOServiceItem.ID))
+		suite.Contains(err.Error(), "Not found the shipment service item is missing a MTOShipmentID")
+		var expected *ServiceItemParamKeyData
+		suite.Equal(expected, paramLookup)
+	})
+
+	suite.Run("Non-basic MTOServiceItem has a MTOShipmentID that is not found", func() {
+		badMTOServiceItem := models.MTOServiceItem{ID: uuid.Must(uuid.NewV4()), MTOShipmentID: models.UUIDPointer(uuid.Must(uuid.NewV4()))}
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, badMTOServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), "not found looking for MTOShipment")
 		var expected *ServiceItemParamKeyData
 		suite.Equal(expected, paramLookup)
 	})

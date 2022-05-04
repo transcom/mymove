@@ -155,7 +155,7 @@ func ServiceParamLookupInitialize(
 	if mtoServiceItem.ReService.Code != models.ReServiceCodeCS && mtoServiceItem.ReService.Code != models.ReServiceCodeMS {
 		// Make sure there's an MTOShipment since that's nullable
 		if mtoServiceItem.MTOShipmentID == nil {
-			return nil, apperror.NewNotFoundError(uuid.Nil, "looking for MTOShipment")
+			return nil, apperror.NewNotFoundError(uuid.Nil, "the shipment service item is missing a MTOShipmentID")
 		}
 		err := appCtx.DB().Eager("PickupAddress", "DestinationAddress", "StorageFacility").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 		if err != nil {
