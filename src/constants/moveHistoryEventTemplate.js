@@ -299,12 +299,10 @@ export const updateMoveTaskOrderStatusEvent = buildMoveHistoryEventTemplate({
   tableName: 'moves',
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: (historyRecord) => {
-    return historyRecord.changedValues?.status === 'APPROVED' ? 'Approved move' : 'Rejected move';
+    return historyRecord.changedValues?.available_to_prime_at ? 'Approved move' : 'Move status updated';
   },
   getDetailsPlainText: (historyRecord) => {
-    return historyRecord.changedValues?.status === 'APPROVED'
-      ? 'Created Move Task Order (MTO)'
-      : 'Rejected Move Task Order (MTO)';
+    return historyRecord.changedValues?.available_to_prime_at ? 'Created Move Task Order (MTO)' : '-';
   },
 });
 
