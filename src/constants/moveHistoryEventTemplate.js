@@ -10,6 +10,7 @@ export const detailsTypes = {
   LABELED: 'LABELED',
   LABELED_SHIPMENT: 'LABELED_SHIPMENT',
   PAYMENT: 'PAYMENT',
+  STATUS: 'STATUS',
 };
 
 const buildMoveHistoryEventTemplate = ({
@@ -23,6 +24,10 @@ const buildMoveHistoryEventTemplate = ({
   getDetailsPlainText = () => {
     return 'Undefined details';
   },
+  getStatusDetails = () => {
+    return 'Undefined status';
+  },
+  getDetailsLabeledDetails = null,
 }) => {
   const eventType = {};
   eventType.action = action;
@@ -31,6 +36,8 @@ const buildMoveHistoryEventTemplate = ({
   eventType.detailsType = detailsType;
   eventType.getEventNameDisplay = getEventNameDisplay;
   eventType.getDetailsPlainText = getDetailsPlainText;
+  eventType.getStatusDetails = getStatusDetails;
+  eventType.getDetailsLabeledDetails = getDetailsLabeledDetails;
 
   eventType.matches = (other) => {
     if (eventType === undefined || other === undefined) {
@@ -53,6 +60,22 @@ export const acknowledgeExcessWeightRiskEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Updated move',
   getDetailsPlainText: () => 'Dismissed excess weight alert',
+});
+
+export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateBillableWeight,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated move',
+});
+
+export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateAllowance,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated allowances',
 });
 
 export const approveShipmentEvent = buildMoveHistoryEventTemplate({
@@ -95,6 +118,17 @@ export const createOrdersEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
+export const createBasicServiceItemEvent = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.updateMoveTaskOrderStatus,
+  tableName: 'mto_service_items',
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: () => 'Approved service item',
+  getDetailsPlainText: (historyRecord) => {
+    return `${historyRecord.context[0]?.name}`;
+  },
+});
+
 export const createStandardServiceItemEvent = buildMoveHistoryEventTemplate({
   action: 'INSERT',
   eventName: moveHistoryOperations.approveShipment,
@@ -102,7 +136,7 @@ export const createStandardServiceItemEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Approved service item',
   getDetailsPlainText: (historyRecord) => {
-    return `${shipmentTypes[historyRecord.context?.shipment_type]} shipment, ${historyRecord.context?.name}`;
+    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, ${historyRecord.context[0]?.name}`;
   },
 });
 
@@ -125,6 +159,17 @@ export const requestShipmentDiversionEvent = buildMoveHistoryEventTemplate({
   getEventNameDisplay: () => 'Requested diversion',
   getDetailsPlainText: (historyRecord) => {
     return `Requested diversion for ${shipmentTypes[historyRecord.oldValues?.shipment_type]} shipment`;
+  },
+});
+
+export const requestShipmentReweighEvent = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.requestShipmentReweigh,
+  tableName: 'reweighs',
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsPlainText: (historyRecord) => {
+    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, reweigh requested`;
   },
 });
 
@@ -191,7 +236,7 @@ export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
     }
   },
   getDetailsPlainText: (historyRecord) => {
-    return `${shipmentTypes[historyRecord.context?.shipment_type]} shipment, ${historyRecord.context?.name}`;
+    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, ${historyRecord.context[0]?.name}`;
   },
 });
 
@@ -202,6 +247,59 @@ export const uploadAmendedOrdersEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Updated orders',
   getDetailsPlainText: () => '-',
+});
+
+export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updatePaymentRequestStatus,
+  tableName: 'payment_requests',
+  detailsType: detailsTypes.PAYMENT,
+  getEventNameDisplay: () => 'Submitted payment request',
+});
+
+export const createPaymentRequestReweighUpdate = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.updateReweigh,
+  tableName: 'payment_requests',
+  detailsType: detailsTypes.STATUS,
+  getEventNameDisplay: () => 'Created payment request',
+  getStatusDetails: () => {
+    return 'Pending';
+  },
+});
+
+export const createPaymentRequestShipmentUpdate = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'payment_requests',
+  detailsType: detailsTypes.STATUS,
+  getEventNameDisplay: () => 'Created payment request',
+  getStatusDetails: () => {
+    return 'Pending';
+  },
+});
+
+export const updateOrderEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: '*',
+  tableName: 'orders',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated orders',
+  getDetailsLabeledDetails: ({ changedValues, context }) => {
+    let newChangedValues;
+
+    if (context) {
+      newChangedValues = {
+        ...changedValues,
+        ...context[0],
+      };
+    } else {
+      newChangedValues = changedValues;
+    }
+
+    // merge context with change values for only this event
+    return newChangedValues;
+  },
 });
 
 export const undefinedEvent = buildMoveHistoryEventTemplate({
@@ -223,15 +321,23 @@ const allMoveHistoryEventTemplates = [
   approveShipmentDiversionEvent,
   createMTOShipmentEvent,
   createOrdersEvent,
+  createBasicServiceItemEvent,
   createStandardServiceItemEvent,
   requestShipmentCancellationEvent,
   requestShipmentDiversionEvent,
+  requestShipmentReweighEvent,
   setFinancialReviewFlagEvent,
   submitMoveForApprovalEvent,
   updateMoveTaskOrderEvent,
   updateMoveTaskOrderStatusEvent,
+  updateOrderEvent,
   updateServiceItemStatusEvent,
   uploadAmendedOrdersEvent,
+  updatePaymentRequestStatus,
+  updateBillableWeightEvent,
+  updateAllowanceEvent,
+  createPaymentRequestReweighUpdate,
+  createPaymentRequestShipmentUpdate,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {

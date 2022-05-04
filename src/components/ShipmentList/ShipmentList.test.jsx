@@ -13,7 +13,14 @@ beforeEach(() => {
 
 describe('ShipmentList component', () => {
   const shipments = [
-    { id: 'ID-1', shipmentType: SHIPMENT_OPTIONS.PPM },
+    {
+      id: 'ID-1',
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: 'ppm',
+        advanceRequested: false,
+      },
+    },
     { id: 'ID-2', shipmentType: SHIPMENT_OPTIONS.HHG },
     { id: 'ID-3', shipmentType: SHIPMENT_OPTIONS.NTS },
     { id: 'ID-4', shipmentType: SHIPMENT_OPTIONS.NTSR },
@@ -150,5 +157,45 @@ describe('Shipment List being used for billable weight', () => {
     // flags
     expect(screen.queryByText('Over weight')).not.toBeInTheDocument();
     expect(screen.queryByText('Missing weight')).not.toBeInTheDocument();
+  });
+
+  describe('Shipment List correctly displays incomplete PPM card', () => {
+    it('display incomplete badge on PPM shipment missing an advanceRequested value', () => {
+      const shipments = [
+        {
+          id: '0001',
+          shipmentType: SHIPMENT_OPTIONS.PPM,
+          ppmShipment: { id: '1234', advanceRequested: null },
+        },
+      ];
+
+      const defaultProps = {
+        shipments,
+        moveSubmitted: false,
+      };
+
+      render(<ShipmentList {...defaultProps} />);
+
+      expect(screen.getByText('Incomplete')).toBeInTheDocument();
+    });
+
+    it('do not show incomplete badge when pppm is complete', () => {
+      const shipments = [
+        {
+          id: '0001',
+          shipmentType: SHIPMENT_OPTIONS.PPM,
+          ppmShipment: { id: '1234', advanceRequested: false },
+        },
+      ];
+
+      const defaultProps = {
+        shipments,
+        moveSubmitted: false,
+      };
+
+      render(<ShipmentList {...defaultProps} />);
+
+      expect(screen.queryByText('Incomplete')).not.toBeInTheDocument();
+    });
   });
 });

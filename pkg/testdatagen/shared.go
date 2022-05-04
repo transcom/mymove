@@ -19,7 +19,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/random"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/imdario/mergo"
 	"github.com/spf13/afero"

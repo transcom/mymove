@@ -8,7 +8,7 @@ import (
 	"regexp"
 
 	"github.com/DATA-DOG/go-txdb"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/jmoiron/sqlx"
 )
 

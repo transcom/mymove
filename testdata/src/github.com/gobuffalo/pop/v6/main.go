@@ -1,4 +1,4 @@
-package v5
+package v6
 
 type Connection struct {
 	ID          string

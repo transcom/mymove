@@ -3,7 +3,7 @@ package migrate
 import (
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -46,7 +46,9 @@ func (suite *MigrateSuite) TestBuilderCompile() {
 
 	// Create a migrator and add the migration to it
 	migrator := pop.NewMigrator(suite.DB())
-	migrator.Migrations[migration.Direction] = append(migrator.Migrations[migration.Direction], *migration)
+
+	// we know this an up migration from the above setup
+	migrator.UpMigrations.Migrations = append(migrator.UpMigrations.Migrations, *migration)
 
 	// Migrate to use the Runner
 	errUp := migrator.Up()
@@ -149,7 +151,7 @@ func (suite *MigrateSuite) TestBuilderCompileUpdateFromSetSQL() {
 
 	// Migrate to use the Runner
 	migrator := pop.NewMigrator(suite.DB())
-	migrator.Migrations[migration.Direction] = append(migrator.Migrations[migration.Direction], *migration)
+	migrator.UpMigrations.Migrations = append(migrator.UpMigrations.Migrations, *migration)
 	err = migrator.Up()
 	suite.Nil(err)
 }

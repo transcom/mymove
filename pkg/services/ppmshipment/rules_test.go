@@ -245,7 +245,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			advanceRequested := false
 			newAdvance := unit.Cents(10000)
 			newAdvanceRequested := true
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:         shipmentID,
@@ -268,7 +268,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			shipmentID := uuid.Must(uuid.NewV4())
 			newAdvance := unit.Cents(10000)
 			newAdvanceRequested := true
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:         shipmentID,
@@ -292,7 +292,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			advanceRequested := true
 			advance := unit.Cents(10000)
 			newAdvanceRequested := false
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:         shipmentID,
@@ -314,7 +314,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		suite.Run("success advanceRequested set from nil to false", func() {
 			shipmentID := uuid.Must(uuid.NewV4())
 			newAdvanceRequested := false
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:         shipmentID,
@@ -335,7 +335,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		})
 		suite.Run("success advance stays nil during update", func() {
 			shipmentID := uuid.Must(uuid.NewV4())
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:         shipmentID,
@@ -362,7 +362,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			advanceRequested := false
 			newAdvance := unit.Cents(0)
 			newAdvanceRequested := true
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:         shipmentID,
@@ -386,7 +386,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			shipmentID := uuid.Must(uuid.NewV4())
 			newAdvanceRequested := false
 			newAdvance := unit.Cents(10000)
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:         shipmentID,
@@ -410,7 +410,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			shipmentID := uuid.Must(uuid.NewV4())
 			newAdvanceRequested := true
 			newAdvance := unit.Cents(18000)
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:         shipmentID,
@@ -434,7 +434,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			shipmentID := uuid.Must(uuid.NewV4())
 			newAdvanceRequested := true
 			newAdvance := unit.Cents(1)
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:         shipmentID,
@@ -456,7 +456,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		suite.Run("failure - advance is not nil", func() {
 			shipmentID := uuid.Must(uuid.NewV4())
 			newAdvance := unit.Cents(10000)
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:         shipmentID,
@@ -481,7 +481,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		suite.Run("success estimatedWeight set", func() {
 			shipmentID := uuid.Must(uuid.NewV4())
 			estimatedWeight := unit.Pound(4000)
-			estimatedIncentive := int32(17000)
+			estimatedIncentive := unit.Cents(17000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:      shipmentID,
@@ -500,7 +500,6 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 
 		suite.Run("failure estimatedWeight cannot be nil", func() {
 			shipmentID := uuid.Must(uuid.NewV4())
-			estimatedWeight := unit.Pound(4000)
 
 			oldPPMShipment := models.PPMShipment{
 				ShipmentID:      shipmentID,
@@ -509,12 +508,11 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 
 			newPPMShipment := models.PPMShipment{
 				ShipmentID:      shipmentID,
-				EstimatedWeight: &estimatedWeight,
+				EstimatedWeight: nil,
 			}
 
 			err := checkEstimatedWeight().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
-			suite.Error(err)
-			suite.Equal("", err.Error())
+			suite.Equal("cannot be empty", err.Error())
 		})
 	})
 }

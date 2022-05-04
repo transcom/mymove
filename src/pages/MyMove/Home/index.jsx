@@ -9,11 +9,11 @@ import { withRouter } from 'react-router-dom';
 import styles from './Home.module.scss';
 import {
   HelperAmendedOrders,
+  HelperApprovedMove,
   HelperNeedsOrders,
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
-  HelperSubmittedPPM,
 } from './HomeHelpers';
 
 import ScrollToTop from 'components/ScrollToTop';
@@ -29,7 +29,6 @@ import ShipmentList from 'components/ShipmentList/ShipmentList';
 import {
   selectCurrentMove,
   selectCurrentOrders,
-  selectCurrentPPM,
   selectIsProfileComplete,
   selectMTOShipmentsForCurrentMove,
   selectServiceMemberFromLoggedInUser,
@@ -40,16 +39,19 @@ import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import MOVE_STATUSES from 'constants/moves';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import { shipmentTypes } from 'constants/shipments';
+import { isPPMShipmentComplete } from 'utils/shipments';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { updateMTOShipments } from 'store/entities/actions';
+import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -110,8 +112,8 @@ export class Home extends Component {
   }
 
   get hasAnyShipments() {
-    const { mtoShipments, currentPpm } = this.props;
-    return (this.hasOrders && !!mtoShipments.length) || !!Object.keys(currentPpm).length;
+    const { mtoShipments } = this.props;
+    return this.hasOrders && !!mtoShipments.length;
   }
 
   get hasSubmittedMove() {
@@ -119,13 +121,23 @@ export class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
-  get hasPPMShipment() {
-    const { currentPpm } = this.props;
-    return !!Object.keys(currentPpm).length;
+  get hasPPMShipments() {
+    const { mtoShipments } = this.props;
+    return mtoShipments?.some((shipment) => shipment.ppmShipment);
+  }
+
+  get hasAllCompletedPPMShipments() {
+    const { mtoShipments } = this.props;
+    return mtoShipments?.filter((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM)?.every((s) => isPPMShipmentComplete(s));
+  }
+
+  get isMoveApproved() {
+    const { move } = this.props;
+    return move.status === MOVE_STATUSES.APPROVED;
   }
 
   get shipmentActionBtnLabel() {
-    if (this.hasSubmittedMove && this.hasPPMShipment) {
+    if (this.hasSubmittedMove) {
       return '';
     }
     if (this.hasAnyShipments) {
@@ -166,13 +178,7 @@ export class Home extends Component {
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
     if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
-    if (this.hasPPMShipment)
-      return (
-        <>
-          <HelperSubmittedMove />
-          <HelperSubmittedPPM />
-        </>
-      );
+    if (this.isMoveApproved) return <HelperApprovedMove />;
     return <HelperSubmittedMove />;
   };
 
@@ -273,17 +279,17 @@ export class Home extends Component {
     history.push(path);
   };
 
-  sortAllShipments = (mtoShipments, currentPpm) => {
-    const allShipments = JSON.parse(JSON.stringify(mtoShipments));
-    if (Object.keys(currentPpm).length) {
-      const ppm = JSON.parse(JSON.stringify(currentPpm));
-      ppm.shipmentType = SHIPMENT_OPTIONS.PPM;
-      // workaround for differing cases between mtoShipments and ppms (bigger change needed on yaml)
-      ppm.createdAt = ppm.created_at;
-      delete ppm.created_at;
+  handlePPMUploadClick = (shipmentId) => {
+    const { move, history } = this.props;
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+      moveId: move.id,
+      mtoShipmentId: shipmentId,
+    });
+    history.push(path);
+  };
 
-      allShipments.push(ppm);
-    }
+  sortAllShipments = (mtoShipments) => {
+    const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
 
     return allShipments;
@@ -295,15 +301,8 @@ export class Home extends Component {
   };
 
   render() {
-    const {
-      currentPpm,
-      isProfileComplete,
-      move,
-      mtoShipments,
-      serviceMember,
-      signedCertification,
-      uploadedOrderDocuments,
-    } = this.props;
+    const { isProfileComplete, move, mtoShipments, serviceMember, signedCertification, uploadedOrderDocuments } =
+      this.props;
 
     const { showDeleteModal, targetShipmentId, showDeleteSuccessAlert, showDeleteErrorAlert } = this.state;
 
@@ -332,7 +331,8 @@ export class Home extends Component {
     const profileEditPath = customerRoutes.PROFILE_PATH;
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
-    const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
+    const allSortedShipments = this.sortAllShipments(mtoShipments);
+    const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
 
     return (
       <>
@@ -422,10 +422,10 @@ export class Home extends Component {
                   )}
                   <Step
                     actionBtnLabel={this.shipmentActionBtnLabel}
-                    actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
+                    actionBtnDisabled={!this.hasOrders}
                     actionBtnId="shipment-selection-btn"
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-                    complete={this.hasAnyShipments}
+                    complete={this.hasPPMShipments ? this.hasAllCompletedPPMShipments : this.hasAnyShipments}
                     completedHeaderText="Shipments"
                     headerText="Set up shipments"
                     secondaryBtn={this.hasAnyShipments}
@@ -434,15 +434,18 @@ export class Home extends Component {
                   >
                     {this.hasAnyShipments ? (
                       <div>
-                        {this.hasSubmittedMove && !this.doesPpmAlreadyExist && (
-                          <p className={styles.descriptionExtra}>If you need to add shipments, let your movers know.</p>
-                        )}
                         <ShipmentList
                           shipments={allSortedShipments}
                           onShipmentClick={this.handleShipmentClick}
                           onDeleteClick={this.handleDeleteClick}
                           moveSubmitted={this.hasSubmittedMove}
                         />
+                        {this.hasSubmittedMove && (
+                          <p className={styles.descriptionExtra}>
+                            If you need to change, add, or get rid of shipments, talk to your move counselor or to your
+                            movers.
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <Description>
@@ -453,7 +456,7 @@ export class Home extends Component {
                     )}
                   </Step>
                   <Step
-                    actionBtnDisabled={!this.hasAnyShipments}
+                    actionBtnDisabled={this.hasPPMShipments ? !this.hasAllCompletedPPMShipments : !this.hasAnyShipments}
                     actionBtnId="review-and-submit-btn"
                     actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review your request'}
                     complete={this.hasSubmittedMove}
@@ -479,6 +482,11 @@ export class Home extends Component {
                       </Description>
                     )}
                   </Step>
+                  {!!ppmShipments.length && this.hasSubmittedMove && (
+                    <Step headerText="Manage your PPM" completedHeaderText="Manage your PPM" step="5">
+                      <PPMSummaryList shipments={ppmShipments} onUploadClick={this.handlePPMUploadClick} />
+                    </Step>
+                  )}
                 </SectionWrapper>
                 <Contact
                   header="Contacts"
@@ -503,10 +511,6 @@ Home.propTypes = {
     last_name: string,
   }),
   mtoShipments: arrayOf(MtoShipmentShape).isRequired,
-  currentPpm: shape({
-    id: string,
-    shipmentType: string,
-  }).isRequired,
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
   uploadedAmendedOrderDocuments: arrayOf(UploadShape),
   history: HistoryShape.isRequired,
@@ -532,7 +536,6 @@ const mapStateToProps = (state) => {
   const move = selectCurrentMove(state) || {};
 
   return {
-    currentPpm: selectCurrentPPM(state) || {},
     isProfileComplete: selectIsProfileComplete(state),
     orders: selectCurrentOrders(state) || {},
     uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
@@ -540,7 +543,6 @@ const mapStateToProps = (state) => {
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),
-    // TODO: change when we support PPM shipments as well
     mtoShipments: selectMTOShipmentsForCurrentMove(state),
     // TODO: change when we support multiple moves
     move,

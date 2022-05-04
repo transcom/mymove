@@ -9,7 +9,14 @@ const {
   updateServiceItemStatusEvent,
   acknowledgeExcessWeightRiskEvent,
   createStandardServiceItemEvent,
+  createBasicServiceItemEvent,
+  updateOrderEvent,
+  requestShipmentReweighEvent,
+  createPaymentRequestReweighUpdate,
+  createPaymentRequestShipmentUpdate,
 } = require('./moveHistoryEventTemplate');
+
+const { detailsTypes } = require('constants/moveHistoryEventTemplate');
 
 describe('moveHistoryEventTemplate', () => {
   describe('when given an Acknowledge excess weight risk history record', () => {
@@ -68,13 +75,34 @@ describe('moveHistoryEventTemplate', () => {
     });
   });
 
+  describe('when given a Create basic service item history record', () => {
+    const item = {
+      action: 'INSERT',
+      context: [
+        {
+          name: 'Move management',
+        },
+      ],
+      eventName: 'updateMoveTaskOrderStatus',
+      tableName: 'mto_service_items',
+    };
+    it('correctly matches the Create basic service item event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(createBasicServiceItemEvent);
+      expect(result.getEventNameDisplay(result)).toEqual('Approved service item');
+      expect(result.getDetailsPlainText(item)).toEqual('Move management');
+    });
+  });
+
   describe('when given a Create standard service item history record', () => {
     const item = {
       action: 'INSERT',
-      context: {
-        shipment_type: 'HHG',
-        name: 'Domestic linehaul',
-      },
+      context: [
+        {
+          shipment_type: 'HHG',
+          name: 'Domestic linehaul',
+        },
+      ],
       eventName: 'approveShipment',
       tableName: 'mto_service_items',
     };
@@ -100,6 +128,20 @@ describe('moveHistoryEventTemplate', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(requestShipmentCancellationEvent);
       expect(result.getDetailsPlainText(item)).toEqual('Requested cancellation for PPM shipment');
+    });
+  });
+
+  describe('when given a Request shipment reweigh history record', () => {
+    const item = {
+      action: 'INSERT',
+      context: [{ shipment_type: 'HHG' }],
+      eventName: 'requestShipmentReweigh',
+      tableName: 'reweighs',
+    };
+    it('correctly matches the Request shipment reweigh event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(requestShipmentReweighEvent);
+      expect(result.getDetailsPlainText(item)).toEqual('HHG shipment, reweigh requested');
     });
   });
 
@@ -135,7 +177,7 @@ describe('moveHistoryEventTemplate', () => {
     const item = {
       action: 'UPDATE',
       changedValues: { status: 'APPROVED' },
-      context: { name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' },
+      context: [{ name: 'Domestic origin price', shipment_type: 'HHG_INTO_NTS_DOMESTIC' }],
       eventName: 'updateMTOServiceItemStatus',
       tableName: 'mto_service_items',
     };
@@ -173,6 +215,54 @@ describe('moveHistoryEventTemplate', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(updateMoveTaskOrderStatusEvent);
       expect(result.getDetailsPlainText(item)).toEqual('Rejected Move Task Order (MTO)');
+    });
+  });
+
+  describe('when given an Order update history record', () => {
+    const item = {
+      action: 'UPDATE',
+      eventName: 'updateOrder',
+      tableName: 'orders',
+      detailsType: detailsTypes.LABELED,
+      changedValues: { old_duty_location_id: 'ID1', new_duty_location_id: 'ID2' },
+      context: [{ old_duty_location_name: 'old name', new_duty_location_name: 'new name' }],
+    };
+    it('correctly matches the Update orders event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(updateOrderEvent);
+      // expect to have merged context and changedValues
+      expect(result.getDetailsLabeledDetails({ context: item.context, changedValues: item.changedValues })).toEqual({
+        old_duty_location_id: 'ID1',
+        new_duty_location_id: 'ID2',
+        old_duty_location_name: 'old name',
+        new_duty_location_name: 'new name',
+      });
+    });
+  });
+
+  describe('when given a payment request is created through reweigh', () => {
+    const item = {
+      action: 'INSERT',
+      eventName: 'updateReweigh',
+      tableName: 'payment_requests',
+    };
+    it('correctly matches the Request shipment reweigh event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(createPaymentRequestReweighUpdate);
+      expect(result.getStatusDetails(item)).toEqual('Pending');
+    });
+  });
+
+  describe('when given a payment request is created through shipment update', () => {
+    const item = {
+      action: 'INSERT',
+      eventName: 'updateMTOShipment',
+      tableName: 'payment_requests',
+    };
+    it('correctly matches the Request shipment reweigh event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(createPaymentRequestShipmentUpdate);
+      expect(result.getStatusDetails(item)).toEqual('Pending');
     });
   });
 });

@@ -4,7 +4,7 @@ import { get, omit, cloneDeep } from 'lodash';
 import { reduxForm, getFormValues } from 'redux-form';
 
 import { convertDollarsToCents } from 'shared/utils';
-import { formatCents } from 'shared/formatters';
+import { formatCents } from 'utils/formatters';
 import { editablePanelify } from 'shared/EditablePanel';
 import { selectMoveDocument, updateMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';

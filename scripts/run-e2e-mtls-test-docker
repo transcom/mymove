@@ -1,160 +1,59 @@
 #! /usr/bin/env bash
 
+circleci_build_image=milmove/circleci-docker:milmove-app-3d4d7c108724ebcbe7d986d63dcd6fb8a4246633
+
 set -eux -o pipefail
 
-scripts/ensure-application app
-
-# Set Defaults
-NETWORK="mymove_default" # Docker network
-
-# When running locally enable TTY
-DOCKER_RUN="docker run -t"
+# This script is no longer used in circleci because in CI we want some
+# of the steps below to run in parallel and that's hard to integration
+# with circleci config, so there's some duplication in .circleci/config.yml
 if [ -n "${CIRCLECI+x}" ]; then
-  echo "RUNNING IN CIRCLECI"
-  DOCKER_RUN="docker run"
+  echo "This script is only for running mtls tests locally"
+  exit 1
 fi
 
 # Check that the docker process is running first
 docker system info >> /dev/null
 
-if [[ -n "${CIRCLECI+x}" ]]; then
-  # CI/CD allows us to use pre-built images using the branch name
-  scripts/update-docker-compose docker-compose.mtls.yml
+# ensure we nuke anything from a prior run
+docker-compose -f docker-compose.mtls.yml down
+docker rm -f prime_api_client || true
+docker network rm e2e_mtls || true
 
-  # Let's clean things up before starting
-  # This may show an error locally but can be safely ignored, its only for CircleCI
-  docker-compose -f docker-compose.mtls.yml down --rmi all || true
+# in CI, we can copy in the artifacts built in CI, but locally we have
+# to compile inside docker first
+rm -rf bin pkg/assets/assets.go
+mkdir bin
+# set GOPATH if not already set
+: "${GOPATH:=$HOME/.gopath}"
+docker run \
+       --rm \
+       -v "${GOPATH}:${GOPATH}" \
+       -v "${PWD}:${PWD}" \
+       -w "${PWD}" \
+       -e GOPATH \
+       -e CIRCLECI=1 \
+       ${circleci_build_image} \
+      make pkg/assets/assets.go \
+       server_build \
+       bin/prime-api-client \
+       bin/generate-test-data \
+       bin/rds-ca-2019-root.pem \
+       bin/rds-ca-us-gov-west-1-2017-root.pem \
+       bin/rds-ca-rsa4096-g1.pem
+docker build -t milmove_mtls:local -f Dockerfile.e2e .
 
-  # Docker Compose Setup
-  aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+# clean up the generated files that are now for linux instead of macOS
+rm -rf bin
 
-  # If you don't pull and CircleCI has cached previous images then you won't see any changes from AWS ECR
-  docker-compose -f docker-compose.mtls.yml pull
+docker network create e2e_mtls
+docker-compose -f docker-compose.mtls.yml up -d
 
-  # Bring these containers up but don't start them so they can be manipulated first
-  docker-compose -f docker-compose.mtls.yml up --no-start
-
-  # Can't mount folders in CircleCI so copy this data in
-  # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
-  docker cp ./migrations/app/secure mymove_milmove_migrate_1:/migrate/
-  # Copy the certificate authority into the container.
-  docker cp ./config/tls/devlocal-ca.key mymove_milmove_1:/config/tls/devlocal-ca.key
-  docker cp ./config/tls/devlocal-ca.pem mymove_milmove_1:/config/tls/devlocal-ca.pem
-
-  # Start everything up
-  docker-compose -f docker-compose.mtls.yml up -d --no-recreate --remove-orphans
-
-  # Build a small e2e dockerfile
-  docker build -f Dockerfile.tools --tag tools:latest .
-
-  # Following the logs should block any more actions until migrations are completed and the container exits
-  docker-compose -f docker-compose.mtls.yml logs -f milmove_migrate
-else
-  # Locally development requires that we build the container
-
-  # Let's clean things up before starting
-  docker-compose -f docker-compose.mtls_local.yml down --remove-orphans || true
-
-  # Build images and start everything up
-  docker-compose -f docker-compose.mtls_local.yml up --remove-orphans -d --build
-
-  # Build a small tools dockerfile
-  docker build -f Dockerfile.tools_local --tag tools:latest .
-
-  # Following the logs should block any more actions until migrations are completed and the container exits
-  docker-compose -f docker-compose.mtls_local.yml logs -f milmove_migrate
-fi
-
-# Need to wait not just for DB but also migrations to finish
-while true; do
-  MIGRATE_EXIT=$(docker ps --filter="name=mymove_milmove_migrate_1" --filter="status=exited" -q)
-  if [[ -n "${MIGRATE_EXIT}" ]]; then
-    break
-  else
-    echo
-    echo "Waiting 5 seconds for migrations to complete"
-    sleep 5
-  fi
-done
-
-MIGRATE_EXIT_CODE=$(docker inspect --format='{{.State.ExitCode}}' mymove_milmove_migrate_1)
-if [[ "${MIGRATE_EXIT_CODE}" != "0" ]]; then
-  echo
-  echo "Migration exited with exit code ${MIGRATE_EXIT_CODE}"
-  exit 1
-fi
-
-# Truncate the DB
-$DOCKER_RUN \
-  --link="database" \
-  --net "${NETWORK}" \
-  --rm \
-  --entrypoint psql \
-  tools:latest \
-  postgres://postgres:mysecretpassword@database:5432/dev_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
-
-# Generate Test Data
-$DOCKER_RUN \
-  -e DB_NAME=dev_db \
-  -e DB_HOST=database \
-  -e DB_PORT=5432 \
-  -e DB_USER=postgres \
-  -e DB_PASSWORD=mysecretpassword \
-  -e LOCAL_STORAGE_ROOT=/tmp \
-  -e LOCAL_STORAGE_WEB_ROOT=storage \
-  --link="database" \
-  --net "${NETWORK}" \
-  -v "$(pwd)"/tmp:/tmp \
-  --rm \
-  --entrypoint generate-test-data \
-  tools:latest \
-  --named-scenario e2e_basic
-
-#
-# INTEGRATION TESTS START
-#
-
-##Integration test for Prime API
-##Return moves from the list-moves endpoint where is_available_for_prime is true
-function prime_api_client () {
-  # Cannot mount directories in CircleCI so certificates and data are built into the container
-  $DOCKER_RUN \
-    --link="mymove_milmove_1:primelocal" \
-    --net "${NETWORK}" \
-    --rm \
-    --entrypoint prime-api-client \
-    tools:latest \
-    --certpath ./config/tls/devlocal-mtls.cer \
-    --keypath ./config/tls/devlocal-mtls.key \
-    --insecure \
-    --hostname primelocal \
-    --port 9443 \
-    "$@"
-}
-
-
-#Integration test/health check for Prime API
-#Return moves from the list-moves endpoint where available_to_prime_at is NOT NULL
-moves=$(prime_api_client list-moves)
-#Returns move IDs from the list-moves response (this would fail if API returns 500/400)
-moveID=$(echo "$moves" | jq '.[0] | .id')
-echo "$moveID"
-
-#Integration test/health check for Support API
-#Return all mtos regardless of whether or not they have been made available to prime at some point
-list_mtos=$(prime_api_client support-list-mtos)
-#Returns mtoShipments from the support-list-mtos response (this would fail if API returns 500/400)
-supportMtoShipments=$(echo "$list_mtos" | jq '.[0] | .mtoShipments')
-echo "$supportMtoShipments"
-
-#
-# INTEGRATION TESTS END
-#
+docker run \
+       --name prime_api_client \
+       --network e2e_mtls \
+       --entrypoint /scripts/run-e2e-mtls-test \
+       milmove_mtls:local
 
 # Stop the app container to release the DB connection
-if [[ -n "${CIRCLECI+x}" ]]; then
-  docker-compose -f docker-compose.branch.yml down --remove-orphans || true
-  git checkout docker-compose.mtls.yml
-else
-  docker-compose -f docker-compose.local.yml down --remove-orphans || true
-fi
+docker-compose -f docker-compose.mtls.yml down

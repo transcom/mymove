@@ -41,7 +41,43 @@ describe('MoveHistoryDetailsSelector', () => {
     });
   });
 
-  // describe('handle a payments details event', () => {
+  describe('handle a payments details update event', () => {
+    const historyRecord = {
+      action: 'UPDATE',
+      changedValues: { status: 'REVIEWED', reviewed_at: '2022-04-27T20:56:24.867071' },
+      eventName: 'updatePaymentRequestStatus',
+      context: [
+        {
+          name: 'Test Service',
+          price: '10123',
+          status: 'APPROVED',
+        },
+        {
+          name: 'Domestic uncrating',
+          price: '5555',
+          status: 'APPROVED',
+        },
+      ],
+      tableName: 'payment_requests',
+    };
+    it('renders the payment details appropriately', () => {
+      render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
+      expect(screen.getByText('Test Service')).toBeInTheDocument();
+      expect(screen.getByText(101.23, { exact: false })).toBeInTheDocument();
+      expect(screen.getByText('Domestic uncrating')).toBeInTheDocument();
+      expect(screen.getByText(55.55, { exact: false })).toBeInTheDocument();
+    });
+  });
 
-  // });
+  describe('handle a payments details insert event', () => {
+    const historyRecord = {
+      action: 'INSERT',
+      eventName: 'updateReweigh',
+      tableName: 'payment_requests',
+    };
+    it('renders the payment details appropriately', () => {
+      render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
+      expect(screen.getByText('Pending', { exact: false })).toBeInTheDocument();
+    });
+  });
 });

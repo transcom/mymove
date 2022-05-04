@@ -2,7 +2,6 @@ package mtoshipment
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -16,7 +15,7 @@ import (
 func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	requester := NewShipmentReweighRequester()
 
-	suite.T().Run("If the shipment reweigh is requested successfully, it creates a reweigh in the DB", func(t *testing.T) {
+	suite.Run("If the shipment reweigh is requested successfully, it creates a reweigh in the DB", func() {
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
@@ -42,7 +41,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		suite.WithinDuration(time.Now(), reweigh.RequestedAt, 2*time.Second)
 	})
 
-	suite.T().Run("When the shipment is not in a permitted status, returns a ConflictError", func(t *testing.T) {
+	suite.Run("When the shipment is not in a permitted status, returns a ConflictError", func() {
 		rejectionReason := "rejection reason"
 		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -58,7 +57,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", rejectedShipment.ID, rejectedShipment.Status), err.Error())
 	})
 
-	suite.T().Run("When a reweigh already exists for the shipment, returns ConflictError", func(t *testing.T) {
+	suite.Run("When a reweigh already exists for the shipment, returns ConflictError", func() {
 		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
 		existingShipment := reweigh.Shipment
 
@@ -69,7 +68,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Cannot request a reweigh on a shipment that already has one.", existingShipment.ID), err.Error())
 	})
 
-	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
+	suite.Run("Passing in a bad shipment id returns a Not Found error", func() {
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
 		_, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), badShipmentID, models.ReweighRequesterTOO)

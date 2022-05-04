@@ -8,7 +8,7 @@ import "github.com/gofrs/uuid"
 type MoveToGBLOC struct {
 	MoveID uuid.UUID `db:"move_id"`
 	Move   Move      `belongs_to:"moves" fk_id:"move_id"`
-	GBLOC  string    `db:"gbloc"`
+	GBLOC  *string   `db:"gbloc"`
 }
 
 // MoveToGBLOCs is not required by pop and may be deleted

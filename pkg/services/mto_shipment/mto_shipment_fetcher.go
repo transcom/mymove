@@ -58,13 +58,20 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 		return nil, err
 	}
 
-	// Due to a Pop bug, we cannot EagerPreload "Reweigh" likely because it is a pointer and
+	// Due to a Pop bug, we cannot EagerPreload "Reweigh" or "PPMShipment" likely because it is a pointer and
 	// a "has_one" field.  This seems similar to other EagerPreload issues we've found (and
 	// sometimes fixed): https://github.com/gobuffalo/pop/issues?q=author%3Areggieriser
 	for i := range shipments {
 		loadErr := appCtx.DB().Load(&shipments[i], "Reweigh")
 		if loadErr != nil {
 			return nil, err
+		}
+
+		if shipments[i].ShipmentType == models.MTOShipmentTypePPM {
+			loadErr := appCtx.DB().Load(&shipments[i], "PPMShipment")
+			if loadErr != nil {
+				return nil, apperror.NewQueryError("PPMShipment", err, "")
+			}
 		}
 	}
 

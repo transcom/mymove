@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/gobuffalo/envy"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 
 	// Anonymously import lib/pq driver so it's available to Pop

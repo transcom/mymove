@@ -1,7 +1,14 @@
 import PropTypes from 'prop-types';
 
+import {
+  ORDERS_BRANCH_OPTIONS,
+  ORDERS_RANK_OPTIONS,
+  ORDERS_TYPE_DETAILS_OPTIONS,
+  ORDERS_TYPE_OPTIONS,
+} from 'constants/orders';
+
 export const HistoryLogValuesShape = PropTypes.object;
-export const HistoryLogContextShape = PropTypes.object;
+export const HistoryLogContextShape = PropTypes.arrayOf(PropTypes.object);
 
 export const HistoryLogRecordShape = PropTypes.shape({
   action: PropTypes.string,
@@ -11,50 +18,6 @@ export const HistoryLogRecordShape = PropTypes.shape({
   oldValues: HistoryLogValuesShape,
   tableName: PropTypes.string,
 });
-
-/*
-export const modelToDisplayName = {
-  updatedAt: 'Updated at',
-  diversion: 'Diversion',
-  billableWeightCap: 'Billable weight cap',
-  usesExternalVendor: 'Uses external vendor',
-  requestedDeliveryDate: 'Requested delivery date',
-  scheduledPickupDate: 'Scheduled pickup date',
-  status: 'Status',
-  customerRemarks: 'Customer remarks',
-  approvedDate: 'Approved date',
-  actualPickupDate: 'Actual pickup date',
-  primeEstimatedEeight: 'Prime estimated weight',
-  counselorRemarks: 'Counselor remarks',
-  serviceOrderNumber: 'Service order number',
-  tacType: 'TAC type',
-  sacType: 'SAC type',
-};
-
-export const dbFieldsToModel = {
-  updated_at: 'updatedAt',
-  diversion: 'diversion',
-  billable_weight_cap: 'billableWeightCap',
-  uses_external_vendor: 'usesExternalVendor',
-  requested_delivery_date: 'requesteDeliveryDate',
-  scheduled_pickup_date: 'scheduledPickupDate',
-  status: 'status',
-  customer_remarks: 'customerRemarks',
-  approved_date: 'approvedDate',
-  actual_pickup_date: 'actualPickupDate',
-  prime_estimated_weight: 'primeEstimatedWeight',
-  counselor_remarks: 'counselorRemarks',
-  street_address_1: 'streetAddress1',
-  street_address_2: 'streetAddress2',
-  street_address_3: 'streetAddress3',
-  postal_code: 'postalCode',
-  city: 'city',
-  country: 'country',
-  service_order_number: 'serviceOrderNumber',
-  tac_type: 'tacType',
-  sac_type: 'sacType',
-};
-*/
 
 export const dbFieldToDisplayName = {
   updated_at: 'Updated at',
@@ -73,6 +36,43 @@ export const dbFieldToDisplayName = {
   tac_type: 'TAC type',
   sac_type: 'SAC type',
   authorized_weight: 'Authorized weight',
+  report_by_date: 'Report by date',
+  issue_date: 'Orders date',
+  orders_type: 'Orders type',
+  orders_type_detail: 'Orders type detail',
+  origin_duty_location_name: 'Origin duty location name',
+  new_duty_location_name: 'New duty location name',
+  orders_number: 'Orders number',
+  tac: 'HHG TAC',
+  sac: 'HHG SAC',
+  nts_tac: 'NTS TAC',
+  nts_sac: 'NTS SAC',
+  department_indicator: 'Dept. indicator',
+  amended_orders_acknowledged_at: 'Amended orders acknowledged at',
+  storage_in_transit: 'Storage in transit (SIT)',
+  dependents_authorized: 'Dependents',
+  pro_gear_weight: 'Pro-gear',
+  pro_gear_weight_spouse: 'Spouse pro-gear',
+  required_medical_equipment_weight: 'RME',
+  organizational_clothing_and_individual_equipment: 'OCIE',
+  grade: 'Rank',
+};
+
+export const dbWeightFields = [
+  'billable_weight_cap',
+  'prime_estimated_weight',
+  'authorized_weight',
+  'pro_gear_weight',
+  'pro_gear_weight_spouse',
+  'required_medical_equipment_weight',
+];
+
+// This is to map the human-readable text to the options
+export const optionFields = {
+  ...ORDERS_BRANCH_OPTIONS,
+  ...ORDERS_TYPE_DETAILS_OPTIONS,
+  ...ORDERS_TYPE_OPTIONS,
+  ...ORDERS_RANK_OPTIONS,
 };
 
 export const eventNamesWithLabeledDetails = {
