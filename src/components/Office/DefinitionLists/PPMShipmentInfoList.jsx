@@ -6,10 +6,11 @@ import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss
 
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
-import { ShipmentShape } from 'types/shipment';
+import { PPMShipmentShape } from 'types/shipment';
+import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags } from 'utils/displayFlags';
 
-const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing }) => {
+const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, showWhenCollapsed, isExpanded }) => {
   const {
     advanceRequested,
     destinationPostalCode,
@@ -22,14 +23,17 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
     secondaryPickupPostalCode,
     sitExpected,
     spouseProGearWeight,
-  } = shipment;
+  } = shipment.ppmShipment;
 
   setFlagStyles({
     row: styles.row,
     warning: shipmentDefinitionListsStyles.warning,
-    missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
-  setDisplayFlags(errorIfMissing, warnIfMissing, null, null, shipment);
+  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+
+  const showElement = (elementFlags) => {
+    return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
+  };
 
   const expectedDepartureDateElementFlags = getDisplayFlags('expectedDepartureDate');
   const expectedDepartureDateElement = (
@@ -85,7 +89,7 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
   const estimatedWeightElement = (
     <div className={estimatedWeightElementFlags.classes}>
       <dt>Estimated weight</dt>
-      <dd data-testid="estimatedWeight">{estimatedWeight}</dd>
+      <dd data-testid="estimatedWeight">{formatWeight(estimatedWeight)}</dd>
     </div>
   );
 
@@ -93,7 +97,7 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
   const proGearWeightElement = (
     <div className={proGearWeightElementFlags.classes}>
       <dt>Pro-gear</dt>
-      <dd data-testid="proGearWeight">{proGearWeight}</dd>
+      <dd data-testid="proGearWeight">{proGearWeight ? `Yes, ${formatWeight(proGearWeight)}` : 'No'}</dd>
     </div>
   );
 
@@ -101,7 +105,7 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
   const spouseProGearElement = (
     <div className={spouseProGearElementFlags.classes}>
       <dt>Spouse pro-gear</dt>
-      <dd data-testid="spouseProGear">{spouseProGearWeight}</dd>
+      <dd data-testid="spouseProGear">{spouseProGearWeight ? `Yes, ${formatWeight(spouseProGearWeight)}` : 'No'}</dd>
     </div>
   );
 
@@ -109,7 +113,9 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
   const estimatedIncentiveElement = (
     <div className={estimatedIncentiveElementFlags.classes}>
       <dt>Estimated Incentive</dt>
-      <dd data-testid="estimatedIncentive">{estimatedIncentive}</dd>
+      <dd data-testid="estimatedIncentive">
+        ${estimatedIncentive ? formatCentsTruncateWhole(estimatedIncentive) : '0'}
+      </dd>
     </div>
   );
 
@@ -117,17 +123,19 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
   const advanceRequestedElement = (
     <div className={advanceRequestedElementFlags.classes}>
       <dt>Advance requested?</dt>
-      <dd data-testid="advanceRequested">{advanceRequested ? 'yes' : 'no'}</dd>
+      <dd data-testid="advanceRequested">
+        {advanceRequested ? `Yes, $${formatCentsTruncateWhole(advanceRequested)}` : 'No'}
+      </dd>
     </div>
   );
 
-  // const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
-  // const counselorRemarksElement = (
-  //   <div className={counselorRemarksElementFlags.classes}>
-  //     <dt>Counselor remarks</dt>
-  //     <dd data-testid="counselorRemarks">{counselorRemarks || '—'}</dd>
-  //   </div>
-  // );
+  const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
+  const counselorRemarksElement = (
+    <div className={counselorRemarksElementFlags.classes}>
+      <dt>Counselor remarks</dt>
+      <dd data-testid="counselorRemarks">{shipment.counselorRemarks || '—'}</dd>
+    </div>
+  );
 
   return (
     <dl
@@ -142,31 +150,35 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
     >
       {expectedDepartureDateElement}
       {originZIPElement}
-      {secondOriginZIPElement}
+      {showElement(secondOriginZIPElementFlags) && secondOriginZIPElement}
       {destinationZIPElement}
-      {secondDestinationZIPElement}
+      {showElement(secondDestinationZIPElementFlags) && secondDestinationZIPElement}
       {sitPlannedElement}
       {estimatedWeightElement}
-      {proGearWeightElement}
-      {spouseProGearElement}
-      {estimatedIncentiveElement}
+      {showElement(proGearWeightElementFlags) && proGearWeightElement}
+      {showElement(spouseProGearElementFlags) && spouseProGearElement}
+      {showElement(estimatedIncentiveElementFlags) && estimatedIncentiveElement}
       {advanceRequestedElement}
-      {/* {counselorRemarksElement} */}
+      {counselorRemarksElement}
     </dl>
   );
 };
 
 PPMShipmentInfoList.propTypes = {
   className: PropTypes.string,
-  shipment: ShipmentShape.isRequired,
+  shipment: PPMShipmentShape.isRequired,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  isExpanded: PropTypes.bool,
 };
 
 PPMShipmentInfoList.defaultProps = {
   className: '',
   warnIfMissing: [],
   errorIfMissing: [],
+  showWhenCollapsed: [],
+  isExpanded: false,
 };
 
 export default PPMShipmentInfoList;

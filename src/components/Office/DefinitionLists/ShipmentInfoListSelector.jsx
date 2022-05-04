@@ -1,7 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 
-import { ShipmentShape } from 'types/shipment';
+import { ShipmentShape, PPMShipmentShape } from 'types/shipment';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import PPMShipmentInfoList from 'components/Office/DefinitionLists/PPMShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
@@ -27,6 +27,8 @@ const ShipmentInfoListSelector = ({
           warnIfMissing={warnIfMissing}
           errorIfMissing={errorIfMissing}
           shipmentType={shipmentType}
+          showWhenCollapsed={showWhenCollapsed}
+          isExpanded={isExpanded}
         />
       );
     case SHIPMENT_OPTIONS.HHG:
@@ -76,7 +78,7 @@ const ShipmentInfoListSelector = ({
 
 ShipmentInfoListSelector.propTypes = {
   className: PropTypes.string,
-  shipment: ShipmentShape.isRequired,
+  shipment: PropTypes.oneOfType([ShipmentShape, PPMShipmentShape]).isRequired,
   isExpanded: PropTypes.bool,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
@@ -88,6 +90,7 @@ ShipmentInfoListSelector.propTypes = {
     SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     SHIPMENT_OPTIONS.NTS,
     SHIPMENT_OPTIONS.NTSR,
+    SHIPMENT_OPTIONS.PPM,
   ]),
 };
 
