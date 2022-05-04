@@ -669,7 +669,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(models.Int32Pointer(int32(8765309)), nil).Once()
+			Return(models.CentPointer(unit.Cents(8765309)), nil).Once()
 
 		response := handler.Handle(params)
 
