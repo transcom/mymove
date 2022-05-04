@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 
 import LabeledDetails from './LabeledDetails';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 describe('LabeledDetails', () => {
   describe('for each changed value', () => {
     const historyRecord = {
@@ -32,7 +34,6 @@ describe('LabeledDetails', () => {
         nts_sac: '5555',
         department_indicator: 'AIR_FORCE',
         grade: 'E_1',
-        shipment_type: '(Shipment Type) HHG',
       },
     };
     it.each([
@@ -59,7 +60,6 @@ describe('LabeledDetails', () => {
       ['HHG SAC', ': 4444'],
       ['NTS SAC', ': 5555'],
       ['Dept. indicator', ': Air Force'],
-      ['Shipment type', ': (Shipment Type) HHG'],
     ])('it renders %s%s', (displayName, value) => {
       render(<LabeledDetails historyRecord={historyRecord} />);
 
@@ -67,6 +67,20 @@ describe('LabeledDetails', () => {
 
       expect(screen.getByText(value)).toBeInTheDocument();
     });
+  });
+
+  it('renderes shipment_type as a header', async () => {
+    const historyRecord = {
+      changedValues: {
+        billable_weight_cap: '200',
+        billable_weight_justification: 'Test TIO Remarks',
+        shipment_type: SHIPMENT_OPTIONS.NTSR,
+      },
+    };
+
+    render(<LabeledDetails historyRecord={historyRecord} />);
+
+    expect(screen.getByText('NTS-release shipment')).toBeInTheDocument();
   });
 
   it('does not render any text for changed values that are blank', async () => {
