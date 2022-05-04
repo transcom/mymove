@@ -125,22 +125,28 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	pickup_address_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			json_agg(json_build_object('addressType',
+					'pickupAddress'::TEXT))::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
 		JOIN shipments ON shipments.pickup_address_id = audit_history.object_id
 			AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
 	),
 	destination_address_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			json_agg(json_build_object('addressType',
+					'destinationAddress'::TEXT))::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
 		JOIN shipments ON shipments.destination_address_id = audit_history.object_id
 			AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
 	),
 	entitlements AS (
 		SELECT
@@ -196,6 +202,22 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			audit_history
 			JOIN payment_requests ON payment_requests.id = audit_history.object_id
 				AND audit_history. "table_name" = 'payment_requests'
+	),
+	agents AS (
+		SELECT
+			mto_agents.id
+		FROM
+			mto_agents
+		JOIN shipments ON mto_agents.mto_shipment_id = shipments.id
+	),
+	agents_logs AS (
+		SELECT audit_history.*,
+			NULL AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN agents ON agents.id = audit_history.object_id
+			AND audit_history."table_name" = 'mto_agents'
 	),
 	reweighs AS (
 		SELECT
@@ -253,6 +275,11 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			*
 		FROM
 			orders_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			agents_logs
 		UNION ALL
 		SELECT
 			*

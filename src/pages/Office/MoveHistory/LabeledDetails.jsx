@@ -8,9 +8,11 @@ import {
   HistoryLogRecordShape,
   dbFieldToDisplayName,
   dbWeightFields,
+  dbDateFields,
   optionFields,
 } from 'constants/historyLogUIDisplayName';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
   const displayName = dbFieldToDisplayName[fieldName];
@@ -18,10 +20,12 @@ const retrieveTextToDisplay = (fieldName, value) => {
 
   if (displayName === dbFieldToDisplayName.storage_in_transit) {
     displayValue = `${displayValue} days`;
-  } else if (dbWeightFields.includes(fieldName)) {
+  } else if (dbWeightFields[fieldName]) {
     displayValue = `${displayValue} lbs`;
   } else if (optionFields[displayValue]) {
     displayValue = optionFields[displayValue];
+  } else if (dbDateFields[fieldName]) {
+    displayValue = formatCustomerDate(displayValue);
   }
 
   return {

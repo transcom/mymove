@@ -1,6 +1,8 @@
 import moveHistoryOperations from './moveHistoryOperations';
 import { shipmentTypes } from './shipments';
 
+import { formatMoveHistoryFullAddress, formatMoveHistoryAgent } from 'utils/formatters';
+
 function propertiesMatch(p1, p2) {
   return p1 === '*' || p2 === '*' || p1 === p2;
 }
@@ -62,22 +64,6 @@ export const acknowledgeExcessWeightRiskEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => 'Dismissed excess weight alert',
 });
 
-export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
-  action: 'UPDATE',
-  eventName: moveHistoryOperations.updateBillableWeight,
-  tableName: 'entitlements',
-  detailsType: detailsTypes.LABELED,
-  getEventNameDisplay: () => 'Updated move',
-});
-
-export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
-  action: 'UPDATE',
-  eventName: moveHistoryOperations.updateAllowance,
-  tableName: 'entitlements',
-  detailsType: detailsTypes.LABELED,
-  getEventNameDisplay: () => 'Updated allowances',
-});
-
 export const approveShipmentEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.approveShipment,
@@ -100,6 +86,17 @@ export const approveShipmentDiversionEvent = buildMoveHistoryEventTemplate({
   },
 });
 
+export const createBasicServiceItemEvent = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.updateMoveTaskOrderStatus,
+  tableName: 'mto_service_items',
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: () => 'Approved service item',
+  getDetailsPlainText: (historyRecord) => {
+    return `${historyRecord.context[0]?.name}`;
+  },
+});
+
 export const createMTOShipmentEvent = buildMoveHistoryEventTemplate({
   action: 'INSERT',
   eventName: moveHistoryOperations.createMTOShipment,
@@ -107,6 +104,62 @@ export const createMTOShipmentEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Submitted/Requested shipments',
   getDetailsPlainText: () => '-',
+});
+
+export const createMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: '',
+  tableName: 'addresses',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ changedValues, context }) => {
+    const address = formatMoveHistoryFullAddress(changedValues);
+
+    const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
+
+    let addressLabel = '';
+    if (addressType === 'pickupAddress') {
+      addressLabel = 'pickup_address';
+    } else if (addressType === 'destinationAddress') {
+      addressLabel = 'destination_address';
+    }
+
+    const newChangedValues = {
+      ...changedValues,
+    };
+
+    newChangedValues[addressLabel] = address;
+
+    return newChangedValues;
+  },
+});
+
+export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'mto_agents',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
+    const agent = formatMoveHistoryAgent(changedValues);
+
+    const agentType = changedValues.agent_type ?? oldValues.agent_type;
+
+    let agentLabel = '';
+    if (agentType === 'RECEIVING_AGENT') {
+      agentLabel = 'receiving_agent';
+    } else if (agentType === 'RELEASING_AGENT') {
+      agentLabel = 'releasing_agent';
+    }
+
+    const newChangedValues = {
+      ...changedValues,
+    };
+
+    newChangedValues[agentLabel] = agent;
+
+    return newChangedValues;
+  },
 });
 
 export const createOrdersEvent = buildMoveHistoryEventTemplate({
@@ -118,14 +171,25 @@ export const createOrdersEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
-export const createBasicServiceItemEvent = buildMoveHistoryEventTemplate({
+export const createPaymentRequestReweighUpdate = buildMoveHistoryEventTemplate({
   action: 'INSERT',
-  eventName: moveHistoryOperations.updateMoveTaskOrderStatus,
-  tableName: 'mto_service_items',
-  detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: () => 'Approved service item',
-  getDetailsPlainText: (historyRecord) => {
-    return `${historyRecord.context[0]?.name}`;
+  eventName: moveHistoryOperations.updateReweigh,
+  tableName: 'payment_requests',
+  detailsType: detailsTypes.STATUS,
+  getEventNameDisplay: () => 'Created payment request',
+  getStatusDetails: () => {
+    return 'Pending';
+  },
+});
+
+export const createPaymentRequestShipmentUpdate = buildMoveHistoryEventTemplate({
+  action: 'INSERT',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'payment_requests',
+  detailsType: detailsTypes.STATUS,
+  getEventNameDisplay: () => 'Created payment request',
+  getStatusDetails: () => {
+    return 'Pending';
   },
 });
 
@@ -197,6 +261,22 @@ export const submitMoveForApprovalEvent = buildMoveHistoryEventTemplate({
   getDetailsPlainText: () => '-',
 });
 
+export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateAllowance,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated allowances',
+});
+
+export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateBillableWeight,
+  tableName: 'entitlements',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated move',
+});
+
 export const updateMoveTaskOrderEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.updateMoveTaskOrder,
@@ -211,13 +291,100 @@ export const updateMoveTaskOrderStatusEvent = buildMoveHistoryEventTemplate({
   tableName: 'moves',
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: (historyRecord) => {
-    return historyRecord.changedValues?.status === 'APPROVED' ? 'Approved move' : 'Rejected move';
+    return historyRecord.changedValues?.available_to_prime_at ? 'Approved move' : 'Move status updated';
   },
   getDetailsPlainText: (historyRecord) => {
-    return historyRecord.changedValues?.status === 'APPROVED'
-      ? 'Created Move Task Order (MTO)'
-      : 'Rejected Move Task Order (MTO)';
+    return historyRecord.changedValues?.available_to_prime_at ? 'Created Move Task Order (MTO)' : '-';
   },
+});
+
+export const updateMTOShipmentEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'mto_shipments',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+});
+
+export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'addresses',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ changedValues, oldValues, context }) => {
+    let newChangedValues = {
+      street_address_1: oldValues.street_address_1,
+      street_address_2: oldValues.street_address_2,
+      city: oldValues.city,
+      state: oldValues.state,
+      postal_code: oldValues.postal_code,
+      ...changedValues,
+    };
+
+    const address = formatMoveHistoryFullAddress(newChangedValues);
+
+    const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
+
+    let addressLabel = '';
+    if (addressType === 'pickupAddress') {
+      addressLabel = 'pickup_address';
+    } else if (addressType === 'destinationAddress') {
+      addressLabel = 'destination_address';
+    }
+
+    newChangedValues = {
+      ...changedValues,
+    };
+
+    newChangedValues[addressLabel] = address;
+
+    return newChangedValues;
+  },
+});
+
+export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'mto_agents',
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
+    let newChangedValues = {
+      email: oldValues.email,
+      first_name: oldValues.first_name,
+      last_name: oldValues.last_name,
+      phone: oldValues.phone,
+      ...changedValues,
+    };
+
+    const agent = formatMoveHistoryAgent(newChangedValues);
+
+    const agentType = changedValues.agent_type ?? oldValues.agent_type;
+
+    let agentLabel = '';
+    if (agentType === 'RECEIVING_AGENT') {
+      agentLabel = 'receiving_agent';
+    } else if (agentType === 'RELEASING_AGENT') {
+      agentLabel = 'releasing_agent';
+    }
+
+    newChangedValues = {
+      ...changedValues,
+    };
+
+    newChangedValues[agentLabel] = agent;
+
+    return newChangedValues;
+  },
+});
+
+export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updatePaymentRequestStatus,
+  tableName: 'payment_requests',
+  detailsType: detailsTypes.PAYMENT,
+  getEventNameDisplay: () => 'Submitted payment request',
 });
 
 export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
@@ -247,36 +414,6 @@ export const uploadAmendedOrdersEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Updated orders',
   getDetailsPlainText: () => '-',
-});
-
-export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
-  action: 'UPDATE',
-  eventName: moveHistoryOperations.updatePaymentRequestStatus,
-  tableName: 'payment_requests',
-  detailsType: detailsTypes.PAYMENT,
-  getEventNameDisplay: () => 'Submitted payment request',
-});
-
-export const createPaymentRequestReweighUpdate = buildMoveHistoryEventTemplate({
-  action: 'INSERT',
-  eventName: moveHistoryOperations.updateReweigh,
-  tableName: 'payment_requests',
-  detailsType: detailsTypes.STATUS,
-  getEventNameDisplay: () => 'Created payment request',
-  getStatusDetails: () => {
-    return 'Pending';
-  },
-});
-
-export const createPaymentRequestShipmentUpdate = buildMoveHistoryEventTemplate({
-  action: 'INSERT',
-  eventName: moveHistoryOperations.updateMTOShipment,
-  tableName: 'payment_requests',
-  detailsType: detailsTypes.STATUS,
-  getEventNameDisplay: () => 'Created payment request',
-  getStatusDetails: () => {
-    return 'Pending';
-  },
 });
 
 export const updateOrderEvent = buildMoveHistoryEventTemplate({
@@ -334,7 +471,11 @@ const allMoveHistoryEventTemplates = [
   approveShipmentEvent,
   approveShipmentDiversionEvent,
   createMTOShipmentEvent,
+  createMTOShipmentAddressesEvent,
+  createMTOShipmentAgentEvent,
   createOrdersEvent,
+  createPaymentRequestReweighUpdate,
+  createPaymentRequestShipmentUpdate,
   createBasicServiceItemEvent,
   createStandardServiceItemEvent,
   requestShipmentCancellationEvent,
@@ -342,17 +483,20 @@ const allMoveHistoryEventTemplates = [
   requestShipmentReweighEvent,
   setFinancialReviewFlagEvent,
   submitMoveForApprovalEvent,
+  updateAllowanceEvent,
+  uploadAmendedOrdersEvent,
+  updateBillableWeightEvent,
   updateMoveTaskOrderEvent,
   updateMoveTaskOrderStatusEvent,
+  updateMTOShipmentEvent,
+  updateMTOShipmentAddressesEvent,
+  updateMTOShipmentAgentEvent,
+  updateMTOShipmentBillableWeightEvent,
   updateOrderEvent,
-  updateServiceItemStatusEvent,
-  uploadAmendedOrdersEvent,
   updatePaymentRequestStatus,
+  updateServiceItemStatusEvent,
   updateBillableWeightEvent,
   updateAllowanceEvent,
-  updateMTOShipmentBillableWeightEvent,
-  createPaymentRequestReweighUpdate,
-  createPaymentRequestShipmentUpdate,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {

@@ -36,7 +36,7 @@ MoveHistoryDetailsSelector.propTypes = {
 };
 
 MoveHistoryDetailsSelector.defaultProps = {
-  historyRecord: {},
+  historyRecord: [],
 };
 
 export default MoveHistoryDetailsSelector;
