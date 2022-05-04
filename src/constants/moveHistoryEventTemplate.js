@@ -2,6 +2,7 @@ import moveHistoryOperations from './moveHistoryOperations';
 import { shipmentTypes } from './shipments';
 
 import { formatMoveHistoryFullAddress, formatMoveHistoryAgent } from 'utils/formatters';
+import { dbActions, formatTableName } from 'constants/historyLogUIDisplayName';
 
 function propertiesMatch(p1, p2) {
   return p1 === '*' || p2 === '*' || p1 === p2;
@@ -450,11 +451,19 @@ export const undefinedEvent = buildMoveHistoryEventTemplate({
   eventName: '*',
   tableName: '*',
   detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: () => {
-    return 'Undefined event type';
+  getEventNameDisplay: (historyRecord) => {
+    switch (historyRecord.action) {
+      case dbActions.INSERT:
+        return `Created new item in ${formatTableName(historyRecord.tableName)}`;
+      case dbActions.DELETE:
+        return `Deleted item in ${formatTableName(historyRecord.tableName)}`;
+      case dbActions.UPDATE:
+      default:
+        return `Updated item in ${formatTableName(historyRecord.tableName)}`;
+    }
   },
   getDetailsPlainText: () => {
-    return 'Undefined event details';
+    return '-';
   },
 });
 
