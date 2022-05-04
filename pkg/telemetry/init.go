@@ -110,18 +110,21 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	if config.UseXrayID {
 		idGenerator = xray.NewIDGenerator()
 	}
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("milmove"))),
-		sdktrace.WithSampler(sampler),
-		sdktrace.WithIDGenerator(idGenerator),
-		sdktrace.WithSpanProcessor(bsp),
-	)
+	milmoveResource := resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("milmove"))
 	// Instantiate a new ECS resource detector
 	ecsResourceDetector := ecs.NewResourceDetector()
 	ecsResource, err := ecsResourceDetector.Detect(ctx)
 	if err != nil {
 		logger.Error("failed to create ECS resource detector", zap.Error(err))
 	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithResource(ecsResource),
+		sdktrace.WithResource(milmoveResource),
+		sdktrace.WithSampler(sampler),
+		sdktrace.WithIDGenerator(idGenerator),
+		sdktrace.WithSpanProcessor(bsp),
+	)
 
 	// Create pusher for metrics that runs in the background and pushes
 	// metrics periodically.
