@@ -58,6 +58,7 @@ type Assertions struct {
 	Notification                             models.Notification
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
+	OfficeMoveRemark                         models.OfficeMoveRemark
 	Order                                    models.Order
 	Organization                             models.Organization
 	OriginDutyLocation                       models.DutyLocation
