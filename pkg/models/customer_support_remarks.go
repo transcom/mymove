@@ -6,8 +6,8 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// OfficeMoveRemark struct represents the shape of an office move remark
-type OfficeMoveRemark struct {
+// CustomerSupportRemark struct represents the shape of an office move remark
+type CustomerSupportRemark struct {
 	ID           uuid.UUID  `db:"id"`
 	Content      string     `db:"content"`
 	OfficeUser   OfficeUser `belongs_to:"office_users" fk_id:"office_user_id"`
@@ -18,9 +18,9 @@ type OfficeMoveRemark struct {
 	UpdatedAt    time.Time  `db:"updated_at"`
 }
 
-type OfficeMoveRemarks []OfficeMoveRemark
+type CustomerSupportRemarks []CustomerSupportRemark
 
 // TableName overrides the table name used by Pop.
-func (o OfficeMoveRemark) TableName() string {
-	return "office_move_remarks"
+func (o CustomerSupportRemark) TableName() string {
+	return "customer_support_remarks"
 }

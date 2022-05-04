@@ -1,4 +1,4 @@
-CREATE TABLE office_move_remarks
+CREATE TABLE customer_support_remarks
 (
     id uuid PRIMARY KEY NOT NULL,
     created_at timestamp NOT NULL,
@@ -10,8 +10,8 @@ CREATE TABLE office_move_remarks
     CONSTRAINT fk_moves FOREIGN KEY (move_id) REFERENCES moves(id)
 );
 
-COMMENT on TABLE office_move_remarks IS 'Store remarks from office users pertaining to moves.';
-COMMENT on COLUMN office_move_remarks.content IS 'Text content of the remark written by an office user.';
-COMMENT on COLUMN office_move_remarks.move_id IS 'The move the office remark is associated with.';
-COMMENT on COLUMN office_move_remarks.office_user_id IS 'The office_user who authored the office remark.';
+COMMENT on TABLE customer_support_remarks IS 'Store remarks from office users pertaining to moves.';
+COMMENT on COLUMN customer_support_remarks.content IS 'Text content of the customer support remark written by an office user.';
+COMMENT on COLUMN customer_support_remarks.move_id IS 'The move the office remark is associated with.';
+COMMENT on COLUMN customer_support_remarks.office_user_id IS 'The office_user who authored the office remark.';
 

@@ -6,7 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func MakeOfficeMoveRemark(db *pop.Connection, assertions Assertions) models.OfficeMoveRemark {
+func MakeOfficeMoveRemark(db *pop.Connection, assertions Assertions) models.CustomerSupportRemark {
 	move := assertions.Move
 	officeUser := assertions.OfficeUser
 
@@ -18,7 +18,7 @@ func MakeOfficeMoveRemark(db *pop.Connection, assertions Assertions) models.Offi
 		officeUser = MakeOfficeUser(db, assertions)
 	}
 
-	officeMoveRemark := models.OfficeMoveRemark{
+	officeMoveRemark := models.CustomerSupportRemark{
 		Content:      "This is an office remark.",
 		OfficeUserID: officeUser.ID,
 		MoveID:       move.ID,
@@ -32,7 +32,7 @@ func MakeOfficeMoveRemark(db *pop.Connection, assertions Assertions) models.Offi
 	return officeMoveRemark
 }
 
-func MakeDefaultOfficeMoveRemark(db *pop.Connection) models.OfficeMoveRemark {
+func MakeDefaultOfficeMoveRemark(db *pop.Connection) models.CustomerSupportRemark {
 	officeMoveRemark := MakeOfficeMoveRemark(db, Assertions{})
 	return officeMoveRemark
 }

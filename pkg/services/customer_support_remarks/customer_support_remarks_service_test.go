@@ -1,4 +1,4 @@
-package officemoveremarks
+package customersupportremarks
 
 import (
 	"testing"
@@ -8,12 +8,12 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type OfficeMoveRemarksSuite struct {
+type CustomerSupportRemarksSuite struct {
 	testingsuite.PopTestSuite
 }
 
 func TestOfficeMoveRemarksServiceSuite(t *testing.T) {
-	ts := OfficeMoveRemarksSuite{
+	ts := CustomerSupportRemarksSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(
 			testingsuite.CurrentPackage(),
 			testingsuite.WithPerTestTransaction()),
