@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// DEPRECATED
+// DEPRECATED: This has been superseded by PPMEstimator
 // EstimateCalculator is the exported interface for calculating the legacy Personally Procured Move estimate
 //go:generate mockery --name EstimateCalculator --disable-version-string
 type EstimateCalculator interface {
