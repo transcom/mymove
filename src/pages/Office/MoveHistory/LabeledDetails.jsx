@@ -43,7 +43,7 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
   }
 
   // Check for shipment_type in values that need changing
-  if (changeValuesToUse.shipment_type !== null) {
+  if (changeValuesToUse.shipment_type !== undefined) {
     shipmentDisplay = shipmentTypes[changeValuesToUse.shipment_type];
     shipmentDisplay += ' shipment';
     delete changeValuesToUse.shipment_type;
