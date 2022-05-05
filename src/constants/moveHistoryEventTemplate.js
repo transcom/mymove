@@ -304,6 +304,12 @@ export const updateMTOShipmentEvent = buildMoveHistoryEventTemplate({
   tableName: 'mto_shipments',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: (historyRecord) => {
+    return {
+      shipment_type: historyRecord.oldValues.shipment_type,
+      ...historyRecord.changedValues,
+    };
+  },
 });
 
 export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
@@ -439,20 +445,6 @@ export const updateOrderEvent = buildMoveHistoryEventTemplate({
   },
 });
 
-export const updateMTOShipmentBillableWeightEvent = buildMoveHistoryEventTemplate({
-  action: 'UPDATE',
-  eventName: moveHistoryOperations.updateMTOShipment,
-  tableName: 'mto_shipments',
-  detailsType: detailsTypes.LABELED,
-  getEventNameDisplay: () => 'Updated shipment',
-  getDetailsLabeledDetails: (historyRecord) => {
-    return {
-      shipment_type: historyRecord.oldValues.shipment_type,
-      ...historyRecord.changedValues,
-    };
-  },
-});
-
 export const undefinedEvent = buildMoveHistoryEventTemplate({
   action: '*',
   eventName: '*',
@@ -491,7 +483,6 @@ const allMoveHistoryEventTemplates = [
   updateMTOShipmentEvent,
   updateMTOShipmentAddressesEvent,
   updateMTOShipmentAgentEvent,
-  updateMTOShipmentBillableWeightEvent,
   updateOrderEvent,
   updatePaymentRequestStatus,
   updateServiceItemStatusEvent,
