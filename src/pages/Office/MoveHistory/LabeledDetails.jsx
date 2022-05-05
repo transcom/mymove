@@ -35,29 +35,29 @@ const retrieveTextToDisplay = (fieldName, value) => {
 };
 
 const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
-  let changeValuesToUse = historyRecord.changedValues;
+  let changedValuesToUse = historyRecord.changedValues;
   let shipmentDisplay = '';
   // run custom function to mutate changedValues to display if not null
-  if (getDetailsLabeledDetails && typeof getDetailsLabeledDetails === 'function') {
-    changeValuesToUse = getDetailsLabeledDetails(historyRecord);
+  if (getDetailsLabeledDetails) {
+    changedValuesToUse = getDetailsLabeledDetails(historyRecord);
   }
 
-  // Check for shipment_type in values that need changing
-  if (changeValuesToUse.shipment_type !== undefined) {
-    shipmentDisplay = shipmentTypes[changeValuesToUse.shipment_type];
+  // Check for shipment_type to use it as a header for the row
+  if ('shipment_type' in changedValuesToUse) {
+    shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
     shipmentDisplay += ' shipment';
-    delete changeValuesToUse.shipment_type;
+    delete changedValuesToUse.shipment_type;
   }
 
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
-    return changeValuesToUse[dbField];
+    return changedValuesToUse[dbField];
   });
 
   return (
-    <div>
+    <>
       <span className={styles.shipmentType}>{shipmentDisplay}</span>
       {dbFieldsToDisplay.map((modelField) => {
-        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changeValuesToUse[modelField]);
+        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValuesToUse[modelField]);
 
         return (
           <div key={modelField} className={descriptionListStyles.row}>
@@ -65,7 +65,7 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
           </div>
         );
       })}
-    </div>
+    </>
   );
 };
 
