@@ -13,7 +13,6 @@ import { selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
 
 const mockPush = jest.fn();
-const mockGoBack = jest.fn();
 
 const mockMoveId = uuidv4();
 const mockMTOShipmentId = uuidv4();
@@ -91,7 +90,6 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useHistory: () => ({
     push: mockPush,
-    goBack: mockGoBack,
   }),
   useParams: () => ({
     moveId: mockMoveId,
