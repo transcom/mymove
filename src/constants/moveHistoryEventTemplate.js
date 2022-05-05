@@ -141,15 +141,7 @@ export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
   getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
-    let newChangedValues = {
-      email: oldValues.email,
-      first_name: oldValues.first_name,
-      last_name: oldValues.last_name,
-      phone: oldValues.phone,
-      ...changedValues,
-    };
-
-    const agent = formatMoveHistoryAgent(newChangedValues);
+    const agent = formatMoveHistoryAgent(changedValues);
 
     const agentType = changedValues.agent_type ?? oldValues.agent_type;
 
@@ -160,7 +152,7 @@ export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
       agentLabel = 'releasing_agent';
     }
 
-    newChangedValues = {
+    const newChangedValues = {
       ...changedValues,
     };
 
@@ -312,6 +304,12 @@ export const updateMTOShipmentEvent = buildMoveHistoryEventTemplate({
   tableName: 'mto_shipments',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: (historyRecord) => {
+    return {
+      shipment_type: historyRecord.oldValues.shipment_type,
+      ...historyRecord.changedValues,
+    };
+  },
 });
 
 export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
@@ -430,16 +428,16 @@ export const updateOrderEvent = buildMoveHistoryEventTemplate({
   tableName: 'orders',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated orders',
-  getDetailsLabeledDetails: ({ changedValues, context }) => {
+  getDetailsLabeledDetails: (historyRecord) => {
     let newChangedValues;
 
-    if (context) {
+    if (historyRecord.context) {
       newChangedValues = {
-        ...changedValues,
-        ...context[0],
+        ...historyRecord.changedValues,
+        ...historyRecord.context[0],
       };
     } else {
-      newChangedValues = changedValues;
+      newChangedValues = historyRecord.changedValues;
     }
 
     // merge context with change values for only this event

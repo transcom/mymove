@@ -22,7 +22,8 @@ export const HistoryLogRecordShape = PropTypes.shape({
 export const dbFieldToDisplayName = {
   updated_at: 'Updated at',
   diversion: 'Diversion',
-  billable_weight_cap: 'Billable weight cap',
+  billable_weight_cap: 'Billable weight',
+  billable_weight_justification: 'Billable weight remarks',
   uses_external_vendor: 'Uses external vendor',
   requested_delivery_date: 'Requested delivery date',
   scheduled_pickup_date: 'Scheduled pickup date',
@@ -57,6 +58,7 @@ export const dbFieldToDisplayName = {
   organizational_clothing_and_individual_equipment: 'OCIE',
   requested_pickup_date: 'Requested pickup date',
   grade: 'Rank',
+  shipment_type: 'Shipment type',
   pickup_address: 'Origin address',
   destination_address: 'Destination address',
   receiving_agent: 'Receiving agent',

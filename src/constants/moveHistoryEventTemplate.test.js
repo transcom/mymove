@@ -448,14 +448,9 @@ describe('moveHistoryEventTemplate', () => {
       changedValues: {
         email: 'grace@email.com',
         first_name: 'Grace',
-        phone: '555-555-5555',
-      },
-      oldValues: {
-        agent_type: 'RELEASING_AGENT',
-        email: 'gracie@email.com',
-        first_name: 'Gracie',
         last_name: 'Griffin',
-        phone: '555-555-5551',
+        phone: '555-555-5555',
+        agent_type: 'RELEASING_AGENT',
       },
     };
 
@@ -466,13 +461,14 @@ describe('moveHistoryEventTemplate', () => {
       expect(
         result.getDetailsLabeledDetails({
           changedValues: item.changedValues,
-          oldValues: item.oldValues,
         }),
       ).toEqual({
         releasing_agent: 'Grace Griffin, 555-555-5555, grace@email.com',
         email: 'grace@email.com',
         first_name: 'Grace',
+        last_name: 'Griffin',
         phone: '555-555-5555',
+        agent_type: 'RELEASING_AGENT',
       });
     });
 
@@ -482,14 +478,15 @@ describe('moveHistoryEventTemplate', () => {
       // expect to have formatted the agent correctly
       expect(
         result.getDetailsLabeledDetails({
-          changedValues: item.changedValues,
-          oldValues: { ...item.oldValues, agent_type: 'RECEIVING_AGENT' },
+          changedValues: { ...item.changedValues, agent_type: 'RECEIVING_AGENT' },
         }),
       ).toEqual({
         receiving_agent: 'Grace Griffin, 555-555-5555, grace@email.com',
         email: 'grace@email.com',
         first_name: 'Grace',
+        last_name: 'Griffin',
         phone: '555-555-5555',
+        agent_type: 'RECEIVING_AGENT',
       });
     });
   });
