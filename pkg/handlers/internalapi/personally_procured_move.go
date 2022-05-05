@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -261,12 +260,6 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		hasProGearOverThousand := models.ProGearStatus(*payload.HasProGearOverThousand)
 		ppm.HasProGearOverThousand = &hasProGearOverThousand
 	}
-}
-
-// UpdatePersonallyProcuredMoveEstimateHandler Updates a PPMs incentive estimate
-type UpdatePersonallyProcuredMoveEstimateHandler struct {
-	handlers.HandlerContext
-	services.EstimateCalculator
 }
 
 // PatchPersonallyProcuredMoveHandler Patches a PPM
