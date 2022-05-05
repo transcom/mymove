@@ -38,7 +38,7 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
   let changeValuesToUse = historyRecord.changedValues;
   let shipmentDisplay = '';
   // run custom function to mutate changedValues to display if not null
-  if (getDetailsLabeledDetails) {
+  if (getDetailsLabeledDetails && typeof getDetailsLabeledDetails === 'function') {
     changeValuesToUse = getDetailsLabeledDetails(historyRecord);
   }
 
