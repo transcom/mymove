@@ -2,12 +2,14 @@ package telemetry
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-logr/zapr"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -33,6 +35,7 @@ type Config struct {
 	CollectSeconds   int
 	ReadEvents       bool
 	WriteEvents      bool
+	EnvironmentName  string
 }
 
 const (
@@ -106,11 +109,20 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	bsp := sdktrace.NewBatchSpanProcessor(spanExporter)
 
 	sampler := sdktrace.TraceIDRatioBased(config.SamplingFraction)
+	resourceAttrs := []attribute.KeyValue{
+		semconv.ServiceNameKey.String("milmove"),
+		semconv.DeploymentEnvironmentKey.String(config.EnvironmentName)}
 	var idGenerator sdktrace.IDGenerator
 	if config.UseXrayID {
 		idGenerator = xray.NewIDGenerator()
+
+		// unfortunately, this logic is shared with cmd/ecs-deploy/task_def.go
+		awsLogGroupName := fmt.Sprintf("ecs-tasks-app-%s", config.EnvironmentName)
+		resourceAttrs = append(resourceAttrs,
+			semconv.AWSLogGroupNamesKey.StringSlice([]string{awsLogGroupName}))
 	}
-	milmoveResource := resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("milmove"))
+	milmoveResource := resource.NewWithAttributes(semconv.SchemaURL, resourceAttrs...)
+
 	// Instantiate a new ECS resource detector
 	ecsResourceDetector := ecs.NewResourceDetector()
 	ecsResource, err := ecsResourceDetector.Detect(ctx)
