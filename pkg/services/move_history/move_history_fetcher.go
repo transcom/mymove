@@ -125,8 +125,12 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	pickup_address_logs AS (
 		SELECT
 			audit_history.*,
-			json_agg(json_build_object('addressType',
-					'pickupAddress'::TEXT))::TEXT AS context,
+			json_agg(
+				json_build_object(
+					'addressType', 'pickupAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+				)::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
@@ -138,8 +142,12 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	destination_address_logs AS (
 		SELECT
 			audit_history.*,
-			json_agg(json_build_object('addressType',
-					'destinationAddress'::TEXT))::TEXT AS context,
+			json_agg(
+				json_build_object(
+					'addressType', 'destinationAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+			)::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
