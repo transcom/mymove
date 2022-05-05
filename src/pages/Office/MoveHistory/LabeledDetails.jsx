@@ -5,9 +5,12 @@ import {
   HistoryLogValuesShape,
   dbFieldToDisplayName,
   dbWeightFields,
+  dbDateFields,
+  HistoryLogContextShape,
   optionFields,
 } from 'constants/historyLogUIDisplayName';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
   const displayName = dbFieldToDisplayName[fieldName];
@@ -15,10 +18,12 @@ const retrieveTextToDisplay = (fieldName, value) => {
 
   if (displayName === dbFieldToDisplayName.storage_in_transit) {
     displayValue = `${displayValue} days`;
-  } else if (dbWeightFields.includes(fieldName)) {
+  } else if (dbWeightFields[fieldName]) {
     displayValue = `${displayValue} lbs`;
   } else if (optionFields[displayValue]) {
     displayValue = optionFields[displayValue];
+  } else if (dbDateFields[fieldName]) {
+    displayValue = formatCustomerDate(displayValue);
   }
 
   return {
@@ -27,21 +32,31 @@ const retrieveTextToDisplay = (fieldName, value) => {
   };
 };
 
-const LabeledDetails = ({ changedValues, context, getDetailsLabeledDetails }) => {
-  let changeValuesToUse = changedValues;
+const LabeledDetails = ({ changedValues, oldValues, context, getDetailsLabeledDetails }) => {
+  let changedValuesWithFormattedItems = {
+    ...changedValues,
+  };
+
   // run custom function to mutate changedValues to display if not null
   if (getDetailsLabeledDetails) {
-    changeValuesToUse = getDetailsLabeledDetails({ changedValues, context });
+    changedValuesWithFormattedItems = getDetailsLabeledDetails({
+      changedValues: changedValuesWithFormattedItems,
+      oldValues,
+      context,
+    });
   }
 
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
-    return changeValuesToUse[dbField];
+    return changedValuesWithFormattedItems[dbField];
   });
 
   return (
     <div>
       {dbFieldsToDisplay.map((modelField) => {
-        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changeValuesToUse[modelField]);
+        const { displayName, displayValue } = retrieveTextToDisplay(
+          modelField,
+          changedValuesWithFormattedItems[modelField],
+        );
 
         return (
           <div key={modelField} className={descriptionListStyles.row}>
@@ -55,13 +70,15 @@ const LabeledDetails = ({ changedValues, context, getDetailsLabeledDetails }) =>
 
 LabeledDetails.propTypes = {
   changedValues: HistoryLogValuesShape,
-  context: PropTypes.arrayOf(PropTypes.object),
+  oldValues: HistoryLogValuesShape,
+  context: HistoryLogContextShape,
   getDetailsLabeledDetails: PropTypes.func,
 };
 
 LabeledDetails.defaultProps = {
   changedValues: {},
-  context: null,
+  oldValues: {},
+  context: [],
   getDetailsLabeledDetails: null,
 };
 

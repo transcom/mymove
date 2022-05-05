@@ -40,6 +40,16 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 			Move: approvedMove,
 		})
 
+		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOAgent: models.MTOAgent{
+				FirstName:    swag.String("Test1"),
+				LastName:     swag.String("Agent"),
+				Email:        swag.String("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReceiving,
+			},
+			MTOShipment: approvedShipment,
+		})
+
 		// update HHG SAC
 		updateSAC := "23456"
 		approvedMove.Orders.SAC = &updateSAC
@@ -68,6 +78,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		verifyOldPickupAddress := false
 		verifyNewPickupAddress := false
+		// agent update
+		verifyNewAgent := false
 		// orders update
 		verifyOldSAC := false
 		verifyNewSAC := false
@@ -108,6 +120,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 						}
 					}
 				}
+			} else if h.TableName == "mto_agents" {
+				if h.ChangedData != nil {
+					changedData := removeEscapeJSONtoObject(h.ChangedData)
+					if changedData["agent_type"] == string(models.MTOAgentReceiving) {
+						verifyNewAgent = true
+					}
+				}
 			} else if h.TableName == "entitlements" {
 				if h.ChangedData != nil {
 					oldData := removeEscapeJSONtoObject(h.OldData)
@@ -141,6 +160,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		suite.True(verifyOldPickupAddress, "verifyOldPickupAddress")
 		suite.True(verifyNewPickupAddress, "verifyNewPickupAddress")
+		// agent update
+		suite.True(verifyNewAgent, "verifyNewAgent")
 		// orders update
 		suite.True(verifyOldSAC, "verifyOldSAC")
 		suite.True(verifyNewSAC, "verifyNewSAC")
