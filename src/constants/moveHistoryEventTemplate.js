@@ -318,7 +318,7 @@ export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
   tableName: 'addresses',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsLabeledDetails: ({ changedValues, oldValues, context }) => {
+  getDetailsLabeledDetails: ({ oldValues, changedValues, context }) => {
     let newChangedValues = {
       street_address_1: oldValues.street_address_1,
       street_address_2: oldValues.street_address_2,
@@ -340,6 +340,7 @@ export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
     }
 
     newChangedValues = {
+      shipment_type: context[0]?.shipment_type,
       ...changedValues,
     };
 
@@ -355,7 +356,7 @@ export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   tableName: 'mto_agents',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
+  getDetailsLabeledDetails: ({ oldValues, changedValues, context }) => {
     let newChangedValues = {
       email: oldValues.email,
       first_name: oldValues.first_name,
@@ -376,6 +377,7 @@ export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
     }
 
     newChangedValues = {
+      shipment_type: context[0].shipment_type,
       ...changedValues,
     };
 
