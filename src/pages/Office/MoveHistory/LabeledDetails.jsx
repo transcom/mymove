@@ -11,7 +11,6 @@ import {
   dbDateFields,
   optionFields,
 } from 'constants/historyLogUIDisplayName';
-import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
@@ -60,7 +59,7 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
         const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValuesToUse[modelField]);
 
         return (
-          <div key={modelField} className={descriptionListStyles.row}>
+          <div key={modelField}>
             <b>{displayName}</b>: {displayValue}
           </div>
         );
