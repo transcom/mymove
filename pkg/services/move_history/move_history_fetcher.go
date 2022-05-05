@@ -217,15 +217,25 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		FROM
 			mto_agents
 		JOIN shipments ON mto_agents.mto_shipment_id = shipments.id
+
+
 	),
 	agents_logs AS (
-		SELECT audit_history.*,
-			NULL AS context,
+		SELECT
+			audit_history.*,
+			json_agg(
+				json_build_object(
+					'shipment_type', shipments.shipment_type
+				)
+			)::TEXT AS context,
 			NULL AS context_id
 		FROM
 			audit_history
+		JOIN shipments ON shipments.id = audit_history.object_id
 		JOIN agents ON agents.id = audit_history.object_id
 			AND audit_history."table_name" = 'mto_agents'
+		GROUP BY
+			shipments.id, audit_history.id
 	),
 	reweighs AS (
 		SELECT
