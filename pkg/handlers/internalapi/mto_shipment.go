@@ -178,22 +178,20 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 					return err
 				}
 
-				// this service is getting refactored but let's be extra careful we are getting back the updated
-				// shipment in the case the estimator wasn't called
-				if mtoShipment.PPMShipment != nil {
-					mtoShipment.PPMShipment.Shipment = *updatedMTOShipment
+				// This simplifies not adding nil checks for the return value of updating the ppm shipment
+				if mtoShipment.PPMShipment == nil {
+					return nil
 				}
+
+				mtoShipment.PPMShipment.Shipment = *updatedMTOShipment
 
 				updatedPPMShipment, err = h.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment, mtoShipment.ID)
 				if err != nil {
 					return err
 				}
 
-				// the MTOShipment may have been updated if the PPM calculated an estimated incentive
-				if updatedPPMShipment != nil {
-					updatedMTOShipment = &updatedPPMShipment.Shipment
-					updatedMTOShipment.PPMShipment = updatedPPMShipment
-				}
+				updatedMTOShipment = &updatedPPMShipment.Shipment
+				updatedMTOShipment.PPMShipment = updatedPPMShipment
 
 				return nil
 			})
