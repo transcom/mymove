@@ -183,6 +183,12 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 					return err
 				}
 
+				// the MTOShipment may have been updated if the PPM calculated an estimated incentive
+				if updatedPPMShipment != nil {
+					updatedMTOShipment = &updatedPPMShipment.Shipment
+					updatedMTOShipment.PPMShipment = updatedPPMShipment
+				}
+
 				return nil
 			})
 
@@ -250,7 +256,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				}
 			}
 
-			updatedMTOShipment.PPMShipment = updatedPPMShipment
 			returnPayload := payloads.MTOShipment(updatedMTOShipment)
 
 			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload), nil

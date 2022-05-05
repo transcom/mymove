@@ -67,7 +67,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	newPPMShipment.AdvanceRequested = nil
 	newPPMShipment.Advance = nil
 
-	estimatedIncentive, err := f.calculatePrice(appCtx, *newPPMShipment)
+	estimatedIncentive, err := f.calculatePrice(appCtx, newPPMShipment)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 // calculatePrice returns an estimated incentive value for the ppm shipment as if we were pricing the service items for
 // an HHG shipment with the same values for a payment request.  In this case we're not persisting service items,
 // MTOServiceItems or PaymentRequestServiceItems, to the database to avoid unnecessary work and get a quicker result.
-func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment models.PPMShipment) (*unit.Cents, error) {
+func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
 	serviceItemsToPrice := estimateServiceItems(ppmShipment.ShipmentID)
@@ -91,7 +91,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment mo
 	}
 
 	// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-	mtoShipment := mapPPMShipmentFields(ppmShipment)
+	mtoShipment := mapPPMShipmentFields(*ppmShipment)
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
@@ -119,6 +119,8 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment mo
 			return nil, err
 		}
 		serviceItem.MTOShipment = shipmentWithDistance
+		// set this to avoid potential eTag errors because the MTOShipment.Distance field was likely updated
+		ppmShipment.Shipment = shipmentWithDistance
 
 		var paramValues models.PaymentServiceItemParams
 		for _, param := range paramsForServiceCode(serviceItem.ReService.Code, paramsForServiceItems) {
