@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"log"
 
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	order "github.com/transcom/mymove/pkg/services/order"
@@ -157,13 +159,15 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		moveTaskOrderUpdater,
 	}
 
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(
+		queryBuilder,
+		fetch.NewFetcher(queryBuilder),
+		moveRouter,
+	)
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentCreator(
-			queryBuilder,
-			fetch.NewFetcher(queryBuilder),
-			moveRouter,
-		),
+		mtoShipmentCreator,
+		ppmshipment.NewPPMShipmentCreator(mtoShipmentCreator),
 		mtoshipment.NewShipmentSITStatus(),
 	}
 

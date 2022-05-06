@@ -3416,8 +3416,7 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "pickupAddress",
-        "destinationAddress"
+        "shipmentType"
       ],
       "properties": {
         "agents": {
@@ -3470,6 +3469,9 @@ func init() {
             }
           ]
         },
+        "ppmShipment": {
+          "$ref": "#/definitions/CreatePPMShipment"
+        },
         "requestedDeliveryDate": {
           "description": "The customer's preferred delivery date.\n",
           "type": "string",
@@ -3517,6 +3519,99 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": false
+        }
+      }
+    },
+    "CreatePPMShipment": {
+      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "required": [
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected",
+        "estimatedWeight",
+        "hasProGear"
+      ],
+      "properties": {
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean"
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "sitExpected": {
+          "type": "boolean"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -4421,14 +4516,16 @@ func init() {
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "INTERNATIONAL_UB",
+        "PPM"
       ],
       "x-display-value": {
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "INTERNATIONAL_UB": "International UB",
+        "PPM": "PPM"
       },
       "example": "HHG"
     },
@@ -5141,8 +5238,45 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "sitEstimatedCost": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        },
         "sitExpected": {
           "type": "boolean"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "spouseProGearWeight": {
           "type": "integer",
@@ -5689,6 +5823,14 @@ func init() {
       "items": {
         "$ref": "#/definitions/SITExtension"
       }
+    },
+    "SITLocationType": {
+      "description": "The list of SIT location types.",
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION"
+      ]
     },
     "SITStatus": {
       "properties": {
@@ -10576,8 +10718,7 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "pickupAddress",
-        "destinationAddress"
+        "shipmentType"
       ],
       "properties": {
         "agents": {
@@ -10630,6 +10771,9 @@ func init() {
             }
           ]
         },
+        "ppmShipment": {
+          "$ref": "#/definitions/CreatePPMShipment"
+        },
         "requestedDeliveryDate": {
           "description": "The customer's preferred delivery date.\n",
           "type": "string",
@@ -10677,6 +10821,99 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": false
+        }
+      }
+    },
+    "CreatePPMShipment": {
+      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "required": [
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected",
+        "estimatedWeight",
+        "hasProGear"
+      ],
+      "properties": {
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean"
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "sitExpected": {
+          "type": "boolean"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -11581,14 +11818,16 @@ func init() {
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "INTERNATIONAL_UB",
+        "PPM"
       ],
       "x-display-value": {
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "INTERNATIONAL_UB": "International UB",
+        "PPM": "PPM"
       },
       "example": "HHG"
     },
@@ -12301,8 +12540,45 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "sitEstimatedCost": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        },
         "sitExpected": {
           "type": "boolean"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "spouseProGearWeight": {
           "type": "integer",
@@ -12849,6 +13125,14 @@ func init() {
       "items": {
         "$ref": "#/definitions/SITExtension"
       }
+    },
+    "SITLocationType": {
+      "description": "The list of SIT location types.",
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION"
+      ]
     },
     "SITStatus": {
       "properties": {
