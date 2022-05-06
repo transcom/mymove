@@ -21,6 +21,7 @@ const {
   requestShipmentReweighEvent,
   createPaymentRequestReweighUpdate,
   createPaymentRequestShipmentUpdate,
+  undefinedEvent,
 } = require('./moveHistoryEventTemplate');
 
 const { detailsTypes } = require('constants/moveHistoryEventTemplate');
@@ -529,5 +530,18 @@ describe('moveHistoryEventTemplate', () => {
       expect(result).toEqual(createPaymentRequestShipmentUpdate);
       expect(result.getStatusDetails(item)).toEqual('Pending');
     });
+  });
+});
+
+describe('when given an unidentifiable move history record', () => {
+  const item = {
+    action: 'UPDATE',
+    eventName: 'testEventName',
+    tableName: 'imaginary_test_objects',
+  };
+  it('correctly matches the Undefined move history event', () => {
+    const result = getMoveHistoryEventTemplate(item);
+    expect(result).toEqual(undefinedEvent);
+    expect(result.getEventNameDisplay(item)).toEqual('Updated item in imaginary test objects');
   });
 });
