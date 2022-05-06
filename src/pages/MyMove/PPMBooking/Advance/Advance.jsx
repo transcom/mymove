@@ -12,6 +12,7 @@ import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ScrollToTop from 'components/ScrollToTop';
 
 const Advance = () => {
@@ -58,6 +59,10 @@ const Advance = () => {
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
       });
   };
+
+  if (!mtoShipment) {
+    return <LoadingPlaceholder />;
+  }
 
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
