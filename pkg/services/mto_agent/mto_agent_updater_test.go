@@ -1,11 +1,11 @@
 package mtoagent
 
 import (
-	"testing"
-
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/etag"
 
@@ -14,33 +14,40 @@ import (
 )
 
 func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
-	// Set up the updater
-	mtoAgentUpdater := NewMTOAgentUpdater(movetaskorder.NewMoveTaskOrderChecker())
-	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
-	eTag := etag.GenerateEtag(oldAgent.UpdatedAt)
 
-	newAgent := oldAgent
+	mtoAgentUpdater := NewMTOAgentUpdater(movetaskorder.NewMoveTaskOrderChecker())
 
 	// Test not found error
-	suite.T().Run("Not Found Error", func(t *testing.T) {
-		notFoundUUID := "00000000-0000-0000-0000-000000000001"
-		notFoundAgent := newAgent
-		notFoundAgent.ID = uuid.FromStringOrNil(notFoundUUID)
+	suite.Run("Not Found Error", func() {
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &notFoundAgent, eTag) // base validation
+		// TESTCASE SCENARIO
+		// Under test: UpdateMTOAgentBasic function
+		// Set up:     Update an agent that doesn't exist
+		// Expected outcome: NotFound Error
+		agent := testdatagen.MakeStubbedAgent(suite.DB(), testdatagen.Assertions{})
+		agent.ID = uuid.Must(uuid.NewV4())
+
+		eTag := etag.GenerateEtag(agent.UpdatedAt)
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &agent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), notFoundUUID)
+		suite.Contains(err.Error(), agent.ID.String())
 	})
 
 	// Test validation error
-	suite.T().Run("Validation Error", func(t *testing.T) {
-		invalidAgent := newAgent
-		invalidAgent.MTOShipmentID = newAgent.ID
+	suite.Run("Validation Error", func() {
+		// TESTCASE SCENARIO
+		// Under test:  UpdateMTOAgentBasic function
+		// Set up:      Create an agent
+		//              Update the agent with a shipment that doesn't exist
+		// Expected outcome: InvalidInput Error
+		originalAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+		originalAgent.MTOShipmentID = uuid.Must(uuid.NewV4())
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &invalidAgent, eTag) // base validation
+		eTag := etag.GenerateEtag(originalAgent.UpdatedAt)
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &originalAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -52,8 +59,14 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 	})
 
 	// Test precondition failed (stale eTag)
-	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &newAgent, "bloop") // base validation
+	suite.Run("Precondition Failed", func() {
+
+		// TESTCASE SCENARIO
+		// Under test:  UpdateMTOAgentBasic function
+		// Set up:      Create an agent, then update it with a bad etag
+		// Expected outcome: PreconditionFailedError
+		oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &oldAgent, "bloop") // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -61,15 +74,25 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 	})
 
 	// Test successful update
-	suite.T().Run("Success", func(t *testing.T) {
+	suite.Run("Success", func() {
+		// TESTCASE SCENARIO
+		// Under test:  UpdateMTOAgentBasic function
+		// Set up:      Create an agent, then update it successfully
+		// Expected outcome: Success and an updated agent
+		oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+		eTag := etag.GenerateEtag(oldAgent.UpdatedAt)
+
 		firstName := "Carol"
 		lastName := "Romilly"
 		email := "carol.romilly@example.com"
 
-		newAgent.FirstName = &firstName
-		newAgent.LastName = &lastName
-		newAgent.Email = &email
-		newAgent.Phone = nil // should keep the phone number from oldAgent
+		newAgent := models.MTOAgent{
+			ID:        oldAgent.ID,
+			FirstName: swag.String(firstName),
+			LastName:  swag.String(lastName),
+			Email:     swag.String(email),
+			Phone:     nil,
+		}
 
 		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &newAgent, eTag) // base validation
 

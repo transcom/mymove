@@ -1,7 +1,6 @@
 package movetaskorder
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -14,14 +13,12 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
-	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/gofrs/uuid"
 )
 
 type moveTaskOrderUpdater struct {
@@ -296,58 +293,70 @@ type UpdateMoveTaskOrderQueryBuilder interface {
 }
 
 // UpdatePostCounselingInfo updates the counseling info
-func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
-	var moveTaskOrder models.Move
+func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
+	// Fetch the move and associations.
+	searchParams := services.MoveTaskOrderFetcherParams{
+		IncludeHidden:            false,
+		MoveTaskOrderID:          moveTaskOrderID,
+		ExcludeExternalShipments: true,
+	}
+	moveTaskOrder, fetchErr := o.FetchMoveTaskOrder(appCtx, &searchParams)
+	if fetchErr != nil {
+		return &models.Move{}, fetchErr
+	}
 
-	err := appCtx.DB().Q().EagerPreload(
-		"Orders.NewDutyLocation.Address",
-		"Orders.ServiceMember",
-		"Orders.Entitlement",
-		"MTOShipments",
-		"PaymentRequests",
-	).Find(&moveTaskOrder, moveTaskOrderID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")
-		default:
-			return nil, apperror.NewQueryError("Move", err, "")
+	approvedForPrimeCounseling := false
+	for _, serviceItem := range moveTaskOrder.MTOServiceItems {
+		if serviceItem.ReService.Code == models.ReServiceCodeCS && serviceItem.Status == models.MTOServiceItemStatusApproved {
+			approvedForPrimeCounseling = true
+			break
 		}
 	}
-
-	estimatedWeight := unit.Pound(body.PpmEstimatedWeight)
-	moveTaskOrder.PPMType = &body.PpmType
-	moveTaskOrder.PPMEstimatedWeight = &estimatedWeight
-	verrs, err := o.builder.UpdateOne(appCtx, &moveTaskOrder, &eTag)
-
-	if verrs != nil && verrs.HasAny() {
-		return nil, apperror.NewInvalidInputError(moveTaskOrder.ID, err, verrs, "")
+	if !approvedForPrimeCounseling {
+		return &models.Move{}, apperror.NewConflictError(moveTaskOrderID, "Counseling is not an approved service item")
 	}
 
-	if err != nil {
-		switch err.(type) {
-		case query.StaleIdentifierError:
-			return nil, apperror.NewPreconditionFailedError(moveTaskOrder.ID, err)
-		default:
-			return nil, err
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		// Check the If-Match header against existing eTag before updating.
+		encodedUpdatedAt := etag.GenerateEtag(moveTaskOrder.UpdatedAt)
+		if encodedUpdatedAt != eTag {
+			return apperror.NewPreconditionFailedError(moveTaskOrderID, nil)
 		}
-	}
 
-	// Filtering external vendor shipments (if requested) in code since we can't do it easily in Pop
-	// without a raw query (which could be painful since we'd have to populate all the associations).
-	var filteredShipments models.MTOShipments
-	if moveTaskOrder.MTOShipments != nil {
-		filteredShipments = models.MTOShipments{}
-	}
-	for _, shipment := range moveTaskOrder.MTOShipments {
-		if !shipment.UsesExternalVendor {
-			filteredShipments = append(filteredShipments, shipment)
+		now := time.Now()
+		moveTaskOrder.PrimeCounselingCompletedAt = &now
+
+		verrs, err := appCtx.DB().ValidateAndSave(moveTaskOrder)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(moveTaskOrderID, nil, verrs, "")
 		}
-	}
-	moveTaskOrder.MTOShipments = filteredShipments
+		if err != nil {
+			return err
+		}
 
-	return &moveTaskOrder, nil
+		// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
+		// statuses when we return the entire move tree.
+		for i := range moveTaskOrder.MTOShipments {
+			if moveTaskOrder.MTOShipments[i].PPMShipment != nil {
+				moveTaskOrder.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+
+				verrs, err = appCtx.DB().ValidateAndSave(moveTaskOrder.MTOShipments[i].PPMShipment)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(moveTaskOrder.MTOShipments[i].PPMShipment.ID, nil, verrs, "")
+				}
+				if err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+
+	if transactionError != nil {
+		return &models.Move{}, transactionError
+	}
+
+	return moveTaskOrder, nil
 }
 
 // ShowHide changes the value in the "Show" field for a Move. This can be either True or False and indicates if the move has been deactivated or not.

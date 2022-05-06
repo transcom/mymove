@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 )
@@ -37,6 +38,16 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 				ScheduledPickupDate: &pickupDate,
 			},
 			Move: approvedMove,
+		})
+
+		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOAgent: models.MTOAgent{
+				FirstName:    swag.String("Test1"),
+				LastName:     swag.String("Agent"),
+				Email:        swag.String("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReceiving,
+			},
+			MTOShipment: approvedShipment,
 		})
 
 		// update HHG SAC
@@ -67,6 +78,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		verifyOldPickupAddress := false
 		verifyNewPickupAddress := false
+		// agent update
+		verifyNewAgent := false
 		// orders update
 		verifyOldSAC := false
 		verifyNewSAC := false
@@ -107,6 +120,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 						}
 					}
 				}
+			} else if h.TableName == "mto_agents" {
+				if h.ChangedData != nil {
+					changedData := removeEscapeJSONtoObject(h.ChangedData)
+					if changedData["agent_type"] == string(models.MTOAgentReceiving) {
+						verifyNewAgent = true
+					}
+				}
 			} else if h.TableName == "entitlements" {
 				if h.ChangedData != nil {
 					oldData := removeEscapeJSONtoObject(h.OldData)
@@ -140,6 +160,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		suite.True(verifyOldPickupAddress, "verifyOldPickupAddress")
 		suite.True(verifyNewPickupAddress, "verifyNewPickupAddress")
+		// agent update
+		suite.True(verifyNewAgent, "verifyNewAgent")
 		// orders update
 		suite.True(verifyOldSAC, "verifyOldSAC")
 		suite.True(verifyNewSAC, "verifyNewSAC")
@@ -430,6 +452,45 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
 
+	})
+
+	suite.T().Run("approved payment request shows up", func(t *testing.T) {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		cents := unit.Cents(1000)
+		approvedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPending,
+			},
+			Move: approvedMove,
+		})
+
+		testServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: approvedMove,
+		})
+
+		paymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Name: "Test",
+			},
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status:     models.PaymentServiceItemStatusRequested,
+				PriceCents: &cents,
+			},
+			PaymentRequest: approvedPaymentRequest,
+			MTOServiceItem: testServiceItem,
+		})
+
+		approvedPaymentRequest.Status = models.PaymentRequestStatusReviewed
+		suite.MustSave(&approvedPaymentRequest)
+		paymentServiceItem.Status = models.PaymentServiceItemStatusApproved
+		suite.MustSave(&paymentServiceItem)
+
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(2)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+		contextValue := *moveHistoryData.AuditHistories[0].Context
+		suite.Contains(contextValue, "APPROVED")
 	})
 
 	suite.T().Run("has audit history records for reweighs", func(t *testing.T) {

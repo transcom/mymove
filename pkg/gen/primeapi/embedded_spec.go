@@ -150,36 +150,6 @@ func init() {
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "moveTaskOrderID": {
-                  "description": "UUID for the move task order to use.",
-                  "type": "string"
-                },
-                "pointOfContact": {
-                  "description": "Email or id of a contact person for this update.",
-                  "type": "string"
-                },
-                "ppmEstimatedWeight": {
-                  "description": "The estimated weight determined post counseling.",
-                  "type": "integer"
-                },
-                "ppmType": {
-                  "description": "Sets a ppmType to an allowed value.",
-                  "type": "string",
-                  "enum": [
-                    "FULL",
-                    "PARTIAL"
-                  ]
-                }
-              }
-            }
-          },
-          {
             "$ref": "#/parameters/ifMatch"
           }
         ],
@@ -198,6 +168,9 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
@@ -2151,6 +2124,9 @@ func init() {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
+        "ppmShipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
@@ -2268,7 +2244,8 @@ func init() {
         "INTERNATIONAL_UB",
         "MOTORHOME",
         "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY"
+        "BOAT_TOW_AWAY",
+        "PPM"
       ],
       "x-display-value": {
         "HHG": "Household goods move (HHG)",
@@ -2370,6 +2347,12 @@ func init() {
             "PARTIAL"
           ]
         },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "referenceId": {
           "type": "string",
           "example": "1001-3456"
@@ -2430,6 +2413,171 @@ func init() {
           "format": "date"
         }
       }
+    },
+    "PPMShipment": {
+      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "properties": {
+        "actualMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "estimatedIncentive": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weight\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "shipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sitExpected": {
+          "type": "boolean"
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "status": {
+          "$ref": "#/definitions/PPMShipmentStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      },
+      "x-nullable": true
+    },
+    "PPMShipmentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "WAITING_ON_CUSTOMER",
+        "NEEDS_ADVANCE_APPROVAL",
+        "NEEDS_PAYMENT_APPROVAL",
+        "PAYMENT_APPROVED"
+      ],
+      "readOnly": true
     },
     "PaymentRequest": {
       "type": "object",
@@ -3522,36 +3670,6 @@ func init() {
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "moveTaskOrderID": {
-                  "description": "UUID for the move task order to use.",
-                  "type": "string"
-                },
-                "pointOfContact": {
-                  "description": "Email or id of a contact person for this update.",
-                  "type": "string"
-                },
-                "ppmEstimatedWeight": {
-                  "description": "The estimated weight determined post counseling.",
-                  "type": "integer"
-                },
-                "ppmType": {
-                  "description": "Sets a ppmType to an allowed value.",
-                  "type": "string",
-                  "enum": [
-                    "FULL",
-                    "PARTIAL"
-                  ]
-                }
-              }
-            }
-          },
-          {
             "type": "string",
             "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
@@ -3580,6 +3698,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -5823,6 +5947,9 @@ func init() {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
+        "ppmShipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
@@ -5940,7 +6067,8 @@ func init() {
         "INTERNATIONAL_UB",
         "MOTORHOME",
         "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY"
+        "BOAT_TOW_AWAY",
+        "PPM"
       ],
       "x-display-value": {
         "HHG": "Household goods move (HHG)",
@@ -6042,6 +6170,12 @@ func init() {
             "PARTIAL"
           ]
         },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "referenceId": {
           "type": "string",
           "example": "1001-3456"
@@ -6102,6 +6236,171 @@ func init() {
           "format": "date"
         }
       }
+    },
+    "PPMShipment": {
+      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "properties": {
+        "actualMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "estimatedIncentive": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weight\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "shipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sitExpected": {
+          "type": "boolean"
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "status": {
+          "$ref": "#/definitions/PPMShipmentStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      },
+      "x-nullable": true
+    },
+    "PPMShipmentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "WAITING_ON_CUSTOMER",
+        "NEEDS_ADVANCE_APPROVAL",
+        "NEEDS_PAYMENT_APPROVAL",
+        "PAYMENT_APPROVED"
+      ],
+      "readOnly": true
     },
     "PaymentRequest": {
       "type": "object",
