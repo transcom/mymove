@@ -28,6 +28,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/services/shipmentorchestrator"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -61,6 +62,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter)
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator()
+
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
 
 	type mtoCreateSubtestData struct {
 		serviceMember models.ServiceMember
@@ -161,8 +164,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		subtestData.handler = CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
-			mtoShipmentCreator,
-			ppmShipmentCreator,
+			shipmentCreator,
 		}
 
 		return subtestData
@@ -410,21 +412,19 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		subtestData := makeCreateSubtestData(appCtx)
 
-		mockCreator := mocks.MTOShipmentCreator{}
-		mockPPMShipmentCreator := mocks.PPMShipmentCreator{}
-		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			&mockCreator,
-			&mockPPMShipmentCreator,
-		}
+		mockShipmentCreator := mocks.ShipmentCreator{}
 
 		err := errors.New("ServerError")
 
-		mockCreator.On("CreateMTOShipment",
+		mockShipmentCreator.On("CreateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.MTOShipment"),
-			mock.AnythingOfType("models.MTOServiceItems"),
 		).Return(nil, err)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			&mockShipmentCreator,
+		}
 
 		response := handler.Handle(subtestData.params)
 

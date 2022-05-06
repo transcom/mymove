@@ -28,8 +28,7 @@ import (
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerContext
-	mtoShipmentCreator services.MTOShipmentCreator
-	ppmShipmentCreator services.PPMShipmentCreator
+	shipmentCreator services.ShipmentCreator
 }
 
 // Handle creates the mto shipment
@@ -52,42 +51,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 			var err error
 
-			isPPMShipment := mtoShipment.ShipmentType != "" && mtoShipment.ShipmentType == models.MTOShipmentTypePPM
-
-			if isPPMShipment {
-				mtoShipment.Status = models.MTOShipmentStatusDraft
-			} else {
-				// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
-				mtoShipment.Status = models.MTOShipmentStatusSubmitted
-			}
-
-			err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-				mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(txnAppCtx, mtoShipment, nil)
-
-				if err != nil {
-					return err
-				}
-
-				if !isPPMShipment {
-					return nil
-				}
-
-				var ppmShipment *models.PPMShipment
-
-				mtoShipment.PPMShipment.ShipmentID = mtoShipment.ID
-				mtoShipment.PPMShipment.Shipment = *mtoShipment
-
-				ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
-
-				if err != nil {
-					return err
-				}
-
-				// update with latest version of MTOShipment, which should now have a PPMShipment attached.
-				mtoShipment = &ppmShipment.Shipment
-
-				return nil
-			})
+			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
