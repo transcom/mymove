@@ -122,7 +122,7 @@ export default function EditBillableWeight({
   };
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} data-testid="maxBillableWeightEdit">
       <h4 className={styles.header}>{title}</h4>
       {!showFields ? (
         <>
