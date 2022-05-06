@@ -287,7 +287,7 @@ describe('moveHistoryEventTemplate', () => {
         street_address_1: '12 Any Street',
         street_address_2: 'P.O. Box 1234',
       },
-      context: [{ shipment_type: 'HHG', addressType: 'pickupAddress' }],
+      context: [{ shipment_type: 'HHG', address_type: 'pickupAddress' }],
     };
 
     it('correctly matches the Update mto shipment address event for pickup addresses', () => {
@@ -318,7 +318,7 @@ describe('moveHistoryEventTemplate', () => {
         result.getDetailsLabeledDetails({
           changedValues: item.changedValues,
           oldValues: item.oldValues,
-          context: [{ shipment_type: 'HHG', addressType: 'destinationAddress' }],
+          context: [{ shipment_type: 'HHG', address_type: 'destinationAddress' }],
         }),
       ).toEqual({
         destination_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
@@ -344,7 +344,7 @@ describe('moveHistoryEventTemplate', () => {
         street_address_2: 'P.O. Box 1234',
         state: 'CA',
       },
-      context: [{ shipment_type: 'HHG', addressType: 'pickupAddress' }],
+      context: [{ shipment_type: 'HHG', address_type: 'pickupAddress' }],
     };
 
     it('correctly matches the insert mto shipment address event for pickup addresses', () => {
@@ -374,7 +374,7 @@ describe('moveHistoryEventTemplate', () => {
       expect(
         result.getDetailsLabeledDetails({
           changedValues: item.changedValues,
-          context: [{ shipment_type: 'HHG', addressType: 'destinationAddress' }],
+          context: [{ shipment_type: 'HHG', address_type: 'destinationAddress' }],
         }),
       ).toEqual({
         destination_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',

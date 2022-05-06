@@ -115,7 +115,7 @@ export const createMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
   getDetailsLabeledDetails: ({ changedValues, context }) => {
     const address = formatMoveHistoryFullAddress(changedValues);
 
-    const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
+    const addressType = context.filter((contextObject) => contextObject.address_type)[0].address_type;
 
     let addressLabel = '';
     if (addressType === 'pickupAddress') {
@@ -332,7 +332,7 @@ export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
 
     const address = formatMoveHistoryFullAddress(newChangedValues);
 
-    const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
+    const addressType = context.filter((contextObject) => contextObject.address_type)[0].address_type;
 
     let addressLabel = '';
     if (addressType === 'pickupAddress') {

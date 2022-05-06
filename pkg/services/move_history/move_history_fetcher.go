@@ -127,7 +127,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			audit_history.*,
 			json_agg(
 				json_build_object(
-					'addressType', 'pickupAddress'::TEXT,
+					'address_type', 'pickupAddress'::TEXT,
 					'shipment_type', shipments.shipment_type
 				)
 				)::TEXT AS context,
@@ -144,7 +144,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			audit_history.*,
 			json_agg(
 				json_build_object(
-					'addressType', 'destinationAddress'::TEXT,
+					'address_type', 'destinationAddress'::TEXT,
 					'shipment_type', shipments.shipment_type
 				)
 			)::TEXT AS context,
