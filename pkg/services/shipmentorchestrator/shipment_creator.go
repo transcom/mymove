@@ -28,7 +28,7 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 		return nil, err
 	}
 
-	isPPMShipment := shipment.ShipmentType != "" && shipment.ShipmentType == models.MTOShipmentTypePPM
+	isPPMShipment := shipment.ShipmentType == models.MTOShipmentTypePPM
 
 	if isPPMShipment {
 		shipment.Status = models.MTOShipmentStatusDraft
