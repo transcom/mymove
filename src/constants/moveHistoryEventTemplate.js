@@ -125,6 +125,7 @@ export const createMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
     }
 
     const newChangedValues = {
+      shipment_type: context[0]?.shipment_type,
       ...changedValues,
     };
 
@@ -140,7 +141,7 @@ export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   tableName: 'mto_agents',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
+  getDetailsLabeledDetails: ({ changedValues, oldValues, context }) => {
     const agent = formatMoveHistoryAgent(changedValues);
 
     const agentType = changedValues.agent_type ?? oldValues.agent_type;
@@ -153,6 +154,7 @@ export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
     }
 
     const newChangedValues = {
+      shipment_type: context[0]?.shipment_type,
       ...changedValues,
     };
 
