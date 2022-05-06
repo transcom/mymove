@@ -201,7 +201,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		})
 }
 
-// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses, signed certificate,
+// SaveMoveDependencies safely saves a Move status, ppmShipment status, mtoShipment status, orders statuses, signed certificate,
 // and shipment GBLOCs.
 func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
@@ -234,20 +234,20 @@ func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, mo
 			return transactionError
 		}
 
-		for _, ppm := range move.PersonallyProcuredMoves {
-			copyOfPpm := ppm // Make copy to avoid implicit memory aliasing of items from a range statement.
-			if copyOfPpm.Advance != nil {
-				if verrs, err := txnAppCtx.DB().ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
+		// update ppmShipments and mtoShipments if needed
+		for i := range move.MTOShipments {
+			if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
+				if verrs, err := txnAppCtx.DB().ValidateAndUpdate(move.MTOShipments[i].PPMShipment); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
-					responseError = errors.Wrap(err, "Error Saving Advance")
+					responseError = errors.Wrap(err, "Error Updating PPMShipment")
 					return transactionError
 				}
-			}
 
-			if verrs, err := txnAppCtx.DB().ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving PPM")
-				return transactionError
+				if verrs, err := txnAppCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = errors.Wrap(err, "Error Updating MTOShipment")
+					return transactionError
+				}
 			}
 		}
 

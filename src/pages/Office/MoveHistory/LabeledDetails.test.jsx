@@ -69,7 +69,7 @@ describe('LabeledDetails', () => {
     });
   });
 
-  it('renderes shipment_type as a header', async () => {
+  it('renders shipment_type as a header', async () => {
     const historyRecord = {
       changedValues: {
         billable_weight_cap: '200',

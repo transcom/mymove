@@ -12,7 +12,7 @@ import (
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 
 	"github.com/transcom/mymove/pkg/handlers"
-
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	move "github.com/transcom/mymove/pkg/services/move"
@@ -41,7 +41,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
-	ppmEstimator := ppmshipment.NewEstimatePPM()
+	ppmEstimator := ppmshipment.NewEstimatePPM(ctx.GHCPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{ctx, officeuser.NewOfficeUserFetcherPop()}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{ctx}

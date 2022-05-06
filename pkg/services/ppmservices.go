@@ -9,7 +9,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// EstimateCalculator is the exported interface for calculating the PPM estimate
+// DEPRECATED: This has been superseded by PPMEstimator
+// EstimateCalculator is the exported interface for calculating the legacy Personally Procured Move estimate
 //go:generate mockery --name EstimateCalculator --disable-version-string
 type EstimateCalculator interface {
 	CalculateEstimates(appCtx appcontext.AppContext, ppm *models.PersonallyProcuredMove, moveID uuid.UUID) (int64, rateengine.CostComputation, error)

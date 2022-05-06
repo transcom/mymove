@@ -2,6 +2,7 @@ import moveHistoryOperations from './moveHistoryOperations';
 import { shipmentTypes } from './shipments';
 
 import { formatMoveHistoryFullAddress, formatMoveHistoryAgent } from 'utils/formatters';
+import { dbActions, formatTableName } from 'constants/historyLogUIDisplayName';
 
 function propertiesMatch(p1, p2) {
   return p1 === '*' || p2 === '*' || p1 === p2;
@@ -115,7 +116,7 @@ export const createMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
   getDetailsLabeledDetails: ({ changedValues, context }) => {
     const address = formatMoveHistoryFullAddress(changedValues);
 
-    const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
+    const addressType = context.filter((contextObject) => contextObject.address_type)[0].address_type;
 
     let addressLabel = '';
     if (addressType === 'pickupAddress') {
@@ -125,6 +126,7 @@ export const createMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
     }
 
     const newChangedValues = {
+      shipment_type: context[0]?.shipment_type,
       ...changedValues,
     };
 
@@ -140,7 +142,7 @@ export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   tableName: 'mto_agents',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
+  getDetailsLabeledDetails: ({ changedValues, oldValues, context }) => {
     const agent = formatMoveHistoryAgent(changedValues);
 
     const agentType = changedValues.agent_type ?? oldValues.agent_type;
@@ -153,6 +155,7 @@ export const createMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
     }
 
     const newChangedValues = {
+      shipment_type: context[0]?.shipment_type,
       ...changedValues,
     };
 
@@ -318,7 +321,7 @@ export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
   tableName: 'addresses',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsLabeledDetails: ({ changedValues, oldValues, context }) => {
+  getDetailsLabeledDetails: ({ oldValues, changedValues, context }) => {
     let newChangedValues = {
       street_address_1: oldValues.street_address_1,
       street_address_2: oldValues.street_address_2,
@@ -330,7 +333,7 @@ export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
 
     const address = formatMoveHistoryFullAddress(newChangedValues);
 
-    const { addressType } = context.filter((contextObject) => contextObject.addressType)[0];
+    const addressType = context.filter((contextObject) => contextObject.address_type)[0].address_type;
 
     let addressLabel = '';
     if (addressType === 'pickupAddress') {
@@ -340,6 +343,7 @@ export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
     }
 
     newChangedValues = {
+      shipment_type: context[0]?.shipment_type,
       ...changedValues,
     };
 
@@ -355,7 +359,7 @@ export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   tableName: 'mto_agents',
   detailsType: detailsTypes.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
+  getDetailsLabeledDetails: ({ oldValues, changedValues, context }) => {
     let newChangedValues = {
       email: oldValues.email,
       first_name: oldValues.first_name,
@@ -376,6 +380,7 @@ export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
     }
 
     newChangedValues = {
+      shipment_type: context[0].shipment_type,
       ...changedValues,
     };
 
@@ -450,11 +455,19 @@ export const undefinedEvent = buildMoveHistoryEventTemplate({
   eventName: '*',
   tableName: '*',
   detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: () => {
-    return 'Undefined event type';
+  getEventNameDisplay: (historyRecord) => {
+    switch (historyRecord.action) {
+      case dbActions.INSERT:
+        return `Created new item in ${formatTableName(historyRecord.tableName)}`;
+      case dbActions.DELETE:
+        return `Deleted item in ${formatTableName(historyRecord.tableName)}`;
+      case dbActions.UPDATE:
+      default:
+        return `Updated item in ${formatTableName(historyRecord.tableName)}`;
+    }
   },
   getDetailsPlainText: () => {
-    return 'Undefined event details';
+    return '-';
   },
 });
 

@@ -125,8 +125,12 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	pickup_address_logs AS (
 		SELECT
 			audit_history.*,
-			json_agg(json_build_object('addressType',
-					'pickupAddress'::TEXT))::TEXT AS context,
+			json_agg(
+				json_build_object(
+					'address_type', 'pickupAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+				)::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
@@ -138,8 +142,12 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	destination_address_logs AS (
 		SELECT
 			audit_history.*,
-			json_agg(json_build_object('addressType',
-					'destinationAddress'::TEXT))::TEXT AS context,
+			json_agg(
+				json_build_object(
+					'address_type', 'destinationAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+			)::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
@@ -205,19 +213,25 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	),
 	agents AS (
 		SELECT
-			mto_agents.id
+			mto_agents.id,
+			json_agg(json_build_object(
+				'shipment_type',
+				shipments.shipment_type))::TEXT AS context
 		FROM
 			mto_agents
-		JOIN shipments ON mto_agents.mto_shipment_id = shipments.id
+			JOIN shipments ON mto_agents.mto_shipment_id = shipments.id
+		GROUP BY
+			mto_agents.id
 	),
 	agents_logs AS (
-		SELECT audit_history.*,
-			NULL AS context,
+		SELECT
+			audit_history.*,
+			context,
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN agents ON agents.id = audit_history.object_id
-			AND audit_history."table_name" = 'mto_agents'
+			JOIN agents ON agents.id = audit_history.object_id
+				AND audit_history."table_name" = 'mto_agents'
 	),
 	reweighs AS (
 		SELECT

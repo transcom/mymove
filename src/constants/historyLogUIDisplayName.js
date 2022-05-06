@@ -19,6 +19,16 @@ export const HistoryLogRecordShape = PropTypes.shape({
   tableName: PropTypes.string,
 });
 
+export const dbActions = {
+  UPDATE: 'UPDATE',
+  INSERT: 'INSERT',
+  DELETE: 'DELETE',
+};
+
+export const formatTableName = (tableName) => {
+  return typeof tableName === 'string' ? tableName.toLowerCase().replace(/_/g, ' ') : 'database';
+};
+
 export const dbFieldToDisplayName = {
   updated_at: 'Updated at',
   diversion: 'Diversion',

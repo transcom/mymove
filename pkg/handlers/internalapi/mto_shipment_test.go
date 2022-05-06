@@ -466,9 +466,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	mtoShipmentUpdater := mtoshipment.NewMTOShipmentUpdater(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, planner, testMTOShipmentObjects.moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 
-	ppmEstimator := ppmshipment.NewEstimatePPM()
+	ppmEstimator := mocks.PPMEstimator{}
 
-	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator)
+	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
 
 	type mtoUpdateSubtestData struct {
 		mtoShipment *models.MTOShipment
@@ -666,6 +666,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 		params.Body.PpmShipment = updatedPPM
 
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(8765309)), nil).Once()
+
 		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
@@ -687,7 +693,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(*params.Body.PpmShipment.HasProGear, *updatedShipment.PpmShipment.HasProGear)
 		suite.Equal(*params.Body.PpmShipment.ProGearWeight, *updatedShipment.PpmShipment.ProGearWeight)
 		suite.Equal(*params.Body.PpmShipment.SpouseProGearWeight, *updatedShipment.PpmShipment.SpouseProGearWeight)
-		suite.Equal(int64(1000000), *updatedShipment.PpmShipment.EstimatedIncentive)
+		suite.Equal(int64(8765309), *updatedShipment.PpmShipment.EstimatedIncentive)
 
 		suite.NoError(updatedShipment.Validate(strfmt.Default))
 	})

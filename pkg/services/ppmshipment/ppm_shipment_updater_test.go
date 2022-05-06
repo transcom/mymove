@@ -7,6 +7,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
+	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -14,7 +16,7 @@ import (
 func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 	// One-time test setup
-	ppmEstimator := NewEstimatePPM()
+	ppmEstimator := NewEstimatePPM(&mocks.Planner{}, &prhelpermocks.Helper{})
 	ppmShipmentUpdater := NewPPMShipmentUpdater(ppmEstimator)
 
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations", func() {
