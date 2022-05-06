@@ -390,6 +390,18 @@ export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   },
 });
 
+export const updateMTOShipmentDeprecatePaymentRequest = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: 'payment_requests',
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: (historyRecord) => `Updated payment request ${historyRecord.oldValues?.payment_request_number}`,
+  getDetailsPlainText: (historyRecord) => {
+    const paymentRequestStatus = historyRecord.changedValues?.status === 'DEPRECATED' ? 'Deprecated' : '';
+    return `${paymentRequestStatus} payment request ${historyRecord.oldValues?.payment_request_number}`;
+  },
+});
+
 export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.updatePaymentRequestStatus,
@@ -496,6 +508,7 @@ const allMoveHistoryEventTemplates = [
   updateMTOShipmentEvent,
   updateMTOShipmentAddressesEvent,
   updateMTOShipmentAgentEvent,
+  updateMTOShipmentDeprecatePaymentRequest,
   updateOrderEvent,
   updatePaymentRequestStatus,
   updateServiceItemStatusEvent,
