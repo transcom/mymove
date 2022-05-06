@@ -204,11 +204,13 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 	err := suite.DB().Eager("MTOShipment").Find(&mtoServiceItem, model.MTOServiceItemID)
 	suite.NoError(err)
 
-	mtoShipment := mtoServiceItem.MTOShipment
 	distance := fscTestDistance
-	mtoShipment.Distance = &distance
-	err = suite.DB().Save(&mtoShipment)
+	mtoServiceItem.MTOShipment.Distance = &distance
+	err = suite.DB().Save(&mtoServiceItem.MTOShipment)
 	suite.NoError(err)
+
+	// the testdatagen factory has some dirty shipment data that we don't want to pass through to the pricer in the test
+	model.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem = models.MTOServiceItem{}
 
 	return model
 }

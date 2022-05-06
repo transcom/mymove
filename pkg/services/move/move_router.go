@@ -33,6 +33,14 @@ func NewMoveRouter() services.MoveRouter {
 func (router moveRouter) Submit(appCtx appcontext.AppContext, move *models.Move) error {
 	router.logMove(appCtx, move)
 
+	// if its a PPMShipment update both the mto and ppm shipment level statuses
+	for i := range move.MTOShipments {
+		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
+			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
+			move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusSubmitted
+		}
+	}
+
 	needsServicesCounseling, err := router.needsServiceCounseling(appCtx, move)
 	if err != nil {
 		appCtx.Logger().Error("failure determining if a move needs services counseling", zap.Error(err))
@@ -179,25 +187,6 @@ func (router moveRouter) sendNewMoveToOfficeUser(appCtx appcontext.AppContext, m
 	now := time.Now()
 	move.SubmittedAt = &now
 
-	// Update PPM status too
-	for i := range move.PersonallyProcuredMoves {
-		ppm := &move.PersonallyProcuredMoves[i]
-		err := ppm.Submit(now)
-		if err != nil {
-			appCtx.Logger().Error("Failure submitting ppm", zap.Error(err))
-			return err
-		}
-	}
-
-	for _, ppm := range move.PersonallyProcuredMoves {
-		if ppm.Advance != nil {
-			err := ppm.Advance.Request()
-			if err != nil {
-				appCtx.Logger().Error("Failure requesting reimbursement for ppm", zap.Error(err))
-				return err
-			}
-		}
-	}
 	return nil
 }
 
