@@ -1,14 +1,11 @@
 package internalapi
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -16,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -264,81 +260,6 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		hasProGearOverThousand := models.ProGearStatus(*payload.HasProGearOverThousand)
 		ppm.HasProGearOverThousand = &hasProGearOverThousand
 	}
-}
-
-// UpdatePersonallyProcuredMoveEstimateHandler Updates a PPMs incentive estimate
-type UpdatePersonallyProcuredMoveEstimateHandler struct {
-	handlers.HandlerContext
-	services.EstimateCalculator
-}
-
-// Handle recalculates the incentive value for a given PPM move
-func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdatePersonallyProcuredMoveEstimateParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			moveID, err := uuid.FromString(params.MoveID.String())
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			ppm, err := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			if ppm.MoveID != moveID {
-				errMsg := "Move ID for PPM does not match requested PPM Move ID"
-				appCtx.Logger().Info(errMsg, zap.String("requested move_id", moveID.String()), zap.String("actual move_id", ppm.MoveID.String()))
-				return ppmop.NewUpdatePersonallyProcuredMoveEstimateBadRequest(), apperror.NewBadDataError(errMsg)
-			}
-
-			err = h.updateEstimates(appCtx, ppm, moveID)
-			if err != nil {
-				appCtx.Logger().Error("Unable to set calculated fields on PPM", zap.Error(err))
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			verrs, err := models.SavePersonallyProcuredMove(appCtx.DB(), ppm)
-			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
-			}
-
-			ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-			return ppmop.NewUpdatePersonallyProcuredMoveEstimateOK().WithPayload(ppmPayload), nil
-		})
-}
-
-func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(appCtx appcontext.AppContext, ppm *models.PersonallyProcuredMove, moveID uuid.UUID) error {
-	sitCharge, cost, err := h.CalculateEstimates(appCtx, ppm, moveID)
-	if err != nil {
-		return fmt.Errorf("error getting cost estimates: %w", err)
-	}
-
-	// Update SIT estimate
-	if ppm.HasSit != nil && *ppm.HasSit {
-		p := message.NewPrinter(language.English)
-		reimbursementString := p.Sprintf("$%.2f", float64(sitCharge)/100)
-		ppm.EstimatedStorageReimbursement = &reimbursementString
-	}
-
-	mileage := int64(cost.LinehaulCostComputation.Mileage)
-	ppm.Mileage = &mileage
-	ppm.PlannedSITMax = &cost.SITFee
-	ppm.SITMax = &cost.SITMax
-	min := cost.GCC.MultiplyFloat64(0.95)
-	max := cost.GCC.MultiplyFloat64(1.05)
-	ppm.IncentiveEstimateMin = &min
-	ppm.IncentiveEstimateMax = &max
-
-	return nil
 }
 
 // PatchPersonallyProcuredMoveHandler Patches a PPM
