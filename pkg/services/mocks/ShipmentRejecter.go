@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -39,14 +37,4 @@ func (_m *ShipmentRejecter) RejectShipment(appCtx appcontext.AppContext, shipmen
 	}
 
 	return r0, r1
-}
-
-// NewShipmentRejecter creates a new instance of ShipmentRejecter. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentRejecter(t testing.TB) *ShipmentRejecter {
-	mock := &ShipmentRejecter{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
 }

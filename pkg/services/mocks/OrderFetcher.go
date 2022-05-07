@@ -10,8 +10,6 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -71,14 +69,4 @@ func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uu
 	}
 
 	return r0, r1, r2
-}
-
-// NewOrderFetcher creates a new instance of OrderFetcher. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewOrderFetcher(t testing.TB) *OrderFetcher {
-	mock := &OrderFetcher{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
 }

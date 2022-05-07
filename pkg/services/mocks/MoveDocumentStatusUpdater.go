@@ -10,8 +10,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	validate "github.com/gobuffalo/validate/v3"
 )
 
@@ -50,14 +48,4 @@ func (_m *MoveDocumentStatusUpdater) UpdateMoveDocumentStatus(appCtx appcontext.
 	}
 
 	return r0, r1, r2
-}
-
-// NewMoveDocumentStatusUpdater creates a new instance of MoveDocumentStatusUpdater. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveDocumentStatusUpdater(t testing.TB) *MoveDocumentStatusUpdater {
-	mock := &MoveDocumentStatusUpdater{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
 }

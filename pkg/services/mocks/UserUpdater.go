@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 
 	validate "github.com/gobuffalo/validate/v3"
@@ -50,14 +48,4 @@ func (_m *UserUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, us
 	}
 
 	return r0, r1, r2
-}
-
-// NewUserUpdater creates a new instance of UserUpdater. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewUserUpdater(t testing.TB) *UserUpdater {
-	mock := &UserUpdater{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
 }

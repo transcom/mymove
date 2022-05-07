@@ -10,8 +10,6 @@ import (
 
 	roles "github.com/transcom/mymove/pkg/models/roles"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -41,14 +39,4 @@ func (_m *UserRoleAssociator) UpdateUserRoles(appCtx appcontext.AppContext, user
 	}
 
 	return r0, r1
-}
-
-// NewUserRoleAssociator creates a new instance of UserRoleAssociator. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewUserRoleAssociator(t testing.TB) *UserRoleAssociator {
-	mock := &UserRoleAssociator{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
 }

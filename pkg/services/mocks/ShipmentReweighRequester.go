@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -39,14 +37,4 @@ func (_m *ShipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.App
 	}
 
 	return r0, r1
-}
-
-// NewShipmentReweighRequester creates a new instance of ShipmentReweighRequester. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentReweighRequester(t testing.TB) *ShipmentReweighRequester {
-	mock := &ShipmentReweighRequester{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
 }
