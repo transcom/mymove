@@ -519,7 +519,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal("Invalid input found while validating the PPM shipment.", err.Error())
 	})
 
-	suite.Run("Can't update if there is invalid input", func() {
+	suite.Run("Can't update if there is an error calculating incentive", func() {
 		appCtx := suite.AppContextForTest()
 
 		fakeEstimatedIncentiveError := errors.New("failed to calculate incentive")
