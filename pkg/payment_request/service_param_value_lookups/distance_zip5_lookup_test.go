@@ -36,7 +36,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		distanceStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -102,7 +102,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		distanceStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -138,7 +138,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -167,7 +167,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)

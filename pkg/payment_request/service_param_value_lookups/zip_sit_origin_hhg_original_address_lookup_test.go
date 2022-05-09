@@ -70,7 +70,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 	suite.Run("success SIT origin original zip lookup", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItemWithSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItemWithSITOriginZips, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		sitOriginZipOriginal, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -82,7 +82,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 	suite.Run("fail to find SIT origin original zip lookup", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItemNoSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItemNoSITOriginZips, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		sitOriginZipOriginal, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)

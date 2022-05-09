@@ -3,6 +3,10 @@ package ppmshipment
 import (
 	"github.com/gofrs/uuid"
 
+	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
+
+	"github.com/transcom/mymove/pkg/route/mocks"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -17,9 +21,10 @@ func createDefaultPPMShipment() *models.PPMShipment {
 }
 
 func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
+	ppmEstimator := NewEstimatePPM(&mocks.Planner{}, &prhelpermocks.Helper{})
+
 	suite.Run("UpdatePPMShipment - Success", func() {
 		oldPPMShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
-		ppmEstimator := NewEstimatePPM()
 		ppmShipmentUpdater := NewPPMShipmentUpdater(ppmEstimator)
 
 		newPPM := createDefaultPPMShipment()
@@ -31,7 +36,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Not Found Error", func() {
-		ppmEstimator := NewEstimatePPM()
 		ppmShipmentUpdater := NewPPMShipmentUpdater(ppmEstimator)
 
 		newPPM := createDefaultPPMShipment()

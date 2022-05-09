@@ -31,7 +31,7 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 	suite.Run("golden path", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -48,7 +48,7 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 		mtoShipment.RequestedPickupDate = nil
 		suite.MustSave(&mtoShipment)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)

@@ -1090,7 +1090,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment has multiple Origin MTO Service Items with different SIT Entry Dates", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITTwo.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITTwo, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1101,7 +1101,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment has multiple Destination MTO Service Items with different SIT Entry Dates", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITTwo.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITTwo, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1113,7 +1113,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment has multiple Origin MTO Service Items with identical SIT Entry Dates", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITFour.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITFour, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1124,7 +1124,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment has multiple Destination MTO Service Items with identical SIT Entry Dates", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITFour.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITFour, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1134,7 +1134,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment already has an Origin MTO Service Item with a different SIT Entry Date", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITFive.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITFive, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1145,7 +1145,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment already has a Destination MTO Service Item with a different SIT Entry Date", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITFive.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITFive, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1156,7 +1156,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment already has an Origin MTO Service Item with an identical SIT Entry Date", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITSix.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITSix, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1166,7 +1166,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment already has a Destination MTO Service Item with an identical SIT Entry Date", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITSix.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITSix, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1176,7 +1176,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment has Origin MTO Service Items but none with a SIT Entry Date", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOFSITFive.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOFSITFive, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		// Test that it fails
@@ -1196,7 +1196,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		})
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDOASITSeven, "2021-11-21", "2021-11-30")
 
-		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITSeven, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1206,7 +1206,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment has Destination MTO Service Items but none with a SIT Entry Date", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDFSITFive.ID, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDFSITFive, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1224,7 +1224,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		})
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestSeven, serviceItemDDASITSeven, "2021-12-01", "2021-12-10")
 
-		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITSeven.ID, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITSeven, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1234,7 +1234,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment already has an Origin MTO Service Item with a SIT Departure Date", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITNine.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITNine, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1246,7 +1246,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment already has a Destination MTO Service Item with a SIT Departure Date", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITNine.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITNine, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1258,14 +1258,14 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO Shipment only has a First Day SIT MTO Service Item", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOFSITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOFSITSeven, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "failed to find a PaymentServiceItem for MTOServiceItem")
 
-		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDFSITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDFSITSeven, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1276,7 +1276,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO with one MTO Shipment with one DOFSIT payment service item", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOFSITEight.ID, paymentRequestSixteen.ID, moveTaskOrderTwo.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOFSITEight, paymentRequestSixteen.ID, moveTaskOrderTwo.ID, nil)
 		suite.FatalNoError(err)
 
 		value, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1288,7 +1288,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO with more than one MTO Shipment", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITEleven.ID, paymentRequestSeventeen.ID, moveTaskOrderThree.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITEleven, paymentRequestSeventeen.ID, moveTaskOrderThree.ID, nil)
 		suite.FatalNoError(err)
 
 		value, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1299,7 +1299,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	suite.Run("an MTO with an MTO Shipment with no SIT Departure Date", func() {
 		setupTestData()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITTen.ID, paymentRequestEighteen.ID, moveTaskOrderFour.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITTen, paymentRequestEighteen.ID, moveTaskOrderFour.ID, nil)
 		suite.FatalNoError(err)
 
 		value, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1311,7 +1311,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		setupTestData()
 
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
 		days, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1323,7 +1323,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		setupTestData()
 
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "not a date", "2020-07-30")
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1334,7 +1334,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		setupTestData()
 
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-01", "not a date")
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1355,7 +1355,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			Move: move,
 		})
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestOverlapping, serviceItemDOASIT, "2020-07-25", "2020-08-10")
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT.ID, paymentRequestOverlapping.ID, move.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequestOverlapping.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1377,7 +1377,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		})
 		suite.makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequestRejected, serviceItemDOASIT, "2020-07-21", "2020-07-30", models.PaymentServiceItemStatusDenied)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1389,7 +1389,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 		// End date is a year in the future in order to exceed allowance
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2021-07-30")
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1410,7 +1410,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1423,7 +1423,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		// The Additional Days SIT service item should be for exactly the allowed amount,
 		// So the first day in SIT will put it over the limit.
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-10-18")
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT.ID, paymentRequest.ID, move.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -1454,7 +1454,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			serviceItemDOASIT,
 			"2020-07-30", "2020-08-15")
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT.ID, paymentRequestOverlapping.ID, move.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequestOverlapping.ID, move.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)

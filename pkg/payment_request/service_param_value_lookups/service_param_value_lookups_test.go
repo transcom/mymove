@@ -95,7 +95,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAllWeight
 			},
 		})
 
-	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	suite.FatalNoError(err)
 
 	return mtoServiceItem, paymentRequest, paramLookup
@@ -143,7 +143,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 			},
 		})
 
-	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	suite.FatalNoError(err)
 
 	return mtoServiceItem, paymentRequest, paramLookup
@@ -152,7 +152,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.Run("contract passed in", func() {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
 		suite.FatalNoError(err)
 		suite.Equal(ghcrateengine.DefaultContractCode, paramLookup.ContractCode)
@@ -161,7 +161,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.Run("MTOServiceItem passed in", func() {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
 		suite.FatalNoError(err)
 		suite.Equal(mtoServiceItem.ID, paramLookup.MTOServiceItemID)
@@ -184,7 +184,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 				},
 			})
 
-			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
 
 			suite.NotNil(paramLookup.MTOServiceItem)
@@ -214,7 +214,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			},
 		})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
 		suite.NotNil(paramLookup.MTOServiceItem)
@@ -242,7 +242,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 
 		for _, mtoServiceItem := range testData {
-			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
 
 			suite.NotNil(paramLookup.MTOServiceItem)
@@ -268,7 +268,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			mtoShipment.DestinationAddressID = nil
 			suite.DB().Save(&mtoShipment)
 
-			_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+			_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
 		}
 	})
@@ -290,7 +290,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 
 		for _, mtoServiceItem := range testData {
-			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
 
 			suite.NotNil(paramLookup.MTOServiceItem)
@@ -314,7 +314,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		mtoShipment.PickupAddressID = nil
 		suite.DB().Save(&mtoShipment)
 
-		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 	})
 
@@ -352,7 +352,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		})
 
 		// Check to see if the distance lookup got the expected NTS addresses.
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, ntsServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, ntsServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 		if dz3l, ok := paramLookup.lookups[models.ServiceItemParamNameDistanceZip3].(DistanceZip3Lookup); ok {
 			suite.Equal(pickupPostalCode, dz3l.PickupAddress.PostalCode)
@@ -379,7 +379,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		})
 
 		// Check to see if the distance lookup got the expected NTS-Release addresses.
-		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, ntsrServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, ntsrServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 		if dz3l, ok := paramLookup.lookups[models.ServiceItemParamNameDistanceZip3].(DistanceZip3Lookup); ok {
 			suite.Equal(storageFacilityPostalCode, dz3l.PickupAddress.PostalCode)
@@ -425,7 +425,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 
 		for _, mtoServiceItem := range testData {
-			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
 
 			suite.NotNil(paramLookup.MTOServiceItem)
@@ -454,7 +454,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 
 		for _, mtoServiceItem := range testData {
-			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
 
 			suite.NotNil(paramLookup.MTOServiceItem)
@@ -466,13 +466,24 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 	})
 
-	suite.Run("nil MTOServiceItemID", func() {
-		badMTOServiceItemID := uuid.Must(uuid.NewV4())
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, badMTOServiceItemID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+	suite.Run("Non-basic MTOServiceItem is missing a MTOShipmentID", func() {
+		badMTOServiceItem := models.MTOServiceItem{ID: uuid.Must(uuid.NewV4())}
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, badMTOServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), fmt.Sprintf("ID: %s not found looking for MTOServiceItem", badMTOServiceItemID))
+		suite.Contains(err.Error(), "Not found the shipment service item is missing a MTOShipmentID")
+		var expected *ServiceItemParamKeyData
+		suite.Equal(expected, paramLookup)
+	})
+
+	suite.Run("Non-basic MTOServiceItem has a MTOShipmentID that is not found", func() {
+		badMTOServiceItem := models.MTOServiceItem{ID: uuid.Must(uuid.NewV4()), MTOShipmentID: models.UUIDPointer(uuid.Must(uuid.NewV4()))}
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, badMTOServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), "not found looking for MTOShipment")
 		var expected *ServiceItemParamKeyData
 		suite.Equal(expected, paramLookup)
 	})
