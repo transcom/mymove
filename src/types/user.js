@@ -7,6 +7,10 @@ export const UserRoleShape = PropTypes.shape({ roleType: PropTypes.string.isRequ
 
 export const UserRolesShape = PropTypes.arrayOf(UserRoleShape);
 
+export const UserPermissionShape = PropTypes.shape({ permissionType: PropTypes.string.isRequired });
+
+export const UserPermissionsShape = PropTypes.arrayOf(UserPermissionShape);
+
 export const TransportationOfficeShape = PropTypes.shape({
   address: AddressShape,
   gbloc: PropTypes.string,

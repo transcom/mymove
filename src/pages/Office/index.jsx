@@ -33,6 +33,8 @@ import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
 import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
+import { UserPermissionsShape } from 'types/user';
+import PermissionProvider from 'components/Office/Restricted/PermissionProvider';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -104,6 +106,7 @@ export class OfficeApp extends Component {
       activeRole,
       userIsLoggedIn,
       userRoles,
+      userPermissions,
       location: { pathname },
       hasRecentError,
       traceId,
@@ -168,7 +171,7 @@ export class OfficeApp extends Component {
     });
 
     return (
-      <>
+      <PermissionProvider permissions={userPermissions}>
         <div id="app-root">
           <div className={siteClasses}>
             <BypassBlock />
@@ -328,7 +331,7 @@ export class OfficeApp extends Component {
           </div>
         </div>
         <div id="modal-root" />
-      </>
+      </PermissionProvider>
     );
   }
 }
@@ -340,6 +343,7 @@ OfficeApp.propTypes = {
   location: LocationShape,
   userIsLoggedIn: PropTypes.bool,
   userRoles: UserRolesShape,
+  userPermissions: UserPermissionsShape,
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
@@ -354,6 +358,7 @@ OfficeApp.defaultProps = {
   location: { pathname: '' },
   userIsLoggedIn: false,
   userRoles: [],
+  userPermissions: [],
   activeRole: null,
   history: {
     location: { pathname: '' },
@@ -367,6 +372,7 @@ const mapStateToProps = (state) => {
     swaggerError: state.swaggerInternal.hasErrored,
     userIsLoggedIn: selectIsLoggedIn(state),
     userRoles: user?.roles || [],
+    userPermissions: user?.permissions || [],
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,
