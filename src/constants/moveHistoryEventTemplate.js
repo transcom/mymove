@@ -455,8 +455,8 @@ export const undefinedEvent = buildMoveHistoryEventTemplate({
   eventName: null,
   tableName: null,
   detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: (historyRecord) => {
-    switch (historyRecord?.tableName) {
+  getEventNameDisplay: ({ tableName }) => {
+    switch (tableName) {
       case dbTables.orders:
         return 'Updated order';
       case dbTables.mto_service_items:
