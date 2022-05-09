@@ -3,6 +3,7 @@ import { shipmentTypes } from './shipments';
 
 import { formatMoveHistoryFullAddress, formatMoveHistoryAgent } from 'utils/formatters';
 import { dbActions, formatTableName } from 'constants/historyLogUIDisplayName';
+import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 function propertiesMatch(p1, p2) {
   return p1 === '*' || p2 === '*' || p1 === p2;
@@ -395,7 +396,15 @@ export const updateMTOShipmentDeprecatePaymentRequest = buildMoveHistoryEventTem
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: 'payment_requests',
   detailsType: detailsTypes.LABELED,
-  getEventNameDisplay: (historyRecord) => `Updated payment request ${historyRecord.oldValues?.payment_request_number}`,
+  getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
+  getDetailsLabeledDetails: ({ changedValues }) => {
+    const { status } = changedValues;
+    const formattedValues = { ...changedValues };
+    if (status) {
+      formattedValues.status = PAYMENT_REQUEST_STATUS_LABELS[status];
+    }
+    return formattedValues;
+  },
 });
 
 export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
