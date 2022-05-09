@@ -17493,10 +17493,10 @@ react-highlight-words@^0.17.0:
     memoize-one "^4.0.0"
     prop-types "^15.5.8"
 
-react-idle-timer@^4.6.4:
-  version "4.6.4"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.6.4.tgz#71ba954ba6f464df24d46a94e63c5ef19f7319dc"
-  integrity sha512-iq61dPud8fgj7l1KOJEY5pyiD532fW0KcIe/5XUe/0lB/4Vytoy4tZBlLGSiYodPzKxTL6HyKoOmG6tyzjD7OQ==
+react-idle-timer@^5.1.2:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.1.2.tgz#494ec77d336664f48b95946b4bcbec1b8c432e9f"
+  integrity sha512-l6ANfGC93u2C3X/WTaBAxjgfOFAVefvhLJ8cFc0eWJj05fRNZkCybubLdAg9kXkiwKb2D0vDT3VBa3G/tQ8uaw==
 
 react-imask@^6.2.2:
   version "6.2.2"
