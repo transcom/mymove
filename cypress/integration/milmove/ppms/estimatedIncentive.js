@@ -4,7 +4,7 @@ import {
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
   setMobileViewport,
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
-} from '../../../support/ppmShared';
+} from '../../../support/ppmCustomerShared';
 
 describe('PPM Onboarding - Estimated Incentive', function () {
   before(() => {
