@@ -6,7 +6,6 @@ export const CustomerSupportRemarkShape = shape({
   content: string.isRequired,
   officeUserFirstName: string.isRequired,
   officeUserLastName: string.isRequired,
-  updatedAt: string.isRequired,
   createdAt: string.isRequired,
 });
 
