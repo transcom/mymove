@@ -6,12 +6,12 @@ import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
-import customerRemarkStyles from './CustomerSupportRemarks.module.scss';
+import customerSupportRemarkStyles from './CustomerSupportRemarks.module.scss';
 
 import { useCustomerSupportRemarksQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { formatCustomerSupportRemarksDate } from 'utils/formatters';
+import CustomerSupportRemarkText from 'components/Office/CustomerSupportRemarkText/CustomerSupportRemarkText';
 
 const CustomerSupportRemarks = () => {
   const { moveCode } = useParams();
@@ -21,28 +21,20 @@ const CustomerSupportRemarks = () => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <div className={styles.tabContent}>
-      <GridContainer className={customerRemarkStyles.customerRemarksContainer}>
+    <div className={classnames(styles.tabContent, customerSupportRemarkStyles.customerSupportRemarksContent)}>
+      <GridContainer className={customerSupportRemarkStyles.customerSupportRemarksTitle}>
         <h1>Customer Support Remarks</h1>
       </GridContainer>
-      <GridContainer className={classnames(customerRemarkStyles.remarksContainer, 'container--popout')}>
+      <GridContainer
+        className={classnames(customerSupportRemarkStyles.customerSupportRemarksContainer, 'container--popout')}
+      >
         <h2>Remarks</h2>
         <h4>Past Remarks</h4>
         {customerSupportRemarks.length === 0 && <p>No remarks yet.</p>}
         {customerSupportRemarks.length > 0 &&
           customerSupportRemarks.map((customerSupportRemark) => {
             return (
-              <div key={customerSupportRemark.id}>
-                <p className={customerRemarkStyles.customerRemarkBody}>
-                  <small>
-                    <strong>
-                      {customerSupportRemark.officeUserFirstName} {customerSupportRemark.officeUserLastName}
-                    </strong>{' '}
-                    {formatCustomerSupportRemarksDate(customerSupportRemark.createdAt)}
-                  </small>
-                </p>
-                {customerSupportRemark.content}
-              </div>
+              <CustomerSupportRemarkText customerSupportRemark={customerSupportRemark} key={customerSupportRemark.id} />
             );
           })}
       </GridContainer>

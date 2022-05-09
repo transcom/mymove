@@ -2,18 +2,16 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-.customerRemarkBody {
-  color: $base-dark;
+.customerSupportRemarksContent {
+  h1, h2, h4 {
+    color: $mm-blue;
+  }
 }
 
-h1, h2, h4 {
-  color: $mm-blue;
-}
-
-.customerRemarksContainer {
+.customerSupportRemarksTitle {
   @include u-padding-left(0);
 }
 
-.remarksContainer {
+.customerSupportRemarksContainer {
   @include u-padding-bottom(40px);
 }

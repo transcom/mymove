@@ -1,0 +1,26 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.remarksTextContent {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customerRemarkBody {
+  color: $base-dark;
+}
+
+.seeMoreOrLessButton {
+  @include u-padding(0);
+}
+
+.seeMoreOrLessButton:focus {
+  outline: none !important;
+}
+
+
+
