@@ -625,6 +625,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 		return
 	}
 	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
+	appCtx.Session().Permissions = append(appCtx.Session().Permissions, userIdentity.Permissions...)
 	appCtx.Session().UserID = userIdentity.ID
 	if appCtx.Session().IsMilApp() && userIdentity.ServiceMemberID != nil {
 		appCtx.Session().ServiceMemberID = *(userIdentity.ServiceMemberID)
@@ -731,7 +732,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 	var err error
 
 	// Loads the User and Roles associations of the office or admin user
-	conn := appCtx.DB().Eager("User", "User.Roles")
+	conn := appCtx.DB().Eager("User", "User.Roles", "User.Permissions")
 
 	if appCtx.Session().IsOfficeApp() { // Look to see if we have OfficeUser with this email address
 		officeUser, err = models.FetchOfficeUserByEmail(conn, appCtx.Session().Email)
@@ -832,6 +833,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 	}
 
 	appCtx.Session().Roles = append(appCtx.Session().Roles, user.Roles...)
+	appCtx.Session().Permissions = append(appCtx.Session().Permissions, user.Permissions...)
 
 	sessionManager := h.sessionManager(appCtx.Session())
 	authError := authenticateUser(r.Context(), appCtx, sessionManager)

@@ -67,6 +67,7 @@ func (rs Roles) GetRole(roleType RoleType) (Role, bool) {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (r *Role) Validate(tx *pop.Connection) (*validate.Errors, error) {
+
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ID, Name: "ID"},
 		&validators.StringIsPresent{Field: string(r.RoleType), Name: "RoleType"},

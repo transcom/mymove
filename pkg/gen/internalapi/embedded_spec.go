@@ -4091,6 +4091,13 @@ func init() {
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Permission"
+          },
+          "x-nullable": true
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -5509,6 +5516,34 @@ func init() {
         },
         "OTHER": {
           "type": "integer"
+        }
+      }
+    },
+    "Permission": {
+      "type": "object",
+      "required": [
+        "id",
+        "permissionType",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "permissionType": {
+          "type": "string",
+          "example": "edit.shipment"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -10869,6 +10904,13 @@ func init() {
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Permission"
+          },
+          "x-nullable": true
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -12291,6 +12333,34 @@ func init() {
         },
         "OTHER": {
           "type": "integer"
+        }
+      }
+    },
+    "Permission": {
+      "type": "object",
+      "required": [
+        "id",
+        "permissionType",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "permissionType": {
+          "type": "string",
+          "example": "edit.shipment"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },

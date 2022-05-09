@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/permissions"
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"strings"
@@ -18,16 +19,17 @@ import (
 
 // User is an entity with a registered uuid and email at login.gov
 type User struct {
-	ID                     uuid.UUID   `json:"id" db:"id"`
-	CreatedAt              time.Time   `json:"created_at" db:"created_at"`
-	UpdatedAt              time.Time   `json:"updated_at" db:"updated_at"`
-	LoginGovUUID           *uuid.UUID  `json:"login_gov_uuid" db:"login_gov_uuid"`
-	LoginGovEmail          string      `json:"login_gov_email" db:"login_gov_email"`
-	Active                 bool        `json:"active" db:"active"`
-	Roles                  roles.Roles `many_to_many:"users_roles"`
-	CurrentAdminSessionID  string      `json:"current_admin_session_id" db:"current_admin_session_id"`
-	CurrentOfficeSessionID string      `json:"current_office_session_id" db:"current_office_session_id"`
-	CurrentMilSessionID    string      `json:"current_mil_session_id" db:"current_mil_session_id"`
+	ID                     uuid.UUID               `json:"id" db:"id"`
+	CreatedAt              time.Time               `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time               `json:"updated_at" db:"updated_at"`
+	LoginGovUUID           *uuid.UUID              `json:"login_gov_uuid" db:"login_gov_uuid"`
+	LoginGovEmail          string                  `json:"login_gov_email" db:"login_gov_email"`
+	Active                 bool                    `json:"active" db:"active"`
+	Roles                  roles.Roles             `many_to_many:"users_roles"`
+	Permissions            permissions.Permissions `many_to_many:"users_permissions"`
+	CurrentAdminSessionID  string                  `json:"current_admin_session_id" db:"current_admin_session_id"`
+	CurrentOfficeSessionID string                  `json:"current_office_session_id" db:"current_office_session_id"`
+	CurrentMilSessionID    string                  `json:"current_mil_session_id" db:"current_mil_session_id"`
 }
 
 // Users is not required by pop and may be deleted
@@ -120,26 +122,27 @@ func UpdateUserLoginGovUUID(db *pop.Connection, user *User, loginGovID string) e
 
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
-	ID                     uuid.UUID   `db:"id"`
-	Active                 bool        `db:"active"`
-	Email                  string      `db:"email"`
-	ServiceMemberID        *uuid.UUID  `db:"sm_id"`
-	ServiceMemberFirstName *string     `db:"sm_fname"`
-	ServiceMemberLastName  *string     `db:"sm_lname"`
-	ServiceMemberMiddle    *string     `db:"sm_middle"`
-	OfficeUserID           *uuid.UUID  `db:"ou_id"`
-	OfficeUserFirstName    *string     `db:"ou_fname"`
-	OfficeUserLastName     *string     `db:"ou_lname"`
-	OfficeUserMiddle       *string     `db:"ou_middle"`
-	OfficeActive           *bool       `db:"ou_active"`
-	AdminUserID            *uuid.UUID  `db:"au_id"`
-	AdminUserRole          *AdminRole  `db:"au_role"`
-	AdminUserFirstName     *string     `db:"au_fname"`
-	AdminUserLastName      *string     `db:"au_lname"`
-	AdminUserActive        *bool       `db:"au_active"`
-	DpsUserID              *uuid.UUID  `db:"du_id"`
-	DpsActive              *bool       `db:"du_active"`
-	Roles                  roles.Roles `many_to_many:"users_roles" primary_id:"user_id"`
+	ID                     uuid.UUID               `db:"id"`
+	Active                 bool                    `db:"active"`
+	Email                  string                  `db:"email"`
+	ServiceMemberID        *uuid.UUID              `db:"sm_id"`
+	ServiceMemberFirstName *string                 `db:"sm_fname"`
+	ServiceMemberLastName  *string                 `db:"sm_lname"`
+	ServiceMemberMiddle    *string                 `db:"sm_middle"`
+	OfficeUserID           *uuid.UUID              `db:"ou_id"`
+	OfficeUserFirstName    *string                 `db:"ou_fname"`
+	OfficeUserLastName     *string                 `db:"ou_lname"`
+	OfficeUserMiddle       *string                 `db:"ou_middle"`
+	OfficeActive           *bool                   `db:"ou_active"`
+	AdminUserID            *uuid.UUID              `db:"au_id"`
+	AdminUserRole          *AdminRole              `db:"au_role"`
+	AdminUserFirstName     *string                 `db:"au_fname"`
+	AdminUserLastName      *string                 `db:"au_lname"`
+	AdminUserActive        *bool                   `db:"au_active"`
+	DpsUserID              *uuid.UUID              `db:"du_id"`
+	DpsActive              *bool                   `db:"du_active"`
+	Roles                  roles.Roles             `many_to_many:"users_roles" primary_id:"user_id"`
+	Permissions            permissions.Permissions `many_to_many:"users_permissions" primary_id:"user_id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -183,6 +186,21 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	if roleError != nil {
 		return nil, roleError
 	}
+
+	// Get permissions for user
+	permissionError := db.RawQuery(`
+		SELECT * FROM permissions
+		WHERE id in (
+			SELECT DISTINCT permission_id FROM role_permissions
+	 		WHERE role_id in (
+				SELECT role_id FROM users_roles
+				WHERE deleted_at is null and user_id = ?
+		 ))`, identity.ID).All(&identity.Permissions)
+
+	if permissionError != nil {
+		return nil, permissionError
+	}
+
 	return identity, nil
 }
 

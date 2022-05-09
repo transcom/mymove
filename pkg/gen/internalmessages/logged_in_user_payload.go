@@ -40,6 +40,9 @@ type LoggedInUserPayload struct {
 	// office user
 	OfficeUser *OfficeUser `json:"office_user,omitempty"`
 
+	// permissions
+	Permissions []*Permission `json:"permissions"`
+
 	// roles
 	Roles []*Role `json:"roles"`
 
@@ -60,6 +63,10 @@ func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOfficeUser(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePermissions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -116,6 +123,32 @@ func (m *LoggedInUserPayload) validateOfficeUser(formats strfmt.Registry) error 
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) validatePermissions(formats strfmt.Registry) error {
+	if swag.IsZero(m.Permissions) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Permissions); i++ {
+		if swag.IsZero(m.Permissions[i]) { // not required
+			continue
+		}
+
+		if m.Permissions[i] != nil {
+			if err := m.Permissions[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("permissions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("permissions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -182,6 +215,10 @@ func (m *LoggedInUserPayload) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePermissions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRoles(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -225,6 +262,26 @@ func (m *LoggedInUserPayload) contextValidateOfficeUser(ctx context.Context, for
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) contextValidatePermissions(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Permissions); i++ {
+
+		if m.Permissions[i] != nil {
+			if err := m.Permissions[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("permissions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("permissions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

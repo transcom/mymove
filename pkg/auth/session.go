@@ -9,6 +9,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/models/permissions"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
@@ -115,6 +116,7 @@ type Session struct {
 	AdminUserRole   string
 	DpsUserID       uuid.UUID
 	Roles           roles.Roles
+	Permissions     permissions.Permissions
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data
