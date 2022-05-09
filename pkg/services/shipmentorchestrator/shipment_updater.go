@@ -41,15 +41,17 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 			return nil
 		}
 
-		mtoShipment.PPMShipment.ShipmentID = mtoShipment.ID
-		mtoShipment.PPMShipment.Shipment = *mtoShipment
+		shipment.PPMShipment.ShipmentID = mtoShipment.ID
+		shipment.PPMShipment.Shipment = *mtoShipment
 
-		ppmShipment, err := s.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment, mtoShipment.ID)
+		ppmShipment, err := s.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, shipment.PPMShipment, mtoShipment.ID)
 
 		if err != nil {
 			return err
 		}
 
+		// Update variables with latest versions
+		mtoShipment = &ppmShipment.Shipment
 		mtoShipment.PPMShipment = ppmShipment
 
 		return nil

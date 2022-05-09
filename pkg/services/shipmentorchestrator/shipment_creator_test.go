@@ -28,7 +28,7 @@ func (suite ShipmentSuite) TestCreateShipment() {
 		fakeError                   error
 	}
 
-	makeSubtestData := func(returnErrorForMTOShipment bool) (subtestData subtestDataObjects) {
+	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool) (subtestData subtestDataObjects) {
 		mockMTOShipmentCreator := mocks.MTOShipmentCreator{}
 		subtestData.mockMTOShipmentCreator = &mockMTOShipmentCreator
 
@@ -66,28 +66,40 @@ func (suite ShipmentSuite) TestCreateShipment() {
 				)
 		}
 
-		subtestData.mockPPMShipmentCreator.
-			On(
-				createPPMShipmentMethodName,
-				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("*models.PPMShipment"),
-			).
-			Return(
-				func(_ appcontext.AppContext, ship *models.PPMShipment) *models.PPMShipment {
-					ship.ID = uuid.Must(uuid.NewV4())
+		if returnErrorForPPMShipment {
+			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Invalid input found while validating the PPM shipment.")
 
-					return ship
-				},
-				func(_ appcontext.AppContext, ship *models.PPMShipment) error {
-					return nil
-				},
-			)
+			subtestData.mockPPMShipmentCreator.
+				On(
+					createPPMShipmentMethodName,
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("*models.PPMShipment"),
+				).
+				Return(nil, subtestData.fakeError)
+		} else {
+			subtestData.mockPPMShipmentCreator.
+				On(
+					createPPMShipmentMethodName,
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("*models.PPMShipment"),
+				).
+				Return(
+					func(_ appcontext.AppContext, ship *models.PPMShipment) *models.PPMShipment {
+						ship.ID = uuid.Must(uuid.NewV4())
 
-		return
+						return ship
+					},
+					func(_ appcontext.AppContext, ship *models.PPMShipment) error {
+						return nil
+					},
+				)
+		}
+
+		return subtestData
 	}
 
 	suite.Run("Returns an InvalidInputError if there is an error with the shipment info that was input", func() {
-		subtestData := makeSubtestData(false)
+		subtestData := makeSubtestData(false, false)
 
 		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &models.MTOShipment{})
 
@@ -146,7 +158,7 @@ func (suite ShipmentSuite) TestCreateShipment() {
 		tc := tc
 
 		suite.Run(fmt.Sprintf("Sets status as expected: %s", name), func() {
-			subtestData := makeSubtestData(false)
+			subtestData := makeSubtestData(false, false)
 
 			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &tc.shipment)
 
@@ -184,7 +196,7 @@ func (suite ShipmentSuite) TestCreateShipment() {
 		suite.Run(fmt.Sprintf("Calls necessary service objects for %s shipments", shipment.ShipmentType), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := makeSubtestData(false)
+			subtestData := makeSubtestData(false, false)
 
 			// Need to start a transaction so we can assert the call with the correct appCtx
 			err := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
@@ -225,7 +237,7 @@ func (suite ShipmentSuite) TestCreateShipment() {
 	}
 
 	suite.Run("Sets MTOShipment info on PPMShipment", func() {
-		subtestData := makeSubtestData(false)
+		subtestData := makeSubtestData(false, false)
 
 		shipment := &models.MTOShipment{
 			ShipmentType: models.MTOShipmentTypePPM,
@@ -243,21 +255,49 @@ func (suite ShipmentSuite) TestCreateShipment() {
 		suite.Equal(*mtoShipment, mtoShipment.PPMShipment.Shipment)
 	})
 
-	suite.Run("Returns transaction error if one is raised", func() {
-		subtestData := makeSubtestData(true)
+	serviceObjectErrorTestCases := map[string]struct {
+		shipmentType              models.MTOShipmentType
+		returnErrorForMTOShipment bool
+		returnErrorForPPMShipment bool
+	}{
+		"error updating MTOShipment": {
+			shipmentType:              models.MTOShipmentTypeHHG,
+			returnErrorForMTOShipment: true,
+			returnErrorForPPMShipment: false,
+		},
+		"error updating PPMShipment": {
+			shipmentType:              models.MTOShipmentTypePPM,
+			returnErrorForMTOShipment: false,
+			returnErrorForPPMShipment: true,
+		},
+	}
 
-		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypeHHG,
+	for name, tc := range serviceObjectErrorTestCases {
+		name := name
+		tc := tc
+
+		suite.Run(fmt.Sprintf("Returns transaction error if there is an %s", name), func() {
+			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment)
+
+			shipment := models.MTOShipment{
+				ShipmentType: tc.shipmentType,
+			}
+
+			if tc.shipmentType == models.MTOShipmentTypePPM {
+				shipment.PPMShipment = &models.PPMShipment{}
+			}
+
+			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &shipment)
+
+			suite.Nil(mtoShipment)
+
+			suite.Error(err)
+			suite.Equal(subtestData.fakeError, err)
 		})
-
-		suite.Nil(mtoShipment)
-
-		suite.Error(err)
-		suite.Equal(subtestData.fakeError, err)
-	})
+	}
 
 	suite.Run("Returns error early if MTOShipment can't be created", func() {
-		subtestData := makeSubtestData(true)
+		subtestData := makeSubtestData(true, false)
 
 		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &models.MTOShipment{
 			ShipmentType: models.MTOShipmentTypePPM,

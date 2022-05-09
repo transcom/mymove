@@ -60,7 +60,12 @@ func (suite ShipmentSuite) TestUpdateShipment() {
 					mock.AnythingOfType("string")).
 				Return(
 					func(_ appcontext.AppContext, ship *models.MTOShipment, _ string) *models.MTOShipment {
-						return ship
+						// Mimicking how the MTOShipment updater actually returns a new pointer so that we can test
+						// a bit more realistically while still using mocks.
+						updatedShip := *ship
+						updatedShip.PPMShipment = nil // Currently returns an MTOShipment without PPMShipment info
+
+						return &updatedShip
 					},
 					func(_ appcontext.AppContext, ship *models.MTOShipment, _ string) error {
 						return nil
