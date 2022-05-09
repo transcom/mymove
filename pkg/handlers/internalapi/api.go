@@ -22,7 +22,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
-	"github.com/transcom/mymove/pkg/services/ppmservices"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/shipmentorchestrator"
@@ -50,10 +49,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{ctx}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{ctx}
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{ctx}
-	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{ctx, ppmservices.NewEstimateCalculator(ctx.Planner())}
 	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{ctx}
-	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{ctx}
-	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{ctx, ppmservices.NewEstimateCalculator(ctx.Planner())}
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{ctx}
 	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{ctx}
 	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler{ctx}
