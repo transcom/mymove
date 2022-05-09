@@ -2068,7 +2068,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
@@ -2095,7 +2096,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 
 		mockCreator := mocks.MTOShipmentCreator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(&mockCreator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&mockCreator, &ppmEstimator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
@@ -2126,7 +2128,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
@@ -2160,7 +2163,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
@@ -2191,7 +2195,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
@@ -2216,7 +2221,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
@@ -2248,11 +2254,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moverouter.NewMoveRouter())
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
+		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
 			creator,
-			ppmshipment.NewPPMShipmentCreator(creator),
-			mtoshipment.NewShipmentSITStatus(),
+			ppmCreator,
+			sitStatus,
 		}
 
 		shipmentType := ghcmessages.MTOShipmentTypePPM
@@ -2270,6 +2279,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		hasProGear := true
 		proGearWeight := unit.Pound(300)
 		spouseProGearWeight := unit.Pound(200)
+		estimatedIncentive := 654321
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
@@ -2297,6 +2307,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 
 		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
 
 		response := handler.Handle(params)
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
@@ -2328,6 +2344,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(handlers.FmtPoundPtr(&proGearWeight), ppmPayload.ProGearWeight)
 			suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), ppmPayload.SpouseProGearWeight)
 			suite.Equal(ghcmessages.PPMShipmentStatusDRAFT, ppmPayload.Status) // TODO: Should this be submitted?
+			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
 			suite.NotNil(ppmPayload.CreatedAt)
 			suite.NotNil(ppmPayload.UpdatedAt)
 		}
@@ -2344,10 +2361,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moverouter.NewMoveRouter())
+		ppmEstimator := mocks.PPMEstimator{}
 		handler := CreateMTOShipmentHandler{
 			handlerContext,
 			creator,
-			ppmshipment.NewPPMShipmentCreator(creator),
+			ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator),
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
@@ -2358,6 +2376,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		sitExpected := false
 		estimatedWeight := unit.Pound(2450)
 		hasProGear := false
+		estimatedIncentive := 123456
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
@@ -2377,6 +2396,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 
 		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
 
 		response := handler.Handle(params)
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
@@ -2400,6 +2425,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), ppmPayload.EstimatedWeight)
 			suite.Equal(&hasProGear, ppmPayload.HasProGear)
 			suite.Equal(ghcmessages.PPMShipmentStatusDRAFT, ppmPayload.Status) // TODO: Should this be submitted?
+			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
 			suite.NotNil(ppmPayload.CreatedAt)
 			suite.NotNil(ppmPayload.UpdatedAt)
 		}

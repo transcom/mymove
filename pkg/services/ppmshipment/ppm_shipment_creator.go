@@ -12,13 +12,15 @@ import (
 // ppmShipmentCreator sets up the service object, and passes in
 type ppmShipmentCreator struct {
 	mtoShipmentCreator services.MTOShipmentCreator
+	estimator          services.PPMEstimator
 	checks             []ppmShipmentValidator
 }
 
 // NewPPMShipmentCreator creates a new struct with the service dependencies
-func NewPPMShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator) services.PPMShipmentCreator {
+func NewPPMShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, estimator services.PPMEstimator) services.PPMShipmentCreator {
 	return &ppmShipmentCreator{
 		mtoShipmentCreator: mtoShipmentCreator,
+		estimator:          estimator,
 		checks: []ppmShipmentValidator{
 			checkShipmentID(),
 			checkPPMShipmentID(),
@@ -69,6 +71,13 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		if err != nil {
 			return err
 		}
+
+		estimatedIncentive, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, models.PPMShipment{}, ppmShipment)
+		if err != nil {
+			return err
+		}
+		ppmShipment.EstimatedIncentive = estimatedIncentive
+
 		// Validate ppm shipment model object and save it to DB
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
 		// Check validation errors

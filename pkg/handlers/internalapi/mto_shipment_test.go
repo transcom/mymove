@@ -141,7 +141,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
-		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
@@ -182,6 +183,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		pickupPostal := "11111"
 		destinationPostalCode := "41414"
 		sitExpected := false
+		estimatedIncentive := 222222
 		// Reset Shipment Type to PPM from default (HHG)
 		params.Body.ShipmentType = &ppmShipmentType
 		// reset Body params to have PPM fields
@@ -198,12 +200,19 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
-		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
 			ppmShipmentCreator,
 		}
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
@@ -218,6 +227,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(*params.Body.PpmShipment.PickupPostalCode, *createdShipment.PpmShipment.PickupPostalCode)
 		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
 		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
+		suite.Equal(int64(estimatedIncentive), *createdShipment.PpmShipment.EstimatedIncentive)
 	})
 
 	suite.Run("Successful POST - Integration Test - NTS-Release", func() {
@@ -231,7 +241,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
-		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
 			creator,
@@ -267,7 +278,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
-		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
@@ -287,7 +299,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
-		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 
 		unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
 		shipmentType := internalmessages.MTOShipmentTypeHHG
@@ -332,7 +345,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
 		unauthorizedParams := subtestData.params
 		unauthorizedParams.HTTPRequest = unauthorizedReq
-		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
@@ -350,7 +364,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
-		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
@@ -371,7 +386,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
-		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
@@ -391,7 +407,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
-		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.Logger()),

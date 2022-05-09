@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"log"
 
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -164,11 +166,13 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		fetch.NewFetcher(queryBuilder),
 		moveRouter,
 	)
+	ppmEstimator := ppmshipment.NewEstimatePPM(ctx.GHCPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(mtoShipmentCreator, ppmEstimator)
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
 		mtoShipmentCreator,
-		ppmshipment.NewPPMShipmentCreator(mtoShipmentCreator),
-		mtoshipment.NewShipmentSITStatus(),
+		ppmShipmentCreator,
+		shipmentSITStatus,
 	}
 
 	ghcAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{

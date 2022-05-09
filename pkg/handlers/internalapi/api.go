@@ -133,10 +133,11 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 
 	// GHC Endpoint
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(mtoShipmentCreator, ppmEstimator)
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
 		mtoShipmentCreator,
-		ppmshipment.NewPPMShipmentCreator(mtoShipmentCreator),
+		ppmShipmentCreator,
 	}
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(

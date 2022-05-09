@@ -4,6 +4,9 @@ import (
 	"testing"
 	"time"
 
+	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
+	"github.com/transcom/mymove/pkg/route/mocks"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -31,7 +34,8 @@ func (suite *PPMShipmentSuite) createSubtestData() (subtestData *createShipmentS
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := moverouter.NewMoveRouter()
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-	subtestData.ppmShipmentCreator = NewPPMShipmentCreator(mtoShipmentCreator)
+	ppmEstimator := NewEstimatePPM(&mocks.Planner{}, &prhelpermocks.Helper{})
+	subtestData.ppmShipmentCreator = NewPPMShipmentCreator(mtoShipmentCreator, ppmEstimator)
 
 	subtestData.move = testdatagen.MakeDefaultMove(suite.DB())
 
