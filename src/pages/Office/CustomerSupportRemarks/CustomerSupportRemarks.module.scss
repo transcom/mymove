@@ -1,0 +1,19 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.customerRemarkBody {
+  color: $base-dark;
+}
+
+h1, h2, h4 {
+  color: $mm-blue;
+}
+
+.customerRemarksContainer {
+  @include u-padding-left(0);
+}
+
+.remarksContainer {
+  @include u-padding-bottom(40px);
+}

@@ -6,15 +6,15 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func MakeOfficeMoveRemark(db *pop.Connection, assertions Assertions) models.CustomerSupportRemark {
+func MakeCustomerSupportRemark(db *pop.Connection, assertions Assertions) models.CustomerSupportRemark {
 	move := assertions.Move
 	officeUser := assertions.OfficeUser
 
-	if isZeroUUID(assertions.OfficeMoveRemark.MoveID) {
+	if isZeroUUID(assertions.CustomerSupportRemark.MoveID) {
 		move = MakeMove(db, assertions)
 	}
 
-	if isZeroUUID(assertions.OfficeMoveRemark.OfficeUserID) {
+	if isZeroUUID(assertions.CustomerSupportRemark.OfficeUserID) {
 		officeUser = MakeOfficeUser(db, assertions)
 	}
 
@@ -25,14 +25,14 @@ func MakeOfficeMoveRemark(db *pop.Connection, assertions Assertions) models.Cust
 	}
 
 	// Overwrite with assertions
-	mergeModels(&officeMoveRemark, assertions.OfficeMoveRemark)
+	mergeModels(&officeMoveRemark, assertions.CustomerSupportRemark)
 
 	mustCreate(db, &officeMoveRemark, assertions.Stub)
 
 	return officeMoveRemark
 }
 
-func MakeDefaultOfficeMoveRemark(db *pop.Connection) models.CustomerSupportRemark {
-	officeMoveRemark := MakeOfficeMoveRemark(db, Assertions{})
+func MakeDefaultCustomerSupportRemark(db *pop.Connection) models.CustomerSupportRemark {
+	officeMoveRemark := MakeCustomerSupportRemark(db, Assertions{})
 	return officeMoveRemark
 }

@@ -191,6 +191,10 @@ export const formatAgeToDays = (age) => {
 export function formatCustomerDate(date) {
   return moment(date).format('DD MMM YYYY');
 }
+// Format dates for customer remarks in the office app (ex. 25 Dec 2020 8:00)
+export function formatCustomerSupportRemarksDate(date) {
+  return moment(date).format('DD MMM YYYY HH:mm');
+}
 
 export function formatSignatureDate(date) {
   return moment(date).format('YYYY-MM-DD');

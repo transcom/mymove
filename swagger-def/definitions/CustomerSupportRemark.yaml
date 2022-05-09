@@ -10,6 +10,14 @@ properties:
     example: 1f2270c7-7166-40ae-981e-b200ebdf3054
     format: uuid
     type: string
+  createdAt:
+    type: string
+    format: date-time
+    readOnly: true
+  updatedAt:
+    type: string
+    format: date-time
+    readOnly: true
   officeUserID:
     example: 1f2270c7-7166-40ae-981e-b200ebdf3054
     format: uuid

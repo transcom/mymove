@@ -1,7 +1,7 @@
 package customersupportremarks
 
 import (
-	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -15,18 +15,22 @@ func NewCustomerSupportRemarks() services.CustomerSupportRemarksFetcher {
 	return &customerSupportRemarksFetcher{}
 }
 
-func (o customerSupportRemarksFetcher) ListCustomerSupportRemarks(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.CustomerSupportRemarks, error) {
-
-	customerSupportRemarks := models.CustomerSupportRemarks{}
-	err := appCtx.DB().Q().EagerPreload("OfficeUser").
-		Where("move_id = ?", moveID).All(&customerSupportRemarks)
-
+func (o customerSupportRemarksFetcher) ListCustomerSupportRemarks(appCtx appcontext.AppContext, moveCode string) (*models.CustomerSupportRemarks, error) {
+	var move models.Move
+	err := appCtx.DB().Q().Where("locator = ?", moveCode).First(&move)
 	if err != nil {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			return nil, models.ErrFetchNotFound
+		}
 		return nil, err
 	}
 
-	if len(customerSupportRemarks) == 0 {
-		return nil, models.ErrFetchNotFound
+	customerSupportRemarks := models.CustomerSupportRemarks{}
+	err = appCtx.DB().Q().EagerPreload("OfficeUser").
+		Where("move_id = ?", move.ID).All(&customerSupportRemarks)
+
+	if err != nil {
+		return nil, err
 	}
 
 	return &customerSupportRemarks, nil
