@@ -88,6 +88,11 @@ type MoveTaskOrder struct {
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
 
+	// prime counseling completed at
+	// Read Only: true
+	// Format: date-time
+	PrimeCounselingCompletedAt *strfmt.DateTime `json:"primeCounselingCompletedAt,omitempty"`
+
 	// reference Id
 	// Example: 1001-3456
 	ReferenceID string `json:"referenceId,omitempty"`
@@ -140,6 +145,8 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 		PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
 		PpmType string `json:"ppmType,omitempty"`
+
+		PrimeCounselingCompletedAt *strfmt.DateTime `json:"primeCounselingCompletedAt,omitempty"`
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
@@ -205,6 +212,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// ppmType
 	result.PpmType = data.PpmType
 
+	// primeCounselingCompletedAt
+	result.PrimeCounselingCompletedAt = data.PrimeCounselingCompletedAt
+
 	// referenceId
 	result.ReferenceID = data.ReferenceID
 
@@ -249,6 +259,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		PpmType string `json:"ppmType,omitempty"`
 
+		PrimeCounselingCompletedAt *strfmt.DateTime `json:"primeCounselingCompletedAt,omitempty"`
+
 		ReferenceID string `json:"referenceId,omitempty"`
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
@@ -281,6 +293,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		PpmEstimatedWeight: m.PpmEstimatedWeight,
 
 		PpmType: m.PpmType,
+
+		PrimeCounselingCompletedAt: m.PrimeCounselingCompletedAt,
 
 		ReferenceID: m.ReferenceID,
 
@@ -351,6 +365,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrimeCounselingCompletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -567,6 +585,18 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MoveTaskOrder) validatePrimeCounselingCompletedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.PrimeCounselingCompletedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("primeCounselingCompletedAt", "body", "date-time", m.PrimeCounselingCompletedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -624,6 +654,10 @@ func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Regi
 	}
 
 	if err := m.contextValidatePaymentRequests(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePrimeCounselingCompletedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -756,6 +790,15 @@ func (m *MoveTaskOrder) contextValidatePaymentRequests(ctx context.Context, form
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("paymentRequests")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidatePrimeCounselingCompletedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "primeCounselingCompletedAt", "body", m.PrimeCounselingCompletedAt); err != nil {
 		return err
 	}
 

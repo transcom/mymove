@@ -15,6 +15,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import { formatDateForSwagger } from 'shared/dates';
 import { updateMTOShipment } from 'store/entities/actions';
+import ScrollToTop from 'components/ScrollToTop';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -23,13 +24,12 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
   const dispatch = useDispatch();
 
   const isNewShipment = !mtoShipment?.id;
-
   const handleBack = () => {
     if (isNewShipment) {
       history.push(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
+    } else {
+      history.push(generalRoutes.HOME_PATH);
     }
-
-    history.push(generalRoutes.HOME_PATH);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -95,6 +95,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
 
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
+      <ScrollToTop otherDep={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

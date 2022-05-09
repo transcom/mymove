@@ -6,16 +6,11 @@ package move_task_order
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
@@ -48,6 +43,12 @@ func (o *UpdateMTOPostCounselingInformationReader) ReadResponse(response runtime
 		return nil, result
 	case 404:
 		result := NewUpdateMTOPostCounselingInformationNotFound()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
+	case 409:
+		result := NewUpdateMTOPostCounselingInformationConflict()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -203,6 +204,38 @@ func (o *UpdateMTOPostCounselingInformationNotFound) readResponse(response runti
 	return nil
 }
 
+// NewUpdateMTOPostCounselingInformationConflict creates a UpdateMTOPostCounselingInformationConflict with default headers values
+func NewUpdateMTOPostCounselingInformationConflict() *UpdateMTOPostCounselingInformationConflict {
+	return &UpdateMTOPostCounselingInformationConflict{}
+}
+
+/* UpdateMTOPostCounselingInformationConflict describes a response with status code 409, with default header values.
+
+The request could not be processed because of conflict in the current state of the resource.
+*/
+type UpdateMTOPostCounselingInformationConflict struct {
+	Payload *primemessages.ClientError
+}
+
+func (o *UpdateMTOPostCounselingInformationConflict) Error() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationConflict  %+v", 409, o.Payload)
+}
+func (o *UpdateMTOPostCounselingInformationConflict) GetPayload() *primemessages.ClientError {
+	return o.Payload
+}
+
+func (o *UpdateMTOPostCounselingInformationConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
 // NewUpdateMTOPostCounselingInformationPreconditionFailed creates a UpdateMTOPostCounselingInformationPreconditionFailed with default headers values
 func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCounselingInformationPreconditionFailed {
 	return &UpdateMTOPostCounselingInformationPreconditionFailed{}
@@ -296,103 +329,5 @@ func (o *UpdateMTOPostCounselingInformationInternalServerError) readResponse(res
 		return err
 	}
 
-	return nil
-}
-
-/*UpdateMTOPostCounselingInformationBody update m t o post counseling information body
-swagger:model UpdateMTOPostCounselingInformationBody
-*/
-type UpdateMTOPostCounselingInformationBody struct {
-
-	// UUID for the move task order to use.
-	MoveTaskOrderID string `json:"moveTaskOrderID,omitempty"`
-
-	// Email or id of a contact person for this update.
-	PointOfContact string `json:"pointOfContact,omitempty"`
-
-	// The estimated weight determined post counseling.
-	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
-
-	// Sets a ppmType to an allowed value.
-	// Enum: [FULL PARTIAL]
-	PpmType string `json:"ppmType,omitempty"`
-}
-
-// Validate validates this update m t o post counseling information body
-func (o *UpdateMTOPostCounselingInformationBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validatePpmType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var updateMTOPostCounselingInformationBodyTypePpmTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["FULL","PARTIAL"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		updateMTOPostCounselingInformationBodyTypePpmTypePropEnum = append(updateMTOPostCounselingInformationBodyTypePpmTypePropEnum, v)
-	}
-}
-
-const (
-
-	// UpdateMTOPostCounselingInformationBodyPpmTypeFULL captures enum value "FULL"
-	UpdateMTOPostCounselingInformationBodyPpmTypeFULL string = "FULL"
-
-	// UpdateMTOPostCounselingInformationBodyPpmTypePARTIAL captures enum value "PARTIAL"
-	UpdateMTOPostCounselingInformationBodyPpmTypePARTIAL string = "PARTIAL"
-)
-
-// prop value enum
-func (o *UpdateMTOPostCounselingInformationBody) validatePpmTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, updateMTOPostCounselingInformationBodyTypePpmTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *UpdateMTOPostCounselingInformationBody) validatePpmType(formats strfmt.Registry) error {
-	if swag.IsZero(o.PpmType) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validatePpmTypeEnum("body"+"."+"ppmType", "body", o.PpmType); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this update m t o post counseling information body based on context it is used
-func (o *UpdateMTOPostCounselingInformationBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *UpdateMTOPostCounselingInformationBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *UpdateMTOPostCounselingInformationBody) UnmarshalBinary(b []byte) error {
-	var res UpdateMTOPostCounselingInformationBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

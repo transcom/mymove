@@ -6,6 +6,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -65,17 +67,21 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 	}
 
 	var paymentServiceItem models.PaymentServiceItem
-	err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return unit.Cents(0), nil, apperror.NewNotFoundError(params[0].PaymentServiceItemID, "looking for PaymentServiceItem")
-		default:
-			return unit.Cents(0), nil, apperror.NewQueryError("PaymentServiceItem", err, "")
+	mtoShipment := params[0].PaymentServiceItem.MTOServiceItem.MTOShipment
+
+	if mtoShipment.ID == uuid.Nil {
+		err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return unit.Cents(0), nil, apperror.NewNotFoundError(params[0].PaymentServiceItemID, "looking for PaymentServiceItem")
+			default:
+				return unit.Cents(0), nil, apperror.NewQueryError("PaymentServiceItem", err, "")
+			}
 		}
+		mtoShipment = paymentServiceItem.MTOServiceItem.MTOShipment
 	}
 
-	mtoShipment := paymentServiceItem.MTOServiceItem.MTOShipment
 	distance := *mtoShipment.Distance
 
 	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)

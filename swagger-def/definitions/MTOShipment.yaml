@@ -138,3 +138,5 @@ properties:
   storageFacility:
     x-nullable: true
     $ref: 'StorageFacility.yaml'
+  ppmShipment:
+    $ref: 'PPMShipment.yaml'

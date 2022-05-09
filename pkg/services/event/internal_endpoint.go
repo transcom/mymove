@@ -49,9 +49,6 @@ const InternalCreatePersonallyProcuredMoveEndpointKey = "Internal.CreatePersonal
 // InternalIndexPersonallyProcuredMovesEndpointKey is the key for the indexPersonallyProcuredMoves endpoint in internal
 const InternalIndexPersonallyProcuredMovesEndpointKey = "Internal.IndexPersonallyProcuredMoves"
 
-// InternalUpdatePersonallyProcuredMoveEstimateEndpointKey is the key for the updatePersonallyProcuredMoveEstimate endpoint in internal
-const InternalUpdatePersonallyProcuredMoveEstimateEndpointKey = "Internal.UpdatePersonallyProcuredMoveEstimate"
-
 // InternalUpdatePersonallyProcuredMoveEndpointKey is the key for the updatePersonallyProcuredMove endpoint in internal
 const InternalUpdatePersonallyProcuredMoveEndpointKey = "Internal.UpdatePersonallyProcuredMove"
 
@@ -235,10 +232,6 @@ var internalEndpoints = EndpointMapType{
 	InternalIndexPersonallyProcuredMovesEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "indexPersonallyProcuredMoves",
-	},
-	InternalUpdatePersonallyProcuredMoveEstimateEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "updatePersonallyProcuredMoveEstimate",
 	},
 	InternalUpdatePersonallyProcuredMoveEndpointKey: {
 		APIName:     InternalAPIName,
