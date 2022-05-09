@@ -27,6 +27,8 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
+import Restricted from 'components/Office/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: ['storageFacility', 'serviceOrderNumber', 'tacType'],
@@ -297,12 +299,14 @@ const MoveDetails = ({
         <GridContainer className={styles.gridContainer} data-testid="too-move-details">
           <div className={styles.tooMoveDetailsHeadingFlexbox}>
             <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
-            <div className={styles.tooFinancialReviewContainer}>
-              <FinancialReviewButton
-                onClick={handleShowFinancialReviewModal}
-                reviewRequested={move.financialReviewFlag}
-              />
-            </div>
+            <Restricted to={permissionTypes.editFinancialReviewFlag}>
+              <div className={styles.tooFinancialReviewContainer}>
+                <FinancialReviewButton
+                  onClick={handleShowFinancialReviewModal}
+                  reviewRequested={move.financialReviewFlag}
+                />
+              </div>
+            </Restricted>
           </div>
           {isFinancialModalVisible && (
             <FinancialReviewModal
@@ -363,9 +367,18 @@ const MoveDetails = ({
               title="Orders"
               tag={hasAmendedOrders ? 'NEW' : ''}
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
-                  Edit orders
-                </Link>
+                <Restricted
+                  to={permissionTypes.editOrders}
+                  fallback={
+                    <Link className="usa-button usa-button--secondary" data-testid="view-orders" to="orders">
+                      View orders
+                    </Link>
+                  }
+                >
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                    Edit orders
+                  </Link>
+                </Restricted>
               }
             >
               <OrdersList ordersInfo={ordersInfo} />

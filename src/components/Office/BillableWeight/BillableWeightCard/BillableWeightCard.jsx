@@ -9,6 +9,8 @@ import styles from './BillableWeightCard.module.scss';
 import ExternalVendorWeightSummary from 'components/Office/ExternalVendorWeightSummary/ExternalVendorWeightSummary';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
 import { formatWeight } from 'utils/formatters';
+import Restricted from 'components/Office/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 export default function BillableWeightCard({
   maxBillableWeight,
@@ -36,9 +38,11 @@ export default function BillableWeightCard({
             </div>
           )}
         </div>
-        <Button onClick={onReviewWeights} secondary={secondaryReviewWeightsBtn} style={{ maxWidth: '160px' }}>
-          Review weights
-        </Button>
+        <Restricted to={permissionTypes.editMaxBillableWeight}>
+          <Button onClick={onReviewWeights} secondary={secondaryReviewWeightsBtn} style={{ maxWidth: '160px' }}>
+            Review weights
+          </Button>
+        </Restricted>
       </div>
       <div className={styles.spaceBetween}>
         <div>

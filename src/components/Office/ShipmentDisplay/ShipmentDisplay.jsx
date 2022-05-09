@@ -16,6 +16,8 @@ import { ShipmentStatusesOneOf } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
 import { AgentShape } from 'types/agent';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
+import Restricted from 'components/Office/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -93,15 +95,17 @@ const ShipmentDisplay = ({
           neverShow={neverShow}
         />
         {editURL && (
-          <EditButton
-            onClick={() => {
-              history.push(editURL);
-            }}
-            className={styles.editButton}
-            data-testid={editURL}
-            label="Edit shipment"
-            secondary
-          />
+          <Restricted to={permissionTypes.editShipment} fallback={<div>hi</div>}>
+            <EditButton
+              onClick={() => {
+                history.push(editURL);
+              }}
+              className={styles.editButton}
+              data-testid={editURL}
+              label="Edit shipment"
+              secondary
+            />
+          </Restricted>
         )}
       </ShipmentContainer>
     </div>
