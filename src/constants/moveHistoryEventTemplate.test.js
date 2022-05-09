@@ -21,6 +21,7 @@ const {
   requestShipmentReweighEvent,
   createPaymentRequestReweighUpdate,
   createPaymentRequestShipmentUpdate,
+  updatePaymentRequest,
 } = require('./moveHistoryEventTemplate');
 
 const { detailsTypes } = require('constants/moveHistoryEventTemplate');
@@ -517,6 +518,29 @@ describe('moveHistoryEventTemplate', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(createPaymentRequestShipmentUpdate);
       expect(result.getStatusDetails(item)).toEqual('Pending');
+    });
+  });
+
+  describe('when a payment request has an update', () => {
+    const item = {
+      action: 'UPDATE',
+      eventName: 'updatePaymentRequest',
+      tableName: 'payment_requests',
+      changedValues: {
+        status: 'SENT_TO_GEX',
+      },
+    };
+    it('correctly matches the Request shipment reweigh event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(updatePaymentRequest);
+      // expect to have formatted the adddresses correctly
+      expect(
+        result.getDetailsLabeledDetails({
+          changedValues: item.changedValues,
+        }),
+      ).toEqual({
+        status: 'SENT_TO_GEX',
+      });
     });
   });
 });

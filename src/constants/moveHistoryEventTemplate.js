@@ -395,6 +395,14 @@ export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
   getEventNameDisplay: () => 'Submitted payment request',
 });
 
+export const updatePaymentRequest = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: '*',
+  tableName: 'payment_requests',
+  getEventNameDisplay: () => 'Updated payment request',
+  detailsType: detailsTypes.LABELED,
+});
+
 export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
   eventName: moveHistoryOperations.updateServiceItemStatus,
