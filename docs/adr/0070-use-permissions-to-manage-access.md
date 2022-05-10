@@ -1,4 +1,4 @@
-# _use permissions to manage access_
+# _Use permissions to manage access_
 
 **User Story:** [MB-12237](https://dp3.atlassian.net/browse/MB-12237)
 
@@ -14,15 +14,15 @@ More access restrictions and related complexity are on the way with the QAE/CSR 
 
 ## Considered Alternatives
 
-- _No Change - Continue using roles only_
+- _No Change - Continue using roles only to manage access_
 
-- _Use `Permissions` in addition to `Roles`_
+- _Use `Permissions` in addition to `Roles` to manage acess_
 
-- _Use external package to manage access_
+- _Use 3rd package to manage access_
 
 ## Decision Outcome
 
-- Chosen Alternative: Use `Permissions` to manage access
+- Chosen Alternative: Use `Permissions` in addition to `Roles` to manage access
 
 - The concept of `Permissions` can be added to the codebase as an extension of the `Roles` work that we already have in place to provide a common set of access rules that both the frontend and backend can utilize. We can add permissions over time that join to our existing roles without disruption to existing code that makes use of the roles. This feels like the natural progression from where we are at with roles currently and doesn't come with significant drawbacks. Also, we gain the benefit of being able to frame user access in the code around what the user _has permission to do_ rather than _what roles they have_.
 
