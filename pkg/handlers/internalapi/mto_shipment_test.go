@@ -470,6 +470,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
 
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
+
 	type mtoUpdateSubtestData struct {
 		mtoShipment *models.MTOShipment
 		params      mtoshipmentops.UpdateMTOShipmentParams
@@ -568,8 +570,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
-			mtoShipmentUpdater,
-			ppmShipmentUpdater,
+			shipmentUpdater,
 		}
 
 		return &mtoUpdateSubtestData{
@@ -598,6 +599,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		customerRemarks := "testing"
 		payload := internalmessages.UpdateShipment{
+			ShipmentType:    internalmessages.MTOShipmentTypePPM,
 			CustomerRemarks: &customerRemarks,
 		}
 
@@ -610,8 +612,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
-			mtoShipmentUpdater,
-			ppmShipmentUpdater,
+			shipmentUpdater,
 		}
 
 		return &mtoUpdateSubtestData{
@@ -791,20 +792,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
 
-		mockUpdater := mocks.MTOShipmentUpdater{}
+		mockUpdater := mocks.ShipmentUpdater{}
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
 			&mockUpdater,
-			ppmShipmentUpdater,
 		}
 
 		err := errors.New("ServerError")
 
-		mockUpdater.On("UpdateMTOShipmentCustomer",
+		mockUpdater.On("UpdateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mock.AnythingOfType("*models.MTOShipment"),
+			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
 		response := handler.Handle(subtestData.params)

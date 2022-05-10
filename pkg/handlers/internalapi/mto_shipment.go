@@ -112,8 +112,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerContext
-	mtoShipmentUpdater services.MTOShipmentUpdater
-	ppmShipmentUpdater services.PPMShipmentUpdater
+	shipmentUpdater services.ShipmentUpdater
 }
 
 // Handle updates the mto shipment
@@ -153,33 +152,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						h.GetTraceIDFromRequest(params.HTTPRequest))), invalidShipmentStatusErr
 			}
 
-			var updatedMTOShipment *models.MTOShipment
-			var updatedPPMShipment *models.PPMShipment
-			var err error
-			// We should move this logic out of the handler and into a composable service object
-			err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-				updatedMTOShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(txnAppCtx, mtoShipment, params.IfMatch)
-				if err != nil {
-					return err
-				}
-
-				// This simplifies not adding nil checks for the return value of updating the ppm shipment
-				if mtoShipment.PPMShipment == nil {
-					return nil
-				}
-
-				mtoShipment.PPMShipment.Shipment = *updatedMTOShipment
-
-				updatedPPMShipment, err = h.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment, mtoShipment.ID)
-				if err != nil {
-					return err
-				}
-
-				updatedMTOShipment = &updatedPPMShipment.Shipment
-				updatedMTOShipment.PPMShipment = updatedPPMShipment
-
-				return nil
-			})
+			updatedMTOShipment, err := h.shipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
