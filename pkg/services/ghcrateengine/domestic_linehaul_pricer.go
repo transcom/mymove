@@ -27,7 +27,7 @@ func NewDomesticLinehaulPricer() services.DomesticLinehaulPricer {
 }
 
 // Price determines the price for a domestic linehaul
-func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -35,10 +35,10 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if distance < dlhPricerMinimumDistance {
+	if distance < dlhPricerMinimumDistance && !isPPM {
 		return 0, nil, fmt.Errorf("Distance must be at least %d", dlhPricerMinimumDistance)
 	}
-	if weight < dlhPricerMinimumWeight {
+	if weight < dlhPricerMinimumWeight && !isPPM {
 		return 0, nil, fmt.Errorf("Weight must be at least %d", dlhPricerMinimumWeight)
 	}
 	if len(serviceArea) == 0 {
@@ -99,7 +99,15 @@ func (p domesticLinehaulPricer) PriceUsingParams(appCtx appcontext.AppContext, p
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip3), unit.Pound(weightBilled), serviceAreaOrigin)
+	var isPPM = false
+	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypePPM {
+		// PPMs do not require minimums for a shipment's weight or distance
+		// this flag is passed into the Price function to ensure the weight and distance mins
+		// are not enforced for PPMs
+		isPPM = true
+	}
+
+	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip3), unit.Pound(weightBilled), serviceAreaOrigin, isPPM)
 }
 
 func fetchDomesticLinehaulPrice(appCtx appcontext.AppContext, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {
