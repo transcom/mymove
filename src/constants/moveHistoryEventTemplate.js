@@ -3,6 +3,7 @@ import { shipmentTypes } from './shipments';
 
 import { formatMoveHistoryFullAddress, formatMoveHistoryAgent } from 'utils/formatters';
 import { dbActions, dbTables } from 'constants/historyLogUIDisplayName';
+import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 function propertiesMatch(p1, p2) {
   return p1 === '*' || p2 === '*' || p1 === p2;
@@ -57,7 +58,7 @@ const buildMoveHistoryEventTemplate = ({
 };
 
 export const acknowledgeExcessWeightRiskEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.acknowledgeExcessWeightRisk,
   tableName: dbTables.moves,
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -66,7 +67,7 @@ export const acknowledgeExcessWeightRiskEvent = buildMoveHistoryEventTemplate({
 });
 
 export const approveShipmentEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.approveShipment,
   tableName: dbTables.mto_shipments,
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -88,7 +89,7 @@ export const approveShipmentDiversionEvent = buildMoveHistoryEventTemplate({
 });
 
 export const createBasicServiceItemEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.INSERT,
+  action: dbActions.INSERT,
   eventName: moveHistoryOperations.updateMoveTaskOrderStatus,
   tableName: dbTables.mto_service_items,
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -99,7 +100,7 @@ export const createBasicServiceItemEvent = buildMoveHistoryEventTemplate({
 });
 
 export const createMTOShipmentEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.INSERT,
+  action: dbActions.INSERT,
   eventName: moveHistoryOperations.createMTOShipment,
   tableName: dbTables.mto_shipments,
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -108,7 +109,7 @@ export const createMTOShipmentEvent = buildMoveHistoryEventTemplate({
 });
 
 export const createMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.INSERT,
+  action: dbActions.INSERT,
   eventName: '',
   tableName: dbTables.addresses,
   detailsType: detailsTypes.LABELED,
@@ -175,7 +176,7 @@ export const createOrdersEvent = buildMoveHistoryEventTemplate({
 });
 
 export const createPaymentRequestReweighUpdate = buildMoveHistoryEventTemplate({
-  actions: dbActions.INSERT,
+  action: dbActions.INSERT,
   eventName: moveHistoryOperations.updateReweigh,
   tableName: dbTables.payment_requests,
   detailsType: detailsTypes.STATUS,
@@ -186,7 +187,7 @@ export const createPaymentRequestReweighUpdate = buildMoveHistoryEventTemplate({
 });
 
 export const createPaymentRequestShipmentUpdate = buildMoveHistoryEventTemplate({
-  actions: dbActions.INSERT,
+  action: dbActions.INSERT,
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: dbTables.payment_requests,
   detailsType: detailsTypes.STATUS,
@@ -197,7 +198,7 @@ export const createPaymentRequestShipmentUpdate = buildMoveHistoryEventTemplate(
 });
 
 export const createStandardServiceItemEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.INSERT,
+  action: dbActions.INSERT,
   eventName: moveHistoryOperations.approveShipment,
   tableName: dbTables.mto_service_items,
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -230,7 +231,7 @@ export const requestShipmentDiversionEvent = buildMoveHistoryEventTemplate({
 });
 
 export const requestShipmentReweighEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.INSERT,
+  action: dbActions.INSERT,
   eventName: moveHistoryOperations.requestShipmentReweigh,
   tableName: 'reweighs',
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -241,7 +242,7 @@ export const requestShipmentReweighEvent = buildMoveHistoryEventTemplate({
 });
 
 export const setFinancialReviewFlagEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.setFinancialReviewFlag,
   tableName: dbTables.moves,
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -265,7 +266,7 @@ export const submitMoveForApprovalEvent = buildMoveHistoryEventTemplate({
 });
 
 export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateAllowance,
   tableName: dbTables.entitlements,
   detailsType: detailsTypes.LABELED,
@@ -273,7 +274,7 @@ export const updateAllowanceEvent = buildMoveHistoryEventTemplate({
 });
 
 export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateBillableWeight,
   tableName: dbTables.entitlements,
   detailsType: detailsTypes.LABELED,
@@ -281,7 +282,7 @@ export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
 });
 
 export const updateMoveTaskOrderEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateMoveTaskOrder,
   tableName: dbTables.moves,
   detailsType: detailsTypes.LABELED,
@@ -289,7 +290,7 @@ export const updateMoveTaskOrderEvent = buildMoveHistoryEventTemplate({
 });
 
 export const updateMoveTaskOrderStatusEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateMoveTaskOrderStatus,
   tableName: dbTables.moves,
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -302,7 +303,7 @@ export const updateMoveTaskOrderStatusEvent = buildMoveHistoryEventTemplate({
 });
 
 export const updateMTOShipmentEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: dbTables.mto_shipments,
   detailsType: detailsTypes.LABELED,
@@ -316,7 +317,7 @@ export const updateMTOShipmentEvent = buildMoveHistoryEventTemplate({
 });
 
 export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: dbTables.addresses,
   detailsType: detailsTypes.LABELED,
@@ -354,7 +355,7 @@ export const updateMTOShipmentAddressesEvent = buildMoveHistoryEventTemplate({
 });
 
 export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: dbTables.mto_agents,
   detailsType: detailsTypes.LABELED,
@@ -390,8 +391,20 @@ export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   },
 });
 
+export const updateMTOShipmentDeprecatePaymentRequest = buildMoveHistoryEventTemplate({
+  action: dbActions.UPDATE,
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: dbTables.payment_requests,
+  detailsType: detailsTypes.STATUS,
+  getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
+  getStatusDetails: ({ changedValues }) => {
+    const { status } = changedValues;
+    return PAYMENT_REQUEST_STATUS_LABELS[status];
+  },
+});
+
 export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updatePaymentRequestStatus,
   tableName: dbTables.payment_requests,
   detailsType: detailsTypes.PAYMENT,
@@ -399,7 +412,7 @@ export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
 });
 
 export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateServiceItemStatus,
   tableName: dbTables.mto_service_items,
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -419,7 +432,7 @@ export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
 });
 
 export const uploadAmendedOrdersEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.uploadAmendedOrders,
   tableName: 'orders',
   detailsType: detailsTypes.PLAIN_TEXT,
@@ -428,7 +441,7 @@ export const uploadAmendedOrdersEvent = buildMoveHistoryEventTemplate({
 });
 
 export const updateOrderEvent = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: '*',
   tableName: dbTables.orders,
   detailsType: detailsTypes.LABELED,
@@ -504,6 +517,7 @@ const allMoveHistoryEventTemplates = [
   updateMTOShipmentEvent,
   updateMTOShipmentAddressesEvent,
   updateMTOShipmentAgentEvent,
+  updateMTOShipmentDeprecatePaymentRequest,
   updateOrderEvent,
   updatePaymentRequestStatus,
   updateServiceItemStatusEvent,

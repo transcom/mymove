@@ -13,6 +13,7 @@ const {
   updateMTOShipmentEvent,
   updateMTOShipmentAddressesEvent,
   updateMTOShipmentAgentEvent,
+  updateMTOShipmentDeprecatePaymentRequest,
   updateServiceItemStatusEvent,
   acknowledgeExcessWeightRiskEvent,
   createStandardServiceItemEvent,
@@ -531,17 +532,33 @@ describe('moveHistoryEventTemplate', () => {
       expect(result.getStatusDetails(item)).toEqual('Pending');
     });
   });
-});
 
-describe('when given an unidentifiable move history record', () => {
-  const item = {
-    action: 'UPDATE',
-    eventName: 'testEventName',
-    tableName: 'mto_agents',
-  };
-  it('correctly matches the Undefined move history event', () => {
-    const result = getMoveHistoryEventTemplate(item);
-    expect(result).toEqual(undefinedEvent);
-    expect(result.getEventNameDisplay(item)).toEqual('Updated shipment');
+  describe('when given a deprecated payment request history record', () => {
+    const item = {
+      action: 'UPDATE',
+      eventName: moveHistoryOperations.updateMTOShipment,
+      tableName: 'payment_requests',
+      changedValues: {
+        status: 'DEPRECATED',
+      },
+    };
+    it('correctly matches the deprecated payment request', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(updateMTOShipmentDeprecatePaymentRequest);
+      expect(result.getStatusDetails(item)).toEqual('Deprecated');
+    });
+  });
+
+  describe('when given an unidentifiable move history record', () => {
+    const item = {
+      action: 'UPDATE',
+      eventName: 'testEventName',
+      tableName: 'mto_agents',
+    };
+    it('correctly matches the Undefined move history event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(undefinedEvent);
+      expect(result.getEventNameDisplay(item)).toEqual('Updated shipment');
+    });
   });
 });
