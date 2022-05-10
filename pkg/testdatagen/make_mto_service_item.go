@@ -335,6 +335,13 @@ func MakeDefaultMTOServiceItem(db *pop.Connection) models.MTOServiceItem {
 	return MakeMTOServiceItem(db, Assertions{})
 }
 
+// MakeMTOServiceItem creates a single MTOServiceItem and associated set relationships
+func MakeStubbedMTOServiceItem(db *pop.Connection) models.MTOServiceItem {
+	return makeServiceItem(db, Assertions{
+		Stub: true,
+	}, false)
+}
+
 // MakeMTOServiceItemBasic creates a single MTOServiceItem that is a basic type, meaning no shipment id associated.
 func MakeMTOServiceItemBasic(db *pop.Connection, assertions Assertions) models.MTOServiceItem {
 	return makeServiceItem(db, assertions, true)

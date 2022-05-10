@@ -13,9 +13,7 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
     case detailsTypes.LABELED:
       return (
         <LabeledDetails
-          changedValues={historyRecord.changedValues}
-          oldValues={historyRecord.oldValues}
-          context={historyRecord.context}
+          historyRecord={historyRecord}
           getDetailsLabeledDetails={eventTemplate.getDetailsLabeledDetails}
         />
       );
@@ -24,7 +22,7 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
     case detailsTypes.STATUS:
       return (
         <div>
-          <b>Status</b>: {eventTemplate.getStatusDetails()}
+          <b>Status</b>: {eventTemplate.getStatusDetails(historyRecord)}
         </div>
       );
     case detailsTypes.PLAIN_TEXT:

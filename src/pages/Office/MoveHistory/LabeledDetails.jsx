@@ -1,15 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import styles from './LabeledDetails.module.scss';
+
+import { shipmentTypes } from 'constants/shipments';
 import {
-  HistoryLogValuesShape,
+  HistoryLogRecordShape,
   dbFieldToDisplayName,
   dbWeightFields,
   dbDateFields,
-  HistoryLogContextShape,
   optionFields,
 } from 'constants/historyLogUIDisplayName';
-import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
@@ -32,53 +33,48 @@ const retrieveTextToDisplay = (fieldName, value) => {
   };
 };
 
-const LabeledDetails = ({ changedValues, oldValues, context, getDetailsLabeledDetails }) => {
-  let changedValuesWithFormattedItems = {
-    ...changedValues,
-  };
-
+const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
+  let changedValuesToUse = historyRecord.changedValues;
+  let shipmentDisplay = '';
   // run custom function to mutate changedValues to display if not null
   if (getDetailsLabeledDetails) {
-    changedValuesWithFormattedItems = getDetailsLabeledDetails({
-      changedValues: changedValuesWithFormattedItems,
-      oldValues,
-      context,
-    });
+    changedValuesToUse = getDetailsLabeledDetails(historyRecord);
+  }
+
+  // Check for shipment_type to use it as a header for the row
+  if ('shipment_type' in changedValuesToUse) {
+    shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
+    shipmentDisplay += ' shipment';
+    delete changedValuesToUse.shipment_type;
   }
 
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
-    return changedValuesWithFormattedItems[dbField];
+    return changedValuesToUse[dbField];
   });
 
   return (
-    <div>
+    <>
+      <span className={styles.shipmentType}>{shipmentDisplay}</span>
       {dbFieldsToDisplay.map((modelField) => {
-        const { displayName, displayValue } = retrieveTextToDisplay(
-          modelField,
-          changedValuesWithFormattedItems[modelField],
-        );
+        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValuesToUse[modelField]);
 
         return (
-          <div key={modelField} className={descriptionListStyles.row}>
+          <div key={modelField}>
             <b>{displayName}</b>: {displayValue}
           </div>
         );
       })}
-    </div>
+    </>
   );
 };
 
 LabeledDetails.propTypes = {
-  changedValues: HistoryLogValuesShape,
-  oldValues: HistoryLogValuesShape,
-  context: HistoryLogContextShape,
+  historyRecord: HistoryLogRecordShape,
   getDetailsLabeledDetails: PropTypes.func,
 };
 
 LabeledDetails.defaultProps = {
-  changedValues: {},
-  oldValues: {},
-  context: [],
+  historyRecord: {},
   getDetailsLabeledDetails: null,
 };
 

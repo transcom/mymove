@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 
+	customerserviceremarks "github.com/transcom/mymove/pkg/services/customer_support_remarks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
@@ -52,6 +53,11 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.MoveGetMoveHistoryHandler = GetMoveHistoryHandler{
 		HandlerContext:     ctx,
 		MoveHistoryFetcher: movehistory.NewMoveHistoryFetcher(),
+	}
+
+	ghcAPI.CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler = ListCustomerSupportRemarksHandler{
+		HandlerContext:                ctx,
+		CustomerSupportRemarksFetcher: customerserviceremarks.NewCustomerSupportRemarks(),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{

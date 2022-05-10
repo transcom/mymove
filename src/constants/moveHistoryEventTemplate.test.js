@@ -13,6 +13,7 @@ const {
   updateMTOShipmentEvent,
   updateMTOShipmentAddressesEvent,
   updateMTOShipmentAgentEvent,
+  updateMTOShipmentDeprecatePaymentRequest,
   updateServiceItemStatusEvent,
   acknowledgeExcessWeightRiskEvent,
   createStandardServiceItemEvent,
@@ -22,6 +23,7 @@ const {
   createPaymentRequestReweighUpdate,
   createPaymentRequestShipmentUpdate,
   updatePaymentRequest,
+  undefinedEvent,
 } = require('./moveHistoryEventTemplate');
 
 const { detailsTypes } = require('constants/moveHistoryEventTemplate');
@@ -288,7 +290,7 @@ describe('moveHistoryEventTemplate', () => {
         street_address_1: '12 Any Street',
         street_address_2: 'P.O. Box 1234',
       },
-      context: [{ addressType: 'pickupAddress' }],
+      context: [{ shipment_type: 'HHG', address_type: 'pickupAddress' }],
     };
 
     it('correctly matches the Update mto shipment address event for pickup addresses', () => {
@@ -307,6 +309,7 @@ describe('moveHistoryEventTemplate', () => {
         postal_code: '90211',
         street_address_1: '12 Any Street',
         street_address_2: 'P.O. Box 1234',
+        shipment_type: 'HHG',
       });
     });
 
@@ -318,7 +321,7 @@ describe('moveHistoryEventTemplate', () => {
         result.getDetailsLabeledDetails({
           changedValues: item.changedValues,
           oldValues: item.oldValues,
-          context: [{ addressType: 'destinationAddress' }],
+          context: [{ shipment_type: 'HHG', address_type: 'destinationAddress' }],
         }),
       ).toEqual({
         destination_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
@@ -326,6 +329,7 @@ describe('moveHistoryEventTemplate', () => {
         postal_code: '90211',
         street_address_1: '12 Any Street',
         street_address_2: 'P.O. Box 1234',
+        shipment_type: 'HHG',
       });
     });
   });
@@ -343,7 +347,7 @@ describe('moveHistoryEventTemplate', () => {
         street_address_2: 'P.O. Box 1234',
         state: 'CA',
       },
-      context: [{ addressType: 'pickupAddress' }],
+      context: [{ shipment_type: 'HHG', address_type: 'pickupAddress' }],
     };
 
     it('correctly matches the insert mto shipment address event for pickup addresses', () => {
@@ -362,6 +366,7 @@ describe('moveHistoryEventTemplate', () => {
         street_address_1: '12 Any Street',
         street_address_2: 'P.O. Box 1234',
         state: 'CA',
+        shipment_type: 'HHG',
       });
     });
 
@@ -372,7 +377,7 @@ describe('moveHistoryEventTemplate', () => {
       expect(
         result.getDetailsLabeledDetails({
           changedValues: item.changedValues,
-          context: [{ addressType: 'destinationAddress' }],
+          context: [{ shipment_type: 'HHG', address_type: 'destinationAddress' }],
         }),
       ).toEqual({
         destination_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
@@ -381,6 +386,7 @@ describe('moveHistoryEventTemplate', () => {
         street_address_1: '12 Any Street',
         street_address_2: 'P.O. Box 1234',
         state: 'CA',
+        shipment_type: 'HHG',
       });
     });
   });
@@ -403,6 +409,7 @@ describe('moveHistoryEventTemplate', () => {
         last_name: 'Griffin',
         phone: '555-555-5551',
       },
+      context: [{ shipment_type: 'HHG' }],
     };
 
     it('correctly matches the Update mto shipment agent event for releasing agents', () => {
@@ -413,12 +420,14 @@ describe('moveHistoryEventTemplate', () => {
         result.getDetailsLabeledDetails({
           changedValues: item.changedValues,
           oldValues: item.oldValues,
+          context: item.context,
         }),
       ).toEqual({
         releasing_agent: 'Grace Griffin, 555-555-5555, grace@email.com',
         email: 'grace@email.com',
         first_name: 'Grace',
         phone: '555-555-5555',
+        shipment_type: 'HHG',
       });
     });
 
@@ -430,12 +439,14 @@ describe('moveHistoryEventTemplate', () => {
         result.getDetailsLabeledDetails({
           changedValues: item.changedValues,
           oldValues: { ...item.oldValues, agent_type: 'RECEIVING_AGENT' },
+          context: item.context,
         }),
       ).toEqual({
         receiving_agent: 'Grace Griffin, 555-555-5555, grace@email.com',
         email: 'grace@email.com',
         first_name: 'Grace',
         phone: '555-555-5555',
+        shipment_type: 'HHG',
       });
     });
   });
@@ -449,15 +460,11 @@ describe('moveHistoryEventTemplate', () => {
       changedValues: {
         email: 'grace@email.com',
         first_name: 'Grace',
-        phone: '555-555-5555',
-      },
-      oldValues: {
-        agent_type: 'RELEASING_AGENT',
-        email: 'gracie@email.com',
-        first_name: 'Gracie',
         last_name: 'Griffin',
-        phone: '555-555-5551',
+        phone: '555-555-5555',
+        agent_type: 'RELEASING_AGENT',
       },
+      context: [{ shipment_type: 'HHG' }],
     };
 
     it('correctly matches the insert mto shipment agent event for releasing agents', () => {
@@ -467,13 +474,16 @@ describe('moveHistoryEventTemplate', () => {
       expect(
         result.getDetailsLabeledDetails({
           changedValues: item.changedValues,
-          oldValues: item.oldValues,
+          context: item.context,
         }),
       ).toEqual({
         releasing_agent: 'Grace Griffin, 555-555-5555, grace@email.com',
         email: 'grace@email.com',
         first_name: 'Grace',
+        last_name: 'Griffin',
         phone: '555-555-5555',
+        agent_type: 'RELEASING_AGENT',
+        shipment_type: 'HHG',
       });
     });
 
@@ -483,14 +493,17 @@ describe('moveHistoryEventTemplate', () => {
       // expect to have formatted the agent correctly
       expect(
         result.getDetailsLabeledDetails({
-          changedValues: item.changedValues,
-          oldValues: { ...item.oldValues, agent_type: 'RECEIVING_AGENT' },
+          changedValues: { ...item.changedValues, agent_type: 'RECEIVING_AGENT' },
+          context: item.context,
         }),
       ).toEqual({
         receiving_agent: 'Grace Griffin, 555-555-5555, grace@email.com',
         email: 'grace@email.com',
         first_name: 'Grace',
+        last_name: 'Griffin',
         phone: '555-555-5555',
+        agent_type: 'RECEIVING_AGENT',
+        shipment_type: 'HHG',
       });
     });
   });
@@ -530,7 +543,7 @@ describe('moveHistoryEventTemplate', () => {
         status: 'SENT_TO_GEX',
       },
     };
-    it('correctly matches the Request shipment reweigh event', () => {
+    it('correctly matches the update payment request event', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(updatePaymentRequest);
       // expect to have formatted the adddresses correctly
@@ -541,6 +554,35 @@ describe('moveHistoryEventTemplate', () => {
       ).toEqual({
         status: 'SENT_TO_GEX',
       });
+    });
+  });
+
+  describe('when given a deprecated payment request history record', () => {
+    const item = {
+      action: 'UPDATE',
+      eventName: moveHistoryOperations.updateMTOShipment,
+      tableName: 'payment_requests',
+      changedValues: {
+        status: 'DEPRECATED',
+      },
+    };
+    it('correctly matches the deprecated payment request', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(updateMTOShipmentDeprecatePaymentRequest);
+      expect(result.getStatusDetails(item)).toEqual('Deprecated');
+    });
+  });
+
+  describe('when given an unidentifiable move history record', () => {
+    const item = {
+      action: 'UPDATE',
+      eventName: 'testEventName',
+      tableName: 'mto_agents',
+    };
+    it('correctly matches the Undefined move history event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(undefinedEvent);
+      expect(result.getEventNameDisplay(item)).toEqual('Updated shipment');
     });
   });
 });

@@ -178,10 +178,20 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 					return err
 				}
 
+				// This simplifies not adding nil checks for the return value of updating the ppm shipment
+				if mtoShipment.PPMShipment == nil {
+					return nil
+				}
+
+				mtoShipment.PPMShipment.Shipment = *updatedMTOShipment
+
 				updatedPPMShipment, err = h.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment, mtoShipment.ID)
 				if err != nil {
 					return err
 				}
+
+				updatedMTOShipment = &updatedPPMShipment.Shipment
+				updatedMTOShipment.PPMShipment = updatedPPMShipment
 
 				return nil
 			})
@@ -250,7 +260,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				}
 			}
 
-			updatedMTOShipment.PPMShipment = updatedPPMShipment
 			returnPayload := payloads.MTOShipment(updatedMTOShipment)
 
 			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload), nil

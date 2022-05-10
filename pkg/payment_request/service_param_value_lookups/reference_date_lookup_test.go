@@ -35,7 +35,7 @@ func (suite *ServiceParamValueLookupsSuite) TestReferenceDateLookup() {
 	suite.Run("golden path for HHG", func() {
 		mtoServiceItem := setupTestData(models.MTOShipmentTypeHHG)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -47,7 +47,7 @@ func (suite *ServiceParamValueLookupsSuite) TestReferenceDateLookup() {
 	suite.Run("golden path for NTS-Release", func() {
 		mtoServiceItem := setupTestData(models.MTOShipmentTypeHHGOutOfNTSDom)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -63,7 +63,7 @@ func (suite *ServiceParamValueLookupsSuite) TestReferenceDateLookup() {
 		mtoServiceItem.MTOShipment.RequestedPickupDate = nil
 		suite.MustSave(&mtoServiceItem.MTOShipment)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -79,7 +79,7 @@ func (suite *ServiceParamValueLookupsSuite) TestReferenceDateLookup() {
 		mtoServiceItem.MTOShipment.ActualPickupDate = nil
 		suite.MustSave(&mtoServiceItem.MTOShipment)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)

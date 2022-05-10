@@ -1629,6 +1629,36 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
+  /moves/{locator}/customer-support-remarks:
+    parameters:
+      - description: move code to identify a move for customer support remarks
+        format: string
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: '#/definitions/CustomerSupportRemarks'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - customerSupportRemarks
+      description: Fetches customer support remarks for a move
+      operationId: getCustomerSupportRemarksForMove
+      summary: Fetches customer support remarks using the move code (locator).
   /moves/{locator}/payment-requests:
     parameters:
       - description: move code to identify a move for payment requests
@@ -4758,6 +4788,57 @@ definitions:
       - SYSTEM
       - PRICER
       - PAYMENT_REQUEST
+  CustomerSupportRemark:
+    type: object
+    description: >-
+      A text remark written by an office user that is associated with a specific
+      move.
+    required:
+      - id
+      - moveID
+      - officeUserID
+      - content
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      officeUserID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      content:
+        example: This is a remark about a move.
+        type: string
+      officeUserFirstName:
+        example: Grace
+        type: string
+        readOnly: true
+      officeUserLastName:
+        example: Griffin
+        type: string
+        readOnly: true
+      officeUserEmail:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        readOnly: true
+  CustomerSupportRemarks:
+    type: array
+    items:
+      $ref: '#/definitions/CustomerSupportRemark'
 responses:
   InvalidRequest:
     description: The request payload is invalid

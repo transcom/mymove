@@ -45,7 +45,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionWidthLookup() {
 		})
 		mtoServiceItem.Dimensions = []models.MTOServiceItemDimension{itemDimension, cratingDimension}
 		suite.MustSave(&mtoServiceItem)
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
 		stringValue, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -58,7 +58,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionWidthLookup() {
 
 	suite.Run("missing dimension should error", func() {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
