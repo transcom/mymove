@@ -40,6 +40,11 @@
     @include u-margin-bottom(3);
   }
 
+  .AdvanceText {
+    @include u-font-size('body', 'xs');
+    @include u-margin-top(2.5);
+  }
+
   .weightAllowance {
     padding-top: 9px;
     padding-bottom: 9px;
