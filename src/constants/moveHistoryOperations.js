@@ -22,7 +22,9 @@ const moveHistoryOperations = {
   updateMTOShipment: 'updateMTOShipment', // ghc.yaml internal.yaml prime.yaml
   updateMTOShipmentAddress: 'updateMTOShipmentAddress', // prime.yaml
   uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
-  updateBillableWeight: 'updateBillableWeight',
+  updateBillableWeight: 'updateBillableWeight', // ghc.yaml
+  updatePaymentRequestStatus: 'updatePaymentRequestStatus',
+  updateReweigh: 'updateReweigh',
 };
 
 export default moveHistoryOperations;

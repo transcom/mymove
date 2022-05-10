@@ -3440,47 +3440,6 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate:
-    patch:
-      summary: Calculates the estimated incentive of a PPM
-      description: >-
-        This request calculates the estimated incentive of a PPM and attaches
-        this range to the PPM
-      operationId: updatePersonallyProcuredMoveEstimate
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being patched
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: >-
-            ppm is not found or ppm discount not found for provided postal codes
-            and original move date
-        '422':
-          description: cannot process request with given information
-        '500':
-          description: internal server error
   /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
     put:
       summary: Updates the PPM

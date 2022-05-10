@@ -192,21 +192,33 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
-		ppm := testdatagen.MakeDefaultPPM(suite.DB())
-		move := ppm.Move
+		move := testdatagen.MakeDefaultMove(suite.DB())
+
+		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:       models.MTOShipmentStatusDraft,
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Stub: true,
+		})
+		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Move:        move,
+			MTOShipment: hhgShipment,
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusDraft,
+			},
+		})
 
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
-		ppmID := strfmt.UUID(ppm.ID.String())
 		certificate := internalmessages.CreateSignedCertificationPayload{
-			CertificationText:        swag.String("This is your legal message"),
-			CertificationType:        &certType,
-			PersonallyProcuredMoveID: &ppmID,
-			Date:                     &signingDate,
-			Signature:                swag.String("Jane Doe"),
+			CertificationText: swag.String("This is your legal message"),
+			CertificationType: &certType,
+			Date:              &signingDate,
+			Signature:         swag.String("Jane Doe"),
 		}
 		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
@@ -229,7 +241,6 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 
 		// And: Returned query to have a submitted status
 		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
-		// And: Expect move's PPM's advance to have "Requested" status
 		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
 
 		// Test that the move was submitted within a few seconds of the current time.

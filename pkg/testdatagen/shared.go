@@ -19,7 +19,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/random"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/imdario/mergo"
 	"github.com/spf13/afero"
@@ -45,6 +45,7 @@ type Assertions struct {
 	Entitlement                              models.Entitlement
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	File                                     afero.File
+	GHCDieselFuelPrice                       models.GHCDieselFuelPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
@@ -74,8 +75,10 @@ type Assertions struct {
 	ProofOfServiceDoc                        models.ProofOfServiceDoc
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
-	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	ReDomesticLinehaulPrice                  models.ReDomesticLinehaulPrice
+	ReDomesticOtherPrice                     models.ReDomesticOtherPrice
+	ReDomesticServiceArea                    models.ReDomesticServiceArea
+	ReDomesticServiceAreaPrice               models.ReDomesticServiceAreaPrice
 	Reimbursement                            models.Reimbursement
 	ReRateArea                               models.ReRateArea
 	ReService                                models.ReService

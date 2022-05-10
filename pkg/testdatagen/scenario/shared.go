@@ -2114,7 +2114,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	}
 
 	paymentRequest.PaymentServiceItems = paymentServiceItems
-	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequest(appCtx, &paymentRequest)
+	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
 
 	if createErr != nil {
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
@@ -3519,16 +3519,16 @@ func createApprovedMoveWithMinimalShipment(appCtx appcontext.AppContext, userUpl
 		Move: move,
 	})
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
-	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	// requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	// requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
 
 	shipmentFields := models.MTOShipment{
-		Status:                models.MTOShipmentStatusApproved,
-		RequestedPickupDate:   &requestedPickupDate,
-		RequestedDeliveryDate: &requestedDeliveryDate,
-		PickupAddress:         &pickupAddress,
-		PickupAddressID:       &pickupAddress.ID,
+		Status: models.MTOShipmentStatusApproved,
+		// RequestedPickupDate:   &requestedPickupDate,
+		// RequestedDeliveryDate: &requestedDeliveryDate,
+		PickupAddress:   &pickupAddress,
+		PickupAddressID: &pickupAddress.ID,
 	}
 
 	// Uncomment to create the shipment with a destination address

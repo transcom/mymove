@@ -66,9 +66,6 @@ type UpdateMTOPostCounselingInformationParams struct {
 	*/
 	IfMatch string
 
-	// Body.
-	Body UpdateMTOPostCounselingInformationBody
-
 	/* MoveTaskOrderID.
 
 	   ID of move task order to use.
@@ -139,17 +136,6 @@ func (o *UpdateMTOPostCounselingInformationParams) SetIfMatch(ifMatch string) {
 	o.IfMatch = ifMatch
 }
 
-// WithBody adds the body to the update m t o post counseling information params
-func (o *UpdateMTOPostCounselingInformationParams) WithBody(body UpdateMTOPostCounselingInformationBody) *UpdateMTOPostCounselingInformationParams {
-	o.SetBody(body)
-	return o
-}
-
-// SetBody adds the body to the update m t o post counseling information params
-func (o *UpdateMTOPostCounselingInformationParams) SetBody(body UpdateMTOPostCounselingInformationBody) {
-	o.Body = body
-}
-
 // WithMoveTaskOrderID adds the moveTaskOrderID to the update m t o post counseling information params
 func (o *UpdateMTOPostCounselingInformationParams) WithMoveTaskOrderID(moveTaskOrderID string) *UpdateMTOPostCounselingInformationParams {
 	o.SetMoveTaskOrderID(moveTaskOrderID)
@@ -171,9 +157,6 @@ func (o *UpdateMTOPostCounselingInformationParams) WriteToRequest(r runtime.Clie
 
 	// header param If-Match
 	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
-		return err
-	}
-	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}
 

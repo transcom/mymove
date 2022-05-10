@@ -11,7 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/gobuffalo/pop/v5"
+	pop "github.com/gobuffalo/pop/v6"
 	"github.com/jmoiron/sqlx"
 	"github.com/luna-duclos/instrumentedsql"
 	"github.com/pkg/errors"
@@ -20,7 +20,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/XSAM/otelsql"
-	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 
 	iampg "github.com/transcom/mymove/pkg/iampostgres"
 )
@@ -350,7 +349,6 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 		}
 		sql.Register(popInstrumentedDriverName,
 			otelsql.WrapDriver(currentDriver,
-				semconv.DBSystemPostgreSQL.Value.AsString(),
 				otelsql.WithSpanOptions(spanOptions)))
 
 		// now we can update the connection details to indicate we

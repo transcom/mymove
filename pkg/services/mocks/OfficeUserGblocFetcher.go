@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
+	testing "testing"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -33,4 +35,14 @@ func (_m *OfficeUserGblocFetcher) FetchGblocForOfficeUser(appCtx appcontext.AppC
 	}
 
 	return r0, r1
+}
+
+// NewOfficeUserGblocFetcher creates a new instance of OfficeUserGblocFetcher. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewOfficeUserGblocFetcher(t testing.TB) *OfficeUserGblocFetcher {
+	mock := &OfficeUserGblocFetcher{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

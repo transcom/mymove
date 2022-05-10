@@ -14,7 +14,6 @@ import { selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
 
 const mockPush = jest.fn();
-const mockGoBack = jest.fn();
 
 const mockMoveId = uuidv4();
 const mockMTOShipmentId = uuidv4();
@@ -23,6 +22,7 @@ const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
 });
+
 const estimatedIncentivePath = generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -70,7 +70,6 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useHistory: () => ({
     push: mockPush,
-    goBack: mockGoBack,
   }),
   useParams: () => ({
     moveId: mockMoveId,

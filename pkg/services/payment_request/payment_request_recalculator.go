@@ -85,7 +85,7 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 	if err != nil {
 		return nil, err
 	}
-	newPaymentRequest, err := p.paymentRequestCreator.CreatePaymentRequest(appCtx, &inputPaymentRequest)
+	newPaymentRequest, err := p.paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &inputPaymentRequest)
 	if err != nil {
 		return nil, err // Just pass the error type from the PaymentRequestCreator.
 	}
