@@ -187,7 +187,7 @@ export const createPaymentRequestReweighUpdate = buildMoveHistoryEventTemplate({
 });
 
 export const createPaymentRequestShipmentUpdate = buildMoveHistoryEventTemplate({
-  actions: dbActions.INSERT,
+  action: dbActions.INSERT,
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: dbTables.payment_requests,
   detailsType: detailsTypes.STATUS,
@@ -392,7 +392,7 @@ export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
 });
 
 export const updateMTOShipmentDeprecatePaymentRequest = buildMoveHistoryEventTemplate({
-  actions: dbActions.UPDATE,
+  action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: dbTables.payment_requests,
   detailsType: detailsTypes.LABELED,
