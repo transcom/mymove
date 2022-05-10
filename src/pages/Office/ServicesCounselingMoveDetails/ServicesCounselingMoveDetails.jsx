@@ -337,6 +337,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     <option test-dataid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
                       HHG
                     </option>
+                    <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                   </ButtonDropdown>

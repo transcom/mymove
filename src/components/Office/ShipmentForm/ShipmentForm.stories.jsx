@@ -185,3 +185,9 @@ export const ExternalVendorShipment = () => {
     />
   );
 };
+
+export const PPMShipment = () => {
+  return (
+    <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.PPM} userRole={roleTypes.SERVICES_COUNSELOR} />
+  );
+};
