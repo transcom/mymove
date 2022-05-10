@@ -545,7 +545,7 @@ describe('moveHistoryEventTemplate', () => {
     it('correctly matches the deprecated payment request', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(updateMTOShipmentDeprecatePaymentRequest);
-      expect(result.getDetailsLabeledDetails(item)).toEqual({ status: 'Deprecated' });
+      expect(result.getStatusDetails(item)).toEqual('Deprecated');
     });
   });
 

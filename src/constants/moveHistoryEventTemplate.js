@@ -395,15 +395,11 @@ export const updateMTOShipmentDeprecatePaymentRequest = buildMoveHistoryEventTem
   action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: dbTables.payment_requests,
-  detailsType: detailsTypes.LABELED,
+  detailsType: detailsTypes.STATUS,
   getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
-  getDetailsLabeledDetails: ({ changedValues }) => {
+  getStatusDetails: ({ changedValues }) => {
     const { status } = changedValues;
-    const formattedValues = { ...changedValues };
-    if (status) {
-      formattedValues.status = PAYMENT_REQUEST_STATUS_LABELS[status];
-    }
-    return formattedValues;
+    return PAYMENT_REQUEST_STATUS_LABELS[status];
   },
 });
 
