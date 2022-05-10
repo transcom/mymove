@@ -8,6 +8,7 @@ import Advance from './Advance';
 
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { updateMTOShipment } from 'store/entities/actions';
 import { setFlashMessage } from 'store/flash/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
@@ -31,6 +32,7 @@ const estimatedIncentivePath = generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATE
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   moveTaskOrderID: mockMoveId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     id: uuidv4(),
     pickupPostalCode: '20002',
@@ -188,6 +190,7 @@ describe('Advance page', () => {
     userEvent.click(saveButton);
 
     const expectedPayload = {
+      shipmentType: mockMTOShipment.shipmentType,
       ppmShipment: {
         advance: 400000,
         advanceRequested: true,
