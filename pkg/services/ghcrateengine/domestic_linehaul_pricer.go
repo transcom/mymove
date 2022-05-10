@@ -35,10 +35,10 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if distance < dlhPricerMinimumDistance && !isPPM {
+	if !isPPM && distance < dlhPricerMinimumDistance {
 		return 0, nil, fmt.Errorf("Distance must be at least %d", dlhPricerMinimumDistance)
 	}
-	if weight < dlhPricerMinimumWeight && !isPPM {
+	if !isPPM && weight < dlhPricerMinimumWeight {
 		return 0, nil, fmt.Errorf("Weight must be at least %d", dlhPricerMinimumWeight)
 	}
 	if len(serviceArea) == 0 {
