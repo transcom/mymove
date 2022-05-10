@@ -2,7 +2,7 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-.remarksTextContent {
+.customerSupportRemarkTextClamp {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
@@ -10,8 +10,15 @@
   text-overflow: ellipsis;
 }
 
-.customerRemarkBody {
+.customerSupportRemarkText {
+  @include u-margin-bottom(.5);
+  @include u-margin-top(0);
+}
+
+.customerSupportRemarkNameTimestamp {
   color: $base-dark;
+  @include u-margin-bottom(1);
+  @include u-margin-top(0);
 }
 
 .seeMoreOrLessButton {
@@ -20,6 +27,10 @@
 
 .seeMoreOrLessButton:focus {
   outline: none !important;
+}
+
+.customerSupportRemarkWrapper {
+  @include u-margin-bottom(3);
 }
 
 

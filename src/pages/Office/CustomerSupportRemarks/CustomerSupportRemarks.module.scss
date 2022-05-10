@@ -3,15 +3,32 @@
 @import 'shared/styles/colors';
 
 .customerSupportRemarksContent {
-  h1, h2, h4 {
+  h1, h2, h3 {
     color: $mm-blue;
+  }
+  h1 {
+    @include u-margin-bottom(4);
+  }
+  h2 {
+    @include u-margin-bottom(1.5);
+  }
+  h3 {
+    font-size: 17px;
+    line-height: 20px;
+    @include u-margin-bottom(1.5);
   }
 }
 
 .customerSupportRemarksTitle {
-  @include u-padding-left(0);
 }
 
 .customerSupportRemarksContainer {
   @include u-padding-bottom(40px);
+  @include u-bg('white');
+  @include u-radius('05');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-padding(5);
+  @include u-margin-bottom(4);
+
 }

@@ -19,16 +19,16 @@ const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
   const handleCollapseClick = () => {
     if (isCollapsed) {
       setIsCollapsed(false);
-      textBodyRef.current.classList.remove(customerSupportRemarkStyles.remarksTextContent);
+      textBodyRef.current.classList.remove(customerSupportRemarkStyles.customerSupportRemarkTextClamp);
     } else {
       setIsCollapsed(true);
-      textBodyRef.current.classList.add(customerSupportRemarkStyles.remarksTextContent);
+      textBodyRef.current.classList.add(customerSupportRemarkStyles.customerSupportRemarkTextClamp);
     }
   };
 
   return (
-    <div key={customerSupportRemark.id}>
-      <p className={customerSupportRemarkStyles.customerRemarkBody}>
+    <div key={customerSupportRemark.id} className={customerSupportRemarkStyles.customerSupportRemarkWrapper}>
+      <p className={customerSupportRemarkStyles.customerSupportRemarkNameTimestamp}>
         <small>
           <strong>
             {customerSupportRemark.officeUserFirstName} {customerSupportRemark.officeUserLastName}
@@ -37,7 +37,10 @@ const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
         </small>
       </p>
       <p
-        className={isLongEnough(customerSupportRemark.content) ? customerSupportRemarkStyles.remarksTextContent : ''}
+        className={classnames(
+          isLongEnough(customerSupportRemark.content) ? customerSupportRemarkStyles.customerSupportRemarkTextClamp : '',
+          customerSupportRemarkStyles.customerSupportRemarkText,
+        )}
         ref={textBodyRef}
       >
         {customerSupportRemark.content}
