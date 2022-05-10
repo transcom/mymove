@@ -242,9 +242,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmUpdatePersonallyProcuredMoveHandler: ppm.UpdatePersonallyProcuredMoveHandlerFunc(func(params ppm.UpdatePersonallyProcuredMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdatePersonallyProcuredMove has not yet been implemented")
 		}),
-		PpmUpdatePersonallyProcuredMoveEstimateHandler: ppm.UpdatePersonallyProcuredMoveEstimateHandlerFunc(func(params ppm.UpdatePersonallyProcuredMoveEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.UpdatePersonallyProcuredMoveEstimate has not yet been implemented")
-		}),
 		BackupContactsUpdateServiceMemberBackupContactHandler: backup_contacts.UpdateServiceMemberBackupContactHandlerFunc(func(params backup_contacts.UpdateServiceMemberBackupContactParams) middleware.Responder {
 			return middleware.NotImplemented("operation backup_contacts.UpdateServiceMemberBackupContact has not yet been implemented")
 		}),
@@ -418,8 +415,6 @@ type MymoveAPI struct {
 	OrdersUpdateOrdersHandler orders.UpdateOrdersHandler
 	// PpmUpdatePersonallyProcuredMoveHandler sets the operation handler for the update personally procured move operation
 	PpmUpdatePersonallyProcuredMoveHandler ppm.UpdatePersonallyProcuredMoveHandler
-	// PpmUpdatePersonallyProcuredMoveEstimateHandler sets the operation handler for the update personally procured move estimate operation
-	PpmUpdatePersonallyProcuredMoveEstimateHandler ppm.UpdatePersonallyProcuredMoveEstimateHandler
 	// BackupContactsUpdateServiceMemberBackupContactHandler sets the operation handler for the update service member backup contact operation
 	BackupContactsUpdateServiceMemberBackupContactHandler backup_contacts.UpdateServiceMemberBackupContactHandler
 	// OrdersUploadAmendedOrdersHandler sets the operation handler for the upload amended orders operation
@@ -685,9 +680,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmUpdatePersonallyProcuredMoveHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdatePersonallyProcuredMoveHandler")
-	}
-	if o.PpmUpdatePersonallyProcuredMoveEstimateHandler == nil {
-		unregistered = append(unregistered, "ppm.UpdatePersonallyProcuredMoveEstimateHandler")
 	}
 	if o.BackupContactsUpdateServiceMemberBackupContactHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.UpdateServiceMemberBackupContactHandler")
@@ -1026,10 +1018,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}"] = ppm.NewUpdatePersonallyProcuredMove(o.context, o.PpmUpdatePersonallyProcuredMoveHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate"] = ppm.NewUpdatePersonallyProcuredMoveEstimate(o.context, o.PpmUpdatePersonallyProcuredMoveEstimateHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

@@ -8,6 +8,8 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
+	testing "testing"
+
 	validate "github.com/gobuffalo/validate/v3"
 )
 
@@ -46,4 +48,14 @@ func (_m *WebhookSubscriptionCreator) CreateWebhookSubscription(appCtx appcontex
 	}
 
 	return r0, r1, r2
+}
+
+// NewWebhookSubscriptionCreator creates a new instance of WebhookSubscriptionCreator. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewWebhookSubscriptionCreator(t testing.TB) *WebhookSubscriptionCreator {
+	mock := &WebhookSubscriptionCreator{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

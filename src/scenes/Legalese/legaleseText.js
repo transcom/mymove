@@ -61,7 +61,7 @@ For a HHG shipment, I am entitled to move a certain amount of HHG by weight, kno
 the continental United States, or beyond).  If I move more HHG weight than my maximum weight allowance, I will be \
 subject to excess cost for exceeding my weight allowance or entitlement.
 
-For a PPM shipment, I understand I will be paid 95% of what the government would have paid to move my belongings. My \
+For a PPM shipment, I understand I will be paid 100% of what the government would have paid to move my belongings. My \
 final payment will be calculated using documented weight and distance, up to my maximum weight allowance. I will not \
 be paid for moving any extra weight beyond my weight allowance.
 

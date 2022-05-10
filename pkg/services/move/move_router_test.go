@@ -212,25 +212,29 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	suite.Run("PPM status changes to Submitted", func() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 
-		// Create PPM on this move
-		advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				Move:      move,
-				MoveID:    move.ID,
-				Status:    models.PPMStatusDRAFT,
-				Advance:   &advance,
-				AdvanceID: &advance.ID,
+		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:       models.MTOShipmentStatusDraft,
+				ShipmentType: models.MTOShipmentTypePPM,
 			},
 			Stub: true,
 		})
-		move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
+		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusDraft,
+			},
+			Stub: true,
+		})
+
+		move.MTOShipments = models.MTOShipments{hhgShipment}
+		move.MTOShipments[0].PPMShipment = &ppmShipment
 
 		err := moveRouter.Submit(suite.AppContextForTest(), &move)
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
-		suite.Equal(models.PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
+		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status, "expected Submitted")
+		suite.Equal(models.PPMShipmentStatusSubmitted, move.MTOShipments[0].PPMShipment.Status, "expected Submitted")
 	})
 }
 

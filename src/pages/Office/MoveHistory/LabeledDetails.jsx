@@ -1,13 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import styles from './LabeledDetails.module.scss';
+
+import { shipmentTypes } from 'constants/shipments';
 import {
-  HistoryLogValuesShape,
+  HistoryLogRecordShape,
   dbFieldToDisplayName,
   dbWeightFields,
+  dbDateFields,
   optionFields,
 } from 'constants/historyLogUIDisplayName';
-import descriptionListStyles from 'styles/descriptionList.module.scss';
+import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
   const displayName = dbFieldToDisplayName[fieldName];
@@ -15,10 +19,12 @@ const retrieveTextToDisplay = (fieldName, value) => {
 
   if (displayName === dbFieldToDisplayName.storage_in_transit) {
     displayValue = `${displayValue} days`;
-  } else if (dbWeightFields.includes(fieldName)) {
+  } else if (dbWeightFields[fieldName]) {
     displayValue = `${displayValue} lbs`;
   } else if (optionFields[displayValue]) {
     displayValue = optionFields[displayValue];
+  } else if (dbDateFields[fieldName]) {
+    displayValue = formatCustomerDate(displayValue);
   }
 
   return {
@@ -27,41 +33,48 @@ const retrieveTextToDisplay = (fieldName, value) => {
   };
 };
 
-const LabeledDetails = ({ changedValues, context, getDetailsLabeledDetails }) => {
-  let changeValuesToUse = changedValues;
+const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
+  let changedValuesToUse = historyRecord.changedValues;
+  let shipmentDisplay = '';
   // run custom function to mutate changedValues to display if not null
   if (getDetailsLabeledDetails) {
-    changeValuesToUse = getDetailsLabeledDetails({ changedValues, context });
+    changedValuesToUse = getDetailsLabeledDetails(historyRecord);
+  }
+
+  // Check for shipment_type to use it as a header for the row
+  if ('shipment_type' in changedValuesToUse) {
+    shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
+    shipmentDisplay += ' shipment';
+    delete changedValuesToUse.shipment_type;
   }
 
   const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
-    return changeValuesToUse[dbField];
+    return changedValuesToUse[dbField];
   });
 
   return (
-    <div>
+    <>
+      <span className={styles.shipmentType}>{shipmentDisplay}</span>
       {dbFieldsToDisplay.map((modelField) => {
-        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changeValuesToUse[modelField]);
+        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValuesToUse[modelField]);
 
         return (
-          <div key={modelField} className={descriptionListStyles.row}>
+          <div key={modelField}>
             <b>{displayName}</b>: {displayValue}
           </div>
         );
       })}
-    </div>
+    </>
   );
 };
 
 LabeledDetails.propTypes = {
-  changedValues: HistoryLogValuesShape,
-  context: PropTypes.arrayOf(PropTypes.object),
+  historyRecord: HistoryLogRecordShape,
   getDetailsLabeledDetails: PropTypes.func,
 };
 
 LabeledDetails.defaultProps = {
-  changedValues: {},
-  context: null,
+  historyRecord: {},
   getDetailsLabeledDetails: null,
 };
 

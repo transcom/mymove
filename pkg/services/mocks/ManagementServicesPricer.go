@@ -10,6 +10,8 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
+	testing "testing"
+
 	time "time"
 
 	unit "github.com/transcom/mymove/pkg/unit"
@@ -78,4 +80,14 @@ func (_m *ManagementServicesPricer) PriceUsingParams(appCtx appcontext.AppContex
 	}
 
 	return r0, r1, r2
+}
+
+// NewManagementServicesPricer creates a new instance of ManagementServicesPricer. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewManagementServicesPricer(t testing.TB) *ManagementServicesPricer {
+	mock := &ManagementServicesPricer{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

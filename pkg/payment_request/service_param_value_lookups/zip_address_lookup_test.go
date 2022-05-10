@@ -18,7 +18,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipAddressLookup() {
 			},
 		})
 
-	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	suite.FatalNoError(err)
 
 	suite.Run("zip code for the pickup address is present on MTO Shipment", func() {

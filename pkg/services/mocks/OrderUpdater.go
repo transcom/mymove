@@ -14,6 +14,8 @@ import (
 
 	storage "github.com/transcom/mymove/pkg/storage"
 
+	testing "testing"
+
 	uuid "github.com/gofrs/uuid"
 
 	validate "github.com/gobuffalo/validate/v3"
@@ -187,4 +189,14 @@ func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppConte
 	}
 
 	return r0, r1, r2, r3
+}
+
+// NewOrderUpdater creates a new instance of OrderUpdater. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewOrderUpdater(t testing.TB) *OrderUpdater {
+	mock := &OrderUpdater{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

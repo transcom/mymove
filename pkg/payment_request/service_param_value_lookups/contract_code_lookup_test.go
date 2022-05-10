@@ -15,7 +15,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 	suite.Run("golden path", func() {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -50,7 +50,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		})
 
 		paramCache := NewServiceParamsCache()
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem1.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &paramCache)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem1, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &paramCache)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), serviceItemParamKey1.Key)
