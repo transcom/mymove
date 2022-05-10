@@ -44,7 +44,19 @@ export const advanceRequested = () => (
     {() => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
-          <ShipmentIncentiveAdvance estimatedIncentive={600000} />
+          <ShipmentIncentiveAdvance estimatedIncentive={1000000} />
+        </Form>
+      );
+    }}
+  </Formik>
+);
+
+export const advanceRequestedWithWarning = () => (
+  <Formik initialValues={{ advanceRequested: true, amountRequested: '7000' }}>
+    {() => {
+      return (
+        <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
+          <ShipmentIncentiveAdvance estimatedIncentive={1111111} />
         </Form>
       );
     }}

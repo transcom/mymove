@@ -9,15 +9,18 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
-  const [inputProps, , helperProps] = useField('advanceRequested');
-  const advanceRequested = !!inputProps.value;
+  const [advanceInput, , advanceHelper] = useField('advanceRequested');
+  const advanceRequested = !!advanceInput.value;
+  const [amountInput] = useField('amountRequested');
+  const amountRequested = Number(amountInput.value || '0');
 
   const formattedIncentive = ((estimatedIncentive || 0) / 100).toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 0,
   });
-  const maximumAdvance = (((estimatedIncentive || 0) * 0.6) / 100).toLocaleString('en-US', {
+  const maximumAdvance = ((estimatedIncentive || 0) * 0.6) / 100;
+  const formattedMaximumAdvance = maximumAdvance.toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 2,
@@ -26,16 +29,16 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
 
   const handleAdvanceRequestedChange = (event) => {
     const selected = event.target.value;
-    helperProps.setValue(selected === 'Yes');
+    advanceHelper.setValue(selected === 'Yes');
   };
 
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
         <h2 className={styles.SectionHeader}>Incentive &amp; advance</h2>
-        <h3>Estimated incentive: {formattedIncentive}</h3>
+        <h3 className={styles.NoSpacing}>Estimated incentive: {formattedIncentive}</h3>
 
-        <Grid row gap>
+        <Grid row>
           <Grid col={12}>
             <FormGroup>
               <Label className={styles.Label}>Advance (AOA) requested?</Label>
@@ -62,7 +65,6 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
             {advanceRequested && (
               <>
                 <FormGroup>
-                  <Label>Amount requested</Label>
                   <MaskedTextField
                     defaultValue="0"
                     name="amountRequested"
@@ -74,9 +76,14 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
                     prefix="$"
+                    warning={
+                      amountRequested > maximumAdvance
+                        ? `Reminder: your advance can not be more than ${formattedMaximumAdvance}`
+                        : ''
+                    }
                   />
                 </FormGroup>
-                Maximum advance: {maximumAdvance}
+                <div className={styles.AdvanceText}>Maximum advance: {formattedMaximumAdvance}</div>
               </>
             )}
           </Grid>
