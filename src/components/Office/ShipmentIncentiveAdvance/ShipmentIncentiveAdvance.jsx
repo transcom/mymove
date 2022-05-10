@@ -17,6 +17,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const formattedIncentive = ((estimatedIncentive || 0) / 100).toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
+    minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
   const maximumAdvance = ((estimatedIncentive || 0) * 0.6) / 100;
@@ -76,7 +77,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
                     prefix="$"
-                    error={
+                    warning={
                       amountRequested > maximumAdvance
                         ? `Reminder: your advance can not be more than ${formattedMaximumAdvance}`
                         : ''
