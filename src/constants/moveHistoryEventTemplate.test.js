@@ -533,6 +533,21 @@ describe('moveHistoryEventTemplate', () => {
   });
 });
 
+describe('when given a deprecated payment request', () => {
+  const item = {
+    action: 'UPDATE',
+    eventName: moveHistoryOperations.updateMTOShipment,
+    tableName: 'payment_requests',
+    changedValues: {
+      status: 'DEPRECATED',
+    },
+  };
+  it('correctly matches the deprecated payment request', () => {
+    const result = getMoveHistoryEventTemplate(item);
+    expect(result.getDetailsLabeledDetails(item)).toEqual({ status: 'Deprecated' });
+  });
+});
+
 describe('when given an unidentifiable move history record', () => {
   const item = {
     action: 'UPDATE',
