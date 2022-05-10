@@ -256,6 +256,11 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 	})
 
 	suite.Run("Failed update", func() {
+		// TESTCASE SCENARIO
+		// Under test: UpdateAdminUserHandler
+		// Mocked: UpdateAdminUser
+		// Set up: UpdateAdminUser is mocked to return validation errors as if an error was encountered
+		// Expected outcome: The handler should see the validation errors and also return an error
 		params := adminuserop.UpdateAdminUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/admin_users/%s", adminUserID)),
 			AdminUser: &adminmessages.AdminUserUpdatePayload{
