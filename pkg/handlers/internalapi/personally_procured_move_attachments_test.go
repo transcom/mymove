@@ -33,7 +33,7 @@ func (suite *HandlerSuite) assertPDFPageCount(count int, file afero.File, storer
 	suite.Equal(count, ctx.PageCount)
 }
 
-func (suite *HandlerSuite) createHandlerContext() handlers.HandlerConfig {
+func (suite *HandlerSuite) createHandlerConfig() handlers.HandlerConfig {
 	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 		suite.Run(test.name, func() {
 			officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 			// Context gives us our file storer and filesystem
-			handlerConfig := suite.createHandlerContext()
+			handlerConfig := suite.createHandlerConfig()
 
 			ppm := testdatagen.MakeDefaultPPM(suite.DB())
 			expDoc := testdatagen.MakeMovingExpenseDocument(suite.DB(), testdatagen.Assertions{

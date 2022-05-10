@@ -173,7 +173,7 @@ type updateOrderHandlerAmendedUploadSubtestData struct {
 
 func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (subtestData *updateOrderHandlerAmendedUploadSubtestData) {
 	subtestData = &updateOrderHandlerAmendedUploadSubtestData{}
-	subtestData.handlerConfig = suite.createHandlerContext()
+	subtestData.handlerConfig = suite.createHandlerConfig()
 
 	var err error
 	subtestData.userUploader, err = uploader.NewUserUploader(subtestData.handlerConfig.FileStorer(), 100*uploader.MB)

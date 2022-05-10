@@ -642,7 +642,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(patchPPMParams)
 
 	suite.CheckResponseBadRequest(response)
