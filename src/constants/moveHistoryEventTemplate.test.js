@@ -552,11 +552,11 @@ describe('when given an unidentifiable move history record', () => {
   const item = {
     action: 'UPDATE',
     eventName: 'testEventName',
-    tableName: 'imaginary_test_objects',
+    tableName: 'mto_agents',
   };
   it('correctly matches the Undefined move history event', () => {
     const result = getMoveHistoryEventTemplate(item);
     expect(result).toEqual(undefinedEvent);
-    expect(result.getEventNameDisplay(item)).toEqual('Updated item in imaginary test objects');
+    expect(result.getEventNameDisplay(item)).toEqual('Updated shipment');
   });
 });
