@@ -224,7 +224,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
-	adminUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
+	adminUserID := uuid.Must(uuid.NewV4())
 	adminUser := models.AdminUser{ID: adminUserID, FirstName: "Leo", LastName: "Spaceman"}
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)

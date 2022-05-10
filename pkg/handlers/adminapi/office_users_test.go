@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/mock"
 
@@ -294,7 +296,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	suite.Run("Update fails due to bad Transportation Office", func() {
 		officeUser := setupTestData()
 		officeUserUpdates := &adminmessages.OfficeUserUpdatePayload{
-			TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
+			TransportationOfficeID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
 		}
 
 		params := officeuserop.UpdateOfficeUserParams{
