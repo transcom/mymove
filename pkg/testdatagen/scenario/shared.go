@@ -5506,6 +5506,14 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			RequestedDeliveryDate: &requestedDeliveryDate,
 		},
 	})
+	officeUser := testdatagen.MakeDefaultOfficeUser(db)
+	testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
+		CustomerSupportRemark: models.CustomerSupportRemark{
+			Content:      "The customer mentioned that they need to provide some more complex instructions for pickup and drop off.",
+			OfficeUserID: officeUser.ID,
+			MoveID:       move.ID,
+		},
+	})
 }
 
 /*

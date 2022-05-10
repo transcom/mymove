@@ -1597,6 +1597,36 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
+  '/moves/{locator}/customer-support-remarks':
+    parameters:
+      - description: move code to identify a move for customer support remarks
+        format: string
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: 'definitions/CustomerSupportRemarks.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - customerSupportRemarks
+      description: Fetches customer support remarks for a move
+      operationId: getCustomerSupportRemarksForMove
+      summary: Fetches customer support remarks using the move code (locator).
   '/moves/{locator}/payment-requests':
     parameters:
       - description: move code to identify a move for payment requests
