@@ -7,7 +7,8 @@ const ModifiedBy = ({ firstName, lastName, email, phone }) => {
   // If an event is modified by the MilMove system, it will contain no
   // information. This is used to idetify moves that were modified by the
   // MilMove system itself.
-  if (firstName === '' && lastName === '' && email === '' && phone === '') {
+  const isUserEmpty = () => firstName === '' && lastName === '' && email === '' && phone === '';
+  if (isUserEmpty()) {
     const systemName = 'MilMove';
     return (
       <div className={styles.ModifiedBy}>
