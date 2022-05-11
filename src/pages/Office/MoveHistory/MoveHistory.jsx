@@ -27,7 +27,11 @@ const columns = [
   createHeader(
     'Details',
     (row) => {
-      return <MoveHistoryDetailsSelector historyRecord={row} />;
+      return (
+        <div className={styles.details}>
+          <MoveHistoryDetailsSelector historyRecord={row} />
+        </div>
+      );
     },
     { id: 'move-history-details' },
   ),

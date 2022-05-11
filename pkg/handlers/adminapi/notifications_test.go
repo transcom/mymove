@@ -2,10 +2,7 @@ package adminapi
 
 import (
 	"net/http"
-	"net/http/httptest"
-	"testing"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
@@ -19,25 +16,12 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexNotificationsHandler() {
-	// replace this with generated UUID when filter param is built out
-	uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
-	id, _ := uuid.FromString(uuidString)
-	assertions := testdatagen.Assertions{
-		Notification: models.Notification{
-			ID: id,
-		},
-	}
-	testdatagen.MakeNotification(suite.DB(), assertions)
-	testdatagen.MakeDefaultNotification(suite.DB())
-
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/notifications", nil)
-	req = suite.AuthenticateAdminRequest(req, requestUser)
-
 	// test that everything is wired up
-	suite.T().Run("integration test ok response", func(t *testing.T) {
+	suite.Run("integration test ok response", func() {
+		notification0 := testdatagen.MakeDefaultNotification(suite.DB())
+		testdatagen.MakeDefaultNotification(suite.DB())
 		params := notificationsop.IndexNotificationsParams{
-			HTTPRequest: req,
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/notifications"),
 		}
 
 		queryBuilder := query.NewQueryBuilder()
@@ -53,14 +37,14 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 		suite.IsType(&notificationsop.IndexNotificationsOK{}, response)
 		okResponse := response.(*notificationsop.IndexNotificationsOK)
 		suite.Len(okResponse.Payload, 2)
-		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
+		suite.Equal(notification0.ID.String(), okResponse.Payload[0].ID.String())
 	})
 
-	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
+	suite.Run("unsuccesful response when fetch fails", func() {
 		queryFilter := mocks.QueryFilter{}
 		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 		params := notificationsop.IndexNotificationsParams{
-			HTTPRequest: req,
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/notifications"),
 		}
 		expectedError := models.ErrFetchNotFound
 		listFetcher := &mocks.ListFetcher{}

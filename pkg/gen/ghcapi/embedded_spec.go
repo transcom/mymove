@@ -1309,6 +1309,49 @@ func init() {
         }
       ]
     },
+    "/moves/{locator}/customer-support-remarks": {
+      "get": {
+        "description": "Fetches customer support remarks for a move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Fetches customer support remarks using the move code (locator).",
+        "operationId": "getCustomerSupportRemarksForMove",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/CustomerSupportRemarks"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "string",
+          "description": "move code to identify a move for customer support remarks",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{locator}/payment-requests": {
       "get": {
         "description": "Fetches payment requests for a move",
@@ -3622,6 +3665,69 @@ func init() {
         "FIRST",
         "SECOND"
       ]
+    },
+    "CustomerSupportRemark": {
+      "description": "A text remark written by an office user that is associated with a specific move.",
+      "type": "object",
+      "required": [
+        "id",
+        "moveID",
+        "officeUserID",
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "string",
+          "example": "This is a remark about a move."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeUserEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "readOnly": true
+        },
+        "officeUserFirstName": {
+          "type": "string",
+          "readOnly": true,
+          "example": "Grace"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeUserLastName": {
+          "type": "string",
+          "readOnly": true,
+          "example": "Griffin"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "CustomerSupportRemarks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CustomerSupportRemark"
+      }
     },
     "DenySITExtension": {
       "properties": {
@@ -8068,6 +8174,61 @@ func init() {
         }
       ]
     },
+    "/moves/{locator}/customer-support-remarks": {
+      "get": {
+        "description": "Fetches customer support remarks for a move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Fetches customer support remarks using the move code (locator).",
+        "operationId": "getCustomerSupportRemarksForMove",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/CustomerSupportRemarks"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "string",
+          "description": "move code to identify a move for customer support remarks",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{locator}/payment-requests": {
       "get": {
         "description": "Fetches payment requests for a move",
@@ -10782,6 +10943,69 @@ func init() {
         "FIRST",
         "SECOND"
       ]
+    },
+    "CustomerSupportRemark": {
+      "description": "A text remark written by an office user that is associated with a specific move.",
+      "type": "object",
+      "required": [
+        "id",
+        "moveID",
+        "officeUserID",
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "string",
+          "example": "This is a remark about a move."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeUserEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "readOnly": true
+        },
+        "officeUserFirstName": {
+          "type": "string",
+          "readOnly": true,
+          "example": "Grace"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "officeUserLastName": {
+          "type": "string",
+          "readOnly": true,
+          "example": "Griffin"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "CustomerSupportRemarks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CustomerSupportRemark"
+      }
     },
     "DenySITExtension": {
       "properties": {

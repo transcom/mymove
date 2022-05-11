@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router';
+import { generatePath, MemoryRouter } from 'react-router';
 
 import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
@@ -9,6 +9,7 @@ import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 
 const mockPush = jest.fn();
+
 const mockMoveId = 'move123';
 
 jest.mock('react-router-dom', () => ({
@@ -81,17 +82,17 @@ beforeEach(() => {
 describe('DateAndLocation component', () => {
   describe('creating a new PPM shipment', () => {
     it('renders the heading and empty form', () => {
-      render(<DateAndLocation {...defaultProps} />);
+      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
     });
 
     it('routes back to the new shipment type screen when back is clicked', async () => {
+      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
+
       const selectShipmentType = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
         moveId: mockMoveId,
       });
-
-      render(<DateAndLocation {...defaultProps} />);
 
       const backButton = await screen.getByRole('button', { name: 'Back' });
       userEvent.click(backButton);
@@ -102,7 +103,7 @@ describe('DateAndLocation component', () => {
     it('calls create shipment endpoint and formats required payload values', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
-      render(<DateAndLocation {...defaultProps} />);
+      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       userEvent.type(primaryPostalCodes[0], '10001');
@@ -141,7 +142,7 @@ describe('DateAndLocation component', () => {
     it('displays an error alert when the create shipment fails', async () => {
       createMTOShipment.mockRejectedValueOnce('fatal error');
 
-      render(<DateAndLocation {...defaultProps} />);
+      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       userEvent.type(primaryPostalCodes[0], '10001');
@@ -174,7 +175,7 @@ describe('DateAndLocation component', () => {
     it('calls create shipment endpoint and formats optional payload values', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
-      render(<DateAndLocation {...defaultProps} />);
+      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       userEvent.type(primaryPostalCodes[0], '10001');
@@ -223,7 +224,7 @@ describe('DateAndLocation component', () => {
 
   describe('editing an existing PPM shipment', () => {
     it('renders the heading and form with shipment values', async () => {
-      render(<DateAndLocation {...fullShipmentProps} />);
+      render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
 
@@ -242,9 +243,9 @@ describe('DateAndLocation component', () => {
     });
 
     it('routes back to the home page screen when back is clicked', async () => {
-      const selectShipmentType = generatePath(generalRoutes.HOME_PATH);
+      render(<DateAndLocation {...defaultProps} {...fullShipmentProps} />, { wrapper: MemoryRouter });
 
-      render(<DateAndLocation {...defaultProps} {...fullShipmentProps} />);
+      const selectShipmentType = generatePath(generalRoutes.HOME_PATH);
 
       userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
@@ -254,7 +255,7 @@ describe('DateAndLocation component', () => {
     it('displays an error alert when the update shipment fails', async () => {
       patchMTOShipment.mockRejectedValueOnce('fatal error');
 
-      render(<DateAndLocation {...fullShipmentProps} />);
+      render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
 
       userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -287,7 +288,7 @@ describe('DateAndLocation component', () => {
     it('calls update shipment endpoint and formats optional payload values', async () => {
       patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
 
-      render(<DateAndLocation {...fullShipmentProps} />);
+      render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       userEvent.clear(primaryPostalCodes[0]);

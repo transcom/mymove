@@ -12,7 +12,6 @@ package mtoserviceitem
 import (
 	"errors"
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -167,6 +166,13 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 // Should return a message stating that service items can't be created if
 // the move is not in approved status.
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove() {
+
+	// TESTCASE SCENARIO
+	// Under test: CreateMTOServiceItem function
+	// Set up:     We create an unapproved move and attempt to create service items on it.
+	// Expected outcome:
+	//             Error because we cannot create service items before move is approved.
+
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	creator := NewMTOServiceItemCreator(builder, moveRouter)
@@ -188,23 +194,30 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
-	serviceItem := suite.buildValidDDFSITServiceItemWithValidMove()
-	move := serviceItem.MoveTaskOrder
-	shutServiceItem := suite.buildValidDOSHUTServiceItemWithValidMove()
-	shutMove := shutServiceItem.MoveTaskOrder
+
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 	// Happy path: If the service item is created successfully it should be returned
-	suite.T().Run("200 Success - SIT Service Item Creation", func(t *testing.T) {
-		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
+	suite.Run("200 Success - SIT Service Item Creation", func() {
+
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     We create an approved move and attempt to create DDFSIT service item on it.
+		// Expected outcome:
+		//             3 SIT items are created, status of move is APPROVALS_REQUESTED
+
+		sitServiceItem := suite.buildValidDDFSITServiceItemWithValidMove()
+		sitMove := sitServiceItem.MoveTaskOrder
+
+		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(createdServiceItems)
 
 		var foundMove models.Move
-		err = suite.DB().Find(&foundMove, move.ID)
+		err = suite.DB().Find(&foundMove, sitMove.ID)
 		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
@@ -214,7 +227,17 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	})
 
 	// Happy path: If the service item is created successfully it should be returned
-	suite.T().Run("200 Success - SHUT Service Item Creation", func(t *testing.T) {
+	suite.Run("200 Success - SHUT Service Item Creation", func() {
+
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     We create an approved move and attempt to create DOSHUT service item on it.
+		// Expected outcome:
+		//             DOSHUT service item is successfully created and returned
+
+		shutServiceItem := suite.buildValidDOSHUTServiceItemWithValidMove()
+		shutMove := shutServiceItem.MoveTaskOrder
+
 		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &shutServiceItem)
 
 		var foundMove models.Move
@@ -231,7 +254,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	})
 
 	// Status default value: If we try to create an mto service item and haven't set the status, we default to SUBMITTED
-	suite.T().Run("success using default status value", func(t *testing.T) {
+	suite.Run("success using default status value", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     We create an approved move and attempt to create a service item without a status
+		// Expected outcome:
+		//             Service item is created and has a status of Submitted
+
 		serviceItemNoStatus := suite.buildValidServiceItemWithNoStatusAndValidMove()
 		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemNoStatus)
 		suite.NoError(err)
@@ -243,7 +272,16 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 	// If error when trying to create, the create should fail.
 	// Bad data which could be IDs that doesn't exist (MoveTaskOrderID or REServiceID)
-	suite.T().Run("creation error", func(t *testing.T) {
+	suite.Run("creation error", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Mocked:     QueryBuilder
+		// Set up:     We create an approved move and mock the query builder to return an error
+		// Expected outcome:
+		//             Handler returns an error
+
+		sitServiceItem := suite.buildValidDDFSITServiceItemWithValidMove()
+
 		expectedError := "Can't create service item for some reason"
 		verrs := validate.NewErrors()
 		verrs.Add("test", expectedError)
@@ -273,13 +311,18 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			createNewBuilder: fakeCreateNewBuilder,
 		}
 
-		createdServiceItems, verrs, _ := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
+		createdServiceItems, verrs, _ := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
 		suite.Error(verrs)
 		suite.Nil(createdServiceItems)
 	})
 
 	// Should return a "NotFoundError" if the MTO ID is nil
-	suite.T().Run("moveID not found", func(t *testing.T) {
+	suite.Run("moveID not found", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create service item on a non-existent move ID
+		// Expected outcome:
+		//             Not found error returned, no new service items created
 		notFoundID := uuid.Must(uuid.NewV4())
 		serviceItemNoMTO := models.MTOServiceItem{
 			MoveTaskOrderID: notFoundID,
@@ -293,11 +336,20 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	})
 
 	// Should return a "NotFoundError" if the reServiceCode passed in isn't found on the table
-	suite.T().Run("reServiceCode not found", func(t *testing.T) {
+	suite.Run("reServiceCode not found", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create service item with a nonexistent service code
+		// Expected outcome:
+		//             Not found error returned, no new service items created
+
+		sitServiceItem := suite.buildValidDDFSITServiceItemWithValidMove()
+		sitMove := sitServiceItem.MoveTaskOrder
+
 		fakeCode := models.ReServiceCode("FAKE")
 		serviceItemBadCode := models.MTOServiceItem{
-			MoveTaskOrderID: move.ID,
-			MoveTaskOrder:   move,
+			MoveTaskOrderID: sitMove.ID,
+			MoveTaskOrder:   sitMove,
 			ReService: models.ReService{
 				Code: fakeCode,
 			},
@@ -312,7 +364,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 	// Should be able to create a service item with code ReServiceCodeMS or ReServiceCodeCS without a shipment,
 	// and it should come back as "APPROVED"
-	suite.T().Run("ReServiceCodeCS creation approved", func(t *testing.T) {
+	suite.Run("ReServiceCodeCS creation approved", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create an approved move with no shipments. Then create service items for CS or MS.
+		// Expected outcome:
+		//             Success, CS and MS can be created on moves without shipments.
+
+		move := testdatagen.MakeAvailableMove(suite.DB())
 		reServiceCS := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeCS,
@@ -330,11 +389,35 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		createdServiceItemCSList := *createdServiceItemsCS
 		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
+
+		reServiceMS := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeMS,
+			},
+		})
+		serviceItemMS := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceMS,
+		}
+
+		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
+		suite.NotNil(createdServiceItemsMS)
+		suite.NoError(err)
+
+		createdServiceItemMSList := *createdServiceItemsMS
+		suite.Equal(createdServiceItemMSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 	})
 
-	// Should return a "NotFoundError" if the mtoShipmentID passed in isn't found
-	// OR if it isn't linked to the mtoID passed in
-	suite.T().Run("mtoShipmentID not found", func(t *testing.T) {
+	// Should return a "NotFoundError" if the mtoShipmentID isn't linked to the mtoID passed in
+	suite.Run("mtoShipmentID not found", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create service item on a shipment that is not related to the move
+		// Expected outcome:
+		//             Not found error returned, no new service items created
+
+		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
@@ -358,7 +441,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	})
 
 	// If the service item we're trying to create is shuttle service and there is no estimated weight, it fails.
-	suite.T().Run("MTOServiceItemShuttle no prime weight", func(t *testing.T) {
+	suite.Run("MTOServiceItemShuttle no prime weight", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DDSHUT service item on a shipment without estimated weight
+		// Expected outcome:
+		//             Conflict error returned, no new service items created
+
+		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -384,11 +474,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.IsType(apperror.ConflictError{}, err)
 	})
 
-	// The timeMilitary fields need to be in the correct format.
-	suite.T().Run("timeMilitary formatting for DDFSIT", func(t *testing.T) {
+	setupDDFSITData := func() (models.MTOServiceItemCustomerContact, models.MTOServiceItem) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
+		reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
+
 		contact := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
 			FirstAvailableDeliveryDate: time.Now(),
@@ -400,147 +492,147 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			MTOShipmentID:   &shipment.ID,
 			Status:          models.MTOServiceItemStatusSubmitted,
 			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
+				Code: reServiceDDFSIT.Code,
 			},
 		}
+		return contact, serviceItemDDFSIT
+	}
+	// The timeMilitary fields need to be in the correct format.
+	suite.Run("Check DDFSIT timeMilitary=HH:MMZ", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DDFSIT service item with a bad time "10:30Z"
+		// Expected outcome: InvalidInput error returned, no new service items created
+		contact, serviceItemDDFSIT := setupDDFSITData()
+		contact.TimeMilitary = "10:30Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
-		suite.T().Run("timeMilitary=HH:MMZ", func(t *testing.T) {
-			contact.TimeMilitary = "10:30Z"
-			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "timeMilitary")
+	})
 
-			suite.Nil(createdServiceItems)
-			suite.Error(err)
-			suite.IsType(apperror.InvalidInputError{}, err)
-			suite.Contains(err.Error(), "timeMilitary")
-		})
+	suite.Run("timeMilitary=XXMMZ bad hours", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DDFSIT service item with a bad time "2645Z"
+		// Expected outcome: InvalidInput error returned, no new service items created
+		contact, serviceItemDDFSIT := setupDDFSITData()
+		contact.TimeMilitary = "2645Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
-		suite.T().Run("timeMilitary=XXMMZ bad hours", func(t *testing.T) {
-			contact.TimeMilitary = "2645Z"
-			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "timeMilitary")
+		suite.Contains(err.Error(), "hours must be between 00 and 23")
+	})
 
-			suite.Nil(createdServiceItems)
-			suite.Error(err)
-			suite.IsType(apperror.InvalidInputError{}, err)
-			suite.Contains(err.Error(), "timeMilitary")
-			suite.Contains(err.Error(), "hours must be between 00 and 23")
-		})
+	suite.Run("timeMilitary=HHXXZ bad minutes", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DDFSIT service item with a bad time "2167Z"
+		// Expected outcome: InvalidInput error returned, no new service items created
+		contact, serviceItemDDFSIT := setupDDFSITData()
+		contact.TimeMilitary = "2167Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
-		suite.T().Run("timeMilitary=HHXXZ bad minutes", func(t *testing.T) {
-			contact.TimeMilitary = "2167Z"
-			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "timeMilitary")
+		suite.Contains(err.Error(), "minutes must be between 00 and 59")
+	})
 
-			suite.Nil(createdServiceItems)
-			suite.Error(err)
-			suite.IsType(apperror.InvalidInputError{}, err)
-			suite.Contains(err.Error(), "timeMilitary")
-			suite.Contains(err.Error(), "minutes must be between 00 and 59")
-		})
+	suite.Run("timeMilitary=HHMMX bad suffix", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DDFSIT service item with a bad time "2050M"
+		// Expected outcome: InvalidInput error returned, no new service items created
+		contact, serviceItemDDFSIT := setupDDFSITData()
+		contact.TimeMilitary = "2050M"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
-		suite.T().Run("timeMilitary=HHXXZ bad minutes", func(t *testing.T) {
-			contact.TimeMilitary = "2167Z"
-			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "timeMilitary")
+		suite.Contains(err.Error(), "must end with 'Z'")
+	})
 
-			suite.Nil(createdServiceItems)
-			suite.Error(err)
-			suite.IsType(apperror.InvalidInputError{}, err)
-			suite.Contains(err.Error(), "timeMilitary")
-			suite.Contains(err.Error(), "minutes must be between 00 and 59")
-		})
+	suite.Run("timeMilitary=HHMMZ success", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DDFSIT service item with a correctly formatted time"
+		// Expected outcome: Success, service items created.
+		contact, serviceItemDDFSIT := setupDDFSITData()
+		contact.TimeMilitary = "1405Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
-		suite.T().Run("timeMilitary=HHMMX bad suffix", func(t *testing.T) {
-			contact.TimeMilitary = "2050M"
-			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
-
-			suite.Nil(createdServiceItems)
-			suite.Error(err)
-			suite.IsType(apperror.InvalidInputError{}, err)
-			suite.Contains(err.Error(), "timeMilitary")
-			suite.Contains(err.Error(), "must end with 'Z'")
-		})
-
-		suite.T().Run("timeMilitary=HHMMZ success", func(t *testing.T) {
-			contact := models.MTOServiceItemCustomerContact{
-				Type:                       models.CustomerContactTypeFirst,
-				FirstAvailableDeliveryDate: time.Now(),
-			}
-			serviceItemDDFSIT := models.MTOServiceItem{
-				MoveTaskOrderID: move.ID,
-				MoveTaskOrder:   move,
-				Status:          models.MTOServiceItemStatusSubmitted,
-				ReService: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			}
-
-			contact.TimeMilitary = "1405Z"
-			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
-
-			suite.NotNil(createdServiceItems)
-			suite.NoError(err)
-		})
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
 	})
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
+
 	// Set up data to use for all Origin SIT Service Item tests
-	move := testdatagen.MakeAvailableMove(suite.DB())
-	move.Status = models.MoveStatusAPPROVED
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	var reServiceDOASIT models.ReService
+	var reServiceDOFSIT models.ReService
+	var reServiceDOPSIT models.ReService
 
-	reServiceDOASIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOASIT,
-		},
-	})
+	setupTestData := func() models.MTOShipment {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
 
-	reServiceDOFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOFSIT,
-		},
-	})
+		reServiceDOASIT = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+		})
 
-	reServiceDOPSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOPSIT,
-		},
-	})
+		reServiceDOFSIT = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+		})
 
-	serviceItemDOASIT := models.MTOServiceItem{
-		MoveTaskOrder:   move,
-		MoveTaskOrderID: move.ID,
-		MTOShipment:     mtoShipment,
-		MTOShipmentID:   &mtoShipment.ID,
-		ReService:       reServiceDOASIT,
-		Status:          models.MTOServiceItemStatusSubmitted,
+		reServiceDOPSIT = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
+		})
+		return mtoShipment
 	}
 
 	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
 	sitPostalCode := "99999"
 	reason := "lorem ipsum"
 
-	suite.T().Run("Failure - 422 Cannot create DOFSIT service item with non-null address.ID", func(t *testing.T) {
-		testMove := testdatagen.MakeAvailableMove(suite.DB())
-		testMove.Status = models.MoveStatusAPPROVED
-		testMtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testMove,
-		})
+	suite.Run("Failure - 422 Cannot create DOFSIT service item with non-null address.ID", func() {
+
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DOFSIT service item with a non-null address ID
+		// Expected outcome: InvalidInput error returned, no new service items created
+		shipment := setupTestData()
 
 		// Create and address where ID != uuid.Nil
 		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
 
 		serviceItemDOFSIT := models.MTOServiceItem{
-			MoveTaskOrder:             testMove,
-			MoveTaskOrderID:           testMove.ID,
-			MTOShipment:               testMtoShipment,
-			MTOShipmentID:             &testMtoShipment.ID,
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
 			ReService:                 reServiceDOFSIT,
 			SITEntryDate:              &sitEntryDate,
 			SITPostalCode:             &sitPostalCode,
@@ -560,9 +652,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 	})
 
-	suite.T().Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT", func(t *testing.T) {
+	suite.Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DOFSIT service item with a new address
+		// Expected outcome: Success, 3 service items created
+
 		// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
 		// creating DOFSIT (SIT origin first day).
+		shipment := setupTestData()
 
 		// Do not create Address in the database (Assertions.Stub = true) because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
@@ -571,10 +669,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		actualPickupAddress.ID = uuid.Nil
 
 		serviceItemDOFSIT := models.MTOServiceItem{
-			MoveTaskOrder:             move,
-			MoveTaskOrderID:           move.ID,
-			MTOShipment:               mtoShipment,
-			MTOShipmentID:             &mtoShipment.ID,
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
 			ReService:                 reServiceDOFSIT,
 			SITEntryDate:              &sitEntryDate,
 			SITPostalCode:             &sitPostalCode,
@@ -620,10 +718,55 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.Equal(1, numDOPSITFound)
 	})
 
-	suite.T().Run("Create standalone DOASIT item for shipment if existing DOFSIT", func(t *testing.T) {
+	setupDOFSIT := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
+		// Create DOFSIT
+		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		actualPickupAddress.ID = uuid.Nil
+
+		serviceItemDOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceDOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
+
+		// Successful creation of DOFSIT
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		return creator
+	}
+
+	suite.Run("Create standalone DOASIT item for shipment if existing DOFSIT", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DOFSIT service item successfully
+		//             Create DOASIT item on existing DOFSIT
+		// Expected outcome: Success, DOASIT item created
+
+		shipment := setupTestData()
+		creator := setupDOFSIT(shipment)
+
+		// Create DOASIT
+		serviceItemDOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceDOASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
 
@@ -640,15 +783,29 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.EqualValues(*createdDOASITItem.SITPostalCode, sitPostalCode)
 	})
 
-	suite.T().Run("Failure - 422 Create standalone DOASIT item for shipment does not match existing DOFSIT addresses", func(t *testing.T) {
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
-		creator := NewMTOServiceItemCreator(builder, moveRouter)
+	suite.Run("Failure - 422 Create standalone DOASIT item for shipment does not match existing DOFSIT addresses", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DOFSIT service item successfully
+		//             Create DOASIT item on existing DOFSIT but with non-matching address
+		// Expected outcome: Invalid input error, no service items created
+
+		shipment := setupTestData()
+		creator := setupDOFSIT(shipment)
 
 		// Change pickup address
-		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		serviceItemDOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceDOASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
+
+		actualPickupAddress2 := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
 		existingServiceItem := &serviceItemDOASIT
-		existingServiceItem.SITOriginHHGActualAddress = &actualPickupAddress
+		existingServiceItem.SITOriginHHGActualAddress = &actualPickupAddress2
 
 		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), existingServiceItem)
 		suite.Nil(createdServiceItems)
@@ -656,20 +813,26 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("Do not create DOFSIT if one already exists for the shipment", func(t *testing.T) {
+	suite.Run("Do not create DOFSIT if one already exists for the shipment", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DOFSIT service item successfully
+		//             Create another DOFSIT item on the same shipment
+		// Expected outcome: Conflict error, no new DOFSIT item created
+
+		shipment := setupTestData()
+		creator := setupDOFSIT(shipment)
+
 		serviceItemDOFSIT := models.MTOServiceItem{
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
-			MTOShipment:     mtoShipment,
-			MTOShipmentID:   &mtoShipment.ID,
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
 			ReService:       reServiceDOFSIT,
 			SITEntryDate:    &sitEntryDate,
 			SITPostalCode:   &sitPostalCode,
 			Reason:          &reason,
 		}
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
-		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
@@ -677,16 +840,19 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.IsType(apperror.ConflictError{}, err)
 	})
 
-	suite.T().Run("Do not create standalone DOPSIT service item", func(t *testing.T) {
-		mtoShipmentNoServiceItems := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+	suite.Run("Do not create standalone DOPSIT service item", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a DOPSIT item on it
+		// Expected outcome: Invalid input error, can't create standalone DOPSIT, no DOPSIT item created
+
+		shipment := setupTestData()
 
 		serviceItemDOPSIT := models.MTOServiceItem{
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
-			MTOShipment:     mtoShipmentNoServiceItems,
-			MTOShipmentID:   &mtoShipmentNoServiceItems.ID,
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
 			ReService:       reServiceDOPSIT,
 		}
 
@@ -702,16 +868,18 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 	})
 
-	suite.T().Run("Do not create standalone DOASIT if there is no DOFSIT on shipment", func(t *testing.T) {
-		mtoShipmentNoServiceItems := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+	suite.Run("Do not create standalone DOASIT if there is no DOFSIT on shipment", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a DOASIT item on it
+		// Expected outcome: Invalid input error, can't create standalone DOASIT, no DOASIT item created
+		shipment := setupTestData()
 
 		serviceItemDOASIT := models.MTOServiceItem{
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
-			MTOShipment:     mtoShipmentNoServiceItems,
-			MTOShipmentID:   &mtoShipmentNoServiceItems.ID,
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
 			ReService:       reServiceDOASIT,
 		}
 
@@ -726,22 +894,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Do not create DOASIT if the DOFSIT ReService Code is bad", func(t *testing.T) {
+	suite.Run("Do not create DOASIT if the DOFSIT ReService Code is bad", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a DOFSIT item on it
+		//             Create a serviceItem with type DOASIT but a bad reServiceCode
+		// Expected outcome: Not found error, can't create DOASIT
+		shipment := setupTestData()
+		creator := setupDOFSIT(shipment)
 		badReService := models.ReService{
 			Code: "bad code",
 		}
 
 		serviceItemDOASIT := models.MTOServiceItem{
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
-			MTOShipment:     mtoShipment,
-			MTOShipmentID:   &mtoShipment.ID,
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
 			ReService:       badReService,
 		}
-
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
-		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
 
@@ -770,7 +941,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 	sitPostalCode := "99999"
 	reason := "lorem ipsum"
 
-	suite.T().Run("Fail to create DOFSIT service item due to missing SITOriginHHGActualAddress", func(t *testing.T) {
+	suite.Run("Fail to create DOFSIT service item due to missing SITOriginHHGActualAddress", func() {
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:   move,
@@ -795,23 +966,44 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 
 // TestCreateDestSITServiceItem tests the creation of destination SIT service items
 func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
-		},
-	})
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
-	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
-	creator := NewMTOServiceItemCreator(builder, moveRouter)
 
-	reServiceDDFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDFSIT,
-		},
-	})
+	setupTestData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
+
+		reServiceDDFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		})
+		return shipment, creator, reServiceDDFSIT
+
+	}
+
+	setupAdditionalSIT := func() (models.ReService, models.ReService) {
+		// These codes will be needed for the following tests:
+		reServiceDDASIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDASIT,
+			},
+		})
+		reServiceDDDSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDDSIT,
+			},
+		})
+		return reServiceDDASIT, reServiceDDDSIT
+	}
+
 	sitEntryDate := time.Now()
 	contact1 := models.MTOServiceItemCustomerContact{
 		Type:                       models.CustomerContactTypeFirst,
@@ -829,7 +1021,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	var successfulDDFSIT models.MTOServiceItem // set in the success test for DDFSIT and used in other tests
 
 	// Failed creation of DDFSIT because DDASIT/DDDSIT codes are not found in DB
-	suite.T().Run("Failure - no DDASIT/DDDSIT codes", func(t *testing.T) {
+	suite.Run("Failure - no DDASIT/DDDSIT codes", func() {
+
+		shipment, creator, reServiceDDFSIT := setupTestData()
 		serviceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID:  shipment.MoveTaskOrderID,
 			MoveTaskOrder:    shipment.MoveTaskOrder,
@@ -848,20 +1042,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Contains(err.Error(), "service code")
 	})
 
-	// These codes will be needed for the following tests:
-	reServiceDDASIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDASIT,
-		},
-	})
-	reServiceDDDSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDDSIT,
-		},
-	})
-
 	// Failed creation of DDFSIT because CustomerContacts has invalid data
-	suite.T().Run("Failure - bad CustomerContacts", func(t *testing.T) {
+	suite.Run("Failure - bad CustomerContacts", func() {
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		setupAdditionalSIT()
+
 		badContact1 := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
 			FirstAvailableDeliveryDate: sitEntryDate,
@@ -894,7 +1079,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	// Successful creation of DDFSIT service item and the extra DDASIT/DDDSIT items
-	suite.T().Run("Success - DDFSIT creation approved", func(t *testing.T) {
+	suite.Run("Success - DDFSIT creation approved", func() {
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		setupAdditionalSIT()
+
 		serviceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID:  shipment.MoveTaskOrderID,
 			MoveTaskOrder:    shipment.MoveTaskOrder,
@@ -940,7 +1128,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	// Failed creation of DDFSIT because of duplicate service for shipment
-	suite.T().Run("Failure - duplicate DDFSIT", func(t *testing.T) {
+	suite.Run("Failure - duplicate DDFSIT", func() {
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		setupAdditionalSIT()
+
 		serviceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID:  shipment.MoveTaskOrderID,
 			MoveTaskOrder:    shipment.MoveTaskOrder,
@@ -953,6 +1144,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		// Make a second attempt to add a DDFSIT
+		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
@@ -960,7 +1156,27 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	// Successful creation of DDASIT service item
-	suite.T().Run("Success - DDASIT creation approved", func(t *testing.T) {
+	suite.Run("Success - DDASIT creation approved", func() {
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		reServiceDDASIT, _ := setupAdditionalSIT()
+
+		// First create a DDFSIT because it's required to request a DDASIT
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: contacts,
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		// Then attempt to create a DDASIT
 		serviceItemDDASIT := models.MTOServiceItem{
 			MoveTaskOrderID: shipment.MoveTaskOrderID,
 			MoveTaskOrder:   shipment.MoveTaskOrder,
@@ -970,7 +1186,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
+		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 		suite.Equal(len(*createdServiceItems), 1)
@@ -984,9 +1200,23 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	// Failed creation of DDASIT service item due to no DDFSIT on shipment
-	suite.T().Run("Failure - DDASIT creation needs DDFSIT", func(t *testing.T) {
+	suite.Run("Failure - DDASIT creation needs DDFSIT", func() {
+
+		// Make the necessary SIT code objects
+		reServiceDDASIT, _ := setupAdditionalSIT()
+		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		})
+
+		// Make a shipment with no DDFSIT
+		now := time.Now()
 		shipmentNoDDFSIT := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+				Status:             models.MoveStatusAPPROVED,
+			},
 		})
 		serviceItemDDASIT := models.MTOServiceItem{
 			MoveTaskOrderID: shipmentNoDDFSIT.MoveTaskOrderID,
@@ -997,6 +1227,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
 
 		suite.Nil(createdServiceItems)
@@ -1007,12 +1240,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	// Failed creation of DDDSIT service item
-	suite.T().Run("Failure - cannot create DDDSIT", func(t *testing.T) {
+	suite.Run("Failure - cannot create DDDSIT", func() {
+		shipment, creator, _ := setupTestData()
+		_, reServiceDDDSIT := setupAdditionalSIT()
+
 		serviceItemDDDSIT := models.MTOServiceItem{
-			MoveTaskOrderID:  shipment.MoveTaskOrderID,
 			MoveTaskOrder:    shipment.MoveTaskOrder,
-			MTOShipmentID:    &shipment.ID,
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
 			MTOShipment:      shipment,
+			MTOShipmentID:    &shipment.ID,
 			ReService:        reServiceDDDSIT,
 			SITEntryDate:     &sitEntryDate,
 			CustomerContacts: contacts,

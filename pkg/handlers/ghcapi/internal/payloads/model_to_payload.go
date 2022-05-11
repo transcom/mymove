@@ -68,6 +68,39 @@ func Move(move *models.Move) *ghcmessages.Move {
 	return payload
 }
 
+// CustomerSupportRemark payload
+func CustomerSupportRemark(customerSupportRemark *models.CustomerSupportRemark) *ghcmessages.CustomerSupportRemark {
+	if customerSupportRemark == nil {
+		return nil
+	}
+	id := strfmt.UUID(customerSupportRemark.ID.String())
+	moveID := strfmt.UUID(customerSupportRemark.MoveID.String())
+	officeUserID := strfmt.UUID(customerSupportRemark.OfficeUserID.String())
+
+	payload := &ghcmessages.CustomerSupportRemark{
+		Content:             &customerSupportRemark.Content,
+		ID:                  &id,
+		CreatedAt:           strfmt.DateTime(customerSupportRemark.CreatedAt),
+		UpdatedAt:           strfmt.DateTime(customerSupportRemark.UpdatedAt),
+		MoveID:              &moveID,
+		OfficeUserEmail:     customerSupportRemark.OfficeUser.Email,
+		OfficeUserFirstName: customerSupportRemark.OfficeUser.FirstName,
+		OfficeUserID:        &officeUserID,
+		OfficeUserLastName:  customerSupportRemark.OfficeUser.LastName,
+	}
+	return payload
+}
+
+// CustomerSupportRemarks payload
+func CustomerSupportRemarks(customerSupportRemarks models.CustomerSupportRemarks) ghcmessages.CustomerSupportRemarks {
+	payload := make(ghcmessages.CustomerSupportRemarks, len(customerSupportRemarks))
+	for i, v := range customerSupportRemarks {
+		customerSupportRemark := v
+		payload[i] = CustomerSupportRemark(&customerSupportRemark)
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{

@@ -17,5 +17,6 @@
   .details {
     @include u-font-size('base', 4);
     color: $base-darker;
+    max-width: 500px;
   }
 }

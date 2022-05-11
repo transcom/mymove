@@ -34,14 +34,14 @@ describe('MoveHistoryDetailsSelector', () => {
     };
     it('renders the labeled details appropriately', () => {
       render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
-      expect(screen.getByText('Billable weight cap')).toBeInTheDocument();
+      expect(screen.getByText('Billable weight')).toBeInTheDocument();
       expect(screen.getByText(200, { exact: false })).toBeInTheDocument();
       expect(screen.getByText('Customer remarks')).toBeInTheDocument();
       expect(screen.getByText('Test customer remarks', { exact: false })).toBeInTheDocument();
     });
   });
 
-  describe('handle a payments details event', () => {
+  describe('handle a payments details update event', () => {
     const historyRecord = {
       action: 'UPDATE',
       changedValues: { status: 'REVIEWED', reviewed_at: '2022-04-27T20:56:24.867071' },
@@ -66,6 +66,18 @@ describe('MoveHistoryDetailsSelector', () => {
       expect(screen.getByText(101.23, { exact: false })).toBeInTheDocument();
       expect(screen.getByText('Domestic uncrating')).toBeInTheDocument();
       expect(screen.getByText(55.55, { exact: false })).toBeInTheDocument();
+    });
+  });
+
+  describe('handle a payments details insert event', () => {
+    const historyRecord = {
+      action: 'INSERT',
+      eventName: 'updateReweigh',
+      tableName: 'payment_requests',
+    };
+    it('renders the payment details appropriately', () => {
+      render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
+      expect(screen.getByText('Pending', { exact: false })).toBeInTheDocument();
     });
   });
 });

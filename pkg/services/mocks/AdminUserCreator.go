@@ -10,6 +10,8 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
+	testing "testing"
+
 	validate "github.com/gobuffalo/validate/v3"
 )
 
@@ -48,4 +50,14 @@ func (_m *AdminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, user *
 	}
 
 	return r0, r1, r2
+}
+
+// NewAdminUserCreator creates a new instance of AdminUserCreator. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewAdminUserCreator(t testing.TB) *AdminUserCreator {
+	mock := &AdminUserCreator{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

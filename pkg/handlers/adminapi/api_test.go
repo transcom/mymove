@@ -1,7 +1,11 @@
 package adminapi
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -19,8 +23,8 @@ type HandlerSuite struct {
 }
 
 // AfterTest completes tests by trying to close open files
-func (suite *HandlerSuite) AfterTest() {
-	for _, file := range suite.TestFilesToClose() {
+func (hs *HandlerSuite) AfterTest() {
+	for _, file := range hs.TestFilesToClose() {
 		//RA Summary: gosec - errcheck - Unchecked return value
 		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
 		//RA: Functions with unchecked return values in the file are used to close a local server connection to ensure a unit test server is not left running indefinitely
@@ -31,6 +35,12 @@ func (suite *HandlerSuite) AfterTest() {
 		// nolint:errcheck
 		file.Data.Close()
 	}
+}
+
+func (hs *HandlerSuite) setupAuthenticatedRequest(method string, url string) *http.Request {
+	requestUser := testdatagen.MakeStubbedUser(hs.DB())
+	req := httptest.NewRequest(method, url, nil)         // We never need to set a body here for these tests, instead
+	return hs.AuthenticateAdminRequest(req, requestUser) // we use the generated Params types to set the request body.
 }
 
 // TestHandlerSuite creates our test suite

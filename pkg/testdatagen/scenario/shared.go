@@ -3583,16 +3583,16 @@ func createApprovedMoveWithMinimalShipment(appCtx appcontext.AppContext, userUpl
 		Move: move,
 	})
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
-	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	// requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	// requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
 
 	shipmentFields := models.MTOShipment{
-		Status:                models.MTOShipmentStatusApproved,
-		RequestedPickupDate:   &requestedPickupDate,
-		RequestedDeliveryDate: &requestedDeliveryDate,
-		PickupAddress:         &pickupAddress,
-		PickupAddressID:       &pickupAddress.ID,
+		Status: models.MTOShipmentStatusApproved,
+		// RequestedPickupDate:   &requestedPickupDate,
+		// RequestedDeliveryDate: &requestedDeliveryDate,
+		PickupAddress:   &pickupAddress,
+		PickupAddressID: &pickupAddress.ID,
 	}
 
 	// Uncomment to create the shipment with a destination address
@@ -4431,6 +4431,47 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 			Email:  email,
 			Active: true,
 			UserID: &servicesCounselorUUID,
+		},
+	})
+}
+
+func createQaeCsr(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
+	email := "qae_csr_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
+	/* A user with tio role */
+	qaeCsrRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaeCsrRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeQaeCsr in the DB: %w", err))
+	}
+
+	qaeCsrUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            qaeCsrUUID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{qaeCsrRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
+			Email:  email,
+			Active: true,
+			UserID: &qaeCsrUUID,
 		},
 	})
 }
@@ -5527,6 +5568,14 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			Status:                models.MTOShipmentStatusSubmitted,
 			RequestedPickupDate:   &requestedPickupDate,
 			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+	officeUser := testdatagen.MakeDefaultOfficeUser(db)
+	testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
+		CustomerSupportRemark: models.CustomerSupportRemark{
+			Content:      "The customer mentioned that they need to provide some more complex instructions for pickup and drop off.",
+			OfficeUserID: officeUser.ID,
+			MoveID:       move.ID,
 		},
 	})
 }
