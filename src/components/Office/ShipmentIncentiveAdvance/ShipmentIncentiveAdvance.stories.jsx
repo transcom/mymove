@@ -51,7 +51,7 @@ export const advanceRequested = () => (
   </Formik>
 );
 
-export const advanceRequestedWithWarning = () => (
+export const advanceRequestedWithError = () => (
   <Formik initialValues={{ advanceRequested: true, amountRequested: '7000' }}>
     {() => {
       return (

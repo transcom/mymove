@@ -77,7 +77,8 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
                     prefix="$"
-                    warning={
+                    error={amountRequested > maximumAdvance}
+                    errorMessage={
                       amountRequested > maximumAdvance
                         ? `Reminder: your advance can not be more than ${formattedMaximumAdvance}`
                         : ''
