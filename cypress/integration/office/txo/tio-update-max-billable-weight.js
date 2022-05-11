@@ -15,6 +15,7 @@ describe('TIO user', () => {
     cy.intercept('**/ghc/v1/move-task-orders/**/billable-weights-reviewed-at').as('getBillableWeight');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('**/ghc/v1/orders/**').as('getOrders');
+    cy.intercept('**/storage/user/**/uploads/**?contentType=application%2Fpdf').as('getUpload');
     cy.intercept('**/ghc/v1/orders/**/update-max-billable-weight/tio').as('updateBillableWeight');
 
     const userId = '3b2cc1b0-31a2-4d1b-874f-0591f9127374';
@@ -39,8 +40,7 @@ describe('TIO user', () => {
 
     cy.get('[data-testid="button"]').contains('Edit').click();
 
-    cy.wait(['@getMoves']);
-    cy.wait(250);
+    cy.wait(['@getMoves', '@getUpload']);
 
     cy.get('fieldset').within((/* $form */) => {
       cy.get('input#billableWeight').click().clear().type('7400');
