@@ -6,13 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/gen/primemessages"
-
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/gobuffalo/validate/v3"
-
 	"github.com/transcom/mymove/pkg/dates"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"

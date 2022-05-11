@@ -4,22 +4,17 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
-
-	"github.com/transcom/mymove/pkg/services"
-
-	"github.com/gofrs/uuid"
-
-	"go.uber.org/zap"
-
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload {

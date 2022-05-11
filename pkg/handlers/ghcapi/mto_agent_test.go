@@ -6,16 +6,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
+	mtoagentop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
-	mtoagentop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
 )
 
 func (suite *HandlerSuite) TestListMTOAgentsHandler() {

@@ -5,16 +5,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/testdatagen"
-
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testingsuite"
-
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 // HandlerSuite is an abstraction of our original suite

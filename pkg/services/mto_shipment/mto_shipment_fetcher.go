@@ -3,13 +3,11 @@ package mtoshipment
 import (
 	"database/sql"
 
-	"github.com/transcom/mymove/pkg/db/utilities"
-
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )

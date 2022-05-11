@@ -3,13 +3,11 @@ package testdatagen
 import (
 	"fmt"
 
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/gobuffalo/pop/v6"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MakePaymentRequest creates a single PaymentRequest and associated set relationships

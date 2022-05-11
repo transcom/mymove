@@ -5,11 +5,10 @@ import (
 	"math"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )

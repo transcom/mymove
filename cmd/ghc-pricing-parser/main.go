@@ -14,9 +14,8 @@ import (
 	"github.com/pterm/pterm/putils"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
-
 	"github.com/tealeg/xlsx/v3"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"

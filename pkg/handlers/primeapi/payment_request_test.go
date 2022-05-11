@@ -6,29 +6,25 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/validate/v3"
-	"github.com/stretchr/testify/assert"
-
-	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/services/audit"
-
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/audit"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 const (

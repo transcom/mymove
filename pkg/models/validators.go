@@ -5,17 +5,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/gen/primemessages"
-
-	"github.com/gofrs/uuid"
-
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
+	"github.com/gofrs/uuid"
 	"github.com/rickar/cal/v2"
 
-	"github.com/gobuffalo/pop/v6"
-
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/unit"
 )
 

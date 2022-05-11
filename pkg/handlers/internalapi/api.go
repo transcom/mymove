@@ -4,22 +4,6 @@ import (
 	"io"
 	"log"
 
-	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
-
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	officeuser "github.com/transcom/mymove/pkg/services/office_user"
-	"github.com/transcom/mymove/pkg/services/order"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/services/ppmshipment"
-
-	"github.com/transcom/mymove/pkg/services/fetch"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	"github.com/transcom/mymove/pkg/services/query"
-
-	move "github.com/transcom/mymove/pkg/services/move"
-	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
-	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
-
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/pkg/errors"
@@ -27,6 +11,18 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	move "github.com/transcom/mymove/pkg/services/move"
+	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+	"github.com/transcom/mymove/pkg/services/order"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // NewInternalAPI returns the internal API

@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
-
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"

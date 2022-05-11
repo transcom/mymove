@@ -12,21 +12,17 @@ package supportapi
 import (
 	"net/http/httptest"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
-
-	"github.com/transcom/mymove/pkg/models"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
 	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/services/query"
-
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

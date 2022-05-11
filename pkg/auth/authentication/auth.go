@@ -12,11 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/notifications"
-
 	"github.com/alexedwards/scs/v2"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -28,7 +23,11 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )

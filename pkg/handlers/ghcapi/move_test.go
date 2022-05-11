@@ -6,18 +6,15 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
-
+	moveops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
-	moveops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 )
 
 func (suite *HandlerSuite) TestGetMoveHandler() {

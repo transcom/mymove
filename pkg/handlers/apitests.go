@@ -10,20 +10,17 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/go-openapi/strfmt"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // BaseHandlerTestSuite abstracts the common methods needed for handler tests

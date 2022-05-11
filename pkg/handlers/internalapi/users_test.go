@@ -6,11 +6,10 @@ import (
 
 	"github.com/go-openapi/swag"
 
-	officeuser "github.com/transcom/mymove/pkg/services/office_user"
-
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )

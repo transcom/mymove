@@ -3,15 +3,14 @@ package models
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/auth"
-
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // WeightTicketSetType represents types of weight ticket sets

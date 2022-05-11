@@ -13,13 +13,11 @@ import (
 	"os"
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

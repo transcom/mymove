@@ -3,24 +3,20 @@ package internalapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
-
-	"github.com/go-openapi/swag"
-
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/query"
-
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 //

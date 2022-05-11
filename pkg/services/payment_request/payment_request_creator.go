@@ -5,16 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"

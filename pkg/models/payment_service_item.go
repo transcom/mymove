@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // PaymentServiceItemStatus is a type of Payment Service Item Status

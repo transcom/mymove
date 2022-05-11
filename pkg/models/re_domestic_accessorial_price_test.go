@@ -3,11 +3,10 @@ package models_test
 import (
 	"testing"
 
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ModelSuite) TestReDomesticAccessorialPriceValidation() {

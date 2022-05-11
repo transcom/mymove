@@ -4,10 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )

@@ -5,9 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 )
 

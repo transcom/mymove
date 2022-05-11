@@ -7,9 +7,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/testdatagen"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestSITExtensionCreation() {

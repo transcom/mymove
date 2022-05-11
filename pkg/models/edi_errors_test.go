@@ -4,10 +4,9 @@ import (
 	"testing"
 
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-
-	"github.com/gofrs/uuid"
 )
 
 func (suite *ModelSuite) TestEdiErrors() {

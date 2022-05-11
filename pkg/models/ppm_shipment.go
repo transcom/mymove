@@ -4,12 +4,11 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/transcom/mymove/pkg/db/utilities"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/unit"
 )
 

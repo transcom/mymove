@@ -18,7 +18,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/route/mocks"

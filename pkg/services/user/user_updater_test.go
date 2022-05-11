@@ -14,16 +14,13 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/notifications/mocks"
-
 	"github.com/transcom/mymove/pkg/appcontext"
-
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/notifications"
-
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/notifications/mocks"
 	adminUser "github.com/transcom/mymove/pkg/services/admin_user"
 	officeUser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/query"

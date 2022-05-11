@@ -5,20 +5,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/etag"
-
-	"github.com/transcom/mymove/pkg/db/utilities"
-
 	"github.com/getlantern/deepcopy"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"

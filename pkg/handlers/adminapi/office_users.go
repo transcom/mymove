@@ -7,9 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
-
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
+	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"

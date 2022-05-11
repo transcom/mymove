@@ -16,30 +16,26 @@ import (
 	"time"
 
 	"github.com/benbjohnson/clock"
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/trace"
-
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/etag"
+	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
+	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/invoice"
-	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/unit"
-
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
-
-	"github.com/go-openapi/strfmt"
-	"github.com/stretchr/testify/mock"
-
-	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/trace"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {

@@ -1,16 +1,12 @@
 package adminapi
 
 import (
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/go-openapi/strfmt"
-
-	"github.com/gofrs/uuid"
-
-	"github.com/go-openapi/runtime/middleware"
-
 	uploadop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"

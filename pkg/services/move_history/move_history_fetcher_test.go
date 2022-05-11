@@ -8,19 +8,17 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-	"github.com/transcom/mymove/pkg/services/reweigh"
-
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/services/reweigh"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
-
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 )
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {

@@ -12,25 +12,20 @@ package mtoserviceitem
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/uploader"
-
-	"github.com/transcom/mymove/pkg/handlers"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
 	"github.com/go-openapi/swag"
-
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {

@@ -14,9 +14,8 @@ import (
 	"os"
 	"testing"
 
-	"go.uber.org/zap"
-
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 func TestReadInSQLLine(t *testing.T) {

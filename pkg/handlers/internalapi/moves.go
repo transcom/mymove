@@ -6,28 +6,24 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/pkg/errors"
-
-	"github.com/transcom/mymove/pkg/appcontext"
-	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
-
-	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/rateengine"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/gobuffalo/validate/v3"
-
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/assets"
+	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )

@@ -16,18 +16,15 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/models"
-
-	"github.com/transcom/mymove/pkg/storage/mocks"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/storage/mocks"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/uploader"

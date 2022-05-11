@@ -3,12 +3,10 @@ package ppmshipment
 import (
 	"github.com/gofrs/uuid"
 
-	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
-
-	"github.com/transcom/mymove/pkg/route/mocks"
-
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
+	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

@@ -3,9 +3,8 @@ package handlers
 import (
 	"time"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/unit"
 )

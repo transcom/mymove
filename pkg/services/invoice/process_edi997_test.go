@@ -9,7 +9,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 

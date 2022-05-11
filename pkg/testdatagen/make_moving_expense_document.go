@@ -3,9 +3,8 @@ package testdatagen
 import (
 	"github.com/gobuffalo/pop/v6"
 
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MakeMovingExpenseDocument creates a single Moving Expense Document.

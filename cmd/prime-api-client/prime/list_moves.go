@@ -8,13 +8,11 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
-
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )

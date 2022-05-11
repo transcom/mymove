@@ -10,18 +10,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gobuffalo/envy"
+	"github.com/gobuffalo/pop/v6"
+	"github.com/gobuffalo/validate/v3"
+	_ "github.com/lib/pq" // Anonymously import lib/pq driver so it's available to Pop
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/random"
-
-	"github.com/gobuffalo/envy"
-	"github.com/gobuffalo/pop/v6"
-	"github.com/gobuffalo/validate/v3"
-
-	_ "github.com/lib/pq" // Anonymously import lib/pq driver so it's available to Pop
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +

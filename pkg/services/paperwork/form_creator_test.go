@@ -12,21 +12,18 @@ package paperwork
 import (
 	"time"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/paperwork/mocks"
-
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/services"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/services/paperwork/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )

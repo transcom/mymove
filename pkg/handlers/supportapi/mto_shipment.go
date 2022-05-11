@@ -1,22 +1,18 @@
 package supportapi
 
 import (
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/transcom/mymove/pkg/models"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-
-	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
-
-	"github.com/go-openapi/runtime/middleware"
-
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 // UpdateMTOShipmentStatusHandlerFunc updates the status of a MTO Shipment

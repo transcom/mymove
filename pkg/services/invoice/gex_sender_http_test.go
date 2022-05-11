@@ -6,10 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testingsuite"
-
-	"github.com/stretchr/testify/suite"
 )
 
 type GexSuite struct {

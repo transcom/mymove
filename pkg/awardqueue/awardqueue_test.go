@@ -13,14 +13,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/testingsuite"
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *AwardQueueSuite) Test_GetTSPsPerBandWithRemainder() {

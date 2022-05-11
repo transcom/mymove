@@ -6,20 +6,18 @@ import (
 	"testing"
 	"time"
 
-	routemocks "github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/services/query"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/query"
 	reweighservice "github.com/transcom/mymove/pkg/services/reweigh"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )

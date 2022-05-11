@@ -10,16 +10,14 @@ import (
 	openapierrors "github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/lib/pq"
-
 	"github.com/gobuffalo/validate/v3"
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/trace"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/trace"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 

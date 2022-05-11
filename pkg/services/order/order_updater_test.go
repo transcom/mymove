@@ -5,22 +5,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/services/move"
-	"github.com/transcom/mymove/pkg/swagger/nullable"
-
 	"github.com/go-openapi/strfmt"
-
-	storageTest "github.com/transcom/mymove/pkg/storage/test"
-
-	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/handlers"
-
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/move"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

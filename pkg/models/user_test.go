@@ -1,15 +1,13 @@
 package models_test
 
 import (
+	"github.com/gofrs/uuid"
 	"github.com/jackc/pgerrcode"
 
-	"github.com/transcom/mymove/pkg/db/dberr"
-	"github.com/transcom/mymove/pkg/models/roles"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/db/dberr"
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	userroles "github.com/transcom/mymove/pkg/services/users_roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )

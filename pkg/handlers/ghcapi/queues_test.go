@@ -10,9 +10,8 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"

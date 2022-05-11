@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	//"github.com/pkg/errors"
 )
 
 func (suite *testSuite) TestValidMethodStaticGet() {

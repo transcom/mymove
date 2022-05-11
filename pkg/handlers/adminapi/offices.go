@@ -3,8 +3,6 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/services/query"
-
 	"github.com/go-openapi/runtime/middleware"
 
 	officeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
@@ -12,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func payloadForOfficeModel(o models.TransportationOffice) *adminmessages.TransportationOffice {

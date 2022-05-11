@@ -5,15 +5,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 
 	uploadop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
 	"github.com/transcom/mymove/pkg/handlers"
-
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )

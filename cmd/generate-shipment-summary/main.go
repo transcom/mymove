@@ -8,23 +8,20 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/rateengine"
-	"github.com/transcom/mymove/pkg/route"
-
-	"github.com/transcom/mymove/pkg/auth"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
 )
 
 // hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).

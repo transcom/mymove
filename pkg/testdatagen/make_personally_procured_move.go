@@ -2,7 +2,6 @@ package testdatagen
 
 import (
 	"github.com/gobuffalo/pop/v6"
-	//"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )

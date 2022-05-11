@@ -4,12 +4,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"time"
-
-	"github.com/transcom/mymove/pkg/random"
-
-	"net/http"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/markbates/goth"
@@ -17,6 +14,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/random"
 )
 
 const milProviderName = "milProvider"
