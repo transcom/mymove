@@ -422,6 +422,8 @@ export const updatePaymentRequestEvent = buildMoveHistoryEventTemplate({
     switch (status) {
       case 'SENT_TO_GEX':
         return 'Sent to GEX';
+      case 'RECEIVED_BY_GEX':
+        return 'Received';
       default:
         return PAYMENT_REQUEST_STATUS_LABELS[status];
     }
