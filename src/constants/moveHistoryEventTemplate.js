@@ -180,7 +180,7 @@ export const createPaymentRequestReweighUpdate = buildMoveHistoryEventTemplate({
   eventName: moveHistoryOperations.updateReweigh,
   tableName: dbTables.payment_requests,
   detailsType: detailsTypes.STATUS,
-  getEventNameDisplay: () => 'Created payment request',
+  getEventNameDisplay: ({ changedValues }) => `Created payment request ${changedValues?.payment_request_number}`,
   getStatusDetails: () => {
     return 'Pending';
   },
@@ -191,7 +191,7 @@ export const createPaymentRequestShipmentUpdate = buildMoveHistoryEventTemplate(
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: dbTables.payment_requests,
   detailsType: detailsTypes.STATUS,
-  getEventNameDisplay: () => 'Created payment request',
+  getEventNameDisplay: ({ changedValues }) => `Created payment request ${changedValues?.payment_request_number}`,
   getStatusDetails: () => {
     return 'Pending';
   },
