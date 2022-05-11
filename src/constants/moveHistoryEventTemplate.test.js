@@ -22,7 +22,7 @@ const {
   requestShipmentReweighEvent,
   createPaymentRequestReweighUpdate,
   createPaymentRequestShipmentUpdate,
-  updatePaymentRequest,
+  updatePaymentRequestEvent,
   undefinedEvent,
 } = require('./moveHistoryEventTemplate');
 
@@ -537,7 +537,7 @@ describe('moveHistoryEventTemplate', () => {
   describe('when a payment request has an update', () => {
     const item = {
       action: 'UPDATE',
-      eventName: 'updatePaymentRequest',
+      eventName: '',
       tableName: 'payment_requests',
       changedValues: {
         status: 'SENT_TO_GEX',
@@ -545,15 +545,12 @@ describe('moveHistoryEventTemplate', () => {
     };
     it('correctly matches the update payment request event', () => {
       const result = getMoveHistoryEventTemplate(item);
-      expect(result).toEqual(updatePaymentRequest);
-      // expect to have formatted the adddresses correctly
+      expect(result).toEqual(updatePaymentRequestEvent);
       expect(
-        result.getDetailsLabeledDetails({
+        result.getStatusDetails({
           changedValues: item.changedValues,
         }),
-      ).toEqual({
-        status: 'SENT_TO_GEX',
-      });
+      ).toEqual('Sent to GEX');
     });
   });
 

@@ -411,12 +411,21 @@ export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
   getEventNameDisplay: () => 'Submitted payment request',
 });
 
-export const updatePaymentRequest = buildMoveHistoryEventTemplate({
+export const updatePaymentRequestEvent = buildMoveHistoryEventTemplate({
   action: 'UPDATE',
-  eventName: '*',
-  tableName: 'payment_requests',
-  getEventNameDisplay: () => 'Updated payment request',
-  detailsType: detailsTypes.LABELED,
+  eventName: '',
+  tableName: dbTables.payment_requests,
+  detailsType: detailsTypes.STATUS,
+  getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
+  getStatusDetails: ({ changedValues }) => {
+    const { status } = changedValues;
+    switch (status) {
+      case 'SENT_TO_GEX':
+        return 'Sent to GEX';
+      default:
+        return PAYMENT_REQUEST_STATUS_LABELS[status];
+    }
+  },
 });
 
 export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
@@ -527,6 +536,7 @@ const allMoveHistoryEventTemplates = [
   updateMTOShipmentAgentEvent,
   updateMTOShipmentDeprecatePaymentRequest,
   updateOrderEvent,
+  updatePaymentRequestEvent,
   updatePaymentRequestStatus,
   updateServiceItemStatusEvent,
   updateBillableWeightEvent,
