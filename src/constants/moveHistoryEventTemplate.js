@@ -492,7 +492,7 @@ export const undefinedEvent = buildMoveHistoryEventTemplate({
   },
 });
 
-export const updateMTOSReviewedBillableWeightsAt = buildMoveHistoryEventTemplate({
+export const updateMTOReviewedBillableWeightsAt = buildMoveHistoryEventTemplate({
   action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateMTOReviewedBillableWeightsAt,
   tableName: 'moves',
@@ -532,7 +532,7 @@ const allMoveHistoryEventTemplates = [
   updateServiceItemStatusEvent,
   updateBillableWeightEvent,
   updateAllowanceEvent,
-  updateMTOSReviewedBillableWeightsAt,
+  updateMTOReviewedBillableWeightsAt,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {
