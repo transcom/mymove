@@ -47,8 +47,10 @@ type PPMShipment struct {
 	ApprovedAt                     *time.Time        `json:"approved_at" db:"approved_at"`
 	PickupPostalCode               string            `json:"pickup_postal_code" db:"pickup_postal_code"`
 	SecondaryPickupPostalCode      *string           `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
+	ActualPickupPostalCode         *string           `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
 	DestinationPostalCode          string            `json:"destination_postal_code" db:"destination_postal_code"`
 	SecondaryDestinationPostalCode *string           `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
+	ActualDestinationPostalCode    *string           `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
 	SitExpected                    *bool             `json:"sit_expected" db:"sit_expected"`
 	EstimatedWeight                *unit.Pound       `json:"estimated_weight" db:"estimated_weight"`
 	NetWeight                      *unit.Pound       `json:"net_weight" db:"net_weight"`
@@ -56,8 +58,10 @@ type PPMShipment struct {
 	ProGearWeight                  *unit.Pound       `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound       `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
 	EstimatedIncentive             *unit.Cents       `json:"estimated_incentive" db:"estimated_incentive"`
-	Advance                        *unit.Cents       `json:"advance" db:"advance"`
 	AdvanceRequested               *bool             `json:"advance_requested" db:"advance_requested"`
+	Advance                        *unit.Cents       `json:"advance" db:"advance"`
+	AdvanceReceived                *bool             `json:"advance_received" db:"advance_received"`
+	ActualAdvance                  *unit.Cents       `json:"actual_advance" db:"actual_advance"`
 }
 
 // PPMShipments is a list of PPMs
