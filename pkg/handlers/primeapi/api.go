@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi"
-	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	primeops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -24,7 +23,7 @@ import (
 )
 
 // NewPrimeAPI returns the Prime API
-func NewPrimeAPI(ctx handlers.HandlerContext) *primeoperations.MymoveAPI {
+func NewPrimeAPI(ctx handlers.HandlerContext) *primeops.MymoveAPI {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 
