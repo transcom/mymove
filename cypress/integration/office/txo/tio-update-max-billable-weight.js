@@ -12,7 +12,10 @@ describe('TIO user', () => {
       'getSortedPaymentRequests',
     );
     cy.intercept('**/ghc/v1/moves/**/payment-requests').as('getMovePaymentRequests');
-    cy.intercept('**/ghc/v1/moves/**/billable-weight').as('getBillableWeight');
+    cy.intercept('**/ghc/v1/move-task-orders/**/billable-weights-reviewed-at').as('getBillableWeight');
+    cy.intercept('**/ghc/v1/move/**').as('getMoves');
+    cy.intercept('**/ghc/v1/orders/**').as('getOrders');
+    cy.intercept('**/ghc/v1/orders/**/update-max-billable-weight/tio').as('updateBillableWeight');
 
     const userId = '3b2cc1b0-31a2-4d1b-874f-0591f9127374';
     cy.apiSignInAsUser(userId, TIOOfficeUserType);
@@ -34,6 +37,21 @@ describe('TIO user', () => {
 
     cy.wait(['@getBillableWeight']);
 
-    cy.get('[data-testid="maxBillableWeightEdit"]').contains('Edit').click();
+    cy.get('[data-testid="button"]').contains('Edit').click();
+
+    cy.wait(['@getMoves']);
+    cy.wait(250);
+
+    cy.get('fieldset').within((/* $form */) => {
+      cy.get('input#billableWeight').click().clear().type('7400');
+      cy.get('textarea#billableWeightJustification').click().clear().type('Some basic remarks.');
+    });
+
+    cy.get('button').contains('Save changes').click();
+
+    cy.wait(['@updateBillableWeight']);
+
+    cy.get('[data-testid="billableWeightValue"]').contains('7,400 lbs');
+    cy.get('[data-testid="billableWeightRemarks"]').contains('Some basic remarks.');
   });
 });
