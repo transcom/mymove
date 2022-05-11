@@ -1,4 +1,4 @@
-package shipmentorchestrator
+package shipment
 
 import (
 	"github.com/transcom/mymove/pkg/apperror"

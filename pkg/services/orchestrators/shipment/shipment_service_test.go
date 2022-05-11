@@ -1,4 +1,4 @@
-package shipmentorchestrator
+package shipment
 
 import (
 	"testing"

@@ -1,4 +1,4 @@
-package shipmentorchestrator
+package shipment
 
 import (
 	"github.com/gobuffalo/validate/v3"

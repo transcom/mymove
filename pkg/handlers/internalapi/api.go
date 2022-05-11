@@ -19,12 +19,12 @@ import (
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	"github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/services/shipmentorchestrator"
 )
 
 // NewInternalAPI returns the internal API
@@ -131,7 +131,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator())
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator())
 
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
@@ -147,7 +147,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
 
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(
+	shipmentUpdater := shipment.NewShipmentUpdater(
 		mtoshipment.NewMTOShipmentUpdater(
 			builder,
 			fetcher,

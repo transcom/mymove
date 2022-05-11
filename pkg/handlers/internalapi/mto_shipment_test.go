@@ -25,10 +25,10 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/services/shipmentorchestrator"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
