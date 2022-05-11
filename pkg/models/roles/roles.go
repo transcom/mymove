@@ -30,6 +30,8 @@ const (
 	RoleTypeServicesCounselor RoleType = "services_counselor"
 	// RoleTypePrimeSimulator is the PrimeSimulator Role
 	RoleTypePrimeSimulator RoleType = "prime_simulator"
+	// RoleTypeQaeCsr is the Quality Assurance and Customer Support Role
+	RoleTypeQaeCsr RoleType = "qae_csr"
 )
 
 // Role represents a Role for users

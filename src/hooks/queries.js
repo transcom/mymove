@@ -15,6 +15,7 @@ import {
   getMovePaymentRequests,
   getCustomer,
   getShipmentsPaymentSITBalance,
+  getCustomerSupportRemarksForMove,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
@@ -36,6 +37,7 @@ import {
   SHIPMENTS_PAYMENT_SIT_BALANCE,
   PRIME_SIMULATOR_AVAILABLE_MOVES,
   PRIME_SIMULATOR_MOVE,
+  CUSTOMER_SUPPORT_REMARKS,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -112,6 +114,20 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
     paymentServiceItems,
     mtoShipments,
     shipmentsPaymentSITBalance,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useCustomerSupportRemarksQueries = (moveCode) => {
+  const { data: customerSupportRemarks, ...customerSupportRemarksQuery } = useQuery(
+    [CUSTOMER_SUPPORT_REMARKS, moveCode],
+    getCustomerSupportRemarksForMove,
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([customerSupportRemarksQuery]);
+  return {
+    customerSupportRemarks,
     isLoading,
     isError,
     isSuccess,

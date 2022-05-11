@@ -1,0 +1,44 @@
+type: object
+description: A text remark written by an office user that is associated with a specific move.
+required:
+  - id
+  - moveID
+  - officeUserID
+  - content
+properties:
+  id:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  createdAt:
+    type: string
+    format: date-time
+    readOnly: true
+  updatedAt:
+    type: string
+    format: date-time
+    readOnly: true
+  officeUserID:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  moveID:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  content:
+    example: This is a remark about a move.
+    type: string
+  officeUserFirstName:
+    example: Grace
+    type: string
+    readOnly: true
+  officeUserLastName:
+    example: Griffin
+    type: string
+    readOnly: true
+  officeUserEmail:
+    type: string
+    format: x-email
+    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    readOnly: true

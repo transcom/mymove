@@ -692,4 +692,20 @@ describe('ShipmentForm component', () => {
       });
     });
   });
+
+  describe('creating a new PPM shipment', () => {
+    it('displays PPM content', async () => {
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          isCreatePage
+          userRole={roleTypes.SERVICES_COUNSELOR}
+          mtoShipment={mockMtoShipment}
+        />,
+      );
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+    });
+  });
 });
