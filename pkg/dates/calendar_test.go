@@ -1,7 +1,6 @@
 package dates
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -38,7 +37,7 @@ func TestNextWorkday(t *testing.T) {
 		t.Run(dt.name, func(t *testing.T) {
 			nextDate := NextWorkday(*cal, dt.in)
 			if nextDate != dt.out {
-				t.Fatal(fmt.Sprintf("Actual date: %v is not equal to expected date: %v", nextDate, dt.out))
+				t.Fatalf("Actual date: %v is not equal to expected date: %v", nextDate, dt.out)
 			}
 		})
 	}
@@ -71,7 +70,7 @@ func TestNextNonWorkday(t *testing.T) {
 		t.Run(dt.name, func(t *testing.T) {
 			nextDate := NextNonWorkday(*cal, dt.in)
 			if nextDate != dt.out {
-				t.Fatal(fmt.Sprintf("Actual date: %v is not equal to expected date: %v", nextDate, dt.out))
+				t.Fatalf("Actual date: %v is not equal to expected date: %v", nextDate, dt.out)
 			}
 		})
 	}
