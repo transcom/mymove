@@ -17,12 +17,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
-	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestPPMValidation() {
-	ppm := &PersonallyProcuredMove{}
+	ppm := &models.PersonallyProcuredMove{}
 
 	expErrors := map[string][]string{
 		"status": {"Status can not be blank."},
@@ -36,22 +35,22 @@ func (suite *ModelSuite) TestPPMAdvance() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	serviceMember := move.Orders.ServiceMember
 
-	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 
 	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	advance.Request()
-	SavePersonallyProcuredMove(suite.DB(), ppm)
+	models.SavePersonallyProcuredMove(suite.DB(), ppm)
 	session := auth.Session{
 		UserID:          serviceMember.User.ID,
 		ApplicationName: auth.MilApp,
 		ServiceMemberID: serviceMember.ID,
 	}
-	fetchedPPM, err := FetchPersonallyProcuredMove(suite.DB(), &session, ppm.ID)
+	fetchedPPM, err := models.FetchPersonallyProcuredMove(suite.DB(), &session, ppm.ID)
 	suite.NoError(err)
-	suite.Equal(fetchedPPM.Advance.Status, ReimbursementStatusREQUESTED, "expected Requested")
+	suite.Equal(fetchedPPM.Advance.Status, models.ReimbursementStatusREQUESTED, "expected Requested")
 }
 
 // TODO: Fix test now that we capture transaction error
@@ -67,13 +66,13 @@ func (suite *ModelSuite) TestPPMAdvance() {
 
 func (suite *ModelSuite) TestPPMStateMachine() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
+	orders.Status = models.OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
 	testdatagen.MakeDefaultContractor(suite.DB())
 
-	selectedMoveType := SelectedMoveTypeHHGPPM
+	selectedMoveType := models.SelectedMoveTypeHHGPPM
 
-	moveOptions := MoveOptions{
+	moveOptions := models.MoveOptions{
 		SelectedType: &selectedMoveType,
 		Show:         swag.Bool(true),
 	}
@@ -82,18 +81,18 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 
 	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	ppm.Status = PPMStatusSUBMITTED // NEVER do this outside of a test.
+	ppm.Status = models.PPMStatusSUBMITTED // NEVER do this outside of a test.
 
 	// Can cancel ppm
 	err = ppm.Cancel()
 	suite.NoError(err)
-	suite.Equal(PPMStatusCANCELED, ppm.Status, "expected Canceled")
+	suite.Equal(models.PPMStatusCANCELED, ppm.Status, "expected Canceled")
 }
 
 func (suite *ModelSuite) TestFetchMoveDocumentsForTypes() {
@@ -150,26 +149,26 @@ func (suite *ModelSuite) TestFetchPersonallyProcuredMoveByOrderID() {
 	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: Order{
+		Order: models.Order{
 			ID: orderID,
 		},
 	})
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: Move{
+		Move: models.Move{
 			ID:       moveID,
 			OrdersID: orderID,
 			Orders:   order,
 		},
 	})
 
-	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 
 	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	advance.Request()
-	SavePersonallyProcuredMove(suite.DB(), ppm)
+	models.SavePersonallyProcuredMove(suite.DB(), ppm)
 
 	tests := []struct {
 		lookupID  uuid.UUID
@@ -181,7 +180,7 @@ func (suite *ModelSuite) TestFetchPersonallyProcuredMoveByOrderID() {
 	}
 
 	for _, ts := range tests {
-		ppm, err := FetchPersonallyProcuredMoveByOrderID(suite.DB(), ts.lookupID)
+		ppm, err := models.FetchPersonallyProcuredMoveByOrderID(suite.DB(), ts.lookupID)
 		if ts.resultErr {
 			suite.Error(err)
 		} else {

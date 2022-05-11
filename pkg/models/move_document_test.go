@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/transcom/mymove/pkg/auth"
-	. "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestBasicMoveDocumentInstantiation() {
@@ -73,29 +72,29 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 		ServiceMemberID: sm.ID,
 	}
 
-	status := MoveDocumentStatusOK
-	moveDocs, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE, false)
+	status := models.MoveDocumentStatusOK
+	moveDocs, err := models.FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, models.MoveDocumentTypeEXPENSE, false)
 
 	if suite.NoError(err) {
 		suite.Equal(2, len(moveDocs))
 		for _, moveDoc := range moveDocs {
-			suite.Equal(moveDoc.MoveDocumentType, MoveDocumentTypeEXPENSE)
-			suite.Equal(moveDoc.Status, MoveDocumentStatusOK)
+			suite.Equal(moveDoc.MoveDocumentType, models.MoveDocumentTypeEXPENSE)
+			suite.Equal(moveDoc.Status, models.MoveDocumentStatusOK)
 			suite.Equal(moveDoc.MoveID, ppm.Move.ID)
 			suite.Equal((&moveDoc.MovingExpenseDocument.RequestedAmountCents).Int(), 2589)
 		}
 	}
 
-	allMoveDocs, err2 := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE, true)
+	allMoveDocs, err2 := models.FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, models.MoveDocumentTypeEXPENSE, true)
 	if suite.NoError(err2) {
 		suite.Equal(3, len(allMoveDocs))
 	}
 	// When: the user is not authorized to fetch movedocs
 	session.UserID = uuid.Must(uuid.NewV4())
 	session.ServiceMemberID = uuid.Must(uuid.NewV4())
-	_, err = FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE, false)
+	_, err = models.FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, models.MoveDocumentTypeEXPENSE, false)
 	if suite.Error(err) {
-		suite.Equal(ErrFetchForbidden, err)
+		suite.Equal(models.ErrFetchForbidden, err)
 	}
 
 	// When: the logged in user is an office user
@@ -104,12 +103,12 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	session.OfficeUserID = officeUser.ID
 	session.ApplicationName = auth.OfficeApp
 
-	moveDocsOffice, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE, false)
+	moveDocsOffice, err := models.FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, models.MoveDocumentTypeEXPENSE, false)
 	if suite.NoError(err) {
 		for _, moveDoc := range moveDocsOffice {
 			suite.Equal(moveDoc.MoveID, ppm.Move.ID)
-			suite.Equal(moveDoc.Status, MoveDocumentStatusOK)
-			suite.Equal(moveDoc.MoveDocumentType, MoveDocumentTypeEXPENSE)
+			suite.Equal(moveDoc.Status, models.MoveDocumentStatusOK)
+			suite.Equal(moveDoc.MoveDocumentType, models.MoveDocumentTypeEXPENSE)
 		}
 	}
 }
@@ -143,7 +142,7 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocumentsStorageExpense() {
 		ServiceMemberID: sm.ID,
 	}
 
-	expenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE, false)
+	expenses, err := models.FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil, models.MoveDocumentTypeEXPENSE, false)
 
 	if suite.NoError(err) {
 		suite.Equal(1, len(expenses))
@@ -164,7 +163,7 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   MoveDocumentStatusAWAITINGREVIEW,
+			Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
 			MoveDocumentType:         "EXPENSE",
 		},
 		Document: models.Document{
@@ -172,7 +171,7 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
 			ServiceMember:   sm,
 		},
 	}
-	status := MoveDocumentStatusOK
+	status := models.MoveDocumentStatusOK
 	ok := testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID:                   ppm.Move.ID,
@@ -194,7 +193,7 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
 		ServiceMemberID: sm.ID,
 	}
 
-	allExpenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE, false)
+	allExpenses, err := models.FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil, models.MoveDocumentTypeEXPENSE, false)
 	if suite.NoError(err) {
 		suite.Equal(2, len(allExpenses))
 		for _, moveDoc := range allExpenses {
@@ -203,7 +202,7 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
 		}
 	}
 
-	approvedExpenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE, false)
+	approvedExpenses, err := models.FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, models.MoveDocumentTypeEXPENSE, false)
 	if suite.NoError(err) {
 		suite.Equal(1, len(approvedExpenses))
 		for _, moveDoc := range approvedExpenses {
@@ -233,13 +232,13 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocumentsAuth() {
 		ApplicationName: auth.MilApp,
 	}
 
-	_, err1 := FetchMoveDocuments(suite.DB(), authorizedSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE, false)
-	_, err2 := FetchMoveDocuments(suite.DB(), officeSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE, false)
-	_, err3 := FetchMoveDocuments(suite.DB(), unauthorizedSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE, false)
+	_, err1 := models.FetchMoveDocuments(suite.DB(), authorizedSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, models.MoveDocumentTypeEXPENSE, false)
+	_, err2 := models.FetchMoveDocuments(suite.DB(), officeSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, models.MoveDocumentTypeEXPENSE, false)
+	_, err3 := models.FetchMoveDocuments(suite.DB(), unauthorizedSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, models.MoveDocumentTypeEXPENSE, false)
 
 	suite.Nil(err1)
 	suite.Nil(err2)
-	suite.Equal(ErrFetchForbidden, err3)
+	suite.Equal(models.ErrFetchForbidden, err3)
 }
 
 func (suite *ModelSuite) TestFetchMoveDocument() {
@@ -264,7 +263,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 		ServiceMemberID: sm.ID,
 	}
 
-	moveDoc, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
+	moveDoc, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	if suite.NoError(err) {
 		suite.Equal(moveDocument.MoveID, moveDoc.MoveID)
 	}
@@ -272,9 +271,9 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	// When: the user is not authorized to fetch movedoc
 	session.UserID = uuid.Must(uuid.NewV4())
 	session.ServiceMemberID = uuid.Must(uuid.NewV4())
-	_, err = FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
+	_, err = models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	if suite.Error(err) {
-		suite.Equal(ErrFetchForbidden, err)
+		suite.Equal(models.ErrFetchForbidden, err)
 	}
 
 	// When: the logged in user is an office user
@@ -284,7 +283,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	session.ApplicationName = auth.OfficeApp
 
 	// Then: move document is returned
-	moveDocOfficeUser, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
+	moveDocOfficeUser, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	if suite.NoError(err) {
 		suite.Equal(moveDocOfficeUser.MoveID, moveDoc.MoveID)
 	}
@@ -306,7 +305,7 @@ func (suite *ModelSuite) TestMoveDocumentStatuses() {
 		},
 	})
 
-	suite.Equal(moveDocument.Status, MoveDocumentStatusAWAITINGREVIEW)
+	suite.Equal(moveDocument.Status, models.MoveDocumentStatusAWAITINGREVIEW)
 
 	err := moveDocument.Approve()
 	suite.NoError(err)
@@ -321,23 +320,23 @@ func (suite *ModelSuite) TestMoveDocumentStatuses() {
 	suite.Error(err)
 
 	// JUST for testing, resetting Status by hand.
-	moveDocument.Status = MoveDocumentStatusAWAITINGREVIEW
+	moveDocument.Status = models.MoveDocumentStatusAWAITINGREVIEW
 
-	err = moveDocument.AttemptTransition(MoveDocumentStatusOK)
+	err = moveDocument.AttemptTransition(models.MoveDocumentStatusOK)
 	suite.NoError(err)
-	suite.Equal(moveDocument.Status, MoveDocumentStatusOK)
+	suite.Equal(moveDocument.Status, models.MoveDocumentStatusOK)
 
-	err = moveDocument.AttemptTransition(MoveDocumentStatusHASISSUE)
+	err = moveDocument.AttemptTransition(models.MoveDocumentStatusHASISSUE)
 	suite.NoError(err)
-	suite.Equal(moveDocument.Status, MoveDocumentStatusHASISSUE)
+	suite.Equal(moveDocument.Status, models.MoveDocumentStatusHASISSUE)
 
-	err = moveDocument.AttemptTransition(MoveDocumentStatusOK)
+	err = moveDocument.AttemptTransition(models.MoveDocumentStatusOK)
 	suite.NoError(err)
-	suite.Equal(moveDocument.Status, MoveDocumentStatusOK)
+	suite.Equal(moveDocument.Status, models.MoveDocumentStatusOK)
 
-	err = moveDocument.AttemptTransition(MoveDocumentStatusOK)
+	err = moveDocument.AttemptTransition(models.MoveDocumentStatusOK)
 	suite.NoError(err)
-	suite.Equal(moveDocument.Status, MoveDocumentStatusOK)
+	suite.Equal(moveDocument.Status, models.MoveDocumentStatusOK)
 
 }
 
@@ -364,7 +363,7 @@ func (suite *ModelSuite) TestDeleteMoveDocument() {
 	suite.Nil(expenseDoc.DeletedAt)
 	suite.Nil(moveDocument.DeletedAt)
 
-	err := DeleteMoveDocument(suite.DB(), &moveDocument)
+	err := models.DeleteMoveDocument(suite.DB(), &moveDocument)
 
 	if suite.NoError(err) {
 		suite.NotNil(moveDocument.DeletedAt)

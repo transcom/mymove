@@ -5,7 +5,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -29,7 +28,7 @@ func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
 		},
 	})
 
-	moves, moveErrs := GetMoveQueueItems(suite.DB(), "all")
+	moves, moveErrs := models.GetMoveQueueItems(suite.DB(), "all")
 	suite.Nil(moveErrs)
 	suite.Len(moves, 1)
 }
@@ -54,7 +53,7 @@ func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
 		},
 	})
 
-	moves, moveErrs := GetMoveQueueItems(suite.DB(), "all")
+	moves, moveErrs := models.GetMoveQueueItems(suite.DB(), "all")
 	suite.Nil(moveErrs)
 	suite.Empty(moves)
 
@@ -64,14 +63,14 @@ func (suite *ModelSuite) TestCreateNewMoveWithNoPPMShow() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	testdatagen.MakeDefaultContractor(suite.DB())
 
-	moveOptions := MoveOptions{
+	moveOptions := models.MoveOptions{
 		Show: swag.Bool(true),
 	}
 	_, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 
-	moves, moveErrs := GetMoveQueueItems(suite.DB(), "all")
+	moves, moveErrs := models.GetMoveQueueItems(suite.DB(), "all")
 	suite.Nil(moveErrs)
 	suite.Empty(moves)
 }
@@ -133,7 +132,7 @@ func (suite *ModelSuite) TestShowPPMQueue() {
 	})
 
 	for _, tc := range tests {
-		moves, err := GetMoveQueueItems(suite.DB(), tc.input)
+		moves, err := models.GetMoveQueueItems(suite.DB(), tc.input)
 
 		suite.NoError(err)
 		suite.Len(moves, tc.movesCount)
@@ -145,7 +144,7 @@ func (suite *ModelSuite) TestShowPPMQueue() {
 }
 
 func (suite *ModelSuite) TestQueueNotFound() {
-	moves, moveErrs := GetMoveQueueItems(suite.DB(), "queue_not_found")
-	suite.Equal(ErrFetchNotFound, moveErrs, "Expected not to find move queue items")
+	moves, moveErrs := models.GetMoveQueueItems(suite.DB(), "queue_not_found")
+	suite.Equal(models.ErrFetchNotFound, moveErrs, "Expected not to find move queue items")
 	suite.Empty(moves)
 }
