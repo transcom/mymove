@@ -539,18 +539,35 @@ describe('moveHistoryEventTemplate', () => {
       action: 'UPDATE',
       eventName: '',
       tableName: 'payment_requests',
-      changedValues: {
-        status: 'SENT_TO_GEX',
-      },
     };
-    it('correctly matches the update payment request event', () => {
+    it('correctly matches the update payment request event for when a payment has been sent to GEX', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(updatePaymentRequestEvent);
       expect(
         result.getStatusDetails({
-          changedValues: item.changedValues,
+          changedValues: { status: 'SENT_TO_GEX' },
         }),
       ).toEqual('Sent to GEX');
+    });
+
+    it('correctly matches the update payment request event for when a payment has been received by GEX', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(updatePaymentRequestEvent);
+      expect(
+        result.getStatusDetails({
+          changedValues: { status: 'RECEIVED_BY_GEX' },
+        }),
+      ).toEqual('Received');
+    });
+
+    it('correctly matches the update payment request event for when theres and EDI error', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(updatePaymentRequestEvent);
+      expect(
+        result.getStatusDetails({
+          changedValues: { status: 'EDI_ERROR' },
+        }),
+      ).toEqual('EDI error');
     });
   });
 
