@@ -20,14 +20,15 @@ describe('TIO user', () => {
 
   // This test performs a mutation so it can only succeed on a fresh DB.
   it('can update max billable weight', () => {
-    const paymentRequestId = 'ea945ab7-099a-4819-82de-6968efe131dc';
+    // Go to known NTS-R move
+    cy.get('#locator').type('NTSRT2');
+    cy.get('th[data-testid="locator"]').first().click();
+    cy.get('[data-testid="locator-0"]').click();
 
-    // TIO Payment Requests queue
-    cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
-    cy.get('[data-uuid="' + paymentRequestId + '"]').click();
-
-    // Payment Requests page
-    cy.wait(['@getMovePaymentRequests']);
+    // Verify we are on the Payment Requests page
+    cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
+    cy.get('[data-testid="MovePaymentRequests"]');
 
     cy.get('#billable-weights').contains('Review weights').click();
 
