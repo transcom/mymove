@@ -5095,10 +5095,10 @@
     ts-dedent "^2.1.0"
     update-notifier "^5.1.0"
 
-"@zeplin/cli@1.1.13":
-  version "1.1.13"
-  resolved "https://registry.yarnpkg.com/@zeplin/cli/-/cli-1.1.13.tgz#a9ca755efcede7368f4a09240b2d46bdde662ea5"
-  integrity sha512-0tt8kkb/91bwewz2C/TmoKaMDTcMHjVV4IGBo4MlMy+HiggI4cRfKg6XRcxXPIx9Gk2xuEhDbBtrZOr9WsdtDw==
+"@zeplin/cli@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@zeplin/cli/-/cli-2.0.0.tgz#1ee781084426fad2fe42353e439fa4a01000ac3c"
+  integrity sha512-Pb6O0mLfGzntTbTwnYjHHH89OY9LJa9LEikdSyuH5uy4HpwKguRJdu0z/MBfW5kEI/fOWPXyqvzqleWFVzcIbA==
   dependencies:
     "@hapi/joi" "^17.1.1"
     axios "^0.21.4"
@@ -6908,7 +6908,7 @@ cheerio@^1.0.0-rc.3:
     parse5-htmlparser2-tree-adapter "^6.0.1"
     tslib "^2.2.0"
 
-"chokidar@>=3.0.0 <4.0.0":
+"chokidar@>=3.0.0 <4.0.0", chokidar@^3.3.1, chokidar@^3.4.1, chokidar@^3.4.2:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.5.3.tgz#1cf37c8707b932bd1af1ae22c0432e2acd1903bd"
   integrity sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==
@@ -6941,21 +6941,6 @@ chokidar@^2.1.8:
     upath "^1.1.1"
   optionalDependencies:
     fsevents "^1.2.7"
-
-chokidar@^3.3.1, chokidar@^3.4.1, chokidar@^3.4.2:
-  version "3.5.2"
-  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.5.2.tgz#dba3976fcadb016f66fd365021d91600d01c1e75"
-  integrity sha512-ekGhOnNVPgT77r4K/U3GDhu+FQ2S8TnK/s2KbIGXi0SZWuwkZ2QNyfWdZW+TVfn84DpEP7rLeCt2UI6bJ8GwbQ==
-  dependencies:
-    anymatch "~3.1.2"
-    braces "~3.0.2"
-    glob-parent "~5.1.2"
-    is-binary-path "~2.1.0"
-    is-glob "~4.0.1"
-    normalize-path "~3.0.0"
-    readdirp "~3.6.0"
-  optionalDependencies:
-    fsevents "~2.3.2"
 
 chownr@^1.1.1:
   version "1.1.4"
