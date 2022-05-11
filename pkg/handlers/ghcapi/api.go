@@ -29,6 +29,7 @@ import (
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
@@ -174,10 +175,11 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	)
 	ppmEstimator := ppmshipment.NewEstimatePPM(ctx.GHCPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(ppmEstimator)
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
+
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
-		mtoShipmentCreator,
-		ppmShipmentCreator,
+		shipmentCreator,
 		shipmentSITStatus,
 	}
 

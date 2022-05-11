@@ -78,9 +78,8 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerContext
-	mtoShipmentCreator services.MTOShipmentCreator
-	ppmShipmentCreator services.PPMShipmentCreator
-	shipmentStatus     services.ShipmentSITStatus
+	shipmentCreator services.ShipmentCreator
+	shipmentStatus  services.ShipmentSITStatus
 }
 
 // Handle creates the mto shipment
@@ -122,22 +121,12 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-			isPPM := mtoShipment.ShipmentType == models.MTOShipmentTypePPM
 
 			var err error
-			var ppmShipment *models.PPMShipment
-			if isPPM {
-				ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
-			} else {
-				mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
-			}
+			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
 			if err != nil {
 				return handleError(err)
-			}
-
-			if isPPM {
-				mtoShipment = &ppmShipment.Shipment
 			}
 
 			if mtoShipment == nil {
