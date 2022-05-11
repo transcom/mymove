@@ -1,4 +1,9 @@
 linters-settings:
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/transcom/mymove)
   goimports:
     # put imports beginning with prefix after 3rd-party packages;
     # it's a comma-separated list of prefixes
@@ -32,6 +37,7 @@ linters:
   enable:
     - deadcode
     - errcheck
+    - gci
     - gofmt
     - goimports
     - gomodguard
