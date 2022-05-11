@@ -36,11 +36,9 @@ describe('TIO user', () => {
 
     cy.get('#billable-weights').contains('Review weights').click();
 
-    cy.wait(['@getBillableWeight']);
+    cy.wait(['@getBillableWeight', '@getMoves', '@getUpload']);
 
     cy.get('[data-testid="button"]').contains('Edit').click();
-
-    cy.wait(['@getMoves', '@getUpload']);
 
     cy.get('fieldset').within((/* $form */) => {
       cy.get('input#billableWeight').click().clear().type('7400');
