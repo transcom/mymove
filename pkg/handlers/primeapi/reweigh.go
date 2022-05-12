@@ -16,7 +16,7 @@ import (
 
 // UpdateReweighHandler is the handler to update a reweigh
 type UpdateReweighHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	ReweighUpdater services.ReweighUpdater
 }
 

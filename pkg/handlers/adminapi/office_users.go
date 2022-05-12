@@ -62,7 +62,7 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 
 // IndexOfficeUsersHandler returns a list of office users via GET /office_users
 type IndexOfficeUsersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -112,7 +112,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 
 // GetOfficeUserHandler retrieves office user handler
 type GetOfficeUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.OfficeUserFetcher
 	services.NewQueryFilter
 }
@@ -147,7 +147,7 @@ func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) mi
 
 // CreateOfficeUserHandler creates an office user
 type CreateOfficeUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.OfficeUserCreator
 	services.NewQueryFilter
 	services.UserRoleAssociator
@@ -223,7 +223,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 
 // UpdateOfficeUserHandler updates an office user
 type UpdateOfficeUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.OfficeUserUpdater
 	services.NewQueryFilter
 	services.UserRoleAssociator

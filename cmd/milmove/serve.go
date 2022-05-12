@@ -552,18 +552,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
-	handlerContext.SetSessionManagers(sessionManagers)
-	handlerContext.SetCookieSecret(clientAuthSecretKey)
-	handlerContext.SetUseSecureCookie(useSecureCookie)
-	handlerContext.SetAppNames(appnames)
+	handlerConfig := handlers.NewHandlerConfig(dbConnection, logger)
+	handlerConfig.SetSessionManagers(sessionManagers)
+	handlerConfig.SetCookieSecret(clientAuthSecretKey)
+	handlerConfig.SetUseSecureCookie(useSecureCookie)
+	handlerConfig.SetAppNames(appnames)
 
 	// Email
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
 	if notificationSenderErr != nil {
 		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
 	}
-	handlerContext.SetNotificationSender(notificationSender)
+	handlerConfig.SetNotificationSender(notificationSender)
 
 	build := v.GetString(cli.BuildRootFlag)
 
@@ -573,11 +573,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		indexPath:  "index.html",
 	}
 	// Set SendProductionInvoice for ediinvoice
-	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
+	handlerConfig.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
 	// Storage
 	storer := storage.InitStorage(v, session, logger)
-	handlerContext.SetFileStorer(storer)
+	handlerConfig.SetFileStorer(storer)
 
 	certificates, rootCAs, err := certs.InitDoDCertificates(v, logger)
 	if certificates == nil || rootCAs == nil || err != nil {
@@ -599,7 +599,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
 	routePlanner := route.InitRoutePlanner(v)
-	handlerContext.SetPlanner(routePlanner)
+	handlerConfig.SetPlanner(routePlanner)
 
 	// Create a secondary planner specifically for GHC.
 	routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
@@ -607,7 +607,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if initRouteErr != nil {
 		logger.Fatal("Could not instantiate GHC route planner", zap.Error(initRouteErr))
 	}
-	handlerContext.SetGHCPlanner(ghcRoutePlanner)
+	handlerConfig.SetGHCPlanner(ghcRoutePlanner)
 
 	// Set the GexSender() and GexSender fields
 	gexTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
@@ -634,7 +634,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			v.GetString(cli.GEXBasicAuthPasswordFlag),
 		)
 	}
-	handlerContext.SetGexSender(gexRequester)
+	handlerConfig.SetGexSender(gexRequester)
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
@@ -649,13 +649,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	} else {
 		icnSequencer = sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 	}
-	handlerContext.SetICNSequencer(icnSequencer)
+	handlerConfig.SetICNSequencer(icnSequencer)
 
 	rbs, err := iws.InitRBSPersonLookup(appCtx, v)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}
-	handlerContext.SetIWSPersonLookup(rbs)
+	handlerConfig.SetIWSPersonLookup(rbs)
 
 	dpsAuthSecretKey := v.GetString(cli.DPSAuthSecretKeyFlag)
 	dpsCookieDomain := v.GetString(cli.DPSCookieDomainFlag)
@@ -663,7 +663,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsCookieExpires := v.GetInt(cli.DPSCookieExpiresInMinutesFlag)
 
 	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
-	handlerContext.SetDPSAuthParams(dpsAuthParams)
+	handlerConfig.SetDPSAuthParams(dpsAuthParams)
 
 	// site is the base
 	site := mux.NewRouter()
@@ -797,7 +797,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			ordersMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		api := ordersapi.NewOrdersAPI(handlerContext)
+		api := ordersapi.NewOrdersAPI(handlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		ordersMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
@@ -815,7 +815,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			dpsMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		api := dpsapi.NewDPSAPI(handlerContext)
+		api := dpsapi.NewDPSAPI(handlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		dpsMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
@@ -858,7 +858,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			primeMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		api := primeapi.NewPrimeAPI(handlerContext)
+		api := primeapi.NewPrimeAPI(handlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		primeMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
@@ -879,7 +879,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			supportMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
-		supportMux.PathPrefix("/").Handler(supportapi.NewSupportAPIHandler(handlerContext))
+		supportMux.PathPrefix("/").Handler(supportapi.NewSupportAPIHandler(handlerConfig))
 	}
 
 	// Handlers under mutual TLS need to go before this section that sets up middleware that shouldn't be enabled for mutual TLS (such as CSRF)
@@ -934,7 +934,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalAPIMux := internalMux.PathPrefix("/").Subrouter()
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
-		api := internalapi.NewInternalAPI(handlerContext)
+		api := internalapi.NewInternalAPI(handlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		internalAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
@@ -955,7 +955,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		adminAPIMux.Use(userAuthMiddleware)
 		adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
 		adminAPIMux.Use(middleware.NoCache(logger))
-		api := adminapi.NewAdminAPI(handlerContext)
+		api := adminapi.NewAdminAPI(handlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		adminAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
@@ -976,7 +976,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeSimulatorAPIMux.Use(userAuthMiddleware)
 		primeSimulatorAPIMux.Use(authentication.PrimeSimulatorAuthorizationMiddleware(logger))
 		primeSimulatorAPIMux.Use(middleware.NoCache(logger))
-		api := primeapi.NewPrimeAPI(handlerContext)
+		api := primeapi.NewPrimeAPI(handlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		primeSimulatorAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
@@ -995,7 +995,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcAPIMux := ghcMux.PathPrefix("/").Subrouter()
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
-		api := ghcapi.NewGhcAPIHandler(handlerContext)
+		api := ghcapi.NewGhcAPIHandler(handlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
@@ -1004,19 +1004,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	authMux := root.PathPrefix("/auth/").Subrouter()
 	authMux.Use(middleware.NoCache(logger))
 	authMux.Use(otelmux.Middleware("auth"))
-	authMux.Handle("/login-gov", authentication.NewRedirectHandler(authContext, handlerContext, useSecureCookie)).Methods("GET")
-	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(authContext, handlerContext, notificationSender)).Methods("GET")
-	authMux.Handle("/logout", authentication.NewLogoutHandler(authContext, handlerContext)).Methods("POST")
+	authMux.Handle("/login-gov", authentication.NewRedirectHandler(authContext, handlerConfig, useSecureCookie)).Methods("GET")
+	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(authContext, handlerConfig, notificationSender)).Methods("GET")
+	authMux.Handle("/logout", authentication.NewLogoutHandler(authContext, handlerConfig)).Methods("POST")
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := root.PathPrefix("/devlocal-auth/").Subrouter()
 		localAuthMux.Use(middleware.NoCache(logger))
 		localAuthMux.Use(otelmux.Middleware("devlocal"))
-		localAuthMux.Handle("/login", authentication.NewUserListHandler(authContext, handlerContext)).Methods("GET")
-		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(authContext, handlerContext, appnames)).Methods("POST")
-		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(authContext, handlerContext, appnames)).Methods("POST")
-		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(authContext, handlerContext, appnames)).Methods("POST")
+		localAuthMux.Handle("/login", authentication.NewUserListHandler(authContext, handlerConfig)).Methods("GET")
+		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(authContext, handlerConfig, appnames)).Methods("POST")
+		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)).Methods("POST")
+		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(authContext, handlerConfig, appnames)).Methods("POST")
 
 		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")

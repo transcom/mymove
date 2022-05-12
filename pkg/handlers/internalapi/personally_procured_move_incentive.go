@@ -19,7 +19,7 @@ import (
 
 // ShowPPMIncentiveHandler returns PPM SIT estimate for a weight, move date,
 type ShowPPMIncentiveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle calculates a PPM reimbursement range.

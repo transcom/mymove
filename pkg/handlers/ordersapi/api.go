@@ -14,7 +14,7 @@ import (
 )
 
 // NewOrdersAPI the Orders API
-func NewOrdersAPI(context handlers.HandlerContext) *ordersoperations.MymoveAPI {
+func NewOrdersAPI(handlerConfig handlers.HandlerConfig) *ordersoperations.MymoveAPI {
 
 	// Wire up the handlers to the ordersAPIMux
 	ordersSpec, err := loads.Analyzed(ordersapi.SwaggerJSON, "")
@@ -24,11 +24,11 @@ func NewOrdersAPI(context handlers.HandlerContext) *ordersoperations.MymoveAPI {
 
 	ordersAPI := ordersoperations.NewMymoveAPI(ordersSpec)
 	ordersAPI.ServeError = handlers.ServeCustomError
-	ordersAPI.GetOrdersHandler = GetOrdersHandler{context}
-	ordersAPI.GetOrdersByIssuerAndOrdersNumHandler = GetOrdersByIssuerAndOrdersNumHandler{context}
-	ordersAPI.IndexOrdersForMemberHandler = IndexOrdersForMemberHandler{context}
-	ordersAPI.PostRevisionHandler = PostRevisionHandler{context}
-	ordersAPI.PostRevisionToOrdersHandler = PostRevisionToOrdersHandler{context}
+	ordersAPI.GetOrdersHandler = GetOrdersHandler{handlerConfig}
+	ordersAPI.GetOrdersByIssuerAndOrdersNumHandler = GetOrdersByIssuerAndOrdersNumHandler{handlerConfig}
+	ordersAPI.IndexOrdersForMemberHandler = IndexOrdersForMemberHandler{handlerConfig}
+	ordersAPI.PostRevisionHandler = PostRevisionHandler{handlerConfig}
+	ordersAPI.PostRevisionToOrdersHandler = PostRevisionToOrdersHandler{handlerConfig}
 	return ordersAPI
 }
 

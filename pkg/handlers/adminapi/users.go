@@ -33,7 +33,7 @@ func payloadForUserModel(o models.User) *adminmessages.User {
 
 // GetUserHandler returns a user via GET /users/{userID}
 type GetUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.UserFetcher
 	services.NewQueryFilter
 }
@@ -54,7 +54,7 @@ func (h GetUserHandler) Handle(params userop.GetUserParams) middleware.Responder
 
 // IndexUsersHandler returns a list of users via GET /users
 type IndexUsersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -103,7 +103,7 @@ func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Res
 
 // UpdateUserHandler is the handler for updating users.
 type UpdateUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.UserSessionRevocation
 	services.UserUpdater
 	services.NewQueryFilter

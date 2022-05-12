@@ -43,14 +43,14 @@ const (
 // UserListHandler handles redirection
 type UserListHandler struct {
 	Context
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // NewUserListHandler returns a new UserListHandler
-func NewUserListHandler(ac Context, hc handlers.HandlerContext) UserListHandler {
+func NewUserListHandler(ac Context, hc handlers.HandlerConfig) UserListHandler {
 	handler := UserListHandler{
-		Context:        ac,
-		HandlerContext: hc,
+		Context:       ac,
+		HandlerConfig: hc,
 	}
 	return handler
 }
@@ -275,7 +275,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 type devlocalAuthHandler struct {
 	Context
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	appnames auth.ApplicationServername
 }
 
@@ -283,11 +283,11 @@ type devlocalAuthHandler struct {
 type AssignUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac Context, hc handlers.HandlerContext, appnames auth.ApplicationServername) AssignUserHandler {
+func NewAssignUserHandler(ac Context, hc handlers.HandlerConfig, appnames auth.ApplicationServername) AssignUserHandler {
 	handler := AssignUserHandler{
-		Context:        ac,
-		HandlerContext: hc,
-		appnames:       appnames,
+		Context:       ac,
+		HandlerConfig: hc,
+		appnames:      appnames,
 	}
 	return handler
 }
@@ -340,11 +340,11 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateUserHandler devlocalAuthHandler
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac Context, hc handlers.HandlerContext, appnames auth.ApplicationServername) CreateUserHandler {
+func NewCreateUserHandler(ac Context, hc handlers.HandlerConfig, appnames auth.ApplicationServername) CreateUserHandler {
 	handler := CreateUserHandler{
-		Context:        ac,
-		HandlerContext: hc,
-		appnames:       appnames,
+		Context:       ac,
+		HandlerConfig: hc,
+		appnames:      appnames,
 	}
 	return handler
 }
@@ -370,11 +370,11 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateAndLoginUserHandler devlocalAuthHandler
 
 // NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
-func NewCreateAndLoginUserHandler(ac Context, hc handlers.HandlerContext, appnames auth.ApplicationServername) CreateAndLoginUserHandler {
+func NewCreateAndLoginUserHandler(ac Context, hc handlers.HandlerConfig, appnames auth.ApplicationServername) CreateAndLoginUserHandler {
 	handler := CreateAndLoginUserHandler{
-		Context:        ac,
-		HandlerContext: hc,
-		appnames:       appnames,
+		Context:       ac,
+		HandlerConfig: hc,
+		appnames:      appnames,
 	}
 	return handler
 }
@@ -397,7 +397,7 @@ func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 
 // createUser creates a user
 func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (*models.User, string) {
-	appCtx := h.HandlerContext.AppContextFromRequest(r)
+	appCtx := h.HandlerConfig.AppContextFromRequest(r)
 	id := uuid.Must(uuid.NewV4())
 
 	// Set up some defaults that we can pass in from a form
