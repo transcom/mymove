@@ -24,7 +24,7 @@ import (
 
 // GetMoveTaskOrderHandler fetches a Move Task Order
 type GetMoveTaskOrderHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
@@ -57,7 +57,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 
 // UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order
 type UpdateMoveTaskOrderStatusHandlerFunc struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
 }
 
@@ -129,7 +129,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 
 // UpdateMTOStatusServiceCounselingCompletedHandlerFunc updates the status of a Move (MoveTaskOrder) to MoveStatusServiceCounselingCompleted
 type UpdateMTOStatusServiceCounselingCompletedHandlerFunc struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
 }
 
@@ -204,7 +204,7 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 
 // UpdateMTOReviewedBillableWeightsAtHandlerFunc provides timestamp for a Move's (MoveTaskOrder's) ReviewedBillableWeightsAt field
 type UpdateMTOReviewedBillableWeightsAtHandlerFunc struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
 }
 
@@ -267,7 +267,7 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 
 // UpdateMoveTIORemarksHandlerFunc updates a Move's (MoveTaskOrder's) TIORemarks field
 type UpdateMoveTIORemarksHandlerFunc struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
 }
 

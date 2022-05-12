@@ -42,8 +42,8 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			Body:        requestPayload,
 		}
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handler := CreateWebhookNotificationHandler{context}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := CreateWebhookNotificationHandler{handlerConfig}
 
 		// CALL FUNCTION UNDER TEST
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -79,8 +79,8 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			HTTPRequest: request,
 		}
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handler := CreateWebhookNotificationHandler{context}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := CreateWebhookNotificationHandler{handlerConfig}
 
 		// CALL FUNCTION UNDER TEST
 		response := handler.Handle(params)
@@ -124,8 +124,8 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			Body:        requestPayload,
 		}
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handler := CreateWebhookNotificationHandler{context}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := CreateWebhookNotificationHandler{handlerConfig}
 
 		// CALL FUNCTION UNDER TEST
 		suite.NoError(params.Body.Validate(strfmt.Default))

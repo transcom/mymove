@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		subtestData.handler = CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
 			shipmentCreator,
 		}
 
@@ -422,7 +422,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		).Return(nil, err)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
 			&mockShipmentCreator,
 		}
 
@@ -569,7 +569,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
 			shipmentUpdater,
 		}
 
@@ -611,7 +611,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
 			shipmentUpdater,
 		}
 
@@ -794,7 +794,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		mockUpdater := mocks.ShipmentUpdater{}
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
 			&mockUpdater,
 		}
 
@@ -907,7 +907,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			listFetcher,
 			fetcher,
 		}
@@ -1007,7 +1007,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -1028,7 +1028,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -1043,7 +1043,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -1065,7 +1065,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -1115,10 +1115,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, order.ServiceMember)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
@@ -1149,10 +1149,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, order.ServiceMember)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
@@ -1182,10 +1182,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, order.ServiceMember)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
@@ -1220,10 +1220,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, sm1)
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
@@ -1253,10 +1253,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, order.ServiceMember)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
@@ -1287,10 +1287,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, order.ServiceMember)
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{

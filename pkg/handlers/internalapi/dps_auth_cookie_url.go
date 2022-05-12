@@ -28,7 +28,7 @@ func (e *errUserMissing) Error() string {
 
 // DPSAuthGetCookieURLHandler generates the URL to redirect to that begins the authentication process for DPS
 type DPSAuthGetCookieURLHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle generates the URL to redirect to that begins the authentication process for DPS
