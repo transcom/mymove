@@ -85,7 +85,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	golang.org/x/text v0.3.7
 	golang.org/x/tools v0.1.10
-	gotest.tools/gotestsum v1.8.0
+	gotest.tools/gotestsum v1.8.1
 	pault.ag/go/pksigner v1.0.2
 )
 
