@@ -12,7 +12,7 @@ import (
 )
 
 // NewDPSAPI returns the DPS API
-func NewDPSAPI(context handlers.HandlerContext) *dpsoperations.MymoveAPI {
+func NewDPSAPI(context handlers.HandlerConfig) *dpsoperations.MymoveAPI {
 	dpsSpec, err := loads.Analyzed(dpsapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)

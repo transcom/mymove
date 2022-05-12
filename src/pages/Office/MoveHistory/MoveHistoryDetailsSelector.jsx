@@ -22,7 +22,7 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
     case detailsTypes.STATUS:
       return (
         <div>
-          <b>Status</b>: {eventTemplate.getStatusDetails()}
+          <b>Status</b>: {eventTemplate.getStatusDetails(historyRecord)}
         </div>
       );
     case detailsTypes.PLAIN_TEXT:

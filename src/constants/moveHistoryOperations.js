@@ -25,6 +25,7 @@ const moveHistoryOperations = {
   updateBillableWeight: 'updateBillableWeight', // ghc.yaml
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
   updateReweigh: 'updateReweigh',
+  updateMTOReviewedBillableWeightsAt: 'UpdateMTOReviewedBillableWeightsAt',
 };
 
 export default moveHistoryOperations;

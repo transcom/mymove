@@ -17,14 +17,14 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetUserHandler() {
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	context.SetIWSPersonLookup(iws.TestingPersonLookup{})
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig.SetIWSPersonLookup(iws.TestingPersonLookup{})
 	dpsParams := dpsauth.Params{
 		CookieSecret:  []byte("cookie secret"),
 		CookieExpires: 60,
 	}
-	context.SetDPSAuthParams(dpsParams)
-	handler := GetUserHandler{context}
+	handlerConfig.SetDPSAuthParams(dpsParams)
+	handler := GetUserHandler{handlerConfig}
 
 	affiliation := models.AffiliationARMY
 	middleName := "Test"

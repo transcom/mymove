@@ -28,7 +28,7 @@ import (
 
 // ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MTOShipmentFetcher
 	services.ShipmentSITStatus
 }
@@ -77,10 +77,9 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
-	handlers.HandlerContext
-	mtoShipmentCreator services.MTOShipmentCreator
-	ppmShipmentCreator services.PPMShipmentCreator
-	shipmentStatus     services.ShipmentSITStatus
+	handlers.HandlerConfig
+	shipmentCreator services.ShipmentCreator
+	shipmentStatus  services.ShipmentSITStatus
 }
 
 // Handle creates the mto shipment
@@ -122,22 +121,12 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-			isPPM := mtoShipment.ShipmentType == models.MTOShipmentTypePPM
 
 			var err error
-			var ppmShipment *models.PPMShipment
-			if isPPM {
-				ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
-			} else {
-				mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
-			}
+			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
 			if err != nil {
 				return handleError(err)
-			}
-
-			if isPPM {
-				mtoShipment = &ppmShipment.Shipment
 			}
 
 			if mtoShipment == nil {
@@ -160,7 +149,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 // UpdateShipmentHandler updates shipments
 type UpdateShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.Fetcher
 	services.MTOShipmentUpdater
 	services.ShipmentSITStatus
@@ -302,7 +291,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 // DeleteShipmentHandler soft deletes a shipment
 type DeleteShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentDeleter
 }
 
@@ -369,7 +358,7 @@ func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(appCtx appcontext.Ap
 
 // ApproveShipmentHandler approves a shipment
 type ApproveShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentApprover
 	services.ShipmentSITStatus
 }
@@ -445,7 +434,7 @@ func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(appCtx appcontext.A
 
 // RequestShipmentDiversionHandler Requests a shipment diversion
 type RequestShipmentDiversionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentDiversionRequester
 	services.ShipmentSITStatus
 }
@@ -526,7 +515,7 @@ func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(ap
 
 // ApproveShipmentDiversionHandler approves a shipment diversion
 type ApproveShipmentDiversionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentDiversionApprover
 	services.ShipmentSITStatus
 }
@@ -607,7 +596,7 @@ func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(a
 
 // RejectShipmentHandler rejects a shipment
 type RejectShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentRejecter
 }
 
@@ -679,7 +668,7 @@ func (h RejectShipmentHandler) triggerShipmentRejectionEvent(appCtx appcontext.A
 
 // RequestShipmentCancellationHandler Requests a shipment diversion
 type RequestShipmentCancellationHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentCancellationRequester
 	services.ShipmentSITStatus
 }
@@ -760,7 +749,7 @@ func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEv
 
 // RequestShipmentReweighHandler Requests a shipment reweigh
 type RequestShipmentReweighHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentReweighRequester
 	services.ShipmentSITStatus
 	services.MTOShipmentUpdater
@@ -862,7 +851,7 @@ func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(appCtx
 
 // ApproveSITExtensionHandler approves a SIT extension
 type ApproveSITExtensionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.SITExtensionApprover
 	services.ShipmentSITStatus
 }
@@ -942,7 +931,7 @@ func (h ApproveSITExtensionHandler) triggerApproveSITExtensionEvent(appCtx appco
 
 // DenySITExtensionHandler denies a SIT extension
 type DenySITExtensionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.SITExtensionDenier
 	services.ShipmentSITStatus
 }
@@ -1022,7 +1011,7 @@ func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(appCtx appcontext.
 
 // CreateSITExtensionAsTOOHandler creates a SIT extension in the approved state
 type CreateSITExtensionAsTOOHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.SITExtensionCreatorAsTOO
 	services.ShipmentSITStatus
 }

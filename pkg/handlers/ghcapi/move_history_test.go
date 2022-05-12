@@ -71,7 +71,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
 
 		handler := GetMoveHistoryHandler{
-			HandlerContext:     handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerConfig:      handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			MoveHistoryFetcher: &mockHistoryFetcher,
 		}
 
@@ -116,7 +116,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
 
 		handler := GetMoveHistoryHandler{
-			HandlerContext:     handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerConfig:      handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			MoveHistoryFetcher: &mockHistoryFetcher,
 		}
 
@@ -134,7 +134,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
 
 		handler := GetMoveHistoryHandler{
-			HandlerContext:     handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerConfig:      handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			MoveHistoryFetcher: &mockHistoryFetcher,
 		}
 
@@ -151,7 +151,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
 
 		handler := GetMoveHistoryHandler{
-			HandlerContext:     handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerConfig:      handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			MoveHistoryFetcher: &mockHistoryFetcher,
 		}
 
@@ -187,9 +187,9 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 			PerPage:     swag.Int64(2), // This should limit results to only the first 2 records of the possible 4
 		}
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		handler := GetMoveHistoryHandler{
-			context,
+			handlerConfig,
 			movehistory.NewMoveHistoryFetcher(),
 		}
 

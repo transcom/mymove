@@ -80,6 +80,16 @@ func MakeTIORole(db *pop.Connection) roles.Role {
 	})
 }
 
+// MakeQaeCsrRole creates a single quality assurance and customer service role.
+func MakeQaeCsrRole(db *pop.Connection) roles.Role {
+	return MakeRole(db, Assertions{
+		Role: roles.Role{
+			RoleType: roles.RoleTypeQaeCsr,
+			RoleName: "Quality Assurance and Customer Service",
+		},
+	})
+}
+
 // MakeContractingOfficerRole creates a single contracting officer role.
 func MakeContractingOfficerRole(db *pop.Connection) roles.Role {
 	return MakeRole(db, Assertions{

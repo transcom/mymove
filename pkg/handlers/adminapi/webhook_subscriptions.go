@@ -20,7 +20,7 @@ import (
 
 // IndexWebhookSubscriptionsHandler returns a list of webhook subscriptions via GET /webhook_subscriptions
 type IndexWebhookSubscriptionsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -59,7 +59,7 @@ func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.In
 
 // GetWebhookSubscriptionHandler returns one webhookSubscription via GET /webhook_subscriptions/:ID
 type GetWebhookSubscriptionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.WebhookSubscriptionFetcher
 	services.NewQueryFilter
 }
@@ -82,7 +82,7 @@ func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWe
 
 // CreateWebhookSubscriptionHandler is the handler for creating users.
 type CreateWebhookSubscriptionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.WebhookSubscriptionCreator
 	services.NewQueryFilter
 }
@@ -121,7 +121,7 @@ func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Cr
 
 // UpdateWebhookSubscriptionHandler returns an updated webhook subscription via PATCH
 type UpdateWebhookSubscriptionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.WebhookSubscriptionUpdater
 	services.NewQueryFilter
 }

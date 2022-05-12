@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"time"
 
+	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/unit"
 
@@ -169,7 +170,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		sitExtension := subtestData.sitExtension
 
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			mtoshipment.NewMTOShipmentFetcher(),
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -222,7 +223,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
 
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			mockMTOShipmentFetcher,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -240,7 +241,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
 
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			mockMTOShipmentFetcher,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -262,10 +263,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := shipmentops.DeleteShipmentParams{
@@ -286,10 +287,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := shipmentops.DeleteShipmentParams{
@@ -311,10 +312,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := shipmentops.DeleteShipmentParams{
@@ -335,10 +336,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := shipmentops.DeleteShipmentParams{
@@ -359,10 +360,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := shipmentops.DeleteShipmentParams{
@@ -383,10 +384,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := shipmentops.DeleteShipmentParams{
@@ -447,10 +448,10 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		suite.FatalNoError(err, "Error creating a new trace ID.")
 		req = req.WithContext(trace.NewContext(req.Context(), traceID))
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -475,10 +476,10 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -502,10 +503,10 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -529,10 +530,10 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -556,10 +557,10 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -583,10 +584,10 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -610,10 +611,10 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -650,10 +651,10 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		suite.FatalNoError(err, "Error creating a new trace ID.")
 		req = req.WithContext(trace.NewContext(req.Context(), traceID))
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			requester,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -678,10 +679,10 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			requester,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -705,10 +706,10 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			requester,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -732,10 +733,10 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			requester,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -759,10 +760,10 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			requester,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -786,10 +787,10 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			requester,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -813,10 +814,10 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			requester,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -855,10 +856,10 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		suite.FatalNoError(err, "Error creating a new trace ID.")
 		req = req.WithContext(trace.NewContext(req.Context(), traceID))
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -883,10 +884,10 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -910,10 +911,10 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -937,10 +938,10 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -964,10 +965,10 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -991,10 +992,10 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1018,10 +1019,10 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveShipmentDiversionHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1058,10 +1059,10 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		suite.FatalNoError(err, "Error creating a new trace ID.")
 		req = req.WithContext(trace.NewContext(req.Context(), traceID))
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RejectShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			rejecter,
 		}
 
@@ -1090,10 +1091,10 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RejectShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			rejecter,
 		}
 		params := shipmentops.RejectShipmentParams{
@@ -1121,10 +1122,10 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RejectShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			rejecter,
 		}
 		params := shipmentops.RejectShipmentParams{
@@ -1152,10 +1153,10 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RejectShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			rejecter,
 		}
 		params := shipmentops.RejectShipmentParams{
@@ -1183,10 +1184,10 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RejectShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			rejecter,
 		}
 		params := shipmentops.RejectShipmentParams{
@@ -1214,10 +1215,10 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RejectShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			rejecter,
 		}
 		params := shipmentops.RejectShipmentParams{
@@ -1245,10 +1246,10 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RejectShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			rejecter,
 		}
 		params := shipmentops.RejectShipmentParams{
@@ -1279,10 +1280,10 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RejectShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			rejecter,
 		}
 		params := shipmentops.RejectShipmentParams{
@@ -1322,10 +1323,10 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		suite.FatalNoError(err, "Error creating a new trace ID.")
 		req = req.WithContext(trace.NewContext(req.Context(), traceID))
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentCancellationHandler{
-			handlerContext,
+			handlerConfig,
 			canceler,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1350,10 +1351,10 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentCancellationHandler{
-			handlerContext,
+			handlerConfig,
 			canceler,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1377,10 +1378,10 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentCancellationHandler{
-			handlerContext,
+			handlerConfig,
 			canceler,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1404,10 +1405,10 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentCancellationHandler{
-			handlerContext,
+			handlerConfig,
 			canceler,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1431,10 +1432,10 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentCancellationHandler{
-			handlerContext,
+			handlerConfig,
 			canceler,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1458,10 +1459,10 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentCancellationHandler{
-			handlerContext,
+			handlerConfig,
 			canceler,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1485,10 +1486,10 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := RequestShipmentCancellationHandler{
-			handlerContext,
+			handlerConfig,
 			canceler,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1523,8 +1524,8 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		suite.FatalNoError(err, "Error creating a new trace ID.")
 		req = req.WithContext(trace.NewContext(req.Context(), traceID))
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handlerContext.SetNotificationSender(suite.TestNotificationSender())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig.SetNotificationSender(suite.TestNotificationSender())
 		planner := &routemocks.Planner{}
 		planner.On("TransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1546,7 +1547,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
-			handlerContext,
+			handlerConfig,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
 			updater,
@@ -1576,7 +1577,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		planner := &routemocks.Planner{}
 		planner.On("TransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1598,7 +1599,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
-			handlerContext,
+			handlerConfig,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
 			updater,
@@ -1619,7 +1620,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		planner := &routemocks.Planner{}
 		planner.On("TransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1641,7 +1642,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
-			handlerContext,
+			handlerConfig,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
 			updater,
@@ -1663,7 +1664,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		planner := &routemocks.Planner{}
 		planner.On("TransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1685,7 +1686,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
-			handlerContext,
+			handlerConfig,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
 			updater,
@@ -1708,7 +1709,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		planner := &routemocks.Planner{}
 		planner.On("TransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1730,7 +1731,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
-			handlerContext,
+			handlerConfig,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
 			updater,
@@ -1752,7 +1753,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		planner := &routemocks.Planner{}
 		planner.On("TransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1774,7 +1775,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
-			handlerContext,
+			handlerConfig,
 			reweighRequester,
 			mtoshipment.NewShipmentSITStatus(),
 			updater,
@@ -1830,10 +1831,10 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		sitExtensionApprover := mtoshipment.NewSITExtensionApprover(moveRouter)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/approve", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := ApproveSITExtensionHandler{
-			handlerContext,
+			handlerConfig,
 			sitExtensionApprover,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1879,10 +1880,10 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 		sitExtensionDenier := mtoshipment.NewSITExtensionDenier(moveRouter)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/deny", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DenySITExtensionHandler{
-			handlerContext,
+			handlerConfig,
 			sitExtensionDenier,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1915,10 +1916,10 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		sitExtensionCreatorAsTOO := mtoshipment.NewCreateSITExtensionAsTOO()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := CreateSITExtensionAsTOOHandler{
-			handlerContext,
+			handlerConfig,
 			sitExtensionCreatorAsTOO,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -1960,10 +1961,10 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		sitExtensionCreatorAsTOO := mtoshipment.NewCreateSITExtensionAsTOO()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := CreateSITExtensionAsTOOHandler{
-			handlerContext,
+			handlerConfig,
 			sitExtensionCreatorAsTOO,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -2060,7 +2061,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	moveRouter := moverouter.NewMoveRouter()
 
 	suite.Run("Successful POST - Integration Test", func() {
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
@@ -2069,12 +2070,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
-			creator,
-			ppmCreator,
+			handlerConfig,
+			shipmentCreator,
 			sitStatus,
 		}
 		response := handler.Handle(params)
@@ -2090,28 +2091,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 500", func() {
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		params := subtestData.params
 
-		mockCreator := mocks.MTOShipmentCreator{}
-		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(&mockCreator, &ppmEstimator)
+		shipmentCreator := mocks.ShipmentCreator{}
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
-			&mockCreator,
-			ppmCreator,
+			handlerConfig,
+			&shipmentCreator,
 			sitStatus,
 		}
 
 		err := errors.New("ServerError")
 
-		mockCreator.On("CreateMTOShipment",
+		shipmentCreator.On("CreateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
+			mock.AnythingOfType("*models.MTOShipment"),
 		).Return(nil, err)
 
 		response := handler.Handle(params)
@@ -2120,7 +2117,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 422 -- Bad agent IDs set on shipment", func() {
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
@@ -2129,12 +2126,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
-			creator,
-			ppmCreator,
+			handlerConfig,
+			shipmentCreator,
 			sitStatus,
 		}
 
@@ -2155,7 +2152,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 422 - invalid input, missing pickup address", func() {
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
@@ -2164,12 +2161,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
-			creator,
-			ppmCreator,
+			handlerConfig,
+			shipmentCreator,
 			sitStatus,
 		}
 
@@ -2187,7 +2184,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
@@ -2196,12 +2193,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
-			creator,
-			ppmCreator,
+			handlerConfig,
+			shipmentCreator,
 			sitStatus,
 		}
 
@@ -2214,7 +2211,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 400 -- nil body", func() {
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
@@ -2222,12 +2219,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
-			creator,
-			ppmCreator,
+			handlerConfig,
+			shipmentCreator,
 			sitStatus,
 		}
 
@@ -2250,17 +2247,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			Move: move,
 		})
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moverouter.NewMoveRouter())
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
-			creator,
-			ppmCreator,
+			handlerConfig,
+			shipmentCreator,
 			sitStatus,
 		}
 
@@ -2361,15 +2358,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			Move: move,
 		})
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moverouter.NewMoveRouter())
 		ppmEstimator := mocks.PPMEstimator{}
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator))
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
-			creator,
-			ppmshipment.NewPPMShipmentCreator(creator, &ppmEstimator),
+			handlerConfig,
+			shipmentCreator,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
@@ -2531,7 +2528,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		handler := UpdateShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			fetcher,
 			updater,
 			mtoshipment.NewShipmentSITStatus(),
@@ -2581,7 +2578,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		handler := UpdateShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			fetcher,
 			updater,
 			mtoshipment.NewShipmentSITStatus(),
@@ -2606,7 +2603,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		handler := UpdateShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			fetcher,
 			updater,
 			mtoshipment.NewShipmentSITStatus(),
@@ -2635,7 +2632,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		handler := UpdateShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			fetcher,
 			updater,
 			mtoshipment.NewShipmentSITStatus(),
@@ -2663,7 +2660,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		handler := UpdateShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			fetcher,
 			updater,
 			mtoshipment.NewShipmentSITStatus(),
@@ -2690,7 +2687,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		fetcher := fetch.NewFetcher(builder)
 		handler := UpdateShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			fetcher,
 			&mockUpdater,
 			mtoshipment.NewShipmentSITStatus(),
