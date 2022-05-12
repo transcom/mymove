@@ -17,7 +17,7 @@ import { CheckboxField } from 'components/form/fields';
 import { maxAdvance } from 'utils/incentives';
 import { formatCentsTruncateWhole } from 'utils/formatters';
 
-const validationSchema = (maxAdvanceRequest, estimatedIncentive) => {
+const validationSchema = (nonFormattedMaxRequest, maxAdvanceRequest) => {
   return Yup.object().shape({
     advanceRequested: Yup.boolean().required('Required'),
     amountRequested: Yup.number().when('advanceRequested', {
@@ -26,7 +26,7 @@ const validationSchema = (maxAdvanceRequest, estimatedIncentive) => {
         schema
           .required('Required')
           .min(1, "The minimum advance request is $1. If you don't want an advance, select No.")
-          .max(estimatedIncentive / 100, `Enter an amount less than $${maxAdvanceRequest}`),
+          .max(nonFormattedMaxRequest, `Enter an amount less than $${maxAdvanceRequest}`),
     }),
     agreeToTerms: Yup.boolean().when('advanceRequested', {
       is: true,
@@ -51,7 +51,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={() => validationSchema(maxAdvanceToRequest, estimatedIncentive || 0)}
+      validationSchema={() => validationSchema(nonFormattedMaxToRequest, maxAdvanceToRequest)}
       onSubmit={onSubmit}
     >
       {({ isValid, isSubmitting, handleSubmit, values }) => {
@@ -98,13 +98,6 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       prefix="$"
-                      warning={
-                        mtoShipment?.ppmShipment &&
-                        values.amountRequested > nonFormattedMaxToRequest &&
-                        values.amountRequested <= nonFormattedIncentive
-                          ? `Reminder: your advance can not be more than $${maxAdvanceToRequest}`
-                          : ''
-                      }
                       hintClassName={ppmBookingStyles.innerHint}
                     />
                     <Hint>

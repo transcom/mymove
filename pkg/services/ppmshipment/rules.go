@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"math"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -104,12 +106,12 @@ func checkAdvance() ppmShipmentValidator {
 			verrs.Add("advance", "Advance must be nil if advance requested is false")
 		}
 
-		if float64(*newPPMShipment.Advance) > float64(*newPPMShipment.EstimatedIncentive) {
-			verrs.Add("advance", "Advance can not be greater than estimated incentive")
+		if float64(*newPPMShipment.Advance) > math.Floor(float64(*newPPMShipment.EstimatedIncentive)*0.6) {
+			verrs.Add("advance", "Advance can not be greater than 60% of the estimated incentive")
 		}
 
 		if float64(*newPPMShipment.Advance) < float64(1) {
-			verrs.Add("advance", "Advance can not be  value less than 1")
+			verrs.Add("advance", "Advance can not be value less than 1")
 		}
 
 		if *newPPMShipment.AdvanceRequested && *newPPMShipment.Advance == 0 {

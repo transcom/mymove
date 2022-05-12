@@ -74,17 +74,8 @@ function invalidInputs() {
   cy.get('@amountRequestedInput').clear().type(1).blur();
   cy.get('@errorMessage').should('not.exist');
 
-  // a warning is displayed when advance is greater than 60% of incentive
-  cy.get('@amountRequestedInput').clear().type(8000).blur();
-  cy.get('[data-testid="textInputWarning"]').as('warningMessage');
-  cy.get('@warningMessage').contains('Reminder: your advance can not be more than $6,000');
-  cy.get('@warningMessage').next('div').find('input').should('have.id', 'amountRequested');
-  cy.get('@saveButton').should('be.disabled');
-  cy.get('@amountRequestedInput').clear().type(1).blur();
-  cy.get('@warningMessage').should('not.exist');
-
-  // advance violates max (over 100% of incentive)
-  cy.get('@amountRequestedInput').clear().type(20000).blur();
+  // advance violates max (over 60% of incentive)
+  cy.get('@amountRequestedInput').clear().type(6001).blur();
   cy.get('@errorMessage').contains('Enter an amount less than $6,000');
   cy.get('@errorMessage').next('div').find('input').should('have.id', 'amountRequested');
   cy.get('@saveButton').should('be.disabled');
