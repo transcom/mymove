@@ -26,7 +26,7 @@ func payloadForOrganizationModel(o models.Organization) *adminmessages.Organizat
 
 // IndexOrganizationsHandler returns a list of organizations via GET /organizations
 type IndexOrganizationsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.OrganizationListFetcher
 	services.NewQueryFilter
 	services.NewPagination

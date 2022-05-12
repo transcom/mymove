@@ -36,7 +36,7 @@ func payloadForTSPPModel(o models.TransportationServiceProviderPerformance) *adm
 
 // IndexTSPPsHandler returns a list of transportation service provider performance via GET /transportation_service_provider_performances
 type IndexTSPPsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.TransportationServiceProviderPerformanceListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -82,7 +82,7 @@ func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Res
 
 // GetTSPPHandler returns a transportation service provider performance via GET /transportation_service_provider_performances/{tspId}
 type GetTSPPHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.TransportationServiceProviderPerformanceFetcher
 	services.NewQueryFilter
 }

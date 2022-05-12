@@ -37,7 +37,7 @@ func payloadForSignedCertificationModel(cert models.SignedCertification) *intern
 
 // CreateSignedCertificationHandler creates a new issue via POST /issue
 type CreateSignedCertificationHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle creates a new SignedCertification from a request payload
@@ -99,7 +99,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 
 // IndexSignedCertificationsHandler gets all signed certifications associated with a move
 type IndexSignedCertificationsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle gets a list of SignedCertifications for a move

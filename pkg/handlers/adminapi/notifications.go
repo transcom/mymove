@@ -26,7 +26,7 @@ func payloadForNotificationModel(n models.Notification) *adminmessages.Notificat
 
 // IndexNotificationsHandler is the index notification handler
 type IndexNotificationsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ListFetcher
 	services.NewQueryFilter
 	services.NewPagination

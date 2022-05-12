@@ -23,7 +23,7 @@ import (
 
 // ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
 type ListMovesHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveTaskOrderFetcher
 }
 
@@ -53,7 +53,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 
 // GetMoveTaskOrderHandler returns the details for a particular move
 type GetMoveTaskOrderHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
@@ -94,7 +94,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 
 // CreateExcessWeightRecordHandler uploads an excess weight record file
 type CreateExcessWeightRecordHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	uploader services.MoveExcessWeightUploader
 }
 
@@ -145,7 +145,7 @@ func (h CreateExcessWeightRecordHandler) Handle(params movetaskorderops.CreateEx
 
 // UpdateMTOPostCounselingInformationHandler updates the move with post-counseling information
 type UpdateMTOPostCounselingInformationHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.Fetcher
 	services.MoveTaskOrderUpdater
 	mtoAvailabilityChecker services.MoveTaskOrderChecker

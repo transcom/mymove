@@ -29,7 +29,7 @@ import (
 
 // GetPaymentRequestForMoveHandler gets payment requests associated with a move
 type GetPaymentRequestForMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestListFetcher
 }
 
@@ -76,7 +76,7 @@ func (h GetPaymentRequestForMoveHandler) Handle(
 
 // GetPaymentRequestHandler gets payment requests
 type GetPaymentRequestHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestFetcher
 }
 
@@ -132,7 +132,7 @@ func (h GetPaymentRequestHandler) Handle(
 
 // UpdatePaymentRequestStatusHandler updates payment requests status
 type UpdatePaymentRequestStatusHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestStatusUpdater
 	services.PaymentRequestFetcher
 }
@@ -255,7 +255,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 
 // ShipmentsSITBalanceHandler is the handler type for getShipmentsPaymentSITBalance
 type ShipmentsSITBalanceHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentsPaymentSITBalance
 }
 

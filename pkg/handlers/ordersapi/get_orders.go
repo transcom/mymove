@@ -13,7 +13,7 @@ import (
 
 // GetOrdersHandler returns Orders by uuid
 type GetOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle (GetOrdersHandler) responds to GET /orders/{uuid}
