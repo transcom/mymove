@@ -869,7 +869,43 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 	}
 
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
 
+func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("88007896-6ae7-4600-866a-873d3bc67fd3"),
+		email:       "actualPPMDateZIPAdvanceDone@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("9d9f0509-b2fb-42a2-aab7-58dd4d79c4e7"),
+		firstName:   "ActualPPM",
+		lastName:    "DateZIPAdvanceDone",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("acaa57ac-96f7-4411-aa07-c4bbe39e46bc"),
+		moveLocator: "ABTPPM",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("a742c4e9-24e3-4a97-995b-f355c6a14c04"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("f093a13b-4ab8-4545-b24c-eb44bf52e605"),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("90800"),
+			ActualDestinationPostalCode: models.StringPointer("30894"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
