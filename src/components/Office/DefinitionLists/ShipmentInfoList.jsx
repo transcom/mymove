@@ -10,7 +10,7 @@ import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
-const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing }) => {
+const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, showWhenCollapsed }) => {
   const {
     requestedPickupDate,
     pickupAddress,
@@ -29,7 +29,7 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing }
     warning: shipmentDefinitionListsStyles.warning,
     missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
-  setDisplayFlags(errorIfMissing, warnIfMissing, null, null, shipment);
+  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
 
   const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
   const requestedPickupDateElement = (
@@ -138,12 +138,14 @@ ShipmentInfoList.propTypes = {
   shipment: ShipmentShape.isRequired,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
+  showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
 };
 
 ShipmentInfoList.defaultProps = {
   className: '',
   warnIfMissing: [],
   errorIfMissing: [],
+  showWhenCollapsed: [],
 };
 
 export default ShipmentInfoList;

@@ -44,6 +44,21 @@ export const ShipmentShape = PropTypes.shape({
   }),
 });
 
+export const PPMShipmentShape = PropTypes.shape({
+  shipmentType: ShipmentOptionsOneOf,
+  advanceRequested: PropTypes.bool,
+  destinationPostalCode: PropTypes.string,
+  estimatedIncentive: PropTypes.number,
+  estimatedWeight: PropTypes.number,
+  expectedDepartureDate: PropTypes.string,
+  pickupPostalCode: PropTypes.string,
+  proGearWeight: PropTypes.number,
+  secondaryDestinationPostalCode: PropTypes.string,
+  secondaryPickupPostalCode: PropTypes.string,
+  spouseProGearWeight: PropTypes.number,
+  customerRemarks: PropTypes.string,
+});
+
 export const ShipmentStatusesOneOf = PropTypes.oneOf([
   shipmentStatuses.DRAFT,
   shipmentStatuses.SUBMITTED,
