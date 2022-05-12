@@ -41,6 +41,11 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
     );
 
     expect(await screen.findByLabelText('Amount requested')).toHaveValue('7,000');
-    expect(screen.getByText('Reminder: your advance can not be more than $6,666.67')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Maximum advance: $6,666.67')).toBeInTheDocument();
   });
 });

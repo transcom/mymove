@@ -80,7 +80,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     error={amountRequested > maximumAdvance}
                     errorMessage={
                       amountRequested > maximumAdvance
-                        ? `Reminder: your advance can not be more than ${formattedMaximumAdvance}`
+                        ? 'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)'
                         : ''
                     }
                   />
