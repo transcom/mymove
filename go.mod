@@ -14,7 +14,7 @@ require (
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/disintegration/imaging v1.6.2
 	github.com/dustin/go-humanize v1.0.0
-	github.com/felixge/httpsnoop v1.0.2
+	github.com/felixge/httpsnoop v1.0.3
 	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-openapi/errors v0.20.2
