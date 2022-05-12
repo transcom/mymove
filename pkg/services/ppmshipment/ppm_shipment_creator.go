@@ -88,6 +88,9 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return apperror.NewQueryError("PPM Shipment", err, "")
 		}
 
+		// Make sure the MTO shipment in the PPM shipment also points back to the PPM shipment.
+		ppmShipment.Shipment.PPMShipment = ppmShipment
+
 		return err
 	})
 	if transactionError != nil {

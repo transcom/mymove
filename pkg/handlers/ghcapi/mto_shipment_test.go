@@ -2320,15 +2320,19 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 
 		// Check MTOShipment fields.
 		payload := okResponse.Payload
+		suite.NotZero(payload.ID)
+		suite.NotEqual(uuid.Nil.String(), payload.ID.String())
 		suite.Equal(move.ID.String(), payload.MoveTaskOrderID.String())
 		suite.Equal(ghcmessages.MTOShipmentTypePPM, payload.ShipmentType)
 		suite.Equal(ghcmessages.MTOShipmentStatusSUBMITTED, payload.Status)
-		suite.NotNil(payload.CreatedAt)
-		suite.NotNil(payload.UpdatedAt)
+		suite.NotZero(payload.CreatedAt)
+		suite.NotZero(payload.UpdatedAt)
 
 		// Check PPMShipment fields.
 		ppmPayload := payload.PpmShipment
 		if suite.NotNil(ppmPayload) {
+			suite.NotZero(ppmPayload.ID)
+			suite.NotEqual(uuid.Nil.String(), ppmPayload.ID.String())
 			suite.Equal(handlers.FmtDatePtr(expectedDepartureDate), &ppmPayload.ExpectedDepartureDate)
 			suite.Equal(pickupPostalCode, ppmPayload.PickupPostalCode)
 			suite.Equal(&secondaryPickupPostalCode, ppmPayload.SecondaryPickupPostalCode)
@@ -2345,8 +2349,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), ppmPayload.SpouseProGearWeight)
 			suite.Equal(ghcmessages.PPMShipmentStatusDRAFT, ppmPayload.Status) // TODO: Should this be submitted?
 			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
-			suite.NotNil(ppmPayload.CreatedAt)
-			suite.NotNil(ppmPayload.UpdatedAt)
+			suite.NotZero(ppmPayload.CreatedAt)
+			suite.NotZero(ppmPayload.UpdatedAt)
 		}
 	})
 
@@ -2409,15 +2413,19 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 
 		// Check MTOShipment fields.
 		payload := okResponse.Payload
+		suite.NotZero(payload.ID)
+		suite.NotEqual(uuid.Nil.String(), payload.ID.String())
 		suite.Equal(move.ID.String(), payload.MoveTaskOrderID.String())
 		suite.Equal(ghcmessages.MTOShipmentTypePPM, payload.ShipmentType)
 		suite.Equal(ghcmessages.MTOShipmentStatusSUBMITTED, payload.Status)
-		suite.NotNil(payload.CreatedAt)
-		suite.NotNil(payload.UpdatedAt)
+		suite.NotZero(payload.CreatedAt)
+		suite.NotZero(payload.UpdatedAt)
 
 		// Check PPMShipment fields.
 		ppmPayload := payload.PpmShipment
 		if suite.NotNil(ppmPayload) {
+			suite.NotZero(ppmPayload.ID)
+			suite.NotEqual(uuid.Nil.String(), ppmPayload.ID.String())
 			suite.Equal(handlers.FmtDatePtr(expectedDepartureDate), &ppmPayload.ExpectedDepartureDate)
 			suite.Equal(pickupPostalCode, ppmPayload.PickupPostalCode)
 			suite.Equal(destinationPostalCode, ppmPayload.DestinationPostalCode)
@@ -2426,8 +2434,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(&hasProGear, ppmPayload.HasProGear)
 			suite.Equal(ghcmessages.PPMShipmentStatusDRAFT, ppmPayload.Status) // TODO: Should this be submitted?
 			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
-			suite.NotNil(ppmPayload.CreatedAt)
-			suite.NotNil(ppmPayload.UpdatedAt)
+			suite.NotZero(ppmPayload.CreatedAt)
+			suite.NotZero(ppmPayload.UpdatedAt)
 		}
 	})
 }
