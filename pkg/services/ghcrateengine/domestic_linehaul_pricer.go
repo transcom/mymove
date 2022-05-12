@@ -45,19 +45,16 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 		return 0, nil, errors.New("ServiceArea is required")
 	}
 
-	var domesticLinehaulPrice models.ReDomesticLinehaulPrice
-	var err error
 	isPeakPeriod := IsPeakPeriod(referenceDate)
+	finalWeight := weight
+
 	if isPPM && weight < dlhPricerMinimumWeight {
-		domesticLinehaulPrice, err = fetchDomesticLinehaulPrice(appCtx, contractCode, isPeakPeriod, distance, dlhPricerMinimumWeight, serviceArea)
-		if err != nil {
-			return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
-		}
-	} else {
-		domesticLinehaulPrice, err = fetchDomesticLinehaulPrice(appCtx, contractCode, isPeakPeriod, distance, weight, serviceArea)
-		if err != nil {
-			return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
-		}
+		finalWeight = dlhPricerMinimumWeight
+	}
+
+	domesticLinehaulPrice, err := fetchDomesticLinehaulPrice(appCtx, contractCode, isPeakPeriod, distance, finalWeight, serviceArea)
+	if err != nil {
+		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
 	}
 
 	contractYear, err := fetchContractYear(appCtx, domesticLinehaulPrice.ContractID, referenceDate)
@@ -65,7 +62,7 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
 
-	baseTotalPrice := weight.ToCWTFloat64() * distance.Float64() * domesticLinehaulPrice.PriceMillicents.Float64()
+	baseTotalPrice := finalWeight.ToCWTFloat64() * distance.Float64() * domesticLinehaulPrice.PriceMillicents.Float64()
 	escalatedTotalPrice := contractYear.EscalationCompounded * baseTotalPrice
 
 	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
@@ -78,13 +75,11 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(domesticLinehaulPrice.PriceMillicents.ToDollarFloatNoRound(), 3)},
 	}
 
-	// if isPPM && weight < dlhPricerMinimumWeight {
-	// 	weightFactor := float64(weight) / float64(dlhPricerMinimumWeight)
-	// 	cost := float64(weightFactor) * float64(totalPriceCents)
-	// 	cost := weightFactor.Float64()
-	// 	fmt.Printf("==================== %v: %v : %v : %v ===============", totalPriceCents, cost, weight, weightFactor)
-	// 	return totalPriceCents, params, nil
-	// }
+	if isPPM && weight < dlhPricerMinimumWeight {
+		weightFactor := float64(weight) / float64(dlhPricerMinimumWeight)
+		cost := float64(weightFactor) * float64(totalPriceCents)
+		return unit.Cents(cost), params, nil
+	}
 
 	return totalPriceCents, params, nil
 }

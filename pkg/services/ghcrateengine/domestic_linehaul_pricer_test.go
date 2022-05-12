@@ -117,11 +117,41 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 
 		halfPriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(250), dlhTestServiceArea, isPPM)
 		suite.NoError(err)
-		suite.Equal(basePriceCents, halfPriceCents)
+		suite.Equal(basePriceCents/2, halfPriceCents)
 
 		fifthPriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(100), dlhTestServiceArea, isPPM)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/5, fifthPriceCents)
+	})
+
+	suite.Run("successfully finds linehaul price for ppm with weight < 500 lbs with PriceUsingParams method", func() {
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
+		params := paymentServiceItem.PaymentServiceItemParams
+		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
+		weightBilledIndex := 4
+
+		params[weightBilledIndex].Value = "500"
+		basePriceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+
+		params[weightBilledIndex].Value = "250"
+		halfPriceCents, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(basePriceCents/2, halfPriceCents)
+
+		params[weightBilledIndex].Value = "100"
+		fifthPriceCents, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(basePriceCents/5, fifthPriceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dlhTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dlhTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dlhTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(dlhTestBasePriceMillicents.ToDollarFloatNoRound(), 3)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.Run("not finding a rate record", func() {
