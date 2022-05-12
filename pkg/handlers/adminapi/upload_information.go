@@ -42,7 +42,7 @@ func payloadForUpload(u services.UploadInformation) *adminmessages.UploadInforma
 
 // GetUploadHandler returns an upload via GET /uploads/{uploadID}
 type GetUploadHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.UploadInformationFetcher
 }
 

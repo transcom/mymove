@@ -61,10 +61,10 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerValidate() {
 		MoveID:                     strfmt.UUID(ppm.MoveID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := CreateWeightTicketSetDocumentHandler{context}
+	handlerConfig.SetFileStorer(fakeS3)
+	handler := CreateWeightTicketSetDocumentHandler{handlerConfig}
 	response := handler.Handle(newWeightTicketSetDocParams)
 	suite.IsNotErrResponse(response)
 	createdResponse := response.(*movedocop.CreateWeightTicketDocumentOK)
@@ -115,10 +115,10 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreate() {
 		suite.Run(t.weightTicketSetType, func() {
 			newWeightTicketSetDocParams := createWeightTicketSetDocument(suite, t.weightTicketSetType)
 
-			context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+			handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 			fakeS3 := storageTest.NewFakeS3Storage(true)
-			context.SetFileStorer(fakeS3)
-			handler := CreateWeightTicketSetDocumentHandler{context}
+			handlerConfig.SetFileStorer(fakeS3)
+			handler := CreateWeightTicketSetDocumentHandler{handlerConfig}
 			response := handler.Handle(newWeightTicketSetDocParams)
 			suite.IsNotErrResponse(response)
 			createdResponse := response.(*movedocop.CreateWeightTicketDocumentOK)
@@ -167,10 +167,10 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreateFailure() {
 			MoveID:                     strfmt.UUID(ppm.MoveID.String()),
 		}
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		context.SetFileStorer(fakeS3)
-		handler := CreateWeightTicketSetDocumentHandler{context}
+		handlerConfig.SetFileStorer(fakeS3)
+		handler := CreateWeightTicketSetDocumentHandler{handlerConfig}
 		response := handler.Handle(newWeightTicketSetDocParams)
 		suite.CheckErrorResponse(response, 422, "weight ticket set for type CAR must have values for vehicle make and model")
 	})
@@ -200,10 +200,10 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreateFailure() {
 			MoveID:                     strfmt.UUID(ppm.MoveID.String()),
 		}
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		context.SetFileStorer(fakeS3)
-		handler := CreateWeightTicketSetDocumentHandler{context}
+		handlerConfig.SetFileStorer(fakeS3)
+		handler := CreateWeightTicketSetDocumentHandler{handlerConfig}
 		response := handler.Handle(newWeightTicketSetDocParams)
 		suite.CheckErrorResponse(response, 422, "weight ticket set for type BOX_TRUCK must have a value for vehicle nickname")
 	})

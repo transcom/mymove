@@ -34,7 +34,7 @@ func payloadForAdminUserModel(o models.AdminUser) *adminmessages.AdminUser {
 
 // IndexAdminUsersHandler returns a list of admin users via GET /admin_users
 type IndexAdminUsersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.AdminUserListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -73,7 +73,7 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 
 // GetAdminUserHandler retrieves a handler for admin users
 type GetAdminUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.AdminUserFetcher
 	services.NewQueryFilter
 }
@@ -98,7 +98,7 @@ func (h GetAdminUserHandler) Handle(params adminuserop.GetAdminUserParams) middl
 
 // CreateAdminUserHandler is the handler for creating users.
 type CreateAdminUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.AdminUserCreator
 	services.NewQueryFilter
 }
@@ -144,7 +144,7 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 
 // UpdateAdminUserHandler is the handler for updating users
 type UpdateAdminUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.AdminUserUpdater
 	services.NewQueryFilter
 }

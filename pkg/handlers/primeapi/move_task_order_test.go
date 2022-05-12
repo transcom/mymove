@@ -55,10 +55,10 @@ func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
 	since := handlers.FmtDateTime(lastFetch)
 	request := httptest.NewRequest("GET", fmt.Sprintf("/moves?since=%s", since.String()), nil)
 	params := movetaskorderops.ListMovesParams{HTTPRequest: request, Since: since}
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 	// make the request
-	handler := ListMovesHandler{HandlerContext: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
+	handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -73,8 +73,8 @@ func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := GetMoveTaskOrderHandler{context,
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := GetMoveTaskOrderHandler{handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
@@ -280,13 +280,13 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 	request := httptest.NewRequest("POST", "/move-task-orders/{moveTaskOrderID}", nil)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
+	handlerConfig.SetFileStorer(fakeS3)
 	handler := CreateExcessWeightRecordHandler{
-		context,
+		handlerConfig,
 		// Must use the Prime service object in particular:
-		moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(context.FileStorer())),
+		moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(handlerConfig.FileStorer())),
 	}
 
 	suite.T().Run("Success - Created an excess weight record", func(t *testing.T) {
@@ -397,7 +397,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			fetcher,
 			updater,
 			mtoChecker,
@@ -444,7 +444,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter)
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			fetcher,
 			updater,
 			mtoChecker,
@@ -460,7 +460,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockFetcher,
 			&mockUpdater,
 			mtoChecker,
@@ -485,7 +485,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockFetcher,
 			&mockUpdater,
 			mtoChecker,
@@ -508,7 +508,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockFetcher,
 			&mockUpdater,
 			mtoChecker,
@@ -531,7 +531,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockFetcher,
 			&mockUpdater,
 			mtoChecker,

@@ -15,7 +15,7 @@ import (
 
 // ListCustomerSupportRemarksHandler is a struct that describes listing customer support remarks for a move
 type ListCustomerSupportRemarksHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.CustomerSupportRemarksFetcher
 }
 

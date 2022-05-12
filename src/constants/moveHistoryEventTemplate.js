@@ -180,7 +180,7 @@ export const createPaymentRequestReweighUpdate = buildMoveHistoryEventTemplate({
   eventName: moveHistoryOperations.updateReweigh,
   tableName: dbTables.payment_requests,
   detailsType: detailsTypes.STATUS,
-  getEventNameDisplay: () => 'Created payment request',
+  getEventNameDisplay: ({ changedValues }) => `Created payment request ${changedValues?.payment_request_number}`,
   getStatusDetails: () => {
     return 'Pending';
   },
@@ -191,7 +191,7 @@ export const createPaymentRequestShipmentUpdate = buildMoveHistoryEventTemplate(
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: dbTables.payment_requests,
   detailsType: detailsTypes.STATUS,
-  getEventNameDisplay: () => 'Created payment request',
+  getEventNameDisplay: ({ changedValues }) => `Created payment request ${changedValues?.payment_request_number}`,
   getStatusDetails: () => {
     return 'Pending';
   },
@@ -411,6 +411,25 @@ export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
   getEventNameDisplay: () => 'Submitted payment request',
 });
 
+export const updatePaymentRequestEvent = buildMoveHistoryEventTemplate({
+  action: 'UPDATE',
+  eventName: '',
+  tableName: dbTables.payment_requests,
+  detailsType: detailsTypes.STATUS,
+  getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
+  getStatusDetails: ({ changedValues }) => {
+    const { status } = changedValues;
+    switch (status) {
+      case 'SENT_TO_GEX':
+        return 'Sent to GEX';
+      case 'RECEIVED_BY_GEX':
+        return 'Received';
+      default:
+        return PAYMENT_REQUEST_STATUS_LABELS[status];
+    }
+  },
+});
+
 export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
   action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateServiceItemStatus,
@@ -492,6 +511,15 @@ export const undefinedEvent = buildMoveHistoryEventTemplate({
   },
 });
 
+export const updateMTOReviewedBillableWeightsAt = buildMoveHistoryEventTemplate({
+  action: dbActions.UPDATE,
+  eventName: moveHistoryOperations.updateMTOReviewedBillableWeightsAt,
+  tableName: dbTables.moves,
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: () => 'Updated move',
+  getDetailsPlainText: () => 'Reviewed weights',
+});
+
 const allMoveHistoryEventTemplates = [
   acknowledgeExcessWeightRiskEvent,
   approveShipmentEvent,
@@ -519,10 +547,12 @@ const allMoveHistoryEventTemplates = [
   updateMTOShipmentAgentEvent,
   updateMTOShipmentDeprecatePaymentRequest,
   updateOrderEvent,
+  updatePaymentRequestEvent,
   updatePaymentRequestStatus,
   updateServiceItemStatusEvent,
   updateBillableWeightEvent,
   updateAllowanceEvent,
+  updateMTOReviewedBillableWeightsAt,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {
