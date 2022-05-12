@@ -107,6 +107,23 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
+	suite.Run("successfully finds linehaul price for ppm with weight < 500 lbs with Price method", func() {
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulServiceItem()
+		isPPM := true
+		// the PPM price for weights < 500 should be prorated from a base of 500
+		basePriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(500), dlhTestServiceArea, isPPM)
+		suite.NoError(err)
+
+		halfPriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(250), dlhTestServiceArea, isPPM)
+		suite.NoError(err)
+		suite.Equal(basePriceCents, halfPriceCents)
+
+		fifthPriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(100), dlhTestServiceArea, isPPM)
+		suite.NoError(err)
+		suite.Equal(basePriceCents/5, fifthPriceCents)
+	})
+
 	suite.Run("not finding a rate record", func() {
 		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
