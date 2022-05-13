@@ -88,30 +88,18 @@ func checkAdvance() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
-		if newPPMShipment.Advance == nil {
-			if newPPMShipment.AdvanceRequested == nil || !*newPPMShipment.AdvanceRequested {
-				return verrs
-			}
-		}
-
-		if newPPMShipment.Advance != nil {
-			if newPPMShipment.AdvanceRequested == nil || !*newPPMShipment.AdvanceRequested {
+		if newPPMShipment.AdvanceRequested == nil || !*newPPMShipment.AdvanceRequested {
+			if newPPMShipment.Advance != nil {
 				verrs.Add("advance", "Advance must be nil because of the advance requested value")
-				return verrs
 			}
-		}
-
-		if *newPPMShipment.AdvanceRequested && newPPMShipment.Advance == nil {
-			verrs.Add("advance", "An advance amount is required")
-			return verrs
-		}
-
-		if float64(*newPPMShipment.Advance) > math.Floor(float64(*newPPMShipment.EstimatedIncentive)*0.6) {
-			verrs.Add("advance", "Advance can not be greater than 60% of the estimated incentive")
-		}
-
-		if float64(*newPPMShipment.Advance) < float64(1) {
-			verrs.Add("advance", "Advance can not be value less than 1")
+		} else {
+			if newPPMShipment.Advance == nil {
+				verrs.Add("advance", "An advance amount is required")
+			} else if float64(*newPPMShipment.Advance) < float64(1) {
+				verrs.Add("advance", "Advance can not be value less than 1")
+			} else if float64(*newPPMShipment.Advance) > math.Floor(float64(*newPPMShipment.EstimatedIncentive)*0.6) {
+				verrs.Add("advance", "Advance can not be greater than 60% of the estimated incentive")
+			}
 		}
 
 		return verrs
