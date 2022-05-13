@@ -76,13 +76,13 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 			associations := query.NewQueryAssociationsPreload(queryAssociations)
 			moves, err := h.MoveListFetcher.FetchMoveList(appCtx, queryFilters, associations, pagination, ordering)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), nil
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			movesCount := len(moves)
 
 			totalMoveCount, err := h.MoveListFetcher.FetchMoveCount(appCtx, queryFilters)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), nil
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			payload := make(adminmessages.Moves, movesCount)
