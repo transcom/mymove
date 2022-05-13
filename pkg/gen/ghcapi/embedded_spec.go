@@ -4432,6 +4432,11 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "requiredDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "reweigh": {
           "x-nullable": true,
           "x-omitempty": true,
@@ -11709,6 +11714,11 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "requiredDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "reweigh": {
           "x-nullable": true,
