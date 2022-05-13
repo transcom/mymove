@@ -49,7 +49,7 @@
     "react-query-devtools": "^2.6.3",
     "react-rangeslider": "^2.2.0",
     "react-redux": "^7.2.8",
-    "react-router": "^5.1.2",
+    "react-router": "^5.3.1",
     "react-router-dom": "^5.2.1",
     "react-router-last-location": "^2.0.1",
     "react-router-tabs": "^1.1.1",
