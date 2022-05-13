@@ -357,146 +357,100 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 	})
 
 	suite.Run("CheckAdvance()", func() {
-		suite.Run("failure - advance not set", func() {
-			shipmentID := uuid.Must(uuid.NewV4())
-			advanceRequested := false
-			newAdvance := unit.Cents(0)
-			newAdvanceRequested := true
+		suite.Run("failure", func() {
+			id := uuid.Must(uuid.NewV4())
 			estimatedIncentive := unit.Cents(17000)
+			falsePointer := models.BoolPointer(false)
+			truePointer := models.BoolPointer(true)
+			zeroAdvance := unit.Cents(0)
+			lessThanOneAdvance := unit.Cents(1) // amount less than $1
+			normalAdvance := unit.Cents(10000)  // below 60%
+			highAdvance := unit.Cents(12000)    // above 60%
 
-			oldPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   &advanceRequested,
-				Advance:            nil,
-			}
-
-			newPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   &newAdvanceRequested,
-				Advance:            &newAdvance,
-			}
-
-			err := checkAdvance().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
-			suite.Error(err)
-		})
-
-		suite.Run("failure - advance not nil", func() {
-			shipmentID := uuid.Must(uuid.NewV4())
-			newAdvanceRequested := false
-			newAdvance := unit.Cents(10000)
-			estimatedIncentive := unit.Cents(17000)
-
-			oldPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
+			defaultOldShipmentValues := models.PPMShipment{
+				ShipmentID:         id,
 				EstimatedIncentive: &estimatedIncentive,
 				AdvanceRequested:   nil,
 				Advance:            nil,
 			}
 
-			newPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   &newAdvanceRequested,
-				Advance:            &newAdvance,
+			testCases := map[string]struct {
+				oldPPMShipment models.PPMShipment
+				newPPMShipment models.PPMShipment
+			}{
+				"advance not set": {
+					oldPPMShipment: models.PPMShipment{
+						ShipmentID:         id,
+						EstimatedIncentive: &estimatedIncentive,
+						AdvanceRequested:   falsePointer,
+						Advance:            nil,
+					},
+					newPPMShipment: models.PPMShipment{
+						ShipmentID:         id,
+						EstimatedIncentive: &estimatedIncentive,
+						AdvanceRequested:   truePointer,
+						Advance:            &zeroAdvance,
+					},
+				},
+				"advance not nil": {
+					oldPPMShipment: defaultOldShipmentValues,
+					newPPMShipment: models.PPMShipment{
+						ShipmentID:         id,
+						EstimatedIncentive: &estimatedIncentive,
+						AdvanceRequested:   falsePointer,
+						Advance:            &normalAdvance,
+					},
+				},
+				"advance set for greater than 60% of estimated incentive": {
+					oldPPMShipment: defaultOldShipmentValues,
+					newPPMShipment: models.PPMShipment{
+						ShipmentID:         id,
+						EstimatedIncentive: &estimatedIncentive,
+						AdvanceRequested:   truePointer,
+						Advance:            &highAdvance,
+					},
+				},
+				"advance less than 1": {
+					oldPPMShipment: defaultOldShipmentValues,
+					newPPMShipment: models.PPMShipment{
+						ShipmentID:         id,
+						EstimatedIncentive: &estimatedIncentive,
+						AdvanceRequested:   truePointer,
+						Advance:            &lessThanOneAdvance,
+					},
+				},
+				"advance is not nil": {
+					oldPPMShipment: defaultOldShipmentValues,
+					newPPMShipment: models.PPMShipment{
+						ShipmentID:         id,
+						EstimatedIncentive: &estimatedIncentive,
+						AdvanceRequested:   nil,
+						Advance:            &normalAdvance,
+					},
+				},
+				"advance requested is true while advance is nil": {
+					oldPPMShipment: defaultOldShipmentValues,
+					newPPMShipment: models.PPMShipment{
+						ShipmentID:         id,
+						EstimatedIncentive: &estimatedIncentive,
+						AdvanceRequested:   truePointer,
+						Advance:            nil,
+					},
+				},
 			}
 
-			err := checkAdvance().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
-			suite.Error(err)
-		})
-
-		suite.Run("failure - advance set for greater than estimated incentive", func() {
-			shipmentID := uuid.Must(uuid.NewV4())
-			newAdvanceRequested := true
-			newAdvance := unit.Cents(18000)
-			estimatedIncentive := unit.Cents(17000)
-
-			oldPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   nil,
-				Advance:            nil,
+			for name, testCase := range testCases {
+				suite.Run(name, func() {
+					err := checkAdvance().Validate(suite.AppContextForTest(), testCase.newPPMShipment, &testCase.oldPPMShipment, nil)
+					switch verr := err.(type) {
+					case *validate.Errors:
+						suite.True(verr.HasAny())
+						suite.Contains(verr.Keys(), "advance")
+					default:
+						suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+					}
+				})
 			}
-
-			newPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   &newAdvanceRequested,
-				Advance:            &newAdvance,
-			}
-
-			err := checkAdvance().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
-			suite.Error(err)
-		})
-
-		suite.Run("failure - advance less than 1", func() {
-			shipmentID := uuid.Must(uuid.NewV4())
-			newAdvanceRequested := true
-			newAdvance := unit.Cents(1)
-			estimatedIncentive := unit.Cents(17000)
-
-			oldPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   nil,
-				Advance:            nil,
-			}
-
-			newPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   &newAdvanceRequested,
-				Advance:            &newAdvance,
-			}
-
-			err := checkAdvance().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
-			suite.Error(err)
-		})
-
-		suite.Run("failure - advance is not nil", func() {
-			shipmentID := uuid.Must(uuid.NewV4())
-			newAdvance := unit.Cents(10000)
-			estimatedIncentive := unit.Cents(17000)
-
-			oldPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   nil,
-				Advance:            nil,
-			}
-
-			newPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   nil,
-				Advance:            &newAdvance,
-			}
-
-			err := checkAdvance().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
-			suite.Error(err)
-		})
-
-		suite.Run("failure - advance requested is true while advance is nil", func() {
-			shipmentID := uuid.Must(uuid.NewV4())
-			estimatedIncentive := unit.Cents(170000)
-
-			oldPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   nil,
-				Advance:            nil,
-			}
-
-			newPPMShipment := models.PPMShipment{
-				ShipmentID:         shipmentID,
-				EstimatedIncentive: &estimatedIncentive,
-				AdvanceRequested:   models.BoolPointer(true),
-				Advance:            nil,
-			}
-
-			err := checkAdvance().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
-			suite.Error(err)
 		})
 	})
 
