@@ -453,6 +453,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			err := checkAdvance().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
 			suite.Error(err)
 		})
+
 		suite.Run("failure - advance is not nil", func() {
 			shipmentID := uuid.Must(uuid.NewV4())
 			newAdvance := unit.Cents(10000)
@@ -470,6 +471,28 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 				EstimatedIncentive: &estimatedIncentive,
 				AdvanceRequested:   nil,
 				Advance:            &newAdvance,
+			}
+
+			err := checkAdvance().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
+			suite.Error(err)
+		})
+
+		suite.Run("failure - advance requested is true while advance is nil", func() {
+			shipmentID := uuid.Must(uuid.NewV4())
+			estimatedIncentive := unit.Cents(170000)
+
+			oldPPMShipment := models.PPMShipment{
+				ShipmentID:         shipmentID,
+				EstimatedIncentive: &estimatedIncentive,
+				AdvanceRequested:   nil,
+				Advance:            nil,
+			}
+
+			newPPMShipment := models.PPMShipment{
+				ShipmentID:         shipmentID,
+				EstimatedIncentive: &estimatedIncentive,
+				AdvanceRequested:   models.BoolPointer(true),
+				Advance:            nil,
 			}
 
 			err := checkAdvance().Validate(suite.AppContextForTest(), newPPMShipment, &oldPPMShipment, nil)
