@@ -47,3 +47,8 @@ writing, the file above is over 550 lines of code supporting 32 distinct event
 templates. At the time of this writing, it's estimated that we will be adding
 another 21 distinct event templates.
 
+Some notes to noodle on for more background information
+
+> Investigate if there is a better way to generate Event Templates and possibly
+> load them dynamically based on what folder they're in.
+
