@@ -12,11 +12,12 @@ type MigrateSuite struct {
 	testingsuite.PopTestSuite
 }
 
+// This suite uses the high privileged role.
 func TestMigrateSuite(t *testing.T) {
 	ms := &MigrateSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(
 			"migrate",
-			testingsuite.WithHighPrivPSQLRole(),
+			testingsuite.WithHighPrivPSQLRole(), // WithPerTestTransaction cannot be used in conjunction with the HighPrivPSQLRole
 		),
 	}
 	suite.Run(t, ms)
