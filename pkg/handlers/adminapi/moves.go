@@ -135,8 +135,9 @@ func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Res
 			}
 
 			if updatedMove == nil {
-				appCtx.Logger().Debug(fmt.Sprintf("adminapi.UpdateMoveHandler - No Move returned from ShowHide update, but no error returned either. ID: %s", moveID))
-				return moveop.NewUpdateMoveInternalServerError(), nil
+				err = apperror.NewInternalServerError(fmt.Sprintf("adminapi.UpdateMoveHandler - No Move returned from ShowHide update, but no error returned either. ID: %s", moveID))
+				appCtx.Logger().Debug(err.Error())
+				return moveop.NewUpdateMoveInternalServerError(), err
 			}
 
 			movePayload := payloadForMoveModel(*updatedMove)
