@@ -279,10 +279,16 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					sessionStore,
 				)
 
-				if revokeErr != nil || validationErrors != nil {
+				if revokeErr != nil {
 					err = apperror.NewInternalServerError("Error revoking user session")
-					appCtx.Logger().Error(err.Error(), zap.Error(revokeErr), zap.Error(verrs))
-					return userop.NewUpdateUserInternalServerError(), err
+					appCtx.Logger().Error(err.Error(), zap.Error(revokeErr))
+					return userop.NewUpdateUserInternalServerError(), revokeErr
+				}
+
+				if validationErrors != nil {
+					err = apperror.NewInternalServerError("Error revoking user session")
+					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
+					return userop.NewUpdateUserInternalServerError(), validationErrors
 				}
 			}
 
