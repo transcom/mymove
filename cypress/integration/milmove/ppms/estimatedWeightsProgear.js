@@ -3,7 +3,7 @@ import {
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
   submitsEstimatedWeights,
   submitsEstimatedWeightsAndProGear,
-} from '../../../support/ppmShared';
+} from '../../../support/ppmCustomerShared';
 
 describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   before(() => {
