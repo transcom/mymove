@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -169,7 +170,8 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 
 			// Don't allow Admin Users to deactivate themselves
 			if adminUserID == appCtx.Session().AdminUserID && payload.Active != nil {
-				return adminuserop.NewUpdateAdminUserForbidden(), nil
+				err = apperror.NewForbiddenError("Admin users are not allowed to deactivate themselves")
+				return adminuserop.NewUpdateAdminUserForbidden(), err
 			}
 
 			updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(appCtx, adminUserID, payload)
