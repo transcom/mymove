@@ -149,7 +149,7 @@
     "eslint-plugin-ato": "file:./eslint-plugin-ato",
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-security": "^1.4.0",
+    "eslint-plugin-security": "^1.5.0",
     "eslint-plugin-you-dont-need-lodash-underscore": "^6.12.0",
     "happo-plugin-storybook": "^2.10.3",
     "happo.io": "^7.1.1",
