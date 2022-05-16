@@ -9,4 +9,9 @@ describe('Move History ModifiedBy view', () => {
     expect(screen.getByText('Spaceman, Leo')).toBeInTheDocument();
     expect(screen.getByText('leos@example.com | 555-555-5555')).toBeInTheDocument();
   });
+
+  it('supports system modifications when all attributes are blank', () => {
+    render(<ModifiedBy firstName="" lastName="" email="" phone="" />);
+    expect(screen.getByText('MilMove')).toBeInTheDocument();
+  });
 });
