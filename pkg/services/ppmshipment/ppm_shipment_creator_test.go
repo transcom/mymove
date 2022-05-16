@@ -160,6 +160,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		estimatedIncentive := unit.Cents(123456)
 		subtestData := createSubtestData(appCtx, testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
+				Status:                models.PPMShipmentStatusSubmitted,
 				ExpectedDepartureDate: expectedDepartureDate,
 				PickupPostalCode:      pickupPostalCode,
 				DestinationPostalCode: destinationPostalCode,
@@ -188,7 +189,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.Equal(&sitExpected, createdPPMShipment.SitExpected)
 			suite.Equal(&estimatedWeight, createdPPMShipment.EstimatedWeight)
 			suite.Equal(&hasProGear, createdPPMShipment.HasProGear)
-			suite.Equal(models.PPMShipmentStatusDraft, createdPPMShipment.Status) // TODO: Should this be submitted?
+			suite.Equal(models.PPMShipmentStatusSubmitted, createdPPMShipment.Status)
 			suite.Equal(&estimatedIncentive, createdPPMShipment.EstimatedIncentive)
 			suite.NotZero(createdPPMShipment.CreatedAt)
 			suite.NotZero(createdPPMShipment.UpdatedAt)

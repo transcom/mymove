@@ -2344,7 +2344,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(&hasProGear, ppmPayload.HasProGear)
 			suite.Equal(handlers.FmtPoundPtr(&proGearWeight), ppmPayload.ProGearWeight)
 			suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), ppmPayload.SpouseProGearWeight)
-			suite.Equal(ghcmessages.PPMShipmentStatusDRAFT, ppmPayload.Status) // TODO: Should this be submitted?
+			suite.Equal(ghcmessages.PPMShipmentStatusSUBMITTED, ppmPayload.Status)
 			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
 			suite.NotZero(ppmPayload.CreatedAt)
 			suite.NotZero(ppmPayload.UpdatedAt)
@@ -2429,7 +2429,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(sitExpected, ppmPayload.SitExpected)
 			suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), ppmPayload.EstimatedWeight)
 			suite.Equal(&hasProGear, ppmPayload.HasProGear)
-			suite.Equal(ghcmessages.PPMShipmentStatusDRAFT, ppmPayload.Status) // TODO: Should this be submitted?
+			suite.Equal(ghcmessages.PPMShipmentStatusSUBMITTED, ppmPayload.Status)
 			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
 			suite.NotZero(ppmPayload.CreatedAt)
 			suite.NotZero(ppmPayload.UpdatedAt)
