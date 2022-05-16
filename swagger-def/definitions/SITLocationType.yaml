@@ -1,0 +1,5 @@
+description: The list of SIT location types.
+type: string
+enum:
+  - ORIGIN
+  - DESTINATION

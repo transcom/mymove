@@ -61,7 +61,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	testMTOShipmentObjects := suite.setUpMTOShipmentObjects()
 
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter)
-	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator()
+	ppmEstimator := mocks.PPMEstimator{}
+	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
 
@@ -215,7 +216,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		pickupPostal := "11111"
 		destinationPostalCode := "41414"
 		sitExpected := false
-
 		// reset Body params to have PPM fields
 		params.Body = &internalmessages.CreateShipment{
 			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
@@ -227,6 +227,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			},
 			ShipmentType: &ppmShipmentType,
 		}
+
+		// When a customer first creates a move, there is not enough data to calculate an incentive yet.
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil).Once()
 
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
