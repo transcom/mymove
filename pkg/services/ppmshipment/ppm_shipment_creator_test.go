@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
@@ -145,4 +146,52 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.Equal(tt.expectedErrorMsg, err.Error())
 		})
 	}
+
+	suite.Run("Can successfully create a PPMShipment as SC", func() {
+		appCtx := suite.AppContextForTest()
+
+		// Set required fields for PPMShipment
+		expectedDepartureDate := testdatagen.NextValidMoveDate
+		pickupPostalCode := "29212"
+		destinationPostalCode := "78234"
+		sitExpected := false
+		estimatedWeight := unit.Pound(2450)
+		hasProGear := false
+		estimatedIncentive := unit.Cents(123456)
+		subtestData := createSubtestData(appCtx, testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				ExpectedDepartureDate: expectedDepartureDate,
+				PickupPostalCode:      pickupPostalCode,
+				DestinationPostalCode: destinationPostalCode,
+				SitExpected:           &sitExpected,
+				EstimatedWeight:       &estimatedWeight,
+				HasProGear:            &hasProGear,
+			},
+		})
+
+		ppmEstimator.On(
+			"EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(&estimatedIncentive, nil).Once()
+
+		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
+
+		suite.Nil(err)
+		if suite.NotNil(createdPPMShipment) {
+			suite.NotZero(createdPPMShipment.ID)
+			suite.NotEqual(uuid.Nil.String(), createdPPMShipment.ID.String())
+			suite.Equal(expectedDepartureDate, createdPPMShipment.ExpectedDepartureDate)
+			suite.Equal(pickupPostalCode, createdPPMShipment.PickupPostalCode)
+			suite.Equal(destinationPostalCode, createdPPMShipment.DestinationPostalCode)
+			suite.Equal(&sitExpected, createdPPMShipment.SitExpected)
+			suite.Equal(&estimatedWeight, createdPPMShipment.EstimatedWeight)
+			suite.Equal(&hasProGear, createdPPMShipment.HasProGear)
+			suite.Equal(models.PPMShipmentStatusDraft, createdPPMShipment.Status) // TODO: Should this be submitted?
+			suite.Equal(&estimatedIncentive, createdPPMShipment.EstimatedIncentive)
+			suite.NotZero(createdPPMShipment.CreatedAt)
+			suite.NotZero(createdPPMShipment.UpdatedAt)
+		}
+	})
 }
