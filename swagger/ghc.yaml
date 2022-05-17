@@ -4709,6 +4709,10 @@ definitions:
       requestedDeliveryDate:
         format: date
         type: string
+      requiredDeliveryDate:
+        x-nullable: true
+        format: date
+        type: string
       approvedDate:
         format: date-time
         type: string
