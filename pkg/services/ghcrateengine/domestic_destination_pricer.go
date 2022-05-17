@@ -51,8 +51,8 @@ func (p domesticDestinationPricer) Price(appCtx appcontext.AppContext, contractC
 	}
 
 	finalWeight := weight
-	if isPPM && weight < dlhPricerMinimumWeight {
-		finalWeight = dlhPricerMinimumWeight
+	if isPPM && weight < minDomesticWeight {
+		finalWeight = minDomesticWeight
 	}
 
 	basePrice := domServiceAreaPrice.PriceCents.Float64() * finalWeight.ToCWTFloat64()
@@ -66,8 +66,8 @@ func (p domesticDestinationPricer) Price(appCtx appcontext.AppContext, contractC
 		{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
 	}
 
-	if isPPM && weight < dlhPricerMinimumWeight {
-		weightFactor := float64(weight) / float64(dlhPricerMinimumWeight)
+	if isPPM && weight < minDomesticWeight {
+		weightFactor := float64(weight) / float64(minDomesticWeight)
 		cost := float64(weightFactor) * float64(totalCost)
 		return unit.Cents(cost), pricingParams, nil
 	}
