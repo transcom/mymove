@@ -136,7 +136,9 @@ const QAECSRMoveSearch = () => {
                 </label>
               </div>
               <TextField id="foobar" label="Search" name="searchText" />
-              <Button type="submit">Search</Button>
+              <Button type="submit" disabled={!formik.isValid}>
+                Search
+              </Button>
             </Form>
           );
         }}
