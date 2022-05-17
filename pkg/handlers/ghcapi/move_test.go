@@ -125,6 +125,62 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 }
 
+func (suite *HandlerSuite) TestSearchMovesHandler() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	suite.T().Run("Successful move search by locator", func(t *testing.T) {
+		mockFetcher := mocks.MoveFetcher{}
+
+		handler := SearchMovesHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			MoveFetcher:    &mockFetcher,
+		}
+
+		mockFetcher.On("FetchMove",
+			mock.AnythingOfType("*appcontext.appContext"),
+			move.Locator,
+			mock.Anything,
+		).Return(&move, nil)
+
+		params := moveops.SearchMovesParams{
+			HTTPRequest: req,
+			Locator:     &move.Locator,
+			DodID:       nil,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.SearchMovesOK{}, response)
+
+		payload := response.(*moveops.SearchMovesOK).Payload
+
+		suite.Equal(move.ID.String(), (*payload).SearchMoves[0].ID.String())
+	})
+
+	suite.T().Run("Successful move search by DoD ID", func(t *testing.T) {
+		mockFetcher := mocks.MoveFetcher{}
+
+		handler := SearchMovesHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			MoveFetcher:    &mockFetcher,
+		}
+
+		params := moveops.SearchMovesParams{
+			HTTPRequest: req,
+			Locator:     nil,
+			DodID:       move.Orders.ServiceMember.Edipi,
+		}
+		response := handler.Handle(params)
+		suite.IsType(&moveops.SearchMovesOK{}, response)
+
+		payload := response.(*moveops.SearchMovesOK).Payload
+
+		suite.Equal(move.ID.String(), (*payload).SearchMoves[0].ID.String())
+	})
+}
+
 func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 

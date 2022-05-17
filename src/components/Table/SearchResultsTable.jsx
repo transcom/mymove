@@ -3,54 +3,43 @@ import { GridContainer } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
 
-import styles from './TableQueue.module.scss';
+import styles from './SearchResultsTable.module.scss';
 
 import Table from 'components/Table/Table';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import { SortShape } from 'constants/queues';
 
-// TableQueue is a react-table that uses react-hooks to fetch, filter, sort and page data
-const TableQueue = ({
-  title,
-  columns,
-  manualSortBy,
-  manualFilters,
-  disableMultiSort,
-  defaultCanSort,
-  disableSortBy,
-  defaultSortedColumns,
-  defaultHiddenColumns,
-  handleClick,
-  useQueries,
-  showFilters,
-  showPagination,
-  // search,
-}) => {
-  // console.log('TableQueue');
-  const [paramSort, setParamSort] = useState(defaultSortedColumns);
-  const [paramFilters, setParamFilters] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentPageSize, setCurrentPageSize] = useState(20);
+// SearchResultsTable is a react-table that uses react-hooks to fetch, filter, sort and page data
+const SearchResultsTable = (props) => {
+  const {
+    title,
+    columns,
+    manualSortBy,
+    manualFilters,
+    disableMultiSort,
+    defaultCanSort,
+    disableSortBy,
+    defaultSortedColumns,
+    defaultHiddenColumns,
+    handleClick,
+    showFilters,
+    showPagination,
+    searchKey,
+    searchValue,
+    data,
+  } = props;
+  // const [paramSort, setParamSort] = useState(defaultSortedColumns);
+  // const [paramFilters, setParamFilters] = useState([]);
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPageSize, setCurrentPageSize] = useState(20);
   const [pageCount, setPageCount] = useState(0);
 
-  const { id, desc } = paramSort.length ? paramSort[0] : {};
+  // const { id, desc } = paramSort.length ? paramSort[0] : {};
 
-  const {
-    queueResult: { totalCount = 0, data = [], page = 1, perPage = 20 },
-    isLoading,
-    isError,
-  } = useQueries({
-    sort: id,
-    order: desc ? 'desc' : 'asc',
-    filters: paramFilters,
-    currentPage,
-    currentPageSize,
-    // search,
-  });
-
-  // react-table setup below
+  // const { totalCount = 0, data = [], page = 1, perPage = 20 } = searchResult;
+  const totalCount = 1;
+  const page = 1;
+  const perPage = 20;
 
   const defaultColumn = useMemo(
     () => ({
@@ -59,8 +48,11 @@ const TableQueue = ({
     }),
     [],
   );
-  const tableData = useMemo(() => data, [data]);
-  const tableColumns = useMemo(() => columns, [columns]);
+  // console.log(searchResult);
+  // console.log('Data', data, isLoading, isError);
+  const tableData = useMemo(() => {
+    return data;
+  }, [data]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -77,7 +69,7 @@ const TableQueue = ({
     state: { filters, pageIndex, pageSize, sortBy },
   } = useTable(
     {
-      columns: tableColumns,
+      columns,
       data: tableData,
       initialState: {
         hiddenColumns: defaultHiddenColumns,
@@ -102,22 +94,26 @@ const TableQueue = ({
 
   // When these table states change, fetch new data!
   useEffect(() => {
-    if (!isLoading && !isError) {
-      setParamSort(sortBy);
-      setParamFilters(filters);
-      setCurrentPage(pageIndex + 1);
-      setCurrentPageSize(pageSize);
-      setPageCount(Math.ceil(totalCount / pageSize));
-    }
-  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount]);
+    // console.log('useEffect', isLoading, isError);
+    // if (!isLoading && !isError) {
+    // console.log('useEffect not skipped');
+    // setParamSort(sortBy);
+    // setParamFilters(filters);
+    // setCurrentPage(pageIndex + 1);
+    // setCurrentPageSize(pageSize);
+    setPageCount(Math.ceil(totalCount / pageSize));
+    // }
+  }, [sortBy, filters, pageIndex, pageSize, totalCount, searchKey, searchValue]);
+  // }, [isLoading, isError, totalCount, searchKey, searchValue]);
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  // if (isLoading) return <LoadingPlaceholder />;
+  // if (isError) return <SomethingWentWrong />;
 
   return (
-    <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
+    <GridContainer data-testid="table-search" containerSize="widescreen" className={styles.SearchResultsTable}>
       <h1>{`${title} (${totalCount})`}</h1>
       <div className={styles.tableContainer}>
+        <p>{JSON.stringify(data)}</p>
         <Table
           showFilters={showFilters}
           showPagination={showPagination}
@@ -143,11 +139,12 @@ const TableQueue = ({
   );
 };
 
-TableQueue.propTypes = {
+// TODO use an actual shape here
+const SearchResultsShape = PropTypes.object;
+
+SearchResultsTable.propTypes = {
   // handleClick is the handler to handle functionality to click on a row
   handleClick: PropTypes.func.isRequired,
-  // useQueries is the react-query hook call to handle data fetching
-  useQueries: PropTypes.func.isRequired,
   // title is the table title
   title: PropTypes.string.isRequired,
   // columns is the columns to show in the table
@@ -171,10 +168,12 @@ TableQueue.propTypes = {
   // defaultHiddenColumns is an array of columns to hide
   defaultHiddenColumns: PropTypes.arrayOf(PropTypes.string),
   // TODO would need to handle move code and dod id
-  // search: PropTypes.string,
+  searchKey: PropTypes.string,
+  searchValue: PropTypes.string,
+  data: SearchResultsShape,
 };
 
-TableQueue.defaultProps = {
+SearchResultsTable.defaultProps = {
   showFilters: false,
   showPagination: false,
   manualSortBy: false,
@@ -184,6 +183,9 @@ TableQueue.defaultProps = {
   disableSortBy: true,
   defaultSortedColumns: [],
   defaultHiddenColumns: ['id'],
+  searchKey: 'moveCode',
+  searchValue: '',
+  data: {},
 };
 
-export default TableQueue;
+export default SearchResultsTable;

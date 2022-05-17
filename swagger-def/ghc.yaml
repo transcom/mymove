@@ -2010,6 +2010,41 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
+  /moves/search:
+    get:
+      produces:
+        - application/json
+      summary: Search moves by locator, DOD ID, or customer name
+      description: >
+        Search moves by locator, DOD ID, or customer name. Used by QAE and CSR users.
+      operationId: searchMoves
+      tags:
+        - move
+      parameters:
+        - in: query
+          name: locator
+          type: string
+          minLength: 6
+          maxLength: 6
+          description: Move locator
+        - in: query
+          name: dodID
+          type: string
+          minLength: 10
+          maxLength: 10
+          description: DOD ID
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/SearchMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+
   '/tac/valid':
     get:
       summary: Validation of a TAC value
@@ -3583,6 +3618,49 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+  SearchMoves:
+    type: array
+    items:
+      $ref: '#/definitions/SearchMove'
+  SearchMove:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      customer:
+        $ref: '#/definitions/Customer'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      locator:
+        type: string
+      submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      requestedMoveDate:
+        format: date
+        type: string
+        x-nullable: true
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      shipmentsCount:
+        type: integer
+      originDutyLocation:
+        $ref: 'definitions/DutyLocation.yaml'
+      destinationDutyLocation:
+        $ref: 'definitions/DutyLocation.yaml'
+  SearchMovesResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchMoves:
+        $ref: '#/definitions/SearchMoves'
   GBLOC:
     type: string
     enum:
