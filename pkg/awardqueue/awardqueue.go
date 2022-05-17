@@ -97,13 +97,6 @@ func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(appCtx appcon
 	return nil
 }
 
-// waitForLock MUST be called within a transaction!
-func waitForLock(appCtx appcontext.AppContext, id int) error {
-
-	// obtain transaction-level advisory-lock
-	return appCtx.DB().RawQuery("SELECT pg_advisory_xact_lock($1)", id).Exec()
-}
-
 // NewAwardQueue creates a new AwardQueue
 func NewAwardQueue() *AwardQueue {
 	return &AwardQueue{}

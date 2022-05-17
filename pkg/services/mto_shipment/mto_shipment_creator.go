@@ -275,7 +275,7 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 		}
 	}
 
-	if serviceItems != nil && len(serviceItems) > 0 {
+	if len(serviceItems) > 0 {
 		for _, item := range serviceItems {
 			if item.ID != uuid.Nil {
 				verrs.Add("mtoServiceItems:id", "cannot be set for new service items")
