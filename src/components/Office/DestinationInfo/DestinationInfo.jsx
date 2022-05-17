@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { func, bool, string } from 'prop-types';
 
+import styles from './DestinationInfo.module.scss';
+
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField } from 'components/form/fields';
@@ -42,7 +44,7 @@ const DestinationInfo = ({ setFieldValue, dutyZip, isUseDutyZIPChecked, postalCo
   };
 
   return (
-    <SectionWrapper>
+    <SectionWrapper className={styles.DestinationInfo}>
       <h2>Destination info</h2>
       <div className="display-inline-block">
         <TextField

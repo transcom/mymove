@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { func, bool, string } from 'prop-types';
 
+import styles from './OriginInfo.module.scss';
+
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
@@ -42,7 +44,7 @@ const OriginInfo = ({ setFieldValue, currentZip, isUseResidentialAddressZIPCheck
   };
 
   return (
-    <SectionWrapper>
+    <SectionWrapper className={styles.OriginInfo}>
       <h2>Origin info</h2>
       <DatePickerInput label="Planned departure date" name="plannedDepartureDate" required />
       <div className="display-inline-block">
@@ -57,7 +59,6 @@ const OriginInfo = ({ setFieldValue, currentZip, isUseResidentialAddressZIPCheck
           validate={(value) => postalCodeValidate(value, 'origin', 'originPostalCode')}
         />
       </div>
-
       <CheckboxField
         id="useResidentialAddressZIP"
         name="useResidentialAddressZIP"
