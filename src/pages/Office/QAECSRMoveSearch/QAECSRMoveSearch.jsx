@@ -116,8 +116,6 @@ const QAECSRMoveSearch = () => {
         initialValues={{ searchType: 'moveCode', searchText: '' }}
         onSubmit={onSubmit}
         validationSchema={validationSchema}
-        validateOnMount
-        validateOnChange
       >
         {(formik) => {
           return (
