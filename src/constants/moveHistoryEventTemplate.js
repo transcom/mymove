@@ -233,7 +233,7 @@ export const requestShipmentDiversionEvent = buildMoveHistoryEventTemplate({
 export const requestShipmentReweighEvent = buildMoveHistoryEventTemplate({
   action: dbActions.INSERT,
   eventName: moveHistoryOperations.requestShipmentReweigh,
-  tableName: 'reweighs',
+  tableName: dbTables.reweighs,
   detailsType: detailsTypes.PLAIN_TEXT,
   getEventNameDisplay: () => 'Updated shipment',
   getDetailsPlainText: (historyRecord) => {
@@ -403,6 +403,17 @@ export const updateMTOShipmentDeprecatePaymentRequest = buildMoveHistoryEventTem
   },
 });
 
+export const reweighPaymentRequest = buildMoveHistoryEventTemplate({
+  action: dbActions.UPDATE,
+  eventName: moveHistoryOperations.updateReweigh,
+  tableName: dbTables.reweighs,
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: ({ context }) => `Updated payment request ${context[0]?.payment_request_number}`,
+  getDetailsPlainText: () => {
+    return 'Recalculated payment request';
+  },
+});
+
 export const updatePaymentRequestStatus = buildMoveHistoryEventTemplate({
   action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updatePaymentRequestStatus,
@@ -553,6 +564,7 @@ const allMoveHistoryEventTemplates = [
   updateBillableWeightEvent,
   updateAllowanceEvent,
   updateMTOReviewedBillableWeightsAt,
+  reweighPaymentRequest,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {
