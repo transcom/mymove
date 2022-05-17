@@ -78,7 +78,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 			suite.FailNow("failed", "Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
 		}
 		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
-		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 		paramsWithBelowMinimumWeight[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
 
 		priceCents, _, err := fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
