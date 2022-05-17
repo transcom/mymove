@@ -89,6 +89,8 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 				result = 300
 			}
 		}
+	case models.MTOShipmentTypePPM:
+		result = weight
 	default:
 		switch code {
 		case models.ReServiceCodeDLH,
