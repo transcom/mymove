@@ -1,18 +1,25 @@
 import React from 'react';
 import { Fieldset, FormGroup, Radio, Grid, Label } from '@trussworks/react-uswds';
 import { useField } from 'formik';
+import PropTypes from 'prop-types';
 
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
-const ShipmentWeight = () => {
+const ShipmentWeight = ({ authorizedWeight }) => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
+  const [estimatedWeight, , estimatedWeightHelper] = useField('estimatedWeight');
+
+  const estimatedWeightValue = Number(estimatedWeight.value || '0');
   const hasProGear = proGearInput.value === true;
 
   const handleProGear = (event) => {
     hasProGearHelper.setValue(event.target.value === 'yes');
+  };
+  const handleEstimatedWeight = (event) => {
+    estimatedWeightHelper.setValue(event.target.value);
   };
 
   return (
@@ -32,8 +39,13 @@ const ShipmentWeight = () => {
               thousandsSeparator=","
               lazy={false} // immediate masking evaluation
               suffix="lbs"
+              onChange={handleEstimatedWeight}
+              warning={
+                estimatedWeightValue > authorizedWeight
+                  ? "Note: This weight exceeds the customer's weight allowance."
+                  : ''
+              }
             />
-
             <FormGroup>
               <Label className={styles.Label}>Pro-gear?</Label>
               <Radio
@@ -55,10 +67,10 @@ const ShipmentWeight = () => {
                 onChange={handleProGear}
               />
             </FormGroup>
-
             {hasProGear && (
               <>
                 <MaskedTextField
+                  defaultValue="0"
                   name="proGearWeight"
                   label="Estimated pro-gear weight"
                   id="proGearWeight"
@@ -70,6 +82,7 @@ const ShipmentWeight = () => {
                   suffix="lbs"
                 />
                 <MaskedTextField
+                  defaultValue="0"
                   name="spouseProGearWeight"
                   label="Estimated spouse pro-gear weight"
                   id="spouseProGearWeight"
@@ -90,3 +103,11 @@ const ShipmentWeight = () => {
 };
 
 export default ShipmentWeight;
+
+ShipmentWeight.propTypes = {
+  authorizedWeight: PropTypes.string,
+};
+
+ShipmentWeight.defaultProps = {
+  authorizedWeight: '0',
+};
