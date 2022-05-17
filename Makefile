@@ -280,9 +280,6 @@ bin/webhook-client: $(wildcard cmd/webhook-client/**/*.go) $(PKG_GOSRC)
 bin/read-alb-logs: $(wildcard cmd/read-alb-logs/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/report-ecs: $(wildcard cmd/report-ecs/**/*.go) $(PKG_GOSRC)
-	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
-
 bin/send-to-gex: $(wildcard cmd/send-to-gex/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
@@ -381,7 +378,6 @@ build_tools: bin/gin \
 	bin/prime-api-client \
 	bin/webhook-client \
 	bin/read-alb-logs \
-	bin/report-ecs \
 	bin/send-to-gex \
 	bin/tls-checker ## Build all tools
 
