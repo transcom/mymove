@@ -30,11 +30,13 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 
 	isPPMShipment := shipment.ShipmentType == models.MTOShipmentTypePPM
 
-	if isPPMShipment {
-		shipment.Status = models.MTOShipmentStatusDraft
-	} else {
-		// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
-		shipment.Status = models.MTOShipmentStatusSubmitted
+	if shipment.Status == "" {
+		if isPPMShipment {
+			shipment.Status = models.MTOShipmentStatusDraft
+		} else {
+			// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
+			shipment.Status = models.MTOShipmentStatusSubmitted
+		}
 	}
 
 	var mtoShipment *models.MTOShipment

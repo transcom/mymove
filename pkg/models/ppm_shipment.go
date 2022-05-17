@@ -31,6 +31,16 @@ const (
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
 )
 
+// SITLocationType represents whether the SIT at the origin or destination
+type SITLocationType string
+
+const (
+	// SITLocationTypeOrigin captures enum value "ORIGIN"
+	SITLocationTypeOrigin SITLocationType = "ORIGIN"
+	// SITLocationTypeDestination captures enum value "DESTINATION"
+	SITLocationTypeDestination SITLocationType = "DESTINATION"
+)
+
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID         `json:"id" db:"id"`
@@ -62,6 +72,11 @@ type PPMShipment struct {
 	Advance                        *unit.Cents       `json:"advance" db:"advance"`
 	AdvanceReceived                *bool             `json:"advance_received" db:"advance_received"`
 	ActualAdvance                  *unit.Cents       `json:"actual_advance" db:"actual_advance"`
+	SITLocation                    *SITLocationType  `json:"sit_location" db:"sit_location"`
+	SITEstimatedWeight             *unit.Pound       `json:"sit_estimated_weight" db:"sit_estimated_weight"`
+	SITEstimatedEntryDate          *time.Time        `json:"sit_estimated_entry_date" db:"sit_estimated_entry_date"`
+	SITEstimatedDepartureDate      *time.Time        `json:"sit_estimated_departure_date" db:"sit_estimated_departure_date"`
+	SITEstimatedCost               *unit.Cents       `json:"sit_estimated_cost" db:"sit_estimated_cost"`
 }
 
 // PPMShipments is a list of PPMs
