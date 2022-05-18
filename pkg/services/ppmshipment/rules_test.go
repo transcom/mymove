@@ -375,10 +375,11 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			}
 
 			testCases := map[string]struct {
-				oldPPMShipment models.PPMShipment
-				newPPMShipment models.PPMShipment
+				oldPPMShipment   models.PPMShipment
+				newPPMShipment   models.PPMShipment
+				expectedErrorMsg string
 			}{
-				"advance not set": {
+				"advance was requested but amount set to 0": {
 					oldPPMShipment: models.PPMShipment{
 						ShipmentID:         id,
 						EstimatedIncentive: &estimatedIncentive,
@@ -391,8 +392,9 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						AdvanceRequested:   truePointer,
 						Advance:            &zeroAdvance,
 					},
+					expectedErrorMsg: "Advance cannot be a value less than $1",
 				},
-				"advance not nil": {
+				"advance wasn't requested but amount isn't nil": {
 					oldPPMShipment: defaultOldShipmentValues,
 					newPPMShipment: models.PPMShipment{
 						ShipmentID:         id,
@@ -400,6 +402,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						AdvanceRequested:   falsePointer,
 						Advance:            &normalAdvance,
 					},
+					expectedErrorMsg: "Advance must be nil because of the advance requested value",
 				},
 				"advance set for greater than 60% of estimated incentive": {
 					oldPPMShipment: defaultOldShipmentValues,
@@ -409,8 +412,9 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						AdvanceRequested:   truePointer,
 						Advance:            &highAdvance,
 					},
+					expectedErrorMsg: "Advance can not be greater than 60% of the estimated incentive",
 				},
-				"advance less than 1": {
+				"advance amount less than 1": {
 					oldPPMShipment: defaultOldShipmentValues,
 					newPPMShipment: models.PPMShipment{
 						ShipmentID:         id,
@@ -418,8 +422,9 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						AdvanceRequested:   truePointer,
 						Advance:            &lessThanOneAdvance,
 					},
+					expectedErrorMsg: "Advance cannot be a value less than $1",
 				},
-				"advance is not nil": {
+				"advance requested is nil but amount is not nil": {
 					oldPPMShipment: defaultOldShipmentValues,
 					newPPMShipment: models.PPMShipment{
 						ShipmentID:         id,
@@ -427,6 +432,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						AdvanceRequested:   nil,
 						Advance:            &normalAdvance,
 					},
+					expectedErrorMsg: "Advance must be nil because of the advance requested value",
 				},
 				"advance requested is true while advance is nil": {
 					oldPPMShipment: defaultOldShipmentValues,
@@ -436,16 +442,22 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						AdvanceRequested:   truePointer,
 						Advance:            nil,
 					},
+					expectedErrorMsg: "An advance amount is required",
 				},
 			}
 
 			for name, testCase := range testCases {
+				name := name
+				testCase := testCase
+
 				suite.Run(name, func() {
 					err := checkAdvance().Validate(suite.AppContextForTest(), testCase.newPPMShipment, &testCase.oldPPMShipment, nil)
+
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(verr.HasAny())
 						suite.Contains(verr.Keys(), "advance")
+						suite.Equal(testCase.expectedErrorMsg, verr.Error())
 					default:
 						suite.Failf("expected *validate.Errors", "%t - %v", err, err)
 					}
