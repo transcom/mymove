@@ -35,7 +35,7 @@ var CreateableServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
 
 // CreateMTOServiceItemHandler is the handler to create MTO service items
 type CreateMTOServiceItemHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	mtoServiceItemCreator  services.MTOServiceItemCreator
 	mtoAvailabilityChecker services.MoveTaskOrderChecker
 }
@@ -116,7 +116,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 // UpdateMTOServiceItemHandler is the handler to update MTO service items
 type UpdateMTOServiceItemHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MTOServiceItemUpdater
 }
 

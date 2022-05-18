@@ -21,7 +21,7 @@ import (
 
 // GetUserHandler returns user information given an encrypted token
 type GetUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 var affiliationMap = map[models.ServiceMemberAffiliation]dpsmessages.Affiliation{

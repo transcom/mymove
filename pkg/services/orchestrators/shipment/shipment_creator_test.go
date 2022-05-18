@@ -121,6 +121,14 @@ func (suite ShipmentSuite) TestCreateShipment() {
 			},
 			models.MTOShipmentStatusDraft,
 		},
+		"PPM can be set to another status": {
+			models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+				PPMShipment:  &models.PPMShipment{},
+			},
+			models.MTOShipmentStatusSubmitted,
+		},
 		"HHG is set to Submitted": {
 			models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHG,

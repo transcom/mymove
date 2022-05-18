@@ -124,6 +124,31 @@ properties:
     type: string
     x-nullable: true
     x-omitempty: false
+  sitLocation:
+    allOf:
+      - $ref: 'SITLocationType.yaml'
+      - x-nullable: true
+      - x-omitempty: false
+  sitEstimatedWeight:
+    type: integer
+    example: 2000
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedEntryDate:
+    format: date
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedDepartureDate:
+    format: date
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedCost:
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
   eTag:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
     type: string

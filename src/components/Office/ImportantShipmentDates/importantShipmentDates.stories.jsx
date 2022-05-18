@@ -7,5 +7,11 @@ export default {
 };
 
 export const Default = () => (
-  <ImportantShipmentDates requestedPickupDate="Thursday, 26 Mar 2020" scheduledPickupDate="Friday, 27 Mar 2020" />
+  <ImportantShipmentDates
+    requestedPickupDate="Thursday, 26 Mar 2020"
+    scheduledPickupDate="Friday, 27 Mar 2020"
+    requiredDeliveryDate="Monday, 30 Mar 2020"
+  />
 );
+
+export const EmptyState = () => <ImportantShipmentDates />;

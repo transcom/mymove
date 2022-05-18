@@ -23,9 +23,9 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
+	handlerConfig.SetFileStorer(fakeS3)
 
 	testdatagen.MakeDefaultContractor(suite.DB())
 
@@ -34,8 +34,8 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		req = suite.AuthenticateUserRequest(req, primeUser)
 
 		handler := CreateUploadHandler{
-			context,
-			paymentrequest.NewPaymentRequestUploadCreator(context.FileStorer()),
+			handlerConfig,
+			paymentrequest.NewPaymentRequestUploadCreator(handlerConfig.FileStorer()),
 		}
 
 		file := suite.Fixture("test.pdf")
@@ -54,8 +54,8 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		badFormatID := strfmt.UUID("gb7b134a-7c44-45f2-9114-bb0831cc5db3")
 
 		handler := CreateUploadHandler{
-			context,
-			paymentrequest.NewPaymentRequestUploadCreator(context.FileStorer()),
+			handlerConfig,
+			paymentrequest.NewPaymentRequestUploadCreator(handlerConfig.FileStorer()),
 		}
 
 		file := suite.Fixture("test.pdf")
@@ -76,8 +76,8 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		badFormatID := strfmt.UUID(uuid.Nil.String())
 
 		handler := CreateUploadHandler{
-			context,
-			paymentrequest.NewPaymentRequestUploadCreator(context.FileStorer()),
+			handlerConfig,
+			paymentrequest.NewPaymentRequestUploadCreator(handlerConfig.FileStorer()),
 		}
 
 		file := suite.Fixture("test.pdf")

@@ -10,7 +10,7 @@ import {
   setMobileViewport,
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
   signInAndNavigateFromHomePageToReviewPage,
-} from '../../../support/ppmShared';
+} from '../../../support/ppmCustomerShared';
 
 import { submitMove } from '../../mymove/utilities/customer';
 

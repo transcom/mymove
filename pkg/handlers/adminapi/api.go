@@ -30,7 +30,7 @@ import (
 )
 
 // NewAdminAPI returns the admin API
-func NewAdminAPI(ctx handlers.HandlerContext) *adminops.MymoveAPI {
+func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	// Wire up the handlers to the publicAPIMux
 	adminSpec, err := loads.Analyzed(adminapi.SwaggerJSON, "")
@@ -46,28 +46,28 @@ func NewAdminAPI(ctx handlers.HandlerContext) *adminops.MymoveAPI {
 	adminAPI.ServeError = handlers.ServeCustomError
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
-		ctx,
+		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.OfficeUsersGetOfficeUserHandler = GetOfficeUserHandler{
-		ctx,
+		handlerConfig,
 		officeuser.NewOfficeUserFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	userRolesCreator := usersroles.NewUsersRolesCreator()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
-		ctx,
-		officeuser.NewOfficeUserCreator(queryBuilder, ctx.NotificationSender()),
+		handlerConfig,
+		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
 		userRolesCreator,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
-		ctx,
+		handlerConfig,
 		officeUpdater,
 		query.NewQueryFilter,
 		userRolesCreator,
@@ -75,103 +75,103 @@ func NewAdminAPI(ctx handlers.HandlerContext) *adminops.MymoveAPI {
 	}
 
 	adminAPI.OfficeIndexOfficesHandler = IndexOfficesHandler{
-		ctx,
+		handlerConfig,
 		office.NewOfficeListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.OrganizationIndexOrganizationsHandler = IndexOrganizationsHandler{
-		ctx,
+		handlerConfig,
 		organization.NewOrganizationListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.TransportationServiceProviderPerformancesIndexTSPPsHandler = IndexTSPPsHandler{
-		ctx,
+		handlerConfig,
 		tspop.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.TransportationServiceProviderPerformancesGetTSPPHandler = GetTSPPHandler{
-		ctx,
+		handlerConfig,
 		tspop.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.ElectronicOrderIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
-		ctx,
+		handlerConfig,
 		electronicorder.NewElectronicOrderListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.ElectronicOrderGetElectronicOrdersTotalsHandler = GetElectronicOrdersTotalsHandler{
-		ctx,
+		handlerConfig,
 		electronicorder.NewElectronicOrdersCategoricalCountsFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.AdminUsersIndexAdminUsersHandler = IndexAdminUsersHandler{
-		ctx,
+		handlerConfig,
 		adminuser.NewAdminUserListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.UsersUpdateUserHandler = UpdateUserHandler{
-		ctx,
+		handlerConfig,
 		user.NewUserSessionRevocation(queryBuilder),
-		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, ctx.NotificationSender()),
+		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{
-		ctx,
+		handlerConfig,
 		adminuser.NewAdminUserFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.AdminUsersCreateAdminUserHandler = CreateAdminUserHandler{
-		ctx,
-		adminuser.NewAdminUserCreator(queryBuilder, ctx.NotificationSender()),
+		handlerConfig,
+		adminuser.NewAdminUserCreator(queryBuilder, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.AdminUsersUpdateAdminUserHandler = UpdateAdminUserHandler{
-		ctx,
+		handlerConfig,
 		adminUpdater,
 		query.NewQueryFilter,
 	}
 
 	adminAPI.UsersGetUserHandler = GetUserHandler{
-		ctx,
+		handlerConfig,
 		user.NewUserFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.UsersIndexUsersHandler = IndexUsersHandler{
-		ctx,
+		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
-		ctx,
+		handlerConfig,
 		upload.NewUploadInformationFetcher(),
 	}
 
 	adminAPI.NotificationIndexNotificationsHandler = IndexNotificationsHandler{
-		ctx,
+		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.MoveIndexMovesHandler = IndexMovesHandler{
-		ctx,
+		handlerConfig,
 		move.NewMoveListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
@@ -179,7 +179,7 @@ func NewAdminAPI(ctx handlers.HandlerContext) *adminops.MymoveAPI {
 
 	moveRouter := move.NewMoveRouter()
 	adminAPI.MoveUpdateMoveHandler = UpdateMoveHandler{
-		ctx,
+		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
@@ -188,30 +188,30 @@ func NewAdminAPI(ctx handlers.HandlerContext) *adminops.MymoveAPI {
 	}
 
 	adminAPI.MoveGetMoveHandler = GetMoveHandler{
-		ctx,
+		handlerConfig,
 	}
 
 	adminAPI.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = IndexWebhookSubscriptionsHandler{
-		ctx,
+		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.WebhookSubscriptionsGetWebhookSubscriptionHandler = GetWebhookSubscriptionHandler{
-		ctx,
+		handlerConfig,
 		webhooksubscription.NewWebhookSubscriptionFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.WebhookSubscriptionsCreateWebhookSubscriptionHandler = CreateWebhookSubscriptionHandler{
-		ctx,
+		handlerConfig,
 		webhooksubscription.NewWebhookSubscriptionCreator(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.WebhookSubscriptionsUpdateWebhookSubscriptionHandler = UpdateWebhookSubscriptionHandler{
-		ctx,
+		handlerConfig,
 		webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 		query.NewQueryFilter,
 	}

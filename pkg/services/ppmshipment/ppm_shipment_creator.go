@@ -11,12 +11,14 @@ import (
 
 // ppmShipmentCreator sets up the service object, and passes in
 type ppmShipmentCreator struct {
-	checks []ppmShipmentValidator
+	estimator services.PPMEstimator
+	checks    []ppmShipmentValidator
 }
 
 // NewPPMShipmentCreator creates a new struct with the service dependencies
-func NewPPMShipmentCreator() services.PPMShipmentCreator {
+func NewPPMShipmentCreator(estimator services.PPMEstimator) services.PPMShipmentCreator {
 	return &ppmShipmentCreator{
+		estimator: estimator,
 		checks: []ppmShipmentValidator{
 			checkShipmentID(),
 			checkPPMShipmentID(),
@@ -36,20 +38,26 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "MTO shipment type must be PPM shipment")
 		}
 
-		if ppmShipment.Shipment.Status != models.MTOShipmentStatusDraft {
-			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT status associated with MTO shipment")
+		if ppmShipment.Shipment.Status != models.MTOShipmentStatusDraft && ppmShipment.Shipment.Status != models.MTOShipmentStatusSubmitted {
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT or SUBMITTED status associated with MTO shipment")
 		}
 
 		if ppmShipment.Status == "" {
 			ppmShipment.Status = models.PPMShipmentStatusDraft
-		} else if ppmShipment.Status != models.PPMShipmentStatusDraft {
-			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT status associated with PPM shipment")
+		} else if ppmShipment.Status != models.PPMShipmentStatusDraft && ppmShipment.Status != models.PPMShipmentStatusSubmitted {
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT or SUBMITTED status associated with PPM shipment")
 		}
 
 		// Validate the ppmShipment, and return an error
 		if err := validatePPMShipment(txnAppCtx, *ppmShipment, nil, &ppmShipment.Shipment, checks...); err != nil {
 			return err
 		}
+
+		estimatedIncentive, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, models.PPMShipment{}, ppmShipment)
+		if err != nil {
+			return err
+		}
+		ppmShipment.EstimatedIncentive = estimatedIncentive
 
 		// Validate ppm shipment model object and save it to DB
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)

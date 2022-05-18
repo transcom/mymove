@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestShowAvailableMoveDatesHandler() {
 		strfmt.Date(time.Date(2018, 12, 26, 0, 0, 0, 0, time.UTC)),
 	}
 
-	showHandler := ShowAvailableMoveDatesHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	showHandler := ShowAvailableMoveDatesHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	response := showHandler.Handle(params)
 
 	suite.IsType(&calendarop.ShowAvailableMoveDatesOK{}, response)

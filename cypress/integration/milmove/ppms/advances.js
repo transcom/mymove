@@ -5,7 +5,7 @@ import {
   setMobileViewport,
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
   submitsAdvancePage,
-} from '../../../support/ppmShared';
+} from '../../../support/ppmCustomerShared';
 
 describe('PPM On-boarding - Advances', function () {
   before(() => {

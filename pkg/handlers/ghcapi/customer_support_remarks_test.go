@@ -30,9 +30,9 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     move.Locator,
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		handler := ListCustomerSupportRemarksHandler{
-			HandlerContext:                context,
+			HandlerConfig:                 handlerConfig,
 			CustomerSupportRemarksFetcher: fetcher,
 		}
 		response := handler.Handle(params)
@@ -48,9 +48,9 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     "ZZZZZZZZ",
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		handler := ListCustomerSupportRemarksHandler{
-			HandlerContext:                context,
+			HandlerConfig:                 handlerConfig,
 			CustomerSupportRemarksFetcher: fetcher,
 		}
 		response := handler.Handle(params)

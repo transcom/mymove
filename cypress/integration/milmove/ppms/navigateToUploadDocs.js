@@ -1,4 +1,4 @@
-import { setMobileViewport } from '../../../support/ppmShared';
+import { setMobileViewport } from '../../../support/ppmCustomerShared';
 
 describe('PPM Request Payment - Begin providing documents flow', () => {
   before(() => {
