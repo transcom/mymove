@@ -7,6 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
@@ -81,33 +83,35 @@ var officeUserFilterConverters = map[string]func(string) []services.QueryFilter{
 
 // Handle retrieves a list of office users
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, officeUserFilterConverters)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
+			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, officeUserFilterConverters)
 
-	pagination := h.NewPagination(params.Page, params.PerPage)
-	ordering := query.NewQueryOrder(params.Sort, params.Order)
+			pagination := h.NewPagination(params.Page, params.PerPage)
+			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	var officeUsers models.OfficeUsers
-	err := h.ListFetcher.FetchRecordList(appCtx, &officeUsers, queryFilters, nil, pagination, ordering)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			var officeUsers models.OfficeUsers
+			err := h.ListFetcher.FetchRecordList(appCtx, &officeUsers, queryFilters, nil, pagination, ordering)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	totalOfficeUsersCount, err := h.ListFetcher.FetchRecordCount(appCtx, &officeUsers, queryFilters)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			totalOfficeUsersCount, err := h.ListFetcher.FetchRecordCount(appCtx, &officeUsers, queryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	queriedOfficeUsersCount := len(officeUsers)
+			queriedOfficeUsersCount := len(officeUsers)
 
-	payload := make(adminmessages.OfficeUsers, queriedOfficeUsersCount)
+			payload := make(adminmessages.OfficeUsers, queriedOfficeUsersCount)
 
-	for i, s := range officeUsers {
-		payload[i] = payloadForOfficeUserModel(s)
-	}
+			for i, s := range officeUsers {
+				payload[i] = payloadForOfficeUserModel(s)
+			}
 
-	return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload)
+			return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload), nil
+		})
 }
 
 // GetOfficeUserHandler retrieves office user handler
@@ -119,30 +123,32 @@ type GetOfficeUserHandler struct {
 
 // Handle retrieves an office user
 func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	officeUserID := params.OfficeUserID
+			officeUserID := params.OfficeUserID
 
-	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", officeUserID)}
+			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", officeUserID)}
 
-	officeUser, err := h.OfficeUserFetcher.FetchOfficeUser(appCtx, queryFilters)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	userError := appCtx.DB().Load(&officeUser, "User")
-	if userError != nil {
-		return handlers.ResponseForError(appCtx.Logger(), userError)
-	}
-	//todo: we want to move this query out of the handler and into querybuilder, if possible
-	roleError := appCtx.DB().Q().Join("users_roles", "users_roles.role_id = roles.id").
-		Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (officeUser.User.ID)).
-		All(&officeUser.User.Roles)
-	if roleError != nil {
-		return handlers.ResponseForError(appCtx.Logger(), roleError)
-	}
-	payload := payloadForOfficeUserModel(officeUser)
+			officeUser, err := h.OfficeUserFetcher.FetchOfficeUser(appCtx, queryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			userError := appCtx.DB().Load(&officeUser, "User")
+			if userError != nil {
+				return handlers.ResponseForError(appCtx.Logger(), userError), userError
+			}
+			//todo: we want to move this query out of the handler and into querybuilder, if possible
+			roleError := appCtx.DB().Q().Join("users_roles", "users_roles.role_id = roles.id").
+				Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (officeUser.User.ID)).
+				All(&officeUser.User.Roles)
+			if roleError != nil {
+				return handlers.ResponseForError(appCtx.Logger(), roleError), roleError
+			}
+			payload := payloadForOfficeUserModel(officeUser)
 
-	return officeuserop.NewGetOfficeUserOK().WithPayload(payload)
+			return officeuserop.NewGetOfficeUserOK().WithPayload(payload), nil
+		})
 }
 
 // CreateOfficeUserHandler creates an office user
@@ -156,69 +162,73 @@ type CreateOfficeUserHandler struct {
 // Handle creates an office user
 func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	transportationOfficeID, err := uuid.FromString(payload.TransportationOfficeID.String())
-	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", payload.TransportationOfficeID.String()), zap.Error(err))
-		return officeuserop.NewCreateOfficeUserUnprocessableEntity()
-	}
+			transportationOfficeID, err := uuid.FromString(payload.TransportationOfficeID.String())
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", payload.TransportationOfficeID.String()), zap.Error(err))
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
 
-	if len(payload.Roles) == 0 {
-		appCtx.Logger().Error("At least one office user role is required")
-		return officeuserop.NewCreateOfficeUserUnprocessableEntity()
-	}
+			if len(payload.Roles) == 0 {
+				err = apperror.NewBadDataError("At least one office user role is required")
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
 
-	updatedRoles := rolesPayloadToModel(payload.Roles)
-	if len(updatedRoles) == 0 {
-		appCtx.Logger().Error("No roles were matched from payload")
-		return officeuserop.NewCreateOfficeUserUnprocessableEntity()
-	}
+			updatedRoles := rolesPayloadToModel(payload.Roles)
+			if len(updatedRoles) == 0 {
+				err = apperror.NewBadDataError("No roles were matched from payload")
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
 
-	officeUser := models.OfficeUser{
-		LastName:               payload.LastName,
-		FirstName:              payload.FirstName,
-		Telephone:              payload.Telephone,
-		Email:                  payload.Email,
-		TransportationOfficeID: transportationOfficeID,
-		Active:                 true,
-	}
+			officeUser := models.OfficeUser{
+				LastName:               payload.LastName,
+				FirstName:              payload.FirstName,
+				Telephone:              payload.Telephone,
+				Email:                  payload.Email,
+				TransportationOfficeID: transportationOfficeID,
+				Active:                 true,
+			}
 
-	transportationIDFilter := []services.QueryFilter{
-		h.NewQueryFilter("id", "=", transportationOfficeID),
-	}
+			transportationIDFilter := []services.QueryFilter{
+				h.NewQueryFilter("id", "=", transportationOfficeID),
+			}
 
-	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(appCtx, &officeUser, transportationIDFilter)
-	if verrs != nil {
-		validationError := &adminmessages.ValidationError{
-			InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
-		}
+			createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(appCtx, &officeUser, transportationIDFilter)
+			if verrs != nil {
+				validationError := &adminmessages.ValidationError{
+					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
+				}
 
-		validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
-		validationError.Detail = handlers.FmtString("The information you provided is invalid.")
-		validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
+				validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
+				validationError.Detail = handlers.FmtString("The information you provided is invalid.")
+				validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
 
-		return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError)
-	}
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
+			}
 
-	if err != nil {
-		appCtx.Logger().Error("Error saving user", zap.Error(err))
-		return officeuserop.NewCreateOfficeUserInternalServerError()
-	}
+			if err != nil {
+				appCtx.Logger().Error("Error saving user", zap.Error(err))
+				return officeuserop.NewCreateOfficeUserInternalServerError(), err
+			}
 
-	_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *createdOfficeUser.UserID, updatedRoles)
-	if err != nil {
-		appCtx.Logger().Error("Error updating user roles", zap.Error(err))
-		return officeuserop.NewUpdateOfficeUserInternalServerError()
-	}
+			_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *createdOfficeUser.UserID, updatedRoles)
+			if err != nil {
+				appCtx.Logger().Error("Error updating user roles", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+			}
 
-	_, err = audit.Capture(appCtx, createdOfficeUser, nil, params.HTTPRequest)
-	if err != nil {
-		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
-	}
+			_, err = audit.Capture(appCtx, createdOfficeUser, nil, params.HTTPRequest)
+			if err != nil {
+				appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
+			}
 
-	returnPayload := payloadForOfficeUserModel(*createdOfficeUser)
-	return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload)
+			returnPayload := payloadForOfficeUserModel(*createdOfficeUser)
+			return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload), nil
+		})
 }
 
 // UpdateOfficeUserHandler updates an office user
@@ -233,63 +243,72 @@ type UpdateOfficeUserHandler struct {
 // Handle updates an office user
 func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	officeUserID, err := uuid.FromString(params.OfficeUserID.String())
-	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
-	}
+			officeUserID, err := uuid.FromString(params.OfficeUserID.String())
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
+			}
 
-	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload)
+			updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload)
 
-	if err != nil || verrs != nil {
-		appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
-		return officeuserop.NewUpdateOfficeUserInternalServerError()
-	}
-	if updatedOfficeUser.UserID != nil && payload.Roles != nil {
-		updatedRoles := rolesPayloadToModel(payload.Roles)
-		_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *updatedOfficeUser.UserID, updatedRoles)
-		if err != nil {
-			appCtx.Logger().Error("Error updating user roles", zap.Error(err))
-			return officeuserop.NewUpdateOfficeUserInternalServerError()
-		}
+			if err != nil || verrs != nil {
+				appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
+				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+			}
+			if updatedOfficeUser.UserID != nil && payload.Roles != nil {
+				updatedRoles := rolesPayloadToModel(payload.Roles)
+				_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *updatedOfficeUser.UserID, updatedRoles)
+				if err != nil {
+					appCtx.Logger().Error("Error updating user roles", zap.Error(err))
+					return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+				}
 
-		boolean := true
-		revokeOfficeSessionPayload := adminmessages.UserUpdatePayload{
-			RevokeOfficeSession: &boolean,
-		}
+				boolean := true
+				revokeOfficeSessionPayload := adminmessages.UserUpdatePayload{
+					RevokeOfficeSession: &boolean,
+				}
 
-		sessionStore := h.SessionManager(appCtx.Session()).Store
+				sessionStore := h.SessionManager(appCtx.Session()).Store
 
-		_, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(
-			appCtx,
-			*updatedOfficeUser.UserID,
-			&revokeOfficeSessionPayload,
-			sessionStore,
-		)
+				_, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(
+					appCtx,
+					*updatedOfficeUser.UserID,
+					&revokeOfficeSessionPayload,
+					sessionStore,
+				)
 
-		if revokeErr != nil || validationErrors != nil {
-			appCtx.Logger().Error("Error revoking user session", zap.Error(revokeErr), zap.Error(verrs))
-			return userop.NewUpdateUserInternalServerError()
-		}
-	}
+				if revokeErr != nil {
+					err = apperror.NewInternalServerError("Error revoking user session")
+					appCtx.Logger().Error(err.Error(), zap.Error(revokeErr))
+					return userop.NewUpdateUserInternalServerError(), revokeErr
+				}
 
-	// Log if the account was enabled or disabled (POAM requirement)
-	if payload.Active != nil {
-		_, err = audit.CaptureAccountStatus(appCtx, updatedOfficeUser, *payload.Active, params.HTTPRequest)
-		if err != nil {
-			appCtx.Logger().Error("Error capturing account status audit record in UpdateOfficeUserHandler", zap.Error(err))
-		}
-	}
+				if validationErrors != nil {
+					err = apperror.NewInternalServerError("Error revoking user session")
+					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
+					return userop.NewUpdateUserInternalServerError(), validationErrors
+				}
+			}
 
-	_, err = audit.Capture(appCtx, updatedOfficeUser, payload, params.HTTPRequest)
-	if err != nil {
-		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
-	}
+			// Log if the account was enabled or disabled (POAM requirement)
+			if payload.Active != nil {
+				_, err = audit.CaptureAccountStatus(appCtx, updatedOfficeUser, *payload.Active, params.HTTPRequest)
+				if err != nil {
+					appCtx.Logger().Error("Error capturing account status audit record in UpdateOfficeUserHandler", zap.Error(err))
+				}
+			}
 
-	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
+			_, err = audit.Capture(appCtx, updatedOfficeUser, payload, params.HTTPRequest)
+			if err != nil {
+				appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
+			}
 
-	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
+			returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
+
+			return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload), nil
+		})
 }
 
 func rolesPayloadToModel(payload []*adminmessages.OfficeUserRole) []roles.RoleType {
