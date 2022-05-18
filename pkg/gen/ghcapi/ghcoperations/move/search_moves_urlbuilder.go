@@ -13,12 +13,7 @@ import (
 
 // SearchMovesURL generates an URL for the search moves operation
 type SearchMovesURL struct {
-	DodID   *string
-	Locator *string
-
 	_basePath string
-	// avoid unkeyed usage
-	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -47,26 +42,6 @@ func (o *SearchMovesURL) Build() (*url.URL, error) {
 		_basePath = "/ghc/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
-
-	qs := make(url.Values)
-
-	var dodIDQ string
-	if o.DodID != nil {
-		dodIDQ = *o.DodID
-	}
-	if dodIDQ != "" {
-		qs.Set("dodID", dodIDQ)
-	}
-
-	var locatorQ string
-	if o.Locator != nil {
-		locatorQ = *o.Locator
-	}
-	if locatorQ != "" {
-		qs.Set("locator", locatorQ)
-	}
-
-	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

@@ -127,28 +127,32 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 func (suite *HandlerSuite) TestSearchMovesHandler() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
+	moves := make(models.Moves, 1)
+	moves[0] = move
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	suite.T().Run("Successful move search by locator", func(t *testing.T) {
-		mockFetcher := mocks.MoveFetcher{}
+		mockSearcher := mocks.MoveSearcher{}
 
 		handler := SearchMovesHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			MoveFetcher:    &mockFetcher,
+			MoveSearcher:   &mockSearcher,
 		}
 
-		mockFetcher.On("FetchMove",
+		mockSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			move.Locator,
+			&move.Locator,
 			mock.Anything,
-		).Return(&move, nil)
+		).Return(moves, nil)
 
 		params := moveops.SearchMovesParams{
 			HTTPRequest: req,
-			Locator:     &move.Locator,
-			DodID:       nil,
+			Body: moveops.SearchMovesBody{
+				Locator: &move.Locator,
+				DodID:   nil,
+			},
 		}
 
 		response := handler.Handle(params)
@@ -160,17 +164,25 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 	})
 
 	suite.T().Run("Successful move search by DoD ID", func(t *testing.T) {
-		mockFetcher := mocks.MoveFetcher{}
+		mockSearcher := mocks.MoveSearcher{}
 
 		handler := SearchMovesHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			MoveFetcher:    &mockFetcher,
+			MoveSearcher:   &mockSearcher,
 		}
+
+		mockSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			move.Orders.ServiceMember.Edipi,
+		).Return(moves, nil)
 
 		params := moveops.SearchMovesParams{
 			HTTPRequest: req,
-			Locator:     nil,
-			DodID:       move.Orders.ServiceMember.Edipi,
+			Body: moveops.SearchMovesBody{
+				Locator: nil,
+				DodID:   move.Orders.ServiceMember.Edipi,
+			},
 		}
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SearchMovesOK{}, response)

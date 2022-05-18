@@ -6,9 +6,14 @@ package move
 // Editing this file might prove futile when you re-run the generate command
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // SearchMovesHandlerFunc turns a function with the right signature into a search moves handler
@@ -29,7 +34,7 @@ func NewSearchMoves(ctx *middleware.Context, handler SearchMovesHandler) *Search
 	return &SearchMoves{Context: ctx, Handler: handler}
 }
 
-/* SearchMoves swagger:route GET /moves/search move searchMoves
+/* SearchMoves swagger:route POST /moves/search move searchMoves
 
 Search moves by locator, DOD ID, or customer name
 
@@ -56,4 +61,93 @@ func (o *SearchMoves) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	res := o.Handler.Handle(Params) // actually handle the request
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
+}
+
+// SearchMovesBody search moves body
+//
+// swagger:model SearchMovesBody
+type SearchMovesBody struct {
+
+	// DOD ID
+	// Max Length: 10
+	// Min Length: 10
+	DodID *string `json:"dodID,omitempty"`
+
+	// Move locator
+	// Max Length: 6
+	// Min Length: 6
+	Locator *string `json:"locator,omitempty"`
+}
+
+// Validate validates this search moves body
+func (o *SearchMovesBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDodID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLocator(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchMovesBody) validateDodID(formats strfmt.Registry) error {
+	if swag.IsZero(o.DodID) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("body"+"."+"dodID", "body", *o.DodID, 10); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("body"+"."+"dodID", "body", *o.DodID, 10); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *SearchMovesBody) validateLocator(formats strfmt.Registry) error {
+	if swag.IsZero(o.Locator) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("body"+"."+"locator", "body", *o.Locator, 6); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("body"+"."+"locator", "body", *o.Locator, 6); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this search moves body based on context it is used
+func (o *SearchMovesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchMovesBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchMovesBody) UnmarshalBinary(b []byte) error {
+	var res SearchMovesBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
 }

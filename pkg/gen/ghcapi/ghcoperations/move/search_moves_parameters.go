@@ -6,12 +6,12 @@ package move
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
@@ -32,18 +32,10 @@ type SearchMovesParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*DOD ID
-	  Max Length: 10
-	  Min Length: 10
-	  In: query
+	/*
+	  In: body
 	*/
-	DodID *string
-	/*Move locator
-	  Max Length: 6
-	  Min Length: 6
-	  In: query
-	*/
-	Locator *string
+	Body SearchMovesBody
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -55,91 +47,29 @@ func (o *SearchMovesParams) BindRequest(r *http.Request, route *middleware.Match
 
 	o.HTTPRequest = r
 
-	qs := runtime.Values(r.URL.Query())
+	if runtime.HasBody(r) {
+		defer r.Body.Close()
+		var body SearchMovesBody
+		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+			res = append(res, errors.NewParseError("body", "body", "", err))
+		} else {
+			// validate body object
+			if err := body.Validate(route.Formats); err != nil {
+				res = append(res, err)
+			}
 
-	qDodID, qhkDodID, _ := qs.GetOK("dodID")
-	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
-		res = append(res, err)
-	}
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
 
-	qLocator, qhkLocator, _ := qs.GetOK("locator")
-	if err := o.bindLocator(qLocator, qhkLocator, route.Formats); err != nil {
-		res = append(res, err)
+			if len(res) == 0 {
+				o.Body = body
+			}
+		}
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-// bindDodID binds and validates parameter DodID from query.
-func (o *SearchMovesParams) bindDodID(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.DodID = &raw
-
-	if err := o.validateDodID(formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// validateDodID carries on validations for parameter DodID
-func (o *SearchMovesParams) validateDodID(formats strfmt.Registry) error {
-
-	if err := validate.MinLength("dodID", "query", *o.DodID, 10); err != nil {
-		return err
-	}
-
-	if err := validate.MaxLength("dodID", "query", *o.DodID, 10); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// bindLocator binds and validates parameter Locator from query.
-func (o *SearchMovesParams) bindLocator(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.Locator = &raw
-
-	if err := o.validateLocator(formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// validateLocator carries on validations for parameter Locator
-func (o *SearchMovesParams) validateLocator(formats strfmt.Registry) error {
-
-	if err := validate.MinLength("locator", "query", *o.Locator, 6); err != nil {
-		return err
-	}
-
-	if err := validate.MaxLength("locator", "query", *o.Locator, 6); err != nil {
-		return err
-	}
-
 	return nil
 }

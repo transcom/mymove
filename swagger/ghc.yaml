@@ -2104,8 +2104,10 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   /moves/search:
-    get:
+    post:
       produces:
+        - application/json
+      consumes:
         - application/json
       summary: Search moves by locator, DOD ID, or customer name
       description: >
@@ -2115,18 +2117,22 @@ paths:
       tags:
         - move
       parameters:
-        - in: query
-          name: locator
-          type: string
-          minLength: 6
-          maxLength: 6
-          description: Move locator
-        - in: query
-          name: dodID
-          type: string
-          minLength: 10
-          maxLength: 10
-          description: DOD ID
+        - in: body
+          name: body
+          schema:
+            properties:
+              locator:
+                description: Move locator
+                type: string
+                minLength: 6
+                maxLength: 6
+                x-nullable: true
+              dodID:
+                description: DOD ID
+                type: string
+                minLength: 10
+                maxLength: 10
+                x-nullable: true
       responses:
         '200':
           description: Successfully returned all moves matching the criteria

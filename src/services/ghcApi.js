@@ -69,7 +69,11 @@ export async function getCustomer(key, customerID) {
 }
 
 export async function searchMoves(key, locator, dodID) {
-  return makeGHCRequest('move.searchMoves', { locator, dodID }, { schemaKey: 'searchMovesResult', normalize: false });
+  return makeGHCRequest(
+    'move.searchMoves',
+    { body: { locator, dodID } },
+    { schemaKey: 'searchMovesResult', normalize: false },
+  );
 }
 
 export async function patchMTOServiceItemStatus({ moveId, mtoServiceItemID, ifMatchEtag, status, rejectionReason }) {

@@ -1310,8 +1310,11 @@ func init() {
       ]
     },
     "/moves/search": {
-      "get": {
+      "post": {
         "description": "Search moves by locator, DOD ID, or customer name. Used by QAE and CSR users.\n",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
@@ -1322,20 +1325,26 @@ func init() {
         "operationId": "searchMoves",
         "parameters": [
           {
-            "maxLength": 6,
-            "minLength": 6,
-            "type": "string",
-            "description": "Move locator",
-            "name": "locator",
-            "in": "query"
-          },
-          {
-            "maxLength": 10,
-            "minLength": 10,
-            "type": "string",
-            "description": "DOD ID",
-            "name": "dodID",
-            "in": "query"
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "locator": {
+                  "description": "Move locator",
+                  "type": "string",
+                  "maxLength": 6,
+                  "minLength": 6,
+                  "x-nullable": true
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -8180,8 +8189,11 @@ func init() {
       ]
     },
     "/moves/search": {
-      "get": {
+      "post": {
         "description": "Search moves by locator, DOD ID, or customer name. Used by QAE and CSR users.\n",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
@@ -8192,20 +8204,26 @@ func init() {
         "operationId": "searchMoves",
         "parameters": [
           {
-            "maxLength": 6,
-            "minLength": 6,
-            "type": "string",
-            "description": "Move locator",
-            "name": "locator",
-            "in": "query"
-          },
-          {
-            "maxLength": 10,
-            "minLength": 10,
-            "type": "string",
-            "description": "DOD ID",
-            "name": "dodID",
-            "in": "query"
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "locator": {
+                  "description": "Move locator",
+                  "type": "string",
+                  "maxLength": 6,
+                  "minLength": 6,
+                  "x-nullable": true
+                }
+              }
+            }
           }
         ],
         "responses": {

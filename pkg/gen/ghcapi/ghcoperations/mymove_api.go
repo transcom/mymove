@@ -780,10 +780,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/request-reweigh"] = shipment.NewRequestShipmentReweigh(o.context, o.ShipmentRequestShipmentReweighHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/moves/search"] = move.NewSearchMoves(o.context, o.MoveSearchMovesHandler)
+	o.handlers["POST"]["/moves/search"] = move.NewSearchMoves(o.context, o.MoveSearchMovesHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
