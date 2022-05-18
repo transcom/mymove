@@ -151,7 +151,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 type UpdateShipmentHandler struct {
 	handlers.HandlerConfig
 	services.Fetcher
-	services.MTOShipmentUpdater
+	services.ShipmentUpdater
 	services.ShipmentSITStatus
 }
 
@@ -175,7 +175,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 			}
 
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-			oldShipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
+			oldShipment, err := mtoshipment.FindShipment(appCtx, shipmentID)
 
 			if err != nil {
 				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
@@ -191,25 +191,8 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				}
 			}
 
-			updateable, err := h.MTOShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(appCtx, oldShipment, appCtx.Session())
-
-			if err != nil {
-				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
-				msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
-				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
-					&ghcmessages.Error{Message: &msg},
-				), err
-			}
-
-			if !updateable {
-				msg := fmt.Sprintf("%v is not updatable", shipmentID)
-				notUpdateableError := apperror.NewUnprocessableEntityError(msg)
-				return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(
-					&ghcmessages.Error{Message: &msg},
-				), notUpdateableError
-			}
-
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
+			mtoShipment.ID = shipmentID
 
 			//MTOShipmentModelFromUpdate defaults UsesExternalVendor to false if it's nil in the payload
 			if payload.UsesExternalVendor == nil {
@@ -218,14 +201,17 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 			// booleans not passed will update to false
 			mtoShipment.Diversion = oldShipment.Diversion
 
-			mtoShipment.ID = shipmentID
-
 			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 
 				switch e := err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound(), err
+				case apperror.ForbiddenError:
+					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
+					return mtoshipmentops.NewUpdateMTOShipmentForbidden().WithPayload(
+						&ghcmessages.Error{Message: &msg},
+					), err
 				case apperror.InvalidInputError:
 					return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(
 						payloadForValidationError(
@@ -259,7 +245,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 					), err
 				}
 			}
-			updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(appCtx, mtoShipment, params.IfMatch)
+			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipmentOffice(appCtx, mtoShipment, params.IfMatch)
 			if err != nil {
 				return handleError(err)
 			}
