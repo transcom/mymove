@@ -25,6 +25,7 @@ const {
   updatePaymentRequestEvent,
   updateMTOReviewedBillableWeightsAt,
   undefinedEvent,
+  reweighPaymentRequest,
 } = require('./moveHistoryEventTemplate');
 
 const { detailsTypes } = require('constants/moveHistoryEventTemplate');
@@ -611,6 +612,20 @@ describe('moveHistoryEventTemplate', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(undefinedEvent);
       expect(result.getEventNameDisplay(item)).toEqual('Updated shipment');
+    });
+  });
+
+  describe('reweighs update', () => {
+    const item = {
+      action: 'UPDATE',
+      eventName: moveHistoryOperations.updateReweigh,
+      tableName: 'reweighs',
+      context: [{ shipment_type: 'HHG', payment_request_number: '0288-7994-1' }],
+    };
+    it('correctly matches the reweigh payment request', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(reweighPaymentRequest);
+      expect(result.getEventNameDisplay(item)).toEqual('Updated payment request 0288-7994-1');
     });
   });
 });
