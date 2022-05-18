@@ -2542,8 +2542,45 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "sitEstimatedCost": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        },
         "sitExpected": {
           "type": "boolean"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "spouseProGearWeight": {
           "type": "integer",
@@ -2964,6 +3001,14 @@ func init() {
       "items": {
         "$ref": "#/definitions/SITExtension"
       }
+    },
+    "SITLocationType": {
+      "description": "The list of SIT location types.",
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION"
+      ]
     },
     "ServiceItem": {
       "type": "object",
@@ -6365,8 +6410,45 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "sitEstimatedCost": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        },
         "sitExpected": {
           "type": "boolean"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "spouseProGearWeight": {
           "type": "integer",
@@ -6787,6 +6869,14 @@ func init() {
       "items": {
         "$ref": "#/definitions/SITExtension"
       }
+    },
+    "SITLocationType": {
+      "description": "The list of SIT location types.",
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION"
+      ]
     },
     "ServiceItem": {
       "type": "object",

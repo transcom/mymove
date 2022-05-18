@@ -281,6 +281,22 @@ export const updateBillableWeightEvent = buildMoveHistoryEventTemplate({
   getEventNameDisplay: () => 'Updated move',
 });
 
+export const updateBillableWeightAsTIOEvent = buildMoveHistoryEventTemplate({
+  action: dbActions.UPDATE,
+  eventName: moveHistoryOperations.updateBillableWeightAsTIO,
+  tableName: dbTables.entitlements,
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated move',
+});
+
+export const updateBillableWeightRemarksAsTIOEvent = buildMoveHistoryEventTemplate({
+  action: dbActions.UPDATE,
+  eventName: moveHistoryOperations.updateBillableWeightAsTIO,
+  tableName: dbTables.moves,
+  detailsType: detailsTypes.LABELED,
+  getEventNameDisplay: () => 'Updated move',
+});
+
 export const updateMoveTaskOrderEvent = buildMoveHistoryEventTemplate({
   action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateMoveTaskOrder,
@@ -538,8 +554,9 @@ const allMoveHistoryEventTemplates = [
   setFinancialReviewFlagEvent,
   submitMoveForApprovalEvent,
   updateAllowanceEvent,
-  uploadAmendedOrdersEvent,
   updateBillableWeightEvent,
+  updateBillableWeightAsTIOEvent,
+  updateBillableWeightRemarksAsTIOEvent,
   updateMoveTaskOrderEvent,
   updateMoveTaskOrderStatusEvent,
   updateMTOShipmentEvent,
@@ -550,9 +567,8 @@ const allMoveHistoryEventTemplates = [
   updatePaymentRequestEvent,
   updatePaymentRequestStatus,
   updateServiceItemStatusEvent,
-  updateBillableWeightEvent,
-  updateAllowanceEvent,
   updateMTOReviewedBillableWeightsAt,
+  uploadAmendedOrdersEvent,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {
