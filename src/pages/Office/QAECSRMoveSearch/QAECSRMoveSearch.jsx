@@ -100,12 +100,12 @@ const validationSchema = Yup.object().shape({
 
 const QAECSRMoveSearch = ({ history }) => {
   const [search, setSearch] = useState({ moveCode: null, dodID: null });
+  const [searchHappened, setSearchHappened] = useState(false);
 
   const handleClick = (values) => {
     history.push(`/moves/${values.locator}/details`);
   };
   const onSubmit = (values) => {
-    // console.log('onSubmit', values);
     const payload = {
       moveCode: null,
       dodID: null,
@@ -116,6 +116,7 @@ const QAECSRMoveSearch = ({ history }) => {
       payload.dodID = values.searchText;
     }
     setSearch(payload);
+    setSearchHappened(true);
   };
 
   const { searchResult, isLoading, isError } = useQAECSRMoveSearchQueries({
@@ -161,25 +162,27 @@ const QAECSRMoveSearch = ({ history }) => {
       </Formik>
       {isLoading && <LoadingPlaceholder />}
       {isError && <SomethingWentWrong />}
-      <div className={styles.MoveQueue}>
-        <SearchResultsTable
-          showFilters
-          showPagination
-          defaultCanSort
-          defaultSortedColumns={[{ id: 'status', desc: false }]}
-          disableMultiSort
-          manualSortBy={false}
-          manualFilters={false}
-          disableSortBy={false}
-          columns={tableColumns}
-          title="All moves"
-          handleClick={handleClick}
-          useQueries={useQAECSRMoveSearchQueries}
-          searchKey="moveCode"
-          searchValue={search.moveCode}
-          data={tableData}
-        />
-      </div>
+      {searchHappened && (
+        <div className={styles.MoveQueue}>
+          <SearchResultsTable
+            showFilters
+            showPagination
+            defaultCanSort
+            defaultSortedColumns={[{ id: 'status', desc: false }]}
+            disableMultiSort
+            manualSortBy={false}
+            manualFilters={false}
+            disableSortBy={false}
+            columns={tableColumns}
+            title="All moves"
+            handleClick={handleClick}
+            useQueries={useQAECSRMoveSearchQueries}
+            searchKey="moveCode"
+            searchValue={search.moveCode}
+            data={tableData}
+          />
+        </div>
+      )}
     </>
   );
 };
