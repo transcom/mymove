@@ -1,4 +1,4 @@
-# Introduce Move History Event Templates
+# Introduce Move History Events
 
 - 🔒 **User Story:** [_MB-8115_](https://dp3.atlassian.net/browse/MB-8115)
 - 🔒 **User Story:** [_MB-12515_](https://dp3.atlassian.net/browse/MB-12515)
