@@ -31,7 +31,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		moveRouter,
 	)
 
-	suite.RunWithRollback("Move status is updated successfully (with HHG shipment)", func() {
+	suite.Run("Move status is updated successfully (with HHG shipment)", func() {
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
@@ -47,7 +47,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.Equal(models.MoveStatusServiceCounselingCompleted, actualMTO.Status)
 	})
 
-	suite.RunWithRollback("Move/shipment/PPM statuses are updated successfully (with PPM shipment)", func() {
+	suite.Run("Move/shipment/PPM statuses are updated successfully (with PPM shipment)", func() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
@@ -71,7 +71,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		}
 	})
 
-	suite.RunWithRollback("MTO status is updated successfully with facility info", func() {
+	suite.Run("MTO status is updated successfully with facility info", func() {
 		storageFacility := testdatagen.MakeStorageFacility(suite.DB(), testdatagen.Assertions{
 			StorageFacility: models.StorageFacility{
 				Address: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -86,19 +86,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 				Email: swag.String("old@email.com"),
 			},
 		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				StorageFacility: &storageFacility,
-			},
-		})
-		var mtoShipments []models.MTOShipment
-		mtoShipments = append(mtoShipments, shipment)
 		expectedMTOWithFacility := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				Status:       models.MoveStatusNeedsServiceCounseling,
-				MTOShipments: mtoShipments,
+				Status: models.MoveStatusNeedsServiceCounseling,
 			},
 		})
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &expectedMTOWithFacility,
+			testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					StorageFacility: &storageFacility,
+				},
+			})
+
+		suite.NoError(suite.DB().Reload(&expectedMTOWithFacility))
+
 		eTag := etag.GenerateEtag(expectedMTOWithFacility.UpdatedAt)
 
 		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTOWithFacility.ID, eTag)
@@ -109,7 +110,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
 	})
 
-	suite.RunWithRollback("Invalid input error when there is no facility information on NTS-r shipment", func() {
+	suite.Run("Invalid input error when there is no facility information on NTS-r shipment", func() {
 		noFacilityInfoMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
@@ -135,7 +136,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.Contains(err.Error(), "NTS-release shipment must include facility info")
 	})
 
-	suite.RunWithRollback("No shipments on move", func() {
+	suite.Run("No shipments on move", func() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
@@ -150,7 +151,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.Contains(err.Error(), "No shipments associated with move")
 	})
 
-	suite.RunWithRollback("MTO status is in a conflicted state", func() {
+	suite.Run("MTO status is in a conflicted state", func() {
 		draftMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusDRAFT,
@@ -168,7 +169,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.Contains(err.Error(), "The status for the Move")
 	})
 
-	suite.RunWithRollback("Etag is stale", func() {
+	suite.Run("Etag is stale", func() {
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -183,8 +184,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCounselingInfo() {
-	expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
-
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	mtoUpdater := NewMoveTaskOrderUpdater(
@@ -193,7 +192,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		moveRouter,
 	)
 
-	suite.RunWithRollback("MTO post counseling information is updated successfully", func() {
+	suite.Run("MTO post counseling information is updated successfully", func() {
+		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+
 		// Make a couple of shipments for the move; one prime, one external
 		primeShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: expectedMTO,
@@ -248,7 +249,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, actualMTO.MTOShipments[0].PPMShipment.Status)
 	})
 
-	suite.RunWithRollback("Counseling isn't an approved service item", func() {
+	suite.Run("Counseling isn't an approved service item", func() {
+		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+
 		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: expectedMTO,
 			MTOShipment: models.MTOShipment{
@@ -262,7 +265,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		suite.IsType(apperror.ConflictError{}, err)
 	})
 
-	suite.RunWithRollback("Etag is stale", func() {
+	suite.Run("Etag is stale", func() {
+		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+
 		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
 				Status: models.MTOServiceItemStatusApproved,
@@ -284,11 +289,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Set up a default move:
 	show := true
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Show: &show,
-		},
-	})
+	setupTestData := func() models.Move {
+		return testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Show: &show,
+			},
+		})
+	}
 
 	// Set up the necessary updater objects:
 	queryBuilder := query.NewQueryBuilder()
@@ -300,8 +307,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	)
 
 	// Case: Move successfully deactivated
-	suite.RunWithRollback("Success - Set show field to false", func() {
+	suite.Run("Success - Set show field to false", func() {
 		show = false
+		move := setupTestData()
 		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, &show)
 
 		suite.NotNil(updatedMove)
@@ -311,8 +319,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	})
 
 	// Case: Move successfully activated
-	suite.RunWithRollback("Success - Set show field to true", func() {
+	suite.Run("Success - Set show field to true", func() {
 		show = true
+		move := setupTestData()
 		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, &show)
 
 		suite.NotNil(updatedMove)
@@ -333,7 +342,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	})
 
 	// Case: Show input value is nil, not True or False
-	suite.RunWithRollback("Fail - Nil value in show field", func() {
+	suite.Run("Fail - Nil value in show field", func() {
+		move := setupTestData()
 		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, nil)
 
 		suite.Nil(updatedMove)
@@ -344,7 +354,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Case: Invalid input found while updating the move
 	// TODO: Is there a way to mock ValidateUpdate so that these tests actually mean something?
-	suite.RunWithRollback("Fail - Invalid input found on move", func() {
+	suite.Run("Fail - Invalid input found on move", func() {
+		move := setupTestData()
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mockUpdater.On("ShowHide",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -360,7 +371,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	})
 
 	// Case: Query error encountered while updating the move
-	suite.RunWithRollback("Fail - Query error", func() {
+	suite.Run("Fail - Query error", func() {
+		move := setupTestData()
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mockUpdater.On("ShowHide",
 			mock.AnythingOfType("*appcontext.appContext"),

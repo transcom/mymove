@@ -14,40 +14,37 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
-	expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+	setupTestData := func() (models.Move, models.MTOShipment) {
+		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
 
-	// Make a couple of shipments for the move; one prime, one external
-	primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: expectedMTO,
-		MTOShipment: models.MTOShipment{
-			UsesExternalVendor: false,
-		},
-	})
-	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: expectedMTO,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-			UsesExternalVendor: true,
-		},
-	})
-	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: expectedMTO,
-		MTOShipment: models.MTOShipment{
-			DeletedAt: models.TimePointer(time.Now()),
-		},
-	})
+		// Make a couple of shipments for the move; one prime, one external
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: false,
+			},
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				DeletedAt: models.TimePointer(time.Now()),
+			},
+		})
 
-	mtoWithAllShipmentsDelted := testdatagen.MakeDefaultMove(suite.DB())
-	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: mtoWithAllShipmentsDelted,
-		MTOShipment: models.MTOShipment{
-			DeletedAt: models.TimePointer(time.Now()),
-		},
-	})
+		return expectedMTO, primeShipment
+	}
 
 	mtoFetcher := NewMoveTaskOrderFetcher()
 
 	suite.T().Run("Success with Prime-available move by ID, fetch all non-deleted shipments", func(t *testing.T) {
+		expectedMTO, _ := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:   false,
 			MoveTaskOrderID: expectedMTO.ID,
@@ -69,6 +66,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	})
 
 	suite.T().Run("Success with Prime-available move by Locator, no deleted or external shipments", func(t *testing.T) {
+		expectedMTO, primeShipment := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:            false,
 			Locator:                  expectedMTO.Locator,
@@ -94,6 +92,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	})
 
 	suite.T().Run("Success with move that has only deleted shipments", func(t *testing.T) {
+		mtoWithAllShipmentsDelted := testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mtoWithAllShipmentsDelted,
+			MTOShipment: models.MTOShipment{
+				DeletedAt: models.TimePointer(time.Now()),
+			},
+		})
+
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:   false,
 			MoveTaskOrderID: mtoWithAllShipmentsDelted.ID,
@@ -130,36 +136,40 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
-	// Set up a hidden move so we can check if it's in the output:
-	now := time.Now()
-	show := false
-	hiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-			Show:               &show,
-		},
-	})
+	setupTestData := func() (models.Move, models.Move, models.MTOShipment) {
+		// Set up a hidden move so we can check if it's in the output:
+		now := time.Now()
+		show := false
+		hiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+				Show:               &show,
+			},
+		})
 
-	mto := testdatagen.MakeDefaultMove(suite.DB())
+		mto := testdatagen.MakeDefaultMove(suite.DB())
 
-	// Make a couple of shipments for the default move; one prime, one external
-	primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			UsesExternalVendor: false,
-		},
-	})
-	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-			UsesExternalVendor: true,
-		},
-	})
+		// Make a couple of shipments for the default move; one prime, one external
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: false,
+			},
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+		return mto, hiddenMTO, primeShipment
+	}
 
 	mtoFetcher := NewMoveTaskOrderFetcher()
 
-	suite.RunWithRollback("all move task orders", func() {
+	suite.Run("all move task orders", func() {
+		setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IsAvailableToPrime: false,
 			IncludeHidden:      true,
@@ -177,7 +187,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		suite.NotNil(move.Orders.NewDutyLocation)
 	})
 
-	suite.RunWithRollback("default search - excludes hidden move task orders", func() {
+	suite.Run("default search - excludes hidden move task orders", func() {
+		mto, hiddenMTO, _ := setupTestData()
 		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), nil)
 		suite.NoError(err)
 
@@ -193,7 +204,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		}
 	})
 
-	suite.RunWithRollback("returns shipments that respect the external searchParams flag", func() {
+	suite.Run("returns shipments that respect the external searchParams flag", func() {
+		mto, _, primeShipment := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:            false,
 			ExcludeExternalShipments: true,
@@ -213,8 +225,9 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		}
 	})
 
-	suite.RunWithRollback("all move task orders that are available to prime and using since", func() {
-		now = time.Now()
+	suite.Run("all move task orders that are available to prime and using since", func() {
+		_, hiddenMTO, _ := setupTestData()
+		now := time.Now()
 
 		testdatagen.MakeAvailableMove(suite.DB())
 		oldMTO := testdatagen.MakeAvailableMove(suite.DB())

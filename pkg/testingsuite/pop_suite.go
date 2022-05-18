@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"runtime"
 	"strings"
-	"testing"
 	"time"
 
 	"go.uber.org/zap"
@@ -388,17 +387,25 @@ func (suite *PopTestSuite) DB() *pop.Connection {
 	if suite.usePerTestTransaction {
 		if suite.lowPrivConn == nil {
 			suite.lowPrivConn = suite.openTxnPopConnection()
+
+			// Any time a database connection is established, make sure we
+			// close it at the end of the test so that the transaction
+			// is rolled back. See txdb for more info
+			suite.T().Cleanup(func() {
+				// If the db connection hasn't already been cleaned
+				// up, do so here
+				if suite.lowPrivConn != nil {
+					err := suite.lowPrivConn.Close()
+					if err != nil {
+						log.Fatalf("Closing Subtest DB Failed!: %v", err)
+					}
+					suite.lowPrivConn = nil
+				}
+			})
 		}
+
 	}
 	return suite.lowPrivConn
-}
-
-// setDB overrides the connection for per test transactions
-func (suite *PopTestSuite) setDB(conn *pop.Connection) {
-	if !suite.usePerTestTransaction {
-		log.Panic("Cannot use setDB wihout per test transaction")
-	}
-	suite.lowPrivConn = conn
 }
 
 // Logger returns the logger for the test suite
@@ -496,91 +503,6 @@ func (suite *PopTestSuite) NilOrNoVerrs(err error) {
 	default:
 		suite.Nil(err)
 	}
-}
-
-// Run overrides the default testify Run to ensure that the testdb is
-// torn down for per txn tests
-//
-// It would be nice if subtests could start a new transaction inside
-// the current connection so they could reuse db setup between
-// subtests. Unfortunately, because database/sql and pop do not
-// support nested transactions, this gets complicated and hairy
-// quickly. When testing that approach, connections wouldn't get
-// closed and cause other tests to hang or subtests would report
-// incorrect errors about transactions already being closed.
-//
-// And so, if per test transaction is enabled, each subtest gets a new
-// connection. This means subtests are really just like main tests,
-// but subtests are a helpful way to group tests together, which can
-// be useful. Setup has to be moved to a function that can be run once
-// per subtest. In testing, that was still faster with per test
-// transactions than the old way of cloning a db per package.
-//
-// If the code under test starts its own transaction, this is the
-// approach that should be used. If it does not use transactions, you
-// can probably get away with using RunWithRollback (see below).
-//
-// When using per test transactions, watch out for subtests that do
-// not use testify.suite as they won't use this code and thus won't
-// get a per subtest connection. Tests that use the native testing
-// subtests look like
-//
-// suite.T().Run("name", func(t *testing.T) { ... })
-//
-// instead of
-//
-// suite.Run("name", func() { ... })
-//
-func (suite *PopTestSuite) Run(name string, subtest func()) bool {
-	oldDB := suite.lowPrivConn
-	oldT := suite.T()
-	defer suite.SetT(oldT)
-	return oldT.Run(name, func(t *testing.T) {
-		suite.SetT(t)
-		suite.logger = zaptest.NewLogger(t)
-		if suite.usePerTestTransaction {
-			subtestDb := suite.openTxnPopConnection()
-			suite.setDB(subtestDb)
-			defer func() {
-				err := subtestDb.Close()
-				if err != nil {
-					log.Fatalf("Closing Subtest DB Failed!: %v", err)
-				}
-				suite.setDB(oldDB)
-			}()
-			subtest()
-		} else {
-			subtest()
-		}
-	})
-}
-
-// RunWithRollback runs a subtest inside a transaction that is
-// rolled back. Not all tests will work with this approach
-//
-// See Run above for more details, but if the code under test does not
-// use transactions, this way of running subtests should work. If that
-// is true, you can reuse database models created in the main test in
-// each subtest.
-func (suite *PopTestSuite) RunWithRollback(name string, subtest func()) bool {
-	if !suite.usePerTestTransaction {
-		log.Fatal("Cannot use RunWithRollback without per test transaction")
-	}
-	// call suite.DB to ensure a connection is established outside the subtest
-	oldDB := suite.DB()
-	oldT := suite.T()
-	defer suite.SetT(oldT)
-	return oldT.Run(name, func(t *testing.T) {
-		suite.SetT(t)
-		err := oldDB.Rollback(func(tx *pop.Connection) {
-			suite.setDB(tx)
-			defer suite.setDB(oldDB)
-			subtest()
-		})
-		if err != nil {
-			log.Fatalf("Rollback of subtest %s failed: %v", name, err)
-		}
-	})
 }
 
 // TearDownTest runs the teardown per test. It will only do something
