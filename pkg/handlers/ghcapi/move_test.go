@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/gofrs/uuid"
@@ -160,7 +162,16 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 		payload := response.(*moveops.SearchMovesOK).Payload
 
-		suite.Equal(move.ID.String(), (*payload).SearchMoves[0].ID.String())
+		payloadMove := *(*payload).SearchMoves[0]
+		suite.Equal(move.ID.String(), payloadMove.ID.String())
+		suite.Equal(*move.Orders.ServiceMember.Edipi, payloadMove.Customer.DodID)
+		suite.Equal(move.Orders.NewDutyLocation.Address.PostalCode, *payloadMove.DestinationDutyLocation.Address.PostalCode)
+		suite.Equal(move.Orders.OriginDutyLocation.Address.PostalCode, *payloadMove.OriginDutyLocation.Address.PostalCode)
+		suite.Equal(ghcmessages.MoveStatusDRAFT, payloadMove.Status)
+		suite.Equal("ARMY", payloadMove.Customer.Agency)
+		suite.Equal(int64(0), payloadMove.ShipmentsCount)
+		suite.NotEmpty(payloadMove.Customer.FirstName)
+		suite.NotEmpty(payloadMove.Customer.LastName)
 	})
 
 	suite.T().Run("Successful move search by DoD ID", func(t *testing.T) {

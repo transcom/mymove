@@ -24,7 +24,12 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string,
 		return models.Moves{}, fmt.Errorf("need at least one search filter")
 	}
 
-	query := appCtx.DB().EagerPreload("MTOShipments", "Orders.ServiceMember").
+	query := appCtx.DB().EagerPreload(
+		"MTOShipments",
+		"Orders.ServiceMember",
+		"Orders.NewDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address",
+	).
 		Join("orders", "orders.id = moves.orders_id").
 		Join("service_members", "service_members.id = orders.service_member_id").
 		Where("show = TRUE")

@@ -50,10 +50,26 @@ const columns = (showBranchFilter = true) => [
       Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
     },
   ),
-  // createHeader('Origin duty location', 'originDutyLocation.name', {
-  //   id: 'originDutyLocation',
-  //   isFilterable: true,
-  // }),
+  createHeader(
+    'Origin ZIP',
+    (row) => {
+      return `${row.originDutyLocation.address.postalCode}`;
+    },
+    {
+      id: 'originZIP',
+      isFilterable: true,
+    },
+  ),
+  createHeader(
+    'Destination ZIP',
+    (row) => {
+      return `${row.destinationDutyLocation.address.postalCode}`;
+    },
+    {
+      id: 'destinationZIP',
+      isFilterable: true,
+    },
+  ),
   createHeader(
     'Branch',
     (row) => {
