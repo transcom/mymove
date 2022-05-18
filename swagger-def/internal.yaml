@@ -2590,11 +2590,10 @@ definitions:
         x-nullable: true
       secondaryPickupPostalCode:
         format: zip
-        type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-        x-nullable: true
+        $ref: definitions/NullableString.yaml
       destinationPostalCode:
         format: zip
         type: string
@@ -2604,11 +2603,10 @@ definitions:
         x-nullable: true
       secondaryDestinationPostalCode:
         format: zip
-        type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-        x-nullable: true
+        $ref: definitions/NullableString.yaml
       sitExpected:
         type: boolean
         x-nullable: true
