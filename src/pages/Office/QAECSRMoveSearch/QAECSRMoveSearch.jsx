@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 
 import styles from './QAECSRMoveSearch.module.scss';
 
+import { HistoryShape } from 'types/router';
 import formStyles from 'styles/form.module.scss';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -97,13 +98,11 @@ const validationSchema = Yup.object().shape({
   }),
 });
 
-// const QAECSRMoveSearch = ({ history }) => {
-const QAECSRMoveSearch = () => {
+const QAECSRMoveSearch = ({ history }) => {
   const [search, setSearch] = useState({ moveCode: null, dodID: null });
 
-  const handleClick = () => {
-    // history.push(`/moves/${values.locator}/details`);
-    // console.log('click');
+  const handleClick = (values) => {
+    history.push(`/moves/${values.locator}/details`);
   };
   const onSubmit = (values) => {
     // console.log('onSubmit', values);
@@ -185,8 +184,8 @@ const QAECSRMoveSearch = () => {
   );
 };
 
-// QAECSRMoveSearch.propTypes = {
-//   history: HistoryShape.isRequired,
-// };
+QAECSRMoveSearch.propTypes = {
+  history: HistoryShape.isRequired,
+};
 
 export default withRouter(QAECSRMoveSearch);

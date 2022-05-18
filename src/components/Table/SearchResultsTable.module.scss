@@ -1,0 +1,25 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.SearchResultsTable {
+  @include u-display(flex);
+  flex-direction: column;
+  flex: auto;
+
+  .tableContainer {
+    flex: auto;
+
+    @include u-margin-top(1);
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+
+    tbody tr {
+      cursor: pointer;
+    }
+  }
+}
