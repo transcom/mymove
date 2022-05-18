@@ -26,7 +26,7 @@ const validationSchema = (nonFormattedMaxRequest, maxAdvanceRequest) => {
         schema
           .required('Required')
           .min(1, "The minimum advance request is $1. If you don't want an advance, select No.")
-          .max(nonFormattedMaxRequest, `Enter an amount less than $${maxAdvanceRequest}`),
+          .max(nonFormattedMaxRequest, `Enter an amount $${maxAdvanceRequest} or less`),
     }),
     agreeToTerms: Yup.boolean().when('advanceRequested', {
       is: true,
