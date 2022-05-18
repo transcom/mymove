@@ -1,10 +1,7 @@
 package move
 
 import (
-	"database/sql"
 	"fmt"
-
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -23,6 +20,9 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string,
 	if locator == nil && dodID == nil {
 		return models.Moves{}, fmt.Errorf("need at least one search filter")
 	}
+	if locator != nil && dodID != nil {
+		return models.Moves{}, fmt.Errorf("SearchMoves requires exactly one search filter")
+	}
 
 	query := appCtx.DB().EagerPreload(
 		"MTOShipments",
@@ -35,24 +35,18 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string,
 		Where("show = TRUE")
 
 	if locator != nil {
-		query = query.Where("locator = $1", locator)
+		query = query.Where("locator = ?", locator)
 	}
 
 	if dodID != nil {
-		query = query.Where("service_members.edipi = $1", *dodID)
+		query = query.Where("service_members.edipi = ?", *dodID)
 	}
 
 	var moves models.Moves
 	err := query.All(&moves)
 
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			// Not found error expects an id but we're querying by locator
-			return models.Moves{}, apperror.NewNotFoundError(uuid.Nil, "move locator "+*locator)
-		default:
-			return models.Moves{}, apperror.NewQueryError("Move", err, "")
-		}
+		return models.Moves{}, apperror.NewQueryError("Move", err, "")
 	}
 	return moves, nil
 }
