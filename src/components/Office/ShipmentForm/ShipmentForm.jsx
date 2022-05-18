@@ -448,6 +448,7 @@ const ShipmentForm = ({
 
                 <ShipmentFormRemarks
                   userRole={userRole}
+                  shipmentType={shipmentType}
                   customerRemarks={mtoShipment.customerRemarks}
                   counselorRemarks={mtoShipment.counselorRemarks}
                 />
