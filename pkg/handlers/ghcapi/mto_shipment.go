@@ -78,8 +78,8 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerConfig
-	mtoShipmentCreator services.MTOShipmentCreator
-	shipmentStatus     services.ShipmentSITStatus
+	shipmentCreator services.ShipmentCreator
+	shipmentStatus  services.ShipmentSITStatus
 }
 
 // Handle creates the mto shipment
@@ -121,7 +121,9 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-			mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
+
+			var err error
+			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
 			if err != nil {
 				return handleError(err)

@@ -130,12 +130,12 @@ func HandleGatewayError(err error, logger *log.Logger) error {
 		// 422 for example is an Unprocessable Entity and is returned by the swagger
 		// validation before it even hits the handler.
 		apiErr := err.(*openapi.APIError).Response.(openapi.ClientResponse)
-		logger.Fatal(fmt.Sprintf("%s: %s", err, apiErr.Message()))
+		logger.Fatalf("%s: %s", err, apiErr.Message())
 
 	} else if typedErr, ok := err.(*url.Error); ok {
 		// If the server is not running you are likely to see a connection error
 		// This catches the error and prints a useful message.
-		logger.Fatal(fmt.Sprintf("%s operation to %s failed, check if server is running : %s", typedErr.Op, typedErr.URL, typedErr.Err.Error()))
+		logger.Fatalf("%s operation to %s failed, check if server is running : %s", typedErr.Op, typedErr.URL, typedErr.Err.Error())
 	}
 	// If it is a handled error, we should be able to pull out the payload here
 	data, _ := json.Marshal(err)

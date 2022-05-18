@@ -512,14 +512,24 @@ func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		SitExpected:                    *ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
-		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		Advance:                        handlers.FmtCost(ppmShipment.Advance),
 		AdvanceRequested:               ppmShipment.AdvanceRequested,
+		DeletedAt:                      handlers.FmtDateTimePtr(ppmShipment.DeletedAt),
+		SitEstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
+		SitEstimatedEntryDate:          handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
+		SitEstimatedDepartureDate:      handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
+		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+	}
+
+	if ppmShipment.SITLocation != nil {
+		sitLocation := ghcmessages.SITLocationType(*ppmShipment.SITLocation)
+		payloadPPMShipment.SitLocation = &sitLocation
 	}
 
 	return payloadPPMShipment
@@ -588,6 +598,10 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 
 	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
 		payload.RequestedDeliveryDate = *handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
+	}
+
+	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
+		payload.RequiredDeliveryDate = handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate)
 	}
 
 	if mtoShipment.ScheduledPickupDate != nil {
