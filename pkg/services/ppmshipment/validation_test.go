@@ -60,9 +60,11 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 
 		if ppmState >= PPMShipmentStateAdvance {
 			oldShipment.AdvanceRequested = models.BoolPointer(oldFlags.hasRequestedAdvance)
+			oldShipment.HasRequestedAdvance = models.BoolPointer(oldFlags.hasRequestedAdvance)
 
 			if oldFlags.hasRequestedAdvance {
 				oldShipment.Advance = models.CentPointer(unit.Cents(300000))
+				oldShipment.AdvanceAmountRequested = models.CentPointer(unit.Cents(300000))
 			}
 		}
 
@@ -290,7 +292,8 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				hasReceivedAdvance:  false,
 			},
 			newShipment: models.PPMShipment{
-				AdvanceRequested: models.BoolPointer(false),
+				AdvanceRequested:    models.BoolPointer(false),
+				HasRequestedAdvance: models.BoolPointer(false),
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
@@ -299,7 +302,9 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
+				suite.Equal(newShipment.HasRequestedAdvance, mergedShipment.HasRequestedAdvance)
 				suite.Nil(mergedShipment.Advance)
+				suite.Nil(mergedShipment.AdvanceAmountRequested)
 			},
 		},
 		"Add advance requested info - yes advance": {
@@ -311,8 +316,10 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				hasReceivedAdvance:  false,
 			},
 			newShipment: models.PPMShipment{
-				AdvanceRequested: models.BoolPointer(true),
-				Advance:          models.CentPointer(unit.Cents(400000)),
+				AdvanceRequested:       models.BoolPointer(true),
+				HasRequestedAdvance:    models.BoolPointer(true),
+				Advance:                models.CentPointer(unit.Cents(400000)),
+				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
@@ -321,7 +328,9 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
+				suite.Equal(newShipment.HasRequestedAdvance, mergedShipment.HasRequestedAdvance)
 				suite.Equal(newShipment.Advance, mergedShipment.Advance)
+				suite.Equal(newShipment.AdvanceAmountRequested, mergedShipment.AdvanceAmountRequested)
 			},
 		},
 		"Remove advance requested": {
@@ -333,7 +342,8 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				hasReceivedAdvance:  false,
 			},
 			newShipment: models.PPMShipment{
-				AdvanceRequested: models.BoolPointer(false),
+				AdvanceRequested:    models.BoolPointer(false),
+				HasRequestedAdvance: models.BoolPointer(false),
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
@@ -342,7 +352,9 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
+				suite.Equal(newShipment.HasRequestedAdvance, mergedShipment.HasRequestedAdvance)
 				suite.Nil(mergedShipment.Advance)
+				suite.Nil(mergedShipment.AdvanceAmountRequested)
 			},
 		},
 		"Add actual zips and advance info - no advance": {
@@ -364,7 +376,9 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
 
 				suite.Equal(oldShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
+				suite.Equal(oldShipment.HasRequestedAdvance, mergedShipment.HasRequestedAdvance)
 				suite.Nil(mergedShipment.Advance)
+				suite.Nil(mergedShipment.AdvanceAmountRequested)
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.ActualPickupPostalCode, mergedShipment.ActualPickupPostalCode)
@@ -393,7 +407,9 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
 
 				suite.Equal(oldShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
+				suite.Equal(oldShipment.HasRequestedAdvance, mergedShipment.HasRequestedAdvance)
 				suite.Equal(oldShipment.Advance, mergedShipment.Advance)
+				suite.Equal(oldShipment.AdvanceAmountRequested, mergedShipment.AdvanceAmountRequested)
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.ActualPickupPostalCode, mergedShipment.ActualPickupPostalCode)
@@ -419,7 +435,9 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
 
 				suite.Equal(oldShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
+				suite.Equal(oldShipment.HasRequestedAdvance, mergedShipment.HasRequestedAdvance)
 				suite.Equal(oldShipment.Advance, mergedShipment.Advance)
+				suite.Equal(oldShipment.AdvanceAmountRequested, mergedShipment.AdvanceAmountRequested)
 				suite.Equal(oldShipment.ActualPickupPostalCode, mergedShipment.ActualPickupPostalCode)
 				suite.Equal(oldShipment.ActualDestinationPostalCode, mergedShipment.ActualDestinationPostalCode)
 
