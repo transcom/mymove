@@ -30,24 +30,24 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string,
 		Where("show = TRUE")
 
 	if locator != nil {
-		var moves models.Moves
-		err := query.Where("locator = $1", locator).All(&moves)
-
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				// Not found error expects an id but we're querying by locator
-				return models.Moves{}, apperror.NewNotFoundError(uuid.Nil, "move locator "+*locator)
-			default:
-				return models.Moves{}, apperror.NewQueryError("Move", err, "")
-			}
-		}
-		return moves, nil
+		query = query.Where("locator = $1", locator)
 	}
 
 	if dodID != nil {
-		return models.Moves{}, nil
+		query = query.Where("service_members.edipi = $1", *dodID)
 	}
 
-	return models.Moves{}, fmt.Errorf("not implemented")
+	var moves models.Moves
+	err := query.All(&moves)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			// Not found error expects an id but we're querying by locator
+			return models.Moves{}, apperror.NewNotFoundError(uuid.Nil, "move locator "+*locator)
+		default:
+			return models.Moves{}, apperror.NewQueryError("Move", err, "")
+		}
+	}
+	return moves, nil
 }

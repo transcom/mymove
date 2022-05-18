@@ -105,6 +105,7 @@ const QAECSRMoveSearch = () => {
 
   const { searchResult, isLoading, isError } = useQAECSRMoveSearchQueries({
     moveCode: search.moveCode,
+    dodID: search.dodID,
   });
   // const { totalCount = 0, data = [], page = 1, perPage = 20 } = searchResult;
   const { data = [] } = searchResult;

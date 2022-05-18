@@ -450,9 +450,8 @@ export const useGHCGetMoveHistory = ({
   };
 };
 
-export const useQAECSRMoveSearchQueries = ({ moveCode }) => {
-  // TODO need to pass dod ID
-  const queryResult = useQuery([QAE_CSR_MOVE_SEARCH, moveCode, null], searchMoves, { enabled: !!moveCode });
+export const useQAECSRMoveSearchQueries = ({ moveCode, dodID }) => {
+  const queryResult = useQuery([QAE_CSR_MOVE_SEARCH, moveCode, dodID], searchMoves, { enabled: !!moveCode || !!dodID });
   // console.log('qr', queryResult);
   const { data = {}, ...moveSearchQuery } = queryResult;
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveSearchQuery]);
