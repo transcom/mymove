@@ -66,7 +66,7 @@ writing, the file above is over 550 lines of code supporting 32 distinct event
 templates. At the time of this writing, it's estimated that we will be adding
 another 21 distinct event templates.
 
-### Proposal
+## Proposal: Organize constants files into individual modules
 
 Organizing these `src/constants/` files for Move History into individual
 JavaScript modules is a great way to encapsulate any changes so multiple
@@ -80,8 +80,7 @@ Below is an example of the proposed file structure for Move History constants.
 
 ```sh
 src/constants/MoveHistory
-├── BuildTemplate.js
-├── GetTemplate.js
+├── TemplateManager.js
 └── EventTemplates
    ├── updateMTOReviewedBillableWeightAt.js
    └── updateMTOReviewedBillableWeightAt.test.js
@@ -91,21 +90,108 @@ src/constants/MoveHistory
 └── LabeledFields
    ├── OrdersOptions.js
 └── UIDisplay
+   └── DetailsTypes.js
    └── HistoryLogRecordShapes.js
 ```
 
 This example is a minimal set of files. A refactor for all the current exports
 will include many more files under certain directories. The file and directory
-names are capitalized and camel-case for readability. The event templates should be named after the user action to which they correspond (usually based on their event name) and their names should not end in "event." Any tests for these files
-will be written alongside the files that they are testing. Each template test file would technically test the result of GetTemplate.js and use the event template as the expected result. For `EventTemplates`
-tests, due to this refactor there will no longer be a test for the
-`moveHistoryEventTemplate` file as this file will only be responsible for
-getting templates. The main export of this file will be a new file called
-`GetTemplate.js` and won't require tests as it is only a helper function.
+names are capitalized and camel-case for readability. The event templates should
+be named after the user action to which they correspond (usually based on their
+event name) and their names should not end in "event." Any tests for these files
+will be written alongside the files that they are testing. Each template test
+file would technically test the functionality of building and getting templates
+from the `TemplateManager.js` file to achieve the expected result.
 
-Most of the functionality of `GetTemplate.js` will remain the same. This may
-lead to merge conflicts, but they will be relatively painless as the main reason
-of this file is to keep track and load specific `EventTemplates` files.
+### Template Manager
+
+This ADR introduces changing the getting and building of templates into a single
+file named `TemplateManager.js`. This file has a local Array which is appended
+to at build-time of the templates. This `TemplateManager.js` exports two
+functions named `BuildTemplate` and `GetTemplate`. With this approach, there is
+no need to maintain a static Array of events as was done previously. This cuts
+down on the number of times an Event Name is written in the codebase. Below is
+an example of the changes related to using this Array to store events at build
+time rather than maintaining the Array manually.
+
+```diff
+diff --git a/src/constants/moveHistoryEventTemplate.js b/src/constants/moveHistoryEventTemplate.js
+index 99b505f090..3c1f0b0cae 100644
+--- a/src/constants/moveHistoryEventTemplate.js
++++ b/src/constants/moveHistoryEventTemplate.js
+@@ -1,3 +1,5 @@
++/* eslint prefer-const: "off" */
++
+ import moveHistoryOperations from './moveHistoryOperations';
+ import { shipmentTypes } from './shipments';
+
+@@ -17,6 +19,9 @@ export const detailsTypes = {
+   STATUS: 'STATUS',
+ };
+
++// A private Array to store all the Event templates.
++let allMoveHistoryEventTemplates = [];
++
+ const buildMoveHistoryEventTemplate = ({
+   action = '*',
+   eventName = '*',
+@@ -54,6 +59,9 @@ const buildMoveHistoryEventTemplate = ({
+     );
+   };
+
++  // Append the eventType after creating it into the private Array.
++  allMoveHistoryEventTemplates.push(eventType);
++
+   return eventType;
+ };
+
+@@ -520,41 +528,6 @@ export const updateMTOReviewedBillableWeightsAt = buildMoveHistoryEventTemplate(
+   getDetailsPlainText: () => 'Reviewed weights',
+ });
+
+-const allMoveHistoryEventTemplates = [
+-  acknowledgeExcessWeightRiskEvent,
+-  approveShipmentEvent,
+-  approveShipmentDiversionEvent,
+-  createMTOShipmentEvent,
+-  createMTOShipmentAddressesEvent,
+-  createMTOShipmentAgentEvent,
+-  createOrdersEvent,
+-  createPaymentRequestReweighUpdate,
+-  createPaymentRequestShipmentUpdate,
+-  createBasicServiceItemEvent,
+-  createStandardServiceItemEvent,
+-  requestShipmentCancellationEvent,
+-  requestShipmentDiversionEvent,
+-  requestShipmentReweighEvent,
+-  setFinancialReviewFlagEvent,
+-  submitMoveForApprovalEvent,
+-  updateAllowanceEvent,
+-  uploadAmendedOrdersEvent,
+-  updateBillableWeightEvent,
+-  updateMoveTaskOrderEvent,
+-  updateMoveTaskOrderStatusEvent,
+-  updateMTOShipmentEvent,
+-  updateMTOShipmentAddressesEvent,
+-  updateMTOShipmentAgentEvent,
+-  updateMTOShipmentDeprecatePaymentRequest,
+-  updateOrderEvent,
+-  updatePaymentRequestEvent,
+-  updatePaymentRequestStatus,
+-  updateServiceItemStatusEvent,
+-  updateBillableWeightEvent,
+-  updateAllowanceEvent,
+-  updateMTOReviewedBillableWeightsAt,
+-];
+-
+ const getMoveHistoryEventTemplate = (historyRecord) => {
+   return allMoveHistoryEventTemplates.find((eventType) => eventType.matches(historyRecord)) || undefinedEvent;
+ };
+```
+
+The diff above works prior to the refactor suggested in this ADR. The diff above
+is meant to give an example and is only the beginning of the necessary changes
+that would be done to complete this ADR.
 
 ## Considered Alternatives
 
