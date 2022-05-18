@@ -97,7 +97,7 @@ func checkAdvance() ppmShipmentValidator {
 			if newPPMShipment.Advance == nil {
 				verrs.Add("advance", "An advance amount is required")
 			} else if float64(*newPPMShipment.Advance) < float64(100) {
-				verrs.Add("advance", "Advance can not be value less than 1")
+				verrs.Add("advance", "Advance cannot be a value less than $1")
 			} else if float64(*newPPMShipment.Advance) > math.Floor(float64(*newPPMShipment.EstimatedIncentive)*0.6) {
 				verrs.Add("advance", "Advance can not be greater than 60% of the estimated incentive")
 			}
