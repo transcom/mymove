@@ -96,8 +96,8 @@ src/constants/MoveHistory
 
 This example is a minimal set of files. A refactor for all the current exports
 will include many more files under certain directories. The file and directory
-names are capitalized and camel-case for readability. Any tests for these files
-will be written alongside the files that they are testing. For `EventTemplates`
+names are capitalized and camel-case for readability. The event templates should be named after the user action to which they correspond (usually based on their event name) and their names should not end in "event." Any tests for these files
+will be written alongside the files that they are testing. Each template test file would technically test the result of GetTemplate.js and use the event template as the expected result. For `EventTemplates`
 tests, due to this refactor there will no longer be a test for the
 `moveHistoryEventTemplate` file as this file will only be responsible for
 getting templates. The main export of this file will be a new file called
