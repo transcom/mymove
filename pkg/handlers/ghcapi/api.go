@@ -245,7 +245,7 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.MoveSearchMovesHandler = SearchMovesHandler{
 		HandlerContext: ctx,
-		MoveFetcher:    move.NewMoveFetcher(),
+		MoveSearcher:   move.NewMoveSearcher(),
 	}
 
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{

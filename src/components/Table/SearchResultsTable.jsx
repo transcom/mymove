@@ -140,7 +140,7 @@ const SearchResultsTable = (props) => {
 };
 
 // TODO use an actual shape here
-const SearchResultsShape = PropTypes.object;
+const SearchResultsShape = PropTypes.array;
 
 SearchResultsTable.propTypes = {
   // handleClick is the handler to handle functionality to click on a row

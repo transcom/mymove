@@ -5,8 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
@@ -58,17 +56,13 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 type SearchMovesHandler struct {
 	handlers.HandlerContext
 	services.MoveFetcher
+	services.MoveSearcher
 }
 
 func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			locator := params.Locator
-			if locator == nil || *locator == "" {
-				return moveop.NewSearchMovesNotFound(), apperror.NewNotFoundError(uuid.Nil, "missing required parameter: locator")
-			}
-
-			move, err := h.FetchMove(appCtx, *locator, nil)
+			moves, err := h.MoveSearcher.SearchMoves(appCtx, params.Locator, params.DodID)
 
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving move by locator", zap.Error(err))
@@ -80,12 +74,10 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				}
 			}
 
-			if move == nil {
+			if len(moves) == 0 {
 				return moveop.NewSearchMovesNotFound(), nil
 			}
 
-			moves := make(models.Moves, 1)
-			moves[0] = *move
 			searchMoves := payloads.SearchMoves(moves)
 			payload := &ghcmessages.SearchMovesResult{
 				Page:        1,

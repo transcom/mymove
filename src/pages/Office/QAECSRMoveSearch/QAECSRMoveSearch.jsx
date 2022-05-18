@@ -83,7 +83,7 @@ const validationSchema = Yup.object().shape({
 
 // const QAECSRMoveSearch = ({ history }) => {
 const QAECSRMoveSearch = () => {
-  const [search, setSearch] = useState({ moveCode: '9TR9JG', dodID: null });
+  const [search, setSearch] = useState({ moveCode: null, dodID: null });
 
   const handleClick = () => {
     // history.push(`/moves/${values.locator}/details`);
