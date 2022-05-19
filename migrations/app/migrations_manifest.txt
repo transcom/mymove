@@ -728,3 +728,4 @@
 20220428174000_add_qae_csr_role.up.sql
 20220502194223_add_sit_fields_to_ppm_shipments.up.sql
 20220503172836_add_office_move_remarks.up.sql
+20220518203808_create_move_history_trigger_for_proof_of_service_docs.up.sql
