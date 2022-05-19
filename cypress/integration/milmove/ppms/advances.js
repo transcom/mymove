@@ -76,7 +76,7 @@ function invalidInputs() {
 
   // advance violates max (over 60% of incentive)
   cy.get('@amountRequestedInput').clear().type(6001).blur();
-  cy.get('@errorMessage').contains('Enter an amount less than $6,000');
+  cy.get('@errorMessage').contains('Enter an amount $6,000 or less');
   cy.get('@errorMessage').next('div').find('input').should('have.id', 'amountRequested');
   cy.get('@saveButton').should('be.disabled');
   cy.get('@amountRequestedInput').clear().type(1).blur();
