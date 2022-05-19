@@ -146,12 +146,16 @@ func (suite *PopTestSuite) tearDownTxnTest() {
 	if !suite.usePerTestTransaction {
 		return
 	}
-	if suite.lowPrivConn == nil {
-		return
+	suite.perTestTxnMutex.Lock()
+	defer suite.perTestTxnMutex.Unlock()
+	t := suite.T()
+	db, ok := suite.perTestTxnConn[t]
+	if ok {
+		delete(suite.perTestTxnConn, t)
+		err := db.Close()
+		if err != nil {
+			log.Fatalf("Closing Subtest DB Failed!: %v", err)
+		}
 	}
-	err := suite.lowPrivConn.Close()
-	if err != nil {
-		log.Panicf("Error closing lowPrivConn: %v", err)
-	}
-	suite.lowPrivConn = nil
+
 }

@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"runtime"
 	"strings"
+	"sync"
+	"testing"
 	"time"
 
 	"go.uber.org/zap"
@@ -60,6 +62,12 @@ type PopTestSuite struct {
 	pgConnDetails       *pop.ConnectionDetails
 	lowPrivConnDetails  *pop.ConnectionDetails
 	highPrivConnDetails *pop.ConnectionDetails
+
+	// each testing context gets its own connection and does not use
+	// lowPrivConn. Use a lock to ensure updates don't stomp on each
+	// other
+	perTestTxnMutex *sync.Mutex
+	perTestTxnConn  map[*testing.T]*pop.Connection
 
 	// Enable this flag to avoid the use of the DB_USER_LOW_PRIV and DB_PASSWORD_LOW_PRIV
 	// environment variables and instead fall back to the use of a single, high privileged
@@ -179,6 +187,8 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 
 	if pts.usePerTestTransaction {
 		pts.findOrCreatePerTestTransactionDb()
+		pts.perTestTxnMutex = &sync.Mutex{}
+		pts.perTestTxnConn = make(map[*testing.T]*pop.Connection)
 	} else {
 		// set up database connections for non per test transactions
 		// which may or may not be have useHighPrivsPSQLRole set
@@ -385,25 +395,25 @@ func (suite *PopTestSuite) DB() *pop.Connection {
 	// This is necessary so that we know the current test name and can
 	// create a new txdb db connection per test
 	if suite.usePerTestTransaction {
-		if suite.lowPrivConn == nil {
-			suite.lowPrivConn = suite.openTxnPopConnection()
+		suite.perTestTxnMutex.Lock()
+		defer suite.perTestTxnMutex.Unlock()
+		t := suite.T()
+
+		// we keep track of a db conn per *testing.T so that tests and
+		// subtests all get their own independent db connection and
+		// cannot accidentally share a transaction
+		_, ok := suite.perTestTxnConn[t]
+		if !ok {
+			suite.perTestTxnConn[t] = suite.openTxnPopConnection()
 
 			// Any time a database connection is established, make sure we
 			// close it at the end of the test so that the transaction
 			// is rolled back. See txdb for more info
-			suite.T().Cleanup(func() {
-				// If the db connection hasn't already been cleaned
-				// up, do so here
-				if suite.lowPrivConn != nil {
-					err := suite.lowPrivConn.Close()
-					if err != nil {
-						log.Fatalf("Closing Subtest DB Failed!: %v", err)
-					}
-					suite.lowPrivConn = nil
-				}
+			t.Cleanup(func() {
+				suite.tearDownTxnTest()
 			})
 		}
-
+		return suite.perTestTxnConn[t]
 	}
 	return suite.lowPrivConn
 }
