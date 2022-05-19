@@ -18,53 +18,58 @@ import (
 )
 
 func (suite *HandlerSuite) TestPostRevisionToOrders() {
-	// prime the DB with an order with 1 revision
-	origOrder := testdatagen.MakeDefaultElectronicOrder(suite.DB())
+	setupTestData := func() (PostRevisionToOrdersHandler, ordersoperations.PostRevisionToOrdersParams, ordersmessages.Revision) {
+		// prime the DB with an order with 1 revision
+		origOrder := testdatagen.MakeDefaultElectronicOrder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID), nil)
-	clientCert := models.ClientCert{
-		AllowOrdersAPI:           true,
-		AllowAirForceOrdersWrite: true,
+		req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID), nil)
+		clientCert := models.ClientCert{
+			AllowOrdersAPI:           true,
+			AllowAirForceOrdersWrite: true,
+		}
+		req = suite.AuthenticateClientCertRequest(req, &clientCert)
+
+		seqNum := int64(1)
+		hasDependents := true
+		rev := ordersmessages.Revision{
+			SeqNum: &seqNum,
+			Member: &ordersmessages.Member{
+				GivenName:   "First",
+				FamilyName:  "Last",
+				Affiliation: ordersmessages.NewAffiliation(ordersmessages.AffiliationAIRFORCE),
+				Rank:        ordersmessages.NewRank(ordersmessages.RankWDash1),
+			},
+			Status:        ordersmessages.NewStatus(ordersmessages.StatusAuthorized),
+			DateIssued:    handlers.FmtDateTime(time.Now()),
+			NoCostMove:    false,
+			TdyEnRoute:    false,
+			TourType:      ordersmessages.TourTypeAccompanied,
+			OrdersType:    ordersmessages.NewOrdersType(ordersmessages.OrdersTypeSeparation),
+			HasDependents: &hasDependents,
+			LosingUnit: &ordersmessages.Unit{
+				Uic:        handlers.FmtString("FFFS00"),
+				Name:       handlers.FmtString("SPC721 COMMUNICATIONS SQ"),
+				City:       handlers.FmtString("CHEYENNE MTN"),
+				Locality:   handlers.FmtString("CO"),
+				PostalCode: handlers.FmtString("80914"),
+			},
+			PcsAccounting: &ordersmessages.Accounting{
+				Tac: handlers.FmtString("F67C"),
+			},
+		}
+
+		params := ordersoperations.PostRevisionToOrdersParams{
+			HTTPRequest: req,
+			UUID:        strfmt.UUID(origOrder.ID.String()),
+			Revision:    &rev,
+		}
+
+		handler := PostRevisionToOrdersHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
+
+		return handler, params, rev
 	}
-	req = suite.AuthenticateClientCertRequest(req, &clientCert)
-
-	seqNum := int64(1)
-	hasDependents := true
-	rev := ordersmessages.Revision{
-		SeqNum: &seqNum,
-		Member: &ordersmessages.Member{
-			GivenName:   "First",
-			FamilyName:  "Last",
-			Affiliation: ordersmessages.NewAffiliation(ordersmessages.AffiliationAIRFORCE),
-			Rank:        ordersmessages.NewRank(ordersmessages.RankWDash1),
-		},
-		Status:        ordersmessages.NewStatus(ordersmessages.StatusAuthorized),
-		DateIssued:    handlers.FmtDateTime(time.Now()),
-		NoCostMove:    false,
-		TdyEnRoute:    false,
-		TourType:      ordersmessages.TourTypeAccompanied,
-		OrdersType:    ordersmessages.NewOrdersType(ordersmessages.OrdersTypeSeparation),
-		HasDependents: &hasDependents,
-		LosingUnit: &ordersmessages.Unit{
-			Uic:        handlers.FmtString("FFFS00"),
-			Name:       handlers.FmtString("SPC721 COMMUNICATIONS SQ"),
-			City:       handlers.FmtString("CHEYENNE MTN"),
-			Locality:   handlers.FmtString("CO"),
-			PostalCode: handlers.FmtString("80914"),
-		},
-		PcsAccounting: &ordersmessages.Accounting{
-			Tac: handlers.FmtString("F67C"),
-		},
-	}
-
-	params := ordersoperations.PostRevisionToOrdersParams{
-		HTTPRequest: req,
-		UUID:        strfmt.UUID(origOrder.ID.String()),
-		Revision:    &rev,
-	}
-
-	handler := PostRevisionToOrdersHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	suite.T().Run("Success", func(t *testing.T) {
+		handler, params, rev := setupTestData()
 		response := handler.Handle(params)
 
 		suite.IsType(&ordersoperations.PostRevisionToOrdersCreated{}, response)
@@ -99,8 +104,12 @@ func (suite *HandlerSuite) TestPostRevisionToOrders() {
 	})
 
 	suite.T().Run("SeqNumConflict", func(t *testing.T) {
-		// Sending the amendment again should result in a conflict because the SeqNum will be taken
+		handler, params, _ := setupTestData()
 		response := handler.Handle(params)
+
+		suite.IsType(&ordersoperations.PostRevisionToOrdersCreated{}, response)
+		// Sending the amendment again should result in a conflict because the SeqNum will be taken
+		response = handler.Handle(params)
 		suite.IsType(&handlers.ErrResponse{}, response)
 		errResponse, ok := response.(*handlers.ErrResponse)
 		if !ok {

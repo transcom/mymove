@@ -404,13 +404,16 @@ func (suite *PopTestSuite) DB() *pop.Connection {
 		// cannot accidentally share a transaction
 		_, ok := suite.perTestTxnConn[t]
 		if !ok {
+			if len(suite.perTestTxnConn) > 0 {
+				suite.FailNow("Opening more than one db connection in transactional test")
+			}
 			suite.perTestTxnConn[t] = suite.openTxnPopConnection()
 
 			// Any time a database connection is established, make sure we
 			// close it at the end of the test so that the transaction
 			// is rolled back. See txdb for more info
 			t.Cleanup(func() {
-				suite.tearDownTxnTest()
+				suite.tearDownTxnTest(t)
 			})
 		}
 		return suite.perTestTxnConn[t]
@@ -518,7 +521,7 @@ func (suite *PopTestSuite) NilOrNoVerrs(err error) {
 // TearDownTest runs the teardown per test. It will only do something
 // useful if per test transactions are enabled
 func (suite *PopTestSuite) TearDownTest() {
-	suite.tearDownTxnTest()
+	suite.tearDownAllTxnTest()
 }
 
 // TearDown runs the teardown for step for the suite

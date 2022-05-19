@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"testing"
 
 	"github.com/DATA-DOG/go-txdb"
 	"github.com/gobuffalo/pop/v6"
@@ -141,14 +142,25 @@ func (suite *PopTestSuite) openTxnPopConnection() *pop.Connection {
 	return popConn
 }
 
+// tearDownAllTxnTest ensures all open connections for this test are
+// torn down
+func (suite *PopTestSuite) tearDownAllTxnTest() {
+	if !suite.usePerTestTransaction {
+		return
+	}
+	suite.Logger().Warn("Tearing Down all Connections")
+	for t := range suite.perTestTxnConn {
+		suite.tearDownTxnTest(t)
+	}
+}
+
 // tearDownTxnTest closes the db connection established for this test
-func (suite *PopTestSuite) tearDownTxnTest() {
+func (suite *PopTestSuite) tearDownTxnTest(t *testing.T) {
 	if !suite.usePerTestTransaction {
 		return
 	}
 	suite.perTestTxnMutex.Lock()
 	defer suite.perTestTxnMutex.Unlock()
-	t := suite.T()
 	db, ok := suite.perTestTxnConn[t]
 	if ok {
 		delete(suite.perTestTxnConn, t)

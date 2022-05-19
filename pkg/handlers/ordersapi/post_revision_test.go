@@ -59,8 +59,8 @@ func (suite *HandlerSuite) TestPostRevision() {
 		Revision:    &rev,
 	}
 
-	handler := PostRevisionHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	suite.T().Run("NewSuccess", func(t *testing.T) {
+		handler := PostRevisionHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 		response := handler.Handle(params)
 
 		suite.IsType(&ordersoperations.PostRevisionCreated{}, response)
@@ -99,6 +99,7 @@ func (suite *HandlerSuite) TestPostRevision() {
 
 	suite.T().Run("AmendmentSuccess", func(t *testing.T) {
 		seqNum = int64(1)
+		handler := PostRevisionHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 		response := handler.Handle(params)
 
 		suite.IsType(&ordersoperations.PostRevisionCreated{}, response)
@@ -136,8 +137,14 @@ func (suite *HandlerSuite) TestPostRevision() {
 	})
 
 	suite.T().Run("SeqNumConflict", func(t *testing.T) {
-		// Sending the amendment again should result in a conflict because the SeqNum will be taken
+		seqNum = int64(1)
+		handler := PostRevisionHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 		response := handler.Handle(params)
+
+		suite.IsType(&ordersoperations.PostRevisionCreated{}, response)
+
+		// Sending the amendment again should result in a conflict because the SeqNum will be taken
+		response = handler.Handle(params)
 		suite.IsType(&handlers.ErrResponse{}, response)
 		errResponse, ok := response.(*handlers.ErrResponse)
 		if !ok {
@@ -149,6 +156,7 @@ func (suite *HandlerSuite) TestPostRevision() {
 	suite.T().Run("EdipiConflict", func(t *testing.T) {
 		params.MemberID = "9999999999"
 		seqNum = int64(99999)
+		handler := PostRevisionHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 		response := handler.Handle(params)
 		suite.IsType(&handlers.ErrResponse{}, response)
 		errResponse, ok := response.(*handlers.ErrResponse)

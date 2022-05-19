@@ -125,14 +125,13 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 		{"Draft", models.MTOShipmentStatusDraft},
 	}
 	for _, validStatus := range validStatuses {
-		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment.Status = validStatus.status
+		subname := "from valid status: " + string(validStatus.status)
+		shipment.Status = validStatus.status
 
-			err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
 
-			suite.NoError(err)
-			suite.Equal(models.MTOShipmentStatusSubmitted, shipment.Status)
-		})
+		suite.NoError(err, subname)
+		suite.Equal(models.MTOShipmentStatusSubmitted, shipment.Status, subname)
 	}
 
 	invalidStatuses := []struct {
@@ -147,16 +146,15 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 		{"Submitted", models.MTOShipmentStatusSubmitted},
 	}
 	for _, invalidStatus := range invalidStatuses {
-		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment.Status = invalidStatus.status
+		subname := "from invalid status: " + string(invalidStatus.status)
+		shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
 
-			suite.Error(err)
-			suite.IsType(ConflictStatusError{}, err)
-			suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status 'SUBMITTED' from [\"DRAFT\"]", shipment.ID))
-			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status))
-		})
+		suite.Error(err, subname)
+		suite.IsType(ConflictStatusError{}, err, subname)
+		suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status 'SUBMITTED' from [\"DRAFT\"]", shipment.ID), subname)
+		suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status), subname)
 	}
 }
 
@@ -171,14 +169,13 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 		{"Cancellation Requested", models.MTOShipmentStatusCancellationRequested},
 	}
 	for _, validStatus := range validStatuses {
-		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment.Status = validStatus.status
+		subname := "from valid status: " + string(validStatus.status)
+		shipment.Status = validStatus.status
 
-			err := shipmentRouter.Cancel(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.Cancel(suite.AppContextForTest(), &shipment)
 
-			suite.NoError(err)
-			suite.Equal(models.MTOShipmentStatusCanceled, shipment.Status)
-		})
+		suite.NoError(err, subname)
+		suite.Equal(models.MTOShipmentStatusCanceled, shipment.Status, subname)
 	}
 
 	invalidStatuses := []struct {
@@ -193,16 +190,15 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 		{"Draft", models.MTOShipmentStatusDraft},
 	}
 	for _, invalidStatus := range invalidStatuses {
-		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment.Status = invalidStatus.status
+		subname := "from invalid status: " + string(invalidStatus.status)
+		shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Cancel(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.Cancel(suite.AppContextForTest(), &shipment)
 
-			suite.Error(err)
-			suite.IsType(ConflictStatusError{}, err)
-			suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status", shipment.ID))
-			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status))
-		})
+		suite.Error(err, subname)
+		suite.IsType(ConflictStatusError{}, err, subname)
+		suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status", shipment.ID), subname)
+		suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status), subname)
 	}
 }
 
@@ -218,15 +214,14 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 		{"Submitted", models.MTOShipmentStatusSubmitted},
 	}
 	for _, validStatus := range validStatuses {
-		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment.Status = validStatus.status
+		subname := "from valid status: " + string(validStatus.status)
+		shipment.Status = validStatus.status
 
-			err := shipmentRouter.Reject(suite.AppContextForTest(), &shipment, &rejectionReason)
+		err := shipmentRouter.Reject(suite.AppContextForTest(), &shipment, &rejectionReason)
 
-			suite.NoError(err)
-			suite.Equal(models.MTOShipmentStatusRejected, shipment.Status)
-			suite.Equal(&rejectionReason, shipment.RejectionReason)
-		})
+		suite.NoError(err, subname)
+		suite.Equal(models.MTOShipmentStatusRejected, shipment.Status, subname)
+		suite.Equal(&rejectionReason, shipment.RejectionReason, subname)
 	}
 
 	invalidStatuses := []struct {
@@ -241,16 +236,15 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 		{"Draft", models.MTOShipmentStatusDraft},
 	}
 	for _, invalidStatus := range invalidStatuses {
-		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment.Status = invalidStatus.status
+		subname := "from invalid status: " + string(invalidStatus.status)
+		shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Reject(suite.AppContextForTest(), &shipment, &rejectionReason)
+		err := shipmentRouter.Reject(suite.AppContextForTest(), &shipment, &rejectionReason)
 
-			suite.Error(err)
-			suite.IsType(ConflictStatusError{}, err)
-			suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status", shipment.ID))
-			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status))
-		})
+		suite.Error(err, subname)
+		suite.IsType(ConflictStatusError{}, err, subname)
+		suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status", shipment.ID), subname)
+		suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status), subname)
 	}
 }
 
@@ -265,14 +259,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 		{"Approved", models.MTOShipmentStatusApproved},
 	}
 	for _, validStatus := range validStatuses {
-		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment.Status = validStatus.status
+		subname := "from valid status: " + string(validStatus.status)
+		shipment.Status = validStatus.status
 
-			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
 
-			suite.NoError(err)
-			suite.Equal(models.MTOShipmentStatusDiversionRequested, shipment.Status)
-		})
+		suite.NoError(err, subname)
+		suite.Equal(models.MTOShipmentStatusDiversionRequested, shipment.Status, subname)
 	}
 
 	invalidStatuses := []struct {
@@ -287,16 +280,15 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 		{"Draft", models.MTOShipmentStatusDraft},
 	}
 	for _, invalidStatus := range invalidStatuses {
-		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment.Status = invalidStatus.status
+		subname := "from invalid status: " + string(invalidStatus.status)
+		shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
 
-			suite.Error(err)
-			suite.IsType(ConflictStatusError{}, err)
-			suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status", shipment.ID))
-			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status))
-		})
+		suite.Error(err, subname)
+		suite.IsType(ConflictStatusError{}, err, subname)
+		suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status", shipment.ID), subname)
+		suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status), subname)
 	}
 }
 
@@ -304,13 +296,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	shipment := testdatagen.MakeStubbedShipment(suite.DB())
 	shipmentRouter := NewShipmentRouter()
 
-	suite.Run("fails when the Diversion field is false", func() {
-		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
+	subname := "fails when the Diversion field is false"
+	err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
 
-		suite.Error(err)
-		suite.IsType(apperror.ConflictError{}, err)
-		suite.Contains(err.Error(), "Cannot approve the diversion")
-	})
+	suite.Error(err, subname)
+	suite.IsType(apperror.ConflictError{}, err, subname)
+	suite.Contains(err.Error(), "Cannot approve the diversion", subname)
 
 	validStatuses := []struct {
 		desc   string
@@ -319,15 +310,14 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 		{"Approved", models.MTOShipmentStatusSubmitted},
 	}
 	for _, validStatus := range validStatuses {
-		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment.Status = validStatus.status
-			shipment.Diversion = true
+		subname := "from valid status: " + string(validStatus.status)
+		shipment.Status = validStatus.status
+		shipment.Diversion = true
 
-			err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
 
-			suite.NoError(err)
-			suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
-		})
+		suite.NoError(err, subname)
+		suite.Equal(models.MTOShipmentStatusApproved, shipment.Status, subname)
 	}
 
 	invalidStatuses := []struct {
@@ -342,17 +332,16 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 		{"Draft", models.MTOShipmentStatusDraft},
 	}
 	for _, invalidStatus := range invalidStatuses {
-		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment.Status = invalidStatus.status
-			shipment.Diversion = true
+		subname := "from invalid status: " + string(invalidStatus.status)
+		shipment.Status = invalidStatus.status
+		shipment.Diversion = true
 
-			err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
 
-			suite.Error(err)
-			suite.IsType(ConflictStatusError{}, err)
-			suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status", shipment.ID))
-			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status))
-		})
+		suite.Error(err, subname)
+		suite.IsType(ConflictStatusError{}, err, subname)
+		suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status", shipment.ID), subname)
+		suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status), subname)
 	}
 }
 
@@ -362,13 +351,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversionUsesExternal() {
 	shipment.UsesExternalVendor = true
 	shipment.Diversion = true
 
-	suite.Run("fails when the UsesExternal field is true", func() {
-		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
+	subname := "fails when the UsesExternal field is true"
+	err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
 
-		suite.Error(err)
-		suite.IsType(apperror.ConflictError{}, err)
-		suite.Contains(err.Error(), "has the UsesExternalVendor field set to true")
-	})
+	suite.Error(err, subname)
+	suite.IsType(apperror.ConflictError{}, err, subname)
+	suite.Contains(err.Error(), "has the UsesExternalVendor field set to true", subname)
 }
 
 func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
@@ -382,14 +370,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 		{"Approved", models.MTOShipmentStatusApproved},
 	}
 	for _, validStatus := range validStatuses {
-		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment.Status = validStatus.status
+		subname := "from valid status: " + string(validStatus.status)
+		shipment.Status = validStatus.status
 
-			err := shipmentRouter.RequestCancellation(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.RequestCancellation(suite.AppContextForTest(), &shipment)
 
-			suite.NoError(err)
-			suite.Equal(models.MTOShipmentStatusCancellationRequested, shipment.Status)
-		})
+		suite.NoError(err, subname)
+		suite.Equal(models.MTOShipmentStatusCancellationRequested, shipment.Status, subname)
 	}
 
 	invalidStatuses := []struct {
@@ -404,15 +391,14 @@ func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 		{"Draft", models.MTOShipmentStatusDraft},
 	}
 	for _, invalidStatus := range invalidStatuses {
-		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment.Status = invalidStatus.status
+		subname := "from invalid status: " + string(invalidStatus.status)
+		shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.RequestCancellation(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.RequestCancellation(suite.AppContextForTest(), &shipment)
 
-			suite.Error(err)
-			suite.IsType(ConflictStatusError{}, err)
-			suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status", shipment.ID))
-			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status))
-		})
+		suite.Error(err, subname)
+		suite.IsType(ConflictStatusError{}, err, subname)
+		suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status", shipment.ID), subname)
+		suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus.status), subname)
 	}
 }
