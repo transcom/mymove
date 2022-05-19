@@ -114,28 +114,32 @@ down on the number of times an Event Name is written in the codebase. Below is
 an example of the changes related to using this Array to store events at build
 time rather than maintaining the Array manually.
 
+<!-- markdownlint-disable no-inline-html -->
+<details>
+<summary>A diff of tested changes to refactor maintaining a static Array variable.</summary>
+
+The diff below works prior to the refactor suggested in this ADR. The diff above
+is meant to give an example and is only the beginning of the necessary changes
+that would be done to complete this ADR.
+
 ```diff
 diff --git a/src/constants/moveHistoryEventTemplate.js b/src/constants/moveHistoryEventTemplate.js
-index 99b505f090..3c1f0b0cae 100644
+index 99b505f090..f68e5fcf79 100644
 --- a/src/constants/moveHistoryEventTemplate.js
 +++ b/src/constants/moveHistoryEventTemplate.js
-@@ -1,3 +1,5 @@
-+/* eslint prefer-const: "off" */
-+
- import moveHistoryOperations from './moveHistoryOperations';
- import { shipmentTypes } from './shipments';
-
-@@ -17,6 +19,9 @@ export const detailsTypes = {
+@@ -17,7 +17,10 @@ export const detailsTypes = {
    STATUS: 'STATUS',
  };
 
+-const buildMoveHistoryEventTemplate = ({
 +// A private Array to store all the Event templates.
-+let allMoveHistoryEventTemplates = [];
++let allMoveHistoryEventTemplates = []; // eslint-disable-line prefer-const
 +
- const buildMoveHistoryEventTemplate = ({
++export const buildMoveHistoryEventTemplate = ({
    action = '*',
    eventName = '*',
-@@ -54,6 +59,9 @@ const buildMoveHistoryEventTemplate = ({
+   tableName = '*',
+@@ -54,6 +57,9 @@ const buildMoveHistoryEventTemplate = ({
      );
    };
 
@@ -145,7 +149,7 @@ index 99b505f090..3c1f0b0cae 100644
    return eventType;
  };
 
-@@ -520,41 +528,6 @@ export const updateMTOReviewedBillableWeightsAt = buildMoveHistoryEventTemplate(
+@@ -520,42 +526,8 @@ export const updateMTOReviewedBillableWeightsAt = buildMoveHistoryEventTemplate(
    getDetailsPlainText: () => 'Reviewed weights',
  });
 
@@ -185,13 +189,14 @@ index 99b505f090..3c1f0b0cae 100644
 -];
 -
  const getMoveHistoryEventTemplate = (historyRecord) => {
++  // Read from the private Array to find templates based on the historyRecord
    return allMoveHistoryEventTemplates.find((eventType) => eventType.matches(historyRecord)) || undefinedEvent;
  };
+
 ```
 
-The diff above works prior to the refactor suggested in this ADR. The diff above
-is meant to give an example and is only the beginning of the necessary changes
-that would be done to complete this ADR.
+</details>
+<!-- markdownlint-disable no-inline-html -->
 
 ## Considered Alternatives
 
