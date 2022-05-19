@@ -37,7 +37,7 @@ const SearchResultsTable = (props) => {
   // const { id, desc } = paramSort.length ? paramSort[0] : {};
 
   // const { totalCount = 0, data = [], page = 1, perPage = 20 } = searchResult;
-  const totalCount = 1;
+  const totalCount = data.length;
   const page = 1;
   const perPage = 20;
 
@@ -106,35 +106,36 @@ const SearchResultsTable = (props) => {
   }, [sortBy, filters, pageIndex, pageSize, totalCount, searchKey, searchValue]);
   // }, [isLoading, isError, totalCount, searchKey, searchValue]);
 
-  // if (isLoading) return <LoadingPlaceholder />;
-  // if (isError) return <SomethingWentWrong />;
-
   return (
     <GridContainer data-testid="table-search" containerSize="widescreen" className={styles.SearchResultsTable}>
-      <h1>{`${title} (${totalCount})`}</h1>
-      <div className={styles.tableContainer}>
-        <p>{JSON.stringify(data)}</p>
-        <Table
-          showFilters={showFilters}
-          showPagination={showPagination}
-          handleClick={handleClick}
-          gotoPage={gotoPage}
-          setPageSize={setPageSize}
-          nextPage={nextPage}
-          previousPage={previousPage}
-          getTableProps={getTableProps}
-          getTableBodyProps={getTableBodyProps}
-          headerGroups={headerGroups}
-          rows={rows}
-          prepareRow={prepareRow}
-          canPreviousPage={canPreviousPage}
-          canNextPage={canNextPage}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          pageCount={pageCount}
-          pageOptions={pageOptions}
-        />
-      </div>
+      <h2>{`${title} (${totalCount})`}</h2>
+      {totalCount > 0 ? (
+        <div className={styles.tableContainer}>
+          <p>{JSON.stringify(data)}</p>
+          <Table
+            showFilters={showFilters}
+            showPagination={showPagination}
+            handleClick={handleClick}
+            gotoPage={gotoPage}
+            setPageSize={setPageSize}
+            nextPage={nextPage}
+            previousPage={previousPage}
+            getTableProps={getTableProps}
+            getTableBodyProps={getTableBodyProps}
+            headerGroups={headerGroups}
+            rows={rows}
+            prepareRow={prepareRow}
+            canPreviousPage={canPreviousPage}
+            canNextPage={canNextPage}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            pageCount={pageCount}
+            pageOptions={pageOptions}
+          />
+        </div>
+      ) : (
+        <p>No results found</p>
+      )}
     </GridContainer>
   );
 };
