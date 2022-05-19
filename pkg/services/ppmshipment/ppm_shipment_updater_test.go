@@ -483,6 +483,100 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Nil(updatedPPM.Advance)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - edit SIT - yes to no", func() {
+		appCtx := suite.AppContextForTest()
+
+		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
+
+		subtestData := setUpForTests(newFakeEstimatedIncentive, nil)
+		sitLocation := models.SITLocationTypeOrigin
+
+		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				SitExpected:               models.BoolPointer(true),
+				SITLocation:               &sitLocation,
+				SITEstimatedEntryDate:     models.TimePointer(testdatagen.NextValidMoveDate),
+				SITEstimatedDepartureDate: models.TimePointer(testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek)),
+				SITEstimatedWeight:        models.PoundPointer(1000),
+			},
+		})
+
+		newPPM := models.PPMShipment{
+			SitExpected: models.BoolPointer(false),
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
+		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
+		suite.Equal(originalPPM.SecondaryPickupPostalCode, updatedPPM.SecondaryPickupPostalCode)
+		suite.Equal(originalPPM.SecondaryDestinationPostalCode, updatedPPM.SecondaryDestinationPostalCode)
+		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
+		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
+		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
+		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
+		suite.Equal(*originalPPM.Advance, *updatedPPM.Advance)
+		suite.Equal(*originalPPM.AdvanceRequested, *updatedPPM.AdvanceRequested)
+
+		// Fields that should now be updated
+		suite.Equal(*newPPM.SitExpected, *updatedPPM.SitExpected)
+		suite.Nil(updatedPPM.SITLocation)
+		suite.Nil(updatedPPM.SITEstimatedEntryDate)
+		suite.Nil(updatedPPM.SITEstimatedDepartureDate)
+		suite.Nil(updatedPPM.SITEstimatedWeight)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - edit SIT - no to yes", func() {
+		appCtx := suite.AppContextForTest()
+
+		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
+
+		subtestData := setUpForTests(newFakeEstimatedIncentive, nil)
+		sitLocation := models.SITLocationTypeOrigin
+
+		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				SitExpected: models.BoolPointer(false),
+			},
+		})
+
+		newPPM := models.PPMShipment{
+			SitExpected:               models.BoolPointer(true),
+			SITLocation:               &sitLocation,
+			SITEstimatedEntryDate:     models.TimePointer(testdatagen.NextValidMoveDate),
+			SITEstimatedDepartureDate: models.TimePointer(testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek)),
+			SITEstimatedWeight:        models.PoundPointer(1000),
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
+		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
+		suite.Equal(originalPPM.SecondaryPickupPostalCode, updatedPPM.SecondaryPickupPostalCode)
+		suite.Equal(originalPPM.SecondaryDestinationPostalCode, updatedPPM.SecondaryDestinationPostalCode)
+		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
+		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
+		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
+		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
+		suite.Equal(*originalPPM.Advance, *updatedPPM.Advance)
+		suite.Equal(*originalPPM.AdvanceRequested, *updatedPPM.AdvanceRequested)
+
+		// Fields that should now be updated
+		suite.Equal(*newPPM.SitExpected, *updatedPPM.SitExpected)
+		suite.Equal(*newPPM.SITLocation, *updatedPPM.SITLocation)
+		suite.Equal(*newPPM.SITEstimatedEntryDate, *updatedPPM.SITEstimatedEntryDate)
+		suite.Equal(*newPPM.SITEstimatedDepartureDate, *updatedPPM.SITEstimatedDepartureDate)
+		suite.Equal(*newPPM.SITEstimatedWeight, *updatedPPM.SITEstimatedWeight)
+	})
+
 	suite.Run("Can't update if Shipment can't be found", func() {
 		badMTOShipmentID := uuid.Must(uuid.NewV4())
 

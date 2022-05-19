@@ -66,7 +66,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.SecondaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
 	ppmShipment.SecondaryDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryDestinationPostalCode, ppmShipment.SecondaryDestinationPostalCode)
 	ppmShipment.HasProGear = services.SetNoNilOptionalBoolField(newPPMShipment.HasProGear, ppmShipment.HasProGear)
-	ppmShipment.SitExpected = services.SetNoNilOptionalBoolField(newPPMShipment.SitExpected, ppmShipment.SitExpected)
 	ppmShipment.EstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.EstimatedWeight, ppmShipment.EstimatedWeight)
 	ppmShipment.NetWeight = services.SetNoNilOptionalPoundField(newPPMShipment.NetWeight, ppmShipment.NetWeight)
 	ppmShipment.ProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.ProGearWeight, ppmShipment.ProGearWeight)
@@ -75,21 +74,17 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.Advance = services.SetNoNilOptionalCentField(newPPMShipment.Advance, ppmShipment.Advance)
 	ppmShipment.AdvanceRequested = services.SetNoNilOptionalBoolField(newPPMShipment.AdvanceRequested, ppmShipment.AdvanceRequested)
 
-	if ppmShipment.SitExpected != nil && *ppmShipment.SitExpected {
-		if ppmShipment.SITLocation != nil {
-			newSITLocation := string(*newPPMShipment.SITLocation)
-			oldSITLocation := string(*ppmShipment.SITLocation)
-			SITLocation := services.SetOptionalStringField(&newSITLocation, &oldSITLocation)
-			SITLocationVal := models.SITLocationType(*SITLocation)
-			ppmShipment.SITLocation = &SITLocationVal
-		} else {
-			ppmShipment.SITLocation = newPPMShipment.SITLocation
-		}
-		ppmShipment.SITEstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SITEstimatedWeight, ppmShipment.SITEstimatedWeight)
-		ppmShipment.SITEstimatedEntryDate = services.SetOptionalDateTimeField(newPPMShipment.SITEstimatedEntryDate, ppmShipment.SITEstimatedEntryDate)
-		ppmShipment.SITEstimatedDepartureDate = services.SetOptionalDateTimeField(newPPMShipment.SITEstimatedDepartureDate, ppmShipment.SITEstimatedDepartureDate)
-		ppmShipment.SITEstimatedCost = services.SetNoNilOptionalCentField(newPPMShipment.SITEstimatedCost, ppmShipment.SITEstimatedCost)
-	} else if ppmShipment.SitExpected != nil && !*ppmShipment.SitExpected {
+	ppmShipment.SitExpected = services.SetNoNilOptionalBoolField(newPPMShipment.SitExpected, ppmShipment.SitExpected)
+	ppmShipment.SITEstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SITEstimatedWeight, ppmShipment.SITEstimatedWeight)
+	ppmShipment.SITEstimatedEntryDate = services.SetOptionalDateTimeField(newPPMShipment.SITEstimatedEntryDate, ppmShipment.SITEstimatedEntryDate)
+	ppmShipment.SITEstimatedDepartureDate = services.SetOptionalDateTimeField(newPPMShipment.SITEstimatedDepartureDate, ppmShipment.SITEstimatedDepartureDate)
+	ppmShipment.SITEstimatedCost = services.SetNoNilOptionalCentField(newPPMShipment.SITEstimatedCost, ppmShipment.SITEstimatedCost)
+
+	if newPPMShipment.SITLocation != nil {
+		ppmShipment.SITLocation = newPPMShipment.SITLocation
+	}
+
+	if ppmShipment.SitExpected != nil && !*ppmShipment.SitExpected {
 		ppmShipment.SITLocation = nil
 		ppmShipment.SITEstimatedWeight = nil
 		ppmShipment.SITEstimatedEntryDate = nil
