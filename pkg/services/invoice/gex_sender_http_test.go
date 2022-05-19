@@ -19,7 +19,8 @@ type GexSuite struct {
 func TestGexSuite(t *testing.T) {
 
 	ts := &GexSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("gex")),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("gex"),
+			testingsuite.WithPerTestTransaction()),
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

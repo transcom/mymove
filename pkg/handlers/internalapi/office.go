@@ -18,7 +18,7 @@ import (
 
 // ApproveMoveHandler approves a move via POST /moves/{moveId}/approve
 type ApproveMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveRouter
 }
 
@@ -73,7 +73,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 
 // CancelMoveHandler cancels a move via POST /moves/{moveId}/cancel
 type CancelMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveRouter
 }
 
@@ -133,7 +133,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 
 // ApprovePPMHandler approves a move via POST /personally_procured_moves/{personallyProcuredMoveId}/approve
 type ApprovePPMHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle ... approves a Personally Procured Move from a request payload
@@ -171,7 +171,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 			}
 
 			err = h.NotificationSender().SendNotification(appCtx,
-				notifications.NewMoveApproved(h.HandlerContext.AppNames().MilServername, moveID),
+				notifications.NewMoveApproved(h.HandlerConfig.AppNames().MilServername, moveID),
 			)
 			if err != nil {
 				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
@@ -188,7 +188,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 
 // ApproveReimbursementHandler approves a move via POST /reimbursement/{reimbursementId}/approve
 type ApproveReimbursementHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle ... approves a Reimbursement from a request payload

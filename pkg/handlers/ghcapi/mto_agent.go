@@ -19,7 +19,7 @@ import (
 
 //ListMTOAgentsHandler is a struct for the handler.
 type ListMTOAgentsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ListFetcher
 }
 

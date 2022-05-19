@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -24,20 +23,14 @@ type createMTOShipmentQueryBuilder interface {
 type mtoShipmentCreator struct {
 	builder createMTOShipmentQueryBuilder
 	services.Fetcher
-	createNewBuilder func() createMTOShipmentQueryBuilder
-	moveRouter       services.MoveRouter
+	moveRouter services.MoveRouter
 }
 
 // NewMTOShipmentCreator creates a new struct with the service dependencies
 func NewMTOShipmentCreator(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter) services.MTOShipmentCreator {
-	createNewBuilder := func() createMTOShipmentQueryBuilder {
-		return query.NewQueryBuilder()
-	}
-
 	return &mtoShipmentCreator{
 		builder,
-		fetch.NewFetcher(builder),
-		createNewBuilder,
+		fetcher,
 		moveRouter,
 	}
 }
@@ -282,7 +275,7 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 		}
 	}
 
-	if serviceItems != nil && len(serviceItems) > 0 {
+	if len(serviceItems) > 0 {
 		for _, item := range serviceItems {
 			if item.ID != uuid.Nil {
 				verrs.Add("mtoServiceItems:id", "cannot be set for new service items")

@@ -86,7 +86,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -103,7 +103,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mockCreator := mocks.MTOShipmentCreator{}
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -129,7 +129,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -157,7 +157,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -175,7 +175,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -194,7 +194,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -214,7 +214,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -239,7 +239,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			creator,
 			mtoChecker,
 		}
@@ -349,10 +349,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	context.SetPlanner(planner)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
-		context,
+		handlerConfig,
 		updater,
 	}
 
@@ -375,7 +375,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		mockHandler := UpdateMTOShipmentHandler{
-			context,
+			handlerConfig,
 			&mockUpdater,
 		}
 		internalServerErr := errors.New("ServerError")
@@ -865,10 +865,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	context.SetPlanner(planner)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
-		context,
+		handlerConfig,
 		updater,
 	}
 
@@ -1026,10 +1026,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	context.SetPlanner(planner)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
-		context,
+		handlerConfig,
 		updater,
 	}
 
@@ -1519,8 +1519,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	context.SetPlanner(planner)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig.SetPlanner(planner)
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
@@ -1529,7 +1529,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 	handler := UpdateMTOShipmentStatusHandler{
-		context,
+		handlerConfig,
 		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator),
 		mtoshipment.NewMTOShipmentStatusUpdater(builder,
 			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter), planner),

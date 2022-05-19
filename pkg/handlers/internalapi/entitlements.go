@@ -27,7 +27,7 @@ func payloadForEntitlementModel(e models.WeightAllotment) internalmessages.Weigh
 
 // IndexEntitlementsHandler indexes entitlements
 type IndexEntitlementsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler

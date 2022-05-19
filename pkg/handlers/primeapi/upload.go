@@ -29,7 +29,7 @@ func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload 
 
 // CreateUploadHandler is the create upload handler
 type CreateUploadHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestUploadCreator
 }
 

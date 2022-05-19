@@ -26,7 +26,7 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexNotificationsHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerConfig:  handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
@@ -63,7 +63,7 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexNotificationsHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerConfig:  handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			ListFetcher:    listFetcher,
 			NewPagination:  pagination.NewPagination,

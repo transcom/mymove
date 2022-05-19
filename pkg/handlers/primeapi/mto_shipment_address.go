@@ -15,7 +15,7 @@ import (
 
 // UpdateMTOShipmentAddressHandler is the handler to update an address
 type UpdateMTOShipmentAddressHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	MTOShipmentAddressUpdater services.MTOShipmentAddressUpdater
 }
 

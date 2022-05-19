@@ -51,10 +51,10 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 		MoveID:                           strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := CreateGenericMoveDocumentHandler{context}
+	handlerConfig.SetFileStorer(fakeS3)
+	handler := CreateGenericMoveDocumentHandler{handlerConfig}
 	response := handler.Handle(newMoveDocParams)
 	// assert we got back the 201 response
 	suite.IsNotErrResponse(response)
@@ -112,10 +112,10 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := IndexMoveDocumentsHandler{context}
+	handlerConfig.SetFileStorer(fakeS3)
+	handler := IndexMoveDocumentsHandler{handlerConfig}
 	response := handler.Handle(indexMoveDocParams)
 
 	// assert we got back the 201 response
@@ -184,10 +184,10 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := IndexMoveDocumentsHandler{context}
+	handlerConfig.SetFileStorer(fakeS3)
+	handler := IndexMoveDocumentsHandler{handlerConfig}
 	response := handler.Handle(indexMoveDocParams)
 
 	// assert we got back the 201 response
@@ -247,10 +247,10 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := IndexMoveDocumentsHandler{context}
+	handlerConfig.SetFileStorer(fakeS3)
+	handler := IndexMoveDocumentsHandler{handlerConfig}
 	response := handler.Handle(indexMoveDocParams)
 
 	// assert we got back the 201 response
@@ -315,7 +315,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	moveDocumentUpdateHandler := &mocks.MoveDocumentUpdater{}
 
 	handler := UpdateMoveDocumentHandler{
-		handlers.NewHandlerContext(suite.DB(),
+		handlers.NewHandlerConfig(suite.DB(),
 			suite.Logger()),
 		moveDocumentUpdateHandler,
 	}
@@ -381,7 +381,7 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 	}
 
 	handler := DeleteMoveDocumentHandler{
-		handlers.NewHandlerContext(suite.DB(),
+		handlers.NewHandlerConfig(suite.DB(),
 			suite.Logger()),
 	}
 

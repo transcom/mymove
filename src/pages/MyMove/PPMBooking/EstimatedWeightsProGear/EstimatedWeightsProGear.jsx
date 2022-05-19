@@ -38,6 +38,7 @@ const EstimatedWeightsProGear = () => {
     const hasProGear = values.hasProGear === 'true';
 
     const payload = {
+      shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
         estimatedWeight: Number(values.estimatedWeight),

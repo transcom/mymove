@@ -15,7 +15,7 @@ import (
 
 // GetMoveHistoryHandler gets a move history by locator
 type GetMoveHistoryHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveHistoryFetcher
 }
 

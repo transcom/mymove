@@ -15,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	fetch "github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexWebhookSubscriptionsHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerConfig:  handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
@@ -78,7 +78,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		).Return(0, expectedError).Once()
 
 		handler := IndexWebhookSubscriptionsHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerConfig:  handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			NewQueryFilter: newQueryFilter,
 			ListFetcher:    webhookSubscriptionListFetcher,
 			NewPagination:  pagination.NewPagination,
@@ -104,7 +104,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetWebhookSubscriptionHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			webhooksubscription.NewWebhookSubscriptionFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 		).Return(models.WebhookSubscription{}, expectedError).Once()
 
 		handler := GetWebhookSubscriptionHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			webhookSubscriptionFetcher,
 			query.NewQueryFilter,
 		}
@@ -157,7 +157,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 	setupHandler := func() CreateWebhookSubscriptionHandler {
 		return CreateWebhookSubscriptionHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			webhooksubscription.NewWebhookSubscriptionCreator(query.NewQueryBuilder()),
 			query.NewQueryFilter,
 		}
@@ -234,7 +234,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -271,7 +271,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -315,7 +315,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -342,7 +342,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}

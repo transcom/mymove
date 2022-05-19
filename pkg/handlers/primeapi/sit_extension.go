@@ -14,7 +14,7 @@ import (
 
 // CreateSITExtensionHandler is the handler to create a sit extension
 type CreateSITExtensionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	SITExtensionCreator services.SITExtensionCreator
 }
 

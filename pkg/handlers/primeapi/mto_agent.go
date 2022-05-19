@@ -17,7 +17,7 @@ import (
 
 // CreateMTOAgentHandler is the handler to create an agent
 type CreateMTOAgentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	MTOAgentCreator services.MTOAgentCreator
 }
 
@@ -77,7 +77,7 @@ func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams
 
 // UpdateMTOAgentHandler is the handler to update an agent
 type UpdateMTOAgentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	MTOAgentUpdater services.MTOAgentUpdater
 }
 

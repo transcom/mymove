@@ -152,15 +152,15 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 		OrdersID:              strfmt.UUID(ordersID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1693, nil)
-	context.SetPlanner(planner)
-	showHandler := ShowPPMIncentiveHandler{context}
+	handlerConfig.SetPlanner(planner)
+	showHandler := ShowPPMIncentiveHandler{handlerConfig}
 	showResponse := showHandler.Handle(params)
 	suite.Assertions.IsType(&ppmop.ShowPPMIncentiveForbidden{}, showResponse)
 }
@@ -188,15 +188,15 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 		OrdersID:              strfmt.UUID(ordersID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1693, nil)
-	context.SetPlanner(planner)
-	showHandler := ShowPPMIncentiveHandler{context}
+	handlerConfig.SetPlanner(planner)
+	showHandler := ShowPPMIncentiveHandler{handlerConfig}
 	showResponse := showHandler.Handle(params)
 
 	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)
@@ -231,15 +231,15 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 		OrdersID:              strfmt.UUID(ordersID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1693, nil)
-	context.SetPlanner(planner)
-	showHandler := ShowPPMIncentiveHandler{context}
+	handlerConfig.SetPlanner(planner)
+	showHandler := ShowPPMIncentiveHandler{handlerConfig}
 	showResponse := showHandler.Handle(params)
 
 	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)

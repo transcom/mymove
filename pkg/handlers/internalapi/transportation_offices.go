@@ -13,7 +13,7 @@ import (
 
 // ShowDutyLocationTransportationOfficeHandler returns the transportation office for a duty location ID
 type ShowDutyLocationTransportationOfficeHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle retrieves the transportation office in the system for a given duty location ID

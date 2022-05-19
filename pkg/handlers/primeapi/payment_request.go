@@ -21,7 +21,7 @@ import (
 
 // CreatePaymentRequestHandler is the handler for creating payment requests
 type CreatePaymentRequestHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestCreator
 }
 

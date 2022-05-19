@@ -1,7 +1,6 @@
 package invoice
 
 import (
-	"log"
 	"strings"
 	"testing"
 
@@ -16,16 +15,10 @@ type ProcessEDI997Suite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *ProcessEDI997Suite) SetupTest() {
-	errTruncateAll := suite.TruncateAll()
-	if errTruncateAll != nil {
-		log.Panicf("failed to truncate database: %#v", errTruncateAll)
-	}
-}
-
 func TestProcessEDI997Suite(t *testing.T) {
 	ts := &ProcessEDI997Suite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction()),
 	}
 
 	suite.Run(t, ts)

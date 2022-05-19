@@ -32,6 +32,7 @@ const Advance = () => {
     const advanceRequested = values.advanceRequested === 'true';
 
     const payload = {
+      shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
         advance: values.amountRequested ? values.amountRequested * 100 : null,

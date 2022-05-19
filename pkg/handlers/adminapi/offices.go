@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	officeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -27,7 +28,7 @@ func payloadForOfficeModel(o models.TransportationOffice) *adminmessages.Transpo
 
 // IndexOfficesHandler returns a list of office users via GET /office_users
 type IndexOfficesHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.OfficeListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -41,30 +42,32 @@ var officesFilterConverters = map[string]func(string) []services.QueryFilter{
 
 // Handle retrieves a list of office users
 func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, officesFilterConverters)
+			// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
+			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, officesFilterConverters)
 
-	pagination := h.NewPagination(params.Page, params.PerPage)
-	ordering := query.NewQueryOrder(params.Sort, params.Order)
+			pagination := h.NewPagination(params.Page, params.PerPage)
+			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	offices, err := h.OfficeListFetcher.FetchOfficeList(appCtx, queryFilters, nil, pagination, ordering)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			offices, err := h.OfficeListFetcher.FetchOfficeList(appCtx, queryFilters, nil, pagination, ordering)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	totalOfficesCount, err := h.OfficeListFetcher.FetchOfficeCount(appCtx, queryFilters)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			totalOfficesCount, err := h.OfficeListFetcher.FetchOfficeCount(appCtx, queryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	queriedOfficesCount := len(offices)
+			queriedOfficesCount := len(offices)
 
-	payload := make(adminmessages.TransportationOffices, queriedOfficesCount)
-	for i, s := range offices {
-		payload[i] = payloadForOfficeModel(s)
-	}
+			payload := make(adminmessages.TransportationOffices, queriedOfficesCount)
+			for i, s := range offices {
+				payload[i] = payloadForOfficeModel(s)
+			}
 
-	return officeop.NewIndexOfficesOK().WithContentRange(fmt.Sprintf("offices %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficesCount, totalOfficesCount)).WithPayload(payload)
+			return officeop.NewIndexOfficesOK().WithContentRange(fmt.Sprintf("offices %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficesCount, totalOfficesCount)).WithPayload(payload), nil
+		})
 }

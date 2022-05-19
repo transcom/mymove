@@ -7,6 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	adminuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -32,7 +34,7 @@ func payloadForAdminUserModel(o models.AdminUser) *adminmessages.AdminUser {
 
 // IndexAdminUsersHandler returns a list of admin users via GET /admin_users
 type IndexAdminUsersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.AdminUserListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -40,63 +42,67 @@ type IndexAdminUsersHandler struct {
 
 // Handle retrieves a list of admin users
 func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := []services.QueryFilter{}
+			// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
+			queryFilters := []services.QueryFilter{}
 
-	pagination := h.NewPagination(params.Page, params.PerPage)
-	ordering := query.NewQueryOrder(params.Sort, params.Order)
+			pagination := h.NewPagination(params.Page, params.PerPage)
+			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(appCtx, queryFilters, nil, pagination, ordering)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(appCtx, queryFilters, nil, pagination, ordering)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	totalAdminUsersCount, err := h.AdminUserListFetcher.FetchAdminUserCount(appCtx, queryFilters)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			totalAdminUsersCount, err := h.AdminUserListFetcher.FetchAdminUserCount(appCtx, queryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	queriedAdminUsersCount := len(adminUsers)
+			queriedAdminUsersCount := len(adminUsers)
 
-	payload := make(adminmessages.AdminUsers, queriedAdminUsersCount)
+			payload := make(adminmessages.AdminUsers, queriedAdminUsersCount)
 
-	for i, s := range adminUsers {
-		payload[i] = payloadForAdminUserModel(s)
-	}
+			for i, s := range adminUsers {
+				payload[i] = payloadForAdminUserModel(s)
+			}
 
-	return adminuserop.NewIndexAdminUsersOK().WithContentRange(fmt.Sprintf("admin users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedAdminUsersCount, totalAdminUsersCount)).WithPayload(payload)
+			return adminuserop.NewIndexAdminUsersOK().WithContentRange(fmt.Sprintf("admin users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedAdminUsersCount, totalAdminUsersCount)).WithPayload(payload), nil
+		})
 }
 
 // GetAdminUserHandler retrieves a handler for admin users
 type GetAdminUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.AdminUserFetcher
 	services.NewQueryFilter
 }
 
 // Handle retrieves a new admin user
 func (h GetAdminUserHandler) Handle(params adminuserop.GetAdminUserParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	adminUserID := params.AdminUserID
+			adminUserID := params.AdminUserID
 
-	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", adminUserID)}
+			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", adminUserID)}
 
-	adminUser, err := h.AdminUserFetcher.FetchAdminUser(appCtx, queryFilters)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			adminUser, err := h.AdminUserFetcher.FetchAdminUser(appCtx, queryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	payload := payloadForAdminUserModel(adminUser)
+			payload := payloadForAdminUserModel(adminUser)
 
-	return adminuserop.NewGetAdminUserOK().WithPayload(payload)
+			return adminuserop.NewGetAdminUserOK().WithPayload(payload), nil
+		})
 }
 
 // CreateAdminUserHandler is the handler for creating users.
 type CreateAdminUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.AdminUserCreator
 	services.NewQueryFilter
 }
@@ -104,45 +110,47 @@ type CreateAdminUserHandler struct {
 // Handle creates an admin user
 func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams) middleware.Responder {
 	payload := params.AdminUser
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	organizationID, err := uuid.FromString(payload.OrganizationID.String())
-	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", payload.OrganizationID.String()), zap.Error(err))
-		return adminuserop.NewCreateAdminUserBadRequest()
-	}
+			organizationID, err := uuid.FromString(payload.OrganizationID.String())
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", payload.OrganizationID.String()), zap.Error(err))
+				return adminuserop.NewCreateAdminUserBadRequest(), err
+			}
 
-	adminUser := models.AdminUser{
-		LastName:       payload.LastName,
-		FirstName:      payload.FirstName,
-		Email:          payload.Email,
-		Role:           models.SystemAdminRole,
-		OrganizationID: &organizationID,
-		Active:         true,
-	}
+			adminUser := models.AdminUser{
+				LastName:       payload.LastName,
+				FirstName:      payload.FirstName,
+				Email:          payload.Email,
+				Role:           models.SystemAdminRole,
+				OrganizationID: &organizationID,
+				Active:         true,
+			}
 
-	organizationIDFilter := []services.QueryFilter{
-		h.NewQueryFilter("id", "=", organizationID),
-	}
+			organizationIDFilter := []services.QueryFilter{
+				h.NewQueryFilter("id", "=", organizationID),
+			}
 
-	createdAdminUser, verrs, err := h.AdminUserCreator.CreateAdminUser(appCtx, &adminUser, organizationIDFilter)
-	if err != nil || verrs != nil {
-		appCtx.Logger().Error("Error saving user", zap.Error(verrs))
-		return adminuserop.NewCreateAdminUserInternalServerError()
-	}
+			createdAdminUser, verrs, err := h.AdminUserCreator.CreateAdminUser(appCtx, &adminUser, organizationIDFilter)
+			if err != nil || verrs != nil {
+				appCtx.Logger().Error("Error saving user", zap.Error(verrs))
+				return adminuserop.NewCreateAdminUserInternalServerError(), err
+			}
 
-	_, err = audit.Capture(appCtx, createdAdminUser, nil, params.HTTPRequest)
-	if err != nil {
-		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
-	}
+			_, err = audit.Capture(appCtx, createdAdminUser, nil, params.HTTPRequest)
+			if err != nil {
+				appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
+			}
 
-	returnPayload := payloadForAdminUserModel(*createdAdminUser)
-	return adminuserop.NewCreateAdminUserCreated().WithPayload(returnPayload)
+			returnPayload := payloadForAdminUserModel(*createdAdminUser)
+			return adminuserop.NewCreateAdminUserCreated().WithPayload(returnPayload), nil
+		})
 }
 
 // UpdateAdminUserHandler is the handler for updating users
 type UpdateAdminUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.AdminUserUpdater
 	services.NewQueryFilter
 }
@@ -150,39 +158,42 @@ type UpdateAdminUserHandler struct {
 // Handle updates admin users
 func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams) middleware.Responder {
 	payload := params.AdminUser
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	adminUserID, err := uuid.FromString(params.AdminUserID.String())
-	if err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.AdminUserID.String()), zap.Error(err))
-	}
+			adminUserID, err := uuid.FromString(params.AdminUserID.String())
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.AdminUserID.String()), zap.Error(err))
+			}
 
-	// Don't allow Admin Users to deactivate themselves
-	if adminUserID == appCtx.Session().AdminUserID && payload.Active != nil {
-		return adminuserop.NewUpdateAdminUserForbidden()
-	}
+			// Don't allow Admin Users to deactivate themselves
+			if adminUserID == appCtx.Session().AdminUserID && payload.Active != nil {
+				err = apperror.NewForbiddenError("Admin users are not allowed to deactivate themselves")
+				return adminuserop.NewUpdateAdminUserForbidden(), err
+			}
 
-	updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(appCtx, adminUserID, payload)
+			updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(appCtx, adminUserID, payload)
 
-	if err != nil || verrs != nil {
-		appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
-		return adminuserop.NewUpdateAdminUserInternalServerError()
-	}
+			if err != nil || verrs != nil {
+				appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
+				return adminuserop.NewUpdateAdminUserInternalServerError(), err
+			}
 
-	// Log if the account was enabled or disabled (POAM requirement)
-	if payload.Active != nil {
-		_, err = audit.CaptureAccountStatus(appCtx, updatedAdminUser, *payload.Active, params.HTTPRequest)
-		if err != nil {
-			appCtx.Logger().Error("Error capturing account status audit record in UpdateAdminUserHandler", zap.Error(err))
-		}
-	}
+			// Log if the account was enabled or disabled (POAM requirement)
+			if payload.Active != nil {
+				_, err = audit.CaptureAccountStatus(appCtx, updatedAdminUser, *payload.Active, params.HTTPRequest)
+				if err != nil {
+					appCtx.Logger().Error("Error capturing account status audit record in UpdateAdminUserHandler", zap.Error(err))
+				}
+			}
 
-	_, err = audit.Capture(appCtx, updatedAdminUser, payload, params.HTTPRequest)
-	if err != nil {
-		appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
-	}
+			_, err = audit.Capture(appCtx, updatedAdminUser, payload, params.HTTPRequest)
+			if err != nil {
+				appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
+			}
 
-	returnPayload := payloadForAdminUserModel(*updatedAdminUser)
+			returnPayload := payloadForAdminUserModel(*updatedAdminUser)
 
-	return adminuserop.NewUpdateAdminUserOK().WithPayload(returnPayload)
+			return adminuserop.NewUpdateAdminUserOK().WithPayload(returnPayload), nil
+		})
 }

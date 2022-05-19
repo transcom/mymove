@@ -23,7 +23,7 @@ import (
 )
 
 // NewPrimeAPI returns the Prime API
-func NewPrimeAPI(ctx handlers.HandlerContext) *primeops.MymoveAPI {
+func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeops.MymoveAPI {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 
@@ -35,11 +35,11 @@ func NewPrimeAPI(ctx handlers.HandlerContext) *primeops.MymoveAPI {
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
-	uploadCreator := upload.NewUploadCreator(ctx.FileStorer())
+	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
-			ctx.GHCPlanner(),
+			handlerConfig.GHCPlanner(),
 			ghcrateengine.NewServiceItemPricer(),
 		),
 		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
@@ -49,59 +49,59 @@ func NewPrimeAPI(ctx handlers.HandlerContext) *primeops.MymoveAPI {
 	primeAPI.ServeError = handlers.ServeCustomError
 
 	primeAPI.MoveTaskOrderListMovesHandler = ListMovesHandler{
-		ctx,
+		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
-		ctx,
+		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	primeAPI.MoveTaskOrderCreateExcessWeightRecordHandler = CreateExcessWeightRecordHandler{
-		ctx,
+		handlerConfig,
 		move.NewPrimeMoveExcessWeightUploader(uploadCreator),
 	}
 
 	primeAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
-		ctx,
+		handlerConfig,
 		mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
 		movetaskorder.NewMoveTaskOrderChecker(),
 	}
 
 	primeAPI.MtoServiceItemUpdateMTOServiceItemHandler = UpdateMTOServiceItemHandler{
-		ctx,
+		handlerConfig,
 		mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
-		ctx,
+		handlerConfig,
 		mtoshipment.NewMTOShipmentUpdater(
 			builder,
 			fetcher,
-			ctx.Planner(),
+			handlerConfig.Planner(),
 			moveRouter,
 			moveWeights,
-			ctx.NotificationSender(),
+			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
 		),
 	}
 
 	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
-		ctx,
+		handlerConfig,
 		paymentrequest.NewPaymentRequestCreator(
-			ctx.GHCPlanner(),
+			handlerConfig.GHCPlanner(),
 			ghcrateengine.NewServiceItemPricer(),
 		),
 	}
 
 	primeAPI.PaymentRequestCreateUploadHandler = CreateUploadHandler{
-		ctx,
-		paymentrequest.NewPaymentRequestUploadCreator(ctx.FileStorer()),
+		handlerConfig,
+		paymentrequest.NewPaymentRequestUploadCreator(handlerConfig.FileStorer()),
 	}
 
 	primeAPI.MoveTaskOrderUpdateMTOPostCounselingInformationHandler = UpdateMTOPostCounselingInformationHandler{
-		ctx,
+		handlerConfig,
 		fetch.NewFetcher(queryBuilder),
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
@@ -112,40 +112,40 @@ func NewPrimeAPI(ctx handlers.HandlerContext) *primeops.MymoveAPI {
 	}
 
 	primeAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
-		ctx,
+		handlerConfig,
 		mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter),
 		movetaskorder.NewMoveTaskOrderChecker(),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOShipmentAddressHandler = UpdateMTOShipmentAddressHandler{
-		ctx,
+		handlerConfig,
 		mtoshipment.NewMTOShipmentAddressUpdater(),
 	}
 
 	primeAPI.MtoShipmentCreateMTOAgentHandler = CreateMTOAgentHandler{
-		ctx,
+		handlerConfig,
 		mtoagent.NewMTOAgentCreator(movetaskorder.NewMoveTaskOrderChecker()),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOAgentHandler = UpdateMTOAgentHandler{
-		ctx,
+		handlerConfig,
 		mtoagent.NewMTOAgentUpdater(movetaskorder.NewMoveTaskOrderChecker()),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandler{
-		ctx,
-		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, moveWeights, ctx.NotificationSender(), paymentRequestShipmentRecalculator),
+		handlerConfig,
+		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, handlerConfig.Planner(), moveRouter, moveWeights, handlerConfig.NotificationSender(), paymentRequestShipmentRecalculator),
 		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), ctx.Planner()),
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), handlerConfig.Planner()),
 	}
 
 	primeAPI.MtoShipmentUpdateReweighHandler = UpdateReweighHandler{
-		ctx,
+		handlerConfig,
 		reweigh.NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker(), paymentRequestShipmentRecalculator),
 	}
 
 	primeAPI.MtoShipmentCreateSITExtensionHandler = CreateSITExtensionHandler{
-		ctx,
+		handlerConfig,
 		sitextension.NewSitExtensionCreator(moveRouter),
 	}
 

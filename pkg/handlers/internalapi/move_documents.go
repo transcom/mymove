@@ -181,7 +181,7 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 
 // IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.
 type IndexMoveDocumentsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle handles the request
@@ -219,7 +219,7 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 
 // UpdateMoveDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{moveDocumentId}
 type UpdateMoveDocumentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveDocumentUpdater services.MoveDocumentUpdater
 }
 
@@ -243,7 +243,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 // DeleteMoveDocumentHandler deletes a move document via DELETE /moves/{moveId}/documents/{moveDocumentId}
 type DeleteMoveDocumentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle ... deletes a move document

@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -25,9 +24,8 @@ import (
 
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
-	handlers.HandlerContext
-	mtoShipmentCreator services.MTOShipmentCreator
-	ppmShipmentCreator services.PPMShipmentCreator
+	handlers.HandlerConfig
+	shipmentCreator services.ShipmentCreator
 }
 
 // Handle creates the mto shipment
@@ -49,16 +47,8 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 			var err error
-			var ppmShipment *models.PPMShipment
-			if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
-				// Return a PPM Shipment with an MTO Shipment inside
-				ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
-			} else {
-				// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
-				mtoShipment.Status = models.MTOShipmentStatusSubmitted
-				serviceItemsList := make(models.MTOServiceItems, 0)
-				mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
-			}
+
+			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
@@ -107,10 +97,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
-			if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
-				// Return an mtoShipment that has a ppmShipment
-				mtoShipment = &ppmShipment.Shipment
-			}
 			returnPayload := payloads.MTOShipment(mtoShipment)
 			return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload), nil
 		})
@@ -122,9 +108,8 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
-	handlers.HandlerContext
-	mtoShipmentUpdater services.MTOShipmentUpdater
-	ppmShipmentUpdater services.PPMShipmentUpdater
+	handlers.HandlerConfig
+	shipmentUpdater services.ShipmentUpdater
 }
 
 // Handle updates the mto shipment
@@ -164,33 +149,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						h.GetTraceIDFromRequest(params.HTTPRequest))), invalidShipmentStatusErr
 			}
 
-			var updatedMTOShipment *models.MTOShipment
-			var updatedPPMShipment *models.PPMShipment
-			var err error
-			// We should move this logic out of the handler and into a composable service object
-			err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-				updatedMTOShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(txnAppCtx, mtoShipment, params.IfMatch)
-				if err != nil {
-					return err
-				}
-
-				// This simplifies not adding nil checks for the return value of updating the ppm shipment
-				if mtoShipment.PPMShipment == nil {
-					return nil
-				}
-
-				mtoShipment.PPMShipment.Shipment = *updatedMTOShipment
-
-				updatedPPMShipment, err = h.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment, mtoShipment.ID)
-				if err != nil {
-					return err
-				}
-
-				updatedMTOShipment = &updatedPPMShipment.Shipment
-				updatedMTOShipment.PPMShipment = updatedPPMShipment
-
-				return nil
-			})
+			updatedMTOShipment, err := h.shipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
@@ -268,7 +227,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 // ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ListFetcher
 	services.Fetcher
 }
@@ -338,7 +297,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 
 // DeleteShipmentHandler soft deletes a shipment
 type DeleteShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentDeleter
 }
 

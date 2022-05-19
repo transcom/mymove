@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	tsppop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -35,7 +36,7 @@ func payloadForTSPPModel(o models.TransportationServiceProviderPerformance) *adm
 
 // IndexTSPPsHandler returns a list of transportation service provider performance via GET /transportation_service_provider_performances
 type IndexTSPPsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.TransportationServiceProviderPerformanceListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -52,54 +53,58 @@ var tsppFilterConverters = map[string]func(string) []services.QueryFilter{
 
 // Handle retrieves a list of transportation service provider performance
 func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, tsppFilterConverters)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
+			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, tsppFilterConverters)
 
-	pagination := h.NewPagination(params.Page, params.PerPage)
-	ordering := query.NewQueryOrder(params.Sort, params.Order)
+			pagination := h.NewPagination(params.Page, params.PerPage)
+			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	tspps, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceList(appCtx, queryFilters, nil, pagination, ordering)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			tspps, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceList(appCtx, queryFilters, nil, pagination, ordering)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	totalTSPPsCount, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceCount(appCtx, queryFilters)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			totalTSPPsCount, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceCount(appCtx, queryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	queriedTSPPsCount := len(tspps)
+			queriedTSPPsCount := len(tspps)
 
-	payload := make(adminmessages.TransportationServiceProviderPerformances, queriedTSPPsCount)
-	for i, s := range tspps {
-		payload[i] = payloadForTSPPModel(s)
-	}
+			payload := make(adminmessages.TransportationServiceProviderPerformances, queriedTSPPsCount)
+			for i, s := range tspps {
+				payload[i] = payloadForTSPPModel(s)
+			}
 
-	return tsppop.NewIndexTSPPsOK().WithContentRange(fmt.Sprintf("tspps %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedTSPPsCount, totalTSPPsCount)).WithPayload(payload)
+			return tsppop.NewIndexTSPPsOK().WithContentRange(fmt.Sprintf("tspps %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedTSPPsCount, totalTSPPsCount)).WithPayload(payload), nil
+		})
 }
 
 // GetTSPPHandler returns a transportation service provider performance via GET /transportation_service_provider_performances/{tspId}
 type GetTSPPHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.TransportationServiceProviderPerformanceFetcher
 	services.NewQueryFilter
 }
 
 // Handle returns the payload for TSPP
 func (h GetTSPPHandler) Handle(params tsppop.GetTSPPParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-	tsppID := params.TsppID
+			tsppID := params.TsppID
 
-	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", tsppID)}
+			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", tsppID)}
 
-	tspp, err := h.TransportationServiceProviderPerformanceFetcher.FetchTransportationServiceProviderPerformance(appCtx, queryFilters)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			tspp, err := h.TransportationServiceProviderPerformanceFetcher.FetchTransportationServiceProviderPerformance(appCtx, queryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	payload := payloadForTSPPModel(tspp)
+			payload := payloadForTSPPModel(tspp)
 
-	return tsppop.NewGetTSPPOK().WithPayload(payload)
+			return tsppop.NewGetTSPPOK().WithPayload(payload), nil
+		})
 }

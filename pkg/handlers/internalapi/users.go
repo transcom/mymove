@@ -19,7 +19,7 @@ import (
 
 // ShowLoggedInUserHandler returns the logged in user
 type ShowLoggedInUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	officeUserFetcherPop services.OfficeUserFetcherPop
 }
 

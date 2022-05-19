@@ -74,7 +74,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 
 // ShowMoveHandler returns a move for a user and move ID
 type ShowMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
@@ -105,7 +105,7 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 
 // PatchMoveHandler patches a move via PATCH /moves/{moveId}
 type PatchMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle ... patches a Move from a request payload
@@ -150,7 +150,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 
 // SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
 type SubmitMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveRouter
 }
 
@@ -375,7 +375,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 // ShowMoveDatesSummaryHandler returns a summary of the dates in the move process given a move date and move ID.
 type ShowMoveDatesSummaryHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle returns a summary of the dates in the move process.
@@ -417,12 +417,12 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 
 // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
 type ShowShipmentSummaryWorksheetHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // SubmitAmendedOrdersHandler approves a move via POST /moves/{moveId}/submit
 type SubmitAmendedOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveRouter
 }
 

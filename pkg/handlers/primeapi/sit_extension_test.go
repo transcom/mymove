@@ -42,7 +42,7 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 
 	// Create handler
 	handler := CreateSITExtensionHandler{
-		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+		handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 		sitextensionservice.NewSitExtensionCreator(moveRouter),
 	}
 

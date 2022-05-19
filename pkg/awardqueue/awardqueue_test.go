@@ -11,11 +11,9 @@ package awardqueue
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -105,35 +103,6 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	}
 }
 
-func (suite *AwardQueueSuite) Test_waitForLock() {
-	ret := make(chan int)
-	lockID := 1
-
-	go func() {
-		suite.AppContextForTest().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			suite.Nil(waitForLock(txnAppCtx, lockID))
-			time.Sleep(time.Second)
-			ret <- 1
-			return nil
-		})
-	}()
-
-	go func() {
-		suite.AppContextForTest().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			time.Sleep(time.Millisecond * 500)
-			suite.Nil(waitForLock(txnAppCtx, lockID))
-			ret <- 2
-			return nil
-		})
-	}()
-
-	first := <-ret
-	second := <-ret
-
-	suite.Equal(1, first)
-	suite.Equal(2, second)
-}
-
 func equalSlice(a []int, b []int) bool {
 	if len(a) != len(b) {
 		return false
@@ -152,7 +121,9 @@ type AwardQueueSuite struct {
 
 func TestAwardQueueSuite(t *testing.T) {
 	hs := &AwardQueueSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction(),
+		),
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

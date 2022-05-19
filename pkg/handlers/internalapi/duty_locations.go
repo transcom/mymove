@@ -38,7 +38,7 @@ func payloadForDutyLocationModel(location models.DutyLocation) *internalmessages
 
 // SearchDutyLocationsHandler returns a list of all issues
 type SearchDutyLocationsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle returns a list of locations based on the search query

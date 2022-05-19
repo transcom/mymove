@@ -16,7 +16,7 @@ import (
 
 // UpdateMTOServiceItemStatusHandler patches shipments
 type UpdateMTOServiceItemStatusHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MTOServiceItemUpdater
 }
 

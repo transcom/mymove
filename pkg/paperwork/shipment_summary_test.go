@@ -97,50 +97,58 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	pickupPostalCode := "85369"
 	destinationPostalCode := "31905"
 	cents := unit.Cents(1000)
-	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate:      &origMoveDate,
-			ActualMoveDate:        &actualDate,
-			PickupPostalCode:      &pickupPostalCode,
-			DestinationPostalCode: &destinationPostalCode,
-			TotalSITCost:          &cents,
-		},
-	})
 
-	address := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "31905",
+	setupTestData := func() (models.PersonallyProcuredMove, models.Order, models.DutyLocation) {
+		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{
+				OriginalMoveDate:      &origMoveDate,
+				ActualMoveDate:        &actualDate,
+				PickupPostalCode:      &pickupPostalCode,
+				DestinationPostalCode: &destinationPostalCode,
+				TotalSITCost:          &cents,
+			},
+		})
+
+		address := models.Address{
+			StreetAddress1: "some address",
+			City:           "city",
+			State:          "state",
+			PostalCode:     "31905",
+		}
+		suite.MustSave(&address)
+
+		locationName := "New Duty Location"
+		location := models.DutyLocation{
+			Name:      locationName,
+			AddressID: address.ID,
+			Address:   address,
+		}
+		suite.MustSave(&location)
+
+		orderID := uuid.Must(uuid.NewV4())
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ID:                orderID,
+				NewDutyLocationID: location.ID,
+				NewDutyLocation:   location,
+			},
+		})
+
+		currentDutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+		return ppm, order, currentDutyLocation
 	}
-	suite.MustSave(&address)
 
-	locationName := "New Duty Location"
-	location := models.DutyLocation{
-		Name:      locationName,
-		AddressID: address.ID,
-		Address:   address,
-	}
-	suite.MustSave(&location)
-
-	orderID := uuid.Must(uuid.NewV4())
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:                orderID,
-			NewDutyLocationID: location.ID,
-			NewDutyLocation:   location,
-		},
-	})
-
-	currentDutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
-	params := models.ShipmentSummaryFormData{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
-		WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
-		PPMRemainingEntitlement: ppmRemainingEntitlement,
-		CurrentDutyLocation:     currentDutyLocation,
-		Order:                   order,
-	}
 	suite.Run("TestComputeObligations", func() {
+		ppm, order, currentDutyLocation := setupTestData()
+
+		params := models.ShipmentSummaryFormData{
+			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
+			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
+			PPMRemainingEntitlement: ppmRemainingEntitlement,
+			CurrentDutyLocation:     currentDutyLocation,
+			Order:                   order,
+		}
+
 		var costDetails = make(rateengine.CostDetails)
 		costDetails["pickupLocation"] = &rateengine.CostDetail{
 			Cost:      rateengine.CostComputation{GCC: 100, SITMax: 20000},
@@ -185,6 +193,15 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	})
 
 	suite.Run("TestComputeObligations when actual PPM SIT exceeds MaxSIT", func() {
+		ppm, order, currentDutyLocation := setupTestData()
+
+		params := models.ShipmentSummaryFormData{
+			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
+			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
+			PPMRemainingEntitlement: ppmRemainingEntitlement,
+			CurrentDutyLocation:     currentDutyLocation,
+			Order:                   order,
+		}
 		var costDetails = make(rateengine.CostDetails)
 		costDetails["pickupLocation"] = &rateengine.CostDetail{
 			Cost:      rateengine.CostComputation{SITMax: unit.Cents(500)},
@@ -205,6 +222,8 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	})
 
 	suite.Run("TestComputeObligations when there is no actual PPM SIT", func() {
+		_, order, _ := setupTestData()
+
 		var costDetails = make(rateengine.CostDetails)
 		costDetails["pickupLocation"] = &rateengine.CostDetail{
 			Cost:      rateengine.CostComputation{SITMax: unit.Cents(500)},
@@ -241,6 +260,15 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	})
 
 	suite.Run("TestCalcError", func() {
+		ppm, order, currentDutyLocation := setupTestData()
+
+		params := models.ShipmentSummaryFormData{
+			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
+			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
+			PPMRemainingEntitlement: ppmRemainingEntitlement,
+			CurrentDutyLocation:     currentDutyLocation,
+			Order:                   order,
+		}
 		mockComputer := mockPPMComputer{err: errors.New("ERROR")}
 		ppmComputer := SSWPPMComputer{&mockComputer}
 		_, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), params, planner)

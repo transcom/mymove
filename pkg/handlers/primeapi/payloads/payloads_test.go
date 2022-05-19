@@ -18,7 +18,8 @@ type PayloadsSuite struct {
 // TestHandlerSuite creates our test suite
 func TestHandlerSuite(t *testing.T) {
 	hs := &PayloadsSuite{
-		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage()),
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction()),
 	}
 
 	suite.Run(t, hs)

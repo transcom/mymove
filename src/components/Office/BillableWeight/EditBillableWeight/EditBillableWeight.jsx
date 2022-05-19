@@ -122,15 +122,19 @@ export default function EditBillableWeight({
   };
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} data-testid="maxBillableWeightEdit">
       <h4 className={styles.header}>{title}</h4>
       {!showFields ? (
         <>
-          <span>{billableWeight ? formatWeight(billableWeight) : formatWeight(maxBillableWeight)}</span>
+          <span data-testid="billableWeightValue">
+            {billableWeight ? formatWeight(billableWeight) : formatWeight(maxBillableWeight)}
+          </span>
           {billableWeightJustification && (
             <>
               <h5 className={styles.remarksHeader}>Remarks</h5>
-              <p className={styles.remarks}>{billableWeightJustification}</p>
+              <p data-testid="billableWeightRemarks" className={styles.remarks}>
+                {billableWeightJustification}
+              </p>
             </>
           )}
           <Button className={styles.editBtn} onClick={toggleEdit}>

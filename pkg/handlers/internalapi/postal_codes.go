@@ -16,7 +16,7 @@ import (
 
 // ValidatePostalCodeWithRateDataHandler has the service validator
 type ValidatePostalCodeWithRateDataHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	validatePostalCode services.PostalCodeValidator
 }
 

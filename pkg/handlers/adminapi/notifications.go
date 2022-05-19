@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -26,7 +27,7 @@ func payloadForNotificationModel(n models.Notification) *adminmessages.Notificat
 
 // IndexNotificationsHandler is the index notification handler
 type IndexNotificationsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -40,33 +41,35 @@ var notificationsFilterConverters = map[string]func(string) []services.QueryFilt
 
 // Handle does the index notification
 func (h IndexNotificationsHandler) Handle(params notificationsop.IndexNotificationsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, notificationsFilterConverters)
-	pagination := h.NewPagination(params.Page, params.PerPage)
-	queryAssociations := []services.QueryAssociation{
-		query.NewQueryAssociation("ServiceMember.User"),
-	}
-	associations := query.NewQueryAssociationsPreload(queryAssociations)
-	ordering := query.NewQueryOrder(params.Sort, params.Order)
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, notificationsFilterConverters)
+			pagination := h.NewPagination(params.Page, params.PerPage)
+			queryAssociations := []services.QueryAssociation{
+				query.NewQueryAssociation("ServiceMember.User"),
+			}
+			associations := query.NewQueryAssociationsPreload(queryAssociations)
+			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	var notifications []models.Notification
-	err := h.ListFetcher.FetchRecordList(appCtx, &notifications, queryFilters, associations, pagination, ordering)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			var notifications []models.Notification
+			err := h.ListFetcher.FetchRecordList(appCtx, &notifications, queryFilters, associations, pagination, ordering)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	totalNotificationsCount, err := h.ListFetcher.FetchRecordCount(appCtx, &notifications, queryFilters)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			totalNotificationsCount, err := h.ListFetcher.FetchRecordCount(appCtx, &notifications, queryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	queriedNotificationsCount := len(notifications)
+			queriedNotificationsCount := len(notifications)
 
-	payload := make(adminmessages.Notifications, queriedNotificationsCount)
+			payload := make(adminmessages.Notifications, queriedNotificationsCount)
 
-	for i, s := range notifications {
-		payload[i] = payloadForNotificationModel(s)
-	}
+			for i, s := range notifications {
+				payload[i] = payloadForNotificationModel(s)
+			}
 
-	return notificationsop.NewIndexNotificationsOK().WithContentRange(fmt.Sprintf("notifications %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedNotificationsCount, totalNotificationsCount)).WithPayload(payload)
+			return notificationsop.NewIndexNotificationsOK().WithContentRange(fmt.Sprintf("notifications %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedNotificationsCount, totalNotificationsCount)).WithPayload(payload), nil
+		})
 }

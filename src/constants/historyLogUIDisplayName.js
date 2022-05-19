@@ -81,6 +81,7 @@ export const dbFieldToDisplayName = {
   destination_address: 'Destination address',
   receiving_agent: 'Receiving agent',
   releasing_agent: 'Releasing agent',
+  tio_remarks: 'Max billable weight remark',
 };
 
 export const dbWeightFields = {

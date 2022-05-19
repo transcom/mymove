@@ -340,14 +340,14 @@ func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callb
 // LogoutHandler handles logging the user out of login.gov
 type LogoutHandler struct {
 	Context
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // NewLogoutHandler creates a new LogoutHandler
-func NewLogoutHandler(ac Context, hc handlers.HandlerContext) LogoutHandler {
+func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
 	logoutHandler := LogoutHandler{
-		Context:        ac,
-		HandlerContext: hc,
+		Context:       ac,
+		HandlerConfig: hc,
 	}
 	return logoutHandler
 }
@@ -406,14 +406,14 @@ const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
 // RedirectHandler handles redirection
 type RedirectHandler struct {
 	Context
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	UseSecureCookie bool
 }
 
-func NewRedirectHandler(ac Context, hc handlers.HandlerContext, useSecureCookie bool) RedirectHandler {
+func NewRedirectHandler(ac Context, hc handlers.HandlerConfig, useSecureCookie bool) RedirectHandler {
 	return RedirectHandler{
 		Context:         ac,
-		HandlerContext:  hc,
+		HandlerConfig:   hc,
 		UseSecureCookie: useSecureCookie,
 	}
 }
@@ -472,16 +472,16 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
 	Context
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	sender notifications.NotificationSender
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, hc handlers.HandlerContext, sender notifications.NotificationSender) CallbackHandler {
+func NewCallbackHandler(ac Context, hc handlers.HandlerConfig, sender notifications.NotificationSender) CallbackHandler {
 	handler := CallbackHandler{
-		Context:        ac,
-		HandlerContext: hc,
-		sender:         sender,
+		Context:       ac,
+		HandlerConfig: hc,
+		sender:        sender,
 	}
 	return handler
 }

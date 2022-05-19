@@ -43,7 +43,7 @@ func payloadForValidationError(title string, detail string, instance uuid.UUID, 
 
 // UpdateMTOServiceItemStatusHandler struct that describes updating service item status
 type UpdateMTOServiceItemStatusHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MTOServiceItemUpdater
 	services.Fetcher
 }
@@ -137,7 +137,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 
 // ListMTOServiceItemsHandler struct that describes listing service items for the move task order
 type ListMTOServiceItemsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ListFetcher
 	services.Fetcher
 }

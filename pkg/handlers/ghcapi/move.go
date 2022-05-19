@@ -18,7 +18,7 @@ import (
 
 // GetMoveHandler gets a move by locator
 type GetMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveFetcher
 }
 
@@ -50,7 +50,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 }
 
 type SetFinancialReviewFlagHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveFinancialReviewFlagSetter
 }
 
