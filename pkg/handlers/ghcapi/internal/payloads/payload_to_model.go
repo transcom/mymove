@@ -417,22 +417,20 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
-	if model.SitExpected != nil && *model.SitExpected {
-		if ppmShipment.SitLocation != nil {
-			sitLocation := models.SITLocationType(*ppmShipment.SitLocation)
-			model.SITLocation = &sitLocation
-		}
+	if ppmShipment.SitLocation != nil {
+		sitLocation := models.SITLocationType(*ppmShipment.SitLocation)
+		model.SITLocation = &sitLocation
+	}
 
-		model.SITEstimatedWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SitEstimatedWeight)
+	model.SITEstimatedWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SitEstimatedWeight)
 
-		sitEstimatedEntryDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedEntryDate)
-		if sitEstimatedEntryDate != nil && !sitEstimatedEntryDate.IsZero() {
-			model.SITEstimatedEntryDate = sitEstimatedEntryDate
-		}
-		sitEstimatedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedDepartureDate)
-		if sitEstimatedDepartureDate != nil && !sitEstimatedDepartureDate.IsZero() {
-			model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
-		}
+	sitEstimatedEntryDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedEntryDate)
+	if sitEstimatedEntryDate != nil && !sitEstimatedEntryDate.IsZero() {
+		model.SITEstimatedEntryDate = sitEstimatedEntryDate
+	}
+	sitEstimatedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedDepartureDate)
+	if sitEstimatedDepartureDate != nil && !sitEstimatedDepartureDate.IsZero() {
+		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
 	}
 
 	if model.HasProGear != nil && *model.HasProGear {
