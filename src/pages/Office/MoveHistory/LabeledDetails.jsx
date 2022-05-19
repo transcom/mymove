@@ -4,12 +4,8 @@ import PropTypes from 'prop-types';
 import styles from './LabeledDetails.module.scss';
 
 import { shipmentTypes } from 'constants/shipments';
-import {
-  HistoryLogRecordShape,
-  dbFieldToDisplayName,
-  dbWeightFields,
-  dbDateFields,
-} from 'constants/historyLogUIDisplayName';
+import { dbFieldToDisplayName, dbWeightFields, dbDateFields } from 'constants/historyLogUIDisplayName';
+import { HistoryLogRecordShape } from 'constants/MoveHistory/HistoryLogShape';
 import optionFields from 'constants/MoveHistory/Database/orders';
 import { formatCustomerDate } from 'utils/formatters';
 

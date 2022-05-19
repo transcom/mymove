@@ -1,9 +1,10 @@
 import detailsTypes from 'constants/MoveHistory/DetailsColumn/Types';
 import undefinedEvent from 'constants/MoveHistory/EventTemplates/undefinedEvent';
+import * as eventTemplates from 'constants/MoveHistory/EventTemplates';
 
 const allMoveHistoryEventTemplates = [];
 
-export const buildTemplate = ({
+const buildTemplate = ({
   action = '*',
   eventName = '*',
   tableName = '*',
@@ -50,7 +51,9 @@ export const buildTemplate = ({
   return eventType;
 };
 
-export const getTemplate = (historyRecord) => {
-  const foundTemplate = allMoveHistoryEventTemplates.find((eventType) => eventType.matches(historyRecord));
-  return false || undefinedEvent();
+// Iterate on all the Event Templates pulled into eventTemplates.
+Object.values(eventTemplates).forEach((o) => buildTemplate(o));
+
+export default (historyRecord) => {
+  return allMoveHistoryEventTemplates.find((eventType) => eventType.matches(historyRecord)) || undefinedEvent;
 };

@@ -9,7 +9,7 @@ import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
 import { useGHCGetMoveHistory } from 'hooks/queries';
 import { formatDateFromIso } from 'utils/formatters';
-import { getTemplate } from 'constants/MoveHistory/TemplateManager';
+import getTemplate from 'constants/MoveHistory/TemplateManager';
 
 const columns = [
   createHeader(

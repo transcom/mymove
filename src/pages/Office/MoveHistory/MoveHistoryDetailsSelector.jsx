@@ -3,8 +3,8 @@ import React from 'react';
 import LabeledDetails from './LabeledDetails';
 import PaymentDetails from './PaymentDetails';
 
-import { HistoryLogRecordShape } from 'constants/historyLogUIDisplayName';
-import { getTemplate } from 'constants/MoveHistory/TemplateManager';
+import { HistoryLogRecordShape } from 'constants/MoveHistory/HistoryLogShape';
+import getTemplate from 'constants/MoveHistory/TemplateManager';
 import detailsTypes from 'constants/MoveHistory/DetailsColumn/Types';
 
 const MoveHistoryDetailsSelector = ({ historyRecord }) => {
