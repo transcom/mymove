@@ -2668,25 +2668,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(handlers.FmtBool(hasProGear), updatedShipment.PpmShipment.HasProGear)
 		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), updatedShipment.PpmShipment.ProGearWeight)
 		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), updatedShipment.PpmShipment.SpouseProGearWeight)
-
-		//suite.Equal(params.Body.PpmShipment.ActualMoveDate, updatedShipment.PpmShipment.ActualMoveDate)
-		//suite.Equal(params.Body.PpmShipment.ExpectedDepartureDate, &updatedShipment.PpmShipment.ExpectedDepartureDate)
-		//suite.Equal(params.Body.PpmShipment.PickupPostalCode, updatedShipment.PpmShipment.PickupPostalCode)
-		//suite.Equal(params.Body.PpmShipment.SecondaryPickupPostalCode, updatedShipment.PpmShipment.SecondaryPickupPostalCode)
-		//suite.Equal(params.Body.PpmShipment.DestinationPostalCode, updatedShipment.PpmShipment.DestinationPostalCode)
-		//suite.Equal(params.Body.PpmShipment.SecondaryDestinationPostalCode, updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
-		//suite.Equal(params.Body.PpmShipment.SitExpected, updatedShipment.PpmShipment.SitExpected)
-		//suite.Equal(params.Body.PpmShipment.SitLocation, updatedShipment.PpmShipment.SitLocation)
-		//suite.Equal(params.Body.PpmShipment.SitEstimatedWeight, updatedShipment.PpmShipment.SitEstimatedWeight)
-		//suite.Equal(params.Body.PpmShipment.SitEstimatedEntryDate, updatedShipment.PpmShipment.SitEstimatedEntryDate)
-		//suite.Equal(params.Body.PpmShipment.SitEstimatedDepartureDate, updatedShipment.PpmShipment.SitEstimatedDepartureDate)
-		//suite.Equal(params.Body.PpmShipment.EstimatedWeight, updatedShipment.PpmShipment.EstimatedWeight)
-		//suite.Equal(params.Body.PpmShipment.EstimatedIncentive, *updatedShipment.PpmShipment.EstimatedIncentive)
-		//suite.Equal(params.Body.PpmShipment.HasProGear, updatedShipment.PpmShipment.HasProGear)
-		//suite.Equal(params.Body.PpmShipment.ProGearWeight, updatedShipment.PpmShipment.ProGearWeight)
-		//suite.Equal(params.Body.PpmShipment.SpouseProGearWeight, updatedShipment.PpmShipment.SpouseProGearWeight)
-		// make sure booleans aren't overwritten if not part of the payload
-		//suite.Equal(ppmShipment.HasProGear, updatedShipment.PpmShipment.HasProGear)
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {
