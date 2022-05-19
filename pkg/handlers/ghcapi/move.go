@@ -74,10 +74,6 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				}
 			}
 
-			if len(moves) == 0 {
-				return moveop.NewSearchMovesNotFound(), nil
-			}
-
 			searchMoves := payloads.SearchMoves(moves)
 			payload := &ghcmessages.SearchMovesResult{
 				Page:        1,
