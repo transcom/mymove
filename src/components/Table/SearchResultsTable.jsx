@@ -186,7 +186,7 @@ SearchResultsTable.defaultProps = {
   defaultHiddenColumns: ['id'],
   searchKey: 'moveCode',
   searchValue: '',
-  data: {},
+  data: [],
 };
 
 export default SearchResultsTable;
