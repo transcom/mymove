@@ -1,12 +1,5 @@
 import PropTypes from 'prop-types';
 
-import {
-  ORDERS_BRANCH_OPTIONS,
-  ORDERS_RANK_OPTIONS,
-  ORDERS_TYPE_DETAILS_OPTIONS,
-  ORDERS_TYPE_OPTIONS,
-} from 'constants/orders';
-
 export const HistoryLogValuesShape = PropTypes.object;
 export const HistoryLogContextShape = PropTypes.arrayOf(PropTypes.object);
 
@@ -101,14 +94,6 @@ export const dbDateFields = {
   report_by_date: 'report_by_date',
   issue_date: 'issue_date',
   requested_pickup_date: 'requested_pickup_date',
-};
-
-// This is to map the human-readable text to the options
-export const optionFields = {
-  ...ORDERS_BRANCH_OPTIONS,
-  ...ORDERS_TYPE_DETAILS_OPTIONS,
-  ...ORDERS_TYPE_OPTIONS,
-  ...ORDERS_RANK_OPTIONS,
 };
 
 export const eventNamesWithLabeledDetails = {

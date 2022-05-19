@@ -9,8 +9,8 @@ import {
   dbFieldToDisplayName,
   dbWeightFields,
   dbDateFields,
-  optionFields,
 } from 'constants/historyLogUIDisplayName';
+import optionFields from 'constants/MoveHistory/Database/orders';
 import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
