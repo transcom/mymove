@@ -116,7 +116,7 @@ time rather than maintaining the Array manually.
 
 <!-- markdownlint-disable no-inline-html -->
 <details>
-<summary>A diff of tested changes to refactor maintaining a static Array variable.</summary>
+<summary>▶️  A diff of tested changes to refactor maintaining a static Array variable.</summary>
 
 The diff below works prior to the refactor suggested in this ADR. The diff above
 is meant to give an example and is only the beginning of the necessary changes
