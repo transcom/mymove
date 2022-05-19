@@ -123,7 +123,7 @@ const QAECSRMoveSearch = ({ history }) => {
     moveCode: search.moveCode,
     dodID: search.dodID,
   });
-  // const { totalCount = 0, data = [], page = 1, perPage = 20 } = searchResult;
+
   const { data = [] } = searchResult;
   const tableColumns = useMemo(() => columns(true), []);
   const tableData = useMemo(() => data, [data]);
@@ -177,8 +177,6 @@ const QAECSRMoveSearch = ({ history }) => {
             title="Results"
             handleClick={handleClick}
             useQueries={useQAECSRMoveSearchQueries}
-            searchKey="moveCode"
-            searchValue={search.moveCode}
             data={tableData}
           />
         </div>

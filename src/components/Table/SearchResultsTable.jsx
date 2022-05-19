@@ -24,8 +24,6 @@ const SearchResultsTable = (props) => {
     handleClick,
     showFilters,
     showPagination,
-    searchKey,
-    searchValue,
     data,
   } = props;
   // const [paramSort, setParamSort] = useState(defaultSortedColumns);
@@ -103,7 +101,7 @@ const SearchResultsTable = (props) => {
     // setCurrentPageSize(pageSize);
     setPageCount(Math.ceil(totalCount / pageSize));
     // }
-  }, [sortBy, filters, pageIndex, pageSize, totalCount, searchKey, searchValue]);
+  }, [sortBy, filters, pageIndex, pageSize, totalCount]);
   // }, [isLoading, isError, totalCount, searchKey, searchValue]);
 
   return (
@@ -168,9 +166,6 @@ SearchResultsTable.propTypes = {
   defaultSortedColumns: SortShape,
   // defaultHiddenColumns is an array of columns to hide
   defaultHiddenColumns: PropTypes.arrayOf(PropTypes.string),
-  // TODO would need to handle move code and dod id
-  searchKey: PropTypes.string,
-  searchValue: PropTypes.string,
   data: SearchResultsShape,
 };
 
@@ -184,8 +179,6 @@ SearchResultsTable.defaultProps = {
   disableSortBy: true,
   defaultSortedColumns: [],
   defaultHiddenColumns: ['id'],
-  searchKey: 'moveCode',
-  searchValue: '',
   data: [],
 };
 
