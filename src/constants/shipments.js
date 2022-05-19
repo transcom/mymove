@@ -47,3 +47,5 @@ export const shipmentDestinationTypes = {
 };
 
 export const LONGHAUL_MIN_DISTANCE = 50;
+
+export const PPM_MAX_ADVANCE_RATIO = 0.6;
