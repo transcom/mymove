@@ -174,7 +174,7 @@ const QAECSRMoveSearch = ({ history }) => {
             manualFilters={false}
             disableSortBy={false}
             columns={tableColumns}
-            title="All moves"
+            title="Results"
             handleClick={handleClick}
             useQueries={useQAECSRMoveSearchQueries}
             searchKey="moveCode"
