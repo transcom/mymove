@@ -1,7 +1,10 @@
 package mtoshipment
 
 import (
+	"fmt"
 	"time"
+
+	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/gofrs/uuid"
 
@@ -117,4 +120,83 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			})
 		}
 	})
+
+	suite.Run("checkUpdateAllowed", func() {
+		servicesCounselor := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		servicesCounselorSession := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *servicesCounselor.UserID,
+			OfficeUserID:    servicesCounselor.ID,
+		}
+		servicesCounselorSession.Roles = append(servicesCounselorSession.Roles, servicesCounselor.User.Roles...)
+
+		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		tooSession := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *too.UserID,
+			OfficeUserID:    too.ID,
+		}
+		tooSession.Roles = append(tooSession.Roles, too.User.Roles...)
+
+		tio := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		tioSession := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *tio.UserID,
+			OfficeUserID:    tio.ID,
+		}
+		tioSession.Roles = append(tioSession.Roles, tio.User.Roles...)
+
+		testCases := map[string]struct {
+			session auth.Session
+			tests   map[models.MTOShipmentStatus]bool
+		}{
+			"Service Counselor": {
+				servicesCounselorSession,
+				map[models.MTOShipmentStatus]bool{
+					models.MTOShipmentStatusSubmitted:             true,
+					models.MTOShipmentStatusApproved:              false,
+					models.MTOShipmentStatusCancellationRequested: false,
+					models.MTOShipmentStatusCanceled:              false,
+					models.MTOShipmentStatusDiversionRequested:    false,
+				},
+			},
+			"TOO": {
+				tooSession,
+				map[models.MTOShipmentStatus]bool{
+					models.MTOShipmentStatusSubmitted:             true,
+					models.MTOShipmentStatusApproved:              true,
+					models.MTOShipmentStatusCancellationRequested: true,
+					models.MTOShipmentStatusCanceled:              true,
+					models.MTOShipmentStatusDiversionRequested:    true,
+				},
+			},
+			"TIO": {
+				tioSession,
+				map[models.MTOShipmentStatus]bool{
+					models.MTOShipmentStatusSubmitted:             false,
+					models.MTOShipmentStatusApproved:              true,
+					models.MTOShipmentStatusCancellationRequested: false,
+					models.MTOShipmentStatusCanceled:              false,
+					models.MTOShipmentStatusDiversionRequested:    false,
+				},
+			},
+		}
+
+		for name, tc := range testCases {
+			for status, canUpdate := range tc.tests {
+				appCtx := suite.AppContextWithSessionForTest(&tc.session)
+
+				suite.Run(fmt.Sprintf("User:%v Shipment Status:%v", name, status), func() {
+					checker := checkUpdateAllowed()
+					err := checker.Validate(appCtx, nil, &models.MTOShipment{Status: status})
+					if canUpdate {
+						suite.NoError(err)
+					} else {
+						suite.Error(err)
+					}
+				})
+			}
+		}
+	})
+
 }

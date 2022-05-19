@@ -1544,7 +1544,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -1596,7 +1596,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -1639,7 +1639,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -1683,7 +1683,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -1728,7 +1728,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -1772,7 +1772,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -2526,7 +2526,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		mtoShipmentUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
@@ -2583,7 +2583,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		mtoShipmentUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
@@ -2693,7 +2693,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		mtoShipmentUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
@@ -2721,7 +2721,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		mtoShipmentUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
@@ -2753,7 +2753,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		mtoShipmentUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
@@ -2784,7 +2784,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		mtoShipmentUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
@@ -2824,7 +2824,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		err := errors.New("ServerError")
 
-		mockUpdater.On("UpdateShipmentOffice",
+		mockUpdater.On("UpdateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,

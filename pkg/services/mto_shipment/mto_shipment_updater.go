@@ -45,6 +45,7 @@ type mtoShipmentUpdater struct {
 	moveWeights  services.MoveWeights
 	sender       notifications.NotificationSender
 	recalculator services.PaymentRequestShipmentRecalculator
+	checks       []validator
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
@@ -57,6 +58,50 @@ func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher servic
 		moveWeights,
 		sender,
 		recalculator,
+		[]validator{},
+	}
+}
+
+// TODO: apply the subset of business logic validations
+// that would be appropriate for the CUSTOMER
+func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+	return &mtoShipmentUpdater{
+		builder,
+		fetch.NewFetcher(builder),
+		planner,
+		moveRouter,
+		moveWeights,
+		sender,
+		recalculator,
+		[]validator{checkStatus()},
+	}
+}
+
+func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+	return &mtoShipmentUpdater{
+		builder,
+		fetch.NewFetcher(builder),
+		planner,
+		moveRouter,
+		moveWeights,
+		sender,
+		recalculator,
+		[]validator{checkStatus(), checkUpdateAllowed()},
+	}
+}
+
+// TODO: apply the subset of business logic validations
+// that would be appropriate for the PRIME
+func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+	return &mtoShipmentUpdater{
+		builder,
+		fetch.NewFetcher(builder),
+		planner,
+		moveRouter,
+		moveWeights,
+		sender,
+		recalculator,
+		[]validator{checkStatus(), checkAvailToPrime()},
 	}
 }
 
@@ -288,52 +333,15 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, m
 	return &shipment, nil
 }
 
-// UpdateMTOShipmentOffice updates the mto shipment
-// TODO: apply the subset of business logic validations
-// that would be appropriate for the OFFICE USER
-func (f *mtoShipmentUpdater) UpdateMTOShipmentOffice(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	return f.updateMTOShipment(
-		appCtx,
-		mtoShipment,
-		eTag,
-		checkStatus(),
-	)
-}
-
-// UpdateMTOShipmentCustomer updates the mto shipment
-// TODO: apply the subset of business logic validations
-// that would be appropriate for the CUSTOMER
-func (f *mtoShipmentUpdater) UpdateMTOShipmentCustomer(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	return f.updateMTOShipment(
-		appCtx,
-		mtoShipment,
-		eTag,
-		checkStatus(),
-	)
-}
-
-// UpdateMTOShipmentPrime updates the mto shipment
-// TODO: apply the subset of business logic validations
-// that would be appropriate for the PRIME
-func (f *mtoShipmentUpdater) UpdateMTOShipmentPrime(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	return f.updateMTOShipment(
-		appCtx,
-		mtoShipment,
-		eTag,
-		checkStatus(),
-		checkAvailToPrime(),
-	)
-}
-
-//updateMTOShipment updates the mto shipment
-func (f *mtoShipmentUpdater) updateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, checks ...validator) (*models.MTOShipment, error) {
+//UpdateMTOShipment updates the mto shipment
+func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	oldShipment, err := f.RetrieveMTOShipment(appCtx, mtoShipment.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	// run the (read-only) validations
-	if verr := validateShipment(appCtx, mtoShipment, oldShipment, checks...); verr != nil {
+	if verr := validateShipment(appCtx, mtoShipment, oldShipment, f.checks...); verr != nil {
 		return nil, verr
 	}
 

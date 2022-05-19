@@ -85,54 +85,8 @@ func (_m *MTOShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, 
 	return r0, r1
 }
 
-// UpdateMTOShipmentCustomer provides a mock function with given fields: appCtx, mtoShipment, eTag
-func (_m *MTOShipmentUpdater) UpdateMTOShipmentCustomer(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCtx, mtoShipment, eTag)
-
-	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) *models.MTOShipment); ok {
-		r0 = rf(appCtx, mtoShipment, eTag)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MTOShipment)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string) error); ok {
-		r1 = rf(appCtx, mtoShipment, eTag)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UpdateMTOShipmentOffice provides a mock function with given fields: appCtx, mtoShipment, eTag
-func (_m *MTOShipmentUpdater) UpdateMTOShipmentOffice(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCtx, mtoShipment, eTag)
-
-	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) *models.MTOShipment); ok {
-		r0 = rf(appCtx, mtoShipment, eTag)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MTOShipment)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string) error); ok {
-		r1 = rf(appCtx, mtoShipment, eTag)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UpdateMTOShipmentPrime provides a mock function with given fields: appCtx, mtoShipment, eTag
-func (_m *MTOShipmentUpdater) UpdateMTOShipmentPrime(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+// UpdateMTOShipment provides a mock function with given fields: appCtx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, mtoShipment, eTag)
 
 	var r0 *models.MTOShipment

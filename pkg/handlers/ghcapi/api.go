@@ -247,7 +247,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		mtoshipment.NewShipmentReweighRequester(),
 		shipmentSITStatus,
-		mtoshipment.NewMTOShipmentUpdater(
+		mtoshipment.NewOfficeMTOShipmentUpdater(
 			queryBuilder,
 			fetch.NewFetcher(queryBuilder),
 			handlerConfig.Planner(),
@@ -257,7 +257,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			paymentRequestShipmentRecalculator,
 		),
 	}
-	mtoShipmentUpdater := mtoshipment.NewMTOShipmentUpdater(
+	mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(
 		queryBuilder,
 		fetch.NewFetcher(queryBuilder),
 		handlerConfig.Planner(),

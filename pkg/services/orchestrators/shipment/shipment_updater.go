@@ -1,10 +1,7 @@
 package shipment
 
 import (
-	"fmt"
-
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -34,66 +31,8 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 	var mtoShipment *models.MTOShipment
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
-		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipmentCustomer(txnAppCtx, shipment, eTag)
+		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipment(txnAppCtx, shipment, eTag)
 
-		if err != nil {
-			return err
-		}
-
-		if shipment.ShipmentType != models.MTOShipmentTypePPM {
-			return nil
-		}
-
-		shipment.PPMShipment.ShipmentID = mtoShipment.ID
-		shipment.PPMShipment.Shipment = *mtoShipment
-
-		ppmShipment, err := s.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, shipment.PPMShipment, mtoShipment.ID)
-
-		if err != nil {
-			return err
-		}
-
-		// Update variables with latest versions
-		mtoShipment = &ppmShipment.Shipment
-		mtoShipment.PPMShipment = ppmShipment
-
-		return nil
-	})
-
-	if txErr != nil {
-		return nil, txErr
-	}
-
-	return mtoShipment, nil
-}
-
-// UpdateShipmentOffice checks that a shipment is updateable then updates the shipment
-func (s *shipmentUpdater) UpdateShipmentOffice(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	if err := validateShipment(appCtx, *shipment, s.checks...); err != nil {
-		return nil, err
-	}
-
-	var mtoShipment *models.MTOShipment
-
-	oldShipment, err := s.mtoShipmentUpdater.RetrieveMTOShipment(appCtx, shipment.ID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	updateable, err := s.mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(appCtx, oldShipment, appCtx.Session())
-
-	if err != nil {
-		return nil, err
-	}
-
-	if !updateable {
-		msg := fmt.Sprintf("%v is not updatable", shipment.ID)
-		return nil, apperror.NewForbiddenError(msg)
-	}
-
-	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
-		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipmentOffice(txnAppCtx, shipment, eTag)
 		if err != nil {
 			return err
 		}

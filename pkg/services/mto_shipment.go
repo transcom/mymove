@@ -23,9 +23,7 @@ type MTOShipmentUpdater interface {
 	CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error)
 	MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error)
 	RetrieveMTOShipment(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.MTOShipment, error)
-	UpdateMTOShipmentOffice(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
-	UpdateMTOShipmentCustomer(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
-	UpdateMTOShipmentPrime(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }
 
 //BillableWeightInputs is a type for capturing what should be returned when a shipments billable weight is calculated
