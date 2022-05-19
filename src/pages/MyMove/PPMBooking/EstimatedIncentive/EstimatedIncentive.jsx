@@ -6,7 +6,7 @@ import classnames from 'classnames';
 
 import styles from './EstimatedIncentive.module.scss';
 
-import ppmBookingStyles from 'components/Customer/PPM/PPMBooking.module.scss';
+import ppmBookingStyles from 'components/Customer/PPM/PPM.module.scss';
 import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';

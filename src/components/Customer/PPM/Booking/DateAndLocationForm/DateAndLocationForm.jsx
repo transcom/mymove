@@ -5,7 +5,7 @@ import { Formik, Field } from 'formik';
 import { Button, Form, Radio, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import ppmBookingStyles from 'components/Customer/PPM/PPMBooking.module.scss';
+import ppmBookingStyles from 'components/Customer/PPM/PPM.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';

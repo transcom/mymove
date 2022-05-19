@@ -5,7 +5,7 @@ import { Button, Form, FormGroup, Radio } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 
-import ppmBookingStyles from 'components/Customer/PPM/PPMBooking.module.scss';
+import ppmBookingStyles from 'components/Customer/PPM/PPM.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { DatePickerInput } from 'components/form/fields';
 import Hint from 'components/Hint';

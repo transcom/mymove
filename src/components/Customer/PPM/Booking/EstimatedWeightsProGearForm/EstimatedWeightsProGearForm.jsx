@@ -6,7 +6,7 @@ import { Button, Form, Radio, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ppmBookingStyles from 'components/Customer/PPM/PPMBooking.module.scss';
+import ppmBookingStyles from 'components/Customer/PPM/PPM.module.scss';
 import styles from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm.module.scss';
 import { MtoShipmentShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import formStyles from 'styles/form.module.scss';

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
-import { action } from '@storybook/addon-actions';
 import { userEvent, within } from '@storybook/testing-library';
 
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
@@ -20,6 +19,7 @@ export default {
       </GridContainer>
     ),
   ],
+  argTypes: { onBack: { action: 'back button clicked' }, onSubmit: { action: 'submit button clicked' } },
 };
 
 const Template = (args) => <AboutForm {...args} />;
@@ -32,8 +32,6 @@ BlankAboutPPMForm.args = {
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {},
   },
-  onSubmit: action('submit button clicked'),
-  onBack: action('back button clicked'),
   postalCodeValidator: () => {},
 };
 
@@ -50,8 +48,6 @@ RequiredValuesAboutPPMForm.args = {
       hasReceivedAdvance: false,
     },
   },
-  onSubmit: action('submit button clicked'),
-  onBack: action('back button clicked'),
   postalCodeValidator: () => {},
 };
 
@@ -69,8 +65,6 @@ OptionalValuesAboutPPMForm.args = {
       advanceAmountReceived: 456700,
     },
   },
-  onSubmit: action('submit button clicked'),
-  onBack: action('back button clicked'),
   postalCodeValidator: () => {},
 };
 
@@ -84,8 +78,6 @@ RequiredErrorsAboutPPMForm.args = {
       hasReceivedAdvance: true,
     },
   },
-  onSubmit: action('submit button clicked'),
-  onBack: action('back button clicked'),
   postalCodeValidator: () => {},
 };
 RequiredErrorsAboutPPMForm.play = async ({ canvasElement }) => {
