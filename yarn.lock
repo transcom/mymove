@@ -9421,10 +9421,10 @@ filepond-plugin-file-validate-size@^2.2.5:
   resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-size/-/filepond-plugin-file-validate-size-2.2.5.tgz#985c83f0e0a9c09918310a231c5f014fb642c92b"
   integrity sha512-x+fYZl317R17w3dExKab1oYZa10Wl2HcXKD6dzIgRKyngEHtjBF99geGaiDPk9IfozV8Zjzx69D7urcthF2CYQ==
 
-filepond-plugin-file-validate-type@^1.2.6:
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-type/-/filepond-plugin-file-validate-type-1.2.6.tgz#5a03e04fb8f70f0df37ff9a285d3d2343cdc55f2"
-  integrity sha512-3JFxpb4o5D4BssP/Drjn2GPpejg/QXzU4e3/Pq8IvIJuokHz95b6+RPYstQ+6ITKREYup0N8F/CO/OQfhVkUgg==
+filepond-plugin-file-validate-type@^1.2.8:
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-type/-/filepond-plugin-file-validate-type-1.2.8.tgz#58ab1815a3f505f2189e6943263ae3b6cb314bd1"
+  integrity sha512-UBTqIWbk5+5R0GBELI8svu01MHWjFSLfc9DfCMvFtHKXLdJMxY1p37ChC4YKQjhfODaTuvLnNVRsukMGMFZBBg==
 
 filepond-plugin-image-exif-orientation@^1.0.11:
   version "1.0.11"
