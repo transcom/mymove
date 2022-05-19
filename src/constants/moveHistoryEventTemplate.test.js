@@ -25,6 +25,8 @@ const {
   updatePaymentRequestEvent,
   updateMTOReviewedBillableWeightsAt,
   undefinedEvent,
+  updateBillableWeightAsTIOEvent,
+  updateBillableWeightRemarksAsTIOEvent,
 } = require('./moveHistoryEventTemplate');
 
 const { detailsTypes } = require('constants/moveHistoryEventTemplate');
@@ -598,6 +600,34 @@ describe('moveHistoryEventTemplate', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(updateMTOShipmentDeprecatePaymentRequest);
       expect(result.getStatusDetails(item)).toEqual('Deprecated');
+    });
+  });
+
+  describe('when given an update billable weights as tio history record', () => {
+    const item = {
+      action: 'UPDATE',
+      changedValues: { authorized_weight: '7999' },
+      eventName: moveHistoryOperations.updateBillableWeightAsTIO,
+      tableName: 'entitlements',
+    };
+    it('correctly matches the update billable weights as tio event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(updateBillableWeightAsTIOEvent);
+      expect(result.getEventNameDisplay(item)).toEqual('Updated move');
+    });
+  });
+
+  describe('when given an update billable weight remarks as tio history record', () => {
+    const item = {
+      action: 'UPDATE',
+      changedValues: { tio_remarks: 'New max billable weight' },
+      eventName: moveHistoryOperations.updateBillableWeightAsTIO,
+      tableName: 'moves',
+    };
+    it('correctly matches the update billable weight remarks as tio event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(updateBillableWeightRemarksAsTIOEvent);
+      expect(result.getEventNameDisplay(item)).toEqual('Updated move');
     });
   });
 
