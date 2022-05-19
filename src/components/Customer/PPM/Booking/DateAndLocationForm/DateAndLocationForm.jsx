@@ -5,14 +5,13 @@ import { Formik, Field } from 'formik';
 import { Button, Form, Radio, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import ppmBookingStyles from '../PPMBooking.module.scss';
-
+import ppmBookingStyles from 'components/Customer/PPM/PPMBooking.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
-import Hint from 'components/Hint/index';
+import Hint from 'components/Hint';
 import { DutyLocationShape } from 'types';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';

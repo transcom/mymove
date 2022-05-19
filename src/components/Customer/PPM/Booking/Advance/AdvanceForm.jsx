@@ -5,12 +5,11 @@ import { Formik, Field } from 'formik';
 import { Button, Form, Radio } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import ppmBookingStyles from '../PPMBooking.module.scss';
-
+import ppmBookingStyles from 'components/Customer/PPM/PPMBooking.module.scss';
 import { MtoShipmentShape } from 'types/customerShapes';
 import formStyles from 'styles/form.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import Hint from 'components/Hint/index';
+import Hint from 'components/Hint';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
 import { CheckboxField } from 'components/form/fields';

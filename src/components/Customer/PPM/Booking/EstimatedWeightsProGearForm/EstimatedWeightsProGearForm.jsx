@@ -6,14 +6,12 @@ import { Button, Form, Radio, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ppmBookingStyles from '../PPMBooking.module.scss';
-
-import styles from './EstimatedWeightsProGearForm.module.scss';
-
+import ppmBookingStyles from 'components/Customer/PPM/PPMBooking.module.scss';
+import styles from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm.module.scss';
 import { MtoShipmentShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import formStyles from 'styles/form.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import Hint from 'components/Hint/index';
+import Hint from 'components/Hint';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
 import { formatWeight } from 'utils/formatters';

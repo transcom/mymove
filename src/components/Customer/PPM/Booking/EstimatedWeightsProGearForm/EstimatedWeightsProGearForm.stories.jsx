@@ -3,7 +3,7 @@ import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { within, userEvent } from '@storybook/testing-library';
 
-import EstimatedWeightsProGearForm from './EstimatedWeightsProGearForm';
+import EstimatedWeightsProGearForm from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
 
 export default {
   title: 'Customer Components / PPM Booking / Estimated Weights and Pro-gear',

@@ -1,7 +1,6 @@
 import React from 'react';
 
-import styles from './EstimatedIncentiveDetails.module.scss';
-
+import styles from 'components/Customer/PPM/Booking/EstimatedIncentiveDetails/EstimatedIncentiveDetails.module.scss';
 import { MtoShipmentShape } from 'types/customerShapes';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 

@@ -3,7 +3,7 @@ import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { within, userEvent } from '@storybook/testing-library';
 
-import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
+import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 
 export default {
   title: 'Customer Components / PPM Booking / Date and Location Form',

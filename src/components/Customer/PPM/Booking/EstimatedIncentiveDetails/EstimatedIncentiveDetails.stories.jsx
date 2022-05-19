@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
-import EstimatedIncentiveDetails from './EstimatedIncentiveDetails';
+import EstimatedIncentiveDetails from 'components/Customer/PPM/Booking/EstimatedIncentiveDetails/EstimatedIncentiveDetails';
 
 export default {
   title: 'Customer Components / PPM Booking / Estimated Incentive Details',

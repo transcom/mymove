@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import EstimatedIncentiveDetails from './EstimatedIncentiveDetails';
+import EstimatedIncentiveDetails from 'components/Customer/PPM/Booking/EstimatedIncentiveDetails/EstimatedIncentiveDetails';
 
 const defaultProps = {
   shipment: {

@@ -6,13 +6,13 @@ import classnames from 'classnames';
 
 import styles from './EstimatedIncentive.module.scss';
 
-import ppmBookingStyles from 'components/Customer/PPMBooking/PPMBooking.module.scss';
+import ppmBookingStyles from 'components/Customer/PPM/PPMBooking.module.scss';
 import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
-import EstimatedIncentiveDetails from 'components/Customer/PPMBooking/EstimatedIncentiveDetails/EstimatedIncentiveDetails';
+import EstimatedIncentiveDetails from 'components/Customer/PPM/Booking/EstimatedIncentiveDetails/EstimatedIncentiveDetails';
 import ScrollToTop from 'components/ScrollToTop';
 
 const EstimatedIncentive = () => {
