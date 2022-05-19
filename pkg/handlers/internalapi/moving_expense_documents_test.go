@@ -50,10 +50,10 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 		MoveID:                             strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := CreateMovingExpenseDocumentHandler{context}
+	handlerConfig.SetFileStorer(fakeS3)
+	handler := CreateMovingExpenseDocumentHandler{handlerConfig}
 	response := handler.Handle(newMovingExpenseDocParams)
 	// assert we got back the 201 response
 	suite.IsNotErrResponse(response)
@@ -115,10 +115,10 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerReceiptMissingN
 		CreateMovingExpenseDocumentPayload: &newMovingExpenseDocPayload,
 		MoveID:                             strfmt.UUID(move.ID.String()),
 	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := CreateMovingExpenseDocumentHandler{context}
+	handlerConfig.SetFileStorer(fakeS3)
+	handler := CreateMovingExpenseDocumentHandler{handlerConfig}
 
 	response := handler.Handle(newMovingExpenseDocParams)
 
@@ -150,10 +150,10 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerNoUploadsAndNot
 		CreateMovingExpenseDocumentPayload: &newMovingExpenseDocPayload,
 		MoveID:                             strfmt.UUID(move.ID.String()),
 	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := CreateMovingExpenseDocumentHandler{context}
+	handlerConfig.SetFileStorer(fakeS3)
+	handler := CreateMovingExpenseDocumentHandler{handlerConfig}
 
 	response := handler.Handle(newMovingExpenseDocParams)
 
@@ -184,10 +184,10 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerStorageExpense(
 		CreateMovingExpenseDocumentPayload: &newMovingExpenseDocPayload,
 		MoveID:                             strfmt.UUID(move.ID.String()),
 	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := CreateMovingExpenseDocumentHandler{context}
+	handlerConfig.SetFileStorer(fakeS3)
+	handler := CreateMovingExpenseDocumentHandler{handlerConfig}
 
 	response := handler.Handle(newMovingExpenseDocParams)
 

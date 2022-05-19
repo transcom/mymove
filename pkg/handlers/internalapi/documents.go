@@ -40,7 +40,7 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 
 // CreateDocumentHandler creates a new document via POST /documents/
 type CreateDocumentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle creates a new Document from a request payload
@@ -85,7 +85,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 
 // ShowDocumentHandler shows a document via GETT /documents/:document_id
 type ShowDocumentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle creates a new Document from a request payload

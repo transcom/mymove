@@ -24,10 +24,10 @@ import (
 	"github.com/transcom/mymove/pkg/trace"
 )
 
-// HandlerContext provides access to all the contextual references needed by individual handlers
-//go:generate mockery --name HandlerContext --disable-version-string
-type HandlerContext interface {
-	AppContextFromRequest(*http.Request) appcontext.AppContext
+// HandlerConfig provides access to all the contextual references needed by individual handlers
+//go:generate mockery --name HandlerConfig --disable-version-string
+type HandlerConfig interface {
+	AppContextFromRequest(r *http.Request) appcontext.AppContext
 	AuditableAppContextFromRequestWithErrors(
 		*http.Request,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error),
@@ -70,8 +70,8 @@ type FeatureFlag struct {
 	Active bool
 }
 
-// A single handlerContext is passed to each handler
-type handlerContext struct {
+// A single handlerConfig is passed to each handler
+type handlerConfig struct {
 	db                    *pop.Connection
 	logger                *zap.Logger
 	cookieSecret          string
@@ -90,9 +90,9 @@ type handlerContext struct {
 	sessionManagers       [3]*scs.SessionManager
 }
 
-// NewHandlerContext returns a new handlerContext with its required private fields set.
-func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
-	return &handlerContext{
+// NewHandlerConfig returns a new handlerConfig with its required private fields set.
+func NewHandlerConfig(db *pop.Connection, logger *zap.Logger) HandlerConfig {
+	return &handlerConfig{
 		db:     db,
 		logger: logger,
 	}
@@ -100,22 +100,23 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 
 // AppContextFromRequest builds an AppContext from the http request
 // TODO: This should eventually go away and all handlers should use AuditableAppContextFromRequestWithErrors
-func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
+func (h *handlerConfig) AppContextFromRequest(r *http.Request) appcontext.AppContext {
+	// use LoggerFromRequest to get the most specific logger
 	return appcontext.NewAppContext(
-		hctx.dBFromContext(r.Context()),
-		hctx.loggerFromRequest(r),
-		hctx.sessionFromRequest(r))
+		h.dBFromContext(r.Context()),
+		h.loggerFromRequest(r),
+		h.sessionFromRequest(r))
 }
 
 // AuditableAppContextFromRequestWithErrors creates a transaction and sets local
 // variables for use by the auditable trigger and also allows handlers to return errors.
-func (hctx *handlerContext) AuditableAppContextFromRequestWithErrors(
+func (h *handlerConfig) AuditableAppContextFromRequestWithErrors(
 	r *http.Request,
 	handler func(appCtx appcontext.AppContext) (middleware.Responder, error),
 ) middleware.Responder {
 	// use LoggerFromRequest to get the most specific logger
 	var resp middleware.Responder
-	appCtx := hctx.AppContextFromRequest(r)
+	appCtx := h.AppContextFromRequest(r)
 	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var userID uuid.UUID
 		if txnAppCtx.Session() != nil {
@@ -141,151 +142,151 @@ func (hctx *handlerContext) AuditableAppContextFromRequestWithErrors(
 	return resp
 }
 
-func (hctx *handlerContext) sessionFromRequest(r *http.Request) *auth.Session {
+func (h *handlerConfig) sessionFromRequest(r *http.Request) *auth.Session {
 	return auth.SessionFromContext(r.Context())
 }
 
-func (hctx *handlerContext) loggerFromRequest(r *http.Request) *zap.Logger {
-	return hctx.loggerFromContext(r.Context())
+func (h *handlerConfig) loggerFromRequest(r *http.Request) *zap.Logger {
+	return h.loggerFromContext(r.Context())
 }
 
 // LoggerFromContext returns the logger from the context. If the
-// context has no appCtx.Logger(), the handlerContext logger is returned
-func (hctx *handlerContext) loggerFromContext(ctx context.Context) *zap.Logger {
+// context has no appCtx.Logger(), the handlerConfig logger is returned
+func (h *handlerConfig) loggerFromContext(ctx context.Context) *zap.Logger {
 	logger := logging.FromContextWithoutDefault(ctx)
 	if logger != nil {
 		return logger
 	}
-	return hctx.logger
+	return h.logger
 }
 
 // dBFromContext returns a POP db connection for the context
-func (hctx *handlerContext) dBFromContext(ctx context.Context) *pop.Connection {
-	return hctx.db.WithContext(ctx)
+func (h *handlerConfig) dBFromContext(ctx context.Context) *pop.Connection {
+	return h.db.WithContext(ctx)
 }
 
 // FileStorer returns the storage to use in the current context
-func (hctx *handlerContext) FileStorer() storage.FileStorer {
-	return hctx.storage
+func (h *handlerConfig) FileStorer() storage.FileStorer {
+	return h.storage
 }
 
 // SetFileStorer is a simple setter for storage private field
-func (hctx *handlerContext) SetFileStorer(storer storage.FileStorer) {
-	hctx.storage = storer
+func (h *handlerConfig) SetFileStorer(storer storage.FileStorer) {
+	h.storage = storer
 }
 
 // AppNames returns a struct of all the app names for the current environment
-func (hctx *handlerContext) AppNames() auth.ApplicationServername {
-	return hctx.appNames
+func (h *handlerConfig) AppNames() auth.ApplicationServername {
+	return h.appNames
 }
 
 // SetAppNames is a simple setter for private field
-func (hctx *handlerContext) SetAppNames(appNames auth.ApplicationServername) {
-	hctx.appNames = appNames
+func (h *handlerConfig) SetAppNames(appNames auth.ApplicationServername) {
+	h.appNames = appNames
 }
 
 // NotificationSender returns the sender to use in the current context
-func (hctx *handlerContext) NotificationSender() notifications.NotificationSender {
-	return hctx.notificationSender
+func (h *handlerConfig) NotificationSender() notifications.NotificationSender {
+	return h.notificationSender
 }
 
 // SetNotificationSender is a simple setter for AWS SES private field
-func (hctx *handlerContext) SetNotificationSender(sender notifications.NotificationSender) {
-	hctx.notificationSender = sender
+func (h *handlerConfig) SetNotificationSender(sender notifications.NotificationSender) {
+	h.notificationSender = sender
 }
 
 // Planner returns the planner for the current context
-func (hctx *handlerContext) Planner() route.Planner {
-	return hctx.planner
+func (h *handlerConfig) Planner() route.Planner {
+	return h.planner
 }
 
 // SetPlanner is a simple setter for the route.Planner private field
-func (hctx *handlerContext) SetPlanner(planner route.Planner) {
-	hctx.planner = planner
+func (h *handlerConfig) SetPlanner(planner route.Planner) {
+	h.planner = planner
 }
 
 // GHCPlanner returns the GHC planner for the current context
-func (hctx *handlerContext) GHCPlanner() route.Planner {
-	return hctx.ghcPlanner
+func (h *handlerConfig) GHCPlanner() route.Planner {
+	return h.ghcPlanner
 }
 
 // SetGHCPlanner is a simple setter for the route.Planner private field
-func (hctx *handlerContext) SetGHCPlanner(ghcPlanner route.Planner) {
-	hctx.ghcPlanner = ghcPlanner
+func (h *handlerConfig) SetGHCPlanner(ghcPlanner route.Planner) {
+	h.ghcPlanner = ghcPlanner
 }
 
 // CookieSecret returns the secret key to use when signing cookies
-func (hctx *handlerContext) CookieSecret() string {
-	return hctx.cookieSecret
+func (h *handlerConfig) CookieSecret() string {
+	return h.cookieSecret
 }
 
 // SetCookieSecret is a simple setter for the cookieSeecret private Field
-func (hctx *handlerContext) SetCookieSecret(cookieSecret string) {
-	hctx.cookieSecret = cookieSecret
+func (h *handlerConfig) SetCookieSecret(cookieSecret string) {
+	h.cookieSecret = cookieSecret
 }
 
-func (hctx *handlerContext) IWSPersonLookup() iws.PersonLookup {
-	return hctx.iwsPersonLookup
+func (h *handlerConfig) IWSPersonLookup() iws.PersonLookup {
+	return h.iwsPersonLookup
 }
 
-func (hctx *handlerContext) SetIWSPersonLookup(rbs iws.PersonLookup) {
-	hctx.iwsPersonLookup = rbs
+func (h *handlerConfig) SetIWSPersonLookup(rbs iws.PersonLookup) {
+	h.iwsPersonLookup = rbs
 }
 
 // SendProductionInvoice is a flag to notify EDI invoice generation whether it should be sent as a test or production transaction
-func (hctx *handlerContext) SendProductionInvoice() bool {
-	return hctx.sendProductionInvoice
+func (h *handlerConfig) SendProductionInvoice() bool {
+	return h.sendProductionInvoice
 }
 
 // Set UsageIndicator flag for use in EDI invoicing (ediinvoice pkg)
-func (hctx *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool) {
-	hctx.sendProductionInvoice = sendProductionInvoice
+func (h *handlerConfig) SetSendProductionInvoice(sendProductionInvoice bool) {
+	h.sendProductionInvoice = sendProductionInvoice
 }
 
-func (hctx *handlerContext) GexSender() services.GexSender {
-	return hctx.senderToGex
+func (h *handlerConfig) GexSender() services.GexSender {
+	return h.senderToGex
 }
 
-func (hctx *handlerContext) SetGexSender(sendGexRequest services.GexSender) {
-	hctx.senderToGex = sendGexRequest
+func (h *handlerConfig) SetGexSender(sendGexRequest services.GexSender) {
+	h.senderToGex = sendGexRequest
 }
 
-func (hctx *handlerContext) ICNSequencer() sequence.Sequencer {
-	return hctx.icnSequencer
+func (h *handlerConfig) ICNSequencer() sequence.Sequencer {
+	return h.icnSequencer
 }
 
-func (hctx *handlerContext) SetICNSequencer(sequencer sequence.Sequencer) {
-	hctx.icnSequencer = sequencer
+func (h *handlerConfig) SetICNSequencer(sequencer sequence.Sequencer) {
+	h.icnSequencer = sequencer
 }
 
-func (hctx *handlerContext) DPSAuthParams() dpsauth.Params {
-	return hctx.dpsAuthParams
+func (h *handlerConfig) DPSAuthParams() dpsauth.Params {
+	return h.dpsAuthParams
 }
 
-func (hctx *handlerContext) SetDPSAuthParams(params dpsauth.Params) {
-	hctx.dpsAuthParams = params
+func (h *handlerConfig) SetDPSAuthParams(params dpsauth.Params) {
+	h.dpsAuthParams = params
 }
 
 // UseSecureCookie determines if the field "Secure" is set to true or false upon cookie creation
-func (hctx *handlerContext) UseSecureCookie() bool {
-	return hctx.useSecureCookie
+func (h *handlerConfig) UseSecureCookie() bool {
+	return h.useSecureCookie
 }
 
 // Sets flag for using Secure cookie
-func (hctx *handlerContext) SetUseSecureCookie(useSecureCookie bool) {
-	hctx.useSecureCookie = useSecureCookie
+func (h *handlerConfig) SetUseSecureCookie(useSecureCookie bool) {
+	h.useSecureCookie = useSecureCookie
 }
 
-func (hctx *handlerContext) SetFeatureFlag(flag FeatureFlag) {
-	if hctx.featureFlags == nil {
-		hctx.featureFlags = make(map[string]bool)
+func (h *handlerConfig) SetFeatureFlag(flag FeatureFlag) {
+	if h.featureFlags == nil {
+		h.featureFlags = make(map[string]bool)
 	}
 
-	hctx.featureFlags[flag.Name] = flag.Active
+	h.featureFlags[flag.Name] = flag.Active
 }
 
-func (hctx *handlerContext) GetFeatureFlag(flag string) bool {
-	if value, ok := hctx.featureFlags[flag]; ok {
+func (h *handlerConfig) GetFeatureFlag(flag string) bool {
+	if value, ok := h.featureFlags[flag]; ok {
 		return value
 	}
 	return false
@@ -293,23 +294,23 @@ func (hctx *handlerContext) GetFeatureFlag(flag string) bool {
 
 // GetTraceIDFromRequest returns the request traceID. It
 // returns the Nil UUID if no traceid is found
-func (hctx *handlerContext) GetTraceIDFromRequest(r *http.Request) uuid.UUID {
+func (h *handlerConfig) GetTraceIDFromRequest(r *http.Request) uuid.UUID {
 	return trace.FromContext(r.Context())
 }
 
-func (hctx *handlerContext) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {
-	hctx.sessionManagers = sessionManagers
+func (h *handlerConfig) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {
+	h.sessionManagers = sessionManagers
 }
 
 // SessionManager returns the session manager corresponding to the current app.
 // A user can be signed in at the same time across multiple apps.
-func (hctx *handlerContext) SessionManager(session *auth.Session) *scs.SessionManager {
+func (h *handlerConfig) SessionManager(session *auth.Session) *scs.SessionManager {
 	if session.IsMilApp() {
-		return hctx.sessionManagers[0]
+		return h.sessionManagers[0]
 	} else if session.IsAdminApp() {
-		return hctx.sessionManagers[1]
+		return h.sessionManagers[1]
 	} else if session.IsOfficeApp() {
-		return hctx.sessionManagers[2]
+		return h.sessionManagers[2]
 	}
 
 	return nil

@@ -10,6 +10,7 @@ import {
   postalOnlyInfo,
   diversionInfo,
   cancelledInfo,
+  ppmInfo,
 } from './ShipmentDisplayTestData';
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
@@ -229,6 +230,32 @@ export const CancelledShipment = () => (
       ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.HHG}
       isSubmitted
+    />
+  </div>
+);
+
+export const PPMShipmentServiceCounselor = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={ppmInfo}
+      ordersLOA={ordersLOA}
+      shipmentType={SHIPMENT_OPTIONS.PPM}
+      isSubmitted
+      allowApproval={false}
+      warnIfMissing={['counselorRemarks']}
+    />
+  </div>
+);
+
+export const PPMShipmentWithCounselorRemarks = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={{ ...ppmInfo, counselorRemarks: 'counselor approved' }}
+      shipmentType={SHIPMENT_OPTIONS.PPM}
+      ordersLOA={ordersLOA}
+      isSubmitted
+      allowApproval={false}
+      warnIfMissing={['counselorRemarks']}
     />
   </div>
 );

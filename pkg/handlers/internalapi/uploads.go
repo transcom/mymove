@@ -43,7 +43,7 @@ func payloadForUploadModel(
 
 // CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
 type CreateUploadHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle creates a new UserUpload from a request payload
@@ -114,7 +114,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 // DeleteUploadHandler deletes an upload
 type DeleteUploadHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle deletes an upload
@@ -145,7 +145,7 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 
 // DeleteUploadsHandler deletes a collection of uploads
 type DeleteUploadsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle deletes uploads

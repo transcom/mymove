@@ -32,8 +32,8 @@ func (suite *HandlerSuite) TestTacValidation() {
 				HTTPRequest: request,
 				Tac:         tc.tacCode,
 			}
-			context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-			handler := TacValidationHandler{context}
+			handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+			handler := TacValidationHandler{handlerConfig}
 			response := handler.Handle(params)
 
 			suite.Assertions.IsType(&tacop.TacValidationOK{}, response)
@@ -51,8 +51,8 @@ func (suite *HandlerSuite) TestTacValidation() {
 			HTTPRequest: request,
 			Tac:         tac,
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handler := TacValidationHandler{context}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := TacValidationHandler{handlerConfig}
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&tacop.TacValidationUnauthorized{}, response)
@@ -68,8 +68,8 @@ func (suite *HandlerSuite) TestTacValidation() {
 			HTTPRequest: request,
 			Tac:         tac,
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		handler := TacValidationHandler{context}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := TacValidationHandler{handlerConfig}
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&tacop.TacValidationForbidden{}, response)

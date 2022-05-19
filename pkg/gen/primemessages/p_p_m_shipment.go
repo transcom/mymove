@@ -110,8 +110,26 @@ type PPMShipment struct {
 	// Format: uuid
 	ShipmentID strfmt.UUID `json:"shipmentId,omitempty"`
 
+	// sit estimated cost
+	SitEstimatedCost *int64 `json:"sitEstimatedCost"`
+
+	// sit estimated departure date
+	// Format: date
+	SitEstimatedDepartureDate *strfmt.Date `json:"sitEstimatedDepartureDate"`
+
+	// sit estimated entry date
+	// Format: date
+	SitEstimatedEntryDate *strfmt.Date `json:"sitEstimatedEntryDate"`
+
+	// sit estimated weight
+	// Example: 2000
+	SitEstimatedWeight *int64 `json:"sitEstimatedWeight"`
+
 	// sit expected
 	SitExpected bool `json:"sitExpected,omitempty"`
+
+	// sit location
+	SitLocation *SITLocationType `json:"sitLocation,omitempty"`
 
 	// spouse pro gear weight
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight"`
@@ -178,6 +196,18 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitEstimatedDepartureDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitEstimatedEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -343,6 +373,49 @@ func (m *PPMShipment) validateShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateSitEstimatedDepartureDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitEstimatedDepartureDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitEstimatedDepartureDate", "body", "date", m.SitEstimatedDepartureDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateSitEstimatedEntryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitEstimatedEntryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitEstimatedEntryDate", "body", "date", m.SitEstimatedEntryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateSitLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitLocation) { // not required
+		return nil
+	}
+
+	if m.SitLocation != nil {
+		if err := m.SitLocation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitLocation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -404,6 +477,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -449,6 +526,22 @@ func (m *PPMShipment) contextValidateShipmentID(ctx context.Context, formats str
 
 	if err := validate.ReadOnly(ctx, "shipmentId", "body", strfmt.UUID(m.ShipmentID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateSitLocation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitLocation != nil {
+		if err := m.SitLocation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitLocation")
+			}
+			return err
+		}
 	}
 
 	return nil

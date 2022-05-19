@@ -61,7 +61,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	testMTOShipmentObjects := suite.setUpMTOShipmentObjects()
 
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter)
-	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator()
+	ppmEstimator := mocks.PPMEstimator{}
+	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
 
@@ -163,7 +164,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		subtestData.handler = CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
 			shipmentCreator,
 		}
 
@@ -215,7 +216,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		pickupPostal := "11111"
 		destinationPostalCode := "41414"
 		sitExpected := false
-
 		// reset Body params to have PPM fields
 		params.Body = &internalmessages.CreateShipment{
 			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
@@ -227,6 +227,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			},
 			ShipmentType: &ppmShipmentType,
 		}
+
+		// When a customer first creates a move, there is not enough data to calculate an incentive yet.
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil).Once()
 
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
@@ -422,7 +429,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		).Return(nil, err)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
 			&mockShipmentCreator,
 		}
 
@@ -569,7 +576,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
 			shipmentUpdater,
 		}
 
@@ -611,7 +618,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
 			shipmentUpdater,
 		}
 
@@ -794,7 +801,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		mockUpdater := mocks.ShipmentUpdater{}
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerContext(appCtx.DB(), appCtx.Logger()),
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
 			&mockUpdater,
 		}
 
@@ -907,7 +914,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			listFetcher,
 			fetcher,
 		}
@@ -1007,7 +1014,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -1028,7 +1035,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -1043,7 +1050,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -1065,7 +1072,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -1115,10 +1122,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, order.ServiceMember)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
@@ -1149,10 +1156,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, order.ServiceMember)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
@@ -1182,10 +1189,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, order.ServiceMember)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
@@ -1220,10 +1227,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, sm1)
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
@@ -1253,10 +1260,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, order.ServiceMember)
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
@@ -1287,10 +1294,10 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateRequest(req, order.ServiceMember)
 
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 		handler := DeleteShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			deleter,
 		}
 		deletionParams := mtoshipmentops.DeleteShipmentParams{
