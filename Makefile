@@ -221,6 +221,10 @@ bin/gotestsum: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 bin/mockery: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/mockery github.com/vektra/mockery/v2
 
+# No static linking / $(LDFLAGS) because gci is only used for making go imports consistent
+bin/gci: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
+	go build -o bin/gci github.com/daixiang0/gci
+
 ### Cert Targets
 # AWS is only providing a bundle for the 2022 cert, which includes 2017? and rds-ca-rsa4096-g1
 bin/rds-ca-rsa4096-g1.pem:
@@ -366,6 +370,7 @@ build_tools: bin/gin \
 	bin/big-cat \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
+	bin/gci \
 	bin/generate-payment-request-edi \
 	bin/generate-shipment-summary \
 	bin/generate-test-data \
@@ -1185,6 +1190,12 @@ reviewapp_docker_destroy:
 .PHONY: telemetry_docker
 telemetry_docker:
 	docker-compose -f docker-compose.telemetry.yml up
+
+.PHONY: fix_go_imports
+fix_go_imports: bin/gci
+	find . -name '*.go' -not -path "./pkg/gen/*" -not -path "./pkg/assets/*" -not -path "*/*mocks/*" \
+		-exec gci write --Section Standard --Section Default --Section "Prefix(github.com/transcom/mymove)" {} \;
+
 #
 # ----- END RANDOM TARGETS -----
 #

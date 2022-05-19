@@ -10,6 +10,8 @@ package tools
 import (
 	// Install for hot reloading server
 	_ "github.com/codegangsta/gin"
+	// Tool to help ensure consistent formatting of import statements
+	_ "github.com/daixiang0/gci"
 	// Install for managing the database
 	_ "github.com/gobuffalo/pop/v6/soda"
 	// Install go-junit-report for CircleCI test result report generation
