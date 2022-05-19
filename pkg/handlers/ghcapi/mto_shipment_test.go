@@ -2595,7 +2595,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}
 
 		hasProGear := true
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
 				HasProGear: &hasProGear,
 			},
