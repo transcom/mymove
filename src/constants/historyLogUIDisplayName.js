@@ -70,6 +70,7 @@ export const dbFieldToDisplayName = {
   amended_orders_acknowledged_at: 'Amended orders acknowledged at',
   storage_in_transit: 'Storage in transit (SIT)',
   dependents_authorized: 'Dependents',
+  prime_actual_weight: 'Prime actual weight',
   pro_gear_weight: 'Pro-gear',
   pro_gear_weight_spouse: 'Spouse pro-gear',
   required_medical_equipment_weight: 'RME',
