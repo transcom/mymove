@@ -27,5 +27,6 @@ export default {
   updateBillableWeightAsTIO: 'updateMaxBillableWeightAsTIO',
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
   updateReweigh: 'updateReweigh',
+  updateServiceItemStatus: 'updateMTOServiceItemStatus',
   updateMTOReviewedBillableWeightsAt: 'UpdateMTOReviewedBillableWeightsAt',
 };
