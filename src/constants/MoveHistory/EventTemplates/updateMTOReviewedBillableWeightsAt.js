@@ -1,31 +1,13 @@
 import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import dbTables from 'constants/MoveHistory/Database/Tables';
+import operations from 'constants/MoveHistory/UIDisplay/Operations';
+import actions from 'constants/MoveHistory/Database/Actions';
+import tables from 'constants/MoveHistory/Database/Tables';
 
 export default {
-  action: null,
-  eventName: null,
-  tableName: null,
+  action: actions.UPDATE,
+  eventName: operations.updateMTOReviewedBillableWeightsAt,
+  tableName: tables.moves,
   detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: ({ tableName }) => {
-    switch (tableName) {
-      case dbTables.orders:
-        return 'Updated order';
-      case dbTables.mto_service_items:
-        return 'Updated service item';
-      case dbTables.entitlements:
-        return 'Updated allowances';
-      case dbTables.payment_requests:
-        return 'Updated payment request';
-      case dbTables.mto_shipments:
-      case dbTables.mto_agents:
-      case dbTables.addresses:
-        return 'Updated shipment';
-      case dbTables.moves:
-      default:
-        return 'Updated move';
-    }
-  },
-  getDetailsPlainText: () => {
-    return '-';
-  },
+  getEventNameDisplay: () => 'Updated move',
+  getDetailsPlainText: () => 'Reviewed weights',
 };

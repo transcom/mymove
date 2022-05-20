@@ -23,7 +23,6 @@ const {
   createPaymentRequestReweighUpdate,
   createPaymentRequestShipmentUpdate,
   updatePaymentRequestEvent,
-  updateMTOReviewedBillableWeightsAt,
   undefinedEvent,
   updateBillableWeightAsTIOEvent,
   updateBillableWeightRemarksAsTIOEvent,
@@ -42,19 +41,6 @@ describe('moveHistoryEventTemplate', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(acknowledgeExcessWeightRiskEvent);
       expect(result.getDetailsPlainText(item)).toEqual('Dismissed excess weight alert');
-    });
-  });
-
-  describe('when given an MTO Reviewed Billable Weight At event', () => {
-    const item = {
-      action: 'UPDATE',
-      eventName: 'UpdateMTOReviewedBillableWeightsAt',
-      tableName: 'moves',
-    };
-    it('correctly matches the MTO Reviewed Billable Weight At event', () => {
-      const result = getMoveHistoryEventTemplate(item);
-      expect(result).toEqual(updateMTOReviewedBillableWeightsAt);
-      expect(result.getDetailsPlainText(item)).toEqual('Reviewed weights');
     });
   });
 
