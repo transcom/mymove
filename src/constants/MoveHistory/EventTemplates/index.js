@@ -7,7 +7,7 @@ export { default as approveShipmentDiversion } from './approveShipmentDiversion'
 // export { default as createOrders } from './createOrders';
 // export { default as createPaymentRequestReweighUpdate } from './createPaymentRequestReweighUpdate';
 // export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';
-// export { default as createBasicServiceItem } from './createBasicServiceItem';
+export { default as createBasicServiceItem } from './createBasicServiceItem';
 // export { default as createStandardServiceItem } from './createStandardServiceItem';
 // export { default as requestShipmentCancellation } from './requestShipmentCancellation';
 // export { default as requestShipmentDiversion } from './requestShipmentDiversion';
