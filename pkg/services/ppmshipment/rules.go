@@ -107,7 +107,7 @@ func checkAdvance() ppmShipmentValidator {
 	})
 }
 
-// checkEstimatedWeight() checks that the weight estimate is availabele to the PPM Estimator
+// checkEstimatedWeight() checks that the weight estimate is available to the PPM Estimator
 func checkEstimatedWeight() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()

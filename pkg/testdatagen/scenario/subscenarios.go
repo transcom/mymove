@@ -111,6 +111,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader)
+		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx, userUploader)
 	}
 }
 
