@@ -1,31 +1,22 @@
-import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import dbTables from 'constants/MoveHistory/Database/Tables';
+import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
+import t from 'constants/MoveHistory/Database/Tables';
+import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 export default {
-  action: null,
-  eventName: null,
-  tableName: null,
-  detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: ({ tableName }) => {
-    switch (tableName) {
-      case dbTables.orders:
-        return 'Updated order';
-      case dbTables.mto_service_items:
-        return 'Updated service item';
-      case dbTables.entitlements:
-        return 'Updated allowances';
-      case dbTables.payment_requests:
-        return 'Updated payment request';
-      case dbTables.mto_shipments:
-      case dbTables.mto_agents:
-      case dbTables.addresses:
-        return 'Updated shipment';
-      case dbTables.moves:
+  action: 'UPDATE',
+  eventName: '',
+  tableName: t.payment_requests,
+  detailsType: d.STATUS,
+  getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
+  getStatusDetails: ({ changedValues }) => {
+    const { status } = changedValues;
+    switch (status) {
+      case 'SENT_TO_GEX':
+        return 'Sent to GEX';
+      case 'RECEIVED_BY_GEX':
+        return 'Received';
       default:
-        return 'Updated move';
+        return PAYMENT_REQUEST_STATUS_LABELS[status];
     }
-  },
-  getDetailsPlainText: () => {
-    return '-';
   },
 };
