@@ -7,6 +7,7 @@ export default {
   createMTOServiceItem: 'createMTOServiceItem', // prime.yaml
   createMTOShipment: 'createMTOShipment', // internal.yaml prime.yaml
   createOrders: 'createOrders', // internal.yaml
+  requestShipmentReweigh: 'requestShipmentReweigh',
   requestShipmentCancellation: 'requestShipmentCancellation', // ghc.yaml
   requestShipmentDiversion: 'requestShipmentDiversion', // ghc.yaml
   setFinancialReviewFlag: 'setFinancialReviewFlag', // ghc.yaml

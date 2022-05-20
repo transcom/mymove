@@ -10,8 +10,8 @@ export { default as createPaymentRequestReweighUpdate } from './createPaymentReq
 export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';
 export { default as createStandardServiceItem } from './createStandardServiceItem';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
-// export { default as requestShipmentReweigh } from './requestShipmentReweigh';
 export { default as requestShipmentDiversion } from './requestShipmentDiversion';
+export { default as requestShipmentReweigh } from './requestShipmentReweigh';
 // export { default as setFinancialReviewFlag } from './setFinancialReviewFlag';
 // export { default as submitMoveForApproval } from './submitMoveForApproval';
 // export { default as updateAllowance } from './updateAllowance';
