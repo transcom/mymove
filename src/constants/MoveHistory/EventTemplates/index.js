@@ -4,7 +4,7 @@ export { default as approveShipmentDiversion } from './approveShipmentDiversion'
 export { default as createBasicServiceItem } from './createBasicServiceItem';
 export { default as createMTOShipment } from './createMTOShipment';
 export { default as createMTOShipmentAddresses } from './createMTOShipmentAddresses';
-// export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
+export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
 // export { default as createOrders } from './createOrders';
 // export { default as createPaymentRequestReweighUpdate } from './createPaymentRequestReweighUpdate';
 // export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';

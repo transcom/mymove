@@ -1,31 +1,34 @@
-import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import dbTables from 'constants/MoveHistory/Database/Tables';
+import { formatMoveHistoryAgent } from 'utils/formatters';
+import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
+import t from 'constants/MoveHistory/Database/Tables';
+import a from 'constants/MoveHistory/Database/Actions';
+import o from 'constants/MoveHistory/UIDisplay/Operations';
 
 export default {
-  action: null,
-  eventName: null,
-  tableName: null,
-  detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: ({ tableName }) => {
-    switch (tableName) {
-      case dbTables.orders:
-        return 'Updated order';
-      case dbTables.mto_service_items:
-        return 'Updated service item';
-      case dbTables.entitlements:
-        return 'Updated allowances';
-      case dbTables.payment_requests:
-        return 'Updated payment request';
-      case dbTables.mto_shipments:
-      case dbTables.mto_agents:
-      case dbTables.addresses:
-        return 'Updated shipment';
-      case dbTables.moves:
-      default:
-        return 'Updated move';
+  action: a.INSERT,
+  eventName: o.updateMTOShipment,
+  tableName: t.mto_agents,
+  detailsType: d.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ changedValues, oldValues, context }) => {
+    const agent = formatMoveHistoryAgent(changedValues);
+
+    const agentType = changedValues.agent_type ?? oldValues.agent_type;
+
+    let agentLabel = '';
+    if (agentType === 'RECEIVING_AGENT') {
+      agentLabel = 'receiving_agent';
+    } else if (agentType === 'RELEASING_AGENT') {
+      agentLabel = 'releasing_agent';
     }
-  },
-  getDetailsPlainText: () => {
-    return '-';
+
+    const newChangedValues = {
+      shipment_type: context[0]?.shipment_type,
+      ...changedValues,
+    };
+
+    newChangedValues[agentLabel] = agent;
+
+    return newChangedValues;
   },
 };
