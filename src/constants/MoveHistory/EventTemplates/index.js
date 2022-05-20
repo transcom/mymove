@@ -30,4 +30,4 @@ export { default as updateMTOShipmentEvent } from './updateMTOShipmentEvent';
 // export { default as updatePaymentRequestStatus } from './updatePaymentRequestStatus';
 // export { default as updateServiceItemStatusEvent } from './updateServiceItemStatusEvent';
 // export { default as updateMTOReviewedBillableWeightsAt } from './updateMTOReviewedBillableWeightsAt';
-// export { default as uploadAmendedOrdersEvent } from './uploadAmendedOrdersEvent';
+export { default as uploadAmendedOrders } from './uploadAmendedOrders';

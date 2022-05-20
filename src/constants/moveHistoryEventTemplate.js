@@ -467,15 +467,6 @@ export const updateServiceItemStatusEvent = buildMoveHistoryEventTemplate({
   },
 });
 
-export const uploadAmendedOrdersEvent = buildMoveHistoryEventTemplate({
-  action: dbActions.UPDATE,
-  eventName: moveHistoryOperations.uploadAmendedOrders,
-  tableName: 'orders',
-  detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: () => 'Updated orders',
-  getDetailsPlainText: () => '-',
-});
-
 export const updateOrderEvent = buildMoveHistoryEventTemplate({
   action: dbActions.UPDATE,
   eventName: '*',
@@ -569,7 +560,6 @@ const allMoveHistoryEventTemplates = [
   updatePaymentRequestStatus,
   updateServiceItemStatusEvent,
   updateMTOReviewedBillableWeightsAt,
-  uploadAmendedOrdersEvent,
 ];
 
 const getMoveHistoryEventTemplate = (historyRecord) => {
