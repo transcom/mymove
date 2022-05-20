@@ -4,7 +4,7 @@ import * as eventTemplates from 'constants/MoveHistory/EventTemplates';
 
 const allMoveHistoryEventTemplates = [];
 
-const buildTemplate = ({
+const registerTemplate = ({
   action = '*',
   eventName = '*',
   tableName = '*',
@@ -47,12 +47,10 @@ const buildTemplate = ({
   };
 
   allMoveHistoryEventTemplates.push(eventType);
-
-  return eventType;
 };
 
 // Iterate on all the Event Templates pulled into eventTemplates.
-Object.values(eventTemplates).forEach((o) => buildTemplate(o));
+Object.values(eventTemplates).forEach((o) => registerTemplate(o));
 
 export default (historyRecord) => {
   return allMoveHistoryEventTemplates.find((eventType) => eventType.matches(historyRecord)) || undefinedEvent;
