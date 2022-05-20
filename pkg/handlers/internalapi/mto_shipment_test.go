@@ -708,8 +708,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					})
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-					SecondaryPickupPostalCode:      handlers.FmtString(""),
-					SecondaryDestinationPostalCode: handlers.FmtString(""),
+					SecondaryPickupPostalCode:      handlers.FmtString(""), // TODO: Update to pass null since that's what the FE will actually send.
+					SecondaryDestinationPostalCode: handlers.FmtString(""), // TODO: Update to pass null since that's what the FE will actually send.
 				},
 				estimatedIncentive: nil,
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
