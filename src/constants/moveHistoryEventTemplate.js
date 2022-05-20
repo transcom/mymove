@@ -2,7 +2,8 @@ import moveHistoryOperations from './moveHistoryOperations';
 import { shipmentTypes } from './shipments';
 
 import { formatMoveHistoryFullAddress, formatMoveHistoryAgent } from 'utils/formatters';
-import { dbActions, dbTables } from 'constants/historyLogUIDisplayName';
+import dbActions from 'constants/MoveHistory/Database/Actions';
+import dbTables from 'constants/MoveHistory/Database/Tables';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 function propertiesMatch(p1, p2) {
