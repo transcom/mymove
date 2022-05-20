@@ -18,7 +18,7 @@ import { formatCentsTruncateWhole } from 'utils/formatters';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
 const validationSchema = Yup.object().shape({
-  actualDepartureDate: Yup.date()
+  actualMoveDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
   actualPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
@@ -35,7 +35,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
   const [postalCodeValid, setPostalCodeValid] = useState({});
 
   const {
-    actualDepartureDate,
+    actualMoveDate,
     actualPickupPostalCode,
     actualDestinationPostalCode,
     hasReceivedAdvance,
@@ -43,7 +43,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
   } = mtoShipment?.ppmShipment || {};
 
   const initialValues = {
-    actualDepartureDate: actualDepartureDate || '',
+    actualMoveDate: actualMoveDate || '',
     actualPickupPostalCode: actualPickupPostalCode || '',
     actualDestinationPostalCode: actualDestinationPostalCode || '',
     hasReceivedAdvance: hasReceivedAdvance ? 'true' : 'false',
@@ -76,7 +76,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
             <Form className={classnames(formStyles.form, ppmBookingStyles.form)}>
               <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
-                <DatePickerInput name="actualDepartureDate" label="When did you leave your origin?" />
+                <DatePickerInput name="actualMoveDate" label="When did you leave your origin?" />
                 <Hint className={ppmBookingStyles.hint}>
                   If it took you more than one day to move out, use the first day.
                 </Hint>

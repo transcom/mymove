@@ -21,7 +21,7 @@ const defaultProps = {
 const mtoShipmentProps = {
   mtoShipment: {
     ppmShipment: {
-      actualDepartureDate: '2022-05-19',
+      actualMoveDate: '2022-05-19',
       actualPickupPostalCode: '10001',
       actualDestinationPostalCode: '60652',
       hasReceivedAdvance: true,
@@ -176,7 +176,7 @@ describe('AboutForm component', () => {
       await waitFor(() => {
         expect(defaultProps.onSubmit).toHaveBeenCalledWith(
           {
-            actualDepartureDate: '2022-05-19',
+            actualMoveDate: '2022-05-19',
             actualPickupPostalCode: '10001',
             actualDestinationPostalCode: '60652',
             hasReceivedAdvance: 'true',

@@ -42,7 +42,7 @@ RequiredValuesAboutPPMForm.args = {
     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      actualDepartureDate: '2022-05-19',
+      actualMoveDate: '2022-05-19',
       actualPickupPostalCode: '10001',
       actualDestinationPostalCode: '60652',
       hasReceivedAdvance: false,
@@ -58,7 +58,7 @@ OptionalValuesAboutPPMForm.args = {
     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      actualDepartureDate: '2022-05-19',
+      actualMoveDate: '2022-05-19',
       actualPickupPostalCode: '10001',
       actualDestinationPostalCode: '60652',
       hasReceivedAdvance: true,
