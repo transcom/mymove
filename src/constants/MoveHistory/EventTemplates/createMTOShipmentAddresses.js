@@ -1,31 +1,33 @@
-import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import dbTables from 'constants/MoveHistory/Database/Tables';
+import { formatMoveHistoryFullAddress } from 'utils/formatters';
+import a from 'constants/MoveHistory/Database/Actions';
+import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
+import t from 'constants/MoveHistory/Database/Tables';
 
 export default {
-  action: null,
-  eventName: null,
-  tableName: null,
-  detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: ({ tableName }) => {
-    switch (tableName) {
-      case dbTables.orders:
-        return 'Updated order';
-      case dbTables.mto_service_items:
-        return 'Updated service item';
-      case dbTables.entitlements:
-        return 'Updated allowances';
-      case dbTables.payment_requests:
-        return 'Updated payment request';
-      case dbTables.mto_shipments:
-      case dbTables.mto_agents:
-      case dbTables.addresses:
-        return 'Updated shipment';
-      case dbTables.moves:
-      default:
-        return 'Updated move';
+  action: a.INSERT,
+  eventName: '',
+  tableName: t.addresses,
+  detailsType: d.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ changedValues, context }) => {
+    const address = formatMoveHistoryFullAddress(changedValues);
+
+    const addressType = context.filter((contextObject) => contextObject.address_type)[0].address_type;
+
+    let addressLabel = '';
+    if (addressType === 'pickupAddress') {
+      addressLabel = 'pickup_address';
+    } else if (addressType === 'destinationAddress') {
+      addressLabel = 'destination_address';
     }
-  },
-  getDetailsPlainText: () => {
-    return '-';
+
+    const newChangedValues = {
+      shipment_type: context[0]?.shipment_type,
+      ...changedValues,
+    };
+
+    newChangedValues[addressLabel] = address;
+
+    return newChangedValues;
   },
 };
