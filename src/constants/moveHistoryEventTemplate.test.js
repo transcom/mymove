@@ -13,7 +13,7 @@ const {
   updateMTOShipmentEvent,
   updateMTOShipmentAddressesEvent,
   updateMTOShipmentAgentEvent,
-  updateMTOShipmentDeprecatePaymentRequest,
+  updateMTOShipmentPaymentRequest,
   updateServiceItemStatusEvent,
   acknowledgeExcessWeightRiskEvent,
   createStandardServiceItemEvent,
@@ -597,21 +597,24 @@ describe('moveHistoryEventTemplate', () => {
     };
     it('correctly matches the deprecated payment request', () => {
       const result = getMoveHistoryEventTemplate(item);
-      expect(result).toEqual(updateMTOShipmentDeprecatePaymentRequest);
+      expect(result).toEqual(updateMTOShipmentPaymentRequest);
       expect(result.getStatusDetails(item)).toEqual('Deprecated');
     });
   });
 
-  describe('when given an unidentifiable move history record', () => {
+  describe('when given a recalculation_of_payment_request_id, displays recalculated payment request', () => {
     const item = {
       action: 'UPDATE',
-      eventName: 'testEventName',
-      tableName: 'mto_agents',
+      eventName: moveHistoryOperations.updateMTOShipment,
+      tableName: 'payment_requests',
+      changedValues: {
+        recalculation_of_payment_request_id: '1234-5789-1',
+      },
     };
-    it('correctly matches the Undefined move history event', () => {
+    it('correctly matches the deprecated payment request', () => {
       const result = getMoveHistoryEventTemplate(item);
-      expect(result).toEqual(undefinedEvent);
-      expect(result.getEventNameDisplay(item)).toEqual('Updated shipment');
+      expect(result).toEqual(updateMTOShipmentPaymentRequest);
+      expect(result.getStatusDetails(item)).toEqual('Recalculated payment request');
     });
   });
 
@@ -626,6 +629,20 @@ describe('moveHistoryEventTemplate', () => {
       const result = getMoveHistoryEventTemplate(item);
       expect(result).toEqual(reweighPaymentRequest);
       expect(result.getEventNameDisplay(item)).toEqual('Updated payment request 0288-7994-1');
+      expect(result.getStatusDetails(item)).toEqual('Recalculated payment request');
+    });
+  });
+
+  describe('when given an unidentifiable move history record', () => {
+    const item = {
+      action: 'UPDATE',
+      eventName: 'testEventName',
+      tableName: 'mto_agents',
+    };
+    it('correctly matches the Undefined move history event', () => {
+      const result = getMoveHistoryEventTemplate(item);
+      expect(result).toEqual(undefinedEvent);
+      expect(result.getEventNameDisplay(item)).toEqual('Updated shipment');
     });
   });
 });

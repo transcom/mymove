@@ -391,13 +391,16 @@ export const updateMTOShipmentAgentEvent = buildMoveHistoryEventTemplate({
   },
 });
 
-export const updateMTOShipmentDeprecatePaymentRequest = buildMoveHistoryEventTemplate({
+export const updateMTOShipmentPaymentRequest = buildMoveHistoryEventTemplate({
   action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateMTOShipment,
   tableName: dbTables.payment_requests,
   detailsType: detailsTypes.STATUS,
   getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
   getStatusDetails: ({ changedValues }) => {
+    if (changedValues.recalculation_of_payment_request_id) {
+      return 'Recalculated payment request';
+    }
     const { status } = changedValues;
     return PAYMENT_REQUEST_STATUS_LABELS[status];
   },
@@ -407,8 +410,19 @@ export const reweighPaymentRequest = buildMoveHistoryEventTemplate({
   action: dbActions.UPDATE,
   eventName: moveHistoryOperations.updateReweigh,
   tableName: dbTables.reweighs,
-  detailsType: detailsTypes.PLAIN_TEXT,
+  detailsType: detailsTypes.STATUS,
   getEventNameDisplay: ({ context }) => `Updated payment request ${context[0]?.payment_request_number}`,
+  getStatusDetails: () => {
+    return 'Recalculated payment request';
+  },
+});
+
+export const recalculatedPaymentRequest = buildMoveHistoryEventTemplate({
+  action: dbActions.UPDATE,
+  eventName: moveHistoryOperations.updateMTOShipment,
+  tableName: dbTables.payment_requests,
+  detailsType: detailsTypes.PLAIN_TEXT,
+  getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues[0]?.payment_request_number}`,
   getDetailsPlainText: () => {
     return 'Recalculated payment request';
   },
@@ -556,7 +570,7 @@ const allMoveHistoryEventTemplates = [
   updateMTOShipmentEvent,
   updateMTOShipmentAddressesEvent,
   updateMTOShipmentAgentEvent,
-  updateMTOShipmentDeprecatePaymentRequest,
+  updateMTOShipmentPaymentRequest,
   updateOrderEvent,
   updatePaymentRequestEvent,
   updatePaymentRequestStatus,
