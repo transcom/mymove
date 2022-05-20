@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+#
+# Pre-commit hook to fix go imports so that they are consistently grouped and ordered.
+#
+
+set -eu -o pipefail
+
+gci write --Section Standard --Section Default --Section "Prefix(github.com/transcom/mymove)" "$@"

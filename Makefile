@@ -1191,11 +1191,6 @@ reviewapp_docker_destroy:
 telemetry_docker:
 	docker-compose -f docker-compose.telemetry.yml up
 
-.PHONY: fix_go_imports
-fix_go_imports: bin/gci
-	find . -name '*.go' -not -path "./pkg/gen/*" -not -path "./pkg/assets/*" -not -path "*/*mocks/*" \
-		-exec gci write --Section Standard --Section Default --Section "Prefix(github.com/transcom/mymove)" {} \;
-
 #
 # ----- END RANDOM TARGETS -----
 #
