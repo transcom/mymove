@@ -1,6 +1,6 @@
 export { default as acknowledgeExcessWeightRisk } from './acknowledgeExcessWeightRisk';
 export { default as approveShipment } from './approveShipment';
-// export { default as approveShipmentDiversion } from './approveShipmentDiversion';
+export { default as approveShipmentDiversion } from './approveShipmentDiversion';
 // export { default as createMTOShipment } from './createMTOShipment';
 // export { default as createMTOShipmentAddresses } from './createMTOShipmentAddresses';
 // export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
