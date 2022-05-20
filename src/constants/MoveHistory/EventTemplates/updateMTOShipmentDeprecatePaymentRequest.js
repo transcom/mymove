@@ -1,31 +1,17 @@
-import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import dbTables from 'constants/MoveHistory/Database/Tables';
+import o from 'constants/MoveHistory/UIDisplay/Operations';
+import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
+import a from 'constants/MoveHistory/Database/Actions';
+import t from 'constants/MoveHistory/Database/Tables';
+import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 export default {
-  action: null,
-  eventName: null,
-  tableName: null,
-  detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: ({ tableName }) => {
-    switch (tableName) {
-      case dbTables.orders:
-        return 'Updated order';
-      case dbTables.mto_service_items:
-        return 'Updated service item';
-      case dbTables.entitlements:
-        return 'Updated allowances';
-      case dbTables.payment_requests:
-        return 'Updated payment request';
-      case dbTables.mto_shipments:
-      case dbTables.mto_agents:
-      case dbTables.addresses:
-        return 'Updated shipment';
-      case dbTables.moves:
-      default:
-        return 'Updated move';
-    }
-  },
-  getDetailsPlainText: () => {
-    return '-';
+  action: a.UPDATE,
+  eventName: o.updateMTOShipment,
+  tableName: t.payment_requests,
+  detailsType: d.STATUS,
+  getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
+  getStatusDetails: ({ changedValues }) => {
+    const { status } = changedValues;
+    return PAYMENT_REQUEST_STATUS_LABELS[status];
   },
 };
