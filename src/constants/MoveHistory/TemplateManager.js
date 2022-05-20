@@ -1,4 +1,4 @@
-import detailsTypes from 'constants/MoveHistory/DetailsColumn/Types';
+import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import undefinedEvent from 'constants/MoveHistory/EventTemplates/undefinedEvent';
 import * as eventTemplates from 'constants/MoveHistory/EventTemplates';
 

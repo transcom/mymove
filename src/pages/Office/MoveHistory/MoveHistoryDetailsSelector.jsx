@@ -3,9 +3,9 @@ import React from 'react';
 import LabeledDetails from './LabeledDetails';
 import PaymentDetails from './PaymentDetails';
 
-import { HistoryLogRecordShape } from 'constants/MoveHistory/HistoryLogShape';
+import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import detailsTypes from 'constants/MoveHistory/DetailsColumn/Types';
+import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 
 const MoveHistoryDetailsSelector = ({ historyRecord }) => {
   const eventTemplate = getTemplate(historyRecord);

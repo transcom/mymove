@@ -3,23 +3,25 @@ import PropTypes from 'prop-types';
 
 import styles from './LabeledDetails.module.scss';
 
+import dateFields from 'constants/MoveHistory/Database/DateFields';
+import fieldMappings from 'constants/MoveHistory/Database/FieldMappings';
+import weightFields from 'constants/MoveHistory/Database/WeightFields';
 import { shipmentTypes } from 'constants/shipments';
-import { dbFieldToDisplayName, dbWeightFields, dbDateFields } from 'constants/historyLogUIDisplayName';
-import { HistoryLogRecordShape } from 'constants/MoveHistory/HistoryLogShape';
-import optionFields from 'constants/MoveHistory/Database/orders';
+import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
+import optionFields from 'constants/MoveHistory/Database/Orders';
 import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
-  const displayName = dbFieldToDisplayName[fieldName];
+  const displayName = fieldMappings[fieldName];
   let displayValue = value;
 
-  if (displayName === dbFieldToDisplayName.storage_in_transit) {
+  if (displayName === fieldMappings.storage_in_transit) {
     displayValue = `${displayValue} days`;
-  } else if (dbWeightFields[fieldName]) {
+  } else if (weightFields[fieldName]) {
     displayValue = `${displayValue} lbs`;
   } else if (optionFields[displayValue]) {
     displayValue = optionFields[displayValue];
-  } else if (dbDateFields[fieldName]) {
+  } else if (dateFields[fieldName]) {
     displayValue = formatCustomerDate(displayValue);
   }
 
@@ -44,7 +46,7 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
     delete changedValuesToUse.shipment_type;
   }
 
-  const dbFieldsToDisplay = Object.keys(dbFieldToDisplayName).filter((dbField) => {
+  const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
     return changedValuesToUse[dbField];
   });
 

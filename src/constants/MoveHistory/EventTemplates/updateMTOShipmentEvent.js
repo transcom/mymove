@@ -1,5 +1,5 @@
-import detailsTypes from 'constants/MoveHistory/DetailsColumn/Types';
-import moveHistoryOperations from 'constants/MoveHistory/Operations';
+import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
+import moveHistoryOperations from 'constants/MoveHistory/UIDisplay/Operations';
 import dbActions from 'constants/MoveHistory/Database/Actions';
 import dbTables from 'constants/MoveHistory/Database/Tables';
 

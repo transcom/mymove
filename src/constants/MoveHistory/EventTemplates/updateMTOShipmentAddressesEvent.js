@@ -1,4 +1,4 @@
-import detailsTypes from 'constants/MoveHistory/DetailsColumn/Types';
+import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import dbTables from 'constants/MoveHistory/Database/Tables';
 
 export default {
