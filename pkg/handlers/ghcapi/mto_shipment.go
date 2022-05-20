@@ -193,6 +193,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 			mtoShipment.ID = shipmentID
+			mtoShipment.ShipmentType = oldShipment.ShipmentType
 
 			//MTOShipmentModelFromUpdate defaults UsesExternalVendor to false if it's nil in the payload
 			if payload.UsesExternalVendor == nil {

@@ -433,10 +433,5 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
 	}
 
-	if model.HasProGear != nil && *model.HasProGear {
-		model.ProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight)
-		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
-	}
-
 	return model
 }
