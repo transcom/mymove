@@ -790,7 +790,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 				}
 			}
 
-			shipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
+			shipment, err := mtoshipment.FindShipment(appCtx, shipmentID)
 			if err != nil {
 				return handleError(err), err
 			}

@@ -56,7 +56,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.PaymentRequests{}, nil)
 	mockSender := setUpMockNotificationSender()
-	mtoShipmentUpdater := NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 	mtoShipmentUpdaterOffice := NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 	mtoShipmentUpdaterCustomer := NewCustomerMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 	mtoShipmentUpdaterPrime := NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
@@ -124,79 +123,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		//now := time.Now()
 		primeEstimatedWeight = unit.Pound(4500)
 	}
-
-	suite.Run("Can retrieve existing shipment", func() {
-		setupTestData()
-
-		existingShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
-
-		var reServiceDomCrating models.ReService
-		if err := suite.DB().Where("code = $1", models.ReServiceCodeDCRT).First(&reServiceDomCrating); err != nil {
-			// Something is truncating this when all server tests run, but we need this ReService value to exist
-			reServiceDomCrating = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-				ReService: models.ReService{
-					Code:      models.ReServiceCodeDCRT,
-					Name:      "test",
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				},
-			})
-		}
-
-		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				MoveTaskOrderID: existingShipment.MoveTaskOrderID,
-				MTOShipmentID:   &existingShipment.ID,
-			},
-			ReService: reServiceDomCrating,
-		})
-
-		item := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-			MTOServiceItemDimension: models.MTOServiceItemDimension{
-				Type:      models.DimensionTypeItem,
-				Length:    1000,
-				Height:    1000,
-				Width:     1000,
-				CreatedAt: time.Time{},
-				UpdatedAt: time.Time{},
-			},
-			MTOServiceItem: mtoServiceItem1,
-		})
-
-		crate := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-			MTOServiceItemDimension: models.MTOServiceItemDimension{
-				MTOServiceItemID: mtoServiceItem1.ID,
-				Type:             models.DimensionTypeCrate,
-				Length:           2000,
-				Height:           2000,
-				Width:            2000,
-				CreatedAt:        time.Time{},
-				UpdatedAt:        time.Time{},
-			},
-		})
-
-		shipment, err := mtoShipmentUpdater.RetrieveMTOShipment(suite.AppContextForTest(), existingShipment.ID)
-
-		suite.NoError(err)
-
-		suite.Equal(existingShipment.ID, shipment.ID)
-		suite.Equal(existingShipment.CreatedAt.UTC(), shipment.CreatedAt.UTC())
-		suite.Equal(existingShipment.ShipmentType, shipment.ShipmentType)
-		suite.Equal(existingShipment.UpdatedAt.UTC(), shipment.UpdatedAt.UTC())
-
-		suite.Require().Equal(1, len(shipment.MTOServiceItems))
-		suite.Require().Equal(2, len(shipment.MTOServiceItems[0].Dimensions))
-		for _, s := range shipment.MTOServiceItems[0].Dimensions {
-			if s.Type == models.DimensionTypeCrate {
-				suite.Equal(crate.Height, s.Height)
-			} else {
-				suite.Equal(item.Height, s.Height)
-			}
-		}
-
-		// Verify that shipment recalculate was handled correctly
-		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
-	})
 
 	suite.Run("Updatable status returned as expected", func() {
 		var statusTests = []struct {

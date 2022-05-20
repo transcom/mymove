@@ -7,8 +7,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 
-	"github.com/transcom/mymove/pkg/db/utilities"
-
 	"github.com/getlantern/deepcopy"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -303,39 +301,21 @@ func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.Ap
 	return true, nil
 }
 
-func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-
-	err := appCtx.DB().
-		Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"MoveTaskOrder",
-			"PickupAddress",
-			"DestinationAddress",
-			"SecondaryPickupAddress",
-			"SecondaryDeliveryAddress",
-			"MTOAgents",
-			"SITExtensions",
-			"MTOServiceItems.ReService",
-			"MTOServiceItems.Dimensions",
-			"MTOServiceItems.CustomerContacts",
-			"StorageFacility.Address").Find(&shipment, mtoShipmentID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(mtoShipmentID, "Shipment not found")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
-	return &shipment, nil
-}
-
 //UpdateMTOShipment updates the mto shipment
 func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	oldShipment, err := f.RetrieveMTOShipment(appCtx, mtoShipment.ID)
+	eagerAssociations := []string{"MoveTaskOrder",
+		"PickupAddress",
+		"DestinationAddress",
+		"SecondaryPickupAddress",
+		"SecondaryDeliveryAddress",
+		"MTOAgents",
+		"SITExtensions",
+		"MTOServiceItems.ReService",
+		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.CustomerContacts",
+		"StorageFacility.Address"}
+
+	oldShipment, err := FindShipment(appCtx, mtoShipment.ID, eagerAssociations...)
 	if err != nil {
 		return nil, err
 	}
@@ -363,7 +343,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		}
 	}
 
-	updatedShipment, err := f.RetrieveMTOShipment(appCtx, mtoShipment.ID)
+	updatedShipment, err := FindShipment(appCtx, mtoShipment.ID, eagerAssociations...)
 	if err != nil {
 		return nil, err
 	}
