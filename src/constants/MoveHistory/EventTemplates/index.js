@@ -5,6 +5,7 @@ export { default as acknowledgeExcessWeightRisk } from './acknowledgeExcessWeigh
 // export { default as createMTOShipmentAddressesEvent } from './createMTOShipmentAddressesEvent';
 // export { default as createMTOShipmentAgentEvent } from './createMTOShipmentAgentEvent';
 // export { default as createOrdersEvent } from './createOrdersEvent';
+export { default as approveShipment } from './approveShipment';
 // export { default as createPaymentRequestReweighUpdate } from './createPaymentRequestReweighUpdate';
 // export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';
 // export { default as createBasicServiceItemEvent } from './createBasicServiceItemEvent';
