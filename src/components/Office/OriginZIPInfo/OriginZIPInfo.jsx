@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { func, bool, string } from 'prop-types';
 
-import styles from './OriginInfo.module.scss';
+import styles from './OriginZIPInfo.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
 
-const OriginInfo = ({ setFieldValue, currentZip, isUseResidentialAddressZIPChecked, postalCodeValidator }) => {
+const OriginZIPInfo = ({ setFieldValue, currentZip, isUseResidentialAddressZIPChecked, postalCodeValidator }) => {
   const [postalCodeValid, setPostalCodeValid] = useState({});
 
   const setOriginZipToCurrentZip = (isChecked) => {
@@ -44,7 +44,7 @@ const OriginInfo = ({ setFieldValue, currentZip, isUseResidentialAddressZIPCheck
   };
 
   return (
-    <SectionWrapper className={styles.OriginInfo}>
+    <SectionWrapper className={styles.OriginZIPInfo}>
       <h2>Origin info</h2>
       <DatePickerInput label="Planned departure date" name="plannedDepartureDate" required />
       <div className="display-inline-block">
@@ -78,15 +78,15 @@ const OriginInfo = ({ setFieldValue, currentZip, isUseResidentialAddressZIPCheck
   );
 };
 
-OriginInfo.propTypes = {
+OriginZIPInfo.propTypes = {
   setFieldValue: func.isRequired,
   currentZip: string,
   isUseResidentialAddressZIPChecked: bool.isRequired,
   postalCodeValidator: func.isRequired,
 };
 
-OriginInfo.defaultProps = {
+OriginZIPInfo.defaultProps = {
   currentZip: undefined,
 };
 
-export default OriginInfo;
+export default OriginZIPInfo;

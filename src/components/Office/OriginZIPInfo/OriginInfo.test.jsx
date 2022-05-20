@@ -3,7 +3,7 @@ import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
-import OriginInfo from 'components/Office/OriginInfo/OriginInfo';
+import OriginZIPInfo from 'components/Office/OriginZIPInfo/OriginZIPInfo';
 
 const defaultProps = {
   setFieldValue: jest.fn(),
@@ -12,7 +12,7 @@ const defaultProps = {
   postalCodeValidator: jest.fn(),
 };
 
-describe('OriginInfo component', () => {
+describe('OriginZIPInfo component', () => {
   it('renders blank form on load', async () => {
     render(
       <Formik
@@ -23,7 +23,7 @@ describe('OriginInfo component', () => {
           secondOriginPostalCode: '',
         }}
       >
-        <OriginInfo {...defaultProps} />
+        <OriginZIPInfo {...defaultProps} />
       </Formik>,
     );
     expect(await screen.getByRole('heading', { level: 2, name: 'Origin info' })).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe('OriginInfo component', () => {
         }}
       >
         {({ setFieldValue }) => {
-          return <OriginInfo {...defaultProps} setFieldValue={setFieldValue} />;
+          return <OriginZIPInfo {...defaultProps} setFieldValue={setFieldValue} />;
         }}
       </Formik>,
     );

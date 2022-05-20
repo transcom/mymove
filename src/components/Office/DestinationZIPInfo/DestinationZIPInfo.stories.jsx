@@ -4,13 +4,13 @@ import { Formik } from 'formik';
 
 import { ordersInfo } from '../RequestedShipments/RequestedShipmentsTestData';
 
-import DestinationInfo from './DestinationInfo';
+import DestinationZIPInfo from './DestinationZIPInfo';
 
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 
-export const DestinationInfoExample = () => (
+export const DestinationZIPInfoExample = () => (
   <Formik
     initialValues={{
       destinationPostalCode: '',
@@ -21,7 +21,7 @@ export const DestinationInfoExample = () => (
     {({ setFieldValue, values }) => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
-          <DestinationInfo
+          <DestinationZIPInfo
             setFieldValue={setFieldValue}
             dutyZip="90210"
             isUseDutyZIPChecked={values.useDutyZIP}
@@ -33,7 +33,7 @@ export const DestinationInfoExample = () => (
   </Formik>
 );
 
-export const DestinationInfoExampleWithZipValidator = () => (
+export const DestinationZIPInfoExampleWithZipValidator = () => (
   <Formik
     initialValues={{
       destinationPostalCode: '',
@@ -44,7 +44,7 @@ export const DestinationInfoExampleWithZipValidator = () => (
     {({ setFieldValue, values }) => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
-          <DestinationInfo
+          <DestinationZIPInfo
             setFieldValue={setFieldValue}
             dutyZip="90210"
             isUseDutyZIPChecked={values.useDutyZIP}
@@ -57,7 +57,7 @@ export const DestinationInfoExampleWithZipValidator = () => (
 );
 
 export default {
-  title: 'Office Components / Destination Info',
+  title: 'Office Components / Forms / Shipment Form / Destination ZIP Info',
   components: ordersInfo,
   decorators: [
     (Story) => (

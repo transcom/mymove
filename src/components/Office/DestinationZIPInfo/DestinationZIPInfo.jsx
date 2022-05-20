@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { func, bool, string } from 'prop-types';
 
-import styles from './DestinationInfo.module.scss';
+import styles from './DestinationZIPInfo.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField } from 'components/form/fields';
 
-const DestinationInfo = ({ setFieldValue, dutyZip, isUseDutyZIPChecked, postalCodeValidator }) => {
+const DestinationZIPInfo = ({ setFieldValue, dutyZip, isUseDutyZIPChecked, postalCodeValidator }) => {
   const [postalCodeValid, setPostalCodeValid] = useState({});
 
   const setDestinationZipToDutyZip = (isChecked) => {
@@ -44,7 +44,7 @@ const DestinationInfo = ({ setFieldValue, dutyZip, isUseDutyZIPChecked, postalCo
   };
 
   return (
-    <SectionWrapper className={styles.DestinationInfo}>
+    <SectionWrapper className={styles.DestinationZIPInfo}>
       <h2>Destination info</h2>
       <div className="display-inline-block">
         <TextField
@@ -77,15 +77,15 @@ const DestinationInfo = ({ setFieldValue, dutyZip, isUseDutyZIPChecked, postalCo
   );
 };
 
-DestinationInfo.propTypes = {
+DestinationZIPInfo.propTypes = {
   setFieldValue: func.isRequired,
   dutyZip: string,
   isUseDutyZIPChecked: bool.isRequired,
   postalCodeValidator: func.isRequired,
 };
 
-DestinationInfo.defaultProps = {
+DestinationZIPInfo.defaultProps = {
   dutyZip: undefined,
 };
 
-export default DestinationInfo;
+export default DestinationZIPInfo;

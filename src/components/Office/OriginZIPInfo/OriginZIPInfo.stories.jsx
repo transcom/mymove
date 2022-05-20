@@ -4,13 +4,13 @@ import { Formik } from 'formik';
 
 import { ordersInfo } from '../RequestedShipments/RequestedShipmentsTestData';
 
-import OriginInfo from './OriginInfo';
+import OriginZIPInfo from './OriginZIPInfo';
 
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 
-export const OriginInfoExample = () => (
+export const OriginZIPInfoExample = () => (
   <Formik
     initialValues={{
       plannedDepartureDate: '',
@@ -22,7 +22,7 @@ export const OriginInfoExample = () => (
     {({ setFieldValue, values }) => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
-          <OriginInfo
+          <OriginZIPInfo
             setFieldValue={setFieldValue}
             currentZip="90210"
             isUseResidentialAddressZIPChecked={values.useResidentialAddressZIP}
@@ -34,7 +34,7 @@ export const OriginInfoExample = () => (
   </Formik>
 );
 
-export const OriginInfoExampleWithZipValidator = () => (
+export const OriginZIPInfoExampleWithZipValidator = () => (
   <Formik
     initialValues={{
       plannedDepartureDate: '',
@@ -46,7 +46,7 @@ export const OriginInfoExampleWithZipValidator = () => (
     {({ setFieldValue, values }) => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
-          <OriginInfo
+          <OriginZIPInfo
             setFieldValue={setFieldValue}
             currentZip="90210"
             isUseResidentialAddressZIPChecked={values.useResidentialAddressZIP}
@@ -59,7 +59,7 @@ export const OriginInfoExampleWithZipValidator = () => (
 );
 
 export default {
-  title: 'Office Components / Origin Info',
+  title: 'Office Components  / Forms / Shipment Form / Origin ZIP Info',
   components: ordersInfo,
   decorators: [
     (Story) => (
