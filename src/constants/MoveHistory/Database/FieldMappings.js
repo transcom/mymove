@@ -43,4 +43,5 @@ export default {
   receiving_agent: 'Receiving agent',
   releasing_agent: 'Releasing agent',
   tio_remarks: 'Max billable weight remark',
+  prime_actual_weight: 'Prime actual weight',
 };
