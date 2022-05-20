@@ -1,26 +1,26 @@
-import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import dbTables from 'constants/MoveHistory/Database/Tables';
+import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
+import t from 'constants/MoveHistory/Database/Tables';
 
 export default {
   action: null,
   eventName: null,
   tableName: null,
-  detailsType: detailsTypes.PLAIN_TEXT,
+  detailsType: d.PLAIN_TEXT,
   getEventNameDisplay: ({ tableName }) => {
     switch (tableName) {
-      case dbTables.orders:
+      case t.orders:
         return 'Updated order';
-      case dbTables.mto_service_items:
+      case t.mto_service_items:
         return 'Updated service item';
-      case dbTables.entitlements:
+      case t.entitlements:
         return 'Updated allowances';
-      case dbTables.payment_requests:
+      case t.payment_requests:
         return 'Updated payment request';
-      case dbTables.mto_shipments:
-      case dbTables.mto_agents:
-      case dbTables.addresses:
+      case t.mto_shipments:
+      case t.mto_agents:
+      case t.addresses:
         return 'Updated shipment';
-      case dbTables.moves:
+      case t.moves:
       default:
         return 'Updated move';
     }
