@@ -1,5 +1,4 @@
-/* eslint import/prefer-default-export: "off" */
-// export { default as acknowledgeExcessWeightRiskEvent } from './acknowledgeExcessWeightRiskEvent';
+export { default as acknowledgeExcessWeightRisk } from './acknowledgeExcessWeightRisk';
 // export { default as approveShipmentEvent } from './approveShipmentEvent';
 // export { default as approveShipmentDiversionEvent } from './approveShipmentDiversionEvent';
 // export { default as createMTOShipmentEvent } from './createMTOShipmentEvent';
