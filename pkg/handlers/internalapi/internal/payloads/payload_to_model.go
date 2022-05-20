@@ -155,11 +155,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
-	//if ppmShipment.SecondaryDestinationPostalCode.Present {
-	//	ppmModel.SecondaryDestinationPostalCode = ppmShipment.SecondaryDestinationPostalCode.Value
-	//} else {
-	//	ppmModel.SecondaryDestinationPostalCode = models.StringPointer("")
-	//}
 	if ppmShipment.SecondaryDestinationPostalCode.Present {
 		if ppmShipment.SecondaryDestinationPostalCode.Value == nil {
 			ppmModel.SecondaryDestinationPostalCode = models.StringPointer("")
@@ -172,11 +167,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
 	}
 
-	//if ppmShipment.SecondaryPickupPostalCode.Present {
-	//	ppmModel.SecondaryPickupPostalCode = ppmShipment.SecondaryPickupPostalCode.Value
-	//} else {
-	//	ppmModel.SecondaryPickupPostalCode = models.StringPointer("")
-	//}
 	if ppmShipment.SecondaryPickupPostalCode.Present {
 		if ppmShipment.SecondaryPickupPostalCode.Value == nil {
 			ppmModel.SecondaryPickupPostalCode = models.StringPointer("")
