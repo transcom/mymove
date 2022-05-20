@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -135,15 +134,17 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	}
 
 	ppmModel := &models.PPMShipment{
-		ActualMoveDate:      (*time.Time)(ppmShipment.ActualMoveDate),
-		SitExpected:         ppmShipment.SitExpected,
-		EstimatedWeight:     handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
-		NetWeight:           handlers.PoundPtrFromInt64Ptr(ppmShipment.NetWeight),
-		HasProGear:          ppmShipment.HasProGear,
-		ProGearWeight:       handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
-		SpouseProGearWeight: handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
-		Advance:             handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
-		AdvanceRequested:    ppmShipment.AdvanceRequested,
+		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
+		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtr(ppmShipment.SecondaryPickupPostalCode),
+		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtr(ppmShipment.SecondaryDestinationPostalCode),
+		SitExpected:                    ppmShipment.SitExpected,
+		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
+		NetWeight:                      handlers.PoundPtrFromInt64Ptr(ppmShipment.NetWeight),
+		HasProGear:                     ppmShipment.HasProGear,
+		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
+		Advance:                        handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
+		AdvanceRequested:               ppmShipment.AdvanceRequested,
 	}
 
 	if ppmShipment.ExpectedDepartureDate != nil {
@@ -154,20 +155,34 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
+	//if ppmShipment.SecondaryDestinationPostalCode.Present {
+	//	ppmModel.SecondaryDestinationPostalCode = ppmShipment.SecondaryDestinationPostalCode.Value
+	//} else {
+	//	ppmModel.SecondaryDestinationPostalCode = models.StringPointer("")
+	//}
 	if ppmShipment.SecondaryDestinationPostalCode.Present {
-		ppmModel.SecondaryDestinationPostalCode = ppmShipment.SecondaryDestinationPostalCode.Value
-	} else {
-		ppmModel.SecondaryDestinationPostalCode = models.StringPointer("")
+		if ppmShipment.SecondaryDestinationPostalCode.Value == nil {
+			ppmModel.SecondaryDestinationPostalCode = models.StringPointer("")
+		} else {
+			ppmModel.SecondaryDestinationPostalCode = ppmShipment.SecondaryDestinationPostalCode.Value
+		}
 	}
-	fmt.Println(ppmModel.SecondaryDestinationPostalCode)
+
 	if ppmShipment.PickupPostalCode != nil {
 		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
 	}
 
+	//if ppmShipment.SecondaryPickupPostalCode.Present {
+	//	ppmModel.SecondaryPickupPostalCode = ppmShipment.SecondaryPickupPostalCode.Value
+	//} else {
+	//	ppmModel.SecondaryPickupPostalCode = models.StringPointer("")
+	//}
 	if ppmShipment.SecondaryPickupPostalCode.Present {
-		ppmModel.SecondaryPickupPostalCode = ppmShipment.SecondaryPickupPostalCode.Value
-	} else {
-		ppmModel.SecondaryPickupPostalCode = models.StringPointer("")
+		if ppmShipment.SecondaryPickupPostalCode.Value == nil {
+			ppmModel.SecondaryPickupPostalCode = models.StringPointer("")
+		} else {
+			ppmModel.SecondaryPickupPostalCode = ppmShipment.SecondaryPickupPostalCode.Value
+		}
 	}
 
 	return ppmModel
