@@ -45,7 +45,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	// Check that the PPMShipment has an ID
 	var err error
 
-	if newPPMShipment.Status != models.PPMShipmentStatusDraft {
+	if newPPMShipment.Status != models.PPMShipmentStatusDraft && newPPMShipment.Status != models.PPMShipmentStatusSubmitted {
 		return nil, nil
 	}
 	// Check that all the required fields we need are present.
