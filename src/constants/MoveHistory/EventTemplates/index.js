@@ -17,7 +17,7 @@ export { default as submitMoveForApproval } from './submitMoveForApproval';
 export { default as updateAllowance } from './updateAllowance';
 export { default as updateBillableWeight } from './updateBillableWeight';
 export { default as updateBillableWeightAsTIO } from './updateBillableWeightAsTIO';
-// export { default as updateBillableWeightRemarksAsTIO } from './updateBillableWeightRemarksAsTIO';
+export { default as updateBillableWeightRemarksAsTIO } from './updateBillableWeightRemarksAsTIO';
 // export { default as updateMoveTaskOrder } from './updateMoveTaskOrder';
 // export { default as updateMoveTaskOrderStatus } from './updateMoveTaskOrderStatus';
 export { default as updateMTOShipment } from './updateMTOShipment';
