@@ -17,7 +17,7 @@ const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselo
       <Fieldset>
         <h2 className={styles.SectionHeaderExtraSpacing}>
           Remarks{' '}
-          {userRole === roleTypes.SERVICES_COUNSELOR && (
+          {userRole === roleTypes.SERVICES_COUNSELOR && shipmentType !== SHIPMENT_OPTIONS.PPM && (
             <span className="float-right">
               <span className={formStyles.optional}>Optional</span>
             </span>
