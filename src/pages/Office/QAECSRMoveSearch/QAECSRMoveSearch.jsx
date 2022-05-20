@@ -152,10 +152,12 @@ const QAECSRMoveSearch = ({ history }) => {
                   DOD ID
                 </label>
               </div>
-              <TextField id="foobar" label="Search" name="searchText" />
-              <Button type="submit" disabled={!formik.isValid}>
-                Search
-              </Button>
+              <div className="usa-search">
+                <TextField label="Search" name="searchText" />
+                <Button type="submit" disabled={!formik.isValid}>
+                  Search
+                </Button>
+              </div>
             </Form>
           );
         }}

@@ -46,8 +46,7 @@ const SearchResultsTable = (props) => {
     }),
     [],
   );
-  // console.log(searchResult);
-  // console.log('Data', data, isLoading, isError);
+
   const tableData = useMemo(() => {
     return data;
   }, [data]);
