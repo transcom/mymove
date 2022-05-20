@@ -1,31 +1,42 @@
-import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import dbTables from 'constants/MoveHistory/Database/Tables';
+import { formatMoveHistoryAgent } from 'utils/formatters';
+import o from 'constants/MoveHistory/UIDisplay/Operations';
+import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
+import a from 'constants/MoveHistory/Database/Actions';
+import t from 'constants/MoveHistory/Database/Tables';
 
 export default {
-  action: null,
-  eventName: null,
-  tableName: null,
-  detailsType: detailsTypes.PLAIN_TEXT,
-  getEventNameDisplay: ({ tableName }) => {
-    switch (tableName) {
-      case dbTables.orders:
-        return 'Updated order';
-      case dbTables.mto_service_items:
-        return 'Updated service item';
-      case dbTables.entitlements:
-        return 'Updated allowances';
-      case dbTables.payment_requests:
-        return 'Updated payment request';
-      case dbTables.mto_shipments:
-      case dbTables.mto_agents:
-      case dbTables.addresses:
-        return 'Updated shipment';
-      case dbTables.moves:
-      default:
-        return 'Updated move';
+  action: a.UPDATE,
+  eventName: o.updateMTOShipment,
+  tableName: t.mto_agents,
+  detailsType: d.LABELED,
+  getEventNameDisplay: () => 'Updated shipment',
+  getDetailsLabeledDetails: ({ oldValues, changedValues, context }) => {
+    let newChangedValues = {
+      email: oldValues.email,
+      first_name: oldValues.first_name,
+      last_name: oldValues.last_name,
+      phone: oldValues.phone,
+      ...changedValues,
+    };
+
+    const agent = formatMoveHistoryAgent(newChangedValues);
+
+    const agentType = changedValues.agent_type ?? oldValues.agent_type;
+
+    let agentLabel = '';
+    if (agentType === 'RECEIVING_AGENT') {
+      agentLabel = 'receiving_agent';
+    } else if (agentType === 'RELEASING_AGENT') {
+      agentLabel = 'releasing_agent';
     }
-  },
-  getDetailsPlainText: () => {
-    return '-';
+
+    newChangedValues = {
+      shipment_type: context[0].shipment_type,
+      ...changedValues,
+    };
+
+    newChangedValues[agentLabel] = agent;
+
+    return newChangedValues;
   },
 };

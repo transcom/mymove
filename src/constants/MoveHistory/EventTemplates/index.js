@@ -22,7 +22,7 @@ export { default as updateMoveTaskOrder } from './updateMoveTaskOrder';
 export { default as updateMoveTaskOrderStatus } from './updateMoveTaskOrderStatus';
 export { default as updateMTOShipment } from './updateMTOShipment';
 export { default as updateMTOShipmentAddresses } from './updateMTOShipmentAddresses';
-// export { default as updateMTOShipmentAgent } from './updateMTOShipmentAgent';
+export { default as updateMTOShipmentAgent } from './updateMTOShipmentAgent';
 // export { default as updateMTOShipmentDeprecatePaymentRequest } from './updateMTOShipmentDeprecatePaymentRequest';
 // export { default as updateOrder } from './updateOrder';
 // export { default as updatePaymentRequest } from './updatePaymentRequest';
