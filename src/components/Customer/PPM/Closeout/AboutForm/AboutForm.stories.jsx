@@ -90,7 +90,7 @@ RequiredErrors.play = async ({ canvasElement }) => {
 };
 
 export const InvalidZIPs = Template.bind({});
-InvalidZIPs.storyName = 'Invalid ZIPs About PPM Form';
+InvalidZIPs.storyName = 'Invalid ZIPs';
 InvalidZIPs.args = {
   mtoShipment: {
     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',

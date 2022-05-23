@@ -1,7 +1,8 @@
 import React from 'react';
+import { expect } from '@storybook/jest';
 import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
-import { screen, userEvent } from '@storybook/testing-library';
+import { within, userEvent, waitFor } from '@storybook/testing-library';
 
 import EstimatedWeightsProGearForm from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
 
@@ -95,7 +96,12 @@ ErrorEstimatedWeightsProGear.args = {
     },
   },
 };
-ErrorEstimatedWeightsProGear.play = async () => {
+ErrorEstimatedWeightsProGear.play = async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+
+  await waitFor(() => {
+    expect(canvas.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+  });
   // See https://storybook.js.org/docs/react/essentials/actions#automatically-matching-args to learn how to setup logging in the Actions panel
-  await userEvent.click(await screen.findByRole('button', { name: 'Save & Continue' }));
+  await userEvent.click(canvas.getByRole('button', { name: 'Save & Continue' }));
 };
