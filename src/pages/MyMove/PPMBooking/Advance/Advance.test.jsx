@@ -179,11 +179,11 @@ describe('Advance page', () => {
     const advanceRequestedYesInput = screen.getByRole('radio', { name: /yes/i });
     await userEvent.click(advanceRequestedYesInput);
 
-    const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
-    userEvent.click(agreeToTerms);
-
     const advanceInput = screen.getByLabelText('Amount requested');
     userEvent.type(advanceInput, String(advance));
+
+    const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
+    userEvent.click(agreeToTerms);
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     expect(saveButton).not.toBeDisabled();
@@ -194,6 +194,38 @@ describe('Advance page', () => {
       ppmShipment: {
         advance: 400000,
         advanceRequested: true,
+        id: mockMTOShipment.ppmShipment.id,
+      },
+    };
+
+    await waitFor(() =>
+      expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, mockMTOShipment.eTag),
+    );
+  });
+
+  it('passes null for advance amount if advance requested is false', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithAdvance);
+    patchMTOShipment.mockResolvedValueOnce({ id: mockMTOShipment.id });
+
+    render(<Advance />, { wrapper: MockProviders });
+
+    const advanceRequestedYesInput = screen.getByRole('radio', { name: /yes/i });
+    const advanceRequestedNoInput = screen.getByRole('radio', { name: /no/i });
+
+    expect(advanceRequestedYesInput.checked).toBe(true);
+    expect(advanceRequestedNoInput.checked).toBe(false);
+
+    await userEvent.click(advanceRequestedNoInput);
+
+    const saveButton = screen.getByRole('button', { name: /save & continue/i });
+    expect(saveButton).not.toBeDisabled();
+    userEvent.click(saveButton);
+
+    const expectedPayload = {
+      shipmentType: mockMTOShipment.shipmentType,
+      ppmShipment: {
+        advance: null,
+        advanceRequested: false,
         id: mockMTOShipment.ppmShipment.id,
       },
     };

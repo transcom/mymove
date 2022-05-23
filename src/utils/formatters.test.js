@@ -89,6 +89,15 @@ describe('formatters', () => {
     });
   });
 
+  describe('convertCentsToWholeDollarsRoundedDown', () => {
+    it.each([
+      [123400, 1234],
+      [123456, 1234],
+    ])('converts cents to whole dollars and rounds down - %s cents', (cents, expectedDollars) => {
+      expect(formatters.convertCentsToWholeDollarsRoundedDown(cents)).toEqual(expectedDollars);
+    });
+  });
+
   describe('formatCentsTruncateWhole', () => {
     it('formats cents value into local string and truncates decimal', () => {
       expect(formatters.formatCentsTruncateWhole(120034)).toEqual('1,200');

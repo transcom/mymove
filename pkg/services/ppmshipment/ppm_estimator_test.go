@@ -341,7 +341,9 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 		suite.NilOrNoVerrs(err)
 		suite.Nil(newPPM.Advance)
+		suite.Nil(newPPM.AdvanceAmountRequested)
 		suite.Nil(newPPM.AdvanceRequested)
+		suite.Nil(newPPM.HasRequestedAdvance)
 		suite.Equal(unit.Cents(39319267), *ppmEstimate)
 	})
 
@@ -363,7 +365,9 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
 		suite.True(oldPPMShipment.ExpectedDepartureDate.Equal(newPPM.ExpectedDepartureDate))
 		suite.Equal(*oldPPMShipment.EstimatedIncentive, *estimatedIncentive)
+		suite.Equal(models.BoolPointer(true), newPPM.HasRequestedAdvance)
 		suite.Equal(models.BoolPointer(true), newPPM.AdvanceRequested)
+		suite.Equal(unit.Cents(598700), *newPPM.AdvanceAmountRequested)
 		suite.Equal(unit.Cents(598700), *newPPM.Advance)
 	})
 	suite.Run("Estimated Incentive - Failure - is not created when status is not DRAFT", func() {
