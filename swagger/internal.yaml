@@ -2514,10 +2514,6 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
-      estimatedIncentive:
-        type: integer
-        format: cents
-        x-nullable: true
       advanceRequested:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
