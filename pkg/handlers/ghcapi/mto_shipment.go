@@ -150,7 +150,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 // UpdateShipmentHandler updates shipments
 type UpdateShipmentHandler struct {
 	handlers.HandlerConfig
-	services.Fetcher
 	services.ShipmentUpdater
 	services.ShipmentSITStatus
 }

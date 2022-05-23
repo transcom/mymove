@@ -2532,7 +2532,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
 			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -2589,7 +2588,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
 			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -2613,7 +2611,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		sitEstimatedEntryDate := expectedDepartureDate.AddDate(0, 0, 5)
 		sitEstimatedDepartureDate := sitEstimatedEntryDate.AddDate(0, 0, 20)
 		estimatedWeight := unit.Pound(3000)
-		//hasProGear := true
 		proGearWeight := unit.Pound(300)
 		spouseProGearWeight := unit.Pound(200)
 		estimatedIncentive := 654321
@@ -2653,12 +2650,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
 		suite.Equal(ppmShipment.Shipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(handlers.FmtDatePtr(&actualMoveDate), updatedShipment.PpmShipment.ActualMoveDate)
-		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), &updatedShipment.PpmShipment.ExpectedDepartureDate)
-		suite.Equal(pickupPostalCode, updatedShipment.PpmShipment.PickupPostalCode)
+		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), updatedShipment.PpmShipment.ExpectedDepartureDate)
+		suite.Equal(&pickupPostalCode, updatedShipment.PpmShipment.PickupPostalCode)
 		suite.Equal(&secondaryPickupPostalCode, updatedShipment.PpmShipment.SecondaryPickupPostalCode)
-		suite.Equal(destinationPostalCode, updatedShipment.PpmShipment.DestinationPostalCode)
+		suite.Equal(&destinationPostalCode, updatedShipment.PpmShipment.DestinationPostalCode)
 		suite.Equal(&secondaryDestinationPostalCode, updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
-		suite.Equal(sitExpected, updatedShipment.PpmShipment.SitExpected)
+		suite.Equal(sitExpected, *updatedShipment.PpmShipment.SitExpected)
 		suite.Equal(&sitLocation, updatedShipment.PpmShipment.SitLocation)
 		suite.Equal(handlers.FmtPoundPtr(&sitEstimatedWeight), updatedShipment.PpmShipment.SitEstimatedWeight)
 		suite.Equal(handlers.FmtDate(sitEstimatedEntryDate), updatedShipment.PpmShipment.SitEstimatedEntryDate)
@@ -2680,7 +2677,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
 			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -2708,7 +2704,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
 			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -2740,7 +2735,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
 			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -2771,7 +2765,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
 			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
@@ -2793,12 +2786,9 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 500", func() {
-		builder := query.NewQueryBuilder()
 		mockUpdater := mocks.ShipmentUpdater{}
-		fetcher := fetch.NewFetcher(builder)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
 			&mockUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
