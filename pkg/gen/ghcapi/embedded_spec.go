@@ -6396,11 +6396,6 @@ func init() {
           "x-nullable": true,
           "example": "90210"
         },
-        "estimatedIncentive": {
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true
-        },
         "estimatedWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -6418,7 +6413,7 @@ func init() {
           "x-nullable": true
         },
         "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
+          "description": "The net weight of the shipment once it has been weighed\n",
           "type": "integer",
           "x-nullable": true,
           "example": 4300
@@ -13944,11 +13939,6 @@ func init() {
           "x-nullable": true,
           "example": "90210"
         },
-        "estimatedIncentive": {
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true
-        },
         "estimatedWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -13966,7 +13956,7 @@ func init() {
           "x-nullable": true
         },
         "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
+          "description": "The net weight of the shipment once it has been weighed\n",
           "type": "integer",
           "x-nullable": true,
           "example": 4300

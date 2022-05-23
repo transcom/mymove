@@ -180,6 +180,16 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 					models.MTOShipmentStatusDiversionRequested:    false,
 				},
 			},
+			"Non-office user": {
+				auth.Session{},
+				map[models.MTOShipmentStatus]bool{
+					models.MTOShipmentStatusSubmitted:             false,
+					models.MTOShipmentStatusApproved:              false,
+					models.MTOShipmentStatusCancellationRequested: false,
+					models.MTOShipmentStatusCanceled:              false,
+					models.MTOShipmentStatusDiversionRequested:    false,
+				},
+			},
 		}
 
 		for name, tc := range testCases {

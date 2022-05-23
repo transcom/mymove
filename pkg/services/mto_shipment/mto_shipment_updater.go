@@ -16,9 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
@@ -262,43 +260,6 @@ type StaleIdentifierError struct {
 
 func (e StaleIdentifierError) Error() string {
 	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
-}
-
-//CheckIfMTOShipmentCanBeUpdated checks if a shipment should be updatable
-func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error) {
-	if session.IsOfficeApp() && session.IsOfficeUser() {
-		isServiceCounselor := session.Roles.HasRole(roles.RoleTypeServicesCounselor)
-		isTOO := session.Roles.HasRole(roles.RoleTypeTOO)
-		isTIO := session.Roles.HasRole(roles.RoleTypeTIO)
-		switch mtoShipment.Status {
-		case models.MTOShipmentStatusSubmitted:
-			if isServiceCounselor || isTOO {
-				return true, nil
-			}
-		case models.MTOShipmentStatusApproved:
-			if isTIO || isTOO {
-				return true, nil
-			}
-		case models.MTOShipmentStatusCancellationRequested:
-			if isTOO {
-				return true, nil
-			}
-		case models.MTOShipmentStatusCanceled:
-			if isTOO {
-				return true, nil
-			}
-		case models.MTOShipmentStatusDiversionRequested:
-			if isTOO {
-				return true, nil
-			}
-		default:
-			return false, nil
-		}
-
-		return false, nil
-	}
-
-	return true, nil
 }
 
 //UpdateMTOShipment updates the mto shipment

@@ -78,7 +78,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.SITEstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SITEstimatedWeight, ppmShipment.SITEstimatedWeight)
 	ppmShipment.SITEstimatedEntryDate = services.SetOptionalDateTimeField(newPPMShipment.SITEstimatedEntryDate, ppmShipment.SITEstimatedEntryDate)
 	ppmShipment.SITEstimatedDepartureDate = services.SetOptionalDateTimeField(newPPMShipment.SITEstimatedDepartureDate, ppmShipment.SITEstimatedDepartureDate)
-	ppmShipment.SITEstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SITEstimatedWeight, ppmShipment.SITEstimatedWeight)
 
 	if newPPMShipment.SITLocation != nil {
 		ppmShipment.SITLocation = newPPMShipment.SITLocation

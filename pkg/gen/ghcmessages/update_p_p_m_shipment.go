@@ -36,9 +36,6 @@ type UpdatePPMShipment struct {
 	// Pattern: ^(\d{5})$
 	DestinationPostalCode *string `json:"destinationPostalCode,omitempty"`
 
-	// estimated incentive
-	EstimatedIncentive *int64 `json:"estimatedIncentive,omitempty"`
-
 	// estimated weight
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight,omitempty"`
@@ -52,7 +49,7 @@ type UpdatePPMShipment struct {
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
 
-	// The net weight of the shipment once it has been weight
+	// The net weight of the shipment once it has been weighed
 	//
 	// Example: 4300
 	NetWeight *int64 `json:"netWeight,omitempty"`

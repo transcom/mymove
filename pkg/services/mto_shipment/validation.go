@@ -127,6 +127,6 @@ func checkUpdateAllowed() validator {
 			return err
 		}
 
-		return nil
+		return err
 	})
 }

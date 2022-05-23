@@ -3464,7 +3464,7 @@ definitions:
         x-nullable: true
       netWeight:
         description: |
-          The net weight of the shipment once it has been weight
+          The net weight of the shipment once it has been weighed
         type: integer
         example: 4300
         x-nullable: true
@@ -3478,10 +3478,6 @@ definitions:
         x-nullable: true
       spouseProGearWeight:
         type: integer
-        x-nullable: true
-      estimatedIncentive:
-        type: integer
-        format: cents
         x-nullable: true
       advance:
         description: |
