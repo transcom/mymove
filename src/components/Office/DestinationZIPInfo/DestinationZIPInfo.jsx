@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { func, bool, string } from 'prop-types';
+import React from 'react';
+import { PropTypes } from 'prop-types';
 
 import styles from './DestinationZIPInfo.module.scss';
 
@@ -7,9 +7,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField } from 'components/form/fields';
 
-const DestinationZIPInfo = ({ setFieldValue, dutyZip, isUseDutyZIPChecked, postalCodeValidator }) => {
-  const [postalCodeValid, setPostalCodeValid] = useState({});
-
+const DestinationZIPInfo = ({ setFieldValue, dutyZip }) => {
   const setDestinationZipToDutyZip = (isChecked) => {
     setFieldValue('useDutyZIP', isChecked);
     if (isChecked) {
@@ -19,44 +17,11 @@ const DestinationZIPInfo = ({ setFieldValue, dutyZip, isUseDutyZIPChecked, posta
     }
   };
 
-  const setDestinationZip = (value) => {
-    if (isUseDutyZIPChecked) {
-      setFieldValue('useDutyZIP', false);
-    }
-    setFieldValue('destinationPostalCode', value);
-  };
-
-  const postalCodeValidate = async (value, location, name) => {
-    if (value?.length !== 5) {
-      return undefined;
-    }
-    if (postalCodeValid[`${name}`]?.value !== value) {
-      const response = await postalCodeValidator(value, location, 'Please enter a valid ZIP code');
-      setPostalCodeValid((state) => {
-        return {
-          ...state,
-          [name]: { value, isValid: !response },
-        };
-      });
-      return response;
-    }
-    return postalCodeValid[`${name}`]?.isValid ? undefined : 'Please enter a valid ZIP code';
-  };
-
   return (
     <SectionWrapper className={styles.DestinationZIPInfo}>
       <h2>Destination info</h2>
       <div className="display-inline-block">
-        <TextField
-          label="Destination ZIP"
-          id="destinationPostalCode"
-          name="destinationPostalCode"
-          maxLength={5}
-          onChange={(e) => {
-            setDestinationZip(e.target.value);
-          }}
-          validate={(value) => postalCodeValidate(value, 'destination', 'destinationPostalCode')}
-        />
+        <TextField label="Destination ZIP" id="destinationPostalCode" name="destinationPostalCode" maxLength={5} />
       </div>
       <CheckboxField
         id="useDutyZIP"
@@ -70,7 +35,6 @@ const DestinationZIPInfo = ({ setFieldValue, dutyZip, isUseDutyZIPChecked, posta
           id="secondDestinationPostalCode"
           name="secondDestinationPostalCode"
           maxLength={5}
-          validate={(value) => postalCodeValidate(value, 'destination', 'secondDestinationPostalCode')}
         />
       </div>
     </SectionWrapper>
@@ -78,10 +42,8 @@ const DestinationZIPInfo = ({ setFieldValue, dutyZip, isUseDutyZIPChecked, posta
 };
 
 DestinationZIPInfo.propTypes = {
-  setFieldValue: func.isRequired,
-  dutyZip: string,
-  isUseDutyZIPChecked: bool.isRequired,
-  postalCodeValidator: func.isRequired,
+  setFieldValue: PropTypes.func.isRequired,
+  dutyZip: PropTypes.string,
 };
 
 DestinationZIPInfo.defaultProps = {

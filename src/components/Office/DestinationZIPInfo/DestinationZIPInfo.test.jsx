@@ -5,24 +5,16 @@ import { Formik } from 'formik';
 
 import DestinationZIPInfo from 'components/Office/DestinationZIPInfo/DestinationZIPInfo';
 
-const defaultProps = {
-  setFieldValue: jest.fn(),
-  dutyZip: '90210',
-  isUseDutyZIPChecked: false,
-  postalCodeValidator: jest.fn(),
-};
-
 describe('DestinationZIPInfo component', () => {
   it('renders blank form on load', async () => {
     render(
       <Formik
         initialValues={{
           destinationPostalCode: '',
-          useDutyZIP: false,
           secondDestinationPostalCode: '',
         }}
       >
-        <DestinationZIPInfo {...defaultProps} />
+        <DestinationZIPInfo dutyZip="90210" />
       </Formik>,
     );
     expect(await screen.getByRole('heading', { level: 2, name: 'Destination info' })).toBeInTheDocument();
@@ -35,12 +27,11 @@ describe('DestinationZIPInfo component', () => {
       <Formik
         initialValues={{
           destinationPostalCode: '',
-          useDutyZIP: false,
           secondDestinationPostalCode: '',
         }}
       >
         {({ setFieldValue }) => {
-          return <DestinationZIPInfo {...defaultProps} setFieldValue={setFieldValue} />;
+          return <DestinationZIPInfo dutyZip="90210" setFieldValue={setFieldValue} />;
         }}
       </Formik>,
     );
@@ -49,7 +40,7 @@ describe('DestinationZIPInfo component', () => {
     expect(destinationZip.value).toBe('');
     userEvent.click(useDutyZip);
     await waitFor(() => {
-      expect(destinationZip.value).toBe(defaultProps.dutyZip);
+      expect(destinationZip.value).toBe('90210');
     });
   });
 });

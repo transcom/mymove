@@ -5,25 +5,19 @@ import { Formik } from 'formik';
 
 import OriginZIPInfo from 'components/Office/OriginZIPInfo/OriginZIPInfo';
 
-const defaultProps = {
-  setFieldValue: jest.fn(),
-  currentZip: '90210',
-  isUseResidentialAddressZIPChecked: false,
-  postalCodeValidator: jest.fn(),
-};
-
 describe('OriginZIPInfo component', () => {
   it('renders blank form on load', async () => {
     render(
       <Formik
         initialValues={{
-          plannedDepartureDate: '',
-          originPostalCode: '',
-          useResidentialAddressZIP: false,
-          secondOriginPostalCode: '',
+          expectedDepartureDate: '',
+          pickupPostalCode: '',
+          secondPickupPostalCode: '',
         }}
       >
-        <OriginZIPInfo {...defaultProps} />
+        {({ setFieldValue }) => {
+          return <OriginZIPInfo currentZip="90210" setFieldValue={setFieldValue} />;
+        }}
       </Formik>,
     );
     expect(await screen.getByRole('heading', { level: 2, name: 'Origin info' })).toBeInTheDocument();
@@ -36,14 +30,13 @@ describe('OriginZIPInfo component', () => {
     render(
       <Formik
         initialValues={{
-          plannedDepartureDate: '',
-          originPostalCode: '',
-          useResidentialAddressZIP: false,
-          secondOriginPostalCode: '',
+          expectedDepartureDate: '',
+          pickupPostalCode: '',
+          secondPickupPostalCode: '',
         }}
       >
         {({ setFieldValue }) => {
-          return <OriginZIPInfo {...defaultProps} setFieldValue={setFieldValue} />;
+          return <OriginZIPInfo currentZip="90210" setFieldValue={setFieldValue} />;
         }}
       </Formik>,
     );
@@ -52,7 +45,7 @@ describe('OriginZIPInfo component', () => {
     expect(originZip.value).toBe('');
     userEvent.click(useCurrentZip);
     await waitFor(() => {
-      expect(originZip.value).toBe(defaultProps.currentZip);
+      expect(originZip.value).toBe('90210');
     });
   });
 });
