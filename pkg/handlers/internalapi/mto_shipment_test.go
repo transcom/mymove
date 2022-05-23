@@ -628,7 +628,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			suite.EqualDatePtr(&originalShipment.PPMShipment.ExpectedDepartureDate, updatedShipment.PpmShipment.ExpectedDepartureDate)
 			suite.Equal(originalShipment.PPMShipment.PickupPostalCode, *updatedShipment.PpmShipment.PickupPostalCode)
 			suite.Equal(originalShipment.PPMShipment.DestinationPostalCode, *updatedShipment.PpmShipment.DestinationPostalCode)
-			suite.Equal(originalShipment.PPMShipment.SitExpected, updatedShipment.PpmShipment.SitExpected)
+			suite.Equal(originalShipment.PPMShipment.SITExpected, updatedShipment.PpmShipment.SitExpected)
 		}
 
 		// checkEstimatedWeightsDidntChange - ensures estimated weights fields didn't change
@@ -661,7 +661,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 							ExpectedDepartureDate: time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
 							PickupPostalCode:      "90808",
 							DestinationPostalCode: "79912",
-							SitExpected:           models.BoolPointer(true),
+							SITExpected:           models.BoolPointer(true),
 						},
 					})
 				},
@@ -1242,7 +1242,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.Equal(expectedShipment.PPMShipment.SecondaryPickupPostalCode, returnedShipment.PpmShipment.SecondaryPickupPostalCode)
 				suite.Equal(expectedShipment.PPMShipment.DestinationPostalCode, *returnedShipment.PpmShipment.DestinationPostalCode)
 				suite.Equal(expectedShipment.PPMShipment.SecondaryDestinationPostalCode, returnedShipment.PpmShipment.SecondaryDestinationPostalCode)
-				suite.Equal(*expectedShipment.PPMShipment.SitExpected, *returnedShipment.PpmShipment.SitExpected)
+				suite.Equal(*expectedShipment.PPMShipment.SITExpected, *returnedShipment.PpmShipment.SitExpected)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.EstimatedWeight, returnedShipment.PpmShipment.EstimatedWeight)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.NetWeight, returnedShipment.PpmShipment.NetWeight)
 				suite.Equal(expectedShipment.PPMShipment.HasProGear, returnedShipment.PpmShipment.HasProGear)

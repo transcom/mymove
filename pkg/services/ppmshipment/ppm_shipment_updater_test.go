@@ -53,7 +53,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				ExpectedDepartureDate: testdatagen.NextValidMoveDate,
 				PickupPostalCode:      "79912",
 				DestinationPostalCode: "90909",
-				SitExpected:           models.BoolPointer(false),
+				SITExpected:           models.BoolPointer(false),
 			},
 		})
 
@@ -61,7 +61,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			ExpectedDepartureDate: testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek),
 			PickupPostalCode:      "79906",
 			DestinationPostalCode: "94303",
-			SitExpected:           models.BoolPointer(true),
+			SITExpected:           models.BoolPointer(true),
 		}
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -72,7 +72,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		newPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(newPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(newPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(newPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(newPPM.SITExpected, updatedPPM.SITExpected)
 
 		// Estimated Incentive shouldn't be set since we don't have all the necessary fields.
 		suite.Nil(updatedPPM.EstimatedIncentive)
@@ -90,7 +90,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				ExpectedDepartureDate: testdatagen.NextValidMoveDate,
 				PickupPostalCode:      "79912",
 				DestinationPostalCode: "90909",
-				SitExpected:           models.BoolPointer(false),
+				SITExpected:           models.BoolPointer(false),
 				EstimatedWeight:       models.PoundPointer(4000),
 				HasProGear:            models.BoolPointer(false),
 				EstimatedIncentive:    fakeEstimatedIncentive,
@@ -101,7 +101,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			ExpectedDepartureDate: testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek),
 			PickupPostalCode:      "79906",
 			DestinationPostalCode: "94303",
-			SitExpected:           models.BoolPointer(true),
+			SITExpected:           models.BoolPointer(true),
 		}
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -116,7 +116,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		newPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(newPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(newPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(newPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(newPPM.SITExpected, updatedPPM.SITExpected)
 		suite.Equal(*newFakeEstimatedIncentive, *updatedPPM.EstimatedIncentive)
 	})
 
@@ -140,7 +140,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
 
 		// Fields that should now be updated
 		suite.Equal(*newPPM.SecondaryPickupPostalCode, *updatedPPM.SecondaryPickupPostalCode)
@@ -175,7 +175,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
 
 		// Fields that should now be updated
 		suite.Nil(updatedPPM.SecondaryPickupPostalCode)
@@ -205,7 +205,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
 
 		// Fields that should now be updated
 		suite.Equal(*newPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
@@ -240,7 +240,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
 
 		// Fields that should now be updated
 		suite.Equal(*newPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
@@ -283,7 +283,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
 
 		// Fields that should now be updated
 		suite.Equal(*newPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
@@ -323,7 +323,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
 
 		// Fields that should now be updated
 		suite.Equal(*newPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
@@ -358,7 +358,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
 		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
 		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
 		suite.Nil(updatedPPM.ProGearWeight)
@@ -396,7 +396,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
 		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
 		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
@@ -434,7 +434,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
 		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
 		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
 		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
@@ -471,7 +471,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
 		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
-		suite.Equal(originalPPM.SitExpected, updatedPPM.SitExpected)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
 		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
 		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
 		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
@@ -493,7 +493,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				SitExpected:               models.BoolPointer(true),
+				SITExpected:               models.BoolPointer(true),
 				SITLocation:               &sitLocation,
 				SITEstimatedEntryDate:     models.TimePointer(testdatagen.NextValidMoveDate),
 				SITEstimatedDepartureDate: models.TimePointer(testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek)),
@@ -502,7 +502,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		})
 
 		newPPM := models.PPMShipment{
-			SitExpected: models.BoolPointer(false),
+			SITExpected: models.BoolPointer(false),
 		}
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -523,7 +523,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.AdvanceRequested, *updatedPPM.AdvanceRequested)
 
 		// Fields that should now be updated
-		suite.Equal(*newPPM.SitExpected, *updatedPPM.SitExpected)
+		suite.Equal(*newPPM.SITExpected, *updatedPPM.SITExpected)
 		suite.Nil(updatedPPM.SITLocation)
 		suite.Nil(updatedPPM.SITEstimatedEntryDate)
 		suite.Nil(updatedPPM.SITEstimatedDepartureDate)
@@ -540,12 +540,12 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				SitExpected: models.BoolPointer(false),
+				SITExpected: models.BoolPointer(false),
 			},
 		})
 
 		newPPM := models.PPMShipment{
-			SitExpected:               models.BoolPointer(true),
+			SITExpected:               models.BoolPointer(true),
 			SITLocation:               &sitLocation,
 			SITEstimatedEntryDate:     models.TimePointer(testdatagen.NextValidMoveDate),
 			SITEstimatedDepartureDate: models.TimePointer(testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek)),
@@ -570,7 +570,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.AdvanceRequested, *updatedPPM.AdvanceRequested)
 
 		// Fields that should now be updated
-		suite.Equal(*newPPM.SitExpected, *updatedPPM.SitExpected)
+		suite.Equal(*newPPM.SITExpected, *updatedPPM.SITExpected)
 		suite.Equal(*newPPM.SITLocation, *updatedPPM.SITLocation)
 		suite.Equal(*newPPM.SITEstimatedEntryDate, *updatedPPM.SITEstimatedEntryDate)
 		suite.Equal(*newPPM.SITEstimatedDepartureDate, *updatedPPM.SITEstimatedDepartureDate)

@@ -256,7 +256,7 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 
 	model := &models.PPMShipment{
 		Status:                         models.PPMShipmentStatusSubmitted,
-		SitExpected:                    ppmShipment.SitExpected,
+		SITExpected:                    ppmShipment.SitExpected,
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		HasProGear:                     ppmShipment.HasProGear,
@@ -274,7 +274,7 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
-	if model.SitExpected != nil && *model.SitExpected {
+	if model.SITExpected != nil && *model.SITExpected {
 		if ppmShipment.SitLocation != nil {
 			sitLocation := models.SITLocationType(*ppmShipment.SitLocation)
 			model.SITLocation = &sitLocation
@@ -395,7 +395,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		SitExpected:                    ppmShipment.SitExpected,
+		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		NetWeight:                      handlers.PoundPtrFromInt64Ptr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,

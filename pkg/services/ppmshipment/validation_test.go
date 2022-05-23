@@ -51,7 +51,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		}
 
 		if ppmState >= PPMShipmentSIT {
-			oldShipment.SitExpected = &oldFlags.hasSIT
+			oldShipment.SITExpected = &oldFlags.hasSIT
 
 			if oldFlags.hasSIT {
 				SITLocationOrigin := models.SITLocationTypeOrigin
@@ -115,7 +115,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 
 	// checkEstimatedWeightsDidntChange - ensures estimated weights fields didn't change
 	checkSITDidntChange := func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment) {
-		suite.Equal(oldShipment.SitExpected, mergedShipment.SitExpected)
+		suite.Equal(oldShipment.SITExpected, mergedShipment.SITExpected)
 		suite.Equal(oldShipment.SITLocation, mergedShipment.SITLocation)
 		suite.Equal(oldShipment.SITEstimatedWeight, mergedShipment.SITEstimatedWeight)
 		suite.Equal(oldShipment.SITEstimatedEntryDate, mergedShipment.SITEstimatedEntryDate)
@@ -143,7 +143,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				ExpectedDepartureDate: time.Time{},
 				PickupPostalCode:      "",
 				DestinationPostalCode: "",
-				SitExpected:           nil,
+				SITExpected:           nil,
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
@@ -163,14 +163,14 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				ExpectedDepartureDate: time.Date(2020, time.May, 15, 0, 0, 0, 0, time.UTC),
 				PickupPostalCode:      "90206",
 				DestinationPostalCode: "79912",
-				SitExpected:           models.BoolPointer(true),
+				SITExpected:           models.BoolPointer(true),
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields were changed
 				suite.Equal(newShipment.ExpectedDepartureDate, mergedShipment.ExpectedDepartureDate)
 				suite.Equal(newShipment.PickupPostalCode, mergedShipment.PickupPostalCode)
 				suite.Equal(newShipment.DestinationPostalCode, mergedShipment.DestinationPostalCode)
-				suite.Equal(newShipment.SitExpected, mergedShipment.SitExpected)
+				suite.Equal(newShipment.SITExpected, mergedShipment.SITExpected)
 			},
 		},
 		"Can add secondary ZIPs": {
@@ -507,7 +507,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				hasReceivedAdvance:  false,
 			},
 			newShipment: models.PPMShipment{
-				SitExpected:               models.BoolPointer(true),
+				SITExpected:               models.BoolPointer(true),
 				SITLocation:               &SITLocationOrigin,
 				SITEstimatedWeight:        models.PoundPointer(unit.Pound(400)),
 				SITEstimatedEntryDate:     models.TimePointer(testdatagen.NextValidMoveDate),
@@ -519,7 +519,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
 
 				// ensure fields were set correctly
-				suite.Equal(newShipment.SitExpected, mergedShipment.SitExpected)
+				suite.Equal(newShipment.SITExpected, mergedShipment.SITExpected)
 				suite.Equal(newShipment.SITLocation, mergedShipment.SITLocation)
 				suite.Equal(newShipment.SITEstimatedWeight, mergedShipment.SITEstimatedWeight)
 				suite.Equal(newShipment.SITEstimatedEntryDate, mergedShipment.SITEstimatedEntryDate)
@@ -536,7 +536,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				hasReceivedAdvance:  false,
 			},
 			newShipment: models.PPMShipment{
-				SitExpected: models.BoolPointer(false),
+				SITExpected: models.BoolPointer(false),
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
@@ -544,7 +544,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
 
 				// ensure fields were set correctly
-				suite.Equal(newShipment.SitExpected, mergedShipment.SitExpected)
+				suite.Equal(newShipment.SITExpected, mergedShipment.SITExpected)
 				suite.Nil(mergedShipment.SITLocation)
 				suite.Nil(mergedShipment.SITEstimatedWeight)
 				suite.Nil(mergedShipment.SITEstimatedEntryDate)
