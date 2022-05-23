@@ -2862,12 +2862,6 @@ definitions:
       - affiliation
       - created_at
       - updated_at
-  NullableString:
-    type: string
-    x-go-type:
-      import:
-        package: github.com/transcom/mymove/pkg/swagger/nullable
-      type: String
   PPMShipmentStatus:
     type: string
     readOnly: true
@@ -3093,6 +3087,12 @@ definitions:
       - destinationPostalCode
       - sitExpected
       - eTag
+  NullableString:
+    type: string
+    x-go-type:
+      import:
+        package: github.com/transcom/mymove/pkg/swagger/nullable
+      type: String
 paths:
   /estimates/ppm:
     get:

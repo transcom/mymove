@@ -6449,7 +6449,6 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
@@ -6457,7 +6456,6 @@ func init() {
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
@@ -13356,7 +13354,6 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
@@ -13364,7 +13361,6 @@ func init() {
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",

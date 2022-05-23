@@ -94,12 +94,10 @@ type UpdatePPMShipment struct {
 
 	// ZIP
 	// Example: 90210
-	// Pattern: ^(\d{5})$
 	SecondaryDestinationPostalCode nullable.String `json:"secondaryDestinationPostalCode,omitempty"`
 
 	// ZIP
 	// Example: 90210
-	// Pattern: ^(\d{5})$
 	SecondaryPickupPostalCode nullable.String `json:"secondaryPickupPostalCode,omitempty"`
 
 	// sit expected
