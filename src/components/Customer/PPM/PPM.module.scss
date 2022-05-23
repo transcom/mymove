@@ -57,10 +57,6 @@
     }
   }
 
-  fieldset.noBottomBorder {
-    @include u-border-bottom(0);
-  }
-
   :global(.usa-label), :global(.usa-checkbox__label) {
     @include u-margin-top(2);
   }
