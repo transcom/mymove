@@ -148,50 +148,6 @@ func (o *ListMTOShipmentsUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
-// ListMTOShipmentsNotFoundCode is the HTTP code returned for type ListMTOShipmentsNotFound
-const ListMTOShipmentsNotFoundCode int = 404
-
-/*ListMTOShipmentsNotFound The requested resource wasn't found.
-
-swagger:response listMTOShipmentsNotFound
-*/
-type ListMTOShipmentsNotFound struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *internalmessages.ClientError `json:"body,omitempty"`
-}
-
-// NewListMTOShipmentsNotFound creates ListMTOShipmentsNotFound with default headers values
-func NewListMTOShipmentsNotFound() *ListMTOShipmentsNotFound {
-
-	return &ListMTOShipmentsNotFound{}
-}
-
-// WithPayload adds the payload to the list m t o shipments not found response
-func (o *ListMTOShipmentsNotFound) WithPayload(payload *internalmessages.ClientError) *ListMTOShipmentsNotFound {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the list m t o shipments not found response
-func (o *ListMTOShipmentsNotFound) SetPayload(payload *internalmessages.ClientError) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *ListMTOShipmentsNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(404)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // ListMTOShipmentsInternalServerErrorCode is the HTTP code returned for type ListMTOShipmentsInternalServerError
 const ListMTOShipmentsInternalServerErrorCode int = 500
 

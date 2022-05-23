@@ -1329,22 +1329,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsUnauthorized{}, response)
 	})
 
-	suite.Run("Failure list fetch - 404 Not Found - Move ID", func() {
-		subtestData := suite.makeListSubtestData()
-		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
-		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			mockMTOShipmentFetcher,
-		}
-		mockMTOShipmentFetcher.On("ListMTOShipments",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-		).Return([]models.MTOShipment{}, nil)
-
-		response := handler.Handle(subtestData.params)
-		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
-	})
-
 	suite.Run("Failure list fetch - 500 Internal Server Error", func() {
 		subtestData := suite.makeListSubtestData()
 		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}

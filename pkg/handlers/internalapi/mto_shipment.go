@@ -1,9 +1,6 @@
 package internalapi
 
 import (
-	"fmt"
-
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -254,9 +251,6 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			if err != nil {
 				appCtx.Logger().Error("internalapi.ListMTOShipmentsHandler", zap.Error(err))
 				return mtoshipmentops.NewListMTOShipmentsInternalServerError(), err
-			}
-			if len(shipments) == 0 {
-				return mtoshipmentops.NewListMTOShipmentsNotFound(), errors.NotFound(fmt.Sprintf("could not find MTOShipments for Move ID %s", moveID))
 			}
 
 			payload := payloads.MTOShipments((*models.MTOShipments)(&shipments))
