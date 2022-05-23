@@ -46,7 +46,7 @@ describe('AboutForm component', () => {
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeChecked(); // Has advance received is set to No by default
-      expect(screen.getByRole('button', { name: 'Finish later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -158,10 +158,10 @@ describe('AboutForm component', () => {
   });
 
   describe('calls button event handlers', () => {
-    it('calls onBack handler when "Finish later" is pressed', async () => {
+    it('calls onBack handler when "Finish Later" is pressed', async () => {
       render(<AboutForm {...defaultProps} />);
 
-      userEvent.click(screen.getByRole('button', { name: 'Finish later' }));
+      userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();

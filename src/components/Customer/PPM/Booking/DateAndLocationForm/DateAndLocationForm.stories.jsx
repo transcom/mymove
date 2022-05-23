@@ -4,6 +4,7 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { within, userEvent } from '@storybook/testing-library';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
+import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 
 export default {
   title: 'Customer Components / PPM Booking / Date and Location Form',
@@ -86,8 +87,7 @@ ErrorDatesAndLocation.args = {
       postalCode: '94611',
     },
   },
-  postalCodeValidator: () =>
-    'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
+  postalCodeValidator: () => UnsupportedZipCodePPMErrorMsg,
 };
 ErrorDatesAndLocation.play = async ({ canvasElement }) => {
   // Starts querying the component from its root element

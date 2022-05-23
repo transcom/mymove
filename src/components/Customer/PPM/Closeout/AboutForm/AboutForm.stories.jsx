@@ -4,6 +4,7 @@ import { userEvent, within } from '@storybook/testing-library';
 
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 
 export default {
   title: 'Customer Components / PPM Closeout / About PPM Form',
@@ -80,7 +81,31 @@ RequiredErrorsAboutPPMForm.args = {
   },
   postalCodeValidator: () => {},
 };
+
 RequiredErrorsAboutPPMForm.play = async ({ canvasElement }) => {
+  // Starts querying the component from its root element
+  const canvas = within(canvasElement);
+
+  await userEvent.click(canvas.getByText('Save & Continue'));
+};
+
+export const InvalidZIPsAboutPPMForm = Template.bind({});
+InvalidZIPsAboutPPMForm.storyName = 'Invalid ZIPs About PPM Form';
+InvalidZIPsAboutPPMForm.args = {
+  mtoShipment: {
+    id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
+    moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
+    ppmShipment: {
+      actualMoveDate: '2022-05-23',
+      actualPickupPostalCode: '10000',
+      actualDestinationPostalCode: '20000',
+    },
+  },
+  postalCodeValidator: () => UnsupportedZipCodePPMErrorMsg,
+};
+
+InvalidZIPsAboutPPMForm.play = async ({ canvasElement }) => {
   // Starts querying the component from its root element
   const canvas = within(canvasElement);
 

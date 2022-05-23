@@ -1,0 +1,8 @@
+@import 'shared/styles/_basics';
+
+.AboutForm {
+  .advanceFieldset {
+    @include u-border-bottom(0);
+    @include u-padding-bottom(0);
+  }
+}

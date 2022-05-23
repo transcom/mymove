@@ -5,7 +5,9 @@ import { Button, Form, FormGroup, Radio } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 
-import ppmBookingStyles from 'components/Customer/PPM/PPM.module.scss';
+import styles from './AboutForm.module.scss';
+
+import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { DatePickerInput } from 'components/form/fields';
 import Hint from 'components/Hint';
@@ -72,14 +74,12 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
-          <div className={ppmBookingStyles.formContainer}>
-            <Form className={classnames(formStyles.form, ppmBookingStyles.form)}>
-              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
+          <div className={classnames(ppmStyles.formContainer, styles.AboutForm)}>
+            <Form className={classnames(formStyles.form, ppmStyles.form)}>
+              <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
                 <DatePickerInput name="actualMoveDate" label="When did you leave your origin?" />
-                <Hint className={ppmBookingStyles.hint}>
-                  If it took you more than one day to move out, use the first day.
-                </Hint>
+                <Hint className={ppmStyles.hint}>If it took you more than one day to move out, use the first day.</Hint>
                 <h2>Locations</h2>
                 <p>
                   If you picked things up or dropped things off from other places a long way from your start or end
@@ -92,7 +92,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
                   maxLength={5}
                   validate={(value) => postalCodeValidate(value, 'origin', 'actualPickupPostalCode')}
                 />
-                <Hint className={ppmBookingStyles.hint}>The ZIP for the address you moved away from.</Hint>
+                <Hint className={ppmStyles.hint}>The ZIP for the address you moved away from.</Hint>
                 <TextField
                   label="Ending ZIP"
                   id="actualDestinationPostalCode"
@@ -100,10 +100,10 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
                   maxLength={5}
                   validate={(value) => postalCodeValidate(value, 'destination', 'actualDestinationPostalCode')}
                 />
-                <Hint className={ppmBookingStyles.hint}>The ZIP for your new permanent address.</Hint>
+                <Hint className={ppmStyles.hint}>The ZIP for your new permanent address.</Hint>
                 <h2>Advance (AOA)</h2>
                 <FormGroup>
-                  <Fieldset>
+                  <Fieldset className={styles.advanceFieldset}>
                     <legend className="usa-label">Did you receive an advance for this PPM?</legend>
                     <Field
                       as={Radio}
@@ -121,7 +121,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
                       value="false"
                       checked={values.hasReceivedAdvance === 'false'}
                     />
-                    <Hint className={ppmBookingStyles.hint}>
+                    <Hint className={ppmStyles.hint}>
                       If you requested an advance but did not receive it, select No.
                     </Hint>
                     {values.hasReceivedAdvance === 'true' && (
@@ -136,18 +136,18 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
                         thousandsSeparator=","
                         lazy={false} // immediate masking evaluation
                         prefix="$"
-                        hintClassName={ppmBookingStyles.innerHint}
+                        hintClassName={ppmStyles.innerHint}
                       />
                     )}
                   </Fieldset>
                 </FormGroup>
               </SectionWrapper>
-              <div className={ppmBookingStyles.buttonContainer}>
-                <Button className={ppmBookingStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Finish later
+              <div className={ppmStyles.buttonContainer}>
+                <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+                  Finish Later
                 </Button>
                 <Button
-                  className={ppmBookingStyles.saveButton}
+                  className={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}
