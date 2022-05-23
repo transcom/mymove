@@ -2396,10 +2396,10 @@ definitions:
         pattern: ^(\d{5})$
       secondaryPickupPostalCode:
         format: zip
-        type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+        $ref: definitions/NullableString.yaml
       destinationPostalCode:
         format: zip
         type: string
@@ -2408,10 +2408,10 @@ definitions:
         pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
         format: zip
-        type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+        $ref: definitions/NullableString.yaml
       sitExpected:
         type: boolean
     required:
