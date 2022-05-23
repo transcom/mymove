@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/swagger/nullable"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -479,6 +481,34 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
+	authRequestAndSetUpHandlerAndParams := func(appCtx appcontext.AppContext, originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
+		endpoint := fmt.Sprintf("/mto-shipments/%s", originalShipment.ID.String())
+
+		req := httptest.NewRequest("PATCH", endpoint, nil)
+
+		req = suite.AuthenticateRequest(req, originalShipment.MoveTaskOrder.Orders.ServiceMember)
+
+		eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(originalShipment.ID),
+			IfMatch:       eTag,
+		}
+
+		shipmentUpdaterSO := shipmentUpdater
+		if mockShipmentUpdater != nil {
+			shipmentUpdaterSO = mockShipmentUpdater
+		}
+
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
+			shipmentUpdaterSO,
+		}
+
+		return handler, params
+	}
+
 	type mtoUpdateSubtestData struct {
 		mtoShipment *models.MTOShipment
 		params      mtoshipmentops.UpdateMTOShipmentParams
@@ -486,15 +516,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 
 	// getDefaultMTOShipmentAndParams generates a set of default params and an MTOShipment
-	getDefaultMTOShipmentAndParams := func(appCtx appcontext.AppContext) *mtoUpdateSubtestData {
-		serviceMember := testdatagen.MakeDefaultServiceMember(appCtx.DB())
-
-		originalShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMember:   serviceMember,
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
+	getDefaultMTOShipmentAndParams := func(appCtx appcontext.AppContext, mockShipmentUpdater *mocks.ShipmentUpdater) *mtoUpdateSubtestData {
+		originalShipment := testdatagen.MakeDefaultMTOShipment(appCtx.DB())
 
 		pickupAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
 		pickupAddress.StreetAddress1 = "123 Fake Test St NW"
@@ -519,12 +542,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		customerRemarks := ""
 
-		req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
-		req = suite.AuthenticateRequest(req, serviceMember)
+		handler, params := authRequestAndSetUpHandlerAndParams(appCtx, originalShipment, mockShipmentUpdater)
 
-		eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
-
-		payload := internalmessages.UpdateShipment{
+		params.Body = &internalmessages.UpdateShipment{
 			Agents:          agents,
 			CustomerRemarks: &customerRemarks,
 			DestinationAddress: &internalmessages.Address{
@@ -568,60 +588,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ShipmentType:          internalmessages.MTOShipmentTypeHHG,
 		}
 
-		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(originalShipment.ID),
-			Body:          &payload,
-			IfMatch:       eTag,
-		}
-
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
-			shipmentUpdater,
-		}
-
-		return &mtoUpdateSubtestData{
-			mtoShipment: &originalShipment,
-			params:      params,
-			handler:     handler,
-		}
-	}
-
-	// getDefaultPPMShipmentAndParams generates a set of default params and a PPMShipment
-	getDefaultPPMShipmentAndParams := func(appCtx appcontext.AppContext) *mtoUpdateSubtestData {
-		serviceMember := testdatagen.MakeDefaultServiceMember(appCtx.DB())
-
-		originalPPMShipment := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMember:   serviceMember,
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
-		originalShipment := originalPPMShipment.Shipment
-
-		req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
-		req = suite.AuthenticateRequest(req, serviceMember)
-
-		eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
-
-		customerRemarks := "testing"
-		payload := internalmessages.UpdateShipment{
-			ShipmentType:    internalmessages.MTOShipmentTypePPM,
-			CustomerRemarks: &customerRemarks,
-		}
-
-		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(originalShipment.ID),
-			Body:          &payload,
-			IfMatch:       eTag,
-		}
-
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
-			shipmentUpdater,
-		}
-
 		return &mtoUpdateSubtestData{
 			mtoShipment: &originalShipment,
 			params:      params,
@@ -630,7 +596,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 
 	suite.Run("Successful PATCH - Integration Test", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 		params := subtestData.params
 
 		response := subtestData.handler.Handle(params)
@@ -658,56 +624,390 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("Successful PATCH with PPMShipment - Integration Test", func() {
-		subtestData := getDefaultPPMShipmentAndParams(suite.AppContextForTest())
 
-		params := subtestData.params
-		existingPPMShipment := subtestData.mtoShipment.PPMShipment
-
-		estimatedWeight := int64(6000)
-		proGearWeight := int64(1000)
-		spouseProGearWeight := int64(250)
-		updatedPPM := &internalmessages.UpdatePPMShipment{
-			EstimatedWeight:     &estimatedWeight,
-			HasProGear:          models.BoolPointer(true),
-			ProGearWeight:       &proGearWeight,
-			SpouseProGearWeight: &spouseProGearWeight,
+		// checkDatesAndLocationsDidntChange - ensures dates and locations fields didn't change
+		checkDatesAndLocationsDidntChange := func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment) {
+			suite.EqualDatePtr(&originalShipment.PPMShipment.ExpectedDepartureDate, updatedShipment.PpmShipment.ExpectedDepartureDate)
+			suite.Equal(originalShipment.PPMShipment.PickupPostalCode, *updatedShipment.PpmShipment.PickupPostalCode)
+			suite.Equal(originalShipment.PPMShipment.DestinationPostalCode, *updatedShipment.PpmShipment.DestinationPostalCode)
+			suite.Equal(originalShipment.PPMShipment.SitExpected, updatedShipment.PpmShipment.SitExpected)
 		}
-		params.Body.PpmShipment = updatedPPM
 
-		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("models.PPMShipment"),
-			mock.AnythingOfType("*models.PPMShipment")).
-			Return(models.CentPointer(unit.Cents(8765309)), nil).Once()
+		// checkEstimatedWeightsDidntChange - ensures estimated weights fields didn't change
+		checkEstimatedWeightsDidntChange := func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment) {
+			suite.EqualPoundPointers(originalShipment.PPMShipment.EstimatedWeight, updatedShipment.PpmShipment.EstimatedWeight)
+			suite.Equal(originalShipment.PPMShipment.HasProGear, updatedShipment.PpmShipment.HasProGear)
+			suite.EqualPoundPointers(originalShipment.PPMShipment.ProGearWeight, updatedShipment.PpmShipment.ProGearWeight)
+			suite.EqualPoundPointers(originalShipment.PPMShipment.SpouseProGearWeight, updatedShipment.PpmShipment.SpouseProGearWeight)
+		}
 
-		response := subtestData.handler.Handle(params)
+		// checkAdvanceRequestedFieldsDidntChange - ensures advance requested fields didn't change
+		checkAdvanceRequestedFieldsDidntChange := func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment) {
+			suite.Equal(originalShipment.PPMShipment.AdvanceRequested, updatedShipment.PpmShipment.AdvanceRequested)
+			suite.EqualCentsPointers(originalShipment.PPMShipment.Advance, updatedShipment.PpmShipment.Advance)
+		}
 
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		type setUpOriginalPPMFunc func(appCtx appcontext.AppContext) models.PPMShipment
+		type runChecksFunc func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment)
 
-		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+		ppmUpdateTestCases := map[string]struct {
+			setUpOriginalPPM   setUpOriginalPPMFunc
+			desiredShipment    internalmessages.UpdatePPMShipment
+			estimatedIncentive *unit.Cents
+			runChecks          runChecksFunc
+		}{
+			"Edit estimated dates & locations": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							ExpectedDepartureDate: time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+							PickupPostalCode:      "90808",
+							DestinationPostalCode: "79912",
+							SitExpected:           models.BoolPointer(true),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					ExpectedDepartureDate: handlers.FmtDate(time.Date(testdatagen.GHCTestYear, time.April, 27, 0, 0, 0, 0, time.UTC)),
+					PickupPostalCode:      handlers.FmtString("90900"),
+					DestinationPostalCode: handlers.FmtString("79916"),
+					SitExpected:           handlers.FmtBool(false),
+				},
+				estimatedIncentive: nil,
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check all fields changed as expected
+					desiredShipment.ExpectedDepartureDate.Equal(*updatedShipment.PpmShipment.ExpectedDepartureDate)
 
-		// Check if existing fields are not updated
-		suite.Equal(existingPPMShipment.Shipment.ID.String(), updatedShipment.ID.String())
-		suite.EqualDate(existingPPMShipment.ExpectedDepartureDate, *updatedShipment.PpmShipment.ExpectedDepartureDate)
-		suite.Equal(existingPPMShipment.PickupPostalCode, *updatedShipment.PpmShipment.PickupPostalCode)
-		suite.Equal(existingPPMShipment.DestinationPostalCode, *updatedShipment.PpmShipment.DestinationPostalCode)
-		suite.Equal(*existingPPMShipment.SitExpected, *updatedShipment.PpmShipment.SitExpected)
+					suite.Equal(desiredShipment.PickupPostalCode, updatedShipment.PpmShipment.PickupPostalCode)
+					suite.Equal(desiredShipment.DestinationPostalCode, updatedShipment.PpmShipment.DestinationPostalCode)
+					suite.Equal(desiredShipment.SitExpected, updatedShipment.PpmShipment.SitExpected)
+				},
+			},
+			"Edit estimated dates & locations - add secondary zips": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					SecondaryPickupPostalCode:      nullable.NewString("90900"),
+					SecondaryDestinationPostalCode: nullable.NewString("79916"),
+				},
+				estimatedIncentive: nil,
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
 
-		// Check if mto_shipment fields are updated
-		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
+					// check new fields were set
+					suite.Equal(desiredShipment.SecondaryPickupPostalCode, updatedShipment.PpmShipment.SecondaryPickupPostalCode)
+					suite.Equal(desiredShipment.SecondaryDestinationPostalCode, updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+				},
+			},
+			"Edit estimated dates & locations - remove secondary zips": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							SecondaryPickupPostalCode:      models.StringPointer("90900"),
+							SecondaryDestinationPostalCode: models.StringPointer("79916"),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					SecondaryPickupPostalCode:      nullable.NewString(""), // TODO: Update to pass null since that's what the FE will actually send.
+					SecondaryDestinationPostalCode: nullable.NewString(""), // TODO: Update to pass null since that's what the FE will actually send.
+				},
+				estimatedIncentive: nil,
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
 
-		// Check if ppm_shipment fields are updated
-		suite.Equal(*params.Body.PpmShipment.EstimatedWeight, *updatedShipment.PpmShipment.EstimatedWeight)
-		suite.Equal(*params.Body.PpmShipment.HasProGear, *updatedShipment.PpmShipment.HasProGear)
-		suite.Equal(*params.Body.PpmShipment.ProGearWeight, *updatedShipment.PpmShipment.ProGearWeight)
-		suite.Equal(*params.Body.PpmShipment.SpouseProGearWeight, *updatedShipment.PpmShipment.SpouseProGearWeight)
-		suite.Equal(int64(8765309), *updatedShipment.PpmShipment.EstimatedIncentive)
+					// check expected fields were updated
+					suite.Nil(updatedShipment.PpmShipment.SecondaryPickupPostalCode)
+					suite.Nil(updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+				},
+			},
+			"Add estimated weights - no pro gear": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					EstimatedWeight: handlers.FmtInt64(3500),
+					HasProGear:      handlers.FmtBool(false),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check base fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
 
-		suite.NoError(updatedShipment.Validate(strfmt.Default))
+					// check expected fields were updated
+					suite.Equal(desiredShipment.EstimatedWeight, updatedShipment.PpmShipment.EstimatedWeight)
+					suite.Equal(desiredShipment.HasProGear, updatedShipment.PpmShipment.HasProGear)
+					suite.Nil(updatedShipment.PpmShipment.ProGearWeight)
+					suite.Nil(updatedShipment.PpmShipment.SpouseProGearWeight)
+				},
+			},
+			"Add estimated weights - yes pro gear": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					EstimatedWeight:     handlers.FmtInt64(3500),
+					HasProGear:          handlers.FmtBool(true),
+					ProGearWeight:       handlers.FmtInt64(1860),
+					SpouseProGearWeight: handlers.FmtInt64(160),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check base fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.EstimatedWeight, updatedShipment.PpmShipment.EstimatedWeight)
+					suite.Equal(desiredShipment.HasProGear, updatedShipment.PpmShipment.HasProGear)
+					suite.Equal(desiredShipment.ProGearWeight, updatedShipment.PpmShipment.ProGearWeight)
+					suite.Equal(desiredShipment.SpouseProGearWeight, updatedShipment.PpmShipment.SpouseProGearWeight)
+				},
+			},
+			"Remove pro gear": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							EstimatedWeight:     models.PoundPointer(4000),
+							HasProGear:          models.BoolPointer(true),
+							ProGearWeight:       models.PoundPointer(1250),
+							SpouseProGearWeight: models.PoundPointer(150),
+							EstimatedIncentive:  models.CentPointer(unit.Cents(500000)),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					HasProGear: handlers.FmtBool(false),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(300000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+
+					suite.EqualPoundPointers(originalShipment.PPMShipment.EstimatedWeight, updatedShipment.PpmShipment.EstimatedWeight)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.HasProGear, updatedShipment.PpmShipment.HasProGear)
+					suite.Nil(updatedShipment.PpmShipment.ProGearWeight)
+					suite.Nil(updatedShipment.PpmShipment.SpouseProGearWeight)
+				},
+			},
+			"Add advance requested info - no advance": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							EstimatedWeight:    models.PoundPointer(4000),
+							HasProGear:         models.BoolPointer(false),
+							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					AdvanceRequested: handlers.FmtBool(false),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.AdvanceRequested)
+					suite.Nil(updatedShipment.PpmShipment.Advance)
+				},
+			},
+			"Add advance requested info - yes advance": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							EstimatedWeight:    models.PoundPointer(4000),
+							HasProGear:         models.BoolPointer(false),
+							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					AdvanceRequested: handlers.FmtBool(true),
+					Advance:          handlers.FmtInt64(200000),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.AdvanceRequested)
+					suite.Equal(desiredShipment.Advance, updatedShipment.PpmShipment.Advance)
+				},
+			},
+			"Remove advance requested": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							EstimatedWeight:    models.PoundPointer(4000),
+							HasProGear:         models.BoolPointer(false),
+							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+							AdvanceRequested:   models.BoolPointer(true),
+							Advance:            models.CentPointer(unit.Cents(200000)),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					AdvanceRequested: handlers.FmtBool(false),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.AdvanceRequested)
+					suite.Nil(updatedShipment.PpmShipment.Advance)
+				},
+			},
+			"Add actual zips and advance info - no advance": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							EstimatedWeight:    models.PoundPointer(4000),
+							HasProGear:         models.BoolPointer(false),
+							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+							AdvanceRequested:   models.BoolPointer(true),
+							Advance:            models.CentPointer(unit.Cents(200000)),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					ActualPickupPostalCode:      handlers.FmtString("90210"),
+					ActualDestinationPostalCode: handlers.FmtString("90210"),
+					HasReceivedAdvance:          handlers.FmtBool(false),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.ActualPickupPostalCode, updatedShipment.PpmShipment.ActualPickupPostalCode)
+					suite.Equal(desiredShipment.ActualDestinationPostalCode, updatedShipment.PpmShipment.ActualDestinationPostalCode)
+					suite.Equal(desiredShipment.HasReceivedAdvance, updatedShipment.PpmShipment.HasReceivedAdvance)
+					suite.Nil(updatedShipment.PpmShipment.AdvanceAmountReceived)
+				},
+			},
+			"Add actual zips and advance info - yes advance": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							EstimatedWeight:    models.PoundPointer(4000),
+							HasProGear:         models.BoolPointer(false),
+							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+							AdvanceRequested:   models.BoolPointer(true),
+							Advance:            models.CentPointer(unit.Cents(200000)),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					ActualPickupPostalCode:      handlers.FmtString("90210"),
+					ActualDestinationPostalCode: handlers.FmtString("90210"),
+					HasReceivedAdvance:          handlers.FmtBool(true),
+					AdvanceAmountReceived:       handlers.FmtInt64(250000),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.ActualPickupPostalCode, updatedShipment.PpmShipment.ActualPickupPostalCode)
+					suite.Equal(desiredShipment.ActualDestinationPostalCode, updatedShipment.PpmShipment.ActualDestinationPostalCode)
+					suite.Equal(desiredShipment.HasReceivedAdvance, updatedShipment.PpmShipment.HasReceivedAdvance)
+					suite.Equal(desiredShipment.AdvanceAmountReceived, updatedShipment.PpmShipment.AdvanceAmountReceived)
+				},
+			},
+			"Remove actual advance": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							EstimatedWeight:             models.PoundPointer(4000),
+							HasProGear:                  models.BoolPointer(false),
+							EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
+							AdvanceRequested:            models.BoolPointer(true),
+							Advance:                     models.CentPointer(unit.Cents(200000)),
+							ActualPickupPostalCode:      models.StringPointer("90210"),
+							ActualDestinationPostalCode: models.StringPointer("90210"),
+							HasReceivedAdvance:          models.BoolPointer(true),
+							AdvanceAmountReceived:       models.CentPointer(unit.Cents(250000)),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					HasReceivedAdvance: handlers.FmtBool(false),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
+
+					suite.Equal(originalShipment.PPMShipment.ActualPickupPostalCode, updatedShipment.PpmShipment.ActualPickupPostalCode)
+					suite.Equal(originalShipment.PPMShipment.ActualDestinationPostalCode, updatedShipment.PpmShipment.ActualDestinationPostalCode)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.HasReceivedAdvance, updatedShipment.PpmShipment.HasReceivedAdvance)
+					suite.Nil(updatedShipment.PpmShipment.AdvanceAmountReceived)
+				},
+			},
+		}
+
+		for name, tc := range ppmUpdateTestCases {
+			name := name
+			tc := tc
+
+			suite.Run(name, func() {
+				appCtx := suite.AppContextForTest()
+
+				ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("models.PPMShipment"),
+					mock.AnythingOfType("*models.PPMShipment")).
+					Return(tc.estimatedIncentive, nil).Once()
+
+				originalPPMShipment := tc.setUpOriginalPPM(appCtx)
+
+				handler, params := authRequestAndSetUpHandlerAndParams(appCtx, originalPPMShipment.Shipment, nil)
+
+				params.Body = &internalmessages.UpdateShipment{
+					ShipmentType: internalmessages.MTOShipmentTypePPM,
+					PpmShipment:  &tc.desiredShipment,
+				}
+
+				response := handler.Handle(params)
+
+				suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+				updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+				suite.NoError(updatedShipment.Validate(strfmt.Default))
+
+				// Check that existing fields are not updated
+				suite.Equal(originalPPMShipment.ShipmentID.String(), updatedShipment.ID.String())
+
+				suite.EqualCentsPointers(tc.estimatedIncentive, updatedShipment.PpmShipment.EstimatedIncentive)
+
+				tc.runChecks(updatedShipment, originalPPMShipment.Shipment, tc.desiredShipment)
+			})
+		}
 	})
 
 	suite.Run("Successful PATCH - Can update shipment status", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 
 		expectedStatus := internalmessages.MTOShipmentStatusSUBMITTED
 
@@ -723,7 +1023,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 
 		subtestData.params.Body = nil
 
@@ -733,7 +1033,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 400 -- invalid requested status update", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 
 		subtestData.params.Body.Status = internalmessages.MTOShipmentStatusREJECTED
 
@@ -743,7 +1043,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 401- permission denied - not authenticated", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 
 		updateURI := "/mto-shipments/" + subtestData.mtoShipment.ID.String()
 
@@ -760,7 +1060,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
 
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 
 		updateURI := "/mto-shipments/" + subtestData.mtoShipment.ID.String()
 
@@ -774,7 +1074,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 404 -- not found", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 
 		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("d874d002-5582-4a91-97d3-786e8f66c763"))
 		subtestData.params.MtoShipmentID = *uuidString
@@ -785,7 +1085,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
 
 		subtestData.params.IfMatch = "intentionally-bad-if-match-header-value"
 
@@ -795,15 +1095,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 500", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest())
-
 		mockUpdater := mocks.ShipmentUpdater{}
-		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
-			&mockUpdater,
-		}
 
 		err := errors.New("ServerError")
 
@@ -813,7 +1105,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
-		response := handler.Handle(subtestData.params)
+		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), &mockUpdater)
+
+		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, response)
 

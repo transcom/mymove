@@ -1,4 +1,4 @@
-const moveHistoryOperations = {
+export default {
   acknowledgeExcessWeightRisk: 'acknowledgeExcessWeightRisk',
   approveShipment: 'approveShipment', // ghc.yaml
   approveShipmentDiversion: 'approveShipmentDiversion',
@@ -7,6 +7,7 @@ const moveHistoryOperations = {
   createMTOServiceItem: 'createMTOServiceItem', // prime.yaml
   createMTOShipment: 'createMTOShipment', // internal.yaml prime.yaml
   createOrders: 'createOrders', // internal.yaml
+  requestShipmentReweigh: 'requestShipmentReweigh',
   requestShipmentCancellation: 'requestShipmentCancellation', // ghc.yaml
   requestShipmentDiversion: 'requestShipmentDiversion', // ghc.yaml
   setFinancialReviewFlag: 'setFinancialReviewFlag', // ghc.yaml
@@ -26,7 +27,6 @@ const moveHistoryOperations = {
   updateBillableWeightAsTIO: 'updateMaxBillableWeightAsTIO',
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
   updateReweigh: 'updateReweigh',
+  updateServiceItemStatus: 'updateMTOServiceItemStatus',
   updateMTOReviewedBillableWeightsAt: 'UpdateMTOReviewedBillableWeightsAt',
 };
-
-export default moveHistoryOperations;

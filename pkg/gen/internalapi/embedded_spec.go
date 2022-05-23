@@ -5092,14 +5092,41 @@ func init() {
         "eTag"
       ],
       "properties": {
+        "actualDestinationPostalCode": {
+          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualPickupPostalCode": {
+          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
         "advance": {
-          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
@@ -5121,6 +5148,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "destinationPostalCode": {
           "type": "string",
@@ -5153,6 +5186,12 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -5213,8 +5252,45 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "sitEstimatedCost": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        },
         "sitExpected": {
           "type": "boolean"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "spouseProGearWeight": {
           "type": "integer",
@@ -5235,7 +5311,8 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
+      },
+      "x-nullable": true
     },
     "PPMShipmentStatus": {
       "type": "string",
@@ -5826,6 +5903,14 @@ func init() {
         }
       }
     },
+    "SITLocationType": {
+      "description": "The list of SIT location types.",
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION"
+      ]
+    },
     "SelectedMoveType": {
       "type": "string",
       "title": "Selected Move Type",
@@ -6270,13 +6355,37 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
+        "actualDestinationPostalCode": {
+          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
+        "actualPickupPostalCode": {
+          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
         "advance": {
-          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true
@@ -6315,6 +6424,11 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
           "type": "integer",
@@ -6335,6 +6449,7 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
+          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
@@ -6342,6 +6457,7 @@ func init() {
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
@@ -11879,14 +11995,41 @@ func init() {
         "eTag"
       ],
       "properties": {
+        "actualDestinationPostalCode": {
+          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualPickupPostalCode": {
+          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
         "advance": {
-          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
@@ -11908,6 +12051,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "destinationPostalCode": {
           "type": "string",
@@ -11940,6 +12089,12 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -12000,8 +12155,45 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "sitEstimatedCost": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        },
         "sitExpected": {
           "type": "boolean"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "spouseProGearWeight": {
           "type": "integer",
@@ -12022,7 +12214,8 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
+      },
+      "x-nullable": true
     },
     "PPMShipmentStatus": {
       "type": "string",
@@ -12617,6 +12810,14 @@ func init() {
         }
       }
     },
+    "SITLocationType": {
+      "description": "The list of SIT location types.",
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION"
+      ]
+    },
     "SelectedMoveType": {
       "type": "string",
       "title": "Selected Move Type",
@@ -13061,13 +13262,37 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
+        "actualDestinationPostalCode": {
+          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
+        "actualPickupPostalCode": {
+          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
         "advance": {
-          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true
@@ -13106,6 +13331,11 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
           "type": "integer",
@@ -13126,6 +13356,7 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
+          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
@@ -13133,6 +13364,7 @@ func init() {
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
