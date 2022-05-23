@@ -246,7 +246,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		FROM
 			reweighs
 			JOIN shipments ON reweighs.shipment_id = shipments.id
-			JOIN payment_requests ON shipments.move_id = payment_requests.move_id
+			LEFT JOIN payment_requests ON shipments.move_id = payment_requests.move_id
 		GROUP BY
 			reweighs.id
 	),
