@@ -3390,17 +3390,17 @@ func init() {
           "example": "90210"
         },
         "secondaryDestinationPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "sitExpected": {
@@ -10274,17 +10274,17 @@ func init() {
           "example": "90210"
         },
         "secondaryDestinationPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "sitExpected": {
