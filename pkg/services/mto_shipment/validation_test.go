@@ -183,11 +183,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			"Non-office user": {
 				auth.Session{},
 				map[models.MTOShipmentStatus]bool{
-					models.MTOShipmentStatusSubmitted:             false,
-					models.MTOShipmentStatusApproved:              false,
-					models.MTOShipmentStatusCancellationRequested: false,
-					models.MTOShipmentStatusCanceled:              false,
-					models.MTOShipmentStatusDiversionRequested:    false,
+					models.MTOShipmentStatusSubmitted: false,
 				},
 			},
 		}

@@ -359,7 +359,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			CustomerRemarks:          &customerRemarks,
 			CounselorRemarks:         &counselorRemarks,
 		}
-		session := auth.Session{}
+		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *too.UserID,
+			OfficeUserID:    too.ID,
+		}
+		session.Roles = append(session.Roles, too.User.Roles...)
 		newShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
@@ -486,7 +492,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	suite.Run("Successfully add storage facility to shipment", func() {
 		setupTestData()
 
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
 		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
 
 		updatedShipment := models.MTOShipment{
@@ -495,7 +505,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
-		session := auth.Session{}
+		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *too.UserID,
+			OfficeUserID:    too.ID,
+		}
+		session.Roles = append(session.Roles, too.User.Roles...)
 		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
@@ -524,6 +540,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				StorageFacility: &storageFacility,
+				Status:          models.MTOShipmentStatusSubmitted,
 			},
 		})
 
@@ -548,7 +565,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-		session := auth.Session{}
+		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *too.UserID,
+			OfficeUserID:    too.ID,
+		}
+		session.Roles = append(session.Roles, too.User.Roles...)
 		updatedShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &newShipment, eTag)
 		suite.Require().NoError(err)
 		suite.NotEqual(uuid.Nil, updatedShipment.ID)
@@ -559,7 +582,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	suite.Run("Successfully update NTS previously recorded weight to shipment", func() {
 		setupTestData()
 
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
 
 		ntsRecorededWeight := unit.Pound(980)
 		updatedShipment := models.MTOShipment{
@@ -568,7 +595,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			NTSRecordedWeight: &ntsRecorededWeight,
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-		session := auth.Session{}
+		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *too.UserID,
+			OfficeUserID:    too.ID,
+		}
+		session.Roles = append(session.Roles, too.User.Roles...)
 		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
 
 		suite.Require().NoError(err)
@@ -580,7 +613,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	suite.Run("Unable to update NTS previously recorded weight due to shipment type", func() {
 		setupTestData()
 
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
 
 		ntsRecorededWeight := unit.Pound(980)
 		updatedShipment := models.MTOShipment{
@@ -588,7 +625,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			NTSRecordedWeight: &ntsRecorededWeight,
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-		session := auth.Session{}
+		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *too.UserID,
+			OfficeUserID:    too.ID,
+		}
+		session.Roles = append(session.Roles, too.User.Roles...)
 		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
 
 		suite.Require().Error(err)
@@ -1663,7 +1706,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 			SACType: &nullLOAType,
 		}
 
-		session := auth.Session{}
+		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *too.UserID,
+			OfficeUserID:    too.ID,
+		}
+		session.Roles = append(session.Roles, too.User.Roles...)
 		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), requestedUpdate, etag.GenerateEtag(ntsMove.MTOShipments[0].UpdatedAt))
 		suite.NoError(err)
 		suite.Equal(nil, nil)
@@ -1691,7 +1740,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 			TACType: &hhgLOAType,
 		}
 
-		session := auth.Session{}
+		too := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *too.UserID,
+			OfficeUserID:    too.ID,
+		}
+		session.Roles = append(session.Roles, too.User.Roles...)
 		updatedMtoShipment, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), requestedUpdate, etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.Equal(*requestedUpdate.TACType, *updatedMtoShipment.TACType)
