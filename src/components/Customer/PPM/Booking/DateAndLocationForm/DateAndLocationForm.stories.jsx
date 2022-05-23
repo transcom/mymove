@@ -73,12 +73,6 @@ MTOShipmentDatesAndLocation.args = {
   },
 };
 
-function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
 export const ErrorDatesAndLocation = Template.bind({});
 ErrorDatesAndLocation.args = {
   onSubmit: action('submit button clicked'),
@@ -97,8 +91,6 @@ ErrorDatesAndLocation.args = {
   postalCodeValidator: () => UnsupportedZipCodePPMErrorMsg,
 };
 ErrorDatesAndLocation.play = async ({ canvasElement }) => {
-  await sleep(1000);
-
   const canvas = within(canvasElement);
 
   await expect(canvas.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
