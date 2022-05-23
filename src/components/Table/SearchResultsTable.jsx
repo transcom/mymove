@@ -76,7 +76,7 @@ const SearchResultsTable = (props) => {
       },
       defaultColumn, // Be sure to pass the defaultColumn option
       manualFilters,
-      manualPagination: true,
+      manualPagination: true, // TODO if we make this false can we not pass any page info in?
       pageCount,
       manualSortBy,
       disableMultiSort,
@@ -108,7 +108,6 @@ const SearchResultsTable = (props) => {
       <h2>{`${title} (${totalCount})`}</h2>
       {totalCount > 0 ? (
         <div className={styles.tableContainer}>
-          <p>{JSON.stringify(data)}</p>
           <Table
             showFilters={showFilters}
             showPagination={showPagination}

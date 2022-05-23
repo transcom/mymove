@@ -1,3 +1,15 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/colors';
+
 .QAECSRMoveSearch {
+  @include u-padding-y(3);
+  @include u-padding-x(4);
+  @include u-bg('white');
+  @include u-radius(4px);
+  @include u-margin-x(3);
+  border: 1px solid $border-color;
 }
 
+#searchText {
+  width: 350px;
+}

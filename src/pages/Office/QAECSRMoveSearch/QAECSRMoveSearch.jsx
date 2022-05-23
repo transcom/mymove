@@ -3,6 +3,7 @@ import { Formik, Field } from 'formik';
 import { withRouter } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
+import classnames from 'classnames';
 
 import styles from './QAECSRMoveSearch.module.scss';
 
@@ -129,6 +130,7 @@ const QAECSRMoveSearch = ({ history }) => {
   const tableData = useMemo(() => data, [data]);
   return (
     <>
+      <h1>Search for a move</h1>
       <Formik
         initialValues={{ searchType: 'moveCode', searchText: '' }}
         onSubmit={onSubmit}
@@ -136,12 +138,12 @@ const QAECSRMoveSearch = ({ history }) => {
       >
         {(formik) => {
           return (
-            <Form className={formStyles.form} onSubmit={formik.handleSubmit}>
-              {formik.isValid && <p>isValid</p>}
-              {formik.isSubmitting && <p>isSubmitting</p>}
-              <p>{formik.values.searchType}</p>
-              <p>{formik.values.searchText}</p>
-              <p>{JSON.stringify(formik.errors)}</p>
+            <Form
+              className={classnames(formStyles.form, styles.QAECSRMoveSearch)}
+              onSubmit={formik.handleSubmit}
+              role="search"
+            >
+              <h3>What do you want to search for?</h3>
               <div role="group" aria-labelledby="my-radio-group" className="usa-radio">
                 <label htmlFor="radio-picked-one">
                   <Field id="radio-picked-one" type="radio" name="searchType" value="moveCode" />
@@ -153,8 +155,14 @@ const QAECSRMoveSearch = ({ history }) => {
                 </label>
               </div>
               <div className="usa-search">
-                <TextField label="Search" name="searchText" />
-                <Button type="submit" disabled={!formik.isValid}>
+                <TextField
+                  id="searchText"
+                  className="usa-search__input"
+                  label="Search"
+                  name="searchText"
+                  type="search"
+                />
+                <Button className="usa-search__submit" type="submit" disabled={!formik.isValid}>
                   Search
                 </Button>
               </div>
@@ -165,23 +173,21 @@ const QAECSRMoveSearch = ({ history }) => {
       {isLoading && <LoadingPlaceholder />}
       {isError && <SomethingWentWrong />}
       {searchHappened && (
-        <div className={styles.MoveQueue}>
-          <SearchResultsTable
-            showFilters
-            showPagination
-            defaultCanSort
-            defaultSortedColumns={[{ id: 'status', desc: false }]}
-            disableMultiSort
-            manualSortBy={false}
-            manualFilters={false}
-            disableSortBy={false}
-            columns={tableColumns}
-            title="Results"
-            handleClick={handleClick}
-            useQueries={useQAECSRMoveSearchQueries}
-            data={tableData}
-          />
-        </div>
+        <SearchResultsTable
+          showFilters
+          showPagination
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'status', desc: false }]}
+          disableMultiSort
+          manualSortBy={false}
+          manualFilters={false}
+          disableSortBy={false}
+          columns={tableColumns}
+          title="Results"
+          handleClick={handleClick}
+          useQueries={useQAECSRMoveSearchQueries}
+          data={tableData}
+        />
       )}
     </>
   );
