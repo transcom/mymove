@@ -41,7 +41,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jstemmer/go-junit-report v1.0.0
 	github.com/jung-kurt/gofpdf v1.16.2
-	github.com/lib/pq v1.10.5
+	github.com/lib/pq v1.10.6
 	github.com/luna-duclos/instrumentedsql v1.1.3
 	github.com/markbates/goth v1.72.0
 	github.com/mitchellh/mapstructure v1.5.0
