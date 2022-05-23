@@ -97,5 +97,5 @@ ErrorEstimatedWeightsProGear.args = {
 };
 ErrorEstimatedWeightsProGear.play = async () => {
   // See https://storybook.js.org/docs/react/essentials/actions#automatically-matching-args to learn how to setup logging in the Actions panel
-  await userEvent.click(await screen.getByRole('button', { name: 'Save & Continue' }));
+  await userEvent.click(await screen.findByRole('button', { name: 'Save & Continue' }));
 };

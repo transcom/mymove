@@ -25,8 +25,8 @@ export default {
 
 const Template = (args) => <AboutForm {...args} />;
 
-export const BlankAboutPPMForm = Template.bind({});
-BlankAboutPPMForm.args = {
+export const Blank = Template.bind({});
+Blank.args = {
   mtoShipment: {
     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
@@ -36,8 +36,8 @@ BlankAboutPPMForm.args = {
   postalCodeValidator: () => {},
 };
 
-export const RequiredValuesAboutPPMForm = Template.bind({});
-RequiredValuesAboutPPMForm.args = {
+export const RequiredValues = Template.bind({});
+RequiredValues.args = {
   mtoShipment: {
     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
@@ -52,8 +52,8 @@ RequiredValuesAboutPPMForm.args = {
   postalCodeValidator: () => {},
 };
 
-export const OptionalValuesAboutPPMForm = Template.bind({});
-OptionalValuesAboutPPMForm.args = {
+export const OptionalValues = Template.bind({});
+OptionalValues.args = {
   mtoShipment: {
     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
@@ -69,8 +69,8 @@ OptionalValuesAboutPPMForm.args = {
   postalCodeValidator: () => {},
 };
 
-export const RequiredErrorsAboutPPMForm = Template.bind({});
-RequiredErrorsAboutPPMForm.args = {
+export const RequiredErrors = Template.bind({});
+RequiredErrors.args = {
   mtoShipment: {
     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
@@ -82,16 +82,16 @@ RequiredErrorsAboutPPMForm.args = {
   postalCodeValidator: () => {},
 };
 
-RequiredErrorsAboutPPMForm.play = async ({ canvasElement }) => {
+RequiredErrors.play = async ({ canvasElement }) => {
   // Starts querying the component from its root element
   const canvas = within(canvasElement);
 
   await userEvent.click(canvas.getByText('Save & Continue'));
 };
 
-export const InvalidZIPsAboutPPMForm = Template.bind({});
-InvalidZIPsAboutPPMForm.storyName = 'Invalid ZIPs About PPM Form';
-InvalidZIPsAboutPPMForm.args = {
+export const InvalidZIPs = Template.bind({});
+InvalidZIPs.storyName = 'Invalid ZIPs About PPM Form';
+InvalidZIPs.args = {
   mtoShipment: {
     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
@@ -105,7 +105,7 @@ InvalidZIPsAboutPPMForm.args = {
   postalCodeValidator: () => UnsupportedZipCodePPMErrorMsg,
 };
 
-InvalidZIPsAboutPPMForm.play = async ({ canvasElement }) => {
+InvalidZIPs.play = async ({ canvasElement }) => {
   // Starts querying the component from its root element
   const canvas = within(canvasElement);
 
