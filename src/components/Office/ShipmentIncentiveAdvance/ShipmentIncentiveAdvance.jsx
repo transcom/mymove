@@ -11,8 +11,6 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
   const advanceRequested = !!advanceInput.value;
-  const [amountInput] = useField('advance');
-  const amountRequested = Number(amountInput.value || '0');
 
   const formattedIncentive = ((estimatedIncentive || 0) / 100).toLocaleString('en-US', {
     style: 'currency',
@@ -77,12 +75,6 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
                     prefix="$"
-                    error={amountRequested > maximumAdvance}
-                    errorMessage={
-                      amountRequested > maximumAdvance
-                        ? 'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)'
-                        : ''
-                    }
                   />
                 </FormGroup>
 

@@ -107,7 +107,6 @@ const ShipmentForm = ({
   };
 
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
-  const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, userRole);
 
   const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
@@ -129,6 +128,13 @@ const ShipmentForm = ({
           ? { userRole, shipmentType }
           : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
       );
+
+  const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(
+    shipmentType,
+    userRole,
+    initialValues.estimatedIncentive || 0,
+  );
+
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
 
@@ -489,7 +495,7 @@ const ShipmentForm = ({
                 )}
 
                 {isPPM && isAdvancePage && (
-                  <ShipmentIncentiveAdvance estimatedIncentive={initialValues.estimatedIncentive} />
+                  <ShipmentIncentiveAdvance estimatedIncentive={mtoShipment.ppmShipment?.estimatedIncentive} />
                 )}
 
                 {(!isPPM || (isPPM && isAdvancePage)) && (
