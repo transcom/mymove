@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -15,13 +17,15 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 
 	const (
 		PPMShipmentStateDatesAndLocations         PPMShipmentState = 1
-		PPMShipmentStateEstimatedWeights          PPMShipmentState = 2
-		PPMShipmentStateAdvance                   PPMShipmentState = 3
-		PPMShipmentStateActualDatesZipsAndAdvance PPMShipmentState = 4
+		PPMShipmentSIT                            PPMShipmentState = 2
+		PPMShipmentStateEstimatedWeights          PPMShipmentState = 3
+		PPMShipmentStateAdvance                   PPMShipmentState = 4
+		PPMShipmentStateActualDatesZipsAndAdvance PPMShipmentState = 5
 	)
 
 	type flags struct {
 		hasSecondaryZips    bool
+		hasSIT              bool
 		hasProGear          bool
 		hasRequestedAdvance bool
 		hasReceivedAdvance  bool
@@ -39,12 +43,23 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			ExpectedDepartureDate: time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC),
 			PickupPostalCode:      "90210",
 			DestinationPostalCode: "08004",
-			SitExpected:           models.BoolPointer(false),
 		}
 
 		if oldFlags.hasSecondaryZips {
 			oldShipment.SecondaryPickupPostalCode = models.StringPointer("90880")
 			oldShipment.SecondaryDestinationPostalCode = models.StringPointer("08900")
+		}
+
+		if ppmState >= PPMShipmentSIT {
+			oldShipment.SitExpected = &oldFlags.hasSIT
+
+			if oldFlags.hasSIT {
+				SITLocationOrigin := models.SITLocationTypeOrigin
+				oldShipment.SITLocation = &SITLocationOrigin
+				oldShipment.SITEstimatedWeight = models.PoundPointer(unit.Pound(400))
+				oldShipment.SITEstimatedEntryDate = models.TimePointer(testdatagen.NextValidMoveDate)
+				oldShipment.SITEstimatedDepartureDate = models.TimePointer(testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek))
+			}
 		}
 
 		if ppmState >= PPMShipmentStateEstimatedWeights {
@@ -88,7 +103,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		suite.Equal(oldShipment.ExpectedDepartureDate, mergedShipment.ExpectedDepartureDate)
 		suite.Equal(oldShipment.PickupPostalCode, mergedShipment.PickupPostalCode)
 		suite.Equal(oldShipment.DestinationPostalCode, mergedShipment.DestinationPostalCode)
-		suite.Equal(oldShipment.SitExpected, mergedShipment.SitExpected)
 	}
 
 	// checkEstimatedWeightsDidntChange - ensures estimated weights fields didn't change
@@ -98,6 +112,17 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		suite.Equal(oldShipment.ProGearWeight, mergedShipment.ProGearWeight)
 		suite.Equal(oldShipment.SpouseProGearWeight, mergedShipment.SpouseProGearWeight)
 	}
+
+	// checkEstimatedWeightsDidntChange - ensures estimated weights fields didn't change
+	checkSITDidntChange := func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment) {
+		suite.Equal(oldShipment.SitExpected, mergedShipment.SitExpected)
+		suite.Equal(oldShipment.SITLocation, mergedShipment.SITLocation)
+		suite.Equal(oldShipment.SITEstimatedWeight, mergedShipment.SITEstimatedWeight)
+		suite.Equal(oldShipment.SITEstimatedEntryDate, mergedShipment.SITEstimatedEntryDate)
+		suite.Equal(oldShipment.SITEstimatedDepartureDate, mergedShipment.SITEstimatedDepartureDate)
+	}
+
+	SITLocationOrigin := models.SITLocationTypeOrigin
 
 	mergeTestCases := map[string]struct {
 		oldState    PPMShipmentState
@@ -109,6 +134,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateDatesAndLocations,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          false,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -128,6 +154,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateDatesAndLocations,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          false,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -150,6 +177,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateDatesAndLocations,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          false,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -161,6 +189,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.SecondaryPickupPostalCode, mergedShipment.SecondaryPickupPostalCode)
@@ -171,6 +200,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateDatesAndLocations,
 			oldFlags: flags{
 				hasSecondaryZips:    true,
+				hasSIT:              false,
 				hasProGear:          false,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -182,6 +212,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				// ensure fields were set correctly
 				suite.Nil(mergedShipment.SecondaryPickupPostalCode)
@@ -192,6 +223,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateDatesAndLocations,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          false,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -203,6 +235,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.EstimatedWeight, mergedShipment.EstimatedWeight)
@@ -215,6 +248,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateDatesAndLocations,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          false,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -228,6 +262,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.EstimatedWeight, mergedShipment.EstimatedWeight)
@@ -240,6 +275,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateEstimatedWeights,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          true,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -251,6 +287,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				suite.Equal(oldShipment.EstimatedWeight, mergedShipment.EstimatedWeight)
 				suite.Equal(oldShipment.HasProGear, mergedShipment.HasProGear)
@@ -264,6 +301,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateEstimatedWeights,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          true,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -274,6 +312,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				suite.Equal(oldShipment.EstimatedWeight, mergedShipment.EstimatedWeight)
 
@@ -287,6 +326,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateEstimatedWeights,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          true,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -299,6 +339,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
@@ -311,6 +352,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateEstimatedWeights,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          true,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -325,6 +367,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
@@ -337,6 +380,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateAdvance,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          true,
 				hasRequestedAdvance: true,
 				hasReceivedAdvance:  false,
@@ -349,6 +393,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
@@ -361,6 +406,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateAdvance,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          true,
 				hasRequestedAdvance: false,
 				hasReceivedAdvance:  false,
@@ -374,6 +420,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				suite.Equal(oldShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
 				suite.Equal(oldShipment.HasRequestedAdvance, mergedShipment.HasRequestedAdvance)
@@ -391,6 +438,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateAdvance,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          true,
 				hasRequestedAdvance: true,
 				hasReceivedAdvance:  false,
@@ -405,6 +453,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				suite.Equal(oldShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
 				suite.Equal(oldShipment.HasRequestedAdvance, mergedShipment.HasRequestedAdvance)
@@ -422,6 +471,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldState: PPMShipmentStateActualDatesZipsAndAdvance,
 			oldFlags: flags{
 				hasSecondaryZips:    false,
+				hasSIT:              false,
 				hasProGear:          true,
 				hasRequestedAdvance: true,
 				hasReceivedAdvance:  true,
@@ -433,6 +483,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
 				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
 
 				suite.Equal(oldShipment.AdvanceRequested, mergedShipment.AdvanceRequested)
 				suite.Equal(oldShipment.HasRequestedAdvance, mergedShipment.HasRequestedAdvance)
@@ -444,6 +495,60 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				// ensure fields were set correctly
 				suite.Equal(newShipment.HasReceivedAdvance, mergedShipment.HasReceivedAdvance)
 				suite.Nil(mergedShipment.AdvanceAmountReceived)
+			},
+		},
+		"Add SIT info - SIT expected ": {
+			oldState: PPMShipmentStateDatesAndLocations,
+			oldFlags: flags{
+				hasSecondaryZips:    false,
+				hasSIT:              false,
+				hasProGear:          false,
+				hasRequestedAdvance: false,
+				hasReceivedAdvance:  false,
+			},
+			newShipment: models.PPMShipment{
+				SitExpected:               models.BoolPointer(true),
+				SITLocation:               &SITLocationOrigin,
+				SITEstimatedWeight:        models.PoundPointer(unit.Pound(400)),
+				SITEstimatedEntryDate:     models.TimePointer(testdatagen.NextValidMoveDate),
+				SITEstimatedDepartureDate: models.TimePointer(testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek)),
+			},
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+				// ensure existing fields weren't changed
+				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
+				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
+
+				// ensure fields were set correctly
+				suite.Equal(newShipment.SitExpected, mergedShipment.SitExpected)
+				suite.Equal(newShipment.SITLocation, mergedShipment.SITLocation)
+				suite.Equal(newShipment.SITEstimatedWeight, mergedShipment.SITEstimatedWeight)
+				suite.Equal(newShipment.SITEstimatedEntryDate, mergedShipment.SITEstimatedEntryDate)
+				suite.Equal(newShipment.SITEstimatedDepartureDate, mergedShipment.SITEstimatedDepartureDate)
+			},
+		},
+		"Remove SIT info - SIT not expected": {
+			oldState: PPMShipmentStateEstimatedWeights,
+			oldFlags: flags{
+				hasSecondaryZips:    false,
+				hasSIT:              true,
+				hasProGear:          true,
+				hasRequestedAdvance: false,
+				hasReceivedAdvance:  false,
+			},
+			newShipment: models.PPMShipment{
+				SitExpected: models.BoolPointer(false),
+			},
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+				// ensure existing fields weren't changed
+				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
+				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
+
+				// ensure fields were set correctly
+				suite.Equal(newShipment.SitExpected, mergedShipment.SitExpected)
+				suite.Nil(mergedShipment.SITLocation)
+				suite.Nil(mergedShipment.SITEstimatedWeight)
+				suite.Nil(mergedShipment.SITEstimatedEntryDate)
+				suite.Nil(mergedShipment.SITEstimatedDepartureDate)
 			},
 		},
 	}
