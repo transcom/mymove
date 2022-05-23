@@ -685,7 +685,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Edit estimated dates & locations - add secondary zips": {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							SecondaryPickupPostalCode:      models.StringPointer("90900"),
+							SecondaryDestinationPostalCode: models.StringPointer("79916"),
+						},
+					})
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					SecondaryPickupPostalCode:      nullable.NewString("90900"),
@@ -696,8 +701,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
 
 					// check new fields were set
-					suite.Equal(desiredShipment.SecondaryPickupPostalCode, updatedShipment.PpmShipment.SecondaryPickupPostalCode)
-					suite.Equal(desiredShipment.SecondaryDestinationPostalCode, updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+					suite.Equal(desiredShipment.SecondaryPickupPostalCode, nullable.NewString(*updatedShipment.PpmShipment.SecondaryPickupPostalCode))
+					suite.Equal(desiredShipment.SecondaryDestinationPostalCode, nullable.NewString(*updatedShipment.PpmShipment.SecondaryDestinationPostalCode))
 				},
 			},
 			"Edit estimated dates & locations - remove secondary zips": {
@@ -871,11 +876,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 						PPMShipment: models.PPMShipment{
-							EstimatedWeight:    models.PoundPointer(4000),
-							HasProGear:         models.BoolPointer(false),
-							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
-							AdvanceRequested:   models.BoolPointer(true),
-							Advance:            models.CentPointer(unit.Cents(200000)),
+							ActualPickupPostalCode:      models.StringPointer("90210"),
+							ActualDestinationPostalCode: models.StringPointer("90210"),
+							EstimatedWeight:             models.PoundPointer(4000),
+							HasProGear:                  models.BoolPointer(false),
+							EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
+							AdvanceRequested:            models.BoolPointer(true),
+							Advance:                     models.CentPointer(unit.Cents(200000)),
 						},
 					})
 				},
@@ -902,11 +909,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 						PPMShipment: models.PPMShipment{
-							EstimatedWeight:    models.PoundPointer(4000),
-							HasProGear:         models.BoolPointer(false),
-							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
-							AdvanceRequested:   models.BoolPointer(true),
-							Advance:            models.CentPointer(unit.Cents(200000)),
+							ActualPickupPostalCode:      models.StringPointer("90210"),
+							ActualDestinationPostalCode: models.StringPointer("90210"),
+							EstimatedWeight:             models.PoundPointer(4000),
+							HasProGear:                  models.BoolPointer(false),
+							EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
+							AdvanceRequested:            models.BoolPointer(true),
+							Advance:                     models.CentPointer(unit.Cents(200000)),
 						},
 					})
 				},
