@@ -186,7 +186,8 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 					payment_service_items.price_cents::TEXT,
 					'status',
 					payment_service_items.status))::TEXT AS context,
-			payment_requests.id AS id
+			payment_requests.id AS id,
+			payment_requests.payment_request_number
 		FROM
 			payment_requests
 		JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
@@ -213,19 +214,19 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	),
 	proof_of_service_docs AS (
 		SELECT
-			proof_of_service_docs.*
+			proof_of_service_docs.*,
+			json_agg(json_build_object(
+				'payment_request_number',
+				payment_requests.payment_request_number::TEXT))::TEXT AS context
 		FROM
 			proof_of_service_docs
 				JOIN payment_requests ON proof_of_service_docs.payment_request_id = payment_requests.id
-				JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
-				JOIN mto_service_items ON mto_service_items.id = mto_service_item_id
-				JOIN re_services ON mto_service_items.re_service_id = re_services.id
 		GROUP BY proof_of_service_docs.id
 	),
 	proof_of_service_docs_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			context,
 			NULL AS context_id
 		FROM
 			audit_history
