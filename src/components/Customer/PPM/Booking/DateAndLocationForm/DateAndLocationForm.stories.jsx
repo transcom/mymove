@@ -94,5 +94,5 @@ ErrorDatesAndLocation.play = async ({ canvasElement }) => {
   const canvas = within(canvasElement);
 
   // See https://storybook.js.org/docs/react/essentials/actions#automatically-matching-args to learn how to setup logging in the Actions panel
-  await userEvent.click(canvas.getByText('Save & Continue'));
+  await userEvent.click(await canvas.getByRole('button', { name: 'Save & Continue' }));
 };
