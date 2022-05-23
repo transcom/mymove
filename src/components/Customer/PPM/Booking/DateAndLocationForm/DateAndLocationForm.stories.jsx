@@ -1,7 +1,7 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
-import { within, userEvent, waitFor } from '@storybook/testing-library';
+import { screen, userEvent } from '@storybook/testing-library';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
@@ -89,13 +89,7 @@ ErrorDatesAndLocation.args = {
   },
   postalCodeValidator: () => UnsupportedZipCodePPMErrorMsg,
 };
-ErrorDatesAndLocation.play = async ({ canvasElement }) => {
-  // Starts querying the component from its root element
-  const canvas = within(canvasElement);
-
-  await waitFor(() => {
-    canvas.getByRole('button', { name: 'Save & Continue' });
-  });
+ErrorDatesAndLocation.play = async () => {
   // See https://storybook.js.org/docs/react/essentials/actions#automatically-matching-args to learn how to setup logging in the Actions panel
-  await userEvent.click(canvas.getByRole('button', { name: 'Save & Continue' }));
+  await userEvent.click(await screen.getByRole('button', { name: 'Save & Continue' }));
 };
