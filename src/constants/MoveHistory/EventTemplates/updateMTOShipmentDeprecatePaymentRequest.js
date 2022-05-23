@@ -11,6 +11,9 @@ export default {
   detailsType: d.STATUS,
   getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
   getStatusDetails: ({ changedValues }) => {
+    if (changedValues.recalculation_of_payment_request_id) {
+      return 'Recalculated payment request';
+    }
     const { status } = changedValues;
     return PAYMENT_REQUEST_STATUS_LABELS[status];
   },
