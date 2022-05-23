@@ -86,8 +86,10 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupPostalCode:               &ppmShipment.PickupPostalCode,
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
@@ -95,8 +97,10 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
-		Advance:                        handlers.FmtCost(ppmShipment.Advance),
 		AdvanceRequested:               ppmShipment.AdvanceRequested,
+		Advance:                        handlers.FmtCost(ppmShipment.Advance),
+		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
+		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
