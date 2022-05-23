@@ -2,7 +2,7 @@ import React from 'react';
 import { expect } from '@storybook/jest';
 import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
-import { within, userEvent, waitFor } from '@storybook/testing-library';
+import { within, userEvent } from '@storybook/testing-library';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
@@ -31,7 +31,7 @@ BlankDatesAndLocation.args = {
   onBack: action('back button clicked'),
   serviceMember: {
     id: '123',
-    residentialAddress: {
+    residential_address: {
       postalCode: '90210',
     },
   },
@@ -73,6 +73,12 @@ MTOShipmentDatesAndLocation.args = {
   },
 };
 
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 export const ErrorDatesAndLocation = Template.bind({});
 ErrorDatesAndLocation.args = {
   onSubmit: action('submit button clicked'),
@@ -91,11 +97,11 @@ ErrorDatesAndLocation.args = {
   postalCodeValidator: () => UnsupportedZipCodePPMErrorMsg,
 };
 ErrorDatesAndLocation.play = async ({ canvasElement }) => {
+  await sleep(1000);
+
   const canvas = within(canvasElement);
 
-  await waitFor(() => {
-    expect(canvas.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
-  });
+  await expect(canvas.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
   await userEvent.click(canvas.getByRole('button', { name: 'Save & Continue' }));
 };
