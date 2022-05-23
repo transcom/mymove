@@ -28,7 +28,12 @@ import { shipmentDestinationTypes } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MtoShipmentShape } from 'types/customerShapes';
-import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
+import {
+  formatMtoShipmentForAPI,
+  formatMtoShipmentForDisplay,
+  formatPpmShipmentForAPI,
+  formatPpmShipmentForDisplay,
+} from 'utils/formatMtoShipment';
 import { MatchShape } from 'types/officeShapes';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { validateDate } from 'utils/validation';
@@ -36,6 +41,9 @@ import { deleteShipment } from 'services/ghcApi';
 import { officeRoles, roleTypes } from 'constants/userRoles';
 import ShipmentFormRemarks from 'components/Office/ShipmentFormRemarks/ShipmentFormRemarks';
 import ShipmentVendor from 'components/Office/ShipmentVendor/ShipmentVendor';
+import ShipmentCustomerSIT from 'components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT';
+import ShipmentIncentiveAdvance from 'components/Office/ShipmentIncentiveAdvance/ShipmentIncentiveAdvance';
+import ShipmentWeight from 'components/Office/ShipmentWeight/ShipmentWeight';
 
 const ShipmentForm = ({
   match,
@@ -54,6 +62,7 @@ const ShipmentForm = ({
   SACs,
   userRole,
   displayDestinationType,
+  isAdvancePage,
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
@@ -113,11 +122,13 @@ const ShipmentForm = ({
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
   const shipmentNumber = isHHG ? getShipmentNumber() : null;
-  const initialValues = formatMtoShipmentForDisplay(
-    isCreatePage
-      ? { userRole, shipmentType }
-      : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
-  );
+  const initialValues = isPPM
+    ? formatPpmShipmentForDisplay(isCreatePage ? { userRole } : { userRole, ppmShipment: mtoShipment.ppmShipment })
+    : formatMtoShipmentForDisplay(
+        isCreatePage
+          ? { userRole, shipmentType }
+          : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+      );
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
 
@@ -127,25 +138,50 @@ const ShipmentForm = ({
   const editOrdersRoute = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
   const editOrdersPath = generatePath(editOrdersRoute, { moveCode });
 
-  const submitMTOShipment = ({
-    shipmentOption,
-    pickup,
-    hasDeliveryAddress,
-    delivery,
-    customerRemarks,
-    counselorRemarks,
-    ntsRecordedWeight,
-    tacType,
-    sacType,
-    serviceOrderNumber,
-    storageFacility,
-    usesExternalVendor,
-    destinationType,
-  }) => {
+  const submitMTOShipment = (formValues) => {
     if (isPPM) {
-      // todo
+      const ppmShipment = formatPpmShipmentForAPI(formValues);
+
+      if (isCreatePage) {
+        const body = { ...ppmShipment, moveTaskOrderID };
+        submitHandler({ body, normalize: false })
+          .then((newShipment) => {
+            const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+              moveCode,
+              shipmentId: newShipment.id,
+            });
+
+            const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+              moveCode,
+              shipmentId: newShipment.id,
+            });
+
+            history.replace(currentPath);
+            history.push(advancePath);
+          })
+          .catch(() => {
+            setErrorMessage(`A server error occurred adding the shipment`);
+          });
+      }
+
       return;
     }
+
+    const {
+      shipmentOption,
+      pickup,
+      hasDeliveryAddress,
+      delivery,
+      customerRemarks,
+      counselorRemarks,
+      ntsRecordedWeight,
+      tacType,
+      sacType,
+      serviceOrderNumber,
+      storageFacility,
+      usesExternalVendor,
+      destinationType,
+    } = formValues;
 
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
@@ -446,11 +482,23 @@ const ShipmentForm = ({
                   </SectionWrapper>
                 )}
 
-                <ShipmentFormRemarks
-                  userRole={userRole}
-                  customerRemarks={mtoShipment.customerRemarks}
-                  counselorRemarks={mtoShipment.counselorRemarks}
-                />
+                {isPPM && !isAdvancePage && <ShipmentCustomerSIT />}
+
+                {isPPM && !isAdvancePage && (
+                  <ShipmentWeight authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()} />
+                )}
+
+                {isPPM && isAdvancePage && (
+                  <ShipmentIncentiveAdvance estimatedIncentive={initialValues.estimatedIncentive} />
+                )}
+
+                {(!isPPM || (isPPM && isAdvancePage)) && (
+                  <ShipmentFormRemarks
+                    userRole={userRole}
+                    customerRemarks={mtoShipment.customerRemarks}
+                    counselorRemarks={mtoShipment.counselorRemarks}
+                  />
+                )}
 
                 {showAccountingCodes && (
                   <ShipmentAccountingCodes
@@ -524,6 +572,7 @@ ShipmentForm.propTypes = {
   SACs: AccountingCodesShape,
   userRole: oneOf(officeRoles).isRequired,
   displayDestinationType: bool,
+  isAdvancePage: bool,
 };
 
 ShipmentForm.defaultProps = {
@@ -552,6 +601,7 @@ ShipmentForm.defaultProps = {
   TACs: {},
   SACs: {},
   displayDestinationType: false,
+  isAdvancePage: false,
 };
 
 export default ShipmentForm;

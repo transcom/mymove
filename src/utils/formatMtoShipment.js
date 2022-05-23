@@ -85,6 +85,25 @@ const emptyAddressShape = {
   postalCode: '',
 };
 
+export function formatPpmShipmentForDisplay({ ppmShipment = {} }) {
+  const displayValues = {
+    sitExpected: ppmShipment.sitExpected,
+    sitLocation: ppmShipment.sitLocation,
+    sitEstimatedWeight: (ppmShipment.sitEstimatedWeight || '').toString(),
+    sitEstimatedEntryDate: ppmShipment.sitEstimatedEntryDate,
+    sitEstimatedDepartureDate: ppmShipment.sitEstimatedDepartureDate,
+    hasProGear: !!ppmShipment.hasProGear,
+    proGearWeight: (ppmShipment.proGearWeight || '').toString(),
+    spouseProGearWeight: (ppmShipment.spouseProGearWeight || '').toString(),
+    estimatedWeight: (ppmShipment.estimatedWeight || '').toString(),
+    estimatedIncentive: ppmShipment.estimatedIncentive,
+    advanceRequested: ppmShipment.advanceRequested ? 'Yes' : 'No',
+    advance: (ppmShipment.advance || '').toString(),
+  };
+
+  return displayValues;
+}
+
 /**
  * formatMtoShipmentForDisplay converts mtoShipment data from the format API calls expect to the template format
  * @param {*} mtoShipment - (see MtoShipmentShape)
@@ -206,6 +225,44 @@ export function formatMtoShipmentForDisplay({
   }
 
   return displayValues;
+}
+
+export function formatPpmShipmentForAPI(formValues) {
+  let ppmShipmentValues = {
+    expectedDepartureDate: '2022-01-01',
+    pickupPostalCode: '53719',
+    destinationPostalCode: '08004',
+    sitExpected: !!formValues.sitExpected,
+    estimatedWeight: Number(formValues.estimatedWeight || '0'),
+    hasProGear: !!formValues.hasProGear,
+  };
+
+  if (formValues.hasProGear) {
+    ppmShipmentValues = {
+      ...ppmShipmentValues,
+      proGearWeight: formValues.proGearWeight ? Number(formValues.proGearWeight) : undefined,
+      spouseProGearWeight: formValues.spouseProGearWeight ? Number(formValues.spouseProGearWeight) : undefined,
+    };
+  }
+
+  if (formValues.sitExpected) {
+    ppmShipmentValues = {
+      ...ppmShipmentValues,
+      sitLocation: formValues.sitLocation,
+      sitEstimatedWeight: formValues.sitEstimatedWeight ? Number(formValues.sitEstimatedWeight || '0') : undefined,
+      sitEstimatedEntryDate: formValues.sitEstimatedEntryDate
+        ? formatDateForSwagger(formValues.sitEstimatedEntryDate)
+        : undefined,
+      sitEstimatedDepartureDate: formValues.sitEstimatedDepartureDate
+        ? formatDateForSwagger(formValues.sitEstimatedDepartureDate)
+        : undefined,
+    };
+  }
+
+  return {
+    shipmentType: 'PPM',
+    ppmShipment: ppmShipmentValues,
+  };
 }
 
 /**

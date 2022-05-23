@@ -60,10 +60,10 @@ export const withSITAndData = () => (
   <Formik
     initialValues={{
       sitExpected: true,
-      sitLocation: 'destination',
-      estimatedSITWeight: '5725',
-      estimatedSITStart: '08/05/2022',
-      estimatedSITEnd: '09/07/2022',
+      sitLocation: 'DESTINATION',
+      sitEstimatedWeight: '5725',
+      sitEstimatedEntryDate: '2022-08-05',
+      sitEstimatedDepartureDate: '2022-09-07',
     }}
   >
     {() => {

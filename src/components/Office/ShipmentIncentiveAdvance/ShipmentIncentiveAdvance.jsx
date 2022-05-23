@@ -11,7 +11,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
   const advanceRequested = !!advanceInput.value;
-  const [amountInput] = useField('amountRequested');
+  const [amountInput] = useField('advance');
   const amountRequested = Number(amountInput.value || '0');
 
   const formattedIncentive = ((estimatedIncentive || 0) / 100).toLocaleString('en-US', {
@@ -68,7 +68,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                 <FormGroup>
                   <MaskedTextField
                     defaultValue="0"
-                    name="amountRequested"
+                    name="advance"
                     label="Amount requested"
                     id="amountRequested"
                     mask={Number}

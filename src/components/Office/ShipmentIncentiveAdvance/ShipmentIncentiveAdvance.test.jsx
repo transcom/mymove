@@ -35,7 +35,7 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
 
   it('should respond to props and form values', async () => {
     render(
-      <Formik initialValues={{ advanceRequested: true, amountRequested: '7000' }}>
+      <Formik initialValues={{ advanceRequested: true, advance: '7000' }}>
         <ShipmentIncentiveAdvance estimatedIncentive={1111111} />
       </Formik>,
     );

@@ -18,7 +18,7 @@ import { updateMTOShipment } from 'services/ghcApi';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 
-const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
+const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage }) => {
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
@@ -77,6 +77,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
                 SACs={SACs}
                 userRole={roleTypes.SERVICES_COUNSELOR}
                 displayDestinationType
+                isAdvancePage={isAdvancePage}
               />
             </Grid>
           </Grid>
@@ -89,6 +90,11 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate }) => {
 ServicesCounselingEditShipmentDetails.propTypes = {
   match: MatchShape.isRequired,
   onUpdate: PropTypes.func.isRequired,
+  isAdvancePage: PropTypes.bool,
+};
+
+ServicesCounselingEditShipmentDetails.defaultProps = {
+  isAdvancePage: false,
 };
 
 export default ServicesCounselingEditShipmentDetails;

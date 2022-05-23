@@ -30,6 +30,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
       mtoShipments.push(newMTOShipment);
       queryCache.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryCache.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
+      return newMTOShipment;
     },
   });
 
