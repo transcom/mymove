@@ -110,6 +110,28 @@ describe('AdvanceForm component', () => {
         );
       });
     });
+
+    it('sets error for requested advance input if it is over allowed amount', async () => {
+      render(<AdvanceForm {...defaultProps} />);
+
+      const inputAdvanceRequested = screen.getByLabelText('Yes');
+
+      await userEvent.click(inputAdvanceRequested);
+
+      const amountRequested = screen.getByLabelText('Amount requested');
+
+      await userEvent.click(amountRequested);
+      await userEvent.type(amountRequested, '10000');
+      await userEvent.tab();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+      });
+
+      const requiredAlerts = screen.getByRole('alert');
+
+      expect(requiredAlerts).toHaveTextContent('Enter an amount $6,000 or less');
+    });
   });
 
   describe('pull values from the ppm shipment when available', () => {

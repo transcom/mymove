@@ -136,15 +136,21 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	ppmModel := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		NetWeight:                      handlers.PoundPtrFromInt64Ptr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
-		Advance:                        handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
 		AdvanceRequested:               ppmShipment.AdvanceRequested,
+		HasRequestedAdvance:            ppmShipment.AdvanceRequested,
+		Advance:                        handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
+		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
+		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
+		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 	}
 
 	if ppmShipment.ExpectedDepartureDate != nil {

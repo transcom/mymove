@@ -19,13 +19,33 @@ import (
 // swagger:model PPMShipment
 type PPMShipment struct {
 
+	// ZIP
+	//
+	// The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
+	//
+	// Example: 90210
+	// Pattern: ^(\d{5})$
+	ActualDestinationPostalCode *string `json:"actualDestinationPostalCode"`
+
 	// actual move date
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actualMoveDate"`
 
-	// The amount request for an advance, or null if no advance is requested
+	// ZIP
+	//
+	// The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
+	//
+	// Example: 90210
+	// Pattern: ^(\d{5})$
+	ActualPickupPostalCode *string `json:"actualPickupPostalCode"`
+
+	// The amount requested for an advance, or null if no advance is requested
 	//
 	Advance *int64 `json:"advance"`
+
+	// The amount received for an advance, or null if no advance is received.
+	//
+	AdvanceAmountReceived *int64 `json:"advanceAmountReceived"`
 
 	// Indicates whether an advance has been requested for the PPM shipment.
 	//
@@ -40,6 +60,10 @@ type PPMShipment struct {
 	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
+
+	// deleted at
+	// Format: date-time
+	DeletedAt *strfmt.DateTime `json:"deletedAt"`
 
 	// ZIP
 	// Example: 90210
@@ -68,6 +92,10 @@ type PPMShipment struct {
 	// Indicates whether PPM shipment has pro gear.
 	//
 	HasProGear *bool `json:"hasProGear"`
+
+	// Indicates whether an advance was received for the PPM shipment.
+	//
+	HasReceivedAdvance *bool `json:"hasReceivedAdvance"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -113,9 +141,27 @@ type PPMShipment struct {
 	// Format: uuid
 	ShipmentID strfmt.UUID `json:"shipmentId"`
 
+	// sit estimated cost
+	SitEstimatedCost *int64 `json:"sitEstimatedCost"`
+
+	// sit estimated departure date
+	// Format: date
+	SitEstimatedDepartureDate *strfmt.Date `json:"sitEstimatedDepartureDate"`
+
+	// sit estimated entry date
+	// Format: date
+	SitEstimatedEntryDate *strfmt.Date `json:"sitEstimatedEntryDate"`
+
+	// sit estimated weight
+	// Example: 2000
+	SitEstimatedWeight *int64 `json:"sitEstimatedWeight"`
+
 	// sit expected
 	// Required: true
 	SitExpected *bool `json:"sitExpected"`
+
+	// sit location
+	SitLocation *SITLocationType `json:"sitLocation,omitempty"`
 
 	// spouse pro gear weight
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight"`
@@ -139,7 +185,15 @@ type PPMShipment struct {
 func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateActualDestinationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateActualMoveDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateActualPickupPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -148,6 +202,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDeletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -187,7 +245,19 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSitEstimatedDepartureDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitEstimatedEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSitExpected(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -209,12 +279,36 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateActualDestinationPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.ActualDestinationPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("actualDestinationPostalCode", "body", *m.ActualDestinationPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateActualMoveDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ActualMoveDate) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("actualMoveDate", "body", "date", m.ActualMoveDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateActualPickupPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.ActualPickupPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("actualPickupPostalCode", "body", *m.ActualPickupPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 
@@ -240,6 +334,18 @@ func (m *PPMShipment) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateDeletedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.DeletedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -356,10 +462,53 @@ func (m *PPMShipment) validateShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateSitEstimatedDepartureDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitEstimatedDepartureDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitEstimatedDepartureDate", "body", "date", m.SitEstimatedDepartureDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateSitEstimatedEntryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitEstimatedEntryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitEstimatedEntryDate", "body", "date", m.SitEstimatedEntryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateSitExpected(formats strfmt.Registry) error {
 
 	if err := validate.Required("sitExpected", "body", m.SitExpected); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateSitLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitLocation) { // not required
+		return nil
+	}
+
+	if m.SitLocation != nil {
+		if err := m.SitLocation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitLocation")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -428,6 +577,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -473,6 +626,22 @@ func (m *PPMShipment) contextValidateShipmentID(ctx context.Context, formats str
 
 	if err := validate.ReadOnly(ctx, "shipmentId", "body", strfmt.UUID(m.ShipmentID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateSitLocation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitLocation != nil {
+		if err := m.SitLocation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitLocation")
+			}
+			return err
+		}
 	}
 
 	return nil

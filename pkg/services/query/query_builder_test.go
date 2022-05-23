@@ -34,7 +34,8 @@ type QueryBuilderSuite struct {
 func TestUserSuite(t *testing.T) {
 
 	ts := &QueryBuilderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction()),
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
@@ -54,12 +55,13 @@ func defaultAssociations() services.QueryAssociations {
 }
 
 func (suite *QueryBuilderSuite) TestFetchOne() {
-	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	builder := NewQueryBuilder()
+	validUUID := uuid.Must(uuid.NewV4())
 	var actualUser models.OfficeUser
 
-	suite.T().Run("fetches one with filter", func(t *testing.T) {
+	suite.Run("fetches one with filter", func() {
 		// create extra record to make sure we filter
+		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", equals, user.ID.String()),
@@ -81,9 +83,10 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 		suite.Equal(user2.ID, actualUser.ID)
 	})
 
-	suite.T().Run("returns error on invalid column", func(t *testing.T) {
+	suite.Run("returns error on invalid column", func() {
+
 		filters := []services.QueryFilter{
-			NewQueryFilter("fake_column", equals, user.ID.String()),
+			NewQueryFilter("fake_column", equals, validUUID.String()),
 		}
 		var actualUser models.OfficeUser
 
@@ -94,9 +97,10 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 		suite.Zero(actualUser)
 	})
 
-	suite.T().Run("returns error on invalid comparator", func(t *testing.T) {
+	suite.Run("returns error on invalid comparator", func() {
+
 		filters := []services.QueryFilter{
-			NewQueryFilter("id", "*", user.ID.String()),
+			NewQueryFilter("id", "*", validUUID.String()),
 		}
 		var actualUser models.OfficeUser
 
@@ -107,7 +111,7 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 		suite.Zero(actualUser)
 	})
 
-	suite.T().Run("fails when not pointer", func(t *testing.T) {
+	suite.Run("fails when not pointer", func() {
 		var actualUser models.OfficeUser
 
 		err := builder.FetchOne(suite.AppContextForTest(), actualUser, []services.QueryFilter{})
@@ -117,7 +121,7 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 		suite.Zero(actualUser)
 	})
 
-	suite.T().Run("fails when not pointer to struct", func(t *testing.T) {
+	suite.Run("fails when not pointer to struct", func() {
 		var i int
 
 		err := builder.FetchOne(suite.AppContextForTest(), &i, []services.QueryFilter{})
@@ -129,14 +133,17 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 }
 
 func (suite *QueryBuilderSuite) TestFetchMany() {
-	// this should be stubbed out with a model that is agnostic to our code
-	// similar to how the pop repo tests might work
-	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	builder := NewQueryBuilder()
 	var actualUsers models.OfficeUsers
 
-	suite.T().Run("fetches many with uuid filter", func(t *testing.T) {
+	suite.Run("fetches many with uuid filter", func() {
+		// Under test: FetchMany function
+		// Mocked: None
+		// Set up: Create 2 users, fetch based on first ID, fetch based on second ID
+		// Expected outcome: Each search returns the single matching record
+		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", equals, user2.ID.String()),
 		}
@@ -160,7 +167,16 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.Equal(user.ID, actualUsers[0].ID)
 	})
 
-	suite.T().Run("fetches many with time filter", func(t *testing.T) {
+	suite.Run("fetches many with time filter", func() {
+		// Under test: FetchMany function
+		// Mocked: 	None
+		// Set up: 	Create 2 users, fetch based createdAt timestamp being greater
+		//			than that recorded for first user
+		// Expected outcome: Fetch returns the single matching record
+
+		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
 		filters := []services.QueryFilter{
 			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
 		}
@@ -173,8 +189,19 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.Equal(user2.ID, actualUsers[0].ID)
 	})
 
-	suite.T().Run("fetches many with ilike filter", func(t *testing.T) {
-		search := fmt.Sprintf("%%%s%%", "example.com")
+	suite.Run("fetches many with ilike filter", func() {
+		// Under test: FetchMany function
+		// Mocked: None
+		// Set up: Create 2 users, search for all users with email including something.com
+		// Expected outcome: Expect to find 1 of the 2 users
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+			OfficeUser: models.OfficeUser{
+				Email: "email@something.com",
+			},
+		})
+
+		search := fmt.Sprintf("%%%s%%", "something.com")
 		filters := []services.QueryFilter{
 			NewQueryFilter("email", ilike, search),
 		}
@@ -183,16 +210,20 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		err := builder.FetchMany(suite.AppContextForTest(), &actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.NoError(err)
-		suite.Len(actualUsers, 4)
+		suite.Len(actualUsers, 1)
 	})
 
-	suite.T().Run("fetches many with time sort desc", func(t *testing.T) {
+	suite.Run("fetches many with time sort desc", func() {
+		// Under test: FetchMany function
+		// Mocked: None
+		// Set up: Create 2 users, search with sort order by created_at, descending
+		// Expected outcome: Expect that they will be returned sorted by created_at
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
+
 		filters := []services.QueryFilter{}
 		order, sort := "created_at", false
 		ordering := NewQueryOrder(&order, &sort)
-
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
-		testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 		var actualUsers models.OfficeUsers
 
@@ -204,7 +235,12 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.True(actualUsers[0].CreatedAt.After(actualUsers[1].CreatedAt), "First user created_at should be after second user created_at time")
 	})
 
-	suite.T().Run("fetches many with time sort asc", func(t *testing.T) {
+	suite.Run("fetches many with time sort asc", func() {
+		// Under test: FetchMany function
+		// Mocked: None
+		// Set up: Create 2 users, search with sort order by created_at, ascending
+		// Expected outcome: Expect that they will be returned sorted by created_at
+
 		filters := []services.QueryFilter{}
 		order, sort := "created_at", true
 		ordering := NewQueryOrder(&order, &sort)
@@ -222,7 +258,15 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.True(actualUsers[0].CreatedAt.Before(actualUsers[1].CreatedAt), "First user created_at should be before second user created_at time")
 	})
 
-	suite.T().Run("fails with invalid column", func(t *testing.T) {
+	suite.Run("fails with invalid column", func() {
+		// Under test: FetchMany function
+		// Mocked: None
+		// Set up: Create 2 users, search for a fake column
+		// Expected outcome: Expect an error related to the fake column
+
+		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
+
 		var actualUsers models.OfficeUsers
 		filters := []services.QueryFilter{
 			NewQueryFilter("fake_column", equals, user.ID.String()),
@@ -235,7 +279,15 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.Empty(actualUsers)
 	})
 
-	suite.T().Run("fails with invalid comparator", func(t *testing.T) {
+	suite.Run("fails with invalid comparator", func() {
+		// Under test: FetchMany function
+		// Mocked: None
+		// Set up: Create 2 users, search for users using invalid id *
+		// Expected outcome: Expect error about the invalid id
+
+		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
+
 		var actualUsers models.OfficeUsers
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", "*", user.ID.String()),
@@ -248,7 +300,12 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.Empty(actualUsers)
 	})
 
-	suite.T().Run("fails when not pointer", func(t *testing.T) {
+	suite.Run("fails when not pointer", func() {
+		// Under test: FetchMany function
+		// Mocked: None
+		// Set up: Call FetchMany without providing a pointer for the return value
+		// Expected outcome: Expect Data error (could be better phrased)
+
 		var actualUsers models.OfficeUsers
 
 		err := builder.FetchMany(suite.AppContextForTest(), actualUsers, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrder())
@@ -258,7 +315,11 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.Empty(actualUsers)
 	})
 
-	suite.T().Run("fails when not pointer to slice", func(t *testing.T) {
+	suite.Run("fails when not pointer to slice", func() {
+		// Under test: FetchMany function
+		// Mocked: None
+		// Set up: Call FetchMany without providing a slice pointer for the return value
+		// Expected outcome: Expect Data error
 		var actualUser models.OfficeUser
 
 		err := builder.FetchMany(suite.AppContextForTest(), &actualUser, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrder())
@@ -268,7 +329,11 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.Empty(actualUser)
 	})
 
-	suite.T().Run("fails when not pointer to slice of structs", func(t *testing.T) {
+	suite.Run("fails when not pointer to slice of structs", func() {
+		// Under test: FetchMany function
+		// Mocked: None
+		// Set up: Call FetchMany without providing a slice pointer for the return value
+		// Expected outcome: Expect Data error
 		var intSlice []int
 
 		err := builder.FetchMany(suite.AppContextForTest(), &intSlice, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrder())
@@ -279,12 +344,15 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 }
 
 func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
-	// Create two default duty locations (with address and transportation office)
-	testdatagen.MakeDefaultDutyLocation(suite.DB())
-	testdatagen.MakeDefaultDutyLocation(suite.DB())
+	setupTestData := func() {
+		// Create two default duty locations (with address and transportation office)
+		testdatagen.MakeDefaultDutyLocation(suite.DB())
+		testdatagen.MakeDefaultDutyLocation(suite.DB())
+	}
 	builder := NewQueryBuilder()
 
-	suite.T().Run("fetches many with default associations", func(t *testing.T) {
+	suite.Run("fetches many with default associations", func() {
+		setupTestData()
 		var dutyLocations models.DutyLocations
 		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, defaultAssociations(), nil, nil)
 		suite.NoError(err)
@@ -297,7 +365,8 @@ func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
 		}
 	})
 
-	suite.T().Run("fetches many with no associations", func(t *testing.T) {
+	suite.Run("fetches many with no associations", func() {
+		setupTestData()
 		var dutyLocations models.DutyLocations
 		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, nil, nil, nil)
 		suite.NoError(err)
@@ -310,7 +379,8 @@ func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
 		}
 	})
 
-	suite.T().Run("fetches many with one explicit non-preloaded association", func(t *testing.T) {
+	suite.Run("fetches many with one explicit non-preloaded association", func() {
+		setupTestData()
 		var dutyLocations models.DutyLocations
 		associations := NewQueryAssociations([]services.QueryAssociation{
 			NewQueryAssociation("Address"),
@@ -327,7 +397,8 @@ func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
 		}
 	})
 
-	suite.T().Run("fetches many with one explicit preloaded two-level association", func(t *testing.T) {
+	suite.Run("fetches many with one explicit preloaded two-level association", func() {
+		setupTestData()
 		var dutyLocations models.DutyLocations
 		associations := NewQueryAssociationsPreload([]services.QueryAssociation{
 			NewQueryAssociation("TransportationOffice.Address"),
@@ -348,13 +419,11 @@ func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
 }
 
 func (suite *QueryBuilderSuite) TestCount() {
-	// this should be stubbed out with a model that is agnostic to our code
-	// similar to how the pop repo tests might work
-	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	builder := NewQueryBuilder()
 
-	suite.T().Run("counts with uuid filter", func(t *testing.T) {
+	suite.Run("counts with uuid filter", func() {
+		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", equals, user2.ID.String()),
 		}
@@ -375,7 +444,9 @@ func (suite *QueryBuilderSuite) TestCount() {
 		suite.Equal(1, count)
 	})
 
-	suite.T().Run("counts with time filter", func(t *testing.T) {
+	suite.Run("counts with time filter", func() {
+		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
 		filters := []services.QueryFilter{
 			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
 		}
@@ -385,7 +456,9 @@ func (suite *QueryBuilderSuite) TestCount() {
 		suite.Equal(1, count)
 	})
 
-	suite.T().Run("fails with invalid column", func(t *testing.T) {
+	suite.Run("fails with invalid column", func() {
+		user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
 		filters := []services.QueryFilter{
 			NewQueryFilter("fake_column", equals, user.ID.String()),
 		}
@@ -397,9 +470,10 @@ func (suite *QueryBuilderSuite) TestCount() {
 		suite.Zero(count)
 	})
 
-	suite.T().Run("fails with invalid comparator", func(t *testing.T) {
+	suite.Run("fails with invalid comparator", func() {
+		validUUID := uuid.Must(uuid.NewV4())
 		filters := []services.QueryFilter{
-			NewQueryFilter("id", "*", user.ID.String()),
+			NewQueryFilter("id", "*", validUUID.String()),
 		}
 
 		count, err := builder.Count(suite.AppContextForTest(), &models.OfficeUsers{}, filters)
@@ -409,7 +483,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 		suite.Zero(count)
 	})
 
-	suite.T().Run("fails when not pointer", func(t *testing.T) {
+	suite.Run("fails when not pointer", func() {
 
 		count, err := builder.Count(suite.AppContextForTest(), models.OfficeUsers{}, []services.QueryFilter{})
 
@@ -418,7 +492,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 		suite.Zero(count)
 	})
 
-	suite.T().Run("fails when not pointer to slice", func(t *testing.T) {
+	suite.Run("fails when not pointer to slice", func() {
 
 		count, err := builder.Count(suite.AppContextForTest(), &models.OfficeUser{}, []services.QueryFilter{})
 
@@ -427,7 +501,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 		suite.Zero(count)
 	})
 
-	suite.T().Run("fails when not pointer to slice of structs", func(t *testing.T) {
+	suite.Run("fails when not pointer to slice of structs", func() {
 		var intSlice []int
 
 		count, err := builder.Count(suite.AppContextForTest(), &intSlice, []services.QueryFilter{})
@@ -441,23 +515,23 @@ func (suite *QueryBuilderSuite) TestCount() {
 func (suite *QueryBuilderSuite) TestCreateOne() {
 	builder := NewQueryBuilder()
 
-	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
-	userInfo := models.OfficeUser{
-		LastName:               "Spaceman",
-		FirstName:              "Leo",
-		Email:                  "spaceman@leo.org",
-		TransportationOfficeID: transportationOffice.ID,
-		Telephone:              "312-111-1111",
-		TransportationOffice:   transportationOffice,
-	}
-
-	suite.T().Run("Successfully creates a record", func(t *testing.T) {
+	suite.Run("Successfully creates a record", func() {
+		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		userInfo := models.OfficeUser{
+			LastName:               "Spaceman",
+			FirstName:              "Leo",
+			Email:                  "spaceman@leo.org",
+			TransportationOfficeID: transportationOffice.ID,
+			Telephone:              "312-111-1111",
+			TransportationOffice:   transportationOffice,
+		}
 		verrs, err := builder.CreateOne(suite.AppContextForTest(), &userInfo)
 		suite.Nil(verrs)
 		suite.Nil(err)
 	})
 
-	suite.T().Run("Rejects input that isn't a pointer to a struct", func(t *testing.T) {
+	suite.Run("Rejects input that isn't a pointer to a struct", func() {
+		userInfo := models.OfficeUser{}
 		_, err := builder.CreateOne(suite.AppContextForTest(), userInfo)
 		suite.Error(err, "Model should be a pointer to a struct")
 	})
@@ -467,9 +541,8 @@ func (suite *QueryBuilderSuite) TestCreateOne() {
 func (suite *QueryBuilderSuite) TestTransaction() {
 	builder := NewQueryBuilder()
 
-	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
-
-	suite.T().Run("Successfully creates a record in a transaction", func(t *testing.T) {
+	suite.Run("Successfully creates a record in a transaction", func() {
+		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 		userInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
@@ -493,7 +566,8 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 		suite.NotZero(userInfo.ID)
 	})
 
-	suite.T().Run("Unsuccessfully creates a record in a transaction", func(t *testing.T) {
+	suite.Run("Unsuccessfully creates a record in a transaction", func() {
+		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 		testUser := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
@@ -525,19 +599,23 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 func (suite *QueryBuilderSuite) TestUpdateOne() {
 	builder := NewQueryBuilder()
 
-	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
-	userInfo := models.OfficeUser{
-		LastName:               "Spaceman",
-		FirstName:              "Leo",
-		Email:                  "spaceman@leo.org",
-		TransportationOfficeID: transportationOffice.ID,
-		Telephone:              "312-111-1111",
-		TransportationOffice:   transportationOffice,
+	setupTestData := func() models.TransportationOffice {
+		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		userInfo := models.OfficeUser{
+			LastName:               "Spaceman",
+			FirstName:              "Leo",
+			Email:                  "spaceman@leo.org",
+			TransportationOfficeID: transportationOffice.ID,
+			Telephone:              "312-111-1111",
+			TransportationOffice:   transportationOffice,
+		}
+
+		builder.CreateOne(suite.AppContextForTest(), &userInfo)
+		return transportationOffice
 	}
 
-	builder.CreateOne(suite.AppContextForTest(), &userInfo)
-
-	suite.T().Run("Successfully updates a record", func(t *testing.T) {
+	suite.Run("Successfully updates a record", func() {
+		transportationOffice := setupTestData()
 		officeUser := models.OfficeUser{}
 		suite.DB().Last(&officeUser)
 
@@ -562,7 +640,8 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 		suite.Equal("leo@spaceman.org", record.Email)
 	})
 
-	suite.T().Run("Successfully updates a record with an eTag for optimistic locking", func(t *testing.T) {
+	suite.Run("Successfully updates a record with an eTag for optimistic locking", func() {
+		transportationOffice := setupTestData()
 		officeUser := models.OfficeUser{}
 		suite.DB().Last(&officeUser)
 
@@ -588,7 +667,8 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 		suite.Equal("leo@spaceman.org", record.Email)
 	})
 
-	suite.T().Run("Reject the update when a stale eTag is used", func(t *testing.T) {
+	suite.Run("Reject the update when a stale eTag is used", func() {
+		transportationOffice := setupTestData()
 		officeUser := models.OfficeUser{}
 		suite.DB().Last(&officeUser)
 
@@ -607,7 +687,8 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 		suite.NotNil(err)
 	})
 
-	suite.T().Run("Rejects input that isn't a pointer to a struct", func(t *testing.T) {
+	suite.Run("Rejects input that isn't a pointer to a struct", func() {
+		setupTestData()
 		_, err := builder.UpdateOne(suite.AppContextForTest(), models.OfficeUser{}, nil)
 		suite.Error(err, "Model should be a pointer to a struct")
 	})
@@ -616,29 +697,33 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 	builder := NewQueryBuilder()
 	var electronicOrder models.ElectronicOrder
-	ordersAssertion := testdatagen.Assertions{
-		ElectronicOrder: models.ElectronicOrder{},
+	setupTestData := func() models.ElectronicOrder {
+
+		ordersAssertion := testdatagen.Assertions{
+			ElectronicOrder: models.ElectronicOrder{},
+		}
+		// Let's make a some electronic orders to test this with
+		ordersAssertion.ElectronicOrder.Issuer = models.IssuerNavy
+		ordersAssertion.ElectronicOrder.OrdersNumber = "8675308"
+		testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
+		ordersAssertion.ElectronicOrder.Issuer = models.IssuerArmy
+		ordersAssertion.ElectronicOrder.OrdersNumber = "8675310"
+		testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
+		ordersAssertion.ElectronicOrder.Issuer = models.IssuerMarineCorps
+		ordersAssertion.ElectronicOrder.OrdersNumber = "8675311"
+		marineCorpsOrders := testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
+		ordersAssertion.ElectronicOrder.Issuer = models.IssuerAirForce
+		ordersAssertion.ElectronicOrder.OrdersNumber = "8675312"
+		testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
+		ordersAssertion.ElectronicOrder.Issuer = models.IssuerCoastGuard
+		ordersAssertion.ElectronicOrder.OrdersNumber = "8675313"
+		testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+		return marineCorpsOrders
 	}
-	// Let's make a some electronic orders to test this with
-	ordersAssertion.ElectronicOrder.Issuer = models.IssuerNavy
-	ordersAssertion.ElectronicOrder.OrdersNumber = "8675308"
-	testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
-
-	ordersAssertion.ElectronicOrder.Issuer = models.IssuerArmy
-	ordersAssertion.ElectronicOrder.OrdersNumber = "8675310"
-	testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
-
-	ordersAssertion.ElectronicOrder.Issuer = models.IssuerMarineCorps
-	ordersAssertion.ElectronicOrder.OrdersNumber = "8675311"
-	marineCorpsOrders := testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
-
-	ordersAssertion.ElectronicOrder.Issuer = models.IssuerAirForce
-	ordersAssertion.ElectronicOrder.OrdersNumber = "8675312"
-	testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
-
-	ordersAssertion.ElectronicOrder.Issuer = models.IssuerCoastGuard
-	ordersAssertion.ElectronicOrder.OrdersNumber = "8675313"
-	testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
 
 	filters := []services.QueryFilter{
 		NewQueryFilter("issuer", equals, models.IssuerArmy),
@@ -648,11 +733,9 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		NewQueryFilter("issuer", equals, models.IssuerAirForce),
 	}
 
-	andFilters := []services.QueryFilter{
-		NewQueryFilter("updated_at", equals, marineCorpsOrders.UpdatedAt),
-	}
+	suite.Run("Successfully select some category counts", func() {
 
-	suite.T().Run("Successfully select some category counts", func(t *testing.T) {
+		marineCorpsOrders := setupTestData()
 		counts, err := builder.FetchCategoricalCountsFromOneModel(suite.AppContextForTest(), electronicOrder, filters, nil)
 		suite.Nil(err)
 		suite.Equal(1, counts[models.IssuerArmy])
@@ -661,13 +744,22 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		suite.Equal(1, counts[models.IssuerNavy])
 		suite.Equal(1, counts[models.IssuerAirForce])
 
+		andFilters := []services.QueryFilter{
+			NewQueryFilter("updated_at", equals, marineCorpsOrders.UpdatedAt),
+		}
+
 		counts, err = builder.FetchCategoricalCountsFromOneModel(suite.AppContextForTest(), electronicOrder, andFilters, nil)
 		suite.Nil(err)
 		suite.Equal(1, counts[marineCorpsOrders.UpdatedAt])
 
 	})
 
-	suite.T().Run("Successfully select some counts using an AND filter", func(t *testing.T) {
+	suite.Run("Successfully select some counts using an AND filter", func() {
+		marineCorpsOrders := setupTestData()
+		andFilters := []services.QueryFilter{
+			NewQueryFilter("updated_at", equals, marineCorpsOrders.UpdatedAt),
+		}
+
 		counts, err := builder.FetchCategoricalCountsFromOneModel(suite.AppContextForTest(), electronicOrder, filters, &andFilters)
 		suite.Nil(err)
 		suite.Equal(0, counts[models.IssuerArmy])
@@ -677,7 +769,8 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		suite.Equal(0, counts[models.IssuerAirForce])
 	})
 
-	suite.T().Run("Unsuccessfully select some category counts", func(t *testing.T) {
+	suite.Run("Unsuccessfully select some category counts", func() {
+
 		unsuccessfulFilter := []services.QueryFilter{NewQueryFilter("nonexisting-column", equals, "string")}
 
 		_, err := builder.FetchCategoricalCountsFromOneModel(suite.AppContextForTest(), electronicOrder, unsuccessfulFilter, nil)
