@@ -25,7 +25,7 @@ import (
 )
 
 // NewSupportAPIHandler returns a handler for the Prime API
-func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
+func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
@@ -38,12 +38,12 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	supportAPI.ServeError = handlers.ServeCustomError
 
 	supportAPI.MoveTaskOrderListMTOsHandler = ListMTOsHandler{
-		ctx,
+		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	supportAPI.MoveTaskOrderMakeMoveTaskOrderAvailableHandler = MakeMoveTaskOrderAvailableHandlerFunc{
-		ctx,
+		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
@@ -52,47 +52,47 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.MoveTaskOrderHideNonFakeMoveTaskOrdersHandler = HideNonFakeMoveTaskOrdersHandlerFunc{
-		ctx,
+		handlerConfig,
 		movetaskorder.NewMoveTaskOrderHider(),
 	}
 
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
-		ctx,
+		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher()}
 
 	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
-		ctx,
+		handlerConfig,
 		internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 	}
 
 	supportAPI.PaymentRequestUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
-		HandlerContext:              ctx,
+		HandlerConfig:               handlerConfig,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(),
 	}
 
 	supportAPI.PaymentRequestListMTOPaymentRequestsHandler = ListMTOPaymentRequestsHandler{
-		ctx,
+		handlerConfig,
 	}
 
 	supportAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandlerFunc{
-		ctx,
+		handlerConfig,
 		fetch.NewFetcher(queryBuilder),
 		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), ctx.Planner()),
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), handlerConfig.Planner()),
 	}
 
-	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{ctx, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)}
-	supportAPI.WebhookReceiveWebhookNotificationHandler = ReceiveWebhookNotificationHandler{ctx}
+	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{handlerConfig, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)}
+	supportAPI.WebhookReceiveWebhookNotificationHandler = ReceiveWebhookNotificationHandler{handlerConfig}
 
 	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
-		HandlerContext:                    ctx,
+		HandlerConfig:                     handlerConfig,
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(ctx.ICNSequencer(), clock.New()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(handlerConfig.ICNSequencer(), clock.New()),
 	}
 
 	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
-		HandlerContext:                ctx,
+		HandlerConfig:                 handlerConfig,
 		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(),
 		PaymentRequestStatusUpdater:   paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(),
@@ -107,10 +107,10 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.PaymentRequestRecalculatePaymentRequestHandler = RecalculatePaymentRequestHandler{
-		HandlerContext: ctx,
+		HandlerConfig: handlerConfig,
 		PaymentRequestRecalculator: paymentrequest.NewPaymentRequestRecalculator(
 			paymentrequest.NewPaymentRequestCreator(
-				ctx.GHCPlanner(),
+				handlerConfig.GHCPlanner(),
 				ghcrateengine.NewServiceItemPricer(),
 			),
 			paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
@@ -118,7 +118,7 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.WebhookCreateWebhookNotificationHandler = CreateWebhookNotificationHandler{
-		HandlerContext: ctx,
+		HandlerConfig: handlerConfig,
 	}
 
 	return supportAPI.Serve(nil)

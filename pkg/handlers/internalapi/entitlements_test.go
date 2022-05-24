@@ -22,7 +22,7 @@ func (suite *HandlerSuite) TestIndexEntitlementsHandlerReturns200() {
 	}
 
 	// And: index entitlements endpoint is hit
-	handler := IndexEntitlementsHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := IndexEntitlementsHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

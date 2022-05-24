@@ -8,7 +8,7 @@ repos:
         types: [go]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.2.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -51,7 +51,7 @@ repos:
         exclude: ^public/swagger-ui/
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.45.2
+    rev: v1.46.2
     hooks:
       - id: golangci-lint
         entry: bash -c 'exec golangci-lint run ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs

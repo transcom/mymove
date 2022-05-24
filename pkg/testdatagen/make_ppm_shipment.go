@@ -78,7 +78,9 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 			SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
 			EstimatedIncentive:             models.CentPointer(unit.Cents(1000000)),
 			AdvanceRequested:               models.BoolPointer(true),
+			HasRequestedAdvance:            models.BoolPointer(true),
 			Advance:                        models.CentPointer(unit.Cents(598700)),
+			AdvanceAmountRequested:         models.CentPointer(unit.Cents(598700)),
 		},
 	}
 
@@ -94,6 +96,14 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 		advance := estimatedIncentiveCents.MultiplyFloat64(0.5)
 
 		fullAssertions.PPMShipment.Advance = &advance
+	}
+
+	if assertions.PPMShipment.HasRequestedAdvance != nil && *assertions.PPMShipment.HasRequestedAdvance {
+		estimatedIncentiveCents := unit.Cents(*fullAssertions.PPMShipment.EstimatedIncentive)
+
+		advance := estimatedIncentiveCents.MultiplyFloat64(0.5)
+
+		fullAssertions.PPMShipment.AdvanceAmountRequested = &advance
 	}
 
 	// Overwrite values with those from assertions

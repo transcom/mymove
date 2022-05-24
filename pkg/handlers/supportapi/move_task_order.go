@@ -22,7 +22,7 @@ import (
 
 // ListMTOsHandler lists move task orders with the option to filter since a particular date
 type ListMTOsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveTaskOrderFetcher
 }
 
@@ -55,7 +55,7 @@ func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middlewa
 
 // MakeMoveTaskOrderAvailableHandlerFunc updates the status of a Move Task Order
 type MakeMoveTaskOrderAvailableHandlerFunc struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderAvailabilityUpdater services.MoveTaskOrderUpdater
 }
 
@@ -95,7 +95,7 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 
 // HideNonFakeMoveTaskOrdersHandlerFunc calls service to hide MTOs that are not using fake data
 type HideNonFakeMoveTaskOrdersHandlerFunc struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveTaskOrderHider
 }
 
@@ -117,7 +117,7 @@ func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.Hid
 
 // GetMoveTaskOrderHandlerFunc returns the details for a particular Move Task Order
 type GetMoveTaskOrderHandlerFunc struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
@@ -149,7 +149,7 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 
 // CreateMoveTaskOrderHandler creates a move task order
 type CreateMoveTaskOrderHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderCreator support.InternalMoveTaskOrderCreator
 }
 

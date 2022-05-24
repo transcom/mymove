@@ -8,11 +8,11 @@ type TestAppContext struct { // want "Please remove pop.Connection from the stru
 	testString string
 }
 
-// handlerContext should not be flagged because it's a special exception.
-type handlerContext struct {
+// handlerConfig should not be flagged because it's a special exception.
+type handlerConfig struct {
 	DB         *pop.Connection
 	testString string
 }
 
-// NewHandlerContext should not be flagged because it's a special exception.
-func NewHandlerContext(db *pop.Connection) {}
+// NewHandlerConfig should not be flagged because it's a special exception.
+func NewHandlerConfig(db *pop.Connection) {}

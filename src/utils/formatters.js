@@ -250,6 +250,10 @@ export const formatAgeToDays = (age) => {
 export function formatCustomerDate(date) {
   return moment(date).format('DD MMM YYYY');
 }
+// Format dates for customer remarks in the office app (ex. 25 Dec 2020 8:00)
+export function formatCustomerSupportRemarksDate(date) {
+  return moment(date).format('DD MMM YYYY HH:mm');
+}
 
 export function formatSignatureDate(date) {
   return moment(date).format('YYYY-MM-DD');
@@ -375,7 +379,15 @@ export function formatAmount(amount, options = { minimumFractionDigits: 2, maxim
   return amount.toLocaleString(undefined, options);
 }
 
+// Converts a cents value into whole dollars, rounding down.
+export function convertCentsToWholeDollarsRoundedDown(cents) {
+  return Math.floor(cents / 100);
+}
+
 // Converts a cents value into whole dollars, dropping the decimal precision without rounding e.g. 1234599 -> 12,345
 export function formatCentsTruncateWhole(cents) {
-  return formatAmount(Math.floor(cents / 100), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return formatAmount(convertCentsToWholeDollarsRoundedDown(cents), {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
 }

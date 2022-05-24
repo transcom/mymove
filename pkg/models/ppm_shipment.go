@@ -31,6 +31,16 @@ const (
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
 )
 
+// SITLocationType represents whether the SIT at the origin or destination
+type SITLocationType string
+
+const (
+	// SITLocationTypeOrigin captures enum value "ORIGIN"
+	SITLocationTypeOrigin SITLocationType = "ORIGIN"
+	// SITLocationTypeDestination captures enum value "DESTINATION"
+	SITLocationTypeDestination SITLocationType = "DESTINATION"
+)
+
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID         `json:"id" db:"id"`
@@ -47,8 +57,10 @@ type PPMShipment struct {
 	ApprovedAt                     *time.Time        `json:"approved_at" db:"approved_at"`
 	PickupPostalCode               string            `json:"pickup_postal_code" db:"pickup_postal_code"`
 	SecondaryPickupPostalCode      *string           `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
+	ActualPickupPostalCode         *string           `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
 	DestinationPostalCode          string            `json:"destination_postal_code" db:"destination_postal_code"`
 	SecondaryDestinationPostalCode *string           `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
+	ActualDestinationPostalCode    *string           `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
 	SitExpected                    *bool             `json:"sit_expected" db:"sit_expected"`
 	EstimatedWeight                *unit.Pound       `json:"estimated_weight" db:"estimated_weight"`
 	NetWeight                      *unit.Pound       `json:"net_weight" db:"net_weight"`
@@ -56,8 +68,17 @@ type PPMShipment struct {
 	ProGearWeight                  *unit.Pound       `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound       `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
 	EstimatedIncentive             *unit.Cents       `json:"estimated_incentive" db:"estimated_incentive"`
-	Advance                        *unit.Cents       `json:"advance" db:"advance"`
-	AdvanceRequested               *bool             `json:"advance_requested" db:"advance_requested"`
+	AdvanceRequested               *bool             `json:"advance_requested" db:"advance_requested"`               // TODO: These will be removed in a future PR.
+	Advance                        *unit.Cents       `json:"advance" db:"advance"`                                   // TODO: These will be removed in a future PR.
+	HasRequestedAdvance            *bool             `json:"has_requested_advance" db:"has_requested_advance"`       // TODO: Replace usages of AdvanceRequested with this field instead (will be done in a future PR).
+	AdvanceAmountRequested         *unit.Cents       `json:"advance_amount_requested" db:"advance_amount_requested"` // TODO: Replace usages of Advance with this field instead (will be done in a future PR).
+	HasReceivedAdvance             *bool             `json:"has_received_advance" db:"has_received_advance"`
+	AdvanceAmountReceived          *unit.Cents       `json:"advance_amount_received" db:"advance_amount_received"`
+	SITLocation                    *SITLocationType  `json:"sit_location" db:"sit_location"`
+	SITEstimatedWeight             *unit.Pound       `json:"sit_estimated_weight" db:"sit_estimated_weight"`
+	SITEstimatedEntryDate          *time.Time        `json:"sit_estimated_entry_date" db:"sit_estimated_entry_date"`
+	SITEstimatedDepartureDate      *time.Time        `json:"sit_estimated_departure_date" db:"sit_estimated_departure_date"`
+	SITEstimatedCost               *unit.Cents       `json:"sit_estimated_cost" db:"sit_estimated_cost"`
 }
 
 // PPMShipments is a list of PPMs

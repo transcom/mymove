@@ -41,7 +41,7 @@ func updateAddressWithPayload(a *models.Address, payload *internalmessages.Addre
 
 // ShowAddressHandler returns an address
 type ShowAddressHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle returns a address given an addressId

@@ -84,7 +84,7 @@ func payloadForWeightTicketSetMoveDocumentModel(storer storage.FileStorer, weigh
 
 // CreateWeightTicketSetDocumentHandler creates a WeightTicketSetDocument
 type CreateWeightTicketSetDocumentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler for CreateWeightTicketSetDocumentHandler

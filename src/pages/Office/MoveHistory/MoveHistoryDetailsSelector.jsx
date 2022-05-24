@@ -3,11 +3,12 @@ import React from 'react';
 import LabeledDetails from './LabeledDetails';
 import PaymentDetails from './PaymentDetails';
 
-import { HistoryLogRecordShape } from 'constants/historyLogUIDisplayName';
-import getMoveHistoryEventTemplate, { detailsTypes } from 'constants/moveHistoryEventTemplate';
+import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
+import getTemplate from 'constants/MoveHistory/TemplateManager';
+import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 
 const MoveHistoryDetailsSelector = ({ historyRecord }) => {
-  const eventTemplate = getMoveHistoryEventTemplate(historyRecord);
+  const eventTemplate = getTemplate(historyRecord);
 
   switch (eventTemplate.detailsType) {
     case detailsTypes.LABELED:
@@ -22,7 +23,7 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
     case detailsTypes.STATUS:
       return (
         <div>
-          <b>Status</b>: {eventTemplate.getStatusDetails()}
+          <b>Status</b>: {eventTemplate.getStatusDetails(historyRecord)}
         </div>
       );
     case detailsTypes.PLAIN_TEXT:
