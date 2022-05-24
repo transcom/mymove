@@ -1,6 +1,9 @@
 @import '../../../shared/styles/basics';
 @import '../../../shared/styles/colors';
 
+.QAECSRMoveSearchPage {
+  background-color: $bg-gray;
+}
 .QAECSRMoveSearch {
   @include u-padding-y(3);
   @include u-padding-x(4);

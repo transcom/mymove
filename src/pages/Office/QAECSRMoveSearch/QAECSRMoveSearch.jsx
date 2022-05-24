@@ -129,7 +129,7 @@ const QAECSRMoveSearch = ({ history }) => {
   const tableColumns = useMemo(() => columns(true), []);
   const tableData = useMemo(() => data, [data]);
   return (
-    <>
+    <div className={styles.QAECSRMoveSearchPage}>
       <h1>Search for a move</h1>
       <Formik
         initialValues={{ searchType: 'moveCode', searchText: '' }}
@@ -193,7 +193,7 @@ const QAECSRMoveSearch = ({ history }) => {
           data={tableData}
         />
       )}
-    </>
+    </div>
   );
 };
 
