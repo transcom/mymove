@@ -6394,11 +6394,6 @@ func init() {
           "x-nullable": true,
           "example": "90210"
         },
-        "estimatedIncentive": {
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true
-        },
         "estimatedWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -13291,11 +13286,6 @@ func init() {
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
-        },
-        "estimatedIncentive": {
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true
         },
         "estimatedWeight": {
           "type": "integer",

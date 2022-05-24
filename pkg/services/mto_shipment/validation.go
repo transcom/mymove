@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -84,5 +86,47 @@ func checkReweighAllowed() validator {
 			return apperror.NewConflictError(newer.ID, "Cannot request a reweigh on a shipment that already has one.")
 		}
 		return nil
+	})
+}
+
+// Checks if an office user is able to update a shipment based on shipment status
+func checkUpdateAllowed() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+		msg := fmt.Sprintf("%v is not updatable", older.ID)
+		err := apperror.NewForbiddenError(msg)
+
+		if appCtx.Session().IsOfficeApp() && appCtx.Session().IsOfficeUser() {
+			isServiceCounselor := appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor)
+			isTOO := appCtx.Session().Roles.HasRole(roles.RoleTypeTOO)
+			isTIO := appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)
+			switch older.Status {
+			case models.MTOShipmentStatusSubmitted:
+				if isServiceCounselor || isTOO {
+					return nil
+				}
+			case models.MTOShipmentStatusApproved:
+				if isTIO || isTOO {
+					return nil
+				}
+			case models.MTOShipmentStatusCancellationRequested:
+				if isTOO {
+					return nil
+				}
+			case models.MTOShipmentStatusCanceled:
+				if isTOO {
+					return nil
+				}
+			case models.MTOShipmentStatusDiversionRequested:
+				if isTOO {
+					return nil
+				}
+			default:
+				return err
+			}
+
+			return err
+		}
+
+		return err
 	})
 }
