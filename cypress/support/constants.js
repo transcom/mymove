@@ -16,6 +16,7 @@ export const milmoveUserType = 'milmove';
 export const PPMOfficeUserType = 'PPM office';
 export const TOOOfficeUserType = 'TOO office';
 export const TIOOfficeUserType = 'TIO office';
+export const QAECSROfficeUserType = 'QAECSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator';
 export const dpsUserType = 'dps';
@@ -27,6 +28,7 @@ userTypeToBaseURL[milmoveUserType] = milmoveBaseURL;
 userTypeToBaseURL[PPMOfficeUserType] = officeBaseURL;
 userTypeToBaseURL[TOOOfficeUserType] = officeBaseURL;
 userTypeToBaseURL[TIOOfficeUserType] = officeBaseURL;
+userTypeToBaseURL[QAECSROfficeUserType] = officeBaseURL;
 userTypeToBaseURL[ServicesCounselorOfficeUserType] = officeBaseURL;
 userTypeToBaseURL[dpsUserType] = milmoveBaseURL;
 /* eslint-enable security/detect-object-injection */
