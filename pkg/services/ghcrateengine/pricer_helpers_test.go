@@ -82,6 +82,45 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 
 }
 
+func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithPPM() {
+	suite.Run("golden path with DPK", func() {
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+
+		isPPM := true
+		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM)
+		suite.NoError(err)
+		suite.Equal(dpkTestPriceCents, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dpkTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dpkTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dpkTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dpkTestBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("Invalid parameters to Price", func() {
+		isPPM := true
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM)
+		suite.Error(err)
+		suite.Contains(err.Error(), "unsupported pack/unpack code")
+
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, "", dnpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM)
+		suite.Error(err)
+		suite.Contains(err.Error(), "ContractCode is required")
+
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, time.Time{}, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM)
+		suite.Error(err)
+		suite.Contains(err.Error(), "ReferenceDate is required")
+
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, 0, isPPM)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Services schedule is required")
+	})
+}
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticFirstDaySIT() {
 	suite.Run("destination golden path", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDFSIT, ddfsitTestServiceArea, ddfsitTestIsPeakPeriod, ddfsitTestBasePriceCents, ddfsitTestContractYearName, ddfsitTestEscalationCompounded)
