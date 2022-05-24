@@ -1341,6 +1341,53 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Creates a customer support remark for a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Creates a customer support remark for a move",
+        "operationId": "createCustomerSupportRemarkForMove",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCustomerSupportRemark"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created customer support remark",
+            "schema": {
+              "$ref": "#/definitions/CustomerSupportRemark"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "parameters": [
         {
           "type": "string",
@@ -3452,6 +3499,30 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "CreateCustomerSupportRemark": {
+      "description": "A text remark written by an customer support user that is associated with a specific move.",
+      "type": "object",
+      "required": [
+        "locator",
+        "content",
+        "officeUserID"
+      ],
+      "properties": {
+        "content": {
+          "type": "string",
+          "example": "This is a remark about a move."
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },
@@ -8412,6 +8483,68 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Creates a customer support remark for a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Creates a customer support remark for a move",
+        "operationId": "createCustomerSupportRemarkForMove",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCustomerSupportRemark"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created customer support remark",
+            "schema": {
+              "$ref": "#/definitions/CustomerSupportRemark"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "parameters": [
         {
           "type": "string",
@@ -10924,6 +11057,30 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "CreateCustomerSupportRemark": {
+      "description": "A text remark written by an customer support user that is associated with a specific move.",
+      "type": "object",
+      "required": [
+        "locator",
+        "content",
+        "officeUserID"
+      ],
+      "properties": {
+        "content": {
+          "type": "string",
+          "example": "This is a remark about a move."
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },

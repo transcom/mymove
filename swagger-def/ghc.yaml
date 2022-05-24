@@ -1605,6 +1605,34 @@ paths:
         name: locator
         required: true
         type: string
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Creates a customer support remark for a move
+      description: Creates a customer support remark for a move
+      tags:
+        - customerSupportRemarks
+      operationId: createCustomerSupportRemarkForMove
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateCustomerSupportRemark'
+      responses:
+        '200':
+          description: Successfully created customer support remark
+          schema:
+            $ref: '#/definitions/CustomerSupportRemark'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
     get:
       produces:
         - application/json

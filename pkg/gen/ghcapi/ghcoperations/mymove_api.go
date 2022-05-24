@@ -78,6 +78,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderCounselingUpdateOrderHandler: order.CounselingUpdateOrderHandlerFunc(func(params order.CounselingUpdateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateOrder has not yet been implemented")
 		}),
+		CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler: customer_support_remarks.CreateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.CreateCustomerSupportRemarkForMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer_support_remarks.CreateCustomerSupportRemarkForMove has not yet been implemented")
+		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
@@ -257,6 +260,8 @@ type MymoveAPI struct {
 	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
 	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
 	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
+	// CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler sets the operation handler for the create customer support remark for move operation
+	CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// ShipmentCreateSITExtensionAsTOOHandler sets the operation handler for the create s i t extension as t o o operation
@@ -438,6 +443,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderCounselingUpdateOrderHandler == nil {
 		unregistered = append(unregistered, "order.CounselingUpdateOrderHandler")
+	}
+	if o.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler == nil {
+		unregistered = append(unregistered, "customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler")
 	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
@@ -681,6 +689,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/counseling/orders/{orderID}"] = order.NewCounselingUpdateOrder(o.context, o.OrderCounselingUpdateOrderHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/moves/{locator}/customer-support-remarks"] = customer_support_remarks.NewCreateCustomerSupportRemarkForMove(o.context, o.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

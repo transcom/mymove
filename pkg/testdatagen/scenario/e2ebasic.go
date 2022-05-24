@@ -221,6 +221,38 @@ func userWithServicesCounselorRole(appCtx appcontext.AppContext) {
 	})
 }
 
+func userWithQAECSRRole(appCtx appcontext.AppContext) {
+	qaecsrRole := roles.Role{}
+	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaecsrRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
+	}
+
+	email := "qaecsr_role@office.mil"
+	qaecsrUUID := uuid.Must(uuid.FromString("2419b1d6-097f-4dc4-8171-8f858967b4db"))
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            qaecsrUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{qaecsrRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("0e436f0c-6bbd-4024-91c8-ceb0d153ad81"),
+			Email:  email,
+			Active: true,
+			UserID: &qaecsrUUID,
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "KKFA",
+		},
+	})
+}
+
 func userWithTOOandTIORole(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
@@ -262,6 +294,52 @@ func userWithTOOandTIORole(appCtx appcontext.AppContext) {
 	})
 }
 
+func userWithTOOandTIOandQAECSRRole(appCtx appcontext.AppContext) {
+	tooRole := roles.Role{}
+	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
+	tioRole := roles.Role{}
+	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+	}
+
+	qaecsrRole := roles.Role{}
+	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaecsrRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
+	}
+
+	email := "too_tio_qaecsr_role@office.mil"
+	tooTioQaecsrUUID := uuid.Must(uuid.FromString("b264abd6-52fc-4e42-9e0f-173f7d217bc5"))
+	loginGovID := uuid.Must(uuid.NewV4())
+	user := testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioQaecsrUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole, qaecsrRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("45a6b7c2-2484-49af-bb7f-3ca8c179bcfb"),
+			Email:  email,
+			Active: true,
+			UserID: &tooTioQaecsrUUID,
+		},
+	})
+	testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			User:   user,
+			UserID: user.ID,
+		},
+	})
+}
 func userWithTOOandTIOandServicesCounselorRole(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
@@ -3983,8 +4061,10 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	userWithRoles(appCtx)
 	userWithTOORole(appCtx)
 	userWithTIORole(appCtx)
+	userWithQAECSRRole(appCtx)
 	userWithServicesCounselorRole(appCtx)
 	userWithTOOandTIORole(appCtx)
+	userWithTOOandTIOandQAECSRRole(appCtx)
 	userWithTOOandTIOandServicesCounselorRole(appCtx)
 	userWithPrimeSimulatorRole(appCtx)
 
