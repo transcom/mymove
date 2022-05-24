@@ -157,12 +157,16 @@ const QAECSRMoveSearch = ({ history }) => {
               <div className={classnames(styles.searchBar)}>
                 <TextField
                   id="searchText"
-                  // className="usa-search__input"
+                  className="usa-search__input"
                   label="Search"
                   name="searchText"
                   type="search"
                 />
-                <Button className="usa-search__submit" type="submit" disabled={!formik.isValid}>
+                <Button
+                  className={classnames('usa-search__submit', styles.searchButton)}
+                  type="submit"
+                  disabled={!formik.isValid}
+                >
                   Search
                 </Button>
               </div>

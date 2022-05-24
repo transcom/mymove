@@ -8,14 +8,20 @@
   @include u-radius(4px);
   @include u-margin-x(3);
   border: 1px solid $border-color;
+
+  .searchBar {
+    display: flex;
+  }
+
+  .searchButton {
+    height: 43px;
+    align-self: flex-end;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+  }
 }
 
-.searchBar {
-  width: 320px;
+:global(.usa-search__input) {
   height: 43px;
-  display: flex;
-}
-
-.searchButton {
-  height: 43px;
+  width: 356px;
 }
