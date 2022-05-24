@@ -101,50 +101,6 @@ func (o *SearchMovesForbidden) WriteResponse(rw http.ResponseWriter, producer ru
 	}
 }
 
-// SearchMovesNotFoundCode is the HTTP code returned for type SearchMovesNotFound
-const SearchMovesNotFoundCode int = 404
-
-/*SearchMovesNotFound The requested resource wasn't found
-
-swagger:response searchMovesNotFound
-*/
-type SearchMovesNotFound struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
-}
-
-// NewSearchMovesNotFound creates SearchMovesNotFound with default headers values
-func NewSearchMovesNotFound() *SearchMovesNotFound {
-
-	return &SearchMovesNotFound{}
-}
-
-// WithPayload adds the payload to the search moves not found response
-func (o *SearchMovesNotFound) WithPayload(payload *ghcmessages.Error) *SearchMovesNotFound {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the search moves not found response
-func (o *SearchMovesNotFound) SetPayload(payload *ghcmessages.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *SearchMovesNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(404)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // SearchMovesInternalServerErrorCode is the HTTP code returned for type SearchMovesInternalServerError
 const SearchMovesInternalServerErrorCode int = 500
 

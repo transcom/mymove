@@ -1102,7 +1102,6 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 		}
 	}
 	return &searchMoves
-
 }
 
 // ShipmentPaymentSITBalance payload

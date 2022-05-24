@@ -66,12 +66,7 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving move by locator", zap.Error(err))
-				switch err.(type) {
-				case apperror.NotFoundError:
-					return moveop.NewSearchMovesNotFound(), err
-				default:
-					return moveop.NewSearchMovesInternalServerError(), err
-				}
+				return moveop.NewSearchMovesInternalServerError(), err
 			}
 
 			searchMoves := payloads.SearchMoves(moves)
@@ -81,7 +76,6 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				TotalCount:  1,
 				SearchMoves: *searchMoves,
 			}
-			// todo check for nil
 			return moveop.NewSearchMovesOK().WithPayload(payload), nil
 		})
 }
