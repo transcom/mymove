@@ -19,8 +19,6 @@
     background-color: $link;
     box-shadow:0 0 0 2px $link, inset 0 0 0 2px white;
   }
-  label::before {
-  }
 
   .QAECSRMoveSearch {
     max-width: 1358px;
@@ -29,7 +27,6 @@
     @include u-margin-x(1);
     @include u-bg('white');
     @include u-radius(4px);
-  //   @include u-margin-x(3);
     border: 1px solid $border-color;
 
     .searchBar {
@@ -41,7 +38,6 @@
         line-height: 16px;
       }
     }
-
 
     p {
       font-weight: 700;
