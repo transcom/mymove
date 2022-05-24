@@ -78,7 +78,11 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
             <Form className={classnames(formStyles.form, ppmStyles.form)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
-                <DatePickerInput name="actualMoveDate" label="When did you leave your origin?" />
+                <DatePickerInput
+                  className={classnames(styles.actualMoveDate, 'usa-input')}
+                  name="actualMoveDate"
+                  label="When did you leave your origin?"
+                />
                 <Hint className={ppmStyles.hint}>If it took you more than one day to move out, use the first day.</Hint>
                 <h2>Locations</h2>
                 <p>
