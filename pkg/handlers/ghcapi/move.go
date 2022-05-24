@@ -55,7 +55,6 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 
 type SearchMovesHandler struct {
 	handlers.HandlerConfig
-	services.MoveFetcher
 	services.MoveSearcher
 }
 
