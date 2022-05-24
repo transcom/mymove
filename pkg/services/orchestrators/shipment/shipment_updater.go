@@ -31,7 +31,7 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 	var mtoShipment *models.MTOShipment
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
-		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipmentCustomer(txnAppCtx, shipment, eTag)
+		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipment(txnAppCtx, shipment, eTag)
 
 		if err != nil {
 			return err

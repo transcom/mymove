@@ -148,7 +148,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
 
 	shipmentUpdater := shipment.NewShipmentUpdater(
-		mtoshipment.NewMTOShipmentUpdater(
+		mtoshipment.NewCustomerMTOShipmentUpdater(
 			builder,
 			fetcher,
 			handlerConfig.Planner(),

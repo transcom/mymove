@@ -148,7 +148,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-			mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentPrime(appCtx, mtoShipment, params.IfMatch)
+			mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipment(appCtx, mtoShipment, params.IfMatch)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {
