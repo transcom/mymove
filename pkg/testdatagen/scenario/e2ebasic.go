@@ -221,6 +221,38 @@ func userWithServicesCounselorRole(appCtx appcontext.AppContext) {
 	})
 }
 
+func userWithQAECSRRole(appCtx appcontext.AppContext) {
+	qaecsrRole := roles.Role{}
+	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaecsrRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
+	}
+
+	email := "qaecsr_role@office.mil"
+	qaecsrUUID := uuid.Must(uuid.FromString("2419b1d6-097f-4dc4-8171-8f858967b4db"))
+	loginGovID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            qaecsrUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{qaecsrRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("0e436f0c-6bbd-4024-91c8-ceb0d153ad81"),
+			Email:  email,
+			Active: true,
+			UserID: &qaecsrUUID,
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "KKFA",
+		},
+	})
+}
+
 func userWithTOOandTIORole(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
@@ -3983,6 +4015,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	userWithRoles(appCtx)
 	userWithTOORole(appCtx)
 	userWithTIORole(appCtx)
+	userWithQAECSRRole(appCtx)
 	userWithServicesCounselorRole(appCtx)
 	userWithTOOandTIORole(appCtx)
 	userWithTOOandTIOandServicesCounselorRole(appCtx)
@@ -4043,6 +4076,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createNeedsServicesCounseling(appCtx, separation, hhg, &hor, "S3PAR3")
 
 	createBasicNTSMove(appCtx, userUploader)
+
+	createUserWithLocatorAndDODID(appCtx, "QAEHLP", "1000000000")
 
 	// Create a move with an HHG and NTS prime-handled shipment
 	createMoveWithHHGAndNTSShipments(appCtx, "PRINTS", false)

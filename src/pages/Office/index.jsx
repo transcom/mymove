@@ -303,7 +303,7 @@ export class OfficeApp extends Component {
                       key="qaeCSRMoveSearchPath"
                       path={qaeCSRRoutes.MOVE_SEARCH_PATH}
                       component={QAECSRMoveSearch}
-                      requiredRoles={[roleTypes.TOO]}
+                      requiredRoles={[roleTypes.QAE_CSR]}
                     />
 
                     {/* PPM & TXO conflicting routes - select based on user role */}
@@ -327,7 +327,7 @@ export class OfficeApp extends Component {
                           case roleTypes.PRIME_SIMULATOR:
                             return <PrimeSimulatorAvailableMoves {...routeProps} />;
                           case roleTypes.QAE_CSR:
-                            return <div>QAE/CSR Goes Here</div>;
+                            return <QAECSRMoveSearch {...routeProps} />;
                           default:
                             // User has unknown role or shouldn't have access
                             return <div />;
