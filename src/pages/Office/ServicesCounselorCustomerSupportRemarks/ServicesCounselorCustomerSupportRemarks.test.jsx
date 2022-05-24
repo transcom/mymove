@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 
 import ServicesCounselorCustomerSupportRemarks from './ServicesCounselorCustomerSupportRemarks';
 
@@ -37,6 +37,23 @@ describe('Customer support remarks page', () => {
         <ServicesCounselorCustomerSupportRemarks />
       </MockProviders>,
     );
+
+    // Verify headings
+    expect(screen.getByRole('heading', { name: 'Customer support remarks', level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Remarks', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Past remarks', level: 3 })).toBeInTheDocument();
+
+    // Should have "create" remark" form
+    const form = await screen.findByTestId('form');
+    expect(form).toBeInTheDocument();
+
+    const createLabel = 'Use this form to document any customer support provided for this move.';
+    expect(within(form).getByText(createLabel)).toBeInTheDocument();
+
+    expect(await within(form).findByTestId('textarea')).toBeInTheDocument();
+    expect(await within(form).findByTestId('button')).toBeInTheDocument();
+
+    // Should show existing remarks
     const remark = await screen.getByText(/This is a comment./);
     expect(remark).toBeInTheDocument();
   });
