@@ -12,6 +12,8 @@ import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import ScrollToTop from 'components/ScrollToTop';
 
 const Advance = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -30,9 +32,10 @@ const Advance = () => {
     const advanceRequested = values.advanceRequested === 'true';
 
     const payload = {
+      shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
-        advance: values.amountRequested ? values.amountRequested * 100 : null,
+        advance: advanceRequested ? values.amountRequested * 100 : null,
         advanceRequested,
       },
     };
@@ -58,8 +61,13 @@ const Advance = () => {
       });
   };
 
+  if (!mtoShipment) {
+    return <LoadingPlaceholder />;
+  }
+
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
+      <ScrollToTop otherDep={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

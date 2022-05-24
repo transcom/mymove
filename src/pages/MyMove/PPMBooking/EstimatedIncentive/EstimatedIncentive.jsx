@@ -13,13 +13,14 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
 import EstimatedIncentiveDetails from 'components/Customer/PPMBooking/EstimatedIncentiveDetails/EstimatedIncentiveDetails';
+import ScrollToTop from 'components/ScrollToTop';
 
 const EstimatedIncentive = () => {
   const history = useHistory();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const shipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const handleBack = () => {
-    history.goBack();
+    history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, { moveId, mtoShipmentId }));
   };
 
   const handleNext = () => {
@@ -28,6 +29,7 @@ const EstimatedIncentive = () => {
 
   return (
     <div className={classnames(ppmBookingPageStyles.PPMBookingPage, styles.EstimatedIncentive)}>
+      <ScrollToTop />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

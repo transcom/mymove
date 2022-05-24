@@ -9,7 +9,6 @@ import { MockProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 
 const mockPush = jest.fn();
-const mockBack = jest.fn();
 const mockMoveId = 'move123';
 const mockShipmentId = 'shipment123';
 
@@ -17,7 +16,6 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useHistory: () => ({
     push: mockPush,
-    goBack: mockBack,
   }),
   useParams: () => ({
     moveId: mockMoveId,
@@ -74,17 +72,17 @@ describe('EstimatedIncentive component', () => {
       </MockProviders>,
     );
 
-    userEvent.click(screen.getByRole('button', { name: 'Back' }));
+    const shipmentInfo = {
+      moveId: mockMoveId,
+      mtoShipmentId: mockShipmentId,
+    };
 
-    expect(mockBack).toHaveBeenCalled();
+    userEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(mockPush).toHaveBeenCalledWith(
+      generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, shipmentInfo),
+    );
 
     userEvent.click(screen.getByRole('button', { name: 'Next' }));
-
-    expect(mockPush).toHaveBeenCalledWith(
-      generatePath(customerRoutes.SHIPMENT_PPM_ADVANCES_PATH, {
-        moveId: mockMoveId,
-        mtoShipmentId: mockShipmentId,
-      }),
-    );
+    expect(mockPush).toHaveBeenCalledWith(generatePath(customerRoutes.SHIPMENT_PPM_ADVANCES_PATH, shipmentInfo));
   });
 });

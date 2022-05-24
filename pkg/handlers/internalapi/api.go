@@ -4,32 +4,31 @@ import (
 	"io"
 	"log"
 
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	officeuser "github.com/transcom/mymove/pkg/services/office_user"
-	"github.com/transcom/mymove/pkg/services/order"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/services/ppmshipment"
-
-	"github.com/transcom/mymove/pkg/services/fetch"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	"github.com/transcom/mymove/pkg/services/query"
-
-	move "github.com/transcom/mymove/pkg/services/move"
-	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
-	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
-	"github.com/transcom/mymove/pkg/services/ppmservices"
-
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
+
 	"github.com/transcom/mymove/pkg/handlers"
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	move "github.com/transcom/mymove/pkg/services/move"
+	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	"github.com/transcom/mymove/pkg/services/order"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // NewInternalAPI returns the internal API
-func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
+func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
@@ -41,137 +40,139 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
-	ppmEstimator := ppmshipment.NewEstimatePPM()
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.GHCPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 
-	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{ctx, officeuser.NewOfficeUserFetcherPop()}
-	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{ctx}
-	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{ctx}
+	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{handlerConfig, officeuser.NewOfficeUserFetcherPop()}
+	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{handlerConfig}
+	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{handlerConfig}
 
-	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{ctx}
-	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{ctx}
-	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{ctx}
-	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{ctx, ppmservices.NewEstimateCalculator(ctx.Planner())}
-	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{ctx}
-	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{ctx}
-	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{ctx, ppmservices.NewEstimateCalculator(ctx.Planner())}
-	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{ctx}
-	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{ctx}
-	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler{ctx}
-	internalAPI.PpmRequestPPMExpenseSummaryHandler = RequestPPMExpenseSummaryHandler{ctx}
+	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{handlerConfig}
+	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{handlerConfig}
+	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{handlerConfig}
+	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{handlerConfig}
+	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{handlerConfig}
+	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{handlerConfig}
+	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler{handlerConfig}
+	internalAPI.PpmRequestPPMExpenseSummaryHandler = RequestPPMExpenseSummaryHandler{handlerConfig}
 
-	internalAPI.DutyLocationsSearchDutyLocationsHandler = SearchDutyLocationsHandler{ctx}
+	internalAPI.DutyLocationsSearchDutyLocationsHandler = SearchDutyLocationsHandler{handlerConfig}
 
-	internalAPI.AddressesShowAddressHandler = ShowAddressHandler{ctx}
+	internalAPI.AddressesShowAddressHandler = ShowAddressHandler{handlerConfig}
 
-	internalAPI.TransportationOfficesShowDutyLocationTransportationOfficeHandler = ShowDutyLocationTransportationOfficeHandler{ctx}
+	internalAPI.TransportationOfficesShowDutyLocationTransportationOfficeHandler = ShowDutyLocationTransportationOfficeHandler{handlerConfig}
 
-	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler{ctx}
-	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler{ctx}
-	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler{ctx}
+	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler{handlerConfig}
+	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler{handlerConfig}
+	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler{handlerConfig}
 	internalAPI.OrdersUploadAmendedOrdersHandler = UploadAmendedOrdersHandler{
-		ctx,
+		handlerConfig,
 		order.NewOrderUpdater(moveRouter),
 	}
 
-	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{ctx}
-	internalAPI.MovesShowMoveHandler = ShowMoveHandler{ctx}
+	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{handlerConfig}
+	internalAPI.MovesShowMoveHandler = ShowMoveHandler{handlerConfig}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
-		ctx,
+		handlerConfig,
 		moveRouter,
 	}
 	internalAPI.MovesSubmitAmendedOrdersHandler = SubmitAmendedOrdersHandler{
-		ctx,
+		handlerConfig,
 		moveRouter,
 	}
-	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{ctx}
+	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{handlerConfig}
 
-	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{ctx}
-	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{ctx,
+	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{handlerConfig}
+	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{handlerConfig,
 		movedocument.NewMoveDocumentUpdater(),
 	}
-	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{ctx}
-	internalAPI.MoveDocsDeleteMoveDocumentHandler = DeleteMoveDocumentHandler{ctx}
+	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{handlerConfig}
+	internalAPI.MoveDocsDeleteMoveDocumentHandler = DeleteMoveDocumentHandler{handlerConfig}
 
-	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{ctx}
+	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{handlerConfig}
 
-	internalAPI.MoveDocsCreateWeightTicketDocumentHandler = CreateWeightTicketSetDocumentHandler{ctx}
+	internalAPI.MoveDocsCreateWeightTicketDocumentHandler = CreateWeightTicketSetDocumentHandler{handlerConfig}
 
-	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{ctx}
-	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{ctx}
-	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler{ctx}
-	internalAPI.ServiceMembersShowServiceMemberOrdersHandler = ShowServiceMemberOrdersHandler{ctx}
+	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{handlerConfig}
+	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{handlerConfig}
+	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler{handlerConfig}
+	internalAPI.ServiceMembersShowServiceMemberOrdersHandler = ShowServiceMemberOrdersHandler{handlerConfig}
 
-	internalAPI.BackupContactsIndexServiceMemberBackupContactsHandler = IndexBackupContactsHandler{ctx}
-	internalAPI.BackupContactsCreateServiceMemberBackupContactHandler = CreateBackupContactHandler{ctx}
-	internalAPI.BackupContactsUpdateServiceMemberBackupContactHandler = UpdateBackupContactHandler{ctx}
-	internalAPI.BackupContactsShowServiceMemberBackupContactHandler = ShowBackupContactHandler{ctx}
+	internalAPI.BackupContactsIndexServiceMemberBackupContactsHandler = IndexBackupContactsHandler{handlerConfig}
+	internalAPI.BackupContactsCreateServiceMemberBackupContactHandler = CreateBackupContactHandler{handlerConfig}
+	internalAPI.BackupContactsUpdateServiceMemberBackupContactHandler = UpdateBackupContactHandler{handlerConfig}
+	internalAPI.BackupContactsShowServiceMemberBackupContactHandler = ShowBackupContactHandler{handlerConfig}
 
-	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler{ctx}
-	internalAPI.DocumentsShowDocumentHandler = ShowDocumentHandler{ctx}
-	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler{ctx}
-	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{ctx}
-	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{ctx}
+	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler{handlerConfig}
+	internalAPI.DocumentsShowDocumentHandler = ShowDocumentHandler{handlerConfig}
+	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
+	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig}
+	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{handlerConfig}
 
-	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{ctx}
-	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{ctx, moveRouter}
-	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{ctx}
-	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{ctx}
-	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{ctx, moveRouter}
+	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{handlerConfig}
+	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{handlerConfig, moveRouter}
+	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{handlerConfig}
+	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{handlerConfig}
+	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{handlerConfig, moveRouter}
 
-	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{ctx}
+	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{handlerConfig}
 
-	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{ctx}
+	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{handlerConfig}
 
-	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{ctx}
+	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{handlerConfig}
 
-	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{ctx}
+	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{handlerConfig}
 
 	internalAPI.RegisterProducer("application/pdf", PDFProducer())
 
 	internalAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
-		ctx,
+		handlerConfig,
 		postalcodeservice.NewPostalCodeValidator(),
 	}
 
-	// GHC Endpoint
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator(ppmEstimator))
+
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
-		ctx,
-		mtoShipmentCreator,
-		ppmshipment.NewPPMShipmentCreator(mtoShipmentCreator),
+		handlerConfig,
+		shipmentCreator,
 	}
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
-			ctx.GHCPlanner(),
+			handlerConfig.GHCPlanner(),
 			ghcrateengine.NewServiceItemPricer(),
 		),
 		paymentrequest.NewPaymentRequestStatusUpdater(builder),
 	)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
 
-	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
-		ctx,
-		mtoshipment.NewMTOShipmentUpdater(
+	shipmentUpdater := shipment.NewShipmentUpdater(
+		mtoshipment.NewCustomerMTOShipmentUpdater(
 			builder,
 			fetcher,
-			ctx.Planner(),
+			handlerConfig.Planner(),
 			moveRouter,
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
-			ctx.NotificationSender(),
+			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
 		),
 		ppmshipment.NewPPMShipmentUpdater(ppmEstimator),
+	)
+
+	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
+		handlerConfig,
+		shipmentUpdater,
 	}
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
-		ctx,
+		handlerConfig,
 		fetch.NewListFetcher(builder),
 		fetch.NewFetcher(builder),
 	}
 
 	internalAPI.MtoShipmentDeleteShipmentHandler = DeleteShipmentHandler{
-		ctx,
+		handlerConfig,
 		mtoshipment.NewShipmentDeleter(),
 	}
 

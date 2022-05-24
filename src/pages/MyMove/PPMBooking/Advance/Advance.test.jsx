@@ -8,13 +8,13 @@ import Advance from './Advance';
 
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { updateMTOShipment } from 'store/entities/actions';
 import { setFlashMessage } from 'store/flash/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
 
 const mockPush = jest.fn();
-const mockGoBack = jest.fn();
 
 const mockMoveId = uuidv4();
 const mockMTOShipmentId = uuidv4();
@@ -23,6 +23,7 @@ const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
 });
+
 const estimatedIncentivePath = generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -31,6 +32,7 @@ const estimatedIncentivePath = generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATE
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   moveTaskOrderID: mockMoveId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     id: uuidv4(),
     pickupPostalCode: '20002',
@@ -70,7 +72,6 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useHistory: () => ({
     push: mockPush,
-    goBack: mockGoBack,
   }),
   useParams: () => ({
     moveId: mockMoveId,
@@ -178,20 +179,53 @@ describe('Advance page', () => {
     const advanceRequestedYesInput = screen.getByRole('radio', { name: /yes/i });
     await userEvent.click(advanceRequestedYesInput);
 
-    const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
-    userEvent.click(agreeToTerms);
-
     const advanceInput = screen.getByLabelText('Amount requested');
     userEvent.type(advanceInput, String(advance));
+
+    const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
+    userEvent.click(agreeToTerms);
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     expect(saveButton).not.toBeDisabled();
     userEvent.click(saveButton);
 
     const expectedPayload = {
+      shipmentType: mockMTOShipment.shipmentType,
       ppmShipment: {
         advance: 400000,
         advanceRequested: true,
+        id: mockMTOShipment.ppmShipment.id,
+      },
+    };
+
+    await waitFor(() =>
+      expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, mockMTOShipment.eTag),
+    );
+  });
+
+  it('passes null for advance amount if advance requested is false', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithAdvance);
+    patchMTOShipment.mockResolvedValueOnce({ id: mockMTOShipment.id });
+
+    render(<Advance />, { wrapper: MockProviders });
+
+    const advanceRequestedYesInput = screen.getByRole('radio', { name: /yes/i });
+    const advanceRequestedNoInput = screen.getByRole('radio', { name: /no/i });
+
+    expect(advanceRequestedYesInput.checked).toBe(true);
+    expect(advanceRequestedNoInput.checked).toBe(false);
+
+    await userEvent.click(advanceRequestedNoInput);
+
+    const saveButton = screen.getByRole('button', { name: /save & continue/i });
+    expect(saveButton).not.toBeDisabled();
+    userEvent.click(saveButton);
+
+    const expectedPayload = {
+      shipmentType: mockMTOShipment.shipmentType,
+      ppmShipment: {
+        advance: null,
+        advanceRequested: false,
         id: mockMTOShipment.ppmShipment.id,
       },
     };

@@ -37,7 +37,7 @@ func payloadForGenericMoveDocumentModel(storer storage.FileStorer, moveDocument 
 
 // CreateGenericMoveDocumentHandler creates a MoveDocument
 type CreateGenericMoveDocumentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler

@@ -8,12 +8,12 @@ import EstimatedWeightsProGear from './EstimatedWeightsProGear';
 
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
 
 const mockPush = jest.fn();
-const mockGoBack = jest.fn();
 
 const mockMoveId = uuidv4();
 const mockMTOShipmentId = uuidv4();
@@ -44,6 +44,7 @@ const mockServiceMember = {
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   moveTaskOrderID: mockMoveId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     id: uuidv4(),
     pickupPostalCode: '20002',
@@ -91,7 +92,6 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useHistory: () => ({
     push: mockPush,
-    goBack: mockGoBack,
   }),
   useParams: () => ({
     moveId: mockMoveId,
@@ -225,6 +225,7 @@ describe('EstimatedWeightsProGear page', () => {
     userEvent.click(saveButton);
 
     const expectedPayload = {
+      shipmentType: mockMTOShipment.shipmentType,
       ppmShipment: {
         id: mockMTOShipment.ppmShipment.id,
         estimatedWeight,
@@ -275,6 +276,7 @@ describe('EstimatedWeightsProGear page', () => {
     userEvent.click(saveButton);
 
     const expectedPayload = {
+      shipmentType: mockMTOShipment.shipmentType,
       ppmShipment: {
         id: mockMTOShipment.ppmShipment.id,
         estimatedWeight,

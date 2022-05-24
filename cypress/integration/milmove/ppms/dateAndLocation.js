@@ -1,4 +1,4 @@
-import { customerStartsAddingAPPMShipment, submitsDateAndLocation } from '../../../support/ppmShared';
+import { customerStartsAddingAPPMShipment, submitsDateAndLocation } from '../../../support/ppmCustomerShared';
 
 describe('PPM Onboarding - Add dates and location flow', function () {
   before(() => {

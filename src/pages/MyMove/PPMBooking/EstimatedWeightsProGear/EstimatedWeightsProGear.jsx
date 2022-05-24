@@ -15,6 +15,8 @@ import {
   selectMTOShipmentById,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import ScrollToTop from 'components/ScrollToTop';
 
 const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -36,6 +38,7 @@ const EstimatedWeightsProGear = () => {
     const hasProGear = values.hasProGear === 'true';
 
     const payload = {
+      shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
         estimatedWeight: Number(values.estimatedWeight),
@@ -58,8 +61,13 @@ const EstimatedWeightsProGear = () => {
       });
   };
 
+  if (!serviceMember || !orders || !mtoShipment) {
+    return <LoadingPlaceholder />;
+  }
+
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
+      <ScrollToTop otherDep={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

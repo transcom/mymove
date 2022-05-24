@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"math"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -73,7 +75,7 @@ func checkRequiredFields() ppmShipmentValidator {
 			verrs.Add("destinationPostalCode", "cannot be nil or empty")
 		}
 
-		if newPPMShipment.SitExpected == nil {
+		if newPPMShipment.SITExpected == nil {
 			verrs.Add("sitExpected", "cannot be nil")
 		}
 
@@ -86,41 +88,26 @@ func checkAdvance() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
-		if newPPMShipment.AdvanceRequested == nil && newPPMShipment.Advance == nil {
-			return verrs
-		}
+		if newPPMShipment.AdvanceRequested == nil || !*newPPMShipment.AdvanceRequested {
+			if newPPMShipment.Advance != nil {
+				verrs.Add("advance", "Advance must be nil because of the advance requested value")
+			}
+		} else {
 
-		// This check will return so that if there is a nil pointer dereference it is caught and returns the error right away
-		if newPPMShipment.AdvanceRequested == nil && newPPMShipment.Advance != nil {
-			verrs.Add("advance", "Advance must be nil if advance requested is nil")
-			return verrs
-		}
-
-		if !*newPPMShipment.AdvanceRequested && newPPMShipment.Advance == nil {
-			return verrs
-		}
-
-		if !*newPPMShipment.AdvanceRequested && newPPMShipment.Advance != nil {
-			verrs.Add("advance", "Advance must be nil if advance requested is false")
-		}
-
-		if float64(*newPPMShipment.Advance) > float64(*newPPMShipment.EstimatedIncentive) {
-			verrs.Add("advance", "Advance can not be greater than estimated incentive")
-		}
-
-		if float64(*newPPMShipment.Advance) < float64(1) {
-			verrs.Add("advance", "Advance can not be  value less than 1")
-		}
-
-		if *newPPMShipment.AdvanceRequested && *newPPMShipment.Advance == 0 {
-			verrs.Add("advance", "An advance amount is required")
+			if newPPMShipment.Advance == nil {
+				verrs.Add("advance", "An advance amount is required")
+			} else if float64(*newPPMShipment.Advance) < float64(100) {
+				verrs.Add("advance", "Advance cannot be a value less than $1")
+			} else if float64(*newPPMShipment.Advance) > math.Floor(float64(*newPPMShipment.EstimatedIncentive)*0.6) {
+				verrs.Add("advance", "Advance can not be greater than 60% of the estimated incentive")
+			}
 		}
 
 		return verrs
 	})
 }
 
-// checkEstimatedWeight() checks that the weight estimate is availabele to the PPM Estimator
+// checkEstimatedWeight() checks that the weight estimate is available to the PPM Estimator
 func checkEstimatedWeight() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()

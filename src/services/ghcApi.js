@@ -29,6 +29,10 @@ export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
 
+export async function getCustomerSupportRemarksForMove(key, locator) {
+  return makeGHCRequest('customerSupportRemarks.getCustomerSupportRemarksForMove', { locator }, { normalize: false });
+}
+
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
     'move.getMoveHistory',
@@ -167,9 +171,9 @@ export async function updateMTOReviewedBillableWeights({ moveTaskOrderID, ifMatc
   return makeGHCRequest(operationPath, { moveTaskOrderID, 'If-Match': ifMatchETag });
 }
 
-export async function updateTIORemarks({ orderID, ifMatchETag, body }) {
+export async function updateTIORemarks({ moveTaskOrderID, ifMatchETag, body }) {
   const operationPath = 'moveTaskOrder.updateMoveTIORemarks';
-  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+  return makeGHCRequest(operationPath, { moveTaskOrderID, 'If-Match': ifMatchETag, body });
 }
 
 export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServiceItemCodes, normalize = true }) {

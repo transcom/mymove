@@ -4062,15 +4062,19 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	// Create a move with only an NTS-release external vendor-handled shipment
 	createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
 
-	createBasicMovePPM01(appCtx, userUploader)
-	createBasicMovePPM02(appCtx, userUploader)
-	createBasicMovePPM03(appCtx, userUploader)
 	createMoveWithServiceItemsandPaymentRequests01(appCtx, userUploader)
 	createMoveWithServiceItemsandPaymentRequests02(appCtx, userUploader)
 	createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx, userUploader, primeUploader)
 	createMoveWithSinceParamater(appCtx, userUploader)
 	createMoveWithTaskOrderServices(appCtx, userUploader)
 	createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx, userUploader)
+
+	createNTSMoveWithServiceItemsandPaymentRequests(appCtx, userUploader)
+
+	// PPMs
+	createBasicMovePPM01(appCtx, userUploader)
+	createBasicMovePPM02(appCtx, userUploader)
+	createBasicMovePPM03(appCtx, userUploader)
 	createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx, userUploader)
 	createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx, userUploader)
 	createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx, userUploader)
@@ -4081,7 +4085,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createUnSubmittedMoveWithFullPPMShipment3(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 	createApprovedMoveWithPPM(appCtx, userUploader)
-	createNTSMoveWithServiceItemsandPaymentRequests(appCtx, userUploader)
+	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 
 	// TIO
 	createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx, userUploader, "NTSRT1")

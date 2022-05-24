@@ -61,6 +61,16 @@ properties:
     pattern: ^(\d{5})$
     x-nullable: true
     x-omitempty: false
+  actualPickupPostalCode:
+    description: >
+      The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
+    format: zip
+    type: string
+    title: ZIP
+    example: '90210'
+    pattern: ^(\d{5})$
+    x-nullable: true
+    x-omitempty: false
   destinationPostalCode:
     format: zip
     type: string
@@ -68,6 +78,16 @@ properties:
     example: '90210'
     pattern: ^(\d{5})$
   secondaryDestinationPostalCode:
+    format: zip
+    type: string
+    title: ZIP
+    example: '90210'
+    pattern: ^(\d{5})$
+    x-nullable: true
+    x-omitempty: false
+  actualDestinationPostalCode:
+    description: >
+      The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
     format: zip
     type: string
     title: ZIP
@@ -108,23 +128,74 @@ properties:
     format: cents
     x-nullable: true
     x-omitempty: false
-  advance:
-    description: >
-      The amount request for an advance, or null if no advance is requested
-    type: integer
-    format: cents
-    x-nullable: true
   advanceRequested:
     description: >
       Indicates whether an advance has been requested for the PPM shipment.
     type: boolean
     x-nullable: true
+    x-omitempty: false
+  advance:
+    description: >
+      The amount requested for an advance, or null if no advance is requested
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  hasReceivedAdvance:
+    description: >
+      Indicates whether an advance was received for the PPM shipment.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  advanceAmountReceived:
+    description: >
+      The amount received for an advance, or null if no advance is received.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
   deletedAt:
     format: date-time
     type: string
+    x-nullable: true
+    x-omitempty: false
+  sitLocation:
+    allOf:
+      - $ref: 'SITLocationType.yaml'
+      - x-nullable: true
+      - x-omitempty: false
+  sitEstimatedWeight:
+    type: integer
+    example: 2000
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedEntryDate:
+    format: date
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedDepartureDate:
+    format: date
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedCost:
+    type: integer
+    format: cents
     x-nullable: true
     x-omitempty: false
   eTag:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
     type: string
     readOnly: true
+required:
+  - id
+  - shipmentId
+  - createdAt
+  - updatedAt
+  - status
+  - expectedDepartureDate
+  - pickupPostalCode
+  - destinationPostalCode
+  - sitExpected
+  - eTag

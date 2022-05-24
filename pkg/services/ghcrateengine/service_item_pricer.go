@@ -45,6 +45,10 @@ func (p serviceItemPricer) PriceServiceItem(appCtx appcontext.AppContext, item m
 }
 
 func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services.ParamsPricer, error) {
+	return PricerForServiceItem(serviceCode)
+}
+
+func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPricer, error) {
 	switch serviceCode {
 	case models.ReServiceCodeMS:
 		return NewManagementServicesPricer(), nil

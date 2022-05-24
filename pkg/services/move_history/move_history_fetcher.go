@@ -125,22 +125,36 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	pickup_address_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			json_agg(
+				json_build_object(
+					'address_type', 'pickupAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+				)::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
 		JOIN shipments ON shipments.pickup_address_id = audit_history.object_id
 			AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
 	),
 	destination_address_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			json_agg(
+				json_build_object(
+					'address_type', 'destinationAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+			)::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
 		JOIN shipments ON shipments.destination_address_id = audit_history.object_id
 			AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
 	),
 	entitlements AS (
 		SELECT
@@ -172,7 +186,8 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 					payment_service_items.price_cents::TEXT,
 					'status',
 					payment_service_items.status))::TEXT AS context,
-			payment_requests.id AS id
+			payment_requests.id AS id,
+			payment_requests.payment_request_number
 		FROM
 			payment_requests
 		JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
@@ -196,6 +211,49 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			audit_history
 			JOIN payment_requests ON payment_requests.id = audit_history.object_id
 				AND audit_history. "table_name" = 'payment_requests'
+	),
+	proof_of_service_docs AS (
+		SELECT
+			proof_of_service_docs.*,
+			json_agg(json_build_object(
+				'payment_request_number',
+				payment_requests.payment_request_number::TEXT))::TEXT AS context
+		FROM
+			proof_of_service_docs
+				JOIN payment_requests ON proof_of_service_docs.payment_request_id = payment_requests.id
+		GROUP BY proof_of_service_docs.id
+	),
+	proof_of_service_docs_logs AS (
+		SELECT
+			audit_history.*,
+			context,
+			NULL AS context_id
+		FROM
+			audit_history
+			JOIN proof_of_service_docs ON proof_of_service_docs.id = audit_history.object_id
+				AND audit_history. "table_name" = 'proof_of_service_docs'
+	),
+	agents AS (
+		SELECT
+			mto_agents.id,
+			json_agg(json_build_object(
+				'shipment_type',
+				shipments.shipment_type))::TEXT AS context
+		FROM
+			mto_agents
+			JOIN shipments ON mto_agents.mto_shipment_id = shipments.id
+		GROUP BY
+			mto_agents.id
+	),
+	agents_logs AS (
+		SELECT
+			audit_history.*,
+			context,
+			NULL AS context_id
+		FROM
+			audit_history
+			JOIN agents ON agents.id = audit_history.object_id
+				AND audit_history."table_name" = 'mto_agents'
 	),
 	reweighs AS (
 		SELECT
@@ -257,7 +315,17 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		SELECT
 			*
 		FROM
+			agents_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
 			payment_requests_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			proof_of_service_docs_logs
 		UNION ALL
 		SELECT
 			*
@@ -277,7 +345,8 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 				OR roles.role_type = 'transportation_invoicing_officer'
 				OR roles.role_type = 'ppm_office_users'
 				OR role_type = 'services_counselor'
-				OR role_type = 'contracting_officer')
+				OR role_type = 'contracting_officer'
+				OR role_type = 'qae_csr')
 		LEFT JOIN office_users ON office_users.user_id = session_userid
 	ORDER BY
 		action_tstamp_tx DESC`

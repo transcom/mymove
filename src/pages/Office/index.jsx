@@ -326,6 +326,8 @@ export class OfficeApp extends Component {
                             return <ServicesCounselingQueue {...routeProps} />;
                           case roleTypes.PRIME_SIMULATOR:
                             return <PrimeSimulatorAvailableMoves {...routeProps} />;
+                          case roleTypes.QAE_CSR:
+                            return <div>QAE/CSR Goes Here</div>;
                           default:
                             // User has unknown role or shouldn't have access
                             return <div />;

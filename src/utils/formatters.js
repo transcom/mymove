@@ -172,6 +172,65 @@ export const formatPrimeAPIFullAddress = (address) => {
   return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
 };
 
+export const formatMoveHistoryFullAddress = (address) => {
+  let formattedAddress = '';
+  if (address.street_address_1) {
+    formattedAddress += `${address.street_address_1}`;
+  }
+
+  if (address.street_address_2) {
+    formattedAddress += `, ${address.street_address_2}`;
+  }
+
+  if (address.city) {
+    formattedAddress += `, ${address.city}`;
+  }
+
+  if (address.state) {
+    formattedAddress += `, ${address.state}`;
+  }
+
+  if (address.postal_code) {
+    formattedAddress += ` ${address.postal_code}`;
+  }
+
+  if (formattedAddress[0] === ',') {
+    formattedAddress = formattedAddress.substring(1);
+  }
+
+  formattedAddress = formattedAddress.trim();
+
+  return formattedAddress;
+};
+
+export const formatMoveHistoryAgent = (agent) => {
+  let formattedAgent = '';
+
+  if (agent.first_name) {
+    formattedAgent += `${agent.first_name}`;
+  }
+
+  if (agent.last_name) {
+    formattedAgent += ` ${agent.last_name}`;
+  }
+
+  if (agent.phone) {
+    formattedAgent += `, ${agent.phone}`;
+  }
+
+  if (agent.email) {
+    formattedAgent += `, ${agent.email}`;
+  }
+
+  if (formattedAgent[0] === ',') {
+    formattedAgent = formattedAgent.substring(1);
+  }
+
+  formattedAgent = formattedAgent.trim();
+
+  return formattedAgent;
+};
+
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
 };
@@ -190,6 +249,10 @@ export const formatAgeToDays = (age) => {
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
   return moment(date).format('DD MMM YYYY');
+}
+// Format dates for customer remarks in the office app (ex. 25 Dec 2020 8:00)
+export function formatCustomerSupportRemarksDate(date) {
+  return moment(date).format('DD MMM YYYY HH:mm');
 }
 
 export function formatSignatureDate(date) {
@@ -316,7 +379,15 @@ export function formatAmount(amount, options = { minimumFractionDigits: 2, maxim
   return amount.toLocaleString(undefined, options);
 }
 
+// Converts a cents value into whole dollars, rounding down.
+export function convertCentsToWholeDollarsRoundedDown(cents) {
+  return Math.floor(cents / 100);
+}
+
 // Converts a cents value into whole dollars, dropping the decimal precision without rounding e.g. 1234599 -> 12,345
 export function formatCentsTruncateWhole(cents) {
-  return formatAmount(Math.floor(cents / 100), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return formatAmount(convertCentsToWholeDollarsRoundedDown(cents), {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
 }

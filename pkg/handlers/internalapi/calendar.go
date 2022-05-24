@@ -15,7 +15,7 @@ import (
 
 // ShowAvailableMoveDatesHandler returns the available move dates starting at a given date.
 type ShowAvailableMoveDatesHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle returns the available move dates.

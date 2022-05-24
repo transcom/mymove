@@ -3,8 +3,6 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
-	"testing"
 
 	"github.com/gobuffalo/validate/v3"
 
@@ -25,30 +23,19 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
-	// replace this with generated UUID when filter param is built out
-	uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
-	id, _ := uuid.FromString(uuidString)
-	assertions := testdatagen.Assertions{
-		AdminUser: models.AdminUser{
-			ID: id,
-		},
-	}
-	testdatagen.MakeAdminUser(suite.DB(), assertions)
-	testdatagen.MakeDefaultAdminUser(suite.DB())
-
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/admin_users", nil)
-	req = suite.AuthenticateAdminRequest(req, requestUser)
-
 	// test that everything is wired up
-	suite.T().Run("integration test ok response", func(t *testing.T) {
+	suite.Run("integration test ok response", func() {
+		adminUsers := models.AdminUsers{
+			testdatagen.MakeDefaultAdminUser(suite.DB()),
+			testdatagen.MakeDefaultAdminUser(suite.DB()),
+		}
 		params := adminuserop.IndexAdminUsersParams{
-			HTTPRequest: req,
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/admin_users"),
 		}
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexAdminUsersHandler{
-			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			HandlerConfig:        handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			NewQueryFilter:       query.NewQueryFilter,
 			AdminUserListFetcher: adminuser.NewAdminUserListFetcher(queryBuilder),
 			NewPagination:        pagination.NewPagination,
@@ -59,47 +46,12 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 		suite.IsType(&adminuserop.IndexAdminUsersOK{}, response)
 		okResponse := response.(*adminuserop.IndexAdminUsersOK)
 		suite.Len(okResponse.Payload, 2)
-		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
+		suite.Equal(adminUsers[0].ID.String(), okResponse.Payload[0].ID.String())
 	})
 
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-
-	suite.T().Run("successful response", func(t *testing.T) {
-		adminUser := models.AdminUser{ID: id}
+	suite.Run("unsuccesful response when fetch fails", func() {
 		params := adminuserop.IndexAdminUsersParams{
-			HTTPRequest: req,
-		}
-		adminUserListFetcher := &mocks.AdminUserListFetcher{}
-		adminUserListFetcher.On("FetchAdminUserList",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(models.AdminUsers{adminUser}, nil).Once()
-		adminUserListFetcher.On("FetchAdminUserCount",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-		).Return(1, nil).Once()
-		handler := IndexAdminUsersHandler{
-			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			NewQueryFilter:       newQueryFilter,
-			AdminUserListFetcher: adminUserListFetcher,
-			NewPagination:        pagination.NewPagination,
-		}
-
-		response := handler.Handle(params)
-
-		suite.IsType(&adminuserop.IndexAdminUsersOK{}, response)
-		okResponse := response.(*adminuserop.IndexAdminUsersOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
-	})
-
-	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
-		params := adminuserop.IndexAdminUsersParams{
-			HTTPRequest: req,
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/admin_users"),
 		}
 		expectedError := models.ErrFetchNotFound
 		adminUserListFetcher := &mocks.AdminUserListFetcher{}
@@ -115,8 +67,8 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexAdminUsersHandler{
-			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-			NewQueryFilter:       newQueryFilter,
+			HandlerConfig:        handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			NewQueryFilter:       newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 			AdminUserListFetcher: adminUserListFetcher,
 			NewPagination:        pagination.NewPagination,
 		}
@@ -132,30 +84,17 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 }
 
 func (suite *HandlerSuite) TestGetAdminUserHandler() {
-	// replace this with generated UUID when filter param is built out
-	uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
-	id, _ := uuid.FromString(uuidString)
-	assertions := testdatagen.Assertions{
-		AdminUser: models.AdminUser{
-			ID: id,
-		},
-	}
-	testdatagen.MakeAdminUser(suite.DB(), assertions)
-
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/admin_users/%s", id), nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
-
 	// test that everything is wired up
-	suite.T().Run("integration test ok response", func(t *testing.T) {
+	suite.Run("integration test ok response", func() {
+		adminUser := testdatagen.MakeDefaultAdminUser(suite.DB())
 		params := adminuserop.GetAdminUserParams{
-			HTTPRequest: req,
-			AdminUserID: strfmt.UUID(uuidString),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/admin_users/%s", adminUser.ID)),
+			AdminUserID: strfmt.UUID(adminUser.ID.String()),
 		}
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			adminuser.NewAdminUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -164,17 +103,14 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 
 		suite.IsType(&adminuserop.GetAdminUserOK{}, response)
 		okResponse := response.(*adminuserop.GetAdminUserOK)
-		suite.Equal(uuidString, okResponse.Payload.ID.String())
+		suite.Equal(adminUser.ID.String(), okResponse.Payload.ID.String())
 	})
 
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-
-	suite.T().Run("successful response", func(t *testing.T) {
-		adminUser := models.AdminUser{ID: id}
+	suite.Run("successful response", func() {
+		adminUser := models.AdminUser{ID: uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763")}
 		params := adminuserop.GetAdminUserParams{
-			HTTPRequest: req,
-			AdminUserID: strfmt.UUID(uuidString),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/admin_users/%s", adminUser.ID)),
+			AdminUserID: strfmt.UUID(adminUser.ID.String()),
 		}
 		adminUserFetcher := &mocks.AdminUserFetcher{}
 		adminUserFetcher.On("FetchAdminUser",
@@ -182,22 +118,23 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 			mock.Anything,
 		).Return(adminUser, nil).Once()
 		handler := GetAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			adminUserFetcher,
-			newQueryFilter,
+			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
 
 		response := handler.Handle(params)
 
 		suite.IsType(&adminuserop.GetAdminUserOK{}, response)
 		okResponse := response.(*adminuserop.GetAdminUserOK)
-		suite.Equal(uuidString, okResponse.Payload.ID.String())
+		suite.Equal(adminUser.ID.String(), okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("unsuccessful response when fetch fails", func(t *testing.T) {
+	suite.Run("unsuccessful response when fetch fails", func() {
+		adminUser := testdatagen.MakeDefaultAdminUser(suite.DB())
 		params := adminuserop.GetAdminUserParams{
-			HTTPRequest: req,
-			AdminUserID: strfmt.UUID(uuidString),
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/admin_users/%s", adminUser.ID)),
+			AdminUserID: strfmt.UUID(adminUser.ID.String()),
 		}
 		expectedError := models.ErrFetchNotFound
 		adminUserFetcher := &mocks.AdminUserFetcher{}
@@ -206,9 +143,9 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 			mock.Anything,
 		).Return(models.AdminUser{}, expectedError).Once()
 		handler := GetAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			adminUserFetcher,
-			newQueryFilter,
+			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
 
 		response := handler.Handle(params)
@@ -223,9 +160,8 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 
 func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 	organizationID, _ := uuid.NewV4()
-	adminUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 	adminUser := models.AdminUser{
-		ID:             adminUserID,
+		ID:             uuid.Nil,
 		OrganizationID: &organizationID,
 		UserID:         nil,
 		Role:           models.SystemAdminRole,
@@ -234,29 +170,24 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
-	req := httptest.NewRequest("POST", "/admin_users", nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	suite.Run("Successful create", func() {
+		params := adminuserop.CreateAdminUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/admin_users"),
+			AdminUser: &adminmessages.AdminUserCreatePayload{
+				FirstName:      adminUser.FirstName,
+				LastName:       adminUser.LastName,
+				OrganizationID: strfmt.UUID(adminUser.OrganizationID.String()),
+			},
+		}
 
-	params := adminuserop.CreateAdminUserParams{
-		HTTPRequest: req,
-		AdminUser: &adminmessages.AdminUserCreatePayload{
-			FirstName:      adminUser.FirstName,
-			LastName:       adminUser.LastName,
-			OrganizationID: strfmt.UUID(adminUser.OrganizationID.String()),
-		},
-	}
-
-	suite.T().Run("Successful create", func(t *testing.T) {
 		adminUserCreator := &mocks.AdminUserCreator{}
-
 		adminUserCreator.On("CreateAdminUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			&adminUser,
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
 		handler := CreateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			adminUserCreator,
 			newQueryFilter,
 		}
@@ -265,16 +196,24 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 		suite.IsType(&adminuserop.CreateAdminUserCreated{}, response)
 	})
 
-	suite.T().Run("Failed create", func(t *testing.T) {
-		adminUserCreator := &mocks.AdminUserCreator{}
+	suite.Run("Failed create", func() {
+		params := adminuserop.CreateAdminUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/admin_users"),
+			AdminUser: &adminmessages.AdminUserCreatePayload{
+				FirstName:      adminUser.FirstName,
+				LastName:       adminUser.LastName,
+				OrganizationID: strfmt.UUID(adminUser.OrganizationID.String()),
+			},
+		}
 
+		adminUserCreator := &mocks.AdminUserCreator{}
 		adminUserCreator.On("CreateAdminUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			&adminUser,
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
 		handler := CreateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			adminUserCreator,
 			newQueryFilter,
 		}
@@ -285,27 +224,21 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
-	adminUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
+	adminUserID := uuid.Must(uuid.NewV4())
 	adminUser := models.AdminUser{ID: adminUserID, FirstName: "Leo", LastName: "Spaceman"}
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
-	endpoint := fmt.Sprintf("/admin_users/%s", adminUserID)
-	req := httptest.NewRequest("PUT", endpoint, nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	suite.Run("Successful update", func() {
+		params := adminuserop.UpdateAdminUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/admin_users/%s", adminUserID)),
+			AdminUser: &adminmessages.AdminUserUpdatePayload{
+				FirstName: &adminUser.FirstName,
+				LastName:  &adminUser.LastName,
+			},
+		}
 
-	params := adminuserop.UpdateAdminUserParams{
-		HTTPRequest: req,
-		AdminUser: &adminmessages.AdminUserUpdatePayload{
-			FirstName: &adminUser.FirstName,
-			LastName:  &adminUser.LastName,
-		},
-	}
-
-	suite.T().Run("Successful update", func(t *testing.T) {
 		adminUserUpdater := &mocks.AdminUserUpdater{}
-
 		adminUserUpdater.On("UpdateAdminUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -313,7 +246,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		).Return(&adminUser, nil, nil).Once()
 
 		handler := UpdateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			adminUserUpdater,
 			newQueryFilter,
 		}
@@ -322,41 +255,36 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		suite.IsType(&adminuserop.UpdateAdminUserOK{}, response)
 	})
 
-	suite.T().Run("Failed update", func(t *testing.T) {
+	suite.Run("Failed update", func() {
+		// TESTCASE SCENARIO
+		// Under test: UpdateAdminUserHandler
+		// Mocked: UpdateAdminUser
+		// Set up: UpdateAdminUser is mocked to return validation errors as if an error was encountered
+		// Expected outcome: The handler should see the validation errors and also return an error
+		params := adminuserop.UpdateAdminUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/admin_users/%s", adminUserID)),
+			AdminUser: &adminmessages.AdminUserUpdatePayload{
+				FirstName: &adminUser.FirstName,
+				LastName:  &adminUser.LastName,
+			},
+		}
+
 		adminUserUpdater := &mocks.AdminUserUpdater{}
+		err := validate.NewErrors()
 
 		adminUserUpdater.On("UpdateAdminUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.AdminUser,
-		).Return(&adminUser, nil, nil).Once()
+		).Return(nil, err, nil).Once()
 
 		handler := UpdateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			adminUserUpdater,
 			newQueryFilter,
 		}
 
-		response := handler.Handle(params)
-		suite.IsType(&adminuserop.UpdateAdminUserOK{}, response)
+		handler.Handle(params)
+		suite.Error(err, "Error saving user")
 	})
-
-	adminUserUpdater := &mocks.AdminUserUpdater{}
-	err := validate.NewErrors()
-
-	adminUserUpdater.On("UpdateAdminUser",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		params.AdminUser,
-	).Return(nil, err, nil).Once()
-
-	handler := UpdateAdminUserHandler{
-		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-		adminUserUpdater,
-		newQueryFilter,
-	}
-
-	handler.Handle(params)
-	suite.Error(err, "Error saving user")
-
 }

@@ -1597,6 +1597,36 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
+  '/moves/{locator}/customer-support-remarks':
+    parameters:
+      - description: move code to identify a move for customer support remarks
+        format: string
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: 'definitions/CustomerSupportRemarks.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - customerSupportRemarks
+      description: Fetches customer support remarks for a move
+      operationId: getCustomerSupportRemarksForMove
+      summary: Fetches customer support remarks using the move code (locator).
   '/moves/{locator}/payment-requests':
     parameters:
       - description: move code to identify a move for payment requests
@@ -3288,6 +3318,101 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: 'definitions/StorageFacility.yaml'
+      ppmShipment:
+        $ref: '#/definitions/UpdatePPMShipment'
+  UpdatePPMShipment:
+    type: object
+    properties:
+      expectedDepartureDate:
+        description: >
+          Date the customer expects to move.
+        format: date
+        type: string
+        x-nullable: true
+      actualMoveDate:
+        format: date
+        type: string
+        x-nullable: true
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryPickupPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      sitExpected:
+        type: boolean
+        x-nullable: true
+      sitLocation:
+        allOf:
+          - $ref: 'definitions/SITLocationType.yaml'
+          - x-nullable: true
+      sitEstimatedWeight:
+        type: integer
+        example: 2000
+        x-nullable: true
+      sitEstimatedEntryDate:
+        format: date
+        type: string
+        x-nullable: true
+      sitEstimatedDepartureDate:
+        format: date
+        type: string
+        x-nullable: true
+      estimatedWeight:
+        type: integer
+        example: 4200
+        x-nullable: true
+      netWeight:
+        description: >
+          The net weight of the shipment once it has been weighed
+        type: integer
+        example: 4300
+        x-nullable: true
+      hasProGear:
+        description: >
+          Indicates whether PPM shipment has pro gear.
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        type: integer
+        x-nullable: true
+      spouseProGearWeight:
+        type: integer
+        x-nullable: true
+      advance:
+        description: >
+          The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      advanceRequested:
+        description: >
+          Indicates whether an advance has been requested for the PPM shipment.
+        type: boolean
+        x-nullable: true
   MTOShipments:
     items:
       $ref: 'definitions/MTOShipment.yaml'
@@ -3375,10 +3500,84 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: 'definitions/StorageFacility.yaml'
+      ppmShipment:
+        $ref: '#/definitions/CreatePPMShipment'
     required:
       - moveTaskOrderID
-      - pickupAddress
-      - destinationAddress
+      - shipmentType
+  CreatePPMShipment:
+    description: A personally procured move is a type of shipment that a service members moves themselves.
+    properties:
+      expectedDepartureDate:
+        description: >
+          Date the customer expects to move.
+        format: date
+        type: string
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      secondaryPickupPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      sitExpected:
+        type: boolean
+      sitLocation:
+        allOf:
+          - $ref: 'definitions/SITLocationType.yaml'
+          - x-nullable: true
+      sitEstimatedWeight:
+        type: integer
+        example: 2000
+        x-nullable: true
+      sitEstimatedEntryDate:
+        format: date
+        type: string
+        x-nullable: true
+      sitEstimatedDepartureDate:
+        format: date
+        type: string
+        x-nullable: true
+      estimatedWeight:
+        type: integer
+        example: 4200
+      hasProGear:
+        description: >
+          Indicates whether PPM shipment has pro gear.
+        type: boolean
+      proGearWeight:
+        type: integer
+        x-nullable: true
+      spouseProGearWeight:
+        type: integer
+        x-nullable: true
+    required:
+      - expectedDepartureDate
+      - pickupPostalCode
+      - destinationPostalCode
+      - sitExpected
+      - estimatedWeight
+      - hasProGear
   RejectShipment:
     properties:
       rejectionReason:

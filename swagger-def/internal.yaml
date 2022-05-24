@@ -2318,7 +2318,7 @@ definitions:
         example: handle with care
         x-nullable: true
       ppmShipment:
-        $ref: '#/definitions/PPMShipment'
+        $ref: 'definitions/PPMShipment.yaml'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       status:
@@ -2379,154 +2379,6 @@ definitions:
     required:
       - moveTaskOrderID
       - shipmentType
-  PPMShipmentStatus:
-    type: string
-    readOnly: true
-    enum:
-      - DRAFT
-      - SUBMITTED
-      - WAITING_ON_CUSTOMER
-      - NEEDS_ADVANCE_APPROVAL
-      - NEEDS_PAYMENT_APPROVAL
-      - PAYMENT_APPROVED
-  PPMShipment:
-    description: A personally procured move is a type of shipment that a service members moves themselves.
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      shipmentId:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      status:
-        $ref: '#/definitions/PPMShipmentStatus'
-      expectedDepartureDate:
-        description: >
-          Date the customer expects to move.
-        format: date
-        type: string
-      actualMoveDate:
-        format: date
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      submittedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      reviewedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      approvedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
-      sitExpected:
-        type: boolean
-      estimatedWeight:
-        type: integer
-        example: 4200
-        x-nullable: true
-        x-omitempty: false
-      netWeight:
-        description: >
-          The net weight of the shipment once it has been weight
-        type: integer
-        example: 4300
-        x-nullable: true
-        x-omitempty: false
-      hasProGear:
-        description: >
-          Indicates whether PPM shipment has pro gear.
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      proGearWeight:
-        type: integer
-        x-nullable: true
-        x-omitempty: false
-      spouseProGearWeight:
-        type: integer
-        x-nullable: true
-        x-omitempty: false
-      estimatedIncentive:
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
-      advance:
-        description: >
-          The amount request for an advance, or null if no advance is requested
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
-      advanceRequested:
-        description: >
-          Indicates whether an advance has been requested for the PPM shipment.
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      eTag:
-        description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
-        type: string
-        readOnly: true
-    required:
-      - id
-      - shipmentId
-      - createdAt
-      - updatedAt
-      - status
-      - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
-      - sitExpected
-      - eTag
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
@@ -2595,6 +2447,15 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      actualPickupPostalCode:
+        description: >
+          The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
       destinationPostalCode:
         format: zip
         type: string
@@ -2603,6 +2464,15 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      actualDestinationPostalCode:
+        description: >
+          The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
         format: zip
         type: string
         title: ZIP
@@ -2633,20 +2503,27 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
-      estimatedIncentive:
-        type: integer
-        format: cents
-        x-nullable: true
-      advance:
-        description: >
-          The amount request for an advance, or null if no advance is requested
-        type: integer
-        format: cents
-        x-nullable: true
       advanceRequested:
         description: >
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
+        x-nullable: true
+      advance:
+        description: >
+          The amount requested for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      hasReceivedAdvance:
+        description: >
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
+      advanceAmountReceived:
+        description: >
+          The amount received for an advance, or null if no advance is received.
+        type: integer
+        format: cents
         x-nullable: true
   UpdateShipment:
     type: object
@@ -3172,43 +3049,6 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate:
-    patch:
-      summary: Calculates the estimated incentive of a PPM
-      description: This request calculates the estimated incentive of a PPM and attaches this range to the PPM
-      operationId: updatePersonallyProcuredMoveEstimate
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being patched
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: ppm is not found or ppm discount not found for provided postal codes and original move date
-        '422':
-          description: cannot process request with given information
-        '500':
-          description: internal server error
   /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
     put:
       summary: Updates the PPM

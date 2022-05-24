@@ -330,7 +330,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		subtestData := suite.makeSubtestData()
 
 		var paramLookupService1 *ServiceItemParamKeyData
-		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip2DLH.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip2DLH, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 
 		var estimatedWeightStr string
@@ -339,7 +339,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		expected := strconv.Itoa(subtestData.estimatedWeight.Int())
 		suite.Equal(expected, estimatedWeightStr)
 
-		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShuttle.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShuttle, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 
 		var shuttleEstimatedWeightStr string
@@ -354,7 +354,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		// Another test to confirm that the cache returns correct values when having two lookups of the same param
 		// on the same shipment.
 		subtestData := suite.makeSubtestData()
-		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemCrate1.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemCrate1, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 
 		var cubicFeet string
@@ -362,7 +362,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		suite.FatalNoError(err)
 		suite.Equal("1029.33", cubicFeet)
 
-		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemCrate2.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemCrate2, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 
 		cubicFeet, err = paramLookupService2.ServiceParamValue(suite.AppContextForTest(), subtestData.paramKeyCubicFeetBilled.Key)
@@ -373,7 +373,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// Estimated Weight
 	suite.Run("Shipment 1 estimated weight", func() {
 		subtestData := suite.makeSubtestData()
-		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip1DLH.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip1DLH, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 
 		var estimatedWeightStr string
@@ -386,7 +386,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// Requested Pickup Date
 	suite.Run("Shipment 1 requested pickup date", func() {
 		subtestData := suite.makeSubtestData()
-		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip1DLH.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip1DLH, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 		expectedRequestedPickupDate := subtestData.mtoShipment1.RequestedPickupDate.String()[:10]
 		var requestedPickupDateStr string
@@ -398,7 +398,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// Estimated Weight changed on shipment1 but pulled from cache
 	suite.Run("Shipment 1 estimated weight cache", func() {
 		subtestData := suite.makeSubtestData()
-		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip1DLH.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip1DLH, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 		expectedWeight := strconv.Itoa(subtestData.estimatedWeight.Int())
 		changeExpectedEstimatedWeight := unit.Pound(3048)
@@ -417,7 +417,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// Requested Pickup Date changed on shipment1 but pulled from cache
 	suite.Run("Shipment 1 requested pickup date changed", func() {
 		subtestData := suite.makeSubtestData()
-		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip1DLH.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip1DLH, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 		expectedRequestedPickupDate := subtestData.mtoShipment1.RequestedPickupDate.String()[:10]
 		changeRequestedPickupDate := time.Date(testdatagen.GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
@@ -437,7 +437,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		subtestData := suite.makeSubtestData()
 
 		var paramLookupService2 *ServiceItemParamKeyData
-		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip2DLH.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip2DLH, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 
 		var estimatedWeightStr string
@@ -450,7 +450,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// Requested Pickup Date
 	suite.Run("Shipment 2 Requested Pickup Date", func() {
 		subtestData := suite.makeSubtestData()
-		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip2DLH.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShip2DLH, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 		expectedRequestedPickupDate := subtestData.mtoShipment2.RequestedPickupDate.String()[:10]
 		var requestedPickupDateStr string
@@ -469,7 +469,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		suite.MustSave(&subtestData.mtoServiceItemMS)
 
 		var paramLookupService3 *ServiceItemParamKeyData
-		paramLookupService3, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemMS.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService3, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemMS, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 
 		availToPrimeAt := time.Date(testdatagen.GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)

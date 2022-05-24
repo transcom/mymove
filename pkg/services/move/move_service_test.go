@@ -15,7 +15,8 @@ type MoveServiceSuite struct {
 func TestMoveServiceSuite(t *testing.T) {
 
 	hs := &MoveServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction()),
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

@@ -53,8 +53,8 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 	sessionManagers := setupSessionManagers()
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -84,6 +84,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	testdatagen.MakeTOORole(suite.DB())
 	testdatagen.MakeTIORole(suite.DB())
 	testdatagen.MakeServicesCounselorRole(suite.DB())
+	testdatagen.MakeQaeCsrRole(suite.DB())
 
 	appnames := ApplicationTestServername()
 	callbackPort := 1234
@@ -91,14 +92,14 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	sessionManagers := setupSessionManagers()
 	officeSession := sessionManagers[2]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
 
 	for _, newOfficeUser := range []struct {
 		userType string
 		roleType roles.RoleType
 		email    string
-	}{{userType: PPMOfficeUserType, roleType: roles.RoleTypePPMOfficeUsers, email: "ppm_office_user@example.com"}, {userType: TOOOfficeUserType, roleType: roles.RoleTypeTOO, email: "too_office_user@example.com"}, {userType: TIOOfficeUserType, roleType: roles.RoleTypeTIO, email: "tio_office_user@example.com"}, {userType: ServicesCounselorOfficeUserType, roleType: roles.RoleTypeServicesCounselor, email: "services_counselor_office_user@example.com"}} {
+	}{{userType: PPMOfficeUserType, roleType: roles.RoleTypePPMOfficeUsers, email: "ppm_office_user@example.com"}, {userType: TOOOfficeUserType, roleType: roles.RoleTypeTOO, email: "too_office_user@example.com"}, {userType: TIOOfficeUserType, roleType: roles.RoleTypeTIO, email: "tio_office_user@example.com"}, {userType: ServicesCounselorOfficeUserType, roleType: roles.RoleTypeServicesCounselor, email: "services_counselor_office_user@example.com"}, {userType: QaeCsrOfficeUserType, roleType: roles.RoleTypeQaeCsr, email: "qae_csr_office_user@example.com"}} {
 		// Exercise all variables in the office user
 		form := url.Values{}
 		form.Add("userType", newOfficeUser.userType)
@@ -164,8 +165,8 @@ func (suite *AuthSuite) TestCreateUserHandlerDPS() {
 	sessionManagers := setupSessionManagers()
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -208,8 +209,8 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 	sessionManagers := setupSessionManagers()
 	adminSession := sessionManagers[1]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	adminSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -266,8 +267,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	sessionManagers := setupSessionManagers()
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req.WithContext(ctx))
 
@@ -307,8 +308,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	sessionManagers := setupSessionManagers()
 	officeSession := sessionManagers[2]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	officeSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -342,8 +343,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToAdmin() {
 	sessionManagers := setupSessionManagers()
 	adminSession := sessionManagers[1]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	adminSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -377,8 +378,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToMilMove() {
 	sessionManagers := setupSessionManagers()
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -411,8 +412,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToAdmin() {
 
 	sessionManagers := setupSessionManagers()
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 	adminSession := sessionManagers[1]
 
 	rr := httptest.NewRecorder()
@@ -447,8 +448,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 	sessionManagers := setupSessionManagers()
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
@@ -483,8 +484,8 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	sessionManagers := setupSessionManagers()
 	officeSession := sessionManagers[2]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-	handler := NewCreateAndLoginUserHandler(authContext, context, appnames)
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig, appnames)
 
 	rr := httptest.NewRecorder()
 	officeSession.LoadAndSave(handler).ServeHTTP(rr, req)

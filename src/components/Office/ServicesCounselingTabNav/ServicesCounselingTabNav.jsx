@@ -21,6 +21,9 @@ const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, moveCode }) => 
               <span className="tab-title">Move details</span>
               {unapprovedShipmentCount > 0 && <Tag>{unapprovedShipmentCount}</Tag>}
             </NavLink>,
+            <NavLink exact activeClassName="usa-current" to={`/counseling/moves/${moveCode}/customer-support-remarks`}>
+              <span className="tab-title">Customer support remarks</span>
+            </NavLink>,
             <NavLink
               exact
               activeClassName="usa-current"

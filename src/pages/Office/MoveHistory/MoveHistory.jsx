@@ -9,7 +9,7 @@ import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
 import { useGHCGetMoveHistory } from 'hooks/queries';
 import { formatDateFromIso } from 'utils/formatters';
-import getMoveHistoryEventTemplate from 'constants/moveHistoryEventTemplate';
+import getTemplate from 'constants/MoveHistory/TemplateManager';
 
 const columns = [
   createHeader(
@@ -17,17 +17,17 @@ const columns = [
     (row) => <div className={styles.dateAndTime}>{formatDateFromIso(row.actionTstampClk, 'DD MMM YY HH:mm')}</div>,
     { id: 'move-history-date-time' },
   ),
-  createHeader(
-    'Event',
-    (row) => <div className={styles.event}>{getMoveHistoryEventTemplate(row).getEventNameDisplay(row)}</div>,
-    {
-      id: 'move-history-event',
-    },
-  ),
+  createHeader('Event', (row) => <div className={styles.event}>{getTemplate(row).getEventNameDisplay(row)}</div>, {
+    id: 'move-history-event',
+  }),
   createHeader(
     'Details',
     (row) => {
-      return <MoveHistoryDetailsSelector historyRecord={row} />;
+      return (
+        <div className={styles.details}>
+          <MoveHistoryDetailsSelector historyRecord={row} />
+        </div>
+      );
     },
     { id: 'move-history-details' },
   ),
