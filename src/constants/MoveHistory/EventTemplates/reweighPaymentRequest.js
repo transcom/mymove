@@ -8,7 +8,7 @@ export default {
   eventName: o.updateReweigh,
   tableName: t.reweighs,
   detailsType: d.STATUS,
-  getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues[0]?.payment_request_number}`,
+  getEventNameDisplay: ({ context }) => `Updated payment request ${context[0]?.payment_request_number}`,
   getStatusDetails: () => {
     return 'Recalculated payment request';
   },
