@@ -26,7 +26,7 @@ const columns = (showBranchFilter = true) => [
     id: 'locator',
     isFilterable: true,
   }),
-  createHeader('DoD ID', 'customer.dodID', {
+  createHeader('DOD ID', 'customer.dodID', {
     id: 'dodID',
     isFilterable: true,
   }),
@@ -154,10 +154,10 @@ const QAECSRMoveSearch = ({ history }) => {
                   DOD ID
                 </label>
               </div>
-              <div className="usa-search">
+              <div className={classnames(styles.searchBar)}>
                 <TextField
                   id="searchText"
-                  className="usa-search__input"
+                  // className="usa-search__input"
                   label="Search"
                   name="searchText"
                   type="search"

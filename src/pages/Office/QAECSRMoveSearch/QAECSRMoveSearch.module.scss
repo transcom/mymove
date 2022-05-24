@@ -10,6 +10,12 @@
   border: 1px solid $border-color;
 }
 
-#searchText {
-  width: 350px;
+.searchBar {
+  width: 320px;
+  height: 43px;
+  display: flex;
+}
+
+.searchButton {
+  height: 43px;
 }
