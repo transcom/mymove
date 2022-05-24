@@ -6,7 +6,7 @@ import { Button, Form, Radio, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ppmBookingStyles from 'components/Customer/PPM/PPM.module.scss';
+import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import styles from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm.module.scss';
 import { MtoShipmentShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import formStyles from 'styles/form.module.scss';
@@ -50,10 +50,10 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
-          <div className={classnames(styles.EstimatedWeightsProGearForm, ppmBookingStyles.formContainer)}>
-            <Form className={(formStyles.form, ppmBookingStyles.form)}>
+          <div className={classnames(styles.EstimatedWeightsProGearForm, ppmStyles.formContainer)}>
+            <Form className={(formStyles.form, ppmStyles.form)}>
               <Alert type="info">{`Total weight allowance for your move: ${formatWeight(authorizedWeight)}`}</Alert>
-              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Full PPM</h2>
                 <p>
                   Estimate the full weight of your PPM, including everything you plan to move. If you’re moving pro-gear
@@ -79,7 +79,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                       ? 'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.'
                       : ''
                   }
-                  hintClassName={ppmBookingStyles.innerHint}
+                  hintClassName={ppmStyles.innerHint}
                 />
 
                 <p>
@@ -108,7 +108,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   new window.)
                 </p>
               </SectionWrapper>
-              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Pro-gear</h2>
                 <p>
                   Pro-gear, or PBP&E, includes books, papers, and equipment you need for your official duties. Service
@@ -137,7 +137,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                     checked={values.hasProGear === 'false'}
                   />
                 </Fieldset>
-                <Hint className={ppmBookingStyles.hint}>
+                <Hint className={ppmStyles.hint}>
                   If you&apos;re not sure, select yes and your counselor can help you figure it out.
                 </Hint>
                 {values.hasProGear === 'true' && (
@@ -172,12 +172,12 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   </>
                 )}
               </SectionWrapper>
-              <div className={ppmBookingStyles.buttonContainer}>
-                <Button className={ppmBookingStyles.backButton} type="button" onClick={onBack} secondary outline>
+              <div className={ppmStyles.buttonContainer}>
+                <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
                 <Button
-                  className={ppmBookingStyles.saveButton}
+                  className={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}
