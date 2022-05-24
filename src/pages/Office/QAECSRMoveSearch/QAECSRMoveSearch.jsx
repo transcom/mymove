@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Formik, Field } from 'formik';
 import { withRouter } from 'react-router-dom';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Radio } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 import classnames from 'classnames';
 
@@ -143,16 +143,26 @@ const QAECSRMoveSearch = ({ history }) => {
               onSubmit={formik.handleSubmit}
               role="search"
             >
-              <h3>What do you want to search for?</h3>
-              <div role="group" aria-labelledby="my-radio-group" className="usa-radio">
-                <label htmlFor="radio-picked-one">
-                  <Field id="radio-picked-one" type="radio" name="searchType" value="moveCode" />
-                  Move Code
-                </label>
-                <label htmlFor="radio-picked-two">
-                  <Field id="radio-picked-two" type="radio" name="searchType" value="dodID" />
-                  DOD ID
-                </label>
+              <p>What do you want to search for?</p>
+              <div role="group" className={formStyles.radioGroup}>
+                <Field
+                  as={Radio}
+                  id="radio-picked-movecode"
+                  type="radio"
+                  name="searchType"
+                  value="moveCode"
+                  title="Move Code"
+                  label="Move Code"
+                />
+                <Field
+                  as={Radio}
+                  id="radio-picked-dodid"
+                  type="radio"
+                  name="searchType"
+                  value="dodID"
+                  title="DOD ID"
+                  label="DOD ID"
+                />
               </div>
               <div className={classnames(styles.searchBar)}>
                 <TextField
@@ -162,11 +172,7 @@ const QAECSRMoveSearch = ({ history }) => {
                   name="searchText"
                   type="search"
                 />
-                <Button
-                  className={classnames('usa-search__submit', styles.searchButton)}
-                  type="submit"
-                  disabled={!formik.isValid}
-                >
+                <Button className={classnames(styles.searchButton)} type="submit" disabled={!formik.isValid}>
                   Search
                 </Button>
               </div>
