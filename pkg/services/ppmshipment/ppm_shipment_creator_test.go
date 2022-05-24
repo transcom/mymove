@@ -67,7 +67,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				ExpectedDepartureDate: testdatagen.NextValidMoveDate,
 				PickupPostalCode:      "90909",
 				DestinationPostalCode: "90905",
-				SitExpected:           models.BoolPointer(false),
+				SITExpected:           models.BoolPointer(false),
 			},
 		})
 
@@ -164,7 +164,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				ExpectedDepartureDate: expectedDepartureDate,
 				PickupPostalCode:      pickupPostalCode,
 				DestinationPostalCode: destinationPostalCode,
-				SitExpected:           &sitExpected,
+				SITExpected:           &sitExpected,
 				EstimatedWeight:       &estimatedWeight,
 				HasProGear:            &hasProGear,
 			},
@@ -186,7 +186,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.Equal(expectedDepartureDate, createdPPMShipment.ExpectedDepartureDate)
 			suite.Equal(pickupPostalCode, createdPPMShipment.PickupPostalCode)
 			suite.Equal(destinationPostalCode, createdPPMShipment.DestinationPostalCode)
-			suite.Equal(&sitExpected, createdPPMShipment.SitExpected)
+			suite.Equal(&sitExpected, createdPPMShipment.SITExpected)
 			suite.Equal(&estimatedWeight, createdPPMShipment.EstimatedWeight)
 			suite.Equal(&hasProGear, createdPPMShipment.HasProGear)
 			suite.Equal(models.PPMShipmentStatusSubmitted, createdPPMShipment.Status)
