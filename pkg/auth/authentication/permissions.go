@@ -30,28 +30,25 @@ var AllRolesPermissions = []RolePermissions{TOO, TIO}
 func checkUserPermission(appCtx appcontext.AppContext, permission string) (bool, error) {
 	userID := appCtx.Session().UserID
 
-	userRolePermissions, err := getRolePermissionsForUser(appCtx, userID)
+	userPermissions, err := getPermissionsForUser(appCtx, userID)
 
 	if err != nil {
 		return false, err
 	}
 
-	for _, rp := range userRolePermissions {
-		for _, perm := range rp.Permissions {
-			if permission == perm {
-
-				fmt.Println("PERMISSION GRANTED: ", permission)
-				return true, nil
-			}
+	for _, perm := range userPermissions {
+		if permission == perm {
+			fmt.Println("PERMISSION GRANTED: ", permission)
+			return true, nil
 		}
 	}
 
 	return false, nil
 }
 
-//for a given user return the permissions associated with their roles
-func getRolePermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]RolePermissions, error) {
-	var userRolePermissions = []RolePermissions{}
+// for a given user return the permissions associated with their roles
+func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]string, error) {
+	var userPermissions []string
 
 	//check the users roles
 	userRoles, err := getRolesForUser(appCtx, userID)
@@ -64,12 +61,12 @@ func getRolePermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) (
 		for _, rp := range AllRolesPermissions {
 
 			if ur == rp.RoleType {
-				userRolePermissions = append(userRolePermissions, rp)
+				userPermissions = append(userPermissions, rp.Permissions...)
 			}
 		}
 	}
 
-	return userRolePermissions, nil
+	return userPermissions, nil
 }
 
 // load the [user.role] given a valid user ID
