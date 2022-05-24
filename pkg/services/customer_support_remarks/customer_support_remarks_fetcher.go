@@ -27,7 +27,7 @@ func (o customerSupportRemarksFetcher) ListCustomerSupportRemarks(appCtx appcont
 
 	customerSupportRemarks := models.CustomerSupportRemarks{}
 	err = appCtx.DB().Q().EagerPreload("OfficeUser").
-		Where("move_id = ?", move.ID).All(&customerSupportRemarks)
+		Where("move_id = ?", move.ID).Order("created_at desc").All(&customerSupportRemarks)
 
 	if err != nil {
 		return nil, err
