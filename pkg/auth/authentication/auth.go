@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
+
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -51,6 +53,53 @@ func IsLoggedInMiddleware(globalLogger *zap.Logger) http.HandlerFunc {
 		if newEncoderErr != nil {
 			logger.Error("Failed encoding is_logged_in check response", zap.Error(newEncoderErr))
 		}
+	}
+}
+
+type APIWithContext interface {
+	Context() *middleware.Context
+}
+
+func PermissionsMiddleware(api APIWithContext, appCtx appcontext.AppContext) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+
+			route, r, _ := api.Context().RouteInfo(r)
+			if route == nil {
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+
+			permissionsRequired, exists := route.Operation.VendorExtensible.Extensions["x-permissions"]
+			fmt.Printf("permissionsRequired: %v\n", permissionsRequired)
+
+			if !exists {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			permissionsRequiredAsInterfaceArray := permissionsRequired.([]interface{})
+
+			for _, v := range permissionsRequiredAsInterfaceArray {
+				permission := v.(string)
+				access, err := checkUserPermission(appCtx, permission)
+
+				if err != nil {
+					// TODO: should we log here?
+					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+					return
+				}
+
+				if !access {
+					http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+					return
+				}
+
+				//otherwise store permission on user data ? or what to do here
+			}
+		}
+
+		return http.HandlerFunc(mw)
 	}
 }
 

@@ -861,7 +861,11 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.move",
+          "create.serviceItem"
+        ]
       }
     },
     "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed": {
@@ -2269,7 +2273,11 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.move",
+          "create.serviceItem"
+        ]
       }
     },
     "/queues/payment-requests": {
@@ -7597,7 +7605,11 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.move",
+          "create.serviceItem"
+        ]
       }
     },
     "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed": {
@@ -9345,7 +9357,11 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.move",
+          "create.serviceItem"
+        ]
       }
     },
     "/queues/payment-requests": {

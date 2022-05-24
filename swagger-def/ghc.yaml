@@ -1352,6 +1352,9 @@ paths:
       description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
       summary: Change the status of a move task order to make it available to prime
+      x-permissions:
+        - update.move
+        - create.serviceItem
   '/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed':
     patch:
       consumes:
@@ -1967,6 +1970,9 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.move
+        - create.serviceItem
   /queues/payment-requests:
     get:
       produces:

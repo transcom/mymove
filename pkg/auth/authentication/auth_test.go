@@ -11,9 +11,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi"
+
 	"github.com/transcom/mymove/pkg/notifications/mocks"
 
 	"github.com/transcom/mymove/pkg/notifications"
@@ -243,6 +247,44 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 
 	// We should be not be redirected since we're logged in
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
+}
+
+func (suite *AuthSuite) TestRequirePermissionsMiddleware() {
+	// Given: a logged in user
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  &loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/ghc/v1/queues/moves", nil)
+
+	// And: the context contains the auth values
+	handlerSession := auth.Session{UserID: user.ID, IDToken: "fake Token", ApplicationName: "mil"}
+
+	ctx := auth.SetSessionInRequestContext(req, &handlerSession)
+	req = req.WithContext(ctx)
+
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	api := ghcapi.NewGhcAPIHandler(handlerConfig)
+	appCtx := suite.AppContextWithSessionForTest(&handlerSession)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+
+	middleware := PermissionsMiddleware(api, appCtx)
+
+	root := mux.NewRouter()
+	ghcMux := root.PathPrefix("/ghc/v1/").Subrouter()
+	ghcMux.PathPrefix("/").Handler(api.Serve(middleware))
+
+	middleware(handler).ServeHTTP(rr, req)
+
+	// We should be not be redirected since we're logged in
+	// suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
 }
 
