@@ -105,6 +105,7 @@ const SearchResultsTable = (props) => {
 
   return (
     <GridContainer data-testid="table-search" containerSize="widescreen" className={styles.SearchResultsTable}>
+      <p>{JSON.stringify(data)}</p>
       <h2>{`${title} (${totalCount})`}</h2>
       {totalCount > 0 ? (
         <div className={styles.tableContainer}>

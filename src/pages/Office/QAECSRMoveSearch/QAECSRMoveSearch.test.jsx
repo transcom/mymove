@@ -11,5 +11,11 @@ describe('QAECSRMoveSearch page', () => {
 
     const h1 = await screen.getByRole('heading', { name: 'Search for a move', level: 1 });
     expect(h1).toBeInTheDocument();
+
+    const results = screen.queryByText(/Results/);
+    expect(results).not.toBeInTheDocument();
   });
 });
+
+// validation maybe
+// search in cypress
