@@ -26,9 +26,7 @@ const TableQueue = ({
   useQueries,
   showFilters,
   showPagination,
-  // search,
 }) => {
-  // console.log('TableQueue');
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
   const [paramFilters, setParamFilters] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -170,8 +168,6 @@ TableQueue.propTypes = {
   defaultSortedColumns: SortShape,
   // defaultHiddenColumns is an array of columns to hide
   defaultHiddenColumns: PropTypes.arrayOf(PropTypes.string),
-  // TODO would need to handle move code and dod id
-  // search: PropTypes.string,
 };
 
 TableQueue.defaultProps = {
