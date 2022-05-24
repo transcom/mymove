@@ -5,7 +5,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-export default function ScrollToTop({ otherDep = null }) {
+const ScrollToTop = ({ otherDep = null }) => {
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -13,4 +13,14 @@ export default function ScrollToTop({ otherDep = null }) {
   }, [pathname, otherDep]);
 
   return null;
-}
+};
+
+ScrollToTop.propTypes = {
+  otherDep: null,
+};
+
+ScrollToTop.defaultProps = {
+  otherDep: null,
+};
+
+export default ScrollToTop;
