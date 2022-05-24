@@ -16,6 +16,3 @@ describe('QAECSRMoveSearch page', () => {
     expect(results).not.toBeInTheDocument();
   });
 });
-
-// validation maybe
-// search in cypress

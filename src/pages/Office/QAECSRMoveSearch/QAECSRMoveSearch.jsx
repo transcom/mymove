@@ -94,7 +94,6 @@ const validationSchema = Yup.object().shape({
   searchText: Yup.string().when('searchType', {
     is: 'moveCode',
     then: Yup.string().length(6),
-    // TODO need to figure out how to do this only when dodID is selected
     otherwise: Yup.string().length(10),
   }),
 });
