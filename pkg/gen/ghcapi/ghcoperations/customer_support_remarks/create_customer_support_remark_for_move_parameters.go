@@ -7,7 +7,6 @@ package customer_support_remarks
 
 import (
 	"context"
-	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -37,7 +36,6 @@ type CreateCustomerSupportRemarkForMoveParams struct {
 	HTTPRequest *http.Request `json:"-"`
 
 	/*
-	  Required: true
 	  In: body
 	*/
 	Body *ghcmessages.CreateCustomerSupportRemark
@@ -61,11 +59,7 @@ func (o *CreateCustomerSupportRemarkForMoveParams) BindRequest(r *http.Request, 
 		defer r.Body.Close()
 		var body ghcmessages.CreateCustomerSupportRemark
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			if err == io.EOF {
-				res = append(res, errors.Required("body", "body", ""))
-			} else {
-				res = append(res, errors.NewParseError("body", "body", "", err))
-			}
+			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {
 			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
@@ -81,8 +75,6 @@ func (o *CreateCustomerSupportRemarkForMoveParams) BindRequest(r *http.Request, 
 				o.Body = &body
 			}
 		}
-	} else {
-		res = append(res, errors.Required("body", "body", ""))
 	}
 
 	rLocator, rhkLocator, _ := route.Params.GetOK("locator")

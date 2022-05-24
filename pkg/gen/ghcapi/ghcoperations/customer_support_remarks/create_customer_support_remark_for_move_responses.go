@@ -145,50 +145,6 @@ func (o *CreateCustomerSupportRemarkForMoveNotFound) WriteResponse(rw http.Respo
 	}
 }
 
-// CreateCustomerSupportRemarkForMovePreconditionFailedCode is the HTTP code returned for type CreateCustomerSupportRemarkForMovePreconditionFailed
-const CreateCustomerSupportRemarkForMovePreconditionFailedCode int = 412
-
-/*CreateCustomerSupportRemarkForMovePreconditionFailed Precondition failed
-
-swagger:response createCustomerSupportRemarkForMovePreconditionFailed
-*/
-type CreateCustomerSupportRemarkForMovePreconditionFailed struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
-}
-
-// NewCreateCustomerSupportRemarkForMovePreconditionFailed creates CreateCustomerSupportRemarkForMovePreconditionFailed with default headers values
-func NewCreateCustomerSupportRemarkForMovePreconditionFailed() *CreateCustomerSupportRemarkForMovePreconditionFailed {
-
-	return &CreateCustomerSupportRemarkForMovePreconditionFailed{}
-}
-
-// WithPayload adds the payload to the create customer support remark for move precondition failed response
-func (o *CreateCustomerSupportRemarkForMovePreconditionFailed) WithPayload(payload *ghcmessages.Error) *CreateCustomerSupportRemarkForMovePreconditionFailed {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the create customer support remark for move precondition failed response
-func (o *CreateCustomerSupportRemarkForMovePreconditionFailed) SetPayload(payload *ghcmessages.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *CreateCustomerSupportRemarkForMovePreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(412)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // CreateCustomerSupportRemarkForMoveUnprocessableEntityCode is the HTTP code returned for type CreateCustomerSupportRemarkForMoveUnprocessableEntity
 const CreateCustomerSupportRemarkForMoveUnprocessableEntityCode int = 422
 

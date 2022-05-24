@@ -1610,11 +1610,6 @@ paths:
         - application/json
       consumes:
         - application/json
-      summary: Creates a customer support remark for a move
-      description: Creates a customer support remark for a move
-      tags:
-        - customerSupportRemarks
-      operationId: createCustomerSupportRemarkForMove
       parameters:
         - in: body
           name: body
@@ -1624,7 +1619,7 @@ paths:
         '200':
           description: Successfully created customer support remark
           schema:
-            $ref: '#/definitions/CustomerSupportRemark'
+            $ref: 'definitions/CustomerSupportRemark.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '404':
@@ -1633,6 +1628,11 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      tags:
+        - customerSupportRemarks
+      description: Creates a customer support remark for a move
+      operationId: createCustomerSupportRemarkForMove
+      summary: Creates a customer support remark for a move
     get:
       produces:
         - application/json
@@ -3740,6 +3740,26 @@ definitions:
       - MBFL
       - MLNQ
       - XXXX
+  CreateCustomerSupportRemark:
+    type: object
+    description: >-
+      A text remark written by an customer support user that is associated with a specific
+      move.
+    required:
+      - locator
+      - content
+      - officeUserID
+    properties:
+      locator:
+        type: string
+        example: 1K43AR
+      content:
+        example: This is a remark about a move.
+        type: string
+      officeUserID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid
