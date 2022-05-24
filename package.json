@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.17.12",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-regular-svg-icons": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
@@ -142,6 +143,7 @@
     "cypress-wait-until": "^1.7.2",
     "danger": "^11.0.6",
     "danger-plugin-jira-issue": "^1.4.1",
+    "deep-object-diff": "^1.1.7",
     "dotenv": "^10.0.0",
     "enzyme": "^3.11.0",
     "eslint-config-airbnb": "19.0.4",
