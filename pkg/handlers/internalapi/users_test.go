@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"net/http/httptest"
-	"testing"
 
 	"github.com/go-openapi/swag"
 
@@ -36,7 +35,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
-	suite.T().Run("current duty location missing", func(t *testing.T) {
+	suite.Run("current duty location missing", func() {
 		sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 
 		// Remove transportation office info from current duty location
@@ -60,7 +59,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("new duty location missing", func(t *testing.T) {
+	suite.Run("new duty location missing", func() {
 		// add orders
 		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 
