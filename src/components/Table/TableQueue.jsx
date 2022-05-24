@@ -140,6 +140,8 @@ const TableQueue = ({
   );
 };
 
+const ColumnShape = PropTypes.object;
+
 TableQueue.propTypes = {
   // handleClick is the handler to handle functionality to click on a row
   handleClick: PropTypes.func.isRequired,
@@ -148,7 +150,7 @@ TableQueue.propTypes = {
   // title is the table title
   title: PropTypes.string.isRequired,
   // columns is the columns to show in the table
-  columns: PropTypes.arrayOf(PropTypes.object).isRequired,
+  columns: PropTypes.arrayOf(ColumnShape).isRequired,
   // showFilters is bool value to show filters or not
   showFilters: PropTypes.bool,
   // showPagination is bool value to show pagination or not

@@ -153,6 +153,11 @@ const Table = ({
   );
 };
 
+// TODO Refactor this to be an actual shape for a Row given the code above.
+const RowShape = PropTypes.object;
+// TODO Refactor this to be an actual shape for a HeaderGroup given the code above.
+const HeaderGroupShape = PropTypes.object;
+
 Table.propTypes = {
   handleClick: PropTypes.func,
   showFilters: PropTypes.bool,
@@ -164,8 +169,8 @@ Table.propTypes = {
   // below are props from useTable() hook
   getTableProps: PropTypes.func.isRequired,
   getTableBodyProps: PropTypes.func.isRequired,
-  headerGroups: PropTypes.arrayOf(PropTypes.object).isRequired,
-  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+  headerGroups: PropTypes.arrayOf(HeaderGroupShape).isRequired,
+  rows: PropTypes.arrayOf(RowShape).isRequired,
   prepareRow: PropTypes.func.isRequired,
   canPreviousPage: PropTypes.bool,
   canNextPage: PropTypes.bool,
