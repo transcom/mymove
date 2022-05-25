@@ -302,6 +302,19 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	return model
 }
 
+func CustomerSupportRemarkModelFromCreate(remark *ghcmessages.CreateCustomerSupportRemark) *models.CustomerSupportRemark {
+	if remark == nil {
+		return nil
+	}
+
+	model := &models.CustomerSupportRemark{
+		Content:      *remark.Content,
+		OfficeUserID: uuid.FromStringOrNil(remark.OfficeUserID.String()),
+	}
+
+	return model
+}
+
 // MTOShipmentModelFromUpdate model
 func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models.MTOShipment {
 	if mtoShipment == nil {

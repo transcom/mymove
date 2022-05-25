@@ -103,6 +103,10 @@ Cypress.Commands.add('signInAsNewTIOUser', () => {
   cy.signInAsNewUser(TIOOfficeUserType);
 });
 
+Cypress.Commands.add('signInAsNewQAECSRUser', () => {
+  cy.signInAsNewUser(QAECSROfficeUserType);
+});
+
 Cypress.Commands.add('signInAsNewServicesCounselorUser', () => {
   cy.signInAsNewUser(ServicesCounselorOfficeUserType);
 });
