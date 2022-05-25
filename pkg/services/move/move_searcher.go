@@ -1,7 +1,8 @@
 package move
 
 import (
-	"fmt"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -18,10 +19,14 @@ func NewMoveSearcher() services.MoveSearcher {
 
 func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string, dodID *string) (models.Moves, error) {
 	if locator == nil && dodID == nil {
-		return models.Moves{}, fmt.Errorf("need at least one search filter")
+		verrs := validate.NewErrors()
+		verrs.Add("search key", "move locator or DOD ID must be provided")
+		return models.Moves{}, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 	if locator != nil && dodID != nil {
-		return models.Moves{}, fmt.Errorf("SearchMoves requires exactly one search filter")
+		verrs := validate.NewErrors()
+		verrs.Add("search key", "search by multiple keys is not supported")
+		return models.Moves{}, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 
 	query := appCtx.DB().EagerPreload(
@@ -35,7 +40,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string,
 		Where("show = TRUE")
 
 	if locator != nil {
-		query = query.Where("locator = ?", locator)
+		query = query.Where("locator = ?", *locator)
 	}
 
 	if dodID != nil {
