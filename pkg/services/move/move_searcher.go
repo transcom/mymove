@@ -1,6 +1,8 @@
 package move
 
 import (
+	"strings"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -40,7 +42,8 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string,
 		Where("show = TRUE")
 
 	if locator != nil {
-		query = query.Where("locator = ?", *locator)
+		searchLocator := strings.ToUpper(*locator)
+		query = query.Where("locator = ?", searchLocator)
 	}
 
 	if dodID != nil {
