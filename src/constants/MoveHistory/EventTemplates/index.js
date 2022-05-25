@@ -9,6 +9,7 @@ export { default as createOrders } from './createOrders';
 export { default as createPaymentRequestReweighUpdate } from './createPaymentRequestReweighUpdate';
 export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';
 export { default as createStandardServiceItem } from './createStandardServiceItem';
+export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
 export { default as requestShipmentDiversion } from './requestShipmentDiversion';
 export { default as requestShipmentReweigh } from './requestShipmentReweigh';

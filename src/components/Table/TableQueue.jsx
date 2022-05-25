@@ -45,6 +45,7 @@ const TableQueue = ({
     filters: paramFilters,
     currentPage,
     currentPageSize,
+    // search,
   });
 
   // react-table setup below

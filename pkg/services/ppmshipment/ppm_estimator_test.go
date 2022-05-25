@@ -385,7 +385,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
 			DestinationPostalCode: "94040",
 			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
-			SitExpected:           oldPPMShipment.SitExpected,
+			SITExpected:           oldPPMShipment.SITExpected,
 			EstimatedIncentive:    models.CentPointer(unit.Cents(500000)),
 		}
 

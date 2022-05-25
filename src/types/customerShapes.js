@@ -95,11 +95,14 @@ export const MtoShipmentFormValuesShape = shape({
 
 export const PPMShipmentShape = shape({
   pickupPostalCode: string,
+  actualPickupPostalCode: string,
   secondaryPickupPostalCode: string,
   destinationPostalCode: string,
+  actualDestinationPostalCode: string,
   secondaryDestinationPostalCode: string,
   sitExpected: bool,
   expectedDepartureDate: string,
+  actualMoveDate: string,
   hasProGear: bool,
   proGearWeight: number,
   spouseProGearWeight: number,
@@ -107,6 +110,10 @@ export const PPMShipmentShape = shape({
   estimatedIncentive: number,
   advance: number,
   advanceRequested: bool,
+  hasRequestedAdvance: bool,
+  advanceAmountRequested: number,
+  hasReceivedAdvance: bool,
+  advanceAmountReceived: number,
   status: string,
 });
 

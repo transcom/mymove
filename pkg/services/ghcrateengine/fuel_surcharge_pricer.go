@@ -29,7 +29,7 @@ func NewFuelSurchargePricer() services.FuelSurchargePricer {
 }
 
 // Price determines the price for a counseling service
-func (p fuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+func (p fuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -37,7 +37,7 @@ func (p fuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDat
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
-	if weight < minDomesticWeight {
+	if !isPPM && weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
 	if fscWeightBasedDistanceMultiplier == 0 {
@@ -99,5 +99,13 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, actualPickupDate, distance, unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
+	var isPPM = false
+	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypePPM {
+		// PPMs do not require minimums for a shipment's weight
+		// this flag is passed into the Price function to ensure the weight min
+		// are not enforced for PPMs
+		isPPM = true
+	}
+
+	return p.Price(appCtx, actualPickupDate, distance, unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), isPPM)
 }
