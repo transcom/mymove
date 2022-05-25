@@ -54,8 +54,8 @@ const info = {
 const ppmInfo = {
   ppmShipment: {
     actualMoveDate: null,
-    advance: 598700,
-    advanceRequested: true,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 598700,
     approvedAt: null,
     createdAt: '2022-04-29T21:48:21.581Z',
     deletedAt: null,
