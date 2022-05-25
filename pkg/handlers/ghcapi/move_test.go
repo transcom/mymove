@@ -127,25 +127,25 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 }
 
 func (suite *HandlerSuite) TestSearchMovesHandler() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	moves := make(models.Moves, 1)
-	moves[0] = move
+
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
-	suite.T().Run("Successful move search by locator", func(t *testing.T) {
+	suite.Run("Successful move search by locator", func() {
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		moves := models.Moves{move}
+
 		mockSearcher := mocks.MoveSearcher{}
 
 		handler := SearchMovesHandler{
 			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			MoveSearcher:  &mockSearcher,
 		}
-
 		mockSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
 			&move.Locator,
-			mock.Anything,
+			(*string)(nil),
 		).Return(moves, nil)
 
 		params := moveops.SearchMovesParams{
@@ -173,17 +173,19 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		suite.NotEmpty(payloadMove.Customer.LastName)
 	})
 
-	suite.T().Run("Successful move search by DoD ID", func(t *testing.T) {
+	suite.Run("Successful move search by DoD ID", func() {
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		moves := models.Moves{move}
+
 		mockSearcher := mocks.MoveSearcher{}
 
 		handler := SearchMovesHandler{
 			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			MoveSearcher:  &mockSearcher,
 		}
-
 		mockSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
+			(*string)(nil),
 			move.Orders.ServiceMember.Edipi,
 		).Return(moves, nil)
 
