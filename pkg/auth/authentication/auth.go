@@ -66,6 +66,7 @@ func PermissionsMiddleware(api APIWithContext, appCtx appcontext.AppContext) fun
 
 			route, r, _ := api.Context().RouteInfo(r)
 			if route == nil {
+				// TODO: could pick a better error status here
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
@@ -73,11 +74,13 @@ func PermissionsMiddleware(api APIWithContext, appCtx appcontext.AppContext) fun
 			permissionsRequired, exists := route.Operation.VendorExtensible.Extensions["x-permissions"]
 			fmt.Printf("permissionsRequired: %v\n", permissionsRequired)
 
+			// no permissions defined on the route, we can move on
 			if !exists {
 				next.ServeHTTP(w, r)
 				return
 			}
 
+			// transform the object so we can iterate over permissions
 			permissionsRequiredAsInterfaceArray := permissionsRequired.([]interface{})
 
 			for _, v := range permissionsRequiredAsInterfaceArray {
@@ -95,7 +98,7 @@ func PermissionsMiddleware(api APIWithContext, appCtx appcontext.AppContext) fun
 					return
 				}
 
-				//otherwise store permission on user data ? or what to do here
+				// TODO: otherwise store permission on appCtx.Permissions (?)
 			}
 		}
 

@@ -251,20 +251,21 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 }
 
 func (suite *AuthSuite) TestRequirePermissionsMiddleware() {
-	// Given: a logged in user
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
-	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
-	}
-	suite.MustSave(&user)
+	// TIO users have the proper permissions for our test - update.shipment
+	tioOfficeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: false})
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/ghc/v1/queues/moves", nil)
+	// using a fake ID for a shipment, since we only care about validating the permissions flow
+	req := httptest.NewRequest("POST", "/ghc/v1/shipments/123456/approve", nil)
 
 	// And: the context contains the auth values
-	handlerSession := auth.Session{UserID: user.ID, IDToken: "fake Token", ApplicationName: "mil"}
+	handlerSession := auth.Session{
+		UserID:          tioOfficeUser.ID,
+		IDToken:         "fake Token",
+		ApplicationName: "mil",
+	}
+
+	handlerSession.Roles = append(handlerSession.Roles, tioOfficeUser.User.Roles...)
 
 	ctx := auth.SetSessionInRequestContext(req, &handlerSession)
 	req = req.WithContext(ctx)
@@ -283,9 +284,10 @@ func (suite *AuthSuite) TestRequirePermissionsMiddleware() {
 
 	middleware(handler).ServeHTTP(rr, req)
 
-	// We should be not be redirected since we're logged in
+	// We expect a failed response given the shipment ID is fake, but it should not be a permissions rejection
+
 	// suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
-	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
+	suite.Equal(handlerSession.UserID, tioOfficeUser.ID, "the authenticated user is different from expected")
 }
 
 func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {

@@ -8,20 +8,21 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 )
 
+// TODO: placeholder until we figure out where these should be stored
 type RolePermissions struct {
 	RoleType    string
 	Permissions []string
 }
 
 var TOO = RolePermissions{
-	RoleType:    "transportation_ordering_officer",
-	Permissions: []string{"update.shipment"},
+	RoleType: "transportation_ordering_officer",
+	Permissions: []string{"update.move", "create.serviceItem",
+		"update.shipment"},
 }
 
 var TIO = RolePermissions{
-	RoleType: "transportation_invoicing_officer",
-	Permissions: []string{"update.move", "update.serviceItem",
-		"update.shipment"},
+	RoleType:    "transportation_invoicing_officer",
+	Permissions: []string{"create.serviceItem", "update.shipment"},
 }
 
 var AllRolesPermissions = []RolePermissions{TOO, TIO}
@@ -52,7 +53,6 @@ func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]st
 
 	//check the users roles
 	userRoles, err := getRolesForUser(appCtx, userID)
-
 	if err != nil {
 		return nil, err
 	}
@@ -73,16 +73,17 @@ func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]st
 // what we care about here is the string, so we can look it up for permissions --> roles.role_type
 func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]string, error) {
 
-	var roles []string
-	err := appCtx.DB().RawQuery(`
-		SELECT DISTINCT role_type FROM roles
-		 WHERE id in (
-			SELECT role_id FROM users_roles
-			WHERE deleted_at is null and user_id = ?
-	 )`, userID).All(&roles)
+	var roleTypes []string
 
-	fmt.Printf("USER ROLESS: %+v\n", roles)
+	err := appCtx.DB().RawQuery(`SELECT DISTINCT role_type
+		FROM roles
+			RIGHT JOIN users_roles ur
+			    ON ur.role_id = roles.id
+			    	AND ur.deleted_at IS NULL
+			        AND ur.user_id = ? `, userID).All(&roleTypes)
 
-	return roles, err
+	fmt.Printf("USER ROLESS: %+v\n", roleTypes)
+
+	return roleTypes, err
 
 }
