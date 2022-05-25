@@ -135,9 +135,9 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 
 	ppmModel := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtr(ppmShipment.SecondaryPickupPostalCode),
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtr(ppmShipment.SecondaryDestinationPostalCode),
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),

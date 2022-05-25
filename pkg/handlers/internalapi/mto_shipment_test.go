@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/swagger/nullable"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -686,16 +688,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-					SecondaryPickupPostalCode:      handlers.FmtString("90900"),
-					SecondaryDestinationPostalCode: handlers.FmtString("79916"),
+					SecondaryPickupPostalCode:      nullable.NewString("90900"),
+					SecondaryDestinationPostalCode: nullable.NewString("79916"),
 				},
 				estimatedIncentive: nil,
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
 					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
 
 					// check new fields were set
-					suite.Equal(desiredShipment.SecondaryPickupPostalCode, updatedShipment.PpmShipment.SecondaryPickupPostalCode)
-					suite.Equal(desiredShipment.SecondaryDestinationPostalCode, updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+					suite.Equal(desiredShipment.SecondaryPickupPostalCode, nullable.NewString(*updatedShipment.PpmShipment.SecondaryPickupPostalCode))
+					suite.Equal(desiredShipment.SecondaryDestinationPostalCode, nullable.NewString(*updatedShipment.PpmShipment.SecondaryDestinationPostalCode))
 				},
 			},
 			"Edit estimated dates & locations - remove secondary zips": {
@@ -708,8 +710,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					})
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-					SecondaryPickupPostalCode:      handlers.FmtString(""), // TODO: Update to pass null since that's what the FE will actually send.
-					SecondaryDestinationPostalCode: handlers.FmtString(""), // TODO: Update to pass null since that's what the FE will actually send.
+					SecondaryPickupPostalCode:      nullable.NewNullString(),
+					SecondaryDestinationPostalCode: nullable.NewNullString(),
 				},
 				estimatedIncentive: nil,
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {

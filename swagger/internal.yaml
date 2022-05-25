@@ -2405,10 +2405,10 @@ definitions:
         pattern: ^(\d{5})$
       secondaryPickupPostalCode:
         format: zip
-        type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+        $ref: '#/definitions/NullableString'
       destinationPostalCode:
         format: zip
         type: string
@@ -2417,10 +2417,10 @@ definitions:
         pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
         format: zip
-        type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+        $ref: '#/definitions/NullableString'
       sitExpected:
         type: boolean
     required:
@@ -2451,11 +2451,10 @@ definitions:
         x-nullable: true
       secondaryPickupPostalCode:
         format: zip
-        type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -2475,11 +2474,10 @@ definitions:
         x-nullable: true
       secondaryDestinationPostalCode:
         format: zip
-        type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-        x-nullable: true
+        $ref: '#/definitions/NullableString'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
@@ -3085,6 +3083,12 @@ definitions:
       - destinationPostalCode
       - sitExpected
       - eTag
+  NullableString:
+    type: string
+    x-go-type:
+      import:
+        package: github.com/transcom/mymove/pkg/swagger/nullable
+      type: String
 paths:
   /estimates/ppm:
     get:

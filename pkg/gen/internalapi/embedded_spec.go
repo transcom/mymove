@@ -3387,17 +3387,17 @@ func init() {
           "example": "90210"
         },
         "secondaryDestinationPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "sitExpected": {
@@ -4797,6 +4797,15 @@ func init() {
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEES": "Weighing fees"
+      }
+    },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
       }
     },
     "OfficeUser": {
@@ -6432,19 +6441,17 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "sitExpected": {
@@ -10253,17 +10260,17 @@ func init() {
           "example": "90210"
         },
         "secondaryDestinationPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "sitExpected": {
@@ -11680,6 +11687,15 @@ func init() {
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEES": "Weighing fees"
+      }
+    },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
       }
     },
     "OfficeUser": {
@@ -13319,19 +13335,17 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
-          "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
-          "x-nullable": true,
+          "$ref": "#/definitions/NullableString",
           "example": "90210"
         },
         "sitExpected": {
