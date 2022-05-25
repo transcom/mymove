@@ -685,12 +685,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Edit estimated dates & locations - add secondary zips": {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							SecondaryPickupPostalCode:      models.StringPointer("90900"),
-							SecondaryDestinationPostalCode: models.StringPointer("79916"),
-						},
-					})
+					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					SecondaryPickupPostalCode:      nullable.NewString("90900"),
@@ -876,13 +871,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 						PPMShipment: models.PPMShipment{
-							ActualPickupPostalCode:      models.StringPointer("90210"),
-							ActualDestinationPostalCode: models.StringPointer("90210"),
-							EstimatedWeight:             models.PoundPointer(4000),
-							HasProGear:                  models.BoolPointer(false),
-							EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
-							AdvanceRequested:            models.BoolPointer(true),
-							Advance:                     models.CentPointer(unit.Cents(200000)),
+							EstimatedWeight:    models.PoundPointer(4000),
+							HasProGear:         models.BoolPointer(false),
+							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+							AdvanceRequested:   models.BoolPointer(true),
+							Advance:            models.CentPointer(unit.Cents(200000)),
 						},
 					})
 				},
@@ -909,13 +902,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 						PPMShipment: models.PPMShipment{
-							ActualPickupPostalCode:      models.StringPointer("90210"),
-							ActualDestinationPostalCode: models.StringPointer("90210"),
-							EstimatedWeight:             models.PoundPointer(4000),
-							HasProGear:                  models.BoolPointer(false),
-							EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
-							AdvanceRequested:            models.BoolPointer(true),
-							Advance:                     models.CentPointer(unit.Cents(200000)),
+							EstimatedWeight:    models.PoundPointer(4000),
+							HasProGear:         models.BoolPointer(false),
+							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+							AdvanceRequested:   models.BoolPointer(true),
+							Advance:            models.CentPointer(unit.Cents(200000)),
 						},
 					})
 				},
