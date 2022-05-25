@@ -1309,6 +1309,60 @@ func init() {
         }
       ]
     },
+    "/moves/search": {
+      "post": {
+        "description": "Search moves by locator, DOD ID, or customer name. Used by QAE and CSR users.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Search moves by locator, DOD ID, or customer name",
+        "operationId": "searchMoves",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "locator": {
+                  "description": "Move locator",
+                  "type": "string",
+                  "maxLength": 6,
+                  "minLength": 6,
+                  "x-nullable": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/SearchMovesResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
         "description": "Fetches customer support remarks for a move",
@@ -6021,6 +6075,69 @@ func init() {
         }
       }
     },
+    "SearchMove": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "requestedMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
+    },
+    "SearchMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchMove"
+      }
+    },
+    "SearchMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "searchMoves": {
+          "$ref": "#/definitions/SearchMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -8483,6 +8600,66 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/moves/search": {
+      "post": {
+        "description": "Search moves by locator, DOD ID, or customer name. Used by QAE and CSR users.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Search moves by locator, DOD ID, or customer name",
+        "operationId": "searchMoves",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "locator": {
+                  "description": "Move locator",
+                  "type": "string",
+                  "maxLength": 6,
+                  "minLength": 6,
+                  "x-nullable": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/SearchMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
@@ -13609,6 +13786,69 @@ func init() {
         "totalSITDaysUsed": {
           "type": "integer",
           "minimum": 0
+        }
+      }
+    },
+    "SearchMove": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "requestedMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
+    },
+    "SearchMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchMove"
+      }
+    },
+    "SearchMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "searchMoves": {
+          "$ref": "#/definitions/SearchMoves"
+        },
+        "totalCount": {
+          "type": "integer"
         }
       }
     },

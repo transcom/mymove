@@ -2133,6 +2133,45 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
+  /moves/search:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Search moves by locator, DOD ID, or customer name
+      description: >
+        Search moves by locator, DOD ID, or customer name. Used by QAE and CSR
+        users.
+      operationId: searchMoves
+      tags:
+        - move
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              locator:
+                description: Move locator
+                type: string
+                minLength: 6
+                maxLength: 6
+                x-nullable: true
+              dodID:
+                description: DOD ID
+                type: string
+                minLength: 10
+                maxLength: 10
+                x-nullable: true
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/SearchMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /tac/valid:
     get:
       summary: Validation of a TAC value
@@ -3917,6 +3956,49 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+  SearchMoves:
+    type: array
+    items:
+      $ref: '#/definitions/SearchMove'
+  SearchMove:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      customer:
+        $ref: '#/definitions/Customer'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      locator:
+        type: string
+      submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      requestedMoveDate:
+        format: date
+        type: string
+        x-nullable: true
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      shipmentsCount:
+        type: integer
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+  SearchMovesResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchMoves:
+        $ref: '#/definitions/SearchMoves'
   GBLOC:
     type: string
     enum:

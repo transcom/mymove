@@ -55,7 +55,8 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			if !appCtx.Session().IsOfficeUser() ||
 				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) &&
 					!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) &&
-					!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
+					!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) &&
+					!appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr)) {
 				return handleError(apperror.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
 			}
 

@@ -270,6 +270,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator)
 	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
+	ghcAPI.MoveSearchMovesHandler = SearchMovesHandler{
+		HandlerConfig: handlerConfig,
+		MoveSearcher:  move.NewMoveSearcher(),
+	}
+
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
 		handlerConfig,
 		shipmentUpdater,
