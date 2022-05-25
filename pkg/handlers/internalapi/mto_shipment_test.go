@@ -1202,13 +1202,9 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	suite.Run("Successful list fetch - 200 - Integration Test", func() {
 		subtestData := suite.makeListSubtestData()
-		queryBuilder := query.NewQueryBuilder()
-		listFetcher := fetch.NewListFetcher(queryBuilder)
-		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			listFetcher,
-			fetcher,
+			mtoshipment.NewMTOShipmentFetcher(),
 		}
 
 		response := handler.Handle(subtestData.params)
@@ -1303,12 +1299,10 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			HTTPRequest:     subtestData.params.HTTPRequest,
 			MoveTaskOrderID: "",
 		}
-		mockListFetcher := mocks.ListFetcher{}
-		mockFetcher := mocks.Fetcher{}
+		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			&mockListFetcher,
-			&mockFetcher,
+			mockMTOShipmentFetcher,
 		}
 
 		response := handler.Handle(emtpyMTOID)
@@ -1324,12 +1318,10 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			HTTPRequest:     unauthorizedReq,
 			MoveTaskOrderID: *handlers.FmtUUID(subtestData.shipments[0].MoveTaskOrderID),
 		}
-		mockListFetcher := mocks.ListFetcher{}
-		mockFetcher := mocks.Fetcher{}
+		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			&mockListFetcher,
-			&mockFetcher,
+			mockMTOShipmentFetcher,
 		}
 
 		response := handler.Handle(unauthorizedParams)
@@ -1337,54 +1329,20 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsUnauthorized{}, response)
 	})
 
-	suite.Run("Failure list fetch - 404 Not Found - Move Task Order ID", func() {
-		subtestData := suite.makeListSubtestData()
-		mockListFetcher := mocks.ListFetcher{}
-		mockFetcher := mocks.Fetcher{}
-		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			&mockListFetcher,
-			&mockFetcher,
-		}
-
-		notfound := errors.New("Not found error")
-
-		mockFetcher.On("FetchRecord",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(notfound)
-
-		response := handler.Handle(subtestData.params)
-		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
-	})
-
 	suite.Run("Failure list fetch - 500 Internal Server Error", func() {
 		subtestData := suite.makeListSubtestData()
-		mockListFetcher := mocks.ListFetcher{}
-		mockFetcher := mocks.Fetcher{}
+		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			&mockListFetcher,
-			&mockFetcher,
+			mockMTOShipmentFetcher,
 		}
 
 		internalServerErr := errors.New("ServerError")
 
-		mockFetcher.On("FetchRecord",
+		mockMTOShipmentFetcher.On("ListMTOShipments",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
-			mock.Anything,
-		).Return(nil)
-
-		mockListFetcher.On("FetchRecordList",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(internalServerErr)
+		).Return([]models.MTOShipment{}, internalServerErr)
 
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)

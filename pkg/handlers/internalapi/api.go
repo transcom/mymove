@@ -167,8 +167,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
 		handlerConfig,
-		fetch.NewListFetcher(builder),
-		fetch.NewFetcher(builder),
+		mtoshipment.NewMTOShipmentFetcher(),
 	}
 
 	internalAPI.MtoShipmentDeleteShipmentHandler = DeleteShipmentHandler{

@@ -4586,8 +4586,6 @@ paths:
           $ref: '#/responses/InvalidRequest'
         '401':
           $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
 responses:
