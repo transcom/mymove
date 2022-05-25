@@ -187,6 +187,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 					'status',
 					payment_service_items.status))::TEXT AS context,
 			payment_requests.id AS id,
+			payment_requests.move_id,
 			payment_requests.payment_request_number
 		FROM
 			payment_requests
@@ -258,12 +259,14 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	reweighs AS (
 		SELECT
 			reweighs.id,
-			json_agg(json_build_object(
-					'shipment_type',
-					shipments.shipment_type))::TEXT AS context
+			json_agg(json_build_object('shipment_type',
+				shipments.shipment_type,
+				'payment_request_number',
+				payment_requests.payment_request_number))::TEXT AS context
 		FROM
 			reweighs
 			JOIN shipments ON reweighs.shipment_id = shipments.id
+			LEFT JOIN payment_requests ON shipments.move_id = payment_requests.move_id
 		GROUP BY
 			reweighs.id
 	),
