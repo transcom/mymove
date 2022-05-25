@@ -129,6 +129,20 @@ describe('AboutForm component', () => {
       });
     });
 
+    it('displays error when advance received is below 1 dollar minimum', async () => {
+      render(<AboutForm {...defaultProps} />);
+
+      await userEvent.click(screen.getByLabelText('Yes'));
+
+      await userEvent.type(screen.getByLabelText('How much did you receive?'), '0');
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          "The minimum advance request is $1. If you don't want an advance, select No.",
+        );
+      });
+    });
+
     it('calls the postal code validator for starting and ending ZIP inputs', async () => {
       const postalCodeValidatorProps = {
         postalCodeValidator: jest.fn().mockReturnValue(UnsupportedZipCodePPMErrorMsg),

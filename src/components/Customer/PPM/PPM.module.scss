@@ -61,6 +61,10 @@
     @include u-margin-top(2);
   }
 
+  :global(.usa-label.usa-label--error) {
+    @include u-margin-top(0);
+  }
+
   :global(.usa-legend) {
     @include u-margin-top(0);
   }
