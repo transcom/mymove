@@ -795,6 +795,8 @@ paths:
       description: Approves a shipment
       operationId: approveShipment
       summary: Approves a shipment
+      x-permissions:
+        - update.shipment
   '/shipments/{shipmentID}/request-diversion':
     parameters:
       - description: ID of the shipment
