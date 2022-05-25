@@ -158,7 +158,7 @@ export class OfficeApp extends Component {
         key="txoMoveInfoRoute"
         path="/moves/:moveCode"
         component={TXOMoveInfo}
-        requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
+        requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE_CSR]}
       />,
     ];
 
