@@ -110,6 +110,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 
 	suite.Run("success domestic origin cost within peak period", func() {
 		suite.setUpDomesticOriginData()
+		isPPM := false
 
 		cost, displayParams, err := pricer.Price(
 			suite.AppContextForTest(),
@@ -117,6 +118,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dopTestWeight,
 			dopTestServiceArea,
+			isPPM,
 		)
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
@@ -133,6 +135,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 
 	suite.Run("success domestic origin cost within non-peak period", func() {
 		suite.setUpDomesticOriginData()
+		isPPM := false
 
 		nonPeakDate := peakStart.addDate(0, -1)
 		cost, displayParams, err := pricer.Price(
@@ -141,6 +144,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
 			dopTestWeight,
 			dopTestServiceArea,
+			isPPM,
 		)
 
 		expectedCost := unit.Cents(4758)
@@ -158,6 +162,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 
 	suite.Run("failure if contract code bogus", func() {
 		suite.setUpDomesticOriginData()
+		isPPM := false
 
 		_, _, err := pricer.Price(
 			suite.AppContextForTest(),
@@ -165,6 +170,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dopTestWeight,
 			dopTestServiceArea,
+			isPPM,
 		)
 
 		suite.Error(err)
@@ -173,6 +179,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 
 	suite.Run("failure if move date is outside of contract year", func() {
 		suite.setUpDomesticOriginData()
+		isPPM := false
 
 		_, _, err := pricer.Price(
 			suite.AppContextForTest(),
@@ -180,6 +187,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dopTestWeight,
 			dopTestServiceArea,
+			isPPM,
 		)
 
 		suite.Error(err)
@@ -188,6 +196,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 
 	suite.Run("weight below minimum", func() {
 		suite.setUpDomesticOriginData()
+		isPPM := false
 
 		cost, _, err := pricer.Price(
 			suite.AppContextForTest(),
@@ -195,6 +204,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			unit.Pound(499),
 			dopTestServiceArea,
+			isPPM,
 		)
 		suite.Equal(unit.Cents(0), cost)
 		suite.Error(err)
@@ -203,28 +213,78 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 
 	suite.Run("validation errors", func() {
 		suite.setUpDomesticOriginData()
+		isPPM := false
 
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code
-		_, _, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, dshTestWeight, dopTestServiceArea)
+		_, _, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, dshTestWeight, dopTestServiceArea, isPPM)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
 		// No reference date
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, dshTestWeight, dopTestServiceArea)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, dshTestWeight, dopTestServiceArea, isPPM)
 		suite.Error(err)
 		suite.Equal("ReferenceDate is required", err.Error())
 
 		// No weight
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, dopTestServiceArea)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, dopTestServiceArea, isPPM)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 
 		// No service area
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, dshTestWeight, "")
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, dshTestWeight, "", isPPM)
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
+	})
+
+	suite.Run("successfully finds dom destination price for ppm with weight < 500 lbs with Price method", func() {
+		suite.setUpDomesticOriginData()
+		suite.setupDomesticOriginServiceItems()
+		isPPM := true
+		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
+
+		// the PPM price for weights < 500 should be prorated from a base of 500
+		basePriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(500), dopTestServiceArea, isPPM)
+		suite.NoError(err)
+
+		halfPriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(250), dopTestServiceArea, isPPM)
+		suite.NoError(err)
+		suite.Equal(basePriceCents/2, halfPriceCents)
+
+		fifthPriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(100), dopTestServiceArea, isPPM)
+		suite.NoError(err)
+		suite.Equal(basePriceCents/5, fifthPriceCents)
+	})
+
+	suite.Run("successfully finds dom destination price for ppm with weight < 500 lbs with PriceUsingParams method", func() {
+		suite.setUpDomesticOriginData()
+		paymentServiceItem := suite.setupDomesticOriginServiceItems()
+		params := paymentServiceItem.PaymentServiceItemParams
+		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
+		weightBilledIndex := 3
+
+		params[weightBilledIndex].Value = "500"
+		basePriceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+
+		params[weightBilledIndex].Value = "250"
+		halfPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(basePriceCents/2, halfPriceCents)
+
+		params[weightBilledIndex].Value = "100"
+		fifthPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(basePriceCents/5, fifthPriceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
+			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 }
 

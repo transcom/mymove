@@ -56,7 +56,6 @@ const EstimatedWeightsProGear = () => {
       })
       .catch((err) => {
         setSubmitting(false);
-
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
       });
   };

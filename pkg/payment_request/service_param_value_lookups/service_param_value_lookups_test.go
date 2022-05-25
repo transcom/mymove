@@ -101,6 +101,41 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAllWeight
 	return mtoServiceItem, paymentRequest, paramLookup
 }
 
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithEstimatedWeightForPPM(estimatedWeight *unit.Pound, originalWeight *unit.Pound, code models.ReServiceCode) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	destAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
+		testdatagen.Assertions{
+			Move: move,
+			ReService: models.ReService{
+				Code: code,
+				Name: string(code),
+			},
+			MTOShipment: models.MTOShipment{
+				PrimeEstimatedWeight: estimatedWeight,
+				PrimeActualWeight:    originalWeight,
+				ShipmentType:         models.MTOShipmentTypePPM,
+				PickupAddress:        &pickupAddress,
+				DestinationAddress:   &destAddress,
+				PPMShipment:          &models.PPMShipment{},
+			},
+			Address: pickupAddress,
+			MTOServiceItem: models.MTOServiceItem{
+				EstimatedWeight: estimatedWeight,
+			},
+		})
+
+	paymentRequest := models.PaymentRequest{
+		MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+	}
+
+	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	suite.FatalNoError(err)
+
+	return mtoServiceItem, paymentRequest, paramLookup
+}
+
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithOriginalWeightOnly(originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
 	return suite.setupTestMTOServiceItemWithAllWeights(nil, &originalWeight, nil, nil, code, shipmentType)
 }
