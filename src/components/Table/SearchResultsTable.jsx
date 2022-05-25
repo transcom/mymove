@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { GridContainer } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
@@ -26,18 +26,8 @@ const SearchResultsTable = (props) => {
     showPagination,
     data,
   } = props;
-  // const [paramSort, setParamSort] = useState(defaultSortedColumns);
-  // const [paramFilters, setParamFilters] = useState([]);
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const [currentPageSize, setCurrentPageSize] = useState(20);
-  const [pageCount, setPageCount] = useState(0);
 
-  // const { id, desc } = paramSort.length ? paramSort[0] : {};
-
-  // const { totalCount = 0, data = [], page = 1, perPage = 20 } = searchResult;
   const totalCount = data.length;
-  const page = 1;
-  const perPage = 20;
 
   const defaultColumn = useMemo(
     () => ({
@@ -63,21 +53,18 @@ const SearchResultsTable = (props) => {
     nextPage,
     previousPage,
     setPageSize,
-    state: { filters, pageIndex, pageSize, sortBy },
+    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
       data: tableData,
       initialState: {
         hiddenColumns: defaultHiddenColumns,
-        pageSize: perPage,
-        pageIndex: page - 1,
         sortBy: defaultSortedColumns,
       },
       defaultColumn, // Be sure to pass the defaultColumn option
       manualFilters,
-      manualPagination: true, // TODO if we make this false can we not pass any page info in?
-      pageCount,
+      manualPagination: false,
       manualSortBy,
       disableMultiSort,
       defaultCanSort,
@@ -89,23 +76,8 @@ const SearchResultsTable = (props) => {
     usePagination,
   );
 
-  // When these table states change, fetch new data!
-  useEffect(() => {
-    // console.log('useEffect', isLoading, isError);
-    // if (!isLoading && !isError) {
-    // console.log('useEffect not skipped');
-    // setParamSort(sortBy);
-    // setParamFilters(filters);
-    // setCurrentPage(pageIndex + 1);
-    // setCurrentPageSize(pageSize);
-    setPageCount(Math.ceil(totalCount / pageSize));
-    // }
-  }, [sortBy, filters, pageIndex, pageSize, totalCount]);
-  // }, [isLoading, isError, totalCount, searchKey, searchValue]);
-
   return (
     <GridContainer data-testid="table-search" containerSize="widescreen" className={styles.SearchResultsTable}>
-      <p>{JSON.stringify(data)}</p>
       <h2>{`${title} (${totalCount})`}</h2>
       {totalCount > 0 ? (
         <div className={styles.tableContainer}>
@@ -126,7 +98,6 @@ const SearchResultsTable = (props) => {
             canNextPage={canNextPage}
             pageIndex={pageIndex}
             pageSize={pageSize}
-            pageCount={pageCount}
             pageOptions={pageOptions}
           />
         </div>
