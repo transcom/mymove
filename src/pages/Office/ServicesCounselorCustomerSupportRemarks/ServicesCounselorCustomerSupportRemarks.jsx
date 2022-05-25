@@ -12,6 +12,7 @@ import { useCustomerSupportRemarksQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import CustomerSupportRemarkText from 'components/Office/CustomerSupportRemarkText/CustomerSupportRemarkText';
+import CustomerSupportRemarkForm from 'components/Office/CustomerSupportRemarkForm/CustomerSupportRemarkForm';
 
 const ServicesCounselorCustomerSupportRemarks = () => {
   const { moveCode } = useParams();
@@ -25,7 +26,7 @@ const ServicesCounselorCustomerSupportRemarks = () => {
       <GridContainer className={customerSupportRemarkStyles.customerSupportRemarksTitle}>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
-            <h1>Customer Support Remarks</h1>
+            <h1>Customer support remarks</h1>
           </Grid>
         </Grid>
       </GridContainer>
@@ -37,7 +38,11 @@ const ServicesCounselorCustomerSupportRemarks = () => {
             desktop={{ col: 8, offset: 2 }}
           >
             <h2>Remarks</h2>
-            <h3>Past Remarks</h3>
+
+            <CustomerSupportRemarkForm />
+
+            <h3>Past remarks</h3>
+
             {customerSupportRemarks.length === 0 && <p>No remarks yet.</p>}
             {customerSupportRemarks.length > 0 &&
               customerSupportRemarks.map((customerSupportRemark) => {

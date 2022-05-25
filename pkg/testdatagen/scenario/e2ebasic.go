@@ -294,6 +294,52 @@ func userWithTOOandTIORole(appCtx appcontext.AppContext) {
 	})
 }
 
+func userWithTOOandTIOandQAECSRRole(appCtx appcontext.AppContext) {
+	tooRole := roles.Role{}
+	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
+	tioRole := roles.Role{}
+	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+	}
+
+	qaecsrRole := roles.Role{}
+	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaecsrRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
+	}
+
+	email := "too_tio_qaecsr_role@office.mil"
+	tooTioQaecsrUUID := uuid.Must(uuid.FromString("b264abd6-52fc-4e42-9e0f-173f7d217bc5"))
+	loginGovID := uuid.Must(uuid.NewV4())
+	user := testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioQaecsrUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole, qaecsrRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("45a6b7c2-2484-49af-bb7f-3ca8c179bcfb"),
+			Email:  email,
+			Active: true,
+			UserID: &tooTioQaecsrUUID,
+		},
+	})
+	testdatagen.MakeServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			User:   user,
+			UserID: user.ID,
+		},
+	})
+}
 func userWithTOOandTIOandServicesCounselorRole(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
@@ -4018,6 +4064,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	userWithQAECSRRole(appCtx)
 	userWithServicesCounselorRole(appCtx)
 	userWithTOOandTIORole(appCtx)
+	userWithTOOandTIOandQAECSRRole(appCtx)
 	userWithTOOandTIOandServicesCounselorRole(appCtx)
 	userWithPrimeSimulatorRole(appCtx)
 
