@@ -5,12 +5,11 @@ import { Field, Formik } from 'formik';
 import { Button, Form, Radio } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import ppmBookingStyles from '../PPMBooking.module.scss';
-
+import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { MtoShipmentShape } from 'types/customerShapes';
 import formStyles from 'styles/form.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import Hint from 'components/Hint/index';
+import Hint from 'components/Hint';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
 import { CheckboxField } from 'components/form/fields';
@@ -54,9 +53,9 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
     >
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         return (
-          <div className={ppmBookingStyles.formContainer}>
-            <Form className={(formStyles.form, ppmBookingStyles.form)}>
-              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
+          <div className={ppmStyles.formContainer}>
+            <Form className={(formStyles.form, ppmStyles.form)}>
+              <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>{`You can ask for up to $${formattedMaxAdvance} as an advance`}</h2>
                 <p>{`That's ${getFormattedMaxAdvancePercentage()} of $${formattedIncentive}, the estimated incentive for your PPM.`}</p>
                 <p>
@@ -96,7 +95,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       prefix="$"
-                      hintClassName={ppmBookingStyles.innerHint}
+                      hintClassName={ppmStyles.innerHint}
                     />
                     <Hint>
                       Your move counselor will discuss next steps with you and let you know how you&apos;ll receive your
@@ -110,12 +109,12 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                   </>
                 )}
               </SectionWrapper>
-              <div className={ppmBookingStyles.buttonContainer}>
-                <Button className={ppmBookingStyles.backButton} type="button" onClick={onBack} secondary outline>
+              <div className={ppmStyles.buttonContainer}>
+                <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
                 <Button
-                  className={ppmBookingStyles.saveButton}
+                  className={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}

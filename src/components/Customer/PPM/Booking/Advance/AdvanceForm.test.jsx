@@ -2,7 +2,7 @@ import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import AdvanceForm from './AdvanceForm';
+import AdvanceForm from 'components/Customer/PPM/Booking/Advance/AdvanceForm';
 
 const defaultProps = {
   onSubmit: jest.fn(),

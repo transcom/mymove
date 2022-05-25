@@ -2,7 +2,7 @@ import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import EstimatedWeightsProGearForm from './EstimatedWeightsProGearForm';
+import EstimatedWeightsProGearForm from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
 
 const defaultProps = {
   onSubmit: jest.fn(),

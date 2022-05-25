@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 // import { within, userEvent } from '@storybook/testing-library';
 
-import AdvanceForm from 'components/Customer/PPMBooking/Advance/AdvanceForm';
+import AdvanceForm from 'components/Customer/PPM/Booking/Advance/AdvanceForm';
 
 export default {
   title: 'Customer Components / PPM Booking / Advance Form',

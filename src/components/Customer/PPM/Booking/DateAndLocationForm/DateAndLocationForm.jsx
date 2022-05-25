@@ -5,14 +5,13 @@ import { Formik, Field } from 'formik';
 import { Button, Form, Radio, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import ppmBookingStyles from '../PPMBooking.module.scss';
-
+import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
-import Hint from 'components/Hint/index';
+import Hint from 'components/Hint';
 import { DutyLocationShape } from 'types';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
@@ -105,9 +104,9 @@ const DateAndLocationForm = ({
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, setFieldValue, values }) => {
         return (
-          <div className={ppmBookingStyles.formContainer}>
-            <Form className={(formStyles.form, ppmBookingStyles.form)}>
-              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection, 'origin')}>
+          <div className={ppmStyles.formContainer}>
+            <Form className={(formStyles.form, ppmStyles.form)}>
+              <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection, 'origin')}>
                 <h2>Origin</h2>
                 <TextField
                   label="ZIP"
@@ -174,7 +173,7 @@ const DateAndLocationForm = ({
                       maxLength={5}
                       validate={(value) => postalCodeValidate(value, 'origin', 'secondaryPickupPostalCode')}
                     />
-                    <Hint className={ppmBookingStyles.hint}>
+                    <Hint className={ppmStyles.hint}>
                       <p>A second origin ZIP could mean that your final incentive is lower than your estimate.</p>
                       <p>
                         Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to
@@ -184,7 +183,7 @@ const DateAndLocationForm = ({
                   </>
                 )}
               </SectionWrapper>
-              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Destination</h2>
                 <TextField
                   label="ZIP"
@@ -217,7 +216,7 @@ const DateAndLocationForm = ({
                     )
                   }
                 />
-                <Hint className={ppmBookingStyles.hint}>
+                <Hint className={ppmStyles.hint}>
                   Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you
                   don&apos;t have a new address yet.
                 </Hint>
@@ -253,7 +252,7 @@ const DateAndLocationForm = ({
                       maxLength={5}
                       validate={(value) => postalCodeValidate(value, 'destination', 'secondaryDestinationPostalCode')}
                     />
-                    <Hint className={ppmBookingStyles.hint}>
+                    <Hint className={ppmStyles.hint}>
                       <p>A second destination ZIP could mean that your final incentive is lower than your estimate.</p>
                       <p>
                         Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to
@@ -263,7 +262,7 @@ const DateAndLocationForm = ({
                   </>
                 )}
               </SectionWrapper>
-              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Storage</h2>
                 <Fieldset>
                   <legend className="usa-label">Do you plan to store items from your PPM?</legend>
@@ -285,7 +284,7 @@ const DateAndLocationForm = ({
                   />
                 </Fieldset>
                 {values.sitExpected === 'false' ? (
-                  <Hint className={ppmBookingStyles.hint}>
+                  <Hint className={ppmStyles.hint}>
                     You can be reimbursed for up to 90 days of temporary storage (SIT).
                   </Hint>
                 ) : (
@@ -303,20 +302,20 @@ const DateAndLocationForm = ({
                   </Hint>
                 )}
               </SectionWrapper>
-              <SectionWrapper className={classnames(ppmBookingStyles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
                 <DatePickerInput name="expectedDepartureDate" label="When do you plan to start moving your PPM?" />
-                <Hint className={ppmBookingStyles.hint}>
+                <Hint className={ppmStyles.hint}>
                   Enter the first day you expect to move things. It&apos;s OK if the actual date is different. We will
                   ask for your actual departure date when you document and complete your PPM.
                 </Hint>
               </SectionWrapper>
-              <div className={ppmBookingStyles.buttonContainer}>
-                <Button className={ppmBookingStyles.backButton} type="button" onClick={onBack} secondary outline>
+              <div className={ppmStyles.buttonContainer}>
+                <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
                 <Button
-                  className={ppmBookingStyles.saveButton}
+                  className={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}

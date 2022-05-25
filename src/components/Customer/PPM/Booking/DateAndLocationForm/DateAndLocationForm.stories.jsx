@@ -1,9 +1,11 @@
 import React from 'react';
+import { expect } from '@storybook/jest';
 import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { within, userEvent } from '@storybook/testing-library';
 
-import DateAndLocationForm from 'components/Customer/PPMBooking/DateAndLocationForm/DateAndLocationForm';
+import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
+import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 
 export default {
   title: 'Customer Components / PPM Booking / Date and Location Form',
@@ -29,7 +31,7 @@ BlankDatesAndLocation.args = {
   onBack: action('back button clicked'),
   serviceMember: {
     id: '123',
-    residentialAddress: {
+    residential_address: {
       postalCode: '90210',
     },
   },
@@ -86,13 +88,12 @@ ErrorDatesAndLocation.args = {
       postalCode: '94611',
     },
   },
-  postalCodeValidator: () =>
-    'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
+  postalCodeValidator: () => UnsupportedZipCodePPMErrorMsg,
 };
 ErrorDatesAndLocation.play = async ({ canvasElement }) => {
-  // Starts querying the component from its root element
   const canvas = within(canvasElement);
 
-  // See https://storybook.js.org/docs/react/essentials/actions#automatically-matching-args to learn how to setup logging in the Actions panel
-  await userEvent.click(canvas.getByText('Save & Continue'));
+  await expect(canvas.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+
+  await userEvent.click(canvas.getByRole('button', { name: 'Save & Continue' }));
 };
