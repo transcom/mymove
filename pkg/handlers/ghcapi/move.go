@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"errors"
 
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
@@ -48,6 +50,32 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 
 			payload := payloads.Move(move)
 			return moveop.NewGetMoveOK().WithPayload(payload), nil
+		})
+}
+
+type SearchMovesHandler struct {
+	handlers.HandlerConfig
+	services.MoveSearcher
+}
+
+func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			moves, err := h.MoveSearcher.SearchMoves(appCtx, params.Body.Locator, params.Body.DodID)
+
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving move by locator", zap.Error(err))
+				return moveop.NewSearchMovesInternalServerError(), err
+			}
+
+			searchMoves := payloads.SearchMoves(moves)
+			payload := &ghcmessages.SearchMovesResult{
+				Page:        1,
+				PerPage:     100,
+				TotalCount:  1,
+				SearchMoves: *searchMoves,
+			}
+			return moveop.NewSearchMovesOK().WithPayload(payload), nil
 		})
 }
 

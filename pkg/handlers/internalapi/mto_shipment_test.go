@@ -473,7 +473,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 
-	mtoShipmentUpdater := mtoshipment.NewMTOShipmentUpdater(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, planner, testMTOShipmentObjects.moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	mtoShipmentUpdater := mtoshipment.NewCustomerMTOShipmentUpdater(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, planner, testMTOShipmentObjects.moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
 
 	ppmEstimator := mocks.PPMEstimator{}
 
@@ -630,7 +630,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			suite.EqualDatePtr(&originalShipment.PPMShipment.ExpectedDepartureDate, updatedShipment.PpmShipment.ExpectedDepartureDate)
 			suite.Equal(originalShipment.PPMShipment.PickupPostalCode, *updatedShipment.PpmShipment.PickupPostalCode)
 			suite.Equal(originalShipment.PPMShipment.DestinationPostalCode, *updatedShipment.PpmShipment.DestinationPostalCode)
-			suite.Equal(originalShipment.PPMShipment.SitExpected, updatedShipment.PpmShipment.SitExpected)
+			suite.Equal(originalShipment.PPMShipment.SITExpected, updatedShipment.PpmShipment.SitExpected)
 		}
 
 		// checkEstimatedWeightsDidntChange - ensures estimated weights fields didn't change
@@ -663,7 +663,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 							ExpectedDepartureDate: time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
 							PickupPostalCode:      "90808",
 							DestinationPostalCode: "79912",
-							SitExpected:           models.BoolPointer(true),
+							SITExpected:           models.BoolPointer(true),
 						},
 					})
 				},
@@ -1204,13 +1204,9 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	suite.Run("Successful list fetch - 200 - Integration Test", func() {
 		subtestData := suite.makeListSubtestData()
-		queryBuilder := query.NewQueryBuilder()
-		listFetcher := fetch.NewListFetcher(queryBuilder)
-		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			listFetcher,
-			fetcher,
+			mtoshipment.NewMTOShipmentFetcher(),
 		}
 
 		response := handler.Handle(subtestData.params)
@@ -1244,7 +1240,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.Equal(expectedShipment.PPMShipment.SecondaryPickupPostalCode, returnedShipment.PpmShipment.SecondaryPickupPostalCode)
 				suite.Equal(expectedShipment.PPMShipment.DestinationPostalCode, *returnedShipment.PpmShipment.DestinationPostalCode)
 				suite.Equal(expectedShipment.PPMShipment.SecondaryDestinationPostalCode, returnedShipment.PpmShipment.SecondaryDestinationPostalCode)
-				suite.Equal(*expectedShipment.PPMShipment.SitExpected, *returnedShipment.PpmShipment.SitExpected)
+				suite.Equal(*expectedShipment.PPMShipment.SITExpected, *returnedShipment.PpmShipment.SitExpected)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.EstimatedWeight, returnedShipment.PpmShipment.EstimatedWeight)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.NetWeight, returnedShipment.PpmShipment.NetWeight)
 				suite.Equal(expectedShipment.PPMShipment.HasProGear, returnedShipment.PpmShipment.HasProGear)
@@ -1305,12 +1301,10 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			HTTPRequest:     subtestData.params.HTTPRequest,
 			MoveTaskOrderID: "",
 		}
-		mockListFetcher := mocks.ListFetcher{}
-		mockFetcher := mocks.Fetcher{}
+		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			&mockListFetcher,
-			&mockFetcher,
+			mockMTOShipmentFetcher,
 		}
 
 		response := handler.Handle(emtpyMTOID)
@@ -1326,12 +1320,10 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			HTTPRequest:     unauthorizedReq,
 			MoveTaskOrderID: *handlers.FmtUUID(subtestData.shipments[0].MoveTaskOrderID),
 		}
-		mockListFetcher := mocks.ListFetcher{}
-		mockFetcher := mocks.Fetcher{}
+		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			&mockListFetcher,
-			&mockFetcher,
+			mockMTOShipmentFetcher,
 		}
 
 		response := handler.Handle(unauthorizedParams)
@@ -1339,54 +1331,20 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsUnauthorized{}, response)
 	})
 
-	suite.Run("Failure list fetch - 404 Not Found - Move Task Order ID", func() {
-		subtestData := suite.makeListSubtestData()
-		mockListFetcher := mocks.ListFetcher{}
-		mockFetcher := mocks.Fetcher{}
-		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			&mockListFetcher,
-			&mockFetcher,
-		}
-
-		notfound := errors.New("Not found error")
-
-		mockFetcher.On("FetchRecord",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(notfound)
-
-		response := handler.Handle(subtestData.params)
-		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
-	})
-
 	suite.Run("Failure list fetch - 500 Internal Server Error", func() {
 		subtestData := suite.makeListSubtestData()
-		mockListFetcher := mocks.ListFetcher{}
-		mockFetcher := mocks.Fetcher{}
+		mockMTOShipmentFetcher := &mocks.MTOShipmentFetcher{}
 		handler := ListMTOShipmentsHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			&mockListFetcher,
-			&mockFetcher,
+			mockMTOShipmentFetcher,
 		}
 
 		internalServerErr := errors.New("ServerError")
 
-		mockFetcher.On("FetchRecord",
+		mockMTOShipmentFetcher.On("ListMTOShipments",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
-			mock.Anything,
-		).Return(nil)
-
-		mockListFetcher.On("FetchRecordList",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(internalServerErr)
+		).Return([]models.MTOShipment{}, internalServerErr)
 
 		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)

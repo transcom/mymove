@@ -13,6 +13,7 @@ import {
   ServicesCounselorOfficeUserType,
   longPageLoadTimeout,
   PrimeSimulatorUserType,
+  QAECSROfficeUserType,
 } from './constants';
 
 /**
@@ -92,6 +93,10 @@ Cypress.Commands.add('signInAsNewPPMOfficeUser', () => {
 
 Cypress.Commands.add('signInAsNewTOOUser', () => {
   cy.signInAsNewUser(TOOOfficeUserType);
+});
+
+Cypress.Commands.add('signInAsNewQAECSRUser', () => {
+  cy.signInAsNewUser(QAECSROfficeUserType);
 });
 
 Cypress.Commands.add('signInAsNewTIOUser', () => {

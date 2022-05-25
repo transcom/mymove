@@ -1309,6 +1309,60 @@ func init() {
         }
       ]
     },
+    "/moves/search": {
+      "post": {
+        "description": "Search moves by locator, DOD ID, or customer name. Used by QAE and CSR users.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Search moves by locator, DOD ID, or customer name",
+        "operationId": "searchMoves",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "locator": {
+                  "description": "Move locator",
+                  "type": "string",
+                  "maxLength": 6,
+                  "minLength": 6,
+                  "x-nullable": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/SearchMovesResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
         "description": "Fetches customer support remarks for a move",
@@ -6021,6 +6075,69 @@ func init() {
         }
       }
     },
+    "SearchMove": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "requestedMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
+    },
+    "SearchMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchMove"
+      }
+    },
+    "SearchMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "searchMoves": {
+          "$ref": "#/definitions/SearchMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -6421,6 +6538,119 @@ func init() {
         }
       }
     },
+    "UpdatePPMShipment": {
+      "type": "object",
+      "properties": {
+        "actualMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weighed\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "sitExpected": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdatePaymentRequestStatusPayload": {
       "type": "object",
       "properties": {
@@ -6490,6 +6720,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/UpdatePPMShipment"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -8367,6 +8600,66 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/moves/search": {
+      "post": {
+        "description": "Search moves by locator, DOD ID, or customer name. Used by QAE and CSR users.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Search moves by locator, DOD ID, or customer name",
+        "operationId": "searchMoves",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "locator": {
+                  "description": "Move locator",
+                  "type": "string",
+                  "maxLength": 6,
+                  "minLength": 6,
+                  "x-nullable": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/SearchMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
@@ -13496,6 +13789,69 @@ func init() {
         }
       }
     },
+    "SearchMove": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "requestedMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
+    },
+    "SearchMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchMove"
+      }
+    },
+    "SearchMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "searchMoves": {
+          "$ref": "#/definitions/SearchMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -13900,6 +14256,119 @@ func init() {
         }
       }
     },
+    "UpdatePPMShipment": {
+      "type": "object",
+      "properties": {
+        "actualMoveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "advance": {
+          "description": "The amount request for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
+        "advanceRequested": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weighed\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "sitExpected": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdatePaymentRequestStatusPayload": {
       "type": "object",
       "properties": {
@@ -13969,6 +14438,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/UpdatePPMShipment"
         },
         "requestedDeliveryDate": {
           "type": "string",

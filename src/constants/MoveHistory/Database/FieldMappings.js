@@ -9,7 +9,7 @@ export default {
   status: 'Status',
   customer_remarks: 'Customer remarks',
   approved_date: 'Approved date',
-  actual_pickup_date: 'Actual pickup date',
+  actual_pickup_date: 'Departure date',
   prime_estimated_weight: 'Prime estimated weight',
   counselor_remarks: 'Counselor remarks',
   service_order_number: 'Service order number',
@@ -43,4 +43,5 @@ export default {
   receiving_agent: 'Receiving agent',
   releasing_agent: 'Releasing agent',
   tio_remarks: 'Max billable weight remark',
+  prime_actual_weight: 'Shipment weight',
 };

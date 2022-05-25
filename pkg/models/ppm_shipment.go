@@ -61,7 +61,6 @@ type PPMShipment struct {
 	DestinationPostalCode          string            `json:"destination_postal_code" db:"destination_postal_code"`
 	SecondaryDestinationPostalCode *string           `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
 	ActualDestinationPostalCode    *string           `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
-	SitExpected                    *bool             `json:"sit_expected" db:"sit_expected"`
 	EstimatedWeight                *unit.Pound       `json:"estimated_weight" db:"estimated_weight"`
 	NetWeight                      *unit.Pound       `json:"net_weight" db:"net_weight"`
 	HasProGear                     *bool             `json:"has_pro_gear" db:"has_pro_gear"`
@@ -74,6 +73,7 @@ type PPMShipment struct {
 	AdvanceAmountRequested         *unit.Cents       `json:"advance_amount_requested" db:"advance_amount_requested"` // TODO: Replace usages of Advance with this field instead (will be done in a future PR).
 	HasReceivedAdvance             *bool             `json:"has_received_advance" db:"has_received_advance"`
 	AdvanceAmountReceived          *unit.Cents       `json:"advance_amount_received" db:"advance_amount_received"`
+	SITExpected                    *bool             `json:"sit_expected" db:"sit_expected"`
 	SITLocation                    *SITLocationType  `json:"sit_location" db:"sit_location"`
 	SITEstimatedWeight             *unit.Pound       `json:"sit_estimated_weight" db:"sit_estimated_weight"`
 	SITEstimatedEntryDate          *time.Time        `json:"sit_estimated_entry_date" db:"sit_estimated_entry_date"`

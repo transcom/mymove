@@ -57,9 +57,6 @@ type UpdatePPMShipment struct {
 	// Pattern: ^(\d{5})$
 	DestinationPostalCode *string `json:"destinationPostalCode,omitempty"`
 
-	// estimated incentive
-	EstimatedIncentive *int64 `json:"estimatedIncentive,omitempty"`
-
 	// estimated weight
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight,omitempty"`

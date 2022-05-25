@@ -64,6 +64,10 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	moveRouter := NewMoveRouter()
 
 	suite.Run("returns error when needsServicesCounseling cannot find move", func() {
+		// Under test: MoveRouter.Submit
+		// Mocked: None
+		// Set up: Submit a move without an OrdersID
+		// Expected outcome: Error on ordersID
 		var move models.Move
 		err := moveRouter.Submit(suite.AppContextForTest(), &move)
 		suite.Error(err)
@@ -71,6 +75,9 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 
 	suite.Run("returns error when OriginDutyLocation is missing", func() {
+		// Under test: MoveRouter.Submit
+		// Set up: Submit a move without an originDutyLocation
+		// Expected outcome: Error on ordersID
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		order := move.Orders
 		order.OriginDutyLocation = nil
@@ -83,6 +90,9 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 
 	suite.Run("moves with amended orders are set to APPROVALSREQUESTED status", func() {
+		// Under test: MoveRouter.Submit
+		// Set up: Submit an approved move with an orders record
+		// Expected outcome: move status updated to APPROVALSREQUESTED
 		document := testdatagen.MakeDefaultDocument(suite.DB())
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
@@ -103,6 +113,9 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 
 	suite.Run("moves with amended orders return an error if in CANCELLED status", func() {
+		// Under test: MoveRouter.Submit
+		// Set up: Create a CANCELLED move without an OrdersID
+		// Expected outcome: Error on ordersID
 		document := testdatagen.MakeDefaultDocument(suite.DB())
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
@@ -123,6 +136,9 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 
 	suite.Run("moves with amended orders that already had amended orders go into the 'Approvals Requested' status and have a nil value for 'AmendedOrdersAcknowledgedAt", func() {
+		// Under test: MoveRouter.Submit
+		// Set up: Create a move amended orders acknowledged, then submit with amended orders
+		// Expected outcome: Status goes to APPROVALSREQUESTED and timestamp is cleared
 		document := testdatagen.MakeDefaultDocument(suite.DB())
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
@@ -149,6 +165,9 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 
 	suite.Run("moves going to the TOO return errors if the move doesn't have DRAFT status", func() {
+		// Under test: MoveRouter.Submit
+		// Set up: Create a move that is not in DRAFT status, submit a move to other statuses
+		// Expected outcome: Error
 		move := testdatagen.MakeDefaultMove(suite.DB())
 
 		invalidStatuses := []struct {
@@ -163,18 +182,19 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
 		}
 		for _, tt := range invalidStatuses {
-			suite.Run(tt.desc, func() {
-				move.Status = tt.status
+			move.Status = tt.status
 
-				err := moveRouter.Submit(suite.AppContextForTest(), &move)
-				suite.Error(err)
-				suite.Contains(err.Error(), "Cannot move to Submitted state for TOO review when the Move is not in Draft status")
-				suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", tt.status))
-			})
+			err := moveRouter.Submit(suite.AppContextForTest(), &move)
+			suite.Error(err)
+			suite.Contains(err.Error(), "Cannot move to Submitted state for TOO review when the Move is not in Draft status")
+			suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", tt.status))
 		}
 	})
 
 	suite.Run("moves going to the services counselor return errors if the move doesn't have DRAFT/NEEDS SERVICE COUNSELING status", func() {
+		// Under test: MoveRouter.Submit
+		// Set up: Create a move that should go to services counselor, but doesn't have DRAFT or NEEDS SERVICE COUNSELING STATUS
+		// Expected outcome: Error
 		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
 			DutyLocation: models.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -198,14 +218,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			{"Canceled", models.MoveStatusCANCELED},
 		}
 		for _, tt := range invalidStatuses {
-			suite.Run(tt.desc, func() {
-				move.Status = tt.status
+			move.Status = tt.status
 
-				err := moveRouter.Submit(suite.AppContextForTest(), &move)
-				suite.Error(err)
-				suite.Contains(err.Error(), "Cannot move to NeedsServiceCounseling state when the Move is not in Draft status")
-				suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", tt.status))
-			})
+			err := moveRouter.Submit(suite.AppContextForTest(), &move)
+			suite.Error(err)
+			suite.Contains(err.Error(), "Cannot move to NeedsServiceCounseling state when the Move is not in Draft status")
+			suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", tt.status))
 		}
 	})
 

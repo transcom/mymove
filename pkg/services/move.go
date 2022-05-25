@@ -23,6 +23,11 @@ type MoveFetcher interface {
 	FetchMove(appCtx appcontext.AppContext, locator string, searchParams *MoveFetcherParams) (*models.Move, error)
 }
 
+//go:generate mockery --name MoveSearcher --disable-version-string
+type MoveSearcher interface {
+	SearchMoves(appCtx appcontext.AppContext, locator *string, dodID *string) (models.Moves, error)
+}
+
 // MoveFetcherParams is  public struct that's used to pass filter arguments to
 // MoveFetcher queries
 type MoveFetcherParams struct {

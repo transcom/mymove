@@ -140,7 +140,7 @@ func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PP
 		ExpectedDepartureDate: requiredFields.expectedDepartureDate,
 		PickupPostalCode:      requiredFields.pickupPostalCode,
 		DestinationPostalCode: requiredFields.destinationPostalCode,
-		SitExpected:           &requiredFields.sitExpected,
+		SITExpected:           &requiredFields.sitExpected,
 	}
 
 	// Overwrite values with those from assertions

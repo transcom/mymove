@@ -1667,9 +1667,6 @@ func init() {
           "401": {
             "$ref": "#/responses/PermissionDenied"
           },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -6403,11 +6400,6 @@ func init() {
           "x-nullable": true,
           "example": "90210"
         },
-        "estimatedIncentive": {
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true
-        },
         "estimatedWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -8484,12 +8476,6 @@ func init() {
           },
           "401": {
             "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -13307,11 +13293,6 @@ func init() {
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
-        },
-        "estimatedIncentive": {
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true
         },
         "estimatedWeight": {
           "type": "integer",
