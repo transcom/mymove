@@ -187,6 +187,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(createdShipment.ID.String())
 
 		suite.Equal(internalmessages.MTOShipmentTypeHHG, createdShipment.ShipmentType)
+		suite.Equal(models.MTOShipmentStatusSubmitted, models.MTOShipmentStatus(createdShipment.Status))
 		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
@@ -243,6 +244,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(createdShipment.ID.String())
 
 		suite.Equal(internalmessages.MTOShipmentTypePPM, createdShipment.ShipmentType)
+		suite.Equal(models.MTOShipmentStatusDraft, models.MTOShipmentStatus(createdShipment.Status))
 		suite.Equal(*params.Body.MoveTaskOrderID, createdShipment.MoveTaskOrderID)
 		suite.Equal(*params.Body.PpmShipment.ExpectedDepartureDate, *createdShipment.PpmShipment.ExpectedDepartureDate)
 		suite.Equal(*params.Body.PpmShipment.PickupPostalCode, *createdShipment.PpmShipment.PickupPostalCode)
@@ -271,6 +273,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(createdShipment.ID.String())
 
 		suite.Equal(ntsrShipmentType, createdShipment.ShipmentType)
+		suite.Equal(models.MTOShipmentStatusSubmitted, models.MTOShipmentStatus(createdShipment.Status))
 		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)

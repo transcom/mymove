@@ -133,7 +133,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 				logger.Error("could not calculate param value lookup", zap.Error(err))
 				return nil, valueErr
 			}
-			logger.Debug(fmt.Sprintf("param key %s param value %s", paramKey.Key, paramValue))
 
 			// Gather all the param values for the service item to pass to the pricer's Price() method
 			paymentServiceItemParam := models.PaymentServiceItemParam{
@@ -159,6 +158,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 			return nil, err
 		}
 
+		logger.Debug(fmt.Sprintf("Price for service item %s %d\n", serviceItem.ReService.Code, centsValue*100))
 		totalPrice = totalPrice.AddCents(centsValue)
 	}
 
