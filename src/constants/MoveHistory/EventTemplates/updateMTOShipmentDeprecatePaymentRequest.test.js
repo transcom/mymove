@@ -26,7 +26,7 @@ describe('when given a recalculation_of_payment_request_id, displays recalculate
       recalculation_of_payment_request_id: '1234-5789-1',
     },
   };
-  it('correctly matches the deprecated payment request', () => {
+  it('correctly matches the recalculated payment request', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
     expect(result.getStatusDetails(item)).toEqual('Recalculated payment request');
