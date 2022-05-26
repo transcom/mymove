@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/gofrs/uuid"
@@ -123,6 +125,83 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		suite.IsType(&moveops.GetMoveInternalServerError{}, response)
 	})
 
+}
+
+func (suite *HandlerSuite) TestSearchMovesHandler() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	moves := make(models.Moves, 1)
+	moves[0] = move
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	suite.T().Run("Successful move search by locator", func(t *testing.T) {
+		mockSearcher := mocks.MoveSearcher{}
+
+		handler := SearchMovesHandler{
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			MoveSearcher:  &mockSearcher,
+		}
+
+		mockSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			&move.Locator,
+			mock.Anything,
+		).Return(moves, nil)
+
+		params := moveops.SearchMovesParams{
+			HTTPRequest: req,
+			Body: moveops.SearchMovesBody{
+				Locator: &move.Locator,
+				DodID:   nil,
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.SearchMovesOK{}, response)
+
+		payload := response.(*moveops.SearchMovesOK).Payload
+
+		payloadMove := *(*payload).SearchMoves[0]
+		suite.Equal(move.ID.String(), payloadMove.ID.String())
+		suite.Equal(*move.Orders.ServiceMember.Edipi, payloadMove.Customer.DodID)
+		suite.Equal(move.Orders.NewDutyLocation.Address.PostalCode, *payloadMove.DestinationDutyLocation.Address.PostalCode)
+		suite.Equal(move.Orders.OriginDutyLocation.Address.PostalCode, *payloadMove.OriginDutyLocation.Address.PostalCode)
+		suite.Equal(ghcmessages.MoveStatusDRAFT, payloadMove.Status)
+		suite.Equal("ARMY", payloadMove.Customer.Agency)
+		suite.Equal(int64(0), payloadMove.ShipmentsCount)
+		suite.NotEmpty(payloadMove.Customer.FirstName)
+		suite.NotEmpty(payloadMove.Customer.LastName)
+	})
+
+	suite.T().Run("Successful move search by DoD ID", func(t *testing.T) {
+		mockSearcher := mocks.MoveSearcher{}
+
+		handler := SearchMovesHandler{
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			MoveSearcher:  &mockSearcher,
+		}
+
+		mockSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			move.Orders.ServiceMember.Edipi,
+		).Return(moves, nil)
+
+		params := moveops.SearchMovesParams{
+			HTTPRequest: req,
+			Body: moveops.SearchMovesBody{
+				Locator: nil,
+				DodID:   move.Orders.ServiceMember.Edipi,
+			},
+		}
+		response := handler.Handle(params)
+		suite.IsType(&moveops.SearchMovesOK{}, response)
+
+		payload := response.(*moveops.SearchMovesOK).Payload
+
+		suite.Equal(move.ID.String(), (*payload).SearchMoves[0].ID.String())
+	})
 }
 
 func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {

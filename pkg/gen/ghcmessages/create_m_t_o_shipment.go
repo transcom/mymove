@@ -43,10 +43,9 @@ type CreateMTOShipment struct {
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// Where the movers should deliver this shipment.
-	// Required: true
 	DestinationAddress struct {
 		Address
-	} `json:"destinationAddress"`
+	} `json:"destinationAddress,omitempty"`
 
 	// destination type
 	DestinationType *DestinationType `json:"destinationType,omitempty"`
@@ -65,10 +64,12 @@ type CreateMTOShipment struct {
 	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
 
 	// The address where the movers should pick up this shipment.
-	// Required: true
 	PickupAddress struct {
 		Address
-	} `json:"pickupAddress"`
+	} `json:"pickupAddress,omitempty"`
+
+	// ppm shipment
+	PpmShipment *CreatePPMShipment `json:"ppmShipment,omitempty"`
 
 	// The customer's preferred delivery date.
 	//
@@ -87,7 +88,8 @@ type CreateMTOShipment struct {
 	ServiceOrderNumber *string `json:"serviceOrderNumber,omitempty"`
 
 	// shipment type
-	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+	// Required: true
+	ShipmentType *MTOShipmentType `json:"shipmentType"`
 
 	// storage facility
 	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
@@ -125,6 +127,10 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -176,6 +182,9 @@ func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 }
 
 func (m *CreateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
+	}
 
 	return nil
 }
@@ -230,6 +239,28 @@ func (m *CreateMTOShipment) validateMtoServiceItems(formats strfmt.Registry) err
 }
 
 func (m *CreateMTOShipment) validatePickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.PickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validatePpmShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmShipment) { // not required
+		return nil
+	}
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
+			}
+			return err
+		}
+	}
 
 	return nil
 }
@@ -278,17 +309,24 @@ func (m *CreateMTOShipment) validateSacType(formats strfmt.Registry) error {
 }
 
 func (m *CreateMTOShipment) validateShipmentType(formats strfmt.Registry) error {
-	if swag.IsZero(m.ShipmentType) { // not required
-		return nil
+
+	if err := validate.Required("shipmentType", "body", m.ShipmentType); err != nil {
+		return err
 	}
 
-	if err := m.ShipmentType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("shipmentType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("shipmentType")
-		}
+	if err := validate.Required("shipmentType", "body", m.ShipmentType); err != nil {
 		return err
+	}
+
+	if m.ShipmentType != nil {
+		if err := m.ShipmentType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("shipmentType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("shipmentType")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -353,6 +391,10 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -432,6 +474,22 @@ func (m *CreateMTOShipment) contextValidatePickupAddress(ctx context.Context, fo
 	return nil
 }
 
+func (m *CreateMTOShipment) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CreateMTOShipment) contextValidateSacType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SacType != nil {
@@ -450,13 +508,15 @@ func (m *CreateMTOShipment) contextValidateSacType(ctx context.Context, formats 
 
 func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("shipmentType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("shipmentType")
+	if m.ShipmentType != nil {
+		if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("shipmentType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("shipmentType")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

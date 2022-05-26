@@ -64,7 +64,7 @@ func (suite *PaperworkSuite) openLocalFile(path string, fs *afero.Afero) (afero.
 func TestPaperworkSuite(t *testing.T) {
 	storer := storageTest.NewFakeS3Storage(true)
 
-	popSuite := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
+	popSuite := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction())
 	newUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		log.Panic(err)

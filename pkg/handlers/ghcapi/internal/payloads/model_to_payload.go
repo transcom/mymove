@@ -501,25 +501,39 @@ func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
 		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
 		Status:                         ghcmessages.PPMShipmentStatus(ppmShipment.Status),
-		ExpectedDepartureDate:          *handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
+		ExpectedDepartureDate:          handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
 		ActualMoveDate:                 handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
 		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		PickupPostalCode:               ppmShipment.PickupPostalCode,
+		PickupPostalCode:               &ppmShipment.PickupPostalCode,
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		DestinationPostalCode:          ppmShipment.DestinationPostalCode,
+		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
+		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		SitExpected:                    *ppmShipment.SitExpected,
+		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
+		SitExpected:                    ppmShipment.SITExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
-		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
-		Advance:                        handlers.FmtCost(ppmShipment.Advance),
+		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		AdvanceRequested:               ppmShipment.AdvanceRequested,
+		Advance:                        handlers.FmtCost(ppmShipment.Advance),
+		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
+		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
+		DeletedAt:                      handlers.FmtDateTimePtr(ppmShipment.DeletedAt),
+		SitEstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
+		SitEstimatedEntryDate:          handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
+		SitEstimatedDepartureDate:      handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
+		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+	}
+
+	if ppmShipment.SITLocation != nil {
+		sitLocation := ghcmessages.SITLocationType(*ppmShipment.SITLocation)
+		payloadPPMShipment.SitLocation = &sitLocation
 	}
 
 	return payloadPPMShipment
@@ -588,6 +602,10 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 
 	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
 		payload.RequestedDeliveryDate = *handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
+	}
+
+	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
+		payload.RequiredDeliveryDate = handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate)
 	}
 
 	if mtoShipment.ScheduledPickupDate != nil {
@@ -1042,6 +1060,48 @@ func Reweigh(reweigh *models.Reweigh, sitStatusPayload *ghcmessages.SITStatus) *
 	}
 
 	return payload
+}
+
+// SearchMoves payload
+func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
+	searchMoves := make(ghcmessages.SearchMoves, len(moves))
+	for i, move := range moves {
+		customer := move.Orders.ServiceMember
+
+		var validMTOShipments []models.MTOShipment
+		var earliestRequestedPickup *time.Time
+		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
+		// TODO do we need this for this page as well?
+		for _, shipment := range move.MTOShipments {
+			if shipment.Status != models.MTOShipmentStatusDraft {
+				if earliestRequestedPickup == nil {
+					earliestRequestedPickup = shipment.RequestedPickupDate
+				} else if shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
+					earliestRequestedPickup = shipment.RequestedPickupDate
+				}
+				validMTOShipments = append(validMTOShipments, shipment)
+			}
+		}
+
+		var deptIndicator ghcmessages.DeptIndicator
+		if move.Orders.DepartmentIndicator != nil {
+			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
+		}
+
+		searchMoves[i] = &ghcmessages.SearchMove{
+			Customer:                Customer(&customer),
+			Status:                  ghcmessages.MoveStatus(move.Status),
+			ID:                      *handlers.FmtUUID(move.ID),
+			Locator:                 move.Locator,
+			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
+			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
+			DepartmentIndicator:     &deptIndicator,
+			ShipmentsCount:          int64(len(validMTOShipments)),
+			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
+			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
+		}
+	}
+	return &searchMoves
 }
 
 // ShipmentPaymentSITBalance payload

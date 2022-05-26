@@ -61,13 +61,13 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		suite.Equal("1450", valueStr)
 	})
 
-	suite.Run("has reweigh weight where reweigh is higher", func() {
-		// Set the original weight to less than the reweigh weight. Lower weight (original) should win.
-		_, _, paramLookup := suite.setupTestMTOServiceItemWithReweigh(unit.Pound(1500), unit.Pound(1480), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+	suite.Run("has reweigh weight where reweigh is lower", func() {
+		// Set the original weight to greater than the reweigh weight. Lower weight (reweigh) should win.
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithReweigh(unit.Pound(1450), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal("1480", valueStr)
+		suite.Equal("1450", valueStr)
 	})
 
 	suite.Run("has adjusted weight", func() {
@@ -126,6 +126,33 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		suite.Run(fmt.Sprintf("original below minimum service code %s", data.code), func() {
 			// Set the original weight to below minimum
 			_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), data.originalWeight, data.code, data.shipmentType)
+
+			valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+			suite.FatalNoError(err)
+			suite.Equal(data.expectedMinimum, valueStr)
+		})
+	}
+
+	// Setup data for testing PPM minimums
+	serviceCodesForPPM := []struct {
+		code            models.ReServiceCode
+		originalWeight  unit.Pound
+		expectedMinimum string
+		shipmentType    models.MTOShipmentType
+	}{
+		// PPM Service items
+		{models.ReServiceCodeDLH, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDOP, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDDP, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDPK, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDUPK, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeFSC, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+	}
+
+	for _, data := range serviceCodesForPPM {
+		suite.Run("returns the original weight for PPM service items", func() {
+			estimatedWeight := unit.Pound(400)
+			_, _, paramLookup := suite.setupTestMTOServiceItemWithEstimatedWeightForPPM(&estimatedWeight, &data.originalWeight, data.code)
 
 			valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 			suite.FatalNoError(err)

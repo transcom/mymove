@@ -3,6 +3,9 @@ package handlers
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/strfmt"
@@ -75,4 +78,15 @@ func PoundPtrFromInt64Ptr(num *int64) *unit.Pound {
 	value := int(*num)
 	pound := unit.Pound(value)
 	return &pound
+}
+
+// FmtNullableStringToStringPtr converts go-swagger nullable string type to a string pointer type
+func FmtNullableStringToStringPtr(n nullable.String) *string {
+	if n.Present {
+		if n.Value == nil {
+			return models.StringPointer("")
+		}
+		return n.Value
+	}
+	return nil
 }

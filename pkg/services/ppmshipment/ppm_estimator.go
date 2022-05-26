@@ -45,7 +45,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	// Check that the PPMShipment has an ID
 	var err error
 
-	if newPPMShipment.Status != models.PPMShipmentStatusDraft {
+	if newPPMShipment.Status != models.PPMShipmentStatusDraft && newPPMShipment.Status != models.PPMShipmentStatusSubmitted {
 		return nil, nil
 	}
 	// Check that all the required fields we need are present.
@@ -65,7 +65,9 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	}
 	// Clear out advance and advance requested fields when the estimated incentive is reset.
 	newPPMShipment.AdvanceRequested = nil
+	newPPMShipment.HasRequestedAdvance = nil
 	newPPMShipment.Advance = nil
+	newPPMShipment.AdvanceAmountRequested = nil
 
 	estimatedIncentive, err := f.calculatePrice(appCtx, newPPMShipment)
 	if err != nil {

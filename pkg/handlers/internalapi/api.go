@@ -131,7 +131,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
-	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator())
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator(ppmEstimator))
 
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,
@@ -148,7 +148,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
 
 	shipmentUpdater := shipment.NewShipmentUpdater(
-		mtoshipment.NewMTOShipmentUpdater(
+		mtoshipment.NewCustomerMTOShipmentUpdater(
 			builder,
 			fetcher,
 			handlerConfig.Planner(),
@@ -167,8 +167,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
 		handlerConfig,
-		fetch.NewListFetcher(builder),
-		fetch.NewFetcher(builder),
+		mtoshipment.NewMTOShipmentFetcher(),
 	}
 
 	internalAPI.MtoShipmentDeleteShipmentHandler = DeleteShipmentHandler{

@@ -1,0 +1,34 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.SearchResultsTable {
+  @include u-display(flex);
+  @include u-margin-x(0);
+  @include u-padding-x(0);
+  flex-direction: column;
+  flex: auto;
+  max-width: 1376px;
+
+  h2 {
+    @include u-margin-top(29px);
+    @include u-margin-x(1.5);
+  }
+
+  .tableContainer {
+    flex: auto;
+
+    @include u-margin-top(1);
+    max-width: 1376px;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+
+    tbody tr {
+      cursor: pointer;
+    }
+  }
+}

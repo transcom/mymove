@@ -10,7 +10,7 @@ import { formatDate } from 'shared/dates';
 
 export const DatePickerInput = (props) => {
   const dateFormat = 'DD MMM YYYY';
-  const { label, name, id, renderInput, disabled, required } = props;
+  const { label, name, id, className, renderInput, disabled, required } = props;
   const [field, meta, helpers] = useField(props);
   const hasError = meta.touched && !!meta.error;
 
@@ -31,6 +31,7 @@ export const DatePickerInput = (props) => {
             title={label}
             name={name}
             id={inputId.current}
+            inputClassName={className}
             placeholder={dateFormat}
             format={dateFormat}
             onChange={(value) => helpers.setValue(formatDate(value, dateFormat))}
@@ -51,6 +52,7 @@ DatePickerInput.propTypes = {
   // name is for the input
   name: PropTypes.string.isRequired,
   id: PropTypes.string,
+  className: PropTypes.string,
   renderInput: PropTypes.func,
   disabled: PropTypes.bool,
   required: PropTypes.bool,
@@ -59,6 +61,7 @@ DatePickerInput.propTypes = {
 DatePickerInput.defaultProps = {
   renderInput: (component) => component,
   id: undefined,
+  className: undefined,
   disabled: false,
   required: false,
 };

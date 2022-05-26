@@ -5,7 +5,7 @@ import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { customerRoutes } from 'constants/routes';
-import AdvanceForm from 'components/Customer/PPMBooking/Advance/AdvanceForm';
+import AdvanceForm from 'components/Customer/PPM/Booking/Advance/AdvanceForm';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
@@ -35,7 +35,7 @@ const Advance = () => {
       shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
-        advance: values.amountRequested ? values.amountRequested * 100 : null,
+        advance: advanceRequested ? values.amountRequested * 100 : null,
         advanceRequested,
       },
     };

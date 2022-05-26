@@ -55,7 +55,8 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			if !appCtx.Session().IsOfficeUser() ||
 				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) &&
 					!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) &&
-					!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
+					!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) &&
+					!appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr)) {
 				return handleError(apperror.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
 			}
 
@@ -78,8 +79,8 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerConfig
-	mtoShipmentCreator services.MTOShipmentCreator
-	shipmentStatus     services.ShipmentSITStatus
+	shipmentCreator services.ShipmentCreator
+	shipmentStatus  services.ShipmentSITStatus
 }
 
 // Handle creates the mto shipment
@@ -121,7 +122,9 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-			mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
+
+			var err error
+			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
 			if err != nil {
 				return handleError(err)
@@ -148,8 +151,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 // UpdateShipmentHandler updates shipments
 type UpdateShipmentHandler struct {
 	handlers.HandlerConfig
-	services.Fetcher
-	services.MTOShipmentUpdater
+	services.ShipmentUpdater
 	services.ShipmentSITStatus
 }
 
@@ -173,7 +175,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 			}
 
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-			oldShipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
+			oldShipment, err := mtoshipment.FindShipment(appCtx, shipmentID)
 
 			if err != nil {
 				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
@@ -189,25 +191,9 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				}
 			}
 
-			updateable, err := h.MTOShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(appCtx, oldShipment, appCtx.Session())
-
-			if err != nil {
-				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
-				msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
-				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
-					&ghcmessages.Error{Message: &msg},
-				), err
-			}
-
-			if !updateable {
-				msg := fmt.Sprintf("%v is not updatable", shipmentID)
-				notUpdateableError := apperror.NewUnprocessableEntityError(msg)
-				return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(
-					&ghcmessages.Error{Message: &msg},
-				), notUpdateableError
-			}
-
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
+			mtoShipment.ID = shipmentID
+			mtoShipment.ShipmentType = oldShipment.ShipmentType
 
 			//MTOShipmentModelFromUpdate defaults UsesExternalVendor to false if it's nil in the payload
 			if payload.UsesExternalVendor == nil {
@@ -216,14 +202,17 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 			// booleans not passed will update to false
 			mtoShipment.Diversion = oldShipment.Diversion
 
-			mtoShipment.ID = shipmentID
-
 			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
 
 				switch e := err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound(), err
+				case apperror.ForbiddenError:
+					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
+					return mtoshipmentops.NewUpdateMTOShipmentForbidden().WithPayload(
+						&ghcmessages.Error{Message: &msg},
+					), err
 				case apperror.InvalidInputError:
 					return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(
 						payloadForValidationError(
@@ -257,7 +246,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 					), err
 				}
 			}
-			updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(appCtx, mtoShipment, params.IfMatch)
+			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
 			if err != nil {
 				return handleError(err)
 			}
@@ -802,7 +791,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 				}
 			}
 
-			shipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
+			shipment, err := mtoshipment.FindShipment(appCtx, shipmentID)
 			if err != nil {
 				return handleError(err), err
 			}

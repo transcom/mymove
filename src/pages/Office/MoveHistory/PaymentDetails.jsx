@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './PaymentDetails.module.scss';
 
-import { HistoryLogContextShape } from 'constants/historyLogUIDisplayName';
+import { HistoryLogContextShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const iconToDisplay = (statusToFilter) => {

@@ -5,6 +5,10 @@ import (
 	"net/http/httptest"
 	"time"
 
+	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/transcom/mymove/pkg/swagger/nullable"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -1540,7 +1544,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -1592,7 +1596,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -1635,7 +1639,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -1679,7 +1683,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -1724,7 +1728,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -1768,7 +1772,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
 
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
@@ -2019,6 +2023,7 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	req = req.WithContext(trace.NewContext(req.Context(), traceID))
 
 	subtestData.traceID = traceID
+	shipmentType := ghcmessages.MTOShipmentType(mtoShipment.ShipmentType)
 	subtestData.params = mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
 		Body: &ghcmessages.CreateMTOShipment{
@@ -2027,7 +2032,7 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 			CustomerRemarks:     handlers.FmtString("customer remark"),
 			CounselorRemarks:    handlers.FmtString("counselor remark"),
 			RequestedPickupDate: handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
-			ShipmentType:        ghcmessages.MTOShipmentType(mtoShipment.ShipmentType),
+			ShipmentType:        &shipmentType,
 		},
 	}
 	subtestData.params.Body.DestinationAddress.Address = ghcmessages.Address{
@@ -2064,10 +2069,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
-			creator,
+			shipmentCreator,
 			sitStatus,
 		}
 		response := handler.Handle(params)
@@ -2088,21 +2096,19 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		params := subtestData.params
 
-		mockCreator := mocks.MTOShipmentCreator{}
-
+		shipmentCreator := mocks.ShipmentCreator{}
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
-			&mockCreator,
+			&shipmentCreator,
 			sitStatus,
 		}
 
 		err := errors.New("ServerError")
 
-		mockCreator.On("CreateMTOShipment",
+		shipmentCreator.On("CreateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
+			mock.AnythingOfType("*models.MTOShipment"),
 		).Return(nil, err)
 
 		response := handler.Handle(params)
@@ -2119,11 +2125,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
-
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
-			creator,
+			shipmentCreator,
 			sitStatus,
 		}
 
@@ -2152,10 +2160,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
-			creator,
+			shipmentCreator,
 			sitStatus,
 		}
 
@@ -2181,10 +2192,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
-			creator,
+			shipmentCreator,
 			sitStatus,
 		}
 
@@ -2204,10 +2218,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
 		sitStatus := mtoshipment.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
-			creator,
+			shipmentCreator,
 			sitStatus,
 		}
 
@@ -2219,6 +2236,204 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		response := handler.Handle(paramsNilBody)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
+	suite.Run("Successful POST - Integration Test (PPM, all fields)", func() {
+		// Make a move along with an attached minimal shipment. Shouldn't matter what's in them.
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moverouter.NewMoveRouter())
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
+		sitStatus := mtoshipment.NewShipmentSITStatus()
+		handler := CreateMTOShipmentHandler{
+			handlerConfig,
+			shipmentCreator,
+			sitStatus,
+		}
+
+		shipmentType := ghcmessages.MTOShipmentTypePPM
+		expectedDepartureDate := hhgShipment.RequestedPickupDate
+		pickupPostalCode := "30907"
+		secondaryPickupPostalCode := "30809"
+		destinationPostalCode := "36106"
+		secondaryDestinationPostalCode := "36101"
+		sitExpected := true
+		sitLocation := ghcmessages.SITLocationTypeDESTINATION
+		sitEstimatedWeight := unit.Pound(1700)
+		sitEstimatedEntryDate := expectedDepartureDate.AddDate(0, 0, 5)
+		sitEstimatedDepartureDate := sitEstimatedEntryDate.AddDate(0, 0, 20)
+		estimatedWeight := unit.Pound(3000)
+		hasProGear := true
+		proGearWeight := unit.Pound(300)
+		spouseProGearWeight := unit.Pound(200)
+		estimatedIncentive := 654321
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.CreateMTOShipment{
+				MoveTaskOrderID: handlers.FmtUUID(move.ID),
+				ShipmentType:    &shipmentType,
+				PpmShipment: &ghcmessages.CreatePPMShipment{
+					ExpectedDepartureDate:          handlers.FmtDatePtr(expectedDepartureDate),
+					PickupPostalCode:               &pickupPostalCode,
+					SecondaryPickupPostalCode:      &secondaryPickupPostalCode,
+					DestinationPostalCode:          &destinationPostalCode,
+					SecondaryDestinationPostalCode: &secondaryDestinationPostalCode,
+					SitExpected:                    &sitExpected,
+					SitLocation:                    &sitLocation,
+					SitEstimatedWeight:             handlers.FmtPoundPtr(&sitEstimatedWeight),
+					SitEstimatedEntryDate:          handlers.FmtDate(sitEstimatedEntryDate),
+					SitEstimatedDepartureDate:      handlers.FmtDate(sitEstimatedDepartureDate),
+					EstimatedWeight:                handlers.FmtPoundPtr(&estimatedWeight),
+					HasProGear:                     &hasProGear,
+					ProGearWeight:                  handlers.FmtPoundPtr(&proGearWeight),
+					SpouseProGearWeight:            handlers.FmtPoundPtr(&spouseProGearWeight),
+				},
+			},
+		}
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
+
+		response := handler.Handle(params)
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		// Check MTOShipment fields.
+		payload := okResponse.Payload
+		suite.NotZero(payload.ID)
+		suite.NotEqual(uuid.Nil.String(), payload.ID.String())
+		suite.Equal(move.ID.String(), payload.MoveTaskOrderID.String())
+		suite.Equal(ghcmessages.MTOShipmentTypePPM, payload.ShipmentType)
+		suite.Equal(ghcmessages.MTOShipmentStatusSUBMITTED, payload.Status)
+		suite.NotZero(payload.CreatedAt)
+		suite.NotZero(payload.UpdatedAt)
+
+		// Check PPMShipment fields.
+		ppmPayload := payload.PpmShipment
+		if suite.NotNil(ppmPayload) {
+			suite.NotZero(ppmPayload.ID)
+			suite.NotEqual(uuid.Nil.String(), ppmPayload.ID.String())
+			suite.EqualDatePtr(expectedDepartureDate, ppmPayload.ExpectedDepartureDate)
+			suite.Equal(pickupPostalCode, *ppmPayload.PickupPostalCode)
+			suite.Equal(&secondaryPickupPostalCode, ppmPayload.SecondaryPickupPostalCode)
+			suite.Equal(destinationPostalCode, *ppmPayload.DestinationPostalCode)
+			suite.Equal(&secondaryDestinationPostalCode, ppmPayload.SecondaryDestinationPostalCode)
+			suite.Equal(sitExpected, *ppmPayload.SitExpected)
+			suite.Equal(&sitLocation, ppmPayload.SitLocation)
+			suite.Equal(handlers.FmtPoundPtr(&sitEstimatedWeight), ppmPayload.SitEstimatedWeight)
+			suite.Equal(handlers.FmtDate(sitEstimatedEntryDate), ppmPayload.SitEstimatedEntryDate)
+			suite.Equal(handlers.FmtDate(sitEstimatedDepartureDate), ppmPayload.SitEstimatedDepartureDate)
+			suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), ppmPayload.EstimatedWeight)
+			suite.Equal(&hasProGear, ppmPayload.HasProGear)
+			suite.Equal(handlers.FmtPoundPtr(&proGearWeight), ppmPayload.ProGearWeight)
+			suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), ppmPayload.SpouseProGearWeight)
+			suite.Equal(ghcmessages.PPMShipmentStatusSUBMITTED, ppmPayload.Status)
+			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
+			suite.NotZero(ppmPayload.CreatedAt)
+			suite.NotZero(ppmPayload.UpdatedAt)
+		}
+	})
+
+	suite.Run("Successful POST - Integration Test (PPM, minimal fields)", func() {
+		// Make a move along with an attached minimal shipment. Shouldn't matter what's in them.
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moverouter.NewMoveRouter())
+		ppmEstimator := mocks.PPMEstimator{}
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator))
+		handler := CreateMTOShipmentHandler{
+			handlerConfig,
+			shipmentCreator,
+			mtoshipment.NewShipmentSITStatus(),
+		}
+
+		shipmentType := ghcmessages.MTOShipmentTypePPM
+		expectedDepartureDate := hhgShipment.RequestedPickupDate
+		pickupPostalCode := "29212"
+		destinationPostalCode := "78234"
+		sitExpected := false
+		estimatedWeight := unit.Pound(2450)
+		hasProGear := false
+		estimatedIncentive := 123456
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.CreateMTOShipment{
+				MoveTaskOrderID: handlers.FmtUUID(move.ID),
+				ShipmentType:    &shipmentType,
+				PpmShipment: &ghcmessages.CreatePPMShipment{
+					ExpectedDepartureDate: handlers.FmtDatePtr(expectedDepartureDate),
+					PickupPostalCode:      &pickupPostalCode,
+					DestinationPostalCode: &destinationPostalCode,
+					SitExpected:           &sitExpected,
+					EstimatedWeight:       handlers.FmtPoundPtr(&estimatedWeight),
+					HasProGear:            &hasProGear,
+				},
+			},
+		}
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
+
+		response := handler.Handle(params)
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		// Check MTOShipment fields.
+		payload := okResponse.Payload
+		suite.NotZero(payload.ID)
+		suite.NotEqual(uuid.Nil.String(), payload.ID.String())
+		suite.Equal(move.ID.String(), payload.MoveTaskOrderID.String())
+		suite.Equal(ghcmessages.MTOShipmentTypePPM, payload.ShipmentType)
+		suite.Equal(ghcmessages.MTOShipmentStatusSUBMITTED, payload.Status)
+		suite.NotZero(payload.CreatedAt)
+		suite.NotZero(payload.UpdatedAt)
+
+		// Check PPMShipment fields.
+		ppmPayload := payload.PpmShipment
+		if suite.NotNil(ppmPayload) {
+			suite.NotZero(ppmPayload.ID)
+			suite.NotEqual(uuid.Nil.String(), ppmPayload.ID.String())
+			suite.EqualDatePtr(expectedDepartureDate, ppmPayload.ExpectedDepartureDate)
+			suite.Equal(pickupPostalCode, *ppmPayload.PickupPostalCode)
+			suite.Equal(destinationPostalCode, *ppmPayload.DestinationPostalCode)
+			suite.Equal(sitExpected, *ppmPayload.SitExpected)
+			suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), ppmPayload.EstimatedWeight)
+			suite.Equal(&hasProGear, ppmPayload.HasProGear)
+			suite.Equal(ghcmessages.PPMShipmentStatusSUBMITTED, ppmPayload.Status)
+			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
+			suite.NotZero(ppmPayload.CreatedAt)
+			suite.NotZero(ppmPayload.UpdatedAt)
+		}
 	})
 }
 
@@ -2311,11 +2526,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
-			updater,
+			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
@@ -2325,6 +2542,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 				Status:             models.MTOShipmentStatusSubmitted,
 				UsesExternalVendor: true,
 				TACType:            &hhgLOAType,
+				Diversion:          true,
 			},
 		})
 		params := suite.getUpdateShipmentParams(oldShipment)
@@ -2339,7 +2557,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(params.Body.BillableWeightCap, updatedShipment.BillableWeightCap)
 		suite.Equal(params.Body.BillableWeightJustification, updatedShipment.BillableWeightJustification)
-		suite.Equal(params.Body.CustomerRemarks, updatedShipment.CustomerRemarks)
 		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
 		suite.Equal(params.Body.PickupAddress.StreetAddress1, updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(params.Body.DestinationAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
@@ -2352,20 +2569,115 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), string(updatedShipment.MtoAgents[0].MtoShipmentID))
 		suite.NotEmpty(updatedShipment.MtoAgents[0].ID)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
-		suite.Equal(oldShipment.UsesExternalVendor, updatedShipment.UsesExternalVendor)
 		suite.Equal(*params.Body.TacType.Value, string(*updatedShipment.TacType))
 		suite.Nil(updatedShipment.SacType)
+
+		// don't update non-nullable booleans if they're not passed in
+		suite.Equal(oldShipment.Diversion, updatedShipment.Diversion)
+		suite.Equal(oldShipment.UsesExternalVendor, updatedShipment.UsesExternalVendor)
+	})
+
+	suite.Run("Successful PATCH - Integration Test (PPM)", func() {
+		// Make a move along with an attached minimal shipment. Shouldn't matter what's in them.
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		mockSender := suite.TestNotificationSender()
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
+		handler := UpdateShipmentHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			shipmentUpdater,
+			mtoshipment.NewShipmentSITStatus(),
+		}
+
+		hasProGear := true
+		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				HasProGear: &hasProGear,
+			},
+		})
+		year, month, day := time.Now().Date()
+		actualMoveDate := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
+		expectedDepartureDate := actualMoveDate.Add(time.Hour * 24 * 2)
+		pickupPostalCode := "30907"
+		secondaryPickupPostalCode := "30809"
+		destinationPostalCode := "36106"
+		secondaryDestinationPostalCode := "36101"
+		sitExpected := true
+		sitLocation := ghcmessages.SITLocationTypeDESTINATION
+		sitEstimatedWeight := unit.Pound(1700)
+		sitEstimatedEntryDate := expectedDepartureDate.AddDate(0, 0, 5)
+		sitEstimatedDepartureDate := sitEstimatedEntryDate.AddDate(0, 0, 20)
+		estimatedWeight := unit.Pound(3000)
+		proGearWeight := unit.Pound(300)
+		spouseProGearWeight := unit.Pound(200)
+		estimatedIncentive := 654321
+
+		params := suite.getUpdateShipmentParams(ppmShipment.Shipment)
+		params.Body.ShipmentType = ghcmessages.MTOShipmentTypePPM
+		params.Body.PpmShipment = &ghcmessages.UpdatePPMShipment{
+			ActualMoveDate:                 handlers.FmtDatePtr(&actualMoveDate),
+			ExpectedDepartureDate:          handlers.FmtDatePtr(&expectedDepartureDate),
+			PickupPostalCode:               &pickupPostalCode,
+			SecondaryPickupPostalCode:      &secondaryPickupPostalCode,
+			DestinationPostalCode:          &destinationPostalCode,
+			SecondaryDestinationPostalCode: &secondaryDestinationPostalCode,
+			SitExpected:                    &sitExpected,
+			SitEstimatedWeight:             handlers.FmtPoundPtr(&sitEstimatedWeight),
+			SitEstimatedEntryDate:          handlers.FmtDatePtr(&sitEstimatedEntryDate),
+			SitEstimatedDepartureDate:      handlers.FmtDatePtr(&sitEstimatedDepartureDate),
+			SitLocation:                    &sitLocation,
+			EstimatedWeight:                handlers.FmtPoundPtr(&estimatedWeight),
+			HasProGear:                     &hasProGear,
+			ProGearWeight:                  handlers.FmtPoundPtr(&proGearWeight),
+			SpouseProGearWeight:            handlers.FmtPoundPtr(&spouseProGearWeight),
+		}
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+		suite.Equal(ppmShipment.Shipment.ID.String(), updatedShipment.ID.String())
+		suite.Equal(handlers.FmtDatePtr(&actualMoveDate), updatedShipment.PpmShipment.ActualMoveDate)
+		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), updatedShipment.PpmShipment.ExpectedDepartureDate)
+		suite.Equal(&pickupPostalCode, updatedShipment.PpmShipment.PickupPostalCode)
+		suite.Equal(&secondaryPickupPostalCode, updatedShipment.PpmShipment.SecondaryPickupPostalCode)
+		suite.Equal(&destinationPostalCode, updatedShipment.PpmShipment.DestinationPostalCode)
+		suite.Equal(&secondaryDestinationPostalCode, updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+		suite.Equal(sitExpected, *updatedShipment.PpmShipment.SitExpected)
+		suite.Equal(&sitLocation, updatedShipment.PpmShipment.SitLocation)
+		suite.Equal(handlers.FmtPoundPtr(&sitEstimatedWeight), updatedShipment.PpmShipment.SitEstimatedWeight)
+		suite.Equal(handlers.FmtDate(sitEstimatedEntryDate), updatedShipment.PpmShipment.SitEstimatedEntryDate)
+		suite.Equal(handlers.FmtDate(sitEstimatedDepartureDate), updatedShipment.PpmShipment.SitEstimatedDepartureDate)
+		suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), updatedShipment.PpmShipment.EstimatedWeight)
+		suite.Equal(int64(estimatedIncentive), *updatedShipment.PpmShipment.EstimatedIncentive)
+		suite.Equal(handlers.FmtBool(hasProGear), updatedShipment.PpmShipment.HasProGear)
+		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), updatedShipment.PpmShipment.ProGearWeight)
+		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), updatedShipment.PpmShipment.SpouseProGearWeight)
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
-			updater,
+			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
@@ -2386,11 +2698,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
-			updater,
+			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
@@ -2415,11 +2729,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
-			updater,
+			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
@@ -2443,11 +2759,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		mockSender := suite.TestNotificationSender()
-		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
-			updater,
+			shipmentUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
@@ -2464,33 +2782,20 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		response := handler.Handle(params)
 
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentForbidden{}, response)
 	})
 
 	suite.Run("PATCH failure - 500", func() {
-		builder := query.NewQueryBuilder()
-		mockUpdater := mocks.MTOShipmentUpdater{}
-		fetcher := fetch.NewFetcher(builder)
+		mockUpdater := mocks.ShipmentUpdater{}
 		handler := UpdateShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			fetcher,
 			&mockUpdater,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
 		err := errors.New("ServerError")
 
-		mockUpdater.On("UpdateMTOShipment",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(nil, err)
-		mockUpdater.On("RetrieveMTOShipment",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(nil, err)
-		mockUpdater.On("CheckIfMTOShipmentCanBeUpdated",
+		mockUpdater.On("UpdateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
