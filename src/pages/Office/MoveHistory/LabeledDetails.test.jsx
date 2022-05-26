@@ -35,7 +35,7 @@ describe('LabeledDetails', () => {
         department_indicator: 'AIR_FORCE',
         grade: 'E_1',
         actual_pickup_date: '01-01-2022',
-        prime_actual_weight: '100',
+        prime_actual_weight: '100 lbs',
       },
     };
     it.each([
@@ -63,7 +63,7 @@ describe('LabeledDetails', () => {
       ['NTS SAC', ': 5555'],
       ['Dept. indicator', ': Air Force'],
       ['Departure date', ': 01 Jan 2022'],
-      ['Shipment weight', ': 100'],
+      ['Shipment weight', ': 100 lbs'],
     ])('it renders %s%s', (displayName, value) => {
       render(<LabeledDetails historyRecord={historyRecord} />);
 
