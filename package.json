@@ -97,6 +97,7 @@
     "start": "react-scripts start",
     "test": "react-scripts test --env=jsdom",
     "test:debug": "react-scripts --inspect-brk test --runInBand --env=jsdom",
+    "test:debug:react-uswds": "react-scripts test --runInBand --logHeapUsage --watchAll --env=jsdom",
     "test:coverage": "react-scripts test --coverage --testResultsProcessor=jest-junit  --env=jsdom --watchAll=false --coverageDirectory=coverage --runInBand",
     "test:e2e": "cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-debug": "DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
