@@ -1637,6 +1637,34 @@ paths:
         name: locator
         required: true
         type: string
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateCustomerSupportRemark'
+      responses:
+        '200':
+          description: Successfully created customer support remark
+          schema:
+            $ref: '#/definitions/CustomerSupportRemark'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - customerSupportRemarks
+      description: Creates a customer support remark for a move
+      operationId: createCustomerSupportRemarkForMove
+      summary: Creates a customer support remark for a move
     get:
       produces:
         - application/json
@@ -2129,6 +2157,45 @@ paths:
           description: Successfully returned all moves matching the criteria
           schema:
             $ref: '#/definitions/QueuePaymentRequestsResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
+  /moves/search:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Search moves by locator, DOD ID, or customer name
+      description: >
+        Search moves by locator, DOD ID, or customer name. Used by QAE and CSR
+        users.
+      operationId: searchMoves
+      tags:
+        - move
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              locator:
+                description: Move locator
+                type: string
+                minLength: 6
+                maxLength: 6
+                x-nullable: true
+              dodID:
+                description: DOD ID
+                type: string
+                minLength: 10
+                maxLength: 10
+                x-nullable: true
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/SearchMovesResult'
         '403':
           $ref: '#/responses/PermissionDenied'
         '500':
@@ -3395,6 +3462,101 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
+      ppmShipment:
+        $ref: '#/definitions/UpdatePPMShipment'
+  UpdatePPMShipment:
+    type: object
+    properties:
+      expectedDepartureDate:
+        description: |
+          Date the customer expects to move.
+        format: date
+        type: string
+        x-nullable: true
+      actualMoveDate:
+        format: date
+        type: string
+        x-nullable: true
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryPickupPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      sitExpected:
+        type: boolean
+        x-nullable: true
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+      sitEstimatedWeight:
+        type: integer
+        example: 2000
+        x-nullable: true
+      sitEstimatedEntryDate:
+        format: date
+        type: string
+        x-nullable: true
+      sitEstimatedDepartureDate:
+        format: date
+        type: string
+        x-nullable: true
+      estimatedWeight:
+        type: integer
+        example: 4200
+        x-nullable: true
+      netWeight:
+        description: |
+          The net weight of the shipment once it has been weighed
+        type: integer
+        example: 4300
+        x-nullable: true
+      hasProGear:
+        description: |
+          Indicates whether PPM shipment has pro gear.
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        type: integer
+        x-nullable: true
+      spouseProGearWeight:
+        type: integer
+        x-nullable: true
+      advance:
+        description: |
+          The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      advanceRequested:
+        description: |
+          Indicates whether an advance has been requested for the PPM shipment.
+        type: boolean
+        x-nullable: true
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3822,6 +3984,49 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+  SearchMoves:
+    type: array
+    items:
+      $ref: '#/definitions/SearchMove'
+  SearchMove:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      customer:
+        $ref: '#/definitions/Customer'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      locator:
+        type: string
+      submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      requestedMoveDate:
+        format: date
+        type: string
+        x-nullable: true
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      shipmentsCount:
+        type: integer
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+  SearchMovesResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchMoves:
+        $ref: '#/definitions/SearchMoves'
   GBLOC:
     type: string
     enum:
@@ -3847,6 +4052,26 @@ definitions:
       - MBFL
       - MLNQ
       - XXXX
+  CreateCustomerSupportRemark:
+    type: object
+    description: >-
+      A text remark written by an customer support user that is associated with
+      a specific move.
+    required:
+      - locator
+      - content
+      - officeUserID
+    properties:
+      locator:
+        type: string
+        example: 1K43AR
+      content:
+        example: This is a remark about a move.
+        type: string
+      officeUserID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
   Address:
     description: A postal address
     type: object
@@ -4559,6 +4784,17 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      actualPickupPostalCode:
+        description: >
+          The actual postal code where the PPM shipment started. To be filled
+          once the customer has moved the shipment.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
       destinationPostalCode:
         format: zip
         type: string
@@ -4566,6 +4802,17 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      actualDestinationPostalCode:
+        description: >
+          The actual postal code where the PPM shipment ended. To be filled once
+          the customer has moved the shipment.
         format: zip
         type: string
         title: ZIP
@@ -4606,17 +4853,33 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
-      advance:
-        description: |
-          The amount request for an advance, or null if no advance is requested
-        type: integer
-        format: cents
-        x-nullable: true
       advanceRequested:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
+        x-omitempty: false
+      advance:
+        description: >
+          The amount requested for an advance, or null if no advance is
+          requested
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      hasReceivedAdvance:
+        description: |
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      advanceAmountReceived:
+        description: |
+          The amount received for an advance, or null if no advance is received.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
       deletedAt:
         format: date-time
         type: string
@@ -4653,6 +4916,17 @@ definitions:
           header for any updates.
         type: string
         readOnly: true
+    required:
+      - id
+      - shipmentId
+      - createdAt
+      - updatedAt
+      - status
+      - expectedDepartureDate
+      - pickupPostalCode
+      - destinationPostalCode
+      - sitExpected
+      - eTag
   MTOShipment:
     properties:
       moveTaskOrderID:

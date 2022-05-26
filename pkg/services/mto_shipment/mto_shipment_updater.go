@@ -7,8 +7,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 
-	"github.com/transcom/mymove/pkg/db/utilities"
-
 	"github.com/getlantern/deepcopy"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -18,9 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
@@ -45,6 +41,7 @@ type mtoShipmentUpdater struct {
 	moveWeights  services.MoveWeights
 	sender       notifications.NotificationSender
 	recalculator services.PaymentRequestShipmentRecalculator
+	checks       []validator
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
@@ -57,6 +54,50 @@ func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher servic
 		moveWeights,
 		sender,
 		recalculator,
+		[]validator{},
+	}
+}
+
+// TODO: apply the subset of business logic validations
+// that would be appropriate for the CUSTOMER
+func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+	return &mtoShipmentUpdater{
+		builder,
+		fetch.NewFetcher(builder),
+		planner,
+		moveRouter,
+		moveWeights,
+		sender,
+		recalculator,
+		[]validator{checkStatus()},
+	}
+}
+
+func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+	return &mtoShipmentUpdater{
+		builder,
+		fetch.NewFetcher(builder),
+		planner,
+		moveRouter,
+		moveWeights,
+		sender,
+		recalculator,
+		[]validator{checkStatus(), checkUpdateAllowed()},
+	}
+}
+
+// TODO: apply the subset of business logic validations
+// that would be appropriate for the PRIME
+func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+	return &mtoShipmentUpdater{
+		builder,
+		fetch.NewFetcher(builder),
+		planner,
+		moveRouter,
+		moveWeights,
+		sender,
+		recalculator,
+		[]validator{checkStatus(), checkAvailToPrime()},
 	}
 }
 
@@ -221,119 +262,27 @@ func (e StaleIdentifierError) Error() string {
 	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
 }
 
-//CheckIfMTOShipmentCanBeUpdated checks if a shipment should be updatable
-func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error) {
-	if session.IsOfficeApp() && session.IsOfficeUser() {
-		isServiceCounselor := session.Roles.HasRole(roles.RoleTypeServicesCounselor)
-		isTOO := session.Roles.HasRole(roles.RoleTypeTOO)
-		isTIO := session.Roles.HasRole(roles.RoleTypeTIO)
-		switch mtoShipment.Status {
-		case models.MTOShipmentStatusSubmitted:
-			if isServiceCounselor || isTOO {
-				return true, nil
-			}
-		case models.MTOShipmentStatusApproved:
-			if isTIO || isTOO {
-				return true, nil
-			}
-		case models.MTOShipmentStatusCancellationRequested:
-			if isTOO {
-				return true, nil
-			}
-		case models.MTOShipmentStatusCanceled:
-			if isTOO {
-				return true, nil
-			}
-		case models.MTOShipmentStatusDiversionRequested:
-			if isTOO {
-				return true, nil
-			}
-		default:
-			return false, nil
-		}
+//UpdateMTOShipment updates the mto shipment
+func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	eagerAssociations := []string{"MoveTaskOrder",
+		"PickupAddress",
+		"DestinationAddress",
+		"SecondaryPickupAddress",
+		"SecondaryDeliveryAddress",
+		"MTOAgents",
+		"SITExtensions",
+		"MTOServiceItems.ReService",
+		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.CustomerContacts",
+		"StorageFacility.Address"}
 
-		return false, nil
-	}
-
-	return true, nil
-}
-
-func (f *mtoShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-
-	err := appCtx.DB().
-		Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"MoveTaskOrder",
-			"PickupAddress",
-			"DestinationAddress",
-			"SecondaryPickupAddress",
-			"SecondaryDeliveryAddress",
-			"MTOAgents",
-			"SITExtensions",
-			"MTOServiceItems.ReService",
-			"MTOServiceItems.Dimensions",
-			"MTOServiceItems.CustomerContacts",
-			"StorageFacility.Address").Find(&shipment, mtoShipmentID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(mtoShipmentID, "Shipment not found")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
-	return &shipment, nil
-}
-
-// UpdateMTOShipmentOffice updates the mto shipment
-// TODO: apply the subset of business logic validations
-// that would be appropriate for the OFFICE USER
-func (f *mtoShipmentUpdater) UpdateMTOShipmentOffice(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	return f.updateMTOShipment(
-		appCtx,
-		mtoShipment,
-		eTag,
-		checkStatus(),
-	)
-}
-
-// UpdateMTOShipmentCustomer updates the mto shipment
-// TODO: apply the subset of business logic validations
-// that would be appropriate for the CUSTOMER
-func (f *mtoShipmentUpdater) UpdateMTOShipmentCustomer(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	return f.updateMTOShipment(
-		appCtx,
-		mtoShipment,
-		eTag,
-		checkStatus(),
-	)
-}
-
-// UpdateMTOShipmentPrime updates the mto shipment
-// TODO: apply the subset of business logic validations
-// that would be appropriate for the PRIME
-func (f *mtoShipmentUpdater) UpdateMTOShipmentPrime(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	return f.updateMTOShipment(
-		appCtx,
-		mtoShipment,
-		eTag,
-		checkStatus(),
-		checkAvailToPrime(),
-	)
-}
-
-//updateMTOShipment updates the mto shipment
-func (f *mtoShipmentUpdater) updateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, checks ...validator) (*models.MTOShipment, error) {
-	oldShipment, err := f.RetrieveMTOShipment(appCtx, mtoShipment.ID)
+	oldShipment, err := FindShipment(appCtx, mtoShipment.ID, eagerAssociations...)
 	if err != nil {
 		return nil, err
 	}
 
 	// run the (read-only) validations
-	if verr := validateShipment(appCtx, mtoShipment, oldShipment, checks...); verr != nil {
+	if verr := validateShipment(appCtx, mtoShipment, oldShipment, f.checks...); verr != nil {
 		return nil, verr
 	}
 
@@ -355,7 +304,7 @@ func (f *mtoShipmentUpdater) updateMTOShipment(appCtx appcontext.AppContext, mto
 		}
 	}
 
-	updatedShipment, err := f.RetrieveMTOShipment(appCtx, mtoShipment.ID)
+	updatedShipment, err := FindShipment(appCtx, mtoShipment.ID, eagerAssociations...)
 	if err != nil {
 		return nil, err
 	}

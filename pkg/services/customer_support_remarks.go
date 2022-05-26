@@ -10,3 +10,8 @@ import (
 type CustomerSupportRemarksFetcher interface {
 	ListCustomerSupportRemarks(appCtx appcontext.AppContext, moveCode string) (*models.CustomerSupportRemarks, error)
 }
+
+//go:generate mockery --name CustomerSupportRemarksCreator --disable-version-string
+type CustomerSupportRemarksCreator interface {
+	CreateCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemark *models.CustomerSupportRemark, moveCode string) (*models.CustomerSupportRemark, error)
+}

@@ -16,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	var domOtherPriceCode models.ReServiceCode
 	switch packUnpackCode {
@@ -33,7 +33,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if weight < minDomesticWeight {
+	if !isPPM && weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
 	if servicesSchedule == 0 {
@@ -55,7 +55,12 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
 
-	basePrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
+	finalWeight := weight
+	if isPPM && weight < minDomesticWeight {
+		finalWeight = minDomesticWeight
+	}
+
+	basePrice := domOtherPrice.PriceCents.Float64() * finalWeight.ToCWTFloat64()
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
 
 	displayParams := services.PricingDisplayParams{
@@ -92,7 +97,11 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	}
 
 	totalCost := unit.Cents(math.Round(escalatedPrice))
-
+	if isPPM && weight < minDomesticWeight {
+		weightFactor := float64(weight) / float64(minDomesticWeight)
+		cost := float64(weightFactor) * float64(totalCost)
+		return unit.Cents(cost), displayParams, nil
+	}
 	return totalCost, displayParams, nil
 }
 
@@ -238,7 +247,9 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	if distance > 50 {
 		// Do a normal linehaul calculation
 		linehaulPricer := NewDomesticLinehaulPricer()
-		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea)
+		// TODO: This will need adjusting once SIT is implemented for PPMs
+		isPPM := false
+		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea, isPPM)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}

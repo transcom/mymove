@@ -33,6 +33,12 @@ export async function getCustomerSupportRemarksForMove(key, locator) {
   return makeGHCRequest('customerSupportRemarks.getCustomerSupportRemarksForMove', { locator }, { normalize: false });
 }
 
+export async function createCustomerSupportRemarkForMove(body) {
+  return makeGHCRequest('customerSupportRemarks.createCustomerSupportRemarkForMove', {
+    body,
+    locator: body.locator,
+  });
+}
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
     'move.getMoveHistory',
@@ -70,6 +76,14 @@ export async function getDocument(key, documentId) {
 }
 export async function getCustomer(key, customerID) {
   return makeGHCRequest('customer.getCustomer', { customerID });
+}
+
+export async function searchMoves(key, locator, dodID) {
+  return makeGHCRequest(
+    'move.searchMoves',
+    { body: { locator, dodID } },
+    { schemaKey: 'searchMovesResult', normalize: false },
+  );
 }
 
 export async function patchMTOServiceItemStatus({ moveId, mtoServiceItemID, ifMatchEtag, status, rejectionReason }) {
