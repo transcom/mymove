@@ -99,3 +99,12 @@ func MakeContractingOfficerRole(db *pop.Connection) roles.Role {
 		},
 	})
 }
+
+// lookup a role by role type
+func LookupRole(db *pop.Connection, roleType roles.RoleType) (roles.Role, error) {
+
+	var role roles.Role
+	err := db.RawQuery(`SELECT * FROM roles WHERE role_type = ?`, roleType).First(&role)
+
+	return role, err
+}

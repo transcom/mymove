@@ -6,22 +6,23 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 // TODO: placeholder until we figure out where these should be stored
 type RolePermissions struct {
-	RoleType    string
+	RoleType    roles.RoleType
 	Permissions []string
 }
 
 var TOO = RolePermissions{
-	RoleType: "transportation_ordering_officer",
+	RoleType: roles.RoleTypeTOO,
 	Permissions: []string{"update.move", "create.serviceItem",
 		"update.shipment"},
 }
 
 var TIO = RolePermissions{
-	RoleType:    "transportation_invoicing_officer",
+	RoleType:    roles.RoleTypeTIO,
 	Permissions: []string{"create.serviceItem", "update.shipment"},
 }
 
@@ -71,19 +72,18 @@ func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]st
 
 // load the [user.role] given a valid user ID
 // what we care about here is the string, so we can look it up for permissions --> roles.role_type
-func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]string, error) {
+func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.RoleType, error) {
 
-	var roleTypes []string
+	var userRoleTypes []roles.RoleType
 
-	err := appCtx.DB().RawQuery(`SELECT DISTINCT role_type
+	err := appCtx.DB().RawQuery(`SELECT roles.role_type
 		FROM roles
-			RIGHT JOIN users_roles ur
-			    ON ur.role_id = roles.id
-			    	AND ur.deleted_at IS NULL
-			        AND ur.user_id = ? `, userID).All(&roleTypes)
+			LEFT JOIN users_roles ur
+			    ON roles.id = ur.role_id
+			WHERE ur.deleted_at IS NULL AND ur.user_id = ?`, userID).All(&userRoleTypes)
 
-	fmt.Printf("USER ROLESS: %+v\n", roleTypes)
+	fmt.Printf("USER ROLESS: %+v\n", userRoleTypes)
 
-	return roleTypes, err
+	return userRoleTypes, err
 
 }

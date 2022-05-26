@@ -98,11 +98,7 @@ func MakeDefaultOfficeUser(db *pop.Connection) models.OfficeUser {
 
 // MakeTIOOfficeUser makes an OfficeUser with the TIO role
 func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
-	tioRole := roles.Role{
-		ID:       uuid.Must(uuid.NewV4()),
-		RoleType: roles.RoleTypeTIO,
-		RoleName: "Transportation Invoicing Officer",
-	}
+	tioRole, _ := LookupRole(db, roles.RoleTypeTIO)
 
 	tioUser := models.User{
 		Roles: []roles.Role{tioRole},

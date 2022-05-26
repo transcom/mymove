@@ -252,7 +252,19 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 
 func (suite *AuthSuite) TestRequirePermissionsMiddleware() {
 	// TIO users have the proper permissions for our test - update.shipment
-	tioOfficeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: false})
+	tioOfficeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
+		User: tioOfficeUser.User,
+		UsersRoles: models.UsersRoles{
+			UserID: tioOfficeUser.User.ID,
+			RoleID: tioOfficeUser.User.Roles[0].ID,
+		},
+	})
+
+	identity, err := models.FetchUserIdentity(suite.DB(), tioOfficeUser.User.LoginGovUUID.String())
+
+	suite.NoError(err)
 
 	rr := httptest.NewRecorder()
 	// using a fake ID for a shipment, since we only care about validating the permissions flow
@@ -260,12 +272,12 @@ func (suite *AuthSuite) TestRequirePermissionsMiddleware() {
 
 	// And: the context contains the auth values
 	handlerSession := auth.Session{
-		UserID:          tioOfficeUser.ID,
+		UserID:          tioOfficeUser.User.ID,
 		IDToken:         "fake Token",
 		ApplicationName: "mil",
 	}
 
-	handlerSession.Roles = append(handlerSession.Roles, tioOfficeUser.User.Roles...)
+	handlerSession.Roles = append(handlerSession.Roles, identity.Roles...)
 
 	ctx := auth.SetSessionInRequestContext(req, &handlerSession)
 	req = req.WithContext(ctx)
