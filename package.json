@@ -35,7 +35,7 @@
     "ra-data-simple-rest": "^3.19.6",
     "ra-language-english": "^4.1.0",
     "react": "^17.0.1",
-    "react-admin": "^3.19.7",
+    "react-admin": "^3.19.11",
     "react-admin-import-csv": "^1.0.28",
     "react-app-polyfill": "^3.0.0",
     "react-day-picker": "=7.4.10",
