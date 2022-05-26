@@ -456,7 +456,7 @@ describe('Home component', () => {
     describe('for NTS moves (no PPM)', () => {
       const orders = { id: 'testOrder123', new_duty_location: { name: 'Test Duty Location' } };
       const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
-      const mtoShipments = [{ id: 'test123', shipmentType: 'NTS' }];
+      const mtoShipments = [{ id: 'test123', shipmentType: SHIPMENT_OPTIONS.NTS }];
       const move = { id: 'testMoveId', status: 'SUBMITTED' };
       const wrapper = mountHomeWithProviders({
         orders,

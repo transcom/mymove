@@ -5,19 +5,20 @@ import { withRouter } from 'react-router-dom';
 import qs from 'query-string';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
-import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/actions';
-import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
-import { HhgShipmentShape, HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
   selectMTOShipmentById,
 } from 'store/entities/selectors';
+import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { AddressShape, SimpleAddressShape } from 'types/address';
+import { HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
 import { LocationShape } from 'types/index';
-import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation';
+import { ShipmentShape } from 'types/shipment';
 
 export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
@@ -77,9 +78,7 @@ CreateOrEditMtoShipment.propTypes = {
   match: MatchShape,
   history: HistoryShape,
   fetchCustomerData: func.isRequired,
-  // technically this should be a [Generic]MtoShipmentShape
-  // using hhg because it has all the props
-  mtoShipment: HhgShipmentShape,
+  mtoShipment: ShipmentShape,
   currentResidence: AddressShape.isRequired,
   newDutyLocationAddress: SimpleAddressShape,
   updateMTOShipment: func.isRequired,

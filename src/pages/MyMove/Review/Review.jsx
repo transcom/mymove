@@ -6,18 +6,19 @@ import { generatePath } from 'react-router';
 
 import styles from './Review.module.scss';
 
-import { MatchShape } from 'types/router';
 import ScrollToTop from 'components/ScrollToTop';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ConnectedSummary from 'components/Customer/Review/Summary/Summary';
-import 'scenes/Review/Review.css';
-import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { customerRoutes, generalRoutes } from 'constants/routes';
-import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
-import { MoveShape, MtoShipmentShape } from 'types/customerShapes';
 import MOVE_STATUSES from 'constants/moves';
+import { customerRoutes, generalRoutes } from 'constants/routes';
+import 'scenes/Review/Review.css';
+import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
+import formStyles from 'styles/form.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MoveShape } from 'types/customerShapes';
+import { MatchShape } from 'types/router';
+import { ShipmentShape } from 'types/shipment';
 import { isPPMShipmentComplete } from 'utils/shipments';
 
 const Review = ({ currentMove, mtoShipments, push, match }) => {
@@ -78,7 +79,7 @@ const Review = ({ currentMove, mtoShipments, push, match }) => {
 
 Review.propTypes = {
   currentMove: MoveShape.isRequired,
-  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
+  mtoShipments: arrayOf(ShipmentShape).isRequired,
   push: func.isRequired,
   match: MatchShape.isRequired,
 };

@@ -6,8 +6,8 @@ import styles from './PPMSummaryList.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
+import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate } from 'utils/formatters';
-import { MtoShipmentShape } from 'types/customerShapes';
 
 const ppmContent = (canUpload, approvedOn) => {
   return canUpload ? (
@@ -62,12 +62,12 @@ const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick }) => {
 };
 
 PPMSummaryList.propTypes = {
-  shipments: arrayOf(MtoShipmentShape).isRequired,
+  shipments: arrayOf(ShipmentShape).isRequired,
   onUploadClick: func.isRequired,
 };
 
 PPMSummaryListItem.propTypes = {
-  shipment: MtoShipmentShape.isRequired,
+  shipment: ShipmentShape.isRequired,
   index: number.isRequired,
   hasMany: bool.isRequired,
   onUploadClick: func.isRequired,

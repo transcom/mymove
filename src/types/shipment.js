@@ -1,12 +1,13 @@
 /* eslint-disable import/prefer-default-export */
-import PropTypes from 'prop-types';
+import { arrayOf, bool, oneOf, number, shape, string } from 'prop-types';
 
+import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, ResidentialAddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { shipmentStatuses } from 'constants/shipments';
+import { LOCATION_TYPES_ONE_OF } from 'types/sitStatusShape';
 
-export const ShipmentOptionsOneOf = PropTypes.oneOf([
+export const ShipmentOptionsOneOf = oneOf([
   SHIPMENT_OPTIONS.HHG,
   SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
   SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
@@ -15,52 +16,7 @@ export const ShipmentOptionsOneOf = PropTypes.oneOf([
   SHIPMENT_OPTIONS.PPM,
 ]);
 
-export const ShipmentShape = PropTypes.shape({
-  id: PropTypes.string,
-  shipmentType: ShipmentOptionsOneOf,
-  requestedPickupDate: PropTypes.string,
-  scheduledPickupDate: PropTypes.string,
-  actualPickupDate: PropTypes.string,
-  pickupAddress: AddressShape,
-  secondaryPickupAddress: AddressShape,
-  destinationAddress: AddressShape,
-  secondaryDeliveryAddress: AddressShape,
-  agents: PropTypes.arrayOf(AgentShape),
-  primeEstimatedWeight: PropTypes.number,
-  primeActualWeight: PropTypes.number,
-  ntsRecordedWeight: PropTypes.number,
-  diversion: PropTypes.bool,
-  counselorRemarks: PropTypes.string,
-  customerRemarks: PropTypes.string,
-  status: PropTypes.string,
-  reweigh: PropTypes.shape({
-    id: PropTypes.string,
-  }),
-  storageFacility: PropTypes.shape({
-    address: AddressShape.isRequired,
-    facilityName: PropTypes.string.isRequired,
-    lotNumber: PropTypes.string,
-    phone: PropTypes.string,
-    email: PropTypes.string,
-  }),
-});
-
-export const PPMShipmentShape = PropTypes.shape({
-  shipmentType: ShipmentOptionsOneOf,
-  hasRequestedAdvance: PropTypes.bool,
-  destinationPostalCode: PropTypes.string,
-  estimatedIncentive: PropTypes.number,
-  estimatedWeight: PropTypes.number,
-  expectedDepartureDate: PropTypes.string,
-  pickupPostalCode: PropTypes.string,
-  proGearWeight: PropTypes.number,
-  secondaryDestinationPostalCode: PropTypes.string,
-  secondaryPickupPostalCode: PropTypes.string,
-  spouseProGearWeight: PropTypes.number,
-  customerRemarks: PropTypes.string,
-});
-
-export const ShipmentStatusesOneOf = PropTypes.oneOf([
+export const ShipmentStatusesOneOf = oneOf([
   shipmentStatuses.DRAFT,
   shipmentStatuses.SUBMITTED,
   shipmentStatuses.APPROVED,
@@ -70,10 +26,89 @@ export const ShipmentStatusesOneOf = PropTypes.oneOf([
   shipmentStatuses.REJECTED,
 ]);
 
-export const StorageFacilityShape = PropTypes.shape({
-  facilityName: PropTypes.string,
-  phone: PropTypes.string,
-  email: PropTypes.string,
+export const PPMShipmentStatus = oneOf([
+  ppmShipmentStatuses.DRAFT,
+  ppmShipmentStatuses.SUBMITTED,
+  ppmShipmentStatuses.WAITING_ON_CUSTOMER,
+  ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL,
+  ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+  ppmShipmentStatuses.PAYMENT_APPROVED,
+]);
+
+export const PPMShipmentShape = shape({
+  id: string,
+  shipmentId: string,
+  createdAt: string,
+  updatedAt: string,
+  status: PPMShipmentStatus,
+  expectedDepartureDate: string,
+  actualMoveDate: string,
+  submittedAt: string,
+  reviewedAt: string,
+  approvedAt: string,
+  pickupPostalCode: string,
+  secondaryPickupPostalCode: string,
+  actualPickupPostalCode: string,
+  destinationPostalCode: string,
+  secondaryDestinationPostalCode: string,
+  actualDestinationPostalCode: string,
+  sitExpected: bool,
+  estimatedWeight: number,
+  netWeight: number,
+  hasProGear: bool,
+  proGearWeight: number,
+  spouseProGearWeight: number,
+  estimatedIncentive: number,
+  hasRequestedAdvance: bool,
+  advanceAmountRequested: number,
+  hasReceivedAdvance: bool,
+  advanceAmountReceived: number,
+  deletedAt: string,
+  sitLocation: LOCATION_TYPES_ONE_OF,
+  sitEstimatedWeight: number,
+  sitEstimatedEntryDate: string,
+  sitEstimatedDepartureDate: string,
+  sitEstimatedCost: number,
+  eTag: string,
+});
+
+export const ShipmentShape = shape({
+  id: string,
+  shipmentType: ShipmentOptionsOneOf,
+  requestedPickupDate: string,
+  scheduledPickupDate: string,
+  actualPickupDate: string,
+  requestedDeliveryDate: string,
+  pickupAddress: AddressShape,
+  secondaryPickupAddress: AddressShape,
+  destinationAddress: AddressShape,
+  secondaryDeliveryAddress: AddressShape,
+  agents: arrayOf(AgentShape),
+  primeEstimatedWeight: number,
+  primeActualWeight: number,
+  ntsRecordedWeight: number,
+  diversion: bool,
+  counselorRemarks: string,
+  customerRemarks: string,
+  status: ShipmentStatusesOneOf,
+  reweigh: shape({
+    id: string,
+    weight: number,
+  }),
+  storageFacility: shape({
+    address: AddressShape.isRequired,
+    facilityName: string.isRequired,
+    lotNumber: string,
+    phone: string,
+    email: string,
+  }),
+  ppmShipment: PPMShipmentShape,
+});
+
+export const StorageFacilityShape = shape({
+  facilityName: string,
+  phone: string,
+  email: string,
   address: ResidentialAddressShape,
-  lotNumber: PropTypes.string,
+  lotNumber: string,
 });

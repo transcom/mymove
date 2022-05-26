@@ -17,26 +17,27 @@ import {
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';
 
-import formStyles from 'styles/form.module.scss';
-import { customerRoutes } from 'constants/routes';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
-import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
-import { formatWeight } from 'utils/formatters';
-import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
-import { shipmentForm } from 'content/shipments';
-import { DatePickerInput } from 'components/form/fields';
-import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
-import { AddressFields } from 'components/form/AddressFields/AddressFields';
-import { Form } from 'components/form/Form';
-import Hint from 'components/Hint/index';
-import { validateDate } from 'utils/validation';
-import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
+import Callout from 'components/Callout';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import Callout from 'components/Callout';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
+import { DatePickerInput } from 'components/form/fields';
+import { Form } from 'components/form/Form';
+import Hint from 'components/Hint/index';
+import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
+import { customerRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
+import { shipmentForm } from 'content/shipments';
+import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import formStyles from 'styles/form.module.scss';
+import { AddressShape, SimpleAddressShape } from 'types/address';
+import { HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
+import { ShipmentShape } from 'types/shipment';
+import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
+import { formatWeight } from 'utils/formatters';
+import { validateDate } from 'utils/validation';
 
 const blankAddress = {
   address: {
@@ -506,7 +507,7 @@ MtoShipmentForm.propTypes = {
   currentResidence: AddressShape.isRequired,
   newDutyLocationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
-  mtoShipment: HhgShipmentShape,
+  mtoShipment: ShipmentShape,
   serviceMember: shape({
     weight_allotment: shape({
       total_weight_self: number,

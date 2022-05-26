@@ -1,7 +1,6 @@
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 
 import { AddressShape } from 'types/address';
-import { AgentShape } from 'types/agent';
 import { DutyLocationShape } from 'types/dutyLocation';
 
 export const WeightAllotment = shape({
@@ -72,45 +71,6 @@ export const OrdersShape = shape({
   }),
 });
 
-export const PPMShipmentShape = shape({
-  pickupPostalCode: string,
-  actualPickupPostalCode: string,
-  secondaryPickupPostalCode: string,
-  destinationPostalCode: string,
-  actualDestinationPostalCode: string,
-  secondaryDestinationPostalCode: string,
-  sitExpected: bool,
-  expectedDepartureDate: string,
-  actualMoveDate: string,
-  hasProGear: bool,
-  proGearWeight: number,
-  spouseProGearWeight: number,
-  estimatedWeight: number,
-  estimatedIncentive: number,
-  hasRequestedAdvance: bool,
-  advanceAmountRequested: number,
-  hasReceivedAdvance: bool,
-  advanceAmountReceived: number,
-  status: string,
-});
-
-export const MtoShipmentShape = shape({
-  agents: arrayOf(AgentShape),
-  customerRemarks: string,
-  counselorRemarks: string,
-  shipmentType: string,
-  requestedPickupDate: string,
-  pickupAddress: AddressShape,
-  requestedDeliveryDate: string,
-  destinationAddress: AddressShape,
-  secondaryDeliveryAddress: AddressShape,
-  secondaryPickupAddress: AddressShape,
-  ppmShipment: PPMShipmentShape,
-  status: string,
-});
-
-export const HhgShipmentShape = MtoShipmentShape;
-
 export const MatchShape = shape({
   isExact: bool.isRequired,
   params: shape({
@@ -134,6 +94,4 @@ export const BackupContactShape = shape({
 export default {
   MatchShape,
   HistoryShape,
-  MtoShipmentShape,
-  HhgShipmentShape,
 };
