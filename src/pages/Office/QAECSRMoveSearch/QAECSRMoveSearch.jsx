@@ -55,7 +55,7 @@ const columns = (showBranchFilter = true) => [
   createHeader(
     'Origin ZIP',
     (row) => {
-      return `${row.originDutyLocation.address.postalCode}`;
+      return `${row.originDutyLocation?.address?.postalCode}`;
     },
     {
       id: 'originZIP',
@@ -65,7 +65,7 @@ const columns = (showBranchFilter = true) => [
   createHeader(
     'Destination ZIP',
     (row) => {
-      return `${row.destinationDutyLocation.address.postalCode}`;
+      return `${row.destinationDutyLocation?.address?.postalCode}`;
     },
     {
       id: 'destinationZIP',
@@ -75,7 +75,7 @@ const columns = (showBranchFilter = true) => [
   createHeader(
     'Branch',
     (row) => {
-      return serviceMemberAgencyLabel(row.customer.agency);
+      return serviceMemberAgencyLabel(row.customer?.agency);
     },
     {
       id: 'branch',
