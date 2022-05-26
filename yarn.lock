@@ -7727,10 +7727,10 @@ danger-plugin-jira-issue@^1.4.1:
   resolved "https://registry.yarnpkg.com/danger-plugin-jira-issue/-/danger-plugin-jira-issue-1.4.1.tgz#1e2317ae8a291d96dc19762a55cb905681320940"
   integrity sha512-B/XaW8YigUboK4BH4sMM8GmE0e+Bc6ibAg+Xyf0HFGph4DIawNYOuwKbCh2K1fAyXafott6tGpxFMe9Tc0Aabw==
 
-danger@^11.0.6:
-  version "11.0.6"
-  resolved "https://registry.yarnpkg.com/danger/-/danger-11.0.6.tgz#804dd0ed4bf72ebb2ad0229a67d88449a17d330c"
-  integrity sha512-yZarxK6QCSCyo5DNfJBHPmA7V/+DU94iJJ7SMmR6Q7e8dvH2aslgl5eDqriwz4cI55Yw0j51GdCrHf6AIDS1+Q==
+danger@^11.0.7:
+  version "11.0.7"
+  resolved "https://registry.yarnpkg.com/danger/-/danger-11.0.7.tgz#1d801f0b2e1ef89a74a9b1f2776cd8e5c1ce8e5e"
+  integrity sha512-4jdZ5xqQO03EDmoYf29EMvHluNFMXOi5u8msxKE/pAe4UlfvQ6yOpQC5jHF73f724OLP2x9paqVd+vumoC3lug==
   dependencies:
     "@octokit/rest" "^18.12.0"
     async-retry "1.2.3"
