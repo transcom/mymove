@@ -25,6 +25,8 @@ Recommend short test files over long ones. Long ones have been harder to debug i
 
 It was a choice at the time of the first PPM tests for the new flow to not migrate all the tests. It was not possible given the time constraints at the time. However, to make the distinction between the old PPM tests and the new PPM tests it seemed prudent to create the new `milmove` directory.
 
+This approach increases the likely hood that our tests will have repeated sections. This can be mitigated by the creation of functions that can be reused instead of repeating the code. This ADR doesn't dictate an approach and leaves it to the best judgement of those working with the tests. General rule of thumb though is if you need to repeate a section of code for a third time it's a good time to consider pulling that code into a reusable function.
+
 ## Pros and Cons of the Alternatives
 
 ### Keep every test for the new PPM flow in a `ppm.js` file
