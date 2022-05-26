@@ -26,6 +26,8 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
           <b>Status</b>: {eventTemplate.getStatusDetails(historyRecord)}
         </div>
       );
+    case detailsTypes.CUSTOM:
+      return eventTemplate.getCustomDetails(historyRecord);
     case detailsTypes.PLAIN_TEXT:
     default:
       return <div>{eventTemplate.getDetailsPlainText(historyRecord)}</div>;

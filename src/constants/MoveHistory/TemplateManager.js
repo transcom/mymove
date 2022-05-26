@@ -18,6 +18,9 @@ const registerTemplate = ({
   getStatusDetails = () => {
     return 'Undefined status';
   },
+  getCustomDetails = () => {
+    return 'Undefined';
+  },
   getDetailsLabeledDetails = null,
 }) => {
   const eventType = {};
@@ -28,6 +31,7 @@ const registerTemplate = ({
   eventType.getEventNameDisplay = getEventNameDisplay;
   eventType.getDetailsPlainText = getDetailsPlainText;
   eventType.getStatusDetails = getStatusDetails;
+  eventType.getCustomDetails = getCustomDetails;
   eventType.getDetailsLabeledDetails = getDetailsLabeledDetails;
 
   // Used for matching properties on Events when building an Event Template
