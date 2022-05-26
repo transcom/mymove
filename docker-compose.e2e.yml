@@ -25,6 +25,7 @@ services:
           - officelocal
           - adminlocal
           - orderslocal
+          - primelocal
     image: ${MILMOVE_E2E_IMAGE:-milmove_e2e:local}
     entrypoint:
       - "/bin/sh"
@@ -80,7 +81,7 @@ services:
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
       - MOVE_MIL_DOD_TLS_KEY
-      - MUTUAL_TLS_ENABLED=0
+      - MUTUAL_TLS_ENABLED=1
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
       - PGPASSWORD=mysecretpassword
@@ -88,7 +89,7 @@ services:
       - SERVE_ADMIN=true
       - SERVE_API_GHC=true
       - SERVE_API_INTERNAL=true
-      - SERVE_API_PRIME=false
+      - SERVE_API_PRIME=true
       - SERVE_API_SUPPORT=false
       - SERVE_PRIME_SIMULATOR=true
       - STORAGE_BACKEND=local

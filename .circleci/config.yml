@@ -665,6 +665,64 @@ commands:
             --entrypoint /scripts/run-e2e-mtls-test \
             milmove_mtls:local
 
+  e2e_tests_load:
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run:
+          name: setup docker for server
+          # The docker-compose.e2e.yml assumes a network of e2e_cypress
+          command: |
+            docker network create e2e_cypress
+            docker build -t milmove_e2e:local -f Dockerfile.e2e .
+      - run:
+          background: true
+          name: run server
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
+            source $BASH_ENV
+            docker-compose -f docker-compose.e2e.yml up
+      - run:
+          name: build load testing image
+          # this is not ideal. Probably should be trying to pull in
+          # most recent milmove_load_testing image, but that's not
+          # available right now, so let's not let the perfect be the
+          # enemy of the good
+          #
+          # If there's a breaking change in milmove or the load
+          # testing app, we could check out a particular branch or sha
+          # here as a workaround until the HEAD of both repos work
+          # together again
+          command: |
+            mkdir -p tmp/mmlt && cd tmp/mmlt
+            git clone https://github.com/transcom/milmove_load_testing.git
+            cd milmove_load_testing
+            docker build -t milmove_load_testing:local .
+      - run:
+          name: wait for server
+          command: |
+            docker run --network e2e_cypress cimg/python:3.9 dockerize -wait http://milmovelocal:4000 -timeout 5m
+      - run:
+          name: run milmove_load_test
+          command: |
+            docker run --name milmove_load_test --network e2e_cypress -e LOCAL_PORT=4000 milmove_load_testing:local -f /app/locustfiles/queue.py --host local -u 10 --csv local_load_tests --html local_load_tests.html -t 60s --headless
+      - run:
+          name: extract results
+          # always try to extract the artifacts so it can help us
+          # figure out why a test is failing
+          when: always
+          command: |
+            docker cp milmove_load_test:/app tmpreports || echo "No reports"
+            mkdir reports
+            cp tmpreports/local_load_tests* reports
+            rm -r tmpreports
+
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
@@ -981,6 +1039,17 @@ jobs:
           at: .
       - e2e_tests_mtls
       - announce_failure
+
+  integration_tests_load:
+    executor: milmove_integration_tester
+    steps:
+      - attach_workspace:
+          at: .
+      - e2e_tests_load
+
+      - store_artifacts:
+          path: reports
+          destination: reports
 
   # `server_test` runs the server side Go tests
   server_test:
@@ -2110,6 +2179,11 @@ workflows:
           filters:
             branches:
               only: master
+
+      - integration_tests_load:
+          requires:
+            - compile_app_server
+            - compile_app_client
 
 experimental:
   notify:
