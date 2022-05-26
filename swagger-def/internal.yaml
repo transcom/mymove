@@ -41,6 +41,10 @@ definitions:
         items:
           $ref: '#/definitions/Role'
         x-nullable: true
+      permissions:
+        type: array
+        items:
+          type: string
     required:
       - id
   DutyLocationsPayload:

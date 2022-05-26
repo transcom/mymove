@@ -939,6 +939,9 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 
 	session.Roles = append(session.Roles, userIdentity.Roles...)
 
+	// TODO: may want to log an error here rather than doing nothing
+	session.Permissions, _ = getPermissionsForUser(appCtx, userIdentity.ID)
+
 	// Assign user identity to session
 	session.IDToken = "devlocal"
 	session.UserID = userIdentity.ID

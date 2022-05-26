@@ -115,6 +115,7 @@ type Session struct {
 	AdminUserRole   string
 	DpsUserID       uuid.UUID
 	Roles           roles.Roles
+	Permissions     []string
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

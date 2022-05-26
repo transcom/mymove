@@ -73,7 +73,6 @@ func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]st
 // load the [user.role] given a valid user ID
 // what we care about here is the string, so we can look it up for permissions --> roles.role_type
 func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.RoleType, error) {
-
 	var userRoleTypes []roles.RoleType
 
 	err := appCtx.DB().RawQuery(`SELECT roles.role_type
@@ -85,5 +84,4 @@ func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.Ro
 	fmt.Printf("USER ROLESS: %+v\n", userRoleTypes)
 
 	return userRoleTypes, err
-
 }
