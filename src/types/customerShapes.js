@@ -1,4 +1,4 @@
-import { arrayOf, bool, func, number, object, shape, string } from 'prop-types';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
@@ -72,20 +72,6 @@ export const OrdersShape = shape({
   }),
 });
 
-export const DocumentShape = shape({});
-
-const placeShape = shape({
-  requestedDate: string,
-  address: AddressShape,
-  agent: AgentShape,
-});
-
-export const MtoShipmentFormValuesShape = shape({
-  pickup: placeShape,
-  delivery: placeShape,
-  customerRemarks: string,
-});
-
 export const PPMShipmentShape = shape({
   pickupPostalCode: string,
   actualPickupPostalCode: string,
@@ -125,22 +111,6 @@ export const MtoShipmentShape = shape({
 
 export const HhgShipmentShape = MtoShipmentShape;
 
-export const NtsShipmentShape = shape({
-  agents: arrayOf(AgentShape),
-  customerRemarks: string,
-  shipmentType: string,
-  requestedPickupDate: string,
-  pickupAddress: AddressShape,
-});
-
-export const NtsrShipmentShape = shape({
-  agents: arrayOf(AgentShape),
-  customerRemarks: string,
-  shipmentType: string,
-  requestedDeliveryDate: string,
-  destinationAddress: AddressShape,
-});
-
 export const MatchShape = shape({
   isExact: bool.isRequired,
   params: shape({
@@ -155,19 +125,6 @@ export const HistoryShape = shape({
   push: func.isRequired,
 });
 
-export const PageListShape = arrayOf(string);
-
-export const PageKeyShape = string;
-
-export const AdditionalParamsShape = object;
-
-export const WizardPageShape = shape({
-  pageList: PageListShape.isRequired,
-  pageKey: PageKeyShape.isRequired,
-  match: MatchShape.isRequired,
-  history: HistoryShape.isRequired,
-});
-
 export const BackupContactShape = shape({
   name: string.isRequired,
   telephone: string.isRequired,
@@ -177,13 +134,6 @@ export const BackupContactShape = shape({
 export default {
   MatchShape,
   HistoryShape,
-  PageListShape,
-  PageKeyShape,
-  WizardPageShape,
-  MtoShipmentFormValuesShape,
   MtoShipmentShape,
   HhgShipmentShape,
-  NtsShipmentShape,
-  NtsrShipmentShape,
-  AdditionalParamsShape,
 };
