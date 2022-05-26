@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import ppmBookingPageStyles from 'pages/MyMove/PPM/Booking/PPMBooking.module.scss';
+import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
 import { DutyLocationShape } from 'types';
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
@@ -94,7 +94,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
   };
 
   return (
-    <div className={ppmBookingPageStyles.PPMBookingPage}>
+    <div className={ppmPageStyles.ppmPageStyle}>
       <ScrollToTop otherDep={errorMessage} />
       <GridContainer>
         <Grid row>
