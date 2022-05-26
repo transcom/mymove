@@ -1,6 +1,7 @@
 import { arrayOf, bool, func, number, object, shape, string } from 'prop-types';
 
 import { AddressShape } from 'types/address';
+import { AgentShape } from 'types/agent';
 import { DutyLocationShape } from 'types/dutyLocation';
 
 export const WeightAllotment = shape({
@@ -73,18 +74,10 @@ export const OrdersShape = shape({
 
 export const DocumentShape = shape({});
 
-export const MtoAgentShape = shape({
-  firstName: string,
-  lastName: string,
-  phone: string,
-  email: string,
-  agentType: string,
-});
-
 const placeShape = shape({
   requestedDate: string,
   address: AddressShape,
-  agent: MtoAgentShape,
+  agent: AgentShape,
 });
 
 export const MtoShipmentFormValuesShape = shape({
@@ -116,7 +109,7 @@ export const PPMShipmentShape = shape({
 });
 
 export const MtoShipmentShape = shape({
-  agents: arrayOf(MtoAgentShape),
+  agents: arrayOf(AgentShape),
   customerRemarks: string,
   counselorRemarks: string,
   shipmentType: string,
@@ -133,7 +126,7 @@ export const MtoShipmentShape = shape({
 export const HhgShipmentShape = MtoShipmentShape;
 
 export const NtsShipmentShape = shape({
-  agents: arrayOf(MtoAgentShape),
+  agents: arrayOf(AgentShape),
   customerRemarks: string,
   shipmentType: string,
   requestedPickupDate: string,
@@ -141,7 +134,7 @@ export const NtsShipmentShape = shape({
 });
 
 export const NtsrShipmentShape = shape({
-  agents: arrayOf(MtoAgentShape),
+  agents: arrayOf(AgentShape),
   customerRemarks: string,
   shipmentType: string,
   requestedDeliveryDate: string,
@@ -188,7 +181,6 @@ export default {
   PageKeyShape,
   WizardPageShape,
   MtoShipmentFormValuesShape,
-  MtoAgentShape,
   MtoShipmentShape,
   HhgShipmentShape,
   NtsShipmentShape,

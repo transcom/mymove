@@ -80,15 +80,6 @@ export const MTOShipmentShape = PropTypes.shape({
   diversion: PropTypes.bool,
 });
 
-export const MTOAgentShape = PropTypes.shape({
-  id: PropTypes.string,
-  firstName: PropTypes.string,
-  lastName: PropTypes.string,
-  agentType: PropTypes.string,
-  email: PropTypes.string,
-  phone: PropTypes.string,
-});
-
 export const MoveTaskOrderShape = PropTypes.shape({
   id: PropTypes.string,
   availableToPrimeAt: PropTypes.string,
