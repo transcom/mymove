@@ -21,6 +21,10 @@ references:
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
 
+  # the image to use for running load tests
+  # see milmove_load_testing for the right config
+  load_tester: &load_tester cimg/python:3.10.11
+
   postgres: &postgres cimg/postgres:12.11
 
   redis: &redis redis:5.0.6
@@ -176,12 +180,34 @@ executors:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
 
-  milmove_integration_tester:
+  mymove_load_tester:
     resource_class: large
-    working_directory: ~/transcom/mymove
+    working_directory: ~/project
     docker:
-      - image: *circleci-docker
-        name: adminlocal
+      - image: *load_tester
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          GOPATH: /home/circleci/go
+      - image: *postgres
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          POSTGRES_PASSWORD: mysecretpassword
+          POSTGRES_DB: test_db
+          # use ramdisk for better performance
+          # https://circleci.com/docs/databases/#optimizing-postgresql-images
+          PGDATA: /dev/shm/pgdata/data
+        # override entrypoint/command for ramdisk
+        # this has been fixed in versions of postgres newer than 13.9
+        # https://github.com/CircleCI-Public/cimg-postgres/commit/3b320e26e4f187d0cd144efea1bc26cf5a2b68b0
+        # milmove is still on 12.11
+        entrypoint: /bin/bash
+        command: -c 'ln -s /dev/shm/pgdata/data /var/lib/postgresql/ && exec /usr/local/bin/docker-entrypoint.sh postgres'
+
+      - image: *redis
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -789,6 +815,9 @@ commands:
 
             make db_dev_create
             bin/milmove migrate
+            # mtls tests do not need client
+            mkdir -p build
+            touch build/index.html
             # mtls tests DO NOT NEED SEED DATA
             bin/milmove serve 2>&1 | fmt
       - run:
@@ -799,6 +828,117 @@ commands:
           name: run e2e mtls tests
           command: |
             ./scripts/run-e2e-mtls-test
+
+  e2e_tests_load:
+    parameters:
+      workers:
+        type: integer
+        # We tried this in an xlarge resource with 5 workers and still
+        # had flaky tests because of pages being slow to load
+        # Instead, we run in a large instance with 1 worker and
+        # increased parallelism as needed
+        default: 1
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: setup hosts
+          command: |
+            # futz with /etc/hosts for running in circleci
+            echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
+      - run:
+          background: true
+          name: run server
+          environment:
+            MIGRATION_MANIFEST: '/home/circleci/project/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/project/migrations/app/schema;file:///home/circleci/project/migrations/app/secure'
+          command: |
+            export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
+            export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
+            export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
+            export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
+            export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+            export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
+            export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+            # pull in review app settings here so we don't have to
+            # reproduce them
+            sed 's,^,export ,' config/env/review.app.env > server_env
+            source server_env
+
+            # now do a few overrides
+            export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
+            export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
+            export LOGIN_GOV_CALLBACK_PORT=4000
+            export LOGIN_GOV_CALLBACK_PROTOCOL=http
+            export SERVE_API_PRIME=false
+            export SERVE_API_SUPPORT=true
+            export SERVE_PRIME_SIMULATOR=true
+            export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
+            export DOD_CA_PACKAGE=$PWD/config/tls/milmove-cert-bundle.p7b
+            export HTTP_ADMIN_SERVER_NAME=adminlocal
+            export HTTP_MY_SERVER_NAME=milmovelocal
+            export HTTP_OFFICE_SERVER_NAME=officelocal
+            export HTTP_ORDERS_SERVER_NAME=orderslocal
+            export HTTP_PRIME_SERVER_NAME=primelocal
+            export ENVIRONMENT=test
+            # disable for speed, playwright tests can fail otherwise
+            export DB_DEBUG=false
+
+            make db_dev_create
+            bin/milmove migrate
+            # load tests do not need client files
+            mkdir -p build
+            touch build/index.html
+            bin/milmove serve 2>&1 | fmt
+      - run:
+          name: checkout load testing repo
+          command: |
+            mkdir -p tmp && cd tmp
+            git clone https://github.com/transcom/milmove_load_testing.git
+      - restore_cache:
+          keys:
+            # need milmove_load_testing repo checked out before cache check
+            - v2-pipenv-{{ checksum "tmp/milmove_load_testing/Pipfile.lock" }}-{{ .Environment.PYTHON_VERSION }}
+      - run:
+          name: wait for server
+          command: |
+            # install python dependencies while waiting for the server
+            # to start.
+            cd tmp/milmove_load_testing
+            pipenv sync -d
+            dockerize -wait http://milmovelocal:4000 -timeout 5m
+      - run:
+          name: run load testing
+          environment:
+            LOCAL_PORT: 4000
+          # If there's a breaking change in milmove or the load
+          # testing app, we could check out a particular branch or sha
+          # here as a workaround until the HEAD of both repos work
+          # together again
+          command: |
+            cd tmp/milmove_load_testing
+            pipenv run locust -f locustfiles/queue.py \
+            --host local \
+            -u 10 \
+            --csv local_load_tests \
+            --html local_load_tests.html \
+            -t 60s \
+            --headless
+      - save_cache:
+          key: v2-pipenv-{{ checksum "Pipfile.lock" }}-{{ .Environment.PYTHON_VERSION }}
+          paths:
+            - "~/transcom/mymove/tmp/milmove_load_testing/.venv"
+      - run:
+          name: extract results
+          # always try to extract the artifacts so it can help us
+          # figure out why a test is failing
+          when: always
+          command: |
+            mkdir reports
+            mv tmp/milmove_load_testing/local_load_tests* reports
 
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
@@ -1084,6 +1224,16 @@ jobs:
           at: .
       - e2e_tests_mtls
       - announce_failure
+
+  integration_tests_load:
+    executor: mymove_load_tester
+    steps:
+      - attach_workspace:
+          at: .
+      - e2e_tests_load
+      - store_artifacts:
+          path: reports
+          destination: reports
 
   # `server_test` runs the server side Go tests
   server_test:
@@ -1935,16 +2085,18 @@ workflows:
               ignore: *integration-ignore-branch
 
       - integration_tests_mtls:
-          # mtls integration tests use the same server image as the
-          # e2e cypress tests and so needs the client build
           requires:
             - compile_app_server
-            - compile_app_client
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
             branches:
               ignore: *integration-mtls-ignore-branch
+
+
+      - integration_tests_load:
+          requires:
+            - compile_app_server
 
       - client_test:
           requires:
