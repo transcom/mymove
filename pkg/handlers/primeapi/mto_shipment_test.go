@@ -370,36 +370,11 @@ func ClearNonUpdateFields(mtoShipment *models.MTOShipment) *primemessages.MTOShi
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
-	// Create an available shipment in DB
-	now := testdatagen.CurrentDateWithoutTime()
-	move := testdatagen.MakeAvailableMove(suite.DB())
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:       models.MTOShipmentStatusApproved,
-			ApprovedDate: now,
-		},
-		SecondaryPickupAddress:   testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{}),
-		SecondaryDeliveryAddress: testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{}),
-	})
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
-
-	// Create a minimal shipment
-	minimalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:              models.MTOShipmentStatusDraft,
-			ScheduledPickupDate: &time.Time{},
-		},
-	})
-	minimalReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", minimalShipment.ID.String()), nil)
-
 	// Create some usable weights
 	primeEstimatedWeight := unit.Pound(500)
 	primeActualWeight := unit.Pound(600)
 
-	// CREATE HANDLER OBJECT
-
+	// Create service objects needed for handler
 	// ghcDomesticTime is used in the planner, the planner checks transit distance.
 	// We mock the planner to return 400, so we need an entry that will return a
 	// transit time of 12 days for a distance of 400.
@@ -412,16 +387,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 
-	// Add a 12 day transit time for a distance of 400
-	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
-		MaxDaysTransitTime: 12,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     10000,
-		DistanceMilesLower: 1,
-		DistanceMilesUpper: 500,
-	}
-	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
-
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := moverouter.NewMoveRouter()
@@ -432,11 +397,36 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 	updater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
-	handlerConfig.SetPlanner(planner)
-	handler := UpdateMTOShipmentHandler{
-		handlerConfig,
-		updater,
+
+	setupTestData := func() (UpdateMTOShipmentHandler, models.MTOShipment) {
+		// Add a 12 day transit time for a distance of 400
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 1,
+			DistanceMilesUpper: 500,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			updater,
+		}
+		handler.HandlerConfig.SetPlanner(planner)
+
+		// Create an available shipment in DB
+		now := testdatagen.CurrentDateWithoutTime()
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:       models.MTOShipmentStatusApproved,
+				ApprovedDate: now,
+			},
+			SecondaryPickupAddress:   testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{}),
+			SecondaryDeliveryAddress: testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{}),
+		})
+		return handler, shipment
 	}
 
 	suite.Run("PATCH failure 500 Unit Test", func() {
@@ -445,6 +435,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Set up:     We provide an update but make MTOShipmentUpdater return a server error
 		// Expected:   Handler returns Internal Server Error Response. This ensures if there is an
 		//             unexpected error in the service object, we return the proper HTTP response
+		handler, shipment := setupTestData()
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
@@ -458,7 +450,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		mockHandler := UpdateMTOShipmentHandler{
-			handlerConfig,
+			handler.HandlerConfig,
 			&mockUpdater,
 		}
 		internalServerErr := errors.New("ServerError")
@@ -492,6 +484,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             Minimal updates are completed, old values retained for rest of
 		//             shipment. This tests that PATCH is not accidentally clearing any existing
 		//             data.
+		handler, shipment := setupTestData()
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 
 		// Create an update with just diversion and actualPickupDate
 		now := testdatagen.CurrentDateWithoutTime()
@@ -532,9 +526,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(params.Body.Diversion, okPayload.Diversion)
 		suite.Equal(params.Body.ActualPickupDate.String(), okPayload.ActualPickupDate.String())
 
-		// Refresh local copy of shipment from DB for etag regeneration in future tests
-		shipment = suite.refreshFromDB(shipment.ID)
-
 	})
 
 	suite.Run("PATCH success 200 update destination type", func() {
@@ -546,6 +537,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             Minimal updates are completed, old values retained for rest of
 		//             shipment. This tests that PATCH is not accidentally clearing any existing
 		//             data.
+		handler, shipment := setupTestData()
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 
 		// Create an update with just destinationAddressType
 		destinationType := primemessages.DestinationTypeHOMEOFRECORD
@@ -594,24 +587,25 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Mocked:     Planner
 		// Set up:     We provide an update to a shipment whose associated move isn't available to prime
 		// Expected:   Handler returns Not Found error
+		handler, _ := setupTestData()
 
 		// Create a shipment unavailable to Prime in DB
-		shipmentNotAvailable := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
 			},
 		})
-		suite.Nil(shipmentNotAvailable.MoveTaskOrder.AvailableToPrimeAt)
+		suite.Nil(shipment.MoveTaskOrder.AvailableToPrimeAt)
 
 		// Create params
-		notAvReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipmentNotAvailable.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   notAvReq,
-			MtoShipmentID: *handlers.FmtUUID(shipmentNotAvailable.ID),
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
 			Body: &primemessages.UpdateMTOShipment{
 				Diversion: true,
 			},
-			IfMatch: etag.GenerateEtag(shipmentNotAvailable.UpdatedAt),
+			IfMatch: etag.GenerateEtag(shipment.UpdatedAt),
 		}
 
 		// CALL FUNCTION UNDER TEST
@@ -627,21 +621,26 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Mocked:     Planner
 		// Set up:     We provide an update to a shipment that is handled by an external vendor
 		// Expected:   Handler returns Not Found error
+		handler, ogShipment := setupTestData()
 
 		// Create a shipment handled by an external vendor
 		externalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
+			Move: models.Move{
+				ID: ogShipment.MoveTaskOrderID,
+			},
 			MTOShipment: models.MTOShipment{
 				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
 				UsesExternalVendor: true,
 			},
 		})
-		suite.NotNil(externalShipment.MoveTaskOrder.AvailableToPrimeAt)
+		// Check that they point to the same move and that it's available
+		suite.Equal(ogShipment.MoveTaskOrderID, externalShipment.MoveTaskOrderID)
+		suite.NotNil(ogShipment.MoveTaskOrder.AvailableToPrimeAt)
 
 		// Create params
-		notAvReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", externalShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", externalShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   notAvReq,
+			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(externalShipment.ID),
 			Body: &primemessages.UpdateMTOShipment{
 				Diversion: true,
@@ -663,6 +662,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Set up:     We provide an update with actual and estimated weights
 		// Expected:   Handler returns OK
 		//             Weights are updated, and prime estimated weight recorded date is updated.
+		handler, ogShipment := setupTestData()
+		// Create a minimal shipment on the previously created move
+		minimalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ID: ogShipment.MoveTaskOrderID,
+			},
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusDraft,
+				ScheduledPickupDate: &time.Time{},
+			},
+		})
+		minimalReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", minimalShipment.ID.String()), nil)
 
 		// Check that PrimeEstimatedWeightRecordedDate was nil at first
 		suite.Nil(minimalShipment.PrimeEstimatedWeightRecordedDate)
@@ -707,23 +718,43 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             Attempt to update primeEstimatedWeight
 		// Expected:   Handler returns Unprocessable Entity
 		//             primeEstimatedWeight cannot be updated more than once.
+		handler, ogShipment := setupTestData()
+		// Create a minimal shipment on the previously created move
+		minimalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ID: ogShipment.MoveTaskOrderID,
+			},
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusDraft,
+				ScheduledPickupDate: &time.Time{},
+			},
+		})
+		minimalReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", minimalShipment.ID.String()), nil)
 
-		// Check that primeEstimatedWeight was already populated
-		suite.NotNil(minimalShipment.PrimeEstimatedWeight)
-
-		// Attempt to update again
+		// Set the primeEstimatedWeight
+		// Update the primeEstimatedWeight
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   minimalReq,
 			MtoShipmentID: *handlers.FmtUUID(minimalShipment.ID),
 			Body: &primemessages.UpdateMTOShipment{
-				PrimeEstimatedWeight: int64(primeEstimatedWeight + 100), // New estimated weight
+				PrimeEstimatedWeight: int64(primeEstimatedWeight), // New estimated weight
+				PrimeActualWeight:    int64(primeActualWeight),    // New actual weight
 			},
 			IfMatch: etag.GenerateEtag(minimalShipment.UpdatedAt),
 		}
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		minimalShipment = suite.refreshFromDB(minimalShipment.ID)
+		// Check that primeEstimatedWeight was already populated
+		suite.NotNil(minimalShipment.PrimeEstimatedWeight)
+
+		// Attempt to update again
+		params.Body.PrimeEstimatedWeight = int64(primeEstimatedWeight + 100)
+		params.IfMatch = etag.GenerateEtag(minimalShipment.UpdatedAt)
 
 		// CALL FUNCTION UNDER TEST
 		suite.NoError(params.Body.Validate(strfmt.Default))
-		response := handler.Handle(params)
+		response = handler.Handle(params)
 
 		// Check response contains an error about primeEstimatedWeight
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
@@ -739,10 +770,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             Attempt to update the primeEstimatedWeight
 		// Expected:   Handler returns Unprocessable entity because the
 		//             primeEstimatedWeight cannot be set if the scheduledPickupDate is not set.
+		handler, ogShipment := setupTestData()
 
 		// Create a shipment with no scheduled pickup date
 		noScheduledPickupShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
+			Move: models.Move{
+				ID: ogShipment.MoveTaskOrderID,
+			},
 			MTOShipment: models.MTOShipment{
 				Status:              models.MTOShipmentStatusSubmitted,
 				ScheduledPickupDate: nil,
@@ -756,16 +790,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		// Create request to UpdateMTOShipment
-		noPickupReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", noScheduledPickupShipment.ID.String()), nil)
-		noPickupParams := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   noPickupReq,
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", noScheduledPickupShipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(noScheduledPickupShipment.ID),
 			Body:          &mtoShipment,
 			IfMatch:       etag.GenerateEtag(noScheduledPickupShipment.UpdatedAt),
 		}
 
-		suite.NoError(noPickupParams.Body.Validate(strfmt.Default))
-		response := handler.Handle(noPickupParams)
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 
 		// Expect validation error due to updated weight
@@ -779,6 +813,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Mocked:     Planner
 		// Set up:     Attempt to update a shipment with fake uuid
 		// Expected:   Handler returns Not Found error
+		handler, shipment := setupTestData()
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 
 		// Create request with non existent ID
 		params := mtoshipmentops.UpdateMTOShipmentParams{
@@ -800,13 +836,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Mocked:     Planner
 		// Set up:     Attempt to update a shipment with old eTag
 		// Expected:   Handler returns Precondition Failed error
+		handler, shipment := setupTestData()
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 
-		// Create an update with an old eTag
+		// Create an update with an wrong eTag
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: strfmt.UUID(shipment.ID.String()),
 			Body:          &primemessages.UpdateMTOShipment{Diversion: true}, // update anything
-			IfMatch:       string(etag.GenerateEtag(shipment.CreatedAt)),     // Use createdAt to generate eTag
+			IfMatch:       string(etag.GenerateEtag(time.Now())),             // use the wrong time to generate etag
 		}
 
 		// Call handler
@@ -825,16 +863,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             nested objects in the response are fully populated
 		// Expected:   Handler returns OK, all service items, agents and addresses are
 		//             populated.
+		handler, shipment := setupTestData()
 
 		// Add service items to our shipment
 		// Create a service item in the db, associate with the shipment
 		reService := testdatagen.MakeDDFSITReService(suite.DB())
 		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move:        move,
+			Move: models.Move{
+				ID: shipment.MoveTaskOrderID,
+			},
 			MTOShipment: shipment,
 			ReService:   reService,
 			MTOServiceItem: models.MTOServiceItem{
-				MoveTaskOrderID: move.ID,
+				MoveTaskOrderID: shipment.MoveTaskOrderID,
 				ReServiceID:     reService.ID,
 				MTOShipmentID:   &shipment.ID,
 			},
