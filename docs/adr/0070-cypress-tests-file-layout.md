@@ -21,7 +21,7 @@ The recommendation is to keep the test files small and easy to follow, testing s
 
 Example of this is the new PPM customer flow cypress tests in `cypress/integration/milmove/ppms` directory.
 
-Recommend short test files over long ones. Long ones have been harder to debug in the past and have sometimes setup dependent tests. This has made it more
+Recommend short test files over long ones. Long ones have been harder to debug in the past and have sometimes setup dependent tests.
 
 It was a choice at the time of the first PPM tests for the new flow to not migrate all the tests. It was not possible given the time constraints at the time. However, to make the distinction between the old PPM tests and the new PPM tests it seemed prudent to create the new `milmove` directory.
 
