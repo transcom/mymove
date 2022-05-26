@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
+import ppmBookingPageStyles from 'pages/MyMove/PPM/Booking/PPMBooking.module.scss';
 import { customerRoutes } from 'constants/routes';
 import AdvanceForm from 'components/Customer/PPM/Booking/Advance/AdvanceForm';
 import { shipmentTypes } from 'constants/shipments';

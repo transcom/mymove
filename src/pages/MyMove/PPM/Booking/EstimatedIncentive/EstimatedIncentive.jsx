@@ -7,7 +7,7 @@ import classnames from 'classnames';
 import styles from './EstimatedIncentive.module.scss';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
+import ppmBookingPageStyles from 'pages/MyMove/PPM/Booking/PPMBooking.module.scss';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { selectMTOShipmentById } from 'store/entities/selectors';

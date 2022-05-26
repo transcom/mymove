@@ -62,10 +62,10 @@ const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'
 const AmendOrders = lazy(() => import('pages/MyMove/AmendOrders/AmendOrders'));
 const EditOrders = lazy(() => import('pages/MyMove/EditOrders'));
 const EstimatedWeightsProGear = lazy(() =>
-  import('pages/MyMove/PPMBooking/EstimatedWeightsProGear/EstimatedWeightsProGear'),
+  import('pages/MyMove/PPM/Booking/EstimatedWeightsProGear/EstimatedWeightsProGear'),
 );
-const EstimatedIncentive = lazy(() => import('pages/MyMove/PPMBooking/EstimatedIncentive/EstimatedIncentive'));
-const Advance = lazy(() => import('pages/MyMove/PPMBooking/Advance/Advance'));
+const EstimatedIncentive = lazy(() => import('pages/MyMove/PPM/Booking/EstimatedIncentive/EstimatedIncentive'));
+const Advance = lazy(() => import('pages/MyMove/PPM/Booking/Advance/Advance'));
 
 export class CustomerApp extends Component {
   constructor(props) {
