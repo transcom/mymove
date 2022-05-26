@@ -3,8 +3,6 @@ export { AddressShape } from './address';
 export { DutyLocationShape } from './dutyLocation';
 export { DropdownArrayOf } from './form';
 export {
-  DestinationDutyLocationShape,
-  OriginDutyLocationShape,
   EntitlementShape,
   OrderShape,
   CustomerShape,
