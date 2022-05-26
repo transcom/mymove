@@ -6,12 +6,12 @@ In thinking through how to improve things during our work on the new iteration o
 
 An update here is that the current tests live in a `mymove` folder but since that name no longer applies to the customer app we created a new one `milmove` with the intention of moving other tests that still apply to the customer portion into the new directory.
 
-## Considered Alternatives
+## Considered Alternatives (bold denotes chosen)
 
 - Keep every test for the new PPM flow in a `ppm.js` file
 - Create new files in the same location
 - Create a single new test file
-- Create a new folder with new test files
+- **Create a new folder with new test files**
 
 ## Decision Outcome
 
