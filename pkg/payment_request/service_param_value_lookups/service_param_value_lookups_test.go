@@ -28,8 +28,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-const defaultZip3Distance = 1234
-const defaultZip5Distance = 48
+const defaultZipDistance = 1234
 
 type ServiceParamValueLookupsSuite struct {
 	testingsuite.PopTestSuite
@@ -42,17 +41,12 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-	).Return(defaultZip5Distance, nil)
-	planner.On("Zip3TransitDistance",
+	).Return(defaultZipDistance, nil)
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-	).Return(defaultZip3Distance, nil)
-	planner.On("Zip5TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(defaultZip5Distance, nil)
+	).Return(defaultZipDistance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
@@ -389,7 +383,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		// Check to see if the distance lookup got the expected NTS addresses.
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, ntsServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
-		if dz3l, ok := paramLookup.lookups[models.ServiceItemParamNameDistanceZip3].(DistanceZip3Lookup); ok {
+		if dz3l, ok := paramLookup.lookups[models.ServiceItemParamNameDistanceZip].(DistanceZipLookup); ok {
 			suite.Equal(pickupPostalCode, dz3l.PickupAddress.PostalCode)
 			suite.Equal(storageFacilityPostalCode, dz3l.DestinationAddress.PostalCode)
 		} else {
@@ -416,7 +410,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		// Check to see if the distance lookup got the expected NTS-Release addresses.
 		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, ntsrServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
-		if dz3l, ok := paramLookup.lookups[models.ServiceItemParamNameDistanceZip3].(DistanceZip3Lookup); ok {
+		if dz3l, ok := paramLookup.lookups[models.ServiceItemParamNameDistanceZip].(DistanceZipLookup); ok {
 			suite.Equal(storageFacilityPostalCode, dz3l.PickupAddress.PostalCode)
 			suite.Equal(destinationPostalCode, dz3l.DestinationAddress.PostalCode)
 		} else {

@@ -130,22 +130,6 @@ func (_m *HandlerConfig) FileStorer() storage.FileStorer {
 	return r0
 }
 
-// GHCPlanner provides a mock function with given fields:
-func (_m *HandlerConfig) GHCPlanner() route.Planner {
-	ret := _m.Called()
-
-	var r0 route.Planner
-	if rf, ok := ret.Get(0).(func() route.Planner); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(route.Planner)
-		}
-	}
-
-	return r0
-}
-
 // GetFeatureFlag provides a mock function with given fields: name
 func (_m *HandlerConfig) GetFeatureFlag(name string) bool {
 	ret := _m.Called(name)
@@ -186,6 +170,22 @@ func (_m *HandlerConfig) GexSender() services.GexSender {
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(services.GexSender)
+		}
+	}
+
+	return r0
+}
+
+// HHGPlanner provides a mock function with given fields:
+func (_m *HandlerConfig) HHGPlanner() route.Planner {
+	ret := _m.Called()
+
+	var r0 route.Planner
+	if rf, ok := ret.Get(0).(func() route.Planner); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(route.Planner)
 		}
 	}
 
@@ -311,14 +311,14 @@ func (_m *HandlerConfig) SetFileStorer(storer storage.FileStorer) {
 	_m.Called(storer)
 }
 
-// SetGHCPlanner provides a mock function with given fields: planner
-func (_m *HandlerConfig) SetGHCPlanner(planner route.Planner) {
-	_m.Called(planner)
-}
-
 // SetGexSender provides a mock function with given fields: gexSender
 func (_m *HandlerConfig) SetGexSender(gexSender services.GexSender) {
 	_m.Called(gexSender)
+}
+
+// SetHHGPlanner provides a mock function with given fields: planner
+func (_m *HandlerConfig) SetHHGPlanner(planner route.Planner) {
+	_m.Called(planner)
 }
 
 // SetICNSequencer provides a mock function with given fields: sequencer

@@ -54,7 +54,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
-	mockPlanner.On("Zip3TransitDistance",
+	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
@@ -295,7 +295,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
-	mockPlanner.On("Zip3TransitDistance",
+	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,

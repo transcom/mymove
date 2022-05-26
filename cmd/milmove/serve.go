@@ -601,13 +601,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	routePlanner := route.InitRoutePlanner(v)
 	handlerConfig.SetPlanner(routePlanner)
 
-	// Create a secondary planner specifically for GHC.
+	// Create a secondary planner specifically for HHG.
 	routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
-	ghcRoutePlanner, initRouteErr := route.InitGHCRoutePlanner(v, routeTLSConfig)
+	hhgRoutePlanner, initRouteErr := route.InitHHGRoutePlanner(v, routeTLSConfig)
 	if initRouteErr != nil {
 		logger.Fatal("Could not instantiate GHC route planner", zap.Error(initRouteErr))
 	}
-	handlerConfig.SetGHCPlanner(ghcRoutePlanner)
+	handlerConfig.SetHHGPlanner(hhgRoutePlanner)
 
 	// Set the GexSender() and GexSender fields
 	gexTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}

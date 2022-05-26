@@ -33,7 +33,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 					Value:   testdatagen.DefaultContractCode,
 				},
 				{
-					Key:     models.ServiceItemParamNameDistanceZip5,
+					Key:     models.ServiceItemParamNameDistanceZip,
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   strconv.Itoa(dshTestMileage),
 				},
@@ -97,10 +97,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 		suite.Nil(rateEngineParams)
 
 		// No distance
-		missingDistanceZip5 := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameDistanceZip5)
-		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingDistanceZip5)
+		missingDistanceZip := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameDistanceZip)
+		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingDistanceZip)
 		suite.Error(err)
-		suite.Equal("could not find param with key DistanceZip5", err.Error())
+		suite.Equal("could not find param with key DistanceZip", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No weight
@@ -268,7 +268,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems(reque
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameDistanceZip5,
+				Key:     models.ServiceItemParamNameDistanceZip,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(dshTestMileage),
 			},

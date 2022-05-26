@@ -58,8 +58,8 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 
 	serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameDistanceZip3,
-			Description: "ZIP 3 Distance",
+			Key:         models.ServiceItemParamNameDistanceZip,
+			Description: "ZIP Distance",
 			Type:        models.ServiceItemParamTypeString,
 			Origin:      models.ServiceItemParamOriginPrime,
 		},

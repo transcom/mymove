@@ -40,7 +40,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
-	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.GHCPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.HHGPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{handlerConfig, officeuser.NewOfficeUserFetcherPop()}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{handlerConfig}
@@ -140,7 +140,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
-			handlerConfig.GHCPlanner(),
+			handlerConfig.HHGPlanner(),
 			ghcrateengine.NewServiceItemPricer(),
 		),
 		paymentrequest.NewPaymentRequestStatusUpdater(builder),

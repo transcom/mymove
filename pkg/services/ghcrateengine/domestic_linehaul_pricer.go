@@ -91,7 +91,7 @@ func (p domesticLinehaulPricer) PriceUsingParams(appCtx appcontext.AppContext, p
 		return unit.Cents(0), nil, err
 	}
 
-	distanceZip3, err := getParamInt(params, models.ServiceItemParamNameDistanceZip3)
+	distance, err := getParamInt(params, models.ServiceItemParamNameDistanceZip)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -119,7 +119,7 @@ func (p domesticLinehaulPricer) PriceUsingParams(appCtx appcontext.AppContext, p
 		isPPM = true
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip3), unit.Pound(weightBilled), serviceAreaOrigin, isPPM)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distance), unit.Pound(weightBilled), serviceAreaOrigin, isPPM)
 }
 
 func fetchDomesticLinehaulPrice(appCtx appcontext.AppContext, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {

@@ -1909,24 +1909,24 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(3, nil).Times(5)
 
 	// called for zip 3 domestic linehaul service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"94535", "94535").Return(348, nil).Times(2)
 
 	// called for zip 5 domestic linehaul service item
-	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535").Return(348, nil).Once()
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535").Return(348, nil).Once()
 
 	// called for domestic shorthaul service item
-	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"90210", "90211").Return(3, nil).Times(7)
 
 	// called for domestic shorthaul service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(10)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(10)
 
 	// called for domestic origin SIT pickup service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
 
 	// called for domestic destination SIT delivery service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"94535", "90210").Return(348, nil).Once()
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
@@ -2409,16 +2409,11 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		mock.Anything,
 		mock.Anything,
 	).Return(90210, nil)
-	planner.On("Zip3TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(910, nil)
-	planner.On("Zip5TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(90210, nil)
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 		planner,
@@ -5421,14 +5416,9 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 			Value:   "4242",
 		},
 		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
+			Key:     models.ServiceItemParamNameDistanceZip,
 			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
-		},
-		{
-			Key:     models.ServiceItemParamNameDistanceZip5,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "24245",
+			Value:   "24246",
 		},
 	}
 

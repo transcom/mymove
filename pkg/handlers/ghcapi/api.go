@@ -178,7 +178,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		fetch.NewFetcher(queryBuilder),
 		moveRouter,
 	)
-	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.GHCPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.HHGPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(ppmEstimator)
 	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
@@ -241,7 +241,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
-			handlerConfig.GHCPlanner(),
+			handlerConfig.HHGPlanner(),
 			ghcrateengine.NewServiceItemPricer(),
 		),
 		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),

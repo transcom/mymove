@@ -27,8 +27,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 	serviceParamKeys := map[models.ServiceItemParamName]models.ServiceItemParamKey{
 		models.ServiceItemParamNameActualPickupDate:                 {Key: models.ServiceItemParamNameActualPickupDate, Type: models.ServiceItemParamTypeDate},
 		models.ServiceItemParamNameContractCode:                     {Key: models.ServiceItemParamNameContractCode, Type: models.ServiceItemParamTypeString},
-		models.ServiceItemParamNameDistanceZip3:                     {Key: models.ServiceItemParamNameDistanceZip3, Type: models.ServiceItemParamTypeInteger},
-		models.ServiceItemParamNameDistanceZip5:                     {Key: models.ServiceItemParamNameDistanceZip5, Type: models.ServiceItemParamTypeInteger},
+		models.ServiceItemParamNameDistanceZip:                      {Key: models.ServiceItemParamNameDistanceZip, Type: models.ServiceItemParamTypeInteger},
 		models.ServiceItemParamNameEIAFuelPrice:                     {Key: models.ServiceItemParamNameEIAFuelPrice, Type: models.ServiceItemParamTypeInteger},
 		models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier: {Key: models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier, Type: models.ServiceItemParamTypeDecimal},
 		models.ServiceItemParamNameReferenceDate:                    {Key: models.ServiceItemParamNameReferenceDate, Type: models.ServiceItemParamTypeDate},
@@ -51,7 +50,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 	for _, serviceParamKey := range []models.ServiceItemParamName{
 		models.ServiceItemParamNameActualPickupDate,
 		models.ServiceItemParamNameContractCode,
-		models.ServiceItemParamNameDistanceZip3,
+		models.ServiceItemParamNameDistanceZip,
 		models.ServiceItemParamNameReferenceDate,
 		models.ServiceItemParamNameRequestedPickupDate,
 		models.ServiceItemParamNameServiceAreaOrigin,
@@ -70,8 +69,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 	for _, serviceParamKey := range []models.ServiceItemParamName{
 		models.ServiceItemParamNameActualPickupDate,
 		models.ServiceItemParamNameContractCode,
-		models.ServiceItemParamNameDistanceZip3,
-		models.ServiceItemParamNameDistanceZip5,
+		models.ServiceItemParamNameDistanceZip,
 		models.ServiceItemParamNameEIAFuelPrice,
 		models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
 		models.ServiceItemParamNameWeightAdjusted,
@@ -301,13 +299,13 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
 
-		mockedPlanner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 			"90210", "30813").Return(2361, nil).Once()
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 		suite.NilOrNoVerrs(err)
 
-		mockedPlanner.AssertCalled(suite.T(), "Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 			"90210", "30813")
 		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
@@ -335,7 +333,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
 
-		mockedPlanner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 			"90210", "30813").Return(2361, nil).Once()
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)

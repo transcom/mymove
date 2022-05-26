@@ -221,7 +221,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() model
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameDistanceZip3,
+				Key:     models.ServiceItemParamNameDistanceZip,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dlhTestDistance)),
 			},
