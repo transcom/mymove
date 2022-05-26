@@ -97,7 +97,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
-		logger.Debug("service item code: " + serviceItem.ReService.Code.String())
 		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("not able to find pricer for service item", zap.Error(err))
@@ -158,7 +157,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 			return nil, err
 		}
 
-		logger.Debug(fmt.Sprintf("Price for service item %s %d\n", serviceItem.ReService.Code, centsValue*100))
 		totalPrice = totalPrice.AddCents(centsValue)
 	}
 
