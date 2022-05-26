@@ -6,7 +6,6 @@ export {
   EntitlementShape,
   OrderShape,
   CustomerShape,
-  MTOShipmentShape,
   MTOServiceItemShape,
   PaymentRequestShape,
   PaymentServiceItemShape,

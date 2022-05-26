@@ -59,16 +59,6 @@ export const CustomerShape = PropTypes.shape({
   backup_contact: BackupContactShape,
 });
 
-export const MTOShipmentShape = PropTypes.shape({
-  id: PropTypes.string,
-  shipmentType: PropTypes.string, // TODO - is this in API response?
-  scheduledPickupDate: PropTypes.string,
-  requestedPickupDate: PropTypes.string,
-  pickupAddress: AddressShape,
-  destinationAddress: AddressShape,
-  diversion: PropTypes.bool,
-});
-
 export const MoveTaskOrderShape = PropTypes.shape({
   id: PropTypes.string,
   availableToPrimeAt: PropTypes.string,

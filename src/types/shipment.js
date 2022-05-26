@@ -16,6 +16,7 @@ export const ShipmentOptionsOneOf = PropTypes.oneOf([
 ]);
 
 export const ShipmentShape = PropTypes.shape({
+  id: PropTypes.string,
   shipmentType: ShipmentOptionsOneOf,
   requestedPickupDate: PropTypes.string,
   scheduledPickupDate: PropTypes.string,
