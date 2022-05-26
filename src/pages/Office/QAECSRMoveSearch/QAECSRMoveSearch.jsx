@@ -88,18 +88,21 @@ const columns = (showBranchFilter = true) => [
   ),
   createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
 ];
-
 const validationSchema = Yup.object().shape({
   searchType: Yup.string().required('searchtype error'),
   searchText: Yup.string().when('searchType', {
     is: 'moveCode',
     then: Yup.string().length(6, 'Move Code must be exactly 6 characters'),
-    otherwise: Yup.string().length(10, 'DOD ID must be exactly 10 characters'),
+    otherwise: Yup.string().when('searchType', {
+      is: 'dodID',
+      then: Yup.string().length(10, 'DOD ID must be exactly 10 characters'),
+      otherwise: Yup.string().min(1, 'pls type something'),
+    }),
   }),
 });
 
 const QAECSRMoveSearch = ({ history }) => {
-  const [search, setSearch] = useState({ moveCode: null, dodID: null });
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
 
   const handleClick = (values) => {
@@ -109,11 +112,14 @@ const QAECSRMoveSearch = ({ history }) => {
     const payload = {
       moveCode: null,
       dodID: null,
+      customerName: null,
     };
     if (values.searchType === 'moveCode') {
       payload.moveCode = values.searchText;
     } else if (values.searchType === 'dodID') {
       payload.dodID = values.searchText;
+    } else if (values.searchType === 'customerName') {
+      payload.customerName = values.searchText;
     }
     setSearch(payload);
     setSearchHappened(true);
@@ -122,6 +128,7 @@ const QAECSRMoveSearch = ({ history }) => {
   const { searchResult, isLoading, isError } = useQAECSRMoveSearchQueries({
     moveCode: search.moveCode,
     dodID: search.dodID,
+    customerName: search.customerName,
   });
 
   const { data = [] } = searchResult;
@@ -161,6 +168,15 @@ const QAECSRMoveSearch = ({ history }) => {
                   value="dodID"
                   title="DOD ID"
                   label="DOD ID"
+                />
+                <Field
+                  as={Radio}
+                  id="radio-picked-customername"
+                  type="radio"
+                  name="searchType"
+                  value="customerName"
+                  title="Customer Name"
+                  label="Customer Name"
                 />
               </div>
               <div className={classnames(styles.searchBar)}>

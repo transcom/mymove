@@ -78,10 +78,10 @@ export async function getCustomer(key, customerID) {
   return makeGHCRequest('customer.getCustomer', { customerID });
 }
 
-export async function searchMoves(key, locator, dodID) {
+export async function searchMoves(key, locator, dodID, customerName) {
   return makeGHCRequest(
     'move.searchMoves',
-    { body: { locator, dodID } },
+    { body: { locator, dodID, customerName } },
     { schemaKey: 'searchMovesResult', normalize: false },
   );
 }

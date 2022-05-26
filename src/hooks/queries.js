@@ -466,8 +466,10 @@ export const useGHCGetMoveHistory = ({
   };
 };
 
-export const useQAECSRMoveSearchQueries = ({ moveCode, dodID }) => {
-  const queryResult = useQuery([QAE_CSR_MOVE_SEARCH, moveCode, dodID], searchMoves, { enabled: !!moveCode || !!dodID });
+export const useQAECSRMoveSearchQueries = ({ moveCode, dodID, customerName }) => {
+  const queryResult = useQuery([QAE_CSR_MOVE_SEARCH, moveCode, dodID, customerName], searchMoves, {
+    enabled: !!moveCode || !!dodID || !!customerName,
+  });
   const { data = {}, ...moveSearchQuery } = queryResult;
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveSearchQuery]);
   const searchMovesResult = data.searchMoves;

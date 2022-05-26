@@ -147,6 +147,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			&move.Locator,
 			mock.Anything,
+			mock.Anything,
 		).Return(moves, nil)
 
 		params := moveops.SearchMovesParams{
@@ -186,6 +187,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			move.Orders.ServiceMember.Edipi,
+			mock.Anything,
 		).Return(moves, nil)
 
 		params := moveops.SearchMovesParams{

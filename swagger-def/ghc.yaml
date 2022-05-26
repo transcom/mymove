@@ -2097,6 +2097,11 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              customerName:
+                description: Customer Name
+                type: string
+                minLength: 1
+                x-nullable: true
       responses:
         '200':
           description: Successfully returned all moves matching the criteria

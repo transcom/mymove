@@ -1329,6 +1329,12 @@ func init() {
             "in": "body",
             "schema": {
               "properties": {
+                "customerName": {
+                  "description": "Customer Name",
+                  "type": "string",
+                  "minLength": 1,
+                  "x-nullable": true
+                },
                 "dodID": {
                   "description": "DOD ID",
                   "type": "string",
@@ -8688,6 +8694,12 @@ func init() {
             "in": "body",
             "schema": {
               "properties": {
+                "customerName": {
+                  "description": "Customer Name",
+                  "type": "string",
+                  "minLength": 1,
+                  "x-nullable": true
+                },
                 "dodID": {
                   "description": "DOD ID",
                   "type": "string",
