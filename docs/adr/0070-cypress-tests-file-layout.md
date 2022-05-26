@@ -55,5 +55,6 @@ This approach increases the likely hood that our tests will have repeated sectio
 - `+` New pattern for short cypress tests avoids long test files
 - `+` Short cypress files avoids long hard to diagnose tests
 - `+` Clear distinction of old and new PPM tests
+- `+` Smaller tests make it easier to write cypress tests as the larger feature is being developed
 - `-` Opportunity to rename `mymove` to `milmove` in the cypress test folder
 - `-` If all tests are not moved right away will have competing locations for storing new customer cypress tests
