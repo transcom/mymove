@@ -4,6 +4,7 @@
 
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const ScrollToTop = ({ otherDep = null }) => {
   const { pathname } = useLocation();
@@ -15,8 +16,10 @@ const ScrollToTop = ({ otherDep = null }) => {
   return null;
 };
 
+const otherDepShape = PropTypes.any;
+
 ScrollToTop.propTypes = {
-  otherDep: null,
+  otherDep: otherDepShape,
 };
 
 ScrollToTop.defaultProps = {
