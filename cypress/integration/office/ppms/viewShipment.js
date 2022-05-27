@@ -39,7 +39,7 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="destinationZIP"]').contains('30813');
     cy.get('[data-testid="sitPlanned"]').contains('no');
     cy.get('[data-testid="estimatedWeight"]').contains('4,000 lbs');
-    cy.get('[data-testid="advanceRequested"]').contains('Yes, $0');
+    cy.get('[data-testid="hasRequestedAdvance"]').contains('Yes, $5,987');
     cy.get('[data-testid="counselorRemarks"]').contains('—');
   });
 });
