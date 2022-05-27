@@ -7103,10 +7103,10 @@ cookie@0.4.0:
   resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.4.0.tgz#beb437e7022b3b6d49019d088665303ebe9c14ba"
   integrity sha512-+Hp8fLp57wnUSt0tY0tHEXh4voZRDnoIrZPqlo3DPiI4y9lwg/jqx+1Om94/W6ZaPDOUbnjOt/99w66zk+l1Xg==
 
-cookie@~0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.4.1.tgz#afd713fe26ebd21ba95ceb61f9a8116e50a537d1"
-  integrity sha512-ZwrFkGJxUR3EIoXtO+yVE69Eb7KlixbaeAWfBQB9vVsNn/o+Yw69gBWSSDK825hQNdN+wF8zELf3dFNl/kxkUA==
+cookie@~0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.5.0.tgz#d1f5d71adec6558c58f389987c366aa47e994f8b"
+  integrity sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==
 
 copy-concurrently@^1.0.0:
   version "1.0.5"
@@ -19528,14 +19528,13 @@ svgo@^1.0.0, svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-client@^3.18.3:
-  version "3.18.3"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.18.3.tgz#2e0dd6f79a72c7f4b027ba836a41182bd6addc70"
-  integrity sha512-IA2kiEe0ek2r1lwIyj73zcsaZ6aIOyGm00OB+VEgCAaTBz1AOTIbTQL2HCfqvEtMThGcvxVv+e1UJhHODOx3Ew==
+swagger-client@^3.18.5:
+  version "3.18.5"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.18.5.tgz#8034df561452f4bbd36871a8072394b7ca883106"
+  integrity sha512-c0txGDtfQTJnaIBaEKCwtRNcUaaAfj+RXI4QVV9p3WW+AUCQqp4naCjaDNNsOfMkE4ySyhnblbL+jGqAVC7snw==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
-    btoa "^1.2.1"
-    cookie "~0.4.1"
+    cookie "~0.5.0"
     cross-fetch "^3.1.5"
     deepmerge "~4.2.2"
     fast-json-patch "^3.0.0-1"
