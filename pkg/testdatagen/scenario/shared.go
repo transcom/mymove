@@ -740,7 +740,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 		userID:      testdatagen.ConvertUUIDStringToUUID("dd1a3982-1ec4-4e34-a7bd-73cba4f3376a"),
 		email:       "advance_requested@ppm.unsubmitted",
 		smID:        testdatagen.ConvertUUIDStringToUUID("7a402a11-92a0-4334-b297-551be2bc44ef"),
-		firstName:   "AdvanceRequested",
+		firstName:   "HasAdvanceRequested",
 		lastName:    "PPM",
 		moveID:      testdatagen.ConvertUUIDStringToUUID("fe322fae-c13e-4961-9956-69fb7a491ad4"),
 		moveLocator: "PPMADV",
@@ -753,9 +753,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 			EstimatedWeight:        models.PoundPointer(unit.Pound(4000)),
 			HasProGear:             models.BoolPointer(false),
 			EstimatedIncentive:     models.CentPointer(unit.Cents(10000000)),
-			AdvanceRequested:       models.BoolPointer(true),
 			HasRequestedAdvance:    models.BoolPointer(true),
-			Advance:                models.CentPointer(unit.Cents(30000)),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(30000)),
 		},
 	}

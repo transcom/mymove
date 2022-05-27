@@ -192,8 +192,8 @@ describe('Advance page', () => {
     const expectedPayload = {
       shipmentType: mockMTOShipment.shipmentType,
       ppmShipment: {
-        advance: 400000,
-        advanceRequested: true,
+        hasRequestedAdvance: true,
+        advanceAmountRequested: 400000,
         id: mockMTOShipment.ppmShipment.id,
       },
     };
@@ -224,8 +224,8 @@ describe('Advance page', () => {
     const expectedPayload = {
       shipmentType: mockMTOShipment.shipmentType,
       ppmShipment: {
-        advance: null,
-        advanceRequested: false,
+        hasRequestedAdvance: false,
+        advanceAmountRequested: null,
         id: mockMTOShipment.ppmShipment.id,
       },
     };

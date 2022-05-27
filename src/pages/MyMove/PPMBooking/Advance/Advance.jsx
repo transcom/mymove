@@ -35,8 +35,8 @@ const Advance = () => {
       shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
-        advance: hasRequestedAdvance ? values.advanceAmountRequested * 100 : null,
-        advanceRequested: hasRequestedAdvance,
+        hasRequestedAdvance,
+        advanceAmountRequested: hasRequestedAdvance ? values.advanceAmountRequested * 100 : null,
       },
     };
 

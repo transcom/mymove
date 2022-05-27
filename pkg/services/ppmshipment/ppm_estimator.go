@@ -64,9 +64,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		return oldPPMShipment.EstimatedIncentive, nil
 	}
 	// Clear out advance and advance requested fields when the estimated incentive is reset.
-	newPPMShipment.AdvanceRequested = nil
 	newPPMShipment.HasRequestedAdvance = nil
-	newPPMShipment.Advance = nil
 	newPPMShipment.AdvanceAmountRequested = nil
 
 	estimatedIncentive, err := f.calculatePrice(appCtx, newPPMShipment)

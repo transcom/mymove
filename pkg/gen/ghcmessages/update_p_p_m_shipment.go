@@ -25,11 +25,7 @@ type UpdatePPMShipment struct {
 
 	// The amount request for an advance, or null if no advance is requested
 	//
-	Advance *int64 `json:"advance,omitempty"`
-
-	// Indicates whether an advance has been requested for the PPM shipment.
-	//
-	AdvanceRequested *bool `json:"advanceRequested,omitempty"`
+	AdvanceAmountRequested *int64 `json:"advanceAmountRequested,omitempty"`
 
 	// ZIP
 	// Example: 90210
@@ -48,6 +44,10 @@ type UpdatePPMShipment struct {
 	// Indicates whether PPM shipment has pro gear.
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
+
+	// Indicates whether an advance has been requested for the PPM shipment.
+	//
+	HasRequestedAdvance *bool `json:"hasRequestedAdvance,omitempty"`
 
 	// The net weight of the shipment once it has been weighed
 	//
