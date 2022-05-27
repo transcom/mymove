@@ -3255,7 +3255,7 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 		{
 			Key:     models.ServiceItemParamNameDistanceZip,
 			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   fmt.Sprintf("%d", int(35465)),
+			Value:   fmt.Sprintf("%d", int(354)),
 		},
 
 		{
@@ -3363,7 +3363,7 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 		{
 			Key:     models.ServiceItemParamNameDistanceZip,
 			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   fmt.Sprintf("%d", int(35457)),
+			Value:   fmt.Sprintf("%d", int(354)),
 		},
 
 		{
