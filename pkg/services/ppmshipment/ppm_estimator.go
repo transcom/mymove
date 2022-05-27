@@ -112,8 +112,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		// This is the struct that gets passed to every param lookup() method that was initialized above
 		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment)
 
-		// The distance value gets saved to the mto shipment model to reduce repeated api calls. We'll need to update
-		// our in memory copy for pricers, like FSC, that try using that saved value directly.
+		// The distance value gets saved to the mto shipment model to reduce repeated api calls.
 		var shipmentWithDistance models.MTOShipment
 		err = appCtx.DB().Find(&shipmentWithDistance, mtoShipment.ID)
 		if err != nil {

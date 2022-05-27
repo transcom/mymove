@@ -35,7 +35,7 @@ func (p fuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDat
 		return 0, nil, errors.New("ActualPickupDate is required")
 	}
 	if distance <= 0 {
-		return 0, nil, errors.New("Distance must be greater than 0")
+		return 0, nil, fmt.Errorf("Distance must be greater than 0, %d", distance)
 	}
 	if !isPPM && weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
@@ -82,7 +82,10 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 		mtoShipment = paymentServiceItem.MTOServiceItem.MTOShipment
 	}
 
-	distance := *mtoShipment.Distance
+	distance, err := getParamInt(params, models.ServiceItemParamNameDistanceZip)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
 
 	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
 	if err != nil {
@@ -107,5 +110,5 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 		isPPM = true
 	}
 
-	return p.Price(appCtx, actualPickupDate, distance, unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), isPPM)
+	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), isPPM)
 }
