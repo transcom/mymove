@@ -189,6 +189,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(createdShipment.ID.String())
 
 		suite.Equal(internalmessages.MTOShipmentTypeHHG, createdShipment.ShipmentType)
+		suite.Equal(models.MTOShipmentStatusSubmitted, models.MTOShipmentStatus(createdShipment.Status))
 		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
@@ -245,6 +246,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(createdShipment.ID.String())
 
 		suite.Equal(internalmessages.MTOShipmentTypePPM, createdShipment.ShipmentType)
+		suite.Equal(models.MTOShipmentStatusDraft, models.MTOShipmentStatus(createdShipment.Status))
 		suite.Equal(*params.Body.MoveTaskOrderID, createdShipment.MoveTaskOrderID)
 		suite.Equal(*params.Body.PpmShipment.ExpectedDepartureDate, *createdShipment.PpmShipment.ExpectedDepartureDate)
 		suite.Equal(*params.Body.PpmShipment.PickupPostalCode, *createdShipment.PpmShipment.PickupPostalCode)
@@ -273,6 +275,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(createdShipment.ID.String())
 
 		suite.Equal(ntsrShipmentType, createdShipment.ShipmentType)
+		suite.Equal(models.MTOShipmentStatusSubmitted, models.MTOShipmentStatus(createdShipment.Status))
 		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
@@ -643,8 +646,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		// checkAdvanceRequestedFieldsDidntChange - ensures advance requested fields didn't change
 		checkAdvanceRequestedFieldsDidntChange := func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment) {
-			suite.Equal(originalShipment.PPMShipment.AdvanceRequested, updatedShipment.PpmShipment.AdvanceRequested)
-			suite.EqualCentsPointers(originalShipment.PPMShipment.Advance, updatedShipment.PpmShipment.Advance)
+			suite.Equal(originalShipment.PPMShipment.HasRequestedAdvance, updatedShipment.PpmShipment.HasRequestedAdvance)
+			suite.EqualCentsPointers(originalShipment.PPMShipment.AdvanceAmountRequested, updatedShipment.PpmShipment.AdvanceAmountRequested)
 		}
 
 		type setUpOriginalPPMFunc func(appCtx appcontext.AppContext) models.PPMShipment
@@ -812,8 +815,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.AdvanceRequested)
-					suite.Nil(updatedShipment.PpmShipment.Advance)
+					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.HasRequestedAdvance)
+					suite.Nil(updatedShipment.PpmShipment.AdvanceAmountRequested)
 				},
 			},
 			"Add advance requested info - yes advance": {
@@ -837,19 +840,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.AdvanceRequested)
-					suite.Equal(desiredShipment.Advance, updatedShipment.PpmShipment.Advance)
+					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.HasRequestedAdvance)
+					suite.Equal(desiredShipment.Advance, updatedShipment.PpmShipment.AdvanceAmountRequested)
 				},
 			},
 			"Remove advance requested": {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 						PPMShipment: models.PPMShipment{
-							EstimatedWeight:    models.PoundPointer(4000),
-							HasProGear:         models.BoolPointer(false),
-							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
-							AdvanceRequested:   models.BoolPointer(true),
-							Advance:            models.CentPointer(unit.Cents(200000)),
+							EstimatedWeight:        models.PoundPointer(4000),
+							HasProGear:             models.BoolPointer(false),
+							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+							HasRequestedAdvance:    models.BoolPointer(true),
+							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
 						},
 					})
 				},
@@ -863,19 +866,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.AdvanceRequested)
-					suite.Nil(updatedShipment.PpmShipment.Advance)
+					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.HasRequestedAdvance)
+					suite.Nil(updatedShipment.PpmShipment.AdvanceAmountRequested)
 				},
 			},
 			"Add actual zips and advance info - no advance": {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 						PPMShipment: models.PPMShipment{
-							EstimatedWeight:    models.PoundPointer(4000),
-							HasProGear:         models.BoolPointer(false),
-							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
-							AdvanceRequested:   models.BoolPointer(true),
-							Advance:            models.CentPointer(unit.Cents(200000)),
+							EstimatedWeight:        models.PoundPointer(4000),
+							HasProGear:             models.BoolPointer(false),
+							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+							HasRequestedAdvance:    models.BoolPointer(true),
+							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
 						},
 					})
 				},
@@ -902,11 +905,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 						PPMShipment: models.PPMShipment{
-							EstimatedWeight:    models.PoundPointer(4000),
-							HasProGear:         models.BoolPointer(false),
-							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
-							AdvanceRequested:   models.BoolPointer(true),
-							Advance:            models.CentPointer(unit.Cents(200000)),
+							EstimatedWeight:        models.PoundPointer(4000),
+							HasProGear:             models.BoolPointer(false),
+							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+							HasRequestedAdvance:    models.BoolPointer(true),
+							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
 						},
 					})
 				},
@@ -937,8 +940,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 							EstimatedWeight:             models.PoundPointer(4000),
 							HasProGear:                  models.BoolPointer(false),
 							EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
-							AdvanceRequested:            models.BoolPointer(true),
-							Advance:                     models.CentPointer(unit.Cents(200000)),
+							HasRequestedAdvance:         models.BoolPointer(true),
+							AdvanceAmountRequested:      models.CentPointer(unit.Cents(200000)),
 							ActualPickupPostalCode:      models.StringPointer("90210"),
 							ActualDestinationPostalCode: models.StringPointer("90210"),
 							HasReceivedAdvance:          models.BoolPointer(true),
@@ -1246,16 +1249,15 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.Equal(expectedShipment.PPMShipment.HasProGear, returnedShipment.PpmShipment.HasProGear)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.ProGearWeight, returnedShipment.PpmShipment.ProGearWeight)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.SpouseProGearWeight, returnedShipment.PpmShipment.SpouseProGearWeight)
+				suite.Equal(expectedShipment.PPMShipment.HasRequestedAdvance, returnedShipment.PpmShipment.HasRequestedAdvance)
+				suite.EqualCentsPointers(expectedShipment.PPMShipment.AdvanceAmountRequested, returnedShipment.PpmShipment.AdvanceAmountRequested)
+
 				if expectedShipment.PPMShipment.EstimatedIncentive != nil {
 					suite.Equal(expectedShipment.PPMShipment.EstimatedIncentive.Int64(), *returnedShipment.PpmShipment.EstimatedIncentive)
 				} else {
 					suite.Nil(returnedShipment.PpmShipment.EstimatedIncentive)
 				}
-				if expectedShipment.PPMShipment.Advance != nil {
-					suite.Equal(expectedShipment.PPMShipment.Advance.Int64(), *returnedShipment.PpmShipment.Advance)
-				} else {
-					suite.Nil(returnedShipment.PpmShipment.Advance)
-				}
+
 				continue // PPM Shipments won't have the rest of the fields below.
 			}
 

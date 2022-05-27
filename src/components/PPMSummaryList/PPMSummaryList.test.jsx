@@ -10,7 +10,12 @@ const shipments = [
   {
     id: '1',
     status: shipmentStatuses.SUBMITTED,
-    ppmShipment: { id: '11', status: ppmShipmentStatuses.SUBMITTED, advanceRequested: true, advance: 10000 },
+    ppmShipment: {
+      id: '11',
+      status: ppmShipmentStatuses.SUBMITTED,
+      hasRequestedAdvance: true,
+      advanceAmountRequested: 10000,
+    },
   },
   {
     id: '2',
@@ -19,8 +24,8 @@ const shipments = [
       id: '22',
       status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
       approvedAt: '2022-04-15T15:38:07.103Z',
-      advanceRequested: true,
-      advance: 10000,
+      hasRequestedAdvance: true,
+      advanceAmountRequested: 10000,
     },
   },
 ];

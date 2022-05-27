@@ -35,7 +35,7 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
 
   it('should respond to props and form values', async () => {
     render(
-      <Formik initialValues={{ advanceRequested: true, amountRequested: '7000' }}>
+      <Formik initialValues={{ hasRequestedAdvance: true, advanceAmountRequested: '7000' }}>
         <ShipmentIncentiveAdvance estimatedIncentive={1111111} />
       </Formik>,
     );
@@ -46,6 +46,6 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
         'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)',
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText('Maximum advance: $6,666.67')).toBeInTheDocument();
+    expect(screen.getByText('Maximum advance: $6,666')).toBeInTheDocument();
   });
 });

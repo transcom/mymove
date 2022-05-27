@@ -97,7 +97,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
-		logger.Debug("service item code: " + serviceItem.ReService.Code.String())
 		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("not able to find pricer for service item", zap.Error(err))
@@ -132,7 +131,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 				logger.Error("could not calculate param value lookup", zap.Error(err))
 				return nil, valueErr
 			}
-			logger.Debug(fmt.Sprintf("param key %s param value %s", paramKey.Key, paramValue))
 
 			// Gather all the param values for the service item to pass to the pricer's Price() method
 			paymentServiceItemParam := models.PaymentServiceItemParam{

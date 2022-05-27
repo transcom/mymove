@@ -18,7 +18,7 @@ describe('ShipmentList component', () => {
       shipmentType: SHIPMENT_OPTIONS.PPM,
       ppmShipment: {
         id: 'ppm',
-        advanceRequested: false,
+        hasRequestedAdvance: false,
       },
     },
     { id: 'ID-2', shipmentType: SHIPMENT_OPTIONS.HHG },
@@ -160,12 +160,12 @@ describe('Shipment List being used for billable weight', () => {
   });
 
   describe('Shipment List correctly displays incomplete PPM card', () => {
-    it('display incomplete badge on PPM shipment missing an advanceRequested value', () => {
+    it('display incomplete badge on PPM shipment missing an hasRequestedAdvance value', () => {
       const shipments = [
         {
           id: '0001',
           shipmentType: SHIPMENT_OPTIONS.PPM,
-          ppmShipment: { id: '1234', advanceRequested: null },
+          ppmShipment: { id: '1234', hasRequestedAdvance: null },
         },
       ];
 
@@ -179,12 +179,12 @@ describe('Shipment List being used for billable weight', () => {
       expect(screen.getByText('Incomplete')).toBeInTheDocument();
     });
 
-    it('do not show incomplete badge when pppm is complete', () => {
+    it('do not show incomplete badge when PPM is complete', () => {
       const shipments = [
         {
           id: '0001',
           shipmentType: SHIPMENT_OPTIONS.PPM,
-          ppmShipment: { id: '1234', advanceRequested: false },
+          ppmShipment: { id: '1234', hasRequestedAdvance: false },
         },
       ];
 

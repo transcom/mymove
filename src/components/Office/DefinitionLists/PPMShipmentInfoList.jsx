@@ -12,7 +12,8 @@ import { setFlagStyles, setDisplayFlags, getDisplayFlags } from 'utils/displayFl
 
 const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, showWhenCollapsed, isExpanded }) => {
   const {
-    advanceRequested,
+    hasRequestedAdvance,
+    advanceAmountRequested,
     destinationPostalCode,
     estimatedIncentive,
     estimatedWeight,
@@ -119,12 +120,12 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
     </div>
   );
 
-  const advanceRequestedElementFlags = getDisplayFlags('advanceRequested');
-  const advanceRequestedElement = (
-    <div className={advanceRequestedElementFlags.classes}>
+  const hasRequestedAdvanceElementFlags = getDisplayFlags('hasRequestedAdvance');
+  const hasRequestedAdvanceElement = (
+    <div className={hasRequestedAdvanceElementFlags.classes}>
       <dt>Advance requested?</dt>
-      <dd data-testid="advanceRequested">
-        {advanceRequested ? `Yes, $${formatCentsTruncateWhole(advanceRequested)}` : 'No'}
+      <dd data-testid="hasRequestedAdvance">
+        {hasRequestedAdvance ? `Yes, $${formatCentsTruncateWhole(advanceAmountRequested)}` : 'No'}
       </dd>
     </div>
   );
@@ -158,7 +159,7 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
       {showElement(proGearWeightElementFlags) && proGearWeightElement}
       {showElement(spouseProGearElementFlags) && spouseProGearElement}
       {showElement(estimatedIncentiveElementFlags) && estimatedIncentiveElement}
-      {advanceRequestedElement}
+      {hasRequestedAdvanceElement}
       {counselorRemarksElement}
     </dl>
   );
