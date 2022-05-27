@@ -605,9 +605,16 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
 	hhgRoutePlanner, initRouteErr := route.InitHHGRoutePlanner(v, routeTLSConfig)
 	if initRouteErr != nil {
-		logger.Fatal("Could not instantiate GHC route planner", zap.Error(initRouteErr))
+		logger.Fatal("Could not instantiate HHG route planner", zap.Error(initRouteErr))
 	}
 	handlerConfig.SetHHGPlanner(hhgRoutePlanner)
+
+	// Create a secondary planner specifically for DTOD.
+	dtodRoutePlanner, initRouteErr := route.InitDtodRoutePlanner(v, routeTLSConfig)
+	if initRouteErr != nil {
+		logger.Fatal("Could not instantiate dtod route planner", zap.Error(initRouteErr))
+	}
+	handlerConfig.SetDtodPlanner(dtodRoutePlanner)
 
 	// Set the GexSender() and GexSender fields
 	gexTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}

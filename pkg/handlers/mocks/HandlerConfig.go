@@ -114,6 +114,22 @@ func (_m *HandlerConfig) DPSAuthParams() dpsauth.Params {
 	return r0
 }
 
+// DtodPlanner provides a mock function with given fields:
+func (_m *HandlerConfig) DtodPlanner() route.Planner {
+	ret := _m.Called()
+
+	var r0 route.Planner
+	if rf, ok := ret.Get(0).(func() route.Planner); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(route.Planner)
+		}
+	}
+
+	return r0
+}
+
 // FileStorer provides a mock function with given fields:
 func (_m *HandlerConfig) FileStorer() storage.FileStorer {
 	ret := _m.Called()
@@ -299,6 +315,11 @@ func (_m *HandlerConfig) SetCookieSecret(secret string) {
 // SetDPSAuthParams provides a mock function with given fields: params
 func (_m *HandlerConfig) SetDPSAuthParams(params dpsauth.Params) {
 	_m.Called(params)
+}
+
+// SetDtodPlanner provides a mock function with given fields: planner
+func (_m *HandlerConfig) SetDtodPlanner(planner route.Planner) {
+	_m.Called(planner)
 }
 
 // SetFeatureFlag provides a mock function with given fields: flags

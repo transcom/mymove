@@ -16,9 +16,6 @@ type DistanceZipSITOriginLookup struct {
 func (r DistanceZipSITOriginLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	planner := keyData.planner
 
-	// If the zip3s are identical, we do a zip3 distance calc (which uses RM).
-	// If they are different, we do a zip5 distance calc (which uses DTOD).
-
 	originZip, err := keyData.ServiceParamValue(appCtx, models.ServiceItemParamNameZipSITOriginHHGOriginalAddress)
 	if err != nil {
 		return "", err

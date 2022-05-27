@@ -1916,7 +1916,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535").Return(348, nil).Once()
 
 	// called for domestic shorthaul service item
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"90210", "90211").Return(3, nil).Times(7)
 
 	// called for domestic shorthaul service item

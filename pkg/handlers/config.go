@@ -40,6 +40,8 @@ type HandlerConfig interface {
 	SetPlanner(planner route.Planner)
 	HHGPlanner() route.Planner
 	SetHHGPlanner(planner route.Planner)
+	DtodPlanner() route.Planner
+	SetDtodPlanner(planner route.Planner)
 	CookieSecret() string
 	SetCookieSecret(secret string)
 	IWSPersonLookup() iws.PersonLookup
@@ -77,6 +79,7 @@ type handlerConfig struct {
 	cookieSecret          string
 	planner               route.Planner
 	hhgPlanner            route.Planner
+	dtodPlanner           route.Planner
 	storage               storage.FileStorer
 	notificationSender    notifications.NotificationSender
 	iwsPersonLookup       iws.PersonLookup
@@ -213,6 +216,16 @@ func (h *handlerConfig) HHGPlanner() route.Planner {
 // SetHHGPlanner is a simple setter for the route.Planner private field
 func (h *handlerConfig) SetHHGPlanner(hhgPlanner route.Planner) {
 	h.hhgPlanner = hhgPlanner
+}
+
+// DtodPlanner returns the DTOD planner for the current context
+func (h *handlerConfig) DtodPlanner() route.Planner {
+	return h.dtodPlanner
+}
+
+// SetDtodPlanner is a simple setter for the route.Planner private field
+func (h *handlerConfig) SetDtodPlanner(dtodPlanner route.Planner) {
+	h.dtodPlanner = dtodPlanner
 }
 
 // CookieSecret returns the secret key to use when signing cookies

@@ -3,18 +3,9 @@ package route
 import (
 	"fmt"
 
-	"github.com/tiaguinho/gosoap"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-// SoapCaller provides an interface for the Call method of the gosoap Client so it can be mocked.
-// NOTE: Placing this in a separate package/directory to avoid a circular dependency from an existing mock.
-//go:generate mockery --name SoapCaller --outpkg ghcmocks --output ./ghcmocks --disable-version-string
-type SoapCaller interface {
-	Call(m string, p gosoap.SoapParams) (res *gosoap.Response, err error)
-}
 
 // hhgPlanner holds configuration information to make calls to the GHC services (DTOD and RM).
 type hhgPlanner struct {

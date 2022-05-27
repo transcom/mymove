@@ -387,7 +387,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			suite.Equal(pickupPostalCode, dz3l.PickupAddress.PostalCode)
 			suite.Equal(storageFacilityPostalCode, dz3l.DestinationAddress.PostalCode)
 		} else {
-			suite.Fail("lookup not DistanceZip3Lookup type")
+			suite.Fail("lookup not DistanceZipLookup type")
 		}
 
 		// NTS-Release should have a storage facility address and destination address.
@@ -414,7 +414,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			suite.Equal(storageFacilityPostalCode, dz3l.PickupAddress.PostalCode)
 			suite.Equal(destinationPostalCode, dz3l.DestinationAddress.PostalCode)
 		} else {
-			suite.Fail("lookup not DistanceZip3Lookup type")
+			suite.Fail("lookup not DistanceZipLookup type")
 		}
 	})
 

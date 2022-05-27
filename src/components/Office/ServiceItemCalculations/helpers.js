@@ -165,7 +165,7 @@ const shuttleBillableWeight = (params) => {
 
 // display the first 3 digits of the ZIP code
 const mileageFirstThreeZip = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params);
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
@@ -179,7 +179,7 @@ const mileageFirstThreeZip = (params) => {
 };
 
 const mileageZip5 = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip5, params);
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
@@ -345,12 +345,12 @@ const priceEscalationFactorWithoutContractYear = (params) => {
 };
 
 const fuelSurchargePrice = (params) => {
-  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by DistanceZip3
+  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by DistanceZip
   // which gets the dollar value
   const value = parseFloat(
     String(
       getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
-        getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params),
+        getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params),
     ),
   ).toFixed(2);
   const label = SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
