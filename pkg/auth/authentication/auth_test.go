@@ -284,11 +284,10 @@ func (suite *AuthSuite) TestRequirePermissionsMiddleware() {
 
 	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	api := ghcapi.NewGhcAPIHandler(handlerConfig)
-	appCtx := suite.AppContextWithSessionForTest(&handlerSession)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 
-	middleware := PermissionsMiddleware(api, appCtx)
+	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
 
 	root := mux.NewRouter()
 	ghcMux := root.PathPrefix("/ghc/v1/").Subrouter()

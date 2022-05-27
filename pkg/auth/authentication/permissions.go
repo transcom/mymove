@@ -3,9 +3,12 @@ package authentication
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+
+	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
@@ -29,10 +32,9 @@ var TIO = RolePermissions{
 var AllRolesPermissions = []RolePermissions{TOO, TIO}
 
 // check if a [user.role] has permissions on a given object
-func checkUserPermission(appCtx appcontext.AppContext, permission string) (bool, error) {
-	userID := appCtx.Session().UserID
+func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
 
-	userPermissions, err := getPermissionsForUser(appCtx, userID)
+	userPermissions, err := getPermissionsForUser(appCtx, session.UserID)
 
 	if err != nil {
 		return false, err

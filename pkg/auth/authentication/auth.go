@@ -60,9 +60,13 @@ type APIWithContext interface {
 	Context() *middleware.Context
 }
 
-func PermissionsMiddleware(api APIWithContext, appCtx appcontext.AppContext) func(next http.Handler) http.Handler {
+func PermissionsMiddleware(appCtx appcontext.AppContext, api APIWithContext) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			// TODO: clean up logging
+			//ctx := r.Context()
+			//logger := logging.FromContext(ctx)
+			session := auth.SessionFromRequestContext(r)
 
 			route, r, _ := api.Context().RouteInfo(r)
 			if route == nil {
@@ -85,7 +89,7 @@ func PermissionsMiddleware(api APIWithContext, appCtx appcontext.AppContext) fun
 
 			for _, v := range permissionsRequiredAsInterfaceArray {
 				permission := v.(string)
-				access, err := checkUserPermission(appCtx, permission)
+				access, err := checkUserPermission(appCtx, session, permission)
 
 				if err != nil {
 					// TODO: should we log here?
@@ -99,7 +103,10 @@ func PermissionsMiddleware(api APIWithContext, appCtx appcontext.AppContext) fun
 				}
 
 				// TODO: otherwise store permission on appCtx.Permissions (?)
+
 			}
+
+			next.ServeHTTP(w, r)
 		}
 
 		return http.HandlerFunc(mw)
