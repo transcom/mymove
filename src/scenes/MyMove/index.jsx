@@ -66,7 +66,7 @@ const EstimatedWeightsProGear = lazy(() =>
 );
 const EstimatedIncentive = lazy(() => import('pages/MyMove/PPM/Booking/EstimatedIncentive/EstimatedIncentive'));
 const Advance = lazy(() => import('pages/MyMove/PPM/Booking/Advance/Advance'));
-const About = lazy(() => import('pages/MyMove/PPM/Closing/About'));
+const About = lazy(() => import('pages/MyMove/PPM/Closeout/About/About'));
 
 export class CustomerApp extends Component {
   constructor(props) {

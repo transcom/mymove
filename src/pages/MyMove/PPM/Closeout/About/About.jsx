@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import closingPageStyles from 'pages/MyMove/PPM/Closing/Closing.module.scss';
+import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import ScrollToTop from 'components/ScrollToTop';
 import { shipmentTypes } from 'constants/shipments';
