@@ -7,39 +7,17 @@ import { AddressShape, ResidentialAddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { LOCATION_TYPES_ONE_OF } from 'types/sitStatusShape';
 
-export const ShipmentOptionsOneOf = oneOf([
-  SHIPMENT_OPTIONS.HHG,
-  SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
-  SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
-  SHIPMENT_OPTIONS.NTS,
-  SHIPMENT_OPTIONS.NTSR,
-  SHIPMENT_OPTIONS.PPM,
-]);
+export const ShipmentOptionsOneOf = oneOf(Object.values(SHIPMENT_OPTIONS));
 
-export const ShipmentStatusesOneOf = oneOf([
-  shipmentStatuses.DRAFT,
-  shipmentStatuses.SUBMITTED,
-  shipmentStatuses.APPROVED,
-  shipmentStatuses.CANCELLATION_REQUESTED,
-  shipmentStatuses.DIVERSION_REQUESTED,
-  shipmentStatuses.CANCELED,
-  shipmentStatuses.REJECTED,
-]);
+export const ShipmentStatusesOneOf = oneOf(Object.values(shipmentStatuses));
 
-export const PPMShipmentStatus = oneOf([
-  ppmShipmentStatuses.DRAFT,
-  ppmShipmentStatuses.SUBMITTED,
-  ppmShipmentStatuses.WAITING_ON_CUSTOMER,
-  ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL,
-  ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
-  ppmShipmentStatuses.PAYMENT_APPROVED,
-]);
+export const PPMShipmentStatusOneOf = oneOf(Object.values(ppmShipmentStatuses));
 
 export const PPMShipmentShape = shape({
   id: string,
   shipmentId: string,
   createdAt: string,
-  status: PPMShipmentStatus,
+  status: PPMShipmentStatusOneOf,
   expectedDepartureDate: string,
   actualMoveDate: string,
   submittedAt: string,
