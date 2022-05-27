@@ -634,14 +634,20 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           <Grid row className={styles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={styles.alertContainer}>
-                <Alert slim type={alertType}>
+                <Alert headingLevel="h4" slim type={alertType}>
                   {alertMessage}
                 </Alert>
               </Grid>
             )}
           </Grid>
           {isWeightAlertVisible && (
-            <Alert slim type="warning" cta={excessWeightAlertControl} className={styles.alertWithButton}>
+            <Alert
+              headingLevel="h4"
+              slim
+              type="warning"
+              cta={excessWeightAlertControl}
+              className={styles.alertWithButton}
+            >
               <span>
                 This move is at risk for excess weight.{' '}
                 <span className={styles.rightAlignButtonWrapper}>
@@ -653,7 +659,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             </Alert>
           )}
           {isSuccessAlertVisible && (
-            <Alert slim type="success">
+            <Alert headingLevel="h4" slim type="success">
               Your changes were saved
             </Alert>
           )}

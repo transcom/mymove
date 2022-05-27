@@ -161,7 +161,7 @@ export class Home extends Component {
   renderAlert = () => {
     if (this.hasUnapprovedAmendedOrders) {
       return (
-        <Alert type="success" slim data-testid="unapproved-amended-orders-alert">
+        <Alert headingLevel="h4" type="success" slim data-testid="unapproved-amended-orders-alert">
           <span className={styles.alertMessageFirstLine}>
             The transportation office will review your new documents and update your move info. Contact your movers to
             coordinate any changes to your move.
@@ -358,12 +358,12 @@ export class Home extends Component {
           </header>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             {showDeleteSuccessAlert && (
-              <Alert slim type="success">
+              <Alert headingLevel="h4" slim type="success">
                 The shipment was deleted.
               </Alert>
             )}
             {showDeleteErrorAlert && (
-              <Alert slim type="error">
+              <Alert headingLevel="h4" slim type="error">
                 Something went wrong, and your changes were not saved. Please try again later or contact your counselor.
               </Alert>
             )}

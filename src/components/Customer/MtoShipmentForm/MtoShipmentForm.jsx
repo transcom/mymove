@@ -213,7 +213,7 @@ class MtoShipmentForm extends Component {
 
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
 
-                    <Alert type="info" noIcon>
+                    <Alert headingLevel="h4" type="info" noIcon>
                       Remember: You can move{' '}
                       {orders.has_dependents
                         ? formatWeight(serviceMember.weight_allotment?.total_weight_self_plus_dependents)
