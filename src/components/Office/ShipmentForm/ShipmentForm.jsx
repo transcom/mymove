@@ -255,7 +255,7 @@ const ShipmentForm = ({
               onSubmit={handleDeleteShipment}
             />
             {errorMessage && (
-              <Alert type="error" heading="An error occurred">
+              <Alert type="error" headingLevel="h4" heading="An error occurred">
                 {errorMessage}
               </Alert>
             )}
