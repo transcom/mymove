@@ -203,7 +203,7 @@ class MtoShipmentForm extends Component {
               <Grid row>
                 <Grid col desktop={{ col: 8, offset: 2 }}>
                   {errorMessage && (
-                    <Alert type="error" heading="An error occurred">
+                    <Alert type="error" headingLevel="h2" heading="An error occurred">
                       {errorMessage}
                     </Alert>
                   )}
