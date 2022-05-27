@@ -213,7 +213,7 @@ describe('Review page', () => {
       </MockProviders>,
     );
 
-    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Details saved');
+    expect(screen.getByRole('heading', { level: 4 })).toHaveTextContent('Details saved');
     expect(
       screen.getByText('Review your info and submit your move request now, or come back and finish later.'),
     ).toBeInTheDocument();
