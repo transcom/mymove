@@ -102,7 +102,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
             <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
             <h1>PPM date & location</h1>
             {errorMessage && (
-              <Alert slim type="error">
+              <Alert headingLevel="h4" slim type="error">
                 {errorMessage}
               </Alert>
             )}

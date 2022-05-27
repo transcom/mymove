@@ -65,7 +65,7 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, userEmail, pus
       {serverError && (
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Alert type="error" heading="An error occurred">
+            <Alert type="error" headingLevel="h4" heading="An error occurred">
               {serverError}
             </Alert>
           </Grid>
