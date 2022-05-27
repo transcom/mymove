@@ -103,6 +103,7 @@ export const ShipmentShape = shape({
     email: string,
   }),
   ppmShipment: PPMShipmentShape,
+  eTag: string,
 });
 
 export const StorageFacilityShape = shape({
