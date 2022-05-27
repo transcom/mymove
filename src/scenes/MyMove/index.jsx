@@ -66,6 +66,7 @@ const EstimatedWeightsProGear = lazy(() =>
 );
 const EstimatedIncentive = lazy(() => import('pages/MyMove/PPM/Booking/EstimatedIncentive/EstimatedIncentive'));
 const Advance = lazy(() => import('pages/MyMove/PPM/Booking/Advance/Advance'));
+const About = lazy(() => import('pages/MyMove/PPM/Closing/About'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -182,6 +183,7 @@ export class CustomerApp extends Component {
                     path={customerRoutes.CONTACT_INFO_EDIT_PATH}
                     component={EditContactInfo}
                   />
+                  <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_PPM_ABOUT_PATH} component={About} />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_EDIT_PATH} component={EditOrders} />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_AMEND_PATH} component={AmendOrders} />
                   <CustomerPrivateRoute

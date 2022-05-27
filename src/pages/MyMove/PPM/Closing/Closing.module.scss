@@ -2,6 +2,9 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
-.ppmPageStyle {
-  @include u-margin-top(2.5);
+.closing-section {
+  ul {
+    @include u-padding-left(2.5);
+    margin-top: 0;
+  }
 }

@@ -46,7 +46,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	var err error
 
 	if newPPMShipment.Status != models.PPMShipmentStatusDraft && newPPMShipment.Status != models.PPMShipmentStatusSubmitted {
-		return nil, nil
+		return oldPPMShipment.EstimatedIncentive, nil
 	}
 	// Check that all the required fields we need are present.
 	err = validatePPMShipment(appCtx, *newPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)

@@ -26,6 +26,7 @@ export const customerRoutes = {
   SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH: '/moves/:moveId/shipments/:mtoShipmentId/estimated-incentive',
   SHIPMENT_PPM_ADVANCES_PATH: '/moves/:moveId/shipments/:mtoShipmentId/advances',
   SHIPMENT_PPM_ABOUT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/about',
+  SHIPMENT_PPM_WEIGHT_TICKETS_PATH: '/moves/:moveId/shipments/:mtoShipmentId/weight-tickets',
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
   EDIT_PROFILE_PATH: '/moves/review/edit-profile',
