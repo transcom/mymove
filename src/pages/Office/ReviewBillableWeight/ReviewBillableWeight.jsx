@@ -172,12 +172,12 @@ export default function ReviewBillableWeight() {
           <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
             <DocumentViewerSidebar.Content>
               {totalBillableWeight > maxBillableWeight && (
-                <Alert slim type="error" data-testid="maxBillableWeightAlert">
+                <Alert headingLevel="h4" slim type="error" data-testid="maxBillableWeightAlert">
                   {`Max billable weight exceeded. \nPlease resolve.`}
                 </Alert>
               )}
               {shipmentsMissingInformation?.length > 0 && (
-                <Alert slim type="warning" data-testid="maxBillableWeightMissingShipmentWeightAlert">
+                <Alert headingLevel="h4" slim type="warning" data-testid="maxBillableWeightMissingShipmentWeightAlert">
                   Missing shipment weights may impact max billable weight.
                 </Alert>
               )}
@@ -221,13 +221,13 @@ export default function ReviewBillableWeight() {
             <DocumentViewerSidebar.Content>
               <div className={reviewBillableWeightStyles.contentContainer}>
                 {totalBillableWeight > maxBillableWeight && (
-                  <Alert slim type="error" data-testid="maxBillableWeightAlert">
+                  <Alert headingLevel="h4" slim type="error" data-testid="maxBillableWeightAlert">
                     {`Max billable weight exceeded. \nPlease resolve.`}
                   </Alert>
                 )}
                 {((!selectedShipment?.reweigh?.weight && selectedShipment?.reweigh?.requestedAt) ||
                   !selectedShipment.primeEstimatedWeight) && (
-                  <Alert slim type="warning" data-testid="shipmentMissingInformation">
+                  <Alert headingLevel="h4" slim type="warning" data-testid="shipmentMissingInformation">
                     Shipment missing information
                   </Alert>
                 )}
@@ -236,7 +236,12 @@ export default function ReviewBillableWeight() {
                   selectedShipment.calculatedBillableWeight,
                 ) &&
                   selectedShipment.shipmentType !== SHIPMENT_OPTIONS.NTSR && (
-                    <Alert slim type="warning" data-testid="shipmentBillableWeightExceeds110OfEstimated">
+                    <Alert
+                      headingLevel="h4"
+                      slim
+                      type="warning"
+                      data-testid="shipmentBillableWeightExceeds110OfEstimated"
+                    >
                       Shipment exceeds 110% of estimated weight.
                     </Alert>
                   )}
