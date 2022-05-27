@@ -50,6 +50,12 @@ const MoveDetails = () => {
               <SectionWrapper className={formStyles.formSection}>
                 <dl className={descriptionListStyles.descriptionList}>
                   <h2>Shipments</h2>
+                  <Link
+                    to={`/simulator/moves/${moveTaskOrder.id}/shipments/new`}
+                    className="usa-button usa-button-secondary"
+                  >
+                    Create Shipment
+                  </Link>
                   {mtoShipments?.map((mtoShipment) => {
                     return (
                       <div key={mtoShipment.id}>
