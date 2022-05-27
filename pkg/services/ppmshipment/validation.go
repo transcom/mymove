@@ -64,16 +64,38 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.ActualMoveDate = services.SetOptionalDateTimeField(newPPMShipment.ActualMoveDate, ppmShipment.ActualMoveDate)
 
 	ppmShipment.SecondaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
+	ppmShipment.ActualPickupPostalCode = services.SetOptionalStringField(newPPMShipment.ActualPickupPostalCode, ppmShipment.ActualPickupPostalCode)
 	ppmShipment.SecondaryDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryDestinationPostalCode, ppmShipment.SecondaryDestinationPostalCode)
+	ppmShipment.ActualDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.ActualDestinationPostalCode, ppmShipment.ActualDestinationPostalCode)
 	ppmShipment.HasProGear = services.SetNoNilOptionalBoolField(newPPMShipment.HasProGear, ppmShipment.HasProGear)
-	ppmShipment.SitExpected = services.SetNoNilOptionalBoolField(newPPMShipment.SitExpected, ppmShipment.SitExpected)
 	ppmShipment.EstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.EstimatedWeight, ppmShipment.EstimatedWeight)
 	ppmShipment.NetWeight = services.SetNoNilOptionalPoundField(newPPMShipment.NetWeight, ppmShipment.NetWeight)
 	ppmShipment.ProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.ProGearWeight, ppmShipment.ProGearWeight)
 	ppmShipment.SpouseProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SpouseProGearWeight, ppmShipment.SpouseProGearWeight)
 	ppmShipment.EstimatedIncentive = services.SetNoNilOptionalCentField(newPPMShipment.EstimatedIncentive, ppmShipment.EstimatedIncentive)
-	ppmShipment.Advance = services.SetNoNilOptionalCentField(newPPMShipment.Advance, ppmShipment.Advance)
 	ppmShipment.AdvanceRequested = services.SetNoNilOptionalBoolField(newPPMShipment.AdvanceRequested, ppmShipment.AdvanceRequested)
+	ppmShipment.HasRequestedAdvance = services.SetNoNilOptionalBoolField(newPPMShipment.HasRequestedAdvance, ppmShipment.HasRequestedAdvance)
+	ppmShipment.Advance = services.SetNoNilOptionalCentField(newPPMShipment.Advance, ppmShipment.Advance)
+	ppmShipment.AdvanceAmountRequested = services.SetNoNilOptionalCentField(newPPMShipment.AdvanceAmountRequested, ppmShipment.AdvanceAmountRequested)
+	ppmShipment.HasReceivedAdvance = services.SetNoNilOptionalBoolField(newPPMShipment.HasReceivedAdvance, ppmShipment.HasReceivedAdvance)
+	ppmShipment.AdvanceAmountReceived = services.SetNoNilOptionalCentField(newPPMShipment.AdvanceAmountReceived, ppmShipment.AdvanceAmountReceived)
+
+	ppmShipment.SITExpected = services.SetNoNilOptionalBoolField(newPPMShipment.SITExpected, ppmShipment.SITExpected)
+	ppmShipment.SITEstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SITEstimatedWeight, ppmShipment.SITEstimatedWeight)
+	ppmShipment.SITEstimatedEntryDate = services.SetOptionalDateTimeField(newPPMShipment.SITEstimatedEntryDate, ppmShipment.SITEstimatedEntryDate)
+	ppmShipment.SITEstimatedDepartureDate = services.SetOptionalDateTimeField(newPPMShipment.SITEstimatedDepartureDate, ppmShipment.SITEstimatedDepartureDate)
+
+	if newPPMShipment.SITLocation != nil {
+		ppmShipment.SITLocation = newPPMShipment.SITLocation
+	}
+
+	if ppmShipment.SITExpected != nil && !*ppmShipment.SITExpected {
+		ppmShipment.SITLocation = nil
+		ppmShipment.SITEstimatedWeight = nil
+		ppmShipment.SITEstimatedEntryDate = nil
+		ppmShipment.SITEstimatedDepartureDate = nil
+		ppmShipment.SITEstimatedCost = nil
+	}
 
 	if ppmShipment.HasProGear != nil && !*ppmShipment.HasProGear {
 		ppmShipment.ProGearWeight = nil
@@ -82,6 +104,14 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 
 	if ppmShipment.AdvanceRequested != nil && !*ppmShipment.AdvanceRequested {
 		ppmShipment.Advance = nil
+	}
+
+	if ppmShipment.HasRequestedAdvance != nil && !*ppmShipment.HasRequestedAdvance {
+		ppmShipment.AdvanceAmountRequested = nil
+	}
+
+	if ppmShipment.HasReceivedAdvance != nil && !*ppmShipment.HasReceivedAdvance {
+		ppmShipment.AdvanceAmountReceived = nil
 	}
 
 	if !newPPMShipment.ExpectedDepartureDate.IsZero() {

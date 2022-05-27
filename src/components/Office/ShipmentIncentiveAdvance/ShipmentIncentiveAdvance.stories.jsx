@@ -9,6 +9,7 @@ import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTa
 import shipmentFormStyles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
+import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 
 export default {
   title: 'Office Components / Forms / ShipmentForm / ShipmentIncentiveAdvance',
@@ -29,7 +30,7 @@ export default {
 };
 
 export const advanceNotRequested = () => (
-  <Formik initialValues={{ advanceRequested: false }}>
+  <Formik initialValues={{ hasRequestedAdvance: false }}>
     {() => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
@@ -46,7 +47,7 @@ export const advanceRequested = () => {
   const validationSchema = Yup.object().shape({
     advance: Yup.number().max(
       (estimatedIncentive * 0.6) / 100,
-      'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)',
+      `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`,
     ),
   });
 
@@ -69,7 +70,7 @@ export const advanceRequestedWithError = () => {
   const validationSchema = Yup.object().shape({
     advance: Yup.number().max(
       (estimatedIncentive * 0.6) / 100,
-      'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)',
+      `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`,
     ),
   });
 

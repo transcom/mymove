@@ -10,20 +10,17 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/go-openapi/strfmt"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // BaseHandlerTestSuite abstracts the common methods needed for handler tests
@@ -302,15 +299,13 @@ func (suite *BaseHandlerTestSuite) EqualPoundPointers(expected *unit.Pound, actu
 	}
 }
 
-// EqualInt32Int64Pointers compares the int32 from the model with the int64 from the payload
+// EqualCentsPointers compares the unit.Cent from the model with the int64 from the payload
 // If one is nil, both should be nil, else they should match in value
-func (suite *BaseHandlerTestSuite) EqualInt32Int64Pointers(expected *int32, actual *int64) {
+func (suite *BaseHandlerTestSuite) EqualCentsPointers(expected *unit.Cents, actual *int64) {
 	if expected == nil || actual == nil {
 		suite.Nil(expected)
 		suite.Nil(actual)
 	} else {
-		int64Expected := int64(*expected)
-
-		suite.Equal(int64Expected, *actual)
+		suite.Equal(expected.Int64(), *actual)
 	}
 }

@@ -9,6 +9,7 @@ import {
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { roleTypes } from 'constants/userRoles';
+import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 
 const hhgShipmentSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
@@ -80,7 +81,7 @@ const ppmSchema = (estimatedIncentive = 0) =>
       .max(2000, 'Enter a weight 2,000 lbs or less'),
     advance: Yup.number().max(
       (estimatedIncentive * 0.6) / 100,
-      'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)',
+      `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`,
     ),
   });
 

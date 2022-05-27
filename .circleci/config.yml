@@ -21,6 +21,8 @@ references:
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres circleci/postgres:12.7-ram
 
+  redis: &redis redis:5.0.6
+
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
   # in dp3-env (loadtest, demo, exp), or
@@ -152,6 +154,10 @@ executors:
         environment:
           POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: test_db
+      - image: *redis
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
 
   milmove_integration_tester:
     resource_class: large

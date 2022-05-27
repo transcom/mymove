@@ -1,0 +1,14 @@
+@import 'shared/styles/_basics';
+
+.AboutForm {
+  :global(.usa-form-group.usa-form-group--error) {
+    input.actualMoveDate {
+      @include u-margin-top(1);
+    }
+  }
+
+  .advanceFieldset {
+    @include u-border-bottom(0);
+    @include u-padding-bottom(0);
+  }
+}

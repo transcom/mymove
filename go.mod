@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/DATA-DOG/go-txdb v0.1.5
 	github.com/XSAM/otelsql v0.14.1
-	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
+	github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/aws/aws-sdk-go v1.44.13
 	github.com/benbjohnson/clock v1.3.0
@@ -26,12 +26,12 @@ require (
 	github.com/gobuffalo/envy v1.10.1
 	github.com/gobuffalo/fizz v1.14.0
 	github.com/gobuffalo/flect v0.2.5
-	github.com/gobuffalo/pop/v6 v6.0.2
+	github.com/gobuffalo/pop/v6 v6.0.3
 	github.com/gobuffalo/validate/v3 v3.3.1
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.1
-	github.com/gomodule/redigo v2.0.0+incompatible
+	github.com/gomodule/redigo v1.8.8
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.1
 	github.com/gorilla/mux v1.8.0
@@ -41,7 +41,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jstemmer/go-junit-report v1.0.0
 	github.com/jung-kurt/gofpdf v1.16.2
-	github.com/lib/pq v1.10.5
+	github.com/lib/pq v1.10.6
 	github.com/luna-duclos/instrumentedsql v1.1.3
 	github.com/markbates/goth v1.72.0
 	github.com/mitchellh/mapstructure v1.5.0
@@ -118,7 +118,7 @@ require (
 	github.com/gobuffalo/logger v1.0.6 // indirect
 	github.com/gobuffalo/nulls v0.4.1 // indirect
 	github.com/gobuffalo/packd v1.0.1 // indirect
-	github.com/gobuffalo/plush/v4 v4.1.10 // indirect
+	github.com/gobuffalo/plush/v4 v4.1.11 // indirect
 	github.com/gobuffalo/tags/v3 v3.1.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.0 // indirect
@@ -134,13 +134,13 @@ require (
 	github.com/hhrutter/tiff v0.0.0-20190827003322-d08e2ad45835 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
-	github.com/jackc/pgconn v1.12.0 // indirect
+	github.com/jackc/pgconn v1.12.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgproto3/v2 v2.3.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/pgtype v1.11.0 // indirect
-	github.com/jackc/pgx/v4 v4.16.0 // indirect
+	github.com/jackc/pgx/v4 v4.16.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect

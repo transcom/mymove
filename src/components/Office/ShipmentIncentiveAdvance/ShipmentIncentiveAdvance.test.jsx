@@ -2,8 +2,11 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 import ShipmentIncentiveAdvance from './ShipmentIncentiveAdvance';
+
+import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 
 describe('components/Office/ShipmentIncentiveAdvance', () => {
   it('should display content without props', () => {
@@ -34,9 +37,17 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
   });
 
   it('should respond to props and form values', async () => {
+    const estimatedIncentive = 1111111;
+    const validationSchema = Yup.object().shape({
+      advance: Yup.number().max(
+        (estimatedIncentive * 0.6) / 100,
+        `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`,
+      ),
+    });
+
     render(
-      <Formik initialValues={{ advanceRequested: true, advance: '7000' }}>
-        <ShipmentIncentiveAdvance estimatedIncentive={1111111} />
+      <Formik validationSchema={validationSchema} initialValues={{ advanceRequested: true, advance: '7000' }}>
+        <ShipmentIncentiveAdvance estimatedIncentive={estimatedIncentive} />
       </Formik>,
     );
 
@@ -46,6 +57,6 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
         'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)',
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText('Maximum advance: $6,666.67')).toBeInTheDocument();
+    expect(screen.getByText('Maximum advance: $6,666')).toBeInTheDocument();
   });
 });

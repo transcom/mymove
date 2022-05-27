@@ -45,7 +45,7 @@ type CounselingServicesPricer interface {
 // DomesticLinehaulPricer prices domestic linehaul for a GHC move
 //go:generate mockery --name DomesticLinehaulPricer --disable-version-string
 type DomesticLinehaulPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -59,14 +59,14 @@ type DomesticShorthaulPricer interface {
 // DomesticOriginPricer prices the domestic origin for a GHC Move
 //go:generate mockery --name DomesticOriginPricer --disable-version-string
 type DomesticOriginPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
 // DomesticDestinationPricer prices the domestic destination price for a GHC Move
 //go:generate mockery --name DomesticDestinationPricer --disable-version-string
 type DomesticDestinationPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -101,28 +101,28 @@ type DomesticUncratingPricer interface {
 // DomesticPackPricer prices the domestic packing for a GHC Move
 //go:generate mockery --name DomesticPackPricer --disable-version-string
 type DomesticPackPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
 // DomesticNTSPackPricer prices the domestic packing for an NTS shipment of a GHC Move
 //go:generate mockery --name DomesticNTSPackPricer --disable-version-string
 type DomesticNTSPackPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
 // DomesticUnpackPricer prices the domestic unpacking for a GHC Move
 //go:generate mockery --name DomesticUnpackPricer --disable-version-string
 type DomesticUnpackPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
 // FuelSurchargePricer prices the fuel surcharge price for a GHC Move
 //go:generate mockery --name FuelSurchargePricer --disable-version-string
 type FuelSurchargePricer interface {
-	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 

@@ -5,7 +5,7 @@ import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { customerRoutes } from 'constants/routes';
-import AdvanceForm from 'components/Customer/PPMBooking/Advance/AdvanceForm';
+import AdvanceForm from 'components/Customer/PPM/Booking/Advance/AdvanceForm';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
@@ -29,14 +29,14 @@ const Advance = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
 
-    const advanceRequested = values.advanceRequested === 'true';
+    const hasRequestedAdvance = values.hasRequestedAdvance === 'true';
 
     const payload = {
       shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
-        advance: values.amountRequested ? values.amountRequested * 100 : null,
-        advanceRequested,
+        advance: hasRequestedAdvance ? values.advanceAmountRequested * 100 : null,
+        advanceRequested: hasRequestedAdvance,
       },
     };
 

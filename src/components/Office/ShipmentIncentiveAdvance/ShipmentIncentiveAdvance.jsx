@@ -7,26 +7,16 @@ import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
 
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
   const advanceRequested = !!advanceInput.value;
 
-  const formattedIncentive = ((estimatedIncentive || 0) / 100).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-  const maximumAdvance = ((estimatedIncentive || 0) * 0.6) / 100;
-  const formattedMaximumAdvance = maximumAdvance.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 2,
-  });
+  const { formattedMaxAdvance, formattedIncentive } =
+    calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
 
-  const handleAdvanceRequestedChange = (event) => {
+  const handleHasRequestedAdvanceChange = (event) => {
     const selected = event.target.value;
     advanceHelper.setValue(selected === 'Yes');
   };
@@ -35,29 +25,29 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
         <h2 className={styles.SectionHeader}>Incentive &amp; advance</h2>
-        <h3 className={styles.NoSpacing}>Estimated incentive: {formattedIncentive}</h3>
+        <h3 className={styles.NoSpacing}>Estimated incentive: ${formattedIncentive}</h3>
 
         <Grid row>
           <Grid col={12}>
             <FormGroup>
               <Label className={styles.Label}>Advance (AOA) requested?</Label>
               <Radio
-                id="advanceRequestedYes"
+                id="hasRequestedAdvanceYes"
                 label="Yes"
                 name="advanceRequested"
                 value="Yes"
                 title="Yes"
                 checked={advanceRequested}
-                onChange={handleAdvanceRequestedChange}
+                onChange={handleHasRequestedAdvanceChange}
               />
               <Radio
-                id="advanceRequestedNo"
+                id="hasRequestedAdvanceNo"
                 label="No"
                 name="advanceRequested"
                 value="No"
                 title="No"
                 checked={!advanceRequested}
-                onChange={handleAdvanceRequestedChange}
+                onChange={handleHasRequestedAdvanceChange}
               />
             </FormGroup>
 
@@ -68,7 +58,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     defaultValue="0"
                     name="advance"
                     label="Amount requested"
-                    id="amountRequested"
+                    id="advanceAmountRequested"
                     mask={Number}
                     scale={0} // digits after point, 0 for integers
                     signed={false} // disallow negative
@@ -79,7 +69,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                 </FormGroup>
 
                 <FormGroup>
-                  <div className={styles.AdvanceText}>Maximum advance: {formattedMaximumAdvance}</div>
+                  <div className={styles.AdvanceText}>Maximum advance: ${formattedMaxAdvance}</div>
                 </FormGroup>
               </>
             )}

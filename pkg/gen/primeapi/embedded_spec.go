@@ -2416,23 +2416,58 @@ func init() {
     },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "updatedAt",
+        "status",
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected",
+        "eTag"
+      ],
       "properties": {
+        "actualDestinationPostalCode": {
+          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
-        "advance": {
-          "description": "The amount request for an advance, or null if no advance is requested\n",
+        "actualPickupPostalCode": {
+          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received.\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
-        "advanceRequested": {
-          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
-          "type": "boolean",
-          "x-nullable": true
+        "advanceAmountRequested": {
+          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "approvedAt": {
           "type": "string",
@@ -2482,6 +2517,18 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasRequestedAdvance": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -6284,23 +6331,58 @@ func init() {
     },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "updatedAt",
+        "status",
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected",
+        "eTag"
+      ],
       "properties": {
+        "actualDestinationPostalCode": {
+          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
-        "advance": {
-          "description": "The amount request for an advance, or null if no advance is requested\n",
+        "actualPickupPostalCode": {
+          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received.\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
-        "advanceRequested": {
-          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
-          "type": "boolean",
-          "x-nullable": true
+        "advanceAmountRequested": {
+          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "approvedAt": {
           "type": "string",
@@ -6350,6 +6432,18 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasRequestedAdvance": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
