@@ -8,8 +8,8 @@ const TabNav = ({ items, role }) => (
   <nav className={classNames(styles.tabNav)} role={role}>
     <div>
       <ul className={classNames(styles.tabList)}>
-        {items.map((item, index) => (
-          <li key={index.toString()} className={classNames(styles.tabItem)}>
+        {items.map((item /* , index */) => (
+          <li key={item.id} className={classNames(styles.tabItem)}>
             {item}
           </li>
         ))}

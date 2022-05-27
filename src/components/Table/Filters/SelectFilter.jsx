@@ -21,9 +21,11 @@ const SelectFilter = ({ options, column: { filterValue, setFilter } }) => {
   );
 };
 
+const OptionsShape = PropTypes.object;
+
 // Values come from react-table
 SelectFilter.propTypes = {
-  options: PropTypes.arrayOf(PropTypes.object).isRequired,
+  options: PropTypes.arrayOf(OptionsShape).isRequired,
   column: PropTypes.shape({
     filterValue: PropTypes.node,
     setFilter: PropTypes.func,
