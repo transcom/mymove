@@ -35,7 +35,7 @@ func (p fuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDat
 		return 0, nil, errors.New("ActualPickupDate is required")
 	}
 	if distance <= 0 {
-		return 0, nil, fmt.Errorf("Distance must be greater than 0, %d", distance)
+		return 0, nil, errors.New("Distance must be greater than 0")
 	}
 	if !isPPM && weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
