@@ -152,7 +152,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-security": "^1.5.0",
     "eslint-plugin-you-dont-need-lodash-underscore": "^6.12.0",
-    "happo-plugin-storybook": "^2.10.3",
+    "happo-plugin-storybook": "^2.11.1",
     "happo.io": "^7.1.1",
     "jest-junit": "^13.2.0",
     "mime-types": "^2.1.34",
