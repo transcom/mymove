@@ -231,7 +231,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '90210',
+        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
