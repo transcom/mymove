@@ -75,7 +75,7 @@ const CreateServiceItem = ({ setFlashMessage }) => {
           <h1>Create Shipment Service Item</h1>
           {errorMessage?.detail && (
             <div className={primeStyles.errorContainer}>
-              <Alert slim type="error">
+              <Alert headingLevel="h4" slim type="error">
                 <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
                 <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
               </Alert>
