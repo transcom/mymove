@@ -1,46 +1,24 @@
 /* eslint-disable import/prefer-default-export */
 import { arrayOf, bool, oneOf, number, shape, string } from 'prop-types';
 
-import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ppmShipmentStatuses, shipmentDestinationTypes, shipmentStatuses } from 'constants/shipments';
+import { LOA_TYPE, SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, ResidentialAddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
-import { LOCATION_TYPES_ONE_OF } from 'types/sitStatusShape';
+import { LOCATION_TYPES_ONE_OF, SitStatusShape } from 'types/sitStatusShape';
+import { SITExtensionShape } from 'types/sitExtensions';
 
-export const ShipmentOptionsOneOf = oneOf([
-  SHIPMENT_OPTIONS.HHG,
-  SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
-  SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
-  SHIPMENT_OPTIONS.NTS,
-  SHIPMENT_OPTIONS.NTSR,
-  SHIPMENT_OPTIONS.PPM,
-]);
+export const ShipmentOptionsOneOf = oneOf(Object.values(SHIPMENT_OPTIONS));
 
-export const ShipmentStatusesOneOf = oneOf([
-  shipmentStatuses.DRAFT,
-  shipmentStatuses.SUBMITTED,
-  shipmentStatuses.APPROVED,
-  shipmentStatuses.CANCELLATION_REQUESTED,
-  shipmentStatuses.DIVERSION_REQUESTED,
-  shipmentStatuses.CANCELED,
-  shipmentStatuses.REJECTED,
-]);
+export const ShipmentStatusesOneOf = oneOf(Object.values(shipmentStatuses));
 
-export const PPMShipmentStatus = oneOf([
-  ppmShipmentStatuses.DRAFT,
-  ppmShipmentStatuses.SUBMITTED,
-  ppmShipmentStatuses.WAITING_ON_CUSTOMER,
-  ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL,
-  ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
-  ppmShipmentStatuses.PAYMENT_APPROVED,
-]);
+export const PPMShipmentStatusOneOf = oneOf(Object.values(ppmShipmentStatuses));
 
 export const PPMShipmentShape = shape({
   id: string,
   shipmentId: string,
   createdAt: string,
-  updatedAt: string,
-  status: PPMShipmentStatus,
+  status: PPMShipmentStatusOneOf,
   expectedDepartureDate: string,
   actualMoveDate: string,
   submittedAt: string,
@@ -63,7 +41,6 @@ export const PPMShipmentShape = shape({
   advanceAmountRequested: number,
   hasReceivedAdvance: bool,
   advanceAmountReceived: number,
-  deletedAt: string,
   sitLocation: LOCATION_TYPES_ONE_OF,
   sitEstimatedWeight: number,
   sitEstimatedEntryDate: string,
@@ -72,29 +49,56 @@ export const PPMShipmentShape = shape({
   eTag: string,
 });
 
+// This type is badly defined because we have code that overloads the destinationType field on the shipment object as
+// it is passed around with the display value instead of the value that we get from the API and instead of putting it on
+// as a separate attribute.
+export const ShipmentDestinationTypeOneOf = oneOf(
+  Object.keys(shipmentDestinationTypes).concat(Object.values(shipmentDestinationTypes)),
+);
+
 export const ShipmentShape = shape({
+  moveTaskOrderID: string,
   id: string,
-  shipmentType: ShipmentOptionsOneOf,
-  requestedPickupDate: string,
-  scheduledPickupDate: string,
-  actualPickupDate: string,
-  requestedDeliveryDate: string,
-  pickupAddress: AddressShape,
-  secondaryPickupAddress: AddressShape,
-  destinationAddress: AddressShape,
-  secondaryDeliveryAddress: AddressShape,
-  agents: arrayOf(AgentShape),
+  createdAt: string,
+  updatedAt: string,
+  deletedAt: string,
   primeEstimatedWeight: number,
   primeActualWeight: number,
+  calculatedBillableWeight: number,
   ntsRecordedWeight: number,
+  scheduledPickupDate: string,
+  requestedPickupDate: string,
+  actualPickupDate: string,
+  requestedDeliveryDate: string,
+  requiredDeliveryDate: string,
+  approvedDate: string,
   diversion: bool,
-  counselorRemarks: string,
+  pickupAddress: AddressShape,
+  destinationAddress: AddressShape,
+  destinationType: ShipmentDestinationTypeOneOf,
+  secondaryPickupAddress: AddressShape,
+  secondaryDeliveryAddress: AddressShape,
   customerRemarks: string,
+  counselorRemarks: string,
+  shipmentType: ShipmentOptionsOneOf,
   status: ShipmentStatusesOneOf,
+  rejectionReason: string,
   reweigh: shape({
     id: string,
     weight: number,
   }),
+  agents: arrayOf(AgentShape), // We have different API definitions for a shipment and they name this field different things...
+  mtoAgents: arrayOf(AgentShape), // We have different API definitions for a shipment and they name this field different things...
+  sitDaysAllowance: number,
+  sitExtensions: arrayOf(SITExtensionShape),
+  sitStatus: SitStatusShape,
+  eTag: string,
+  billableWeightCap: number,
+  billableWeightJustification: string,
+  tacType: oneOf(Object.values(LOA_TYPE)),
+  sacType: oneOf(Object.values(LOA_TYPE)),
+  usesExternalVendor: bool,
+  serviceOrderNumber: string,
   storageFacility: shape({
     address: AddressShape.isRequired,
     facilityName: string.isRequired,
