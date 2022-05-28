@@ -91,22 +91,22 @@ describe('Home component', () => {
   describe('contents of Step 3', () => {
     const props = {
       mtoShipments: [
-        { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
+        { id: '4321', createdAt: moment().add(1, 'days').toISOString(), shipmentType: SHIPMENT_OPTIONS.HHG },
         {
           id: '4322',
-          createdAt: moment().add(2, 'days'),
+          createdAt: moment().add(2, 'days').toISOString(),
           shipmentType: SHIPMENT_OPTIONS.PPM,
           ppmShipment: {
             id: '0001',
             hasRequestedAdvance: false,
           },
         },
-        { id: '4323', createdAt: moment().add(2, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
-        { id: '4324', createdAt: moment().add(3, 'days'), shipmentType: SHIPMENT_OPTIONS.NTS },
-        { id: '4325', createdAt: moment().add(4, 'days'), shipmentType: SHIPMENT_OPTIONS.NTSR },
+        { id: '4323', createdAt: moment().add(2, 'days').toISOString(), shipmentType: SHIPMENT_OPTIONS.HHG },
+        { id: '4324', createdAt: moment().add(3, 'days').toISOString(), shipmentType: SHIPMENT_OPTIONS.NTS },
+        { id: '4325', createdAt: moment().add(4, 'days').toISOString(), shipmentType: SHIPMENT_OPTIONS.NTSR },
         {
           id: '4327',
-          createdAt: moment().add(5, 'days'),
+          createdAt: moment().add(5, 'days').toISOString(),
           shipmentType: SHIPMENT_OPTIONS.PPM,
           ppmShipment: {
             id: '0001',
@@ -222,7 +222,7 @@ describe('Home component', () => {
       mtoShipments: [
         {
           id: '4327',
-          createdAt: moment().add(5, 'days'),
+          createdAt: moment().add(5, 'days').toISOString(),
           shipmentType: SHIPMENT_OPTIONS.PPM,
           ppmShipment: {
             id: '0001',
@@ -259,7 +259,7 @@ describe('Home component', () => {
       mtoShipments: [
         {
           id: '4327',
-          createdAt: moment().add(5, 'days'),
+          createdAt: moment().add(5, 'days').toISOString(),
           shipmentType: SHIPMENT_OPTIONS.PPM,
           ppmShipment: {
             id: '0001',
