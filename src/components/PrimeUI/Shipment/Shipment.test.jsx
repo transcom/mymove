@@ -168,6 +168,10 @@ describe('Shipment details component', () => {
     field = screen.getByText('Approved at:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.approvedDate);
+
+    // This is an HHG, so the PPM Status should not be visible.
+    field = screen.queryByText('PPM Status:');
+    expect(field).not.toBeInTheDocument();
   });
 });
 
@@ -232,5 +236,47 @@ describe('Shipment has missing reweigh', () => {
     expect(screen.queryByText('Reweigh Weight:')).not.toBeInTheDocument();
     expect(screen.queryByText('Reweigh Remarks:')).not.toBeInTheDocument();
     expect(screen.queryByText('Reweigh Requested Date:')).not.toBeInTheDocument();
+  });
+});
+
+const ppmShipment = {
+  approvedDate: '2022-05-24',
+  createdAt: '2022-05-24T21:06:35.888Z',
+  eTag: 'MjAyMi0wNS0yNFQyMTowNzoyMS4wNjc0MzJa',
+  id: '88ececed-eaf1-42e2-b060-cd90d11ad080',
+  moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+  ppmShipment: {
+    advance: 598700,
+    advanceRequested: true,
+    createdAt: '2022-05-24T21:06:35.901Z',
+    destinationPostalCode: '30813',
+    eTag: 'MjAyMi0wNS0yNFQyMTowNjozNS45MDEwMjNa',
+    estimatedIncentive: 1000000,
+    estimatedWeight: 4000,
+    expectedDepartureDate: '2020-03-15',
+    hasProGear: false,
+    id: '5b21b808-6933-43ea-8f6f-02fc0a639835',
+    pickupPostalCode: '90210',
+    shipmentId: '88ececed-eaf1-42e2-b060-cd90d11ad080',
+    status: 'WAITING_ON_CUSTOMER',
+    submittedAt: '2022-05-24T21:06:35.890Z',
+    updatedAt: '2022-05-24T21:06:35.901Z',
+  },
+  shipmentType: 'PPM',
+  status: 'APPROVED',
+  updatedAt: '2022-05-24T21:07:21.067Z',
+};
+
+describe('PPM shipment renders', () => {
+  it('renders the component when shipment is a PPM', () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={ppmShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    const field = screen.getByText('PPM Status:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(ppmShipment.ppmShipment.status);
   });
 });

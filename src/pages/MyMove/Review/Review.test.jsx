@@ -52,7 +52,7 @@ describe('Review page', () => {
       sitExpected: false,
       estimatedWeight: 5999,
       hasProGear: false,
-      advanceRequested: false,
+      hasRequestedAdvance: false,
     },
   };
 

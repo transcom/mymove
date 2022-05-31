@@ -3048,13 +3048,13 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
-      advanceRequested:
+      hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
         x-omitempty: false
-      advance:
+      advanceAmountRequested:
         description: >
           The amount requested for an advance, or null if no advance is
           requested

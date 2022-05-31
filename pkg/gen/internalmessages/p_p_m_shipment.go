@@ -39,17 +39,13 @@ type PPMShipment struct {
 	// Pattern: ^(\d{5})$
 	ActualPickupPostalCode *string `json:"actualPickupPostalCode"`
 
-	// The amount requested for an advance, or null if no advance is requested
-	//
-	Advance *int64 `json:"advance"`
-
 	// The amount received for an advance, or null if no advance is received.
 	//
 	AdvanceAmountReceived *int64 `json:"advanceAmountReceived"`
 
-	// Indicates whether an advance has been requested for the PPM shipment.
+	// The amount requested for an advance, or null if no advance is requested
 	//
-	AdvanceRequested *bool `json:"advanceRequested"`
+	AdvanceAmountRequested *int64 `json:"advanceAmountRequested"`
 
 	// approved at
 	// Format: date-time
@@ -96,6 +92,10 @@ type PPMShipment struct {
 	// Indicates whether an advance was received for the PPM shipment.
 	//
 	HasReceivedAdvance *bool `json:"hasReceivedAdvance"`
+
+	// Indicates whether an advance has been requested for the PPM shipment.
+	//
+	HasRequestedAdvance *bool `json:"hasRequestedAdvance"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054

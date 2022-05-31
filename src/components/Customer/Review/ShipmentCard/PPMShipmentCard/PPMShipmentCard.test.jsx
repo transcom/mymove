@@ -44,8 +44,8 @@ const completeProps = {
       proGearWeight: 1250,
       spouseProGearWeight: 375,
       estimatedIncentive: 1000099,
-      advanceRequested: true,
-      advance: 600000,
+      hasRequestedAdvance: true,
+      advanceAmountRequested: 600000,
     },
   },
 };

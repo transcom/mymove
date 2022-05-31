@@ -65,7 +65,7 @@ const ShipmentDisplay = ({
           )}
 
           {allowApproval && !isSubmitted && (
-            <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />
+            <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
           )}
           <div className={styles.headingTagWrapper}>
             <h3>
@@ -153,7 +153,8 @@ ShipmentDisplay.propTypes = {
     PropTypes.shape({
       heading: PropTypes.string.isRequired,
       shipmentType: PropTypes.string,
-      advanceRequested: PropTypes.bool,
+      hasRequestedAdvance: PropTypes.bool,
+      advanceAmountRequested: PropTypes.number,
       destinationPostalCode: PropTypes.string,
       estimatedIncentive: PropTypes.number,
       estimatedWeight: PropTypes.string,

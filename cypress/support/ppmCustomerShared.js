@@ -130,13 +130,13 @@ export function navigateFromEstimatedIncentivePageToAdvancesPage() {
 
 export function submitsAdvancePage(addAdvance = false, isMobile = false) {
   if (addAdvance) {
-    cy.get('input[name="advanceRequested"][value="true"]').check({ force: true });
+    cy.get('input[name="hasRequestedAdvance"][value="true"]').check({ force: true });
 
-    cy.get('input[name="amountRequested"]').clear().type(4000).blur();
+    cy.get('input[name="advanceAmountRequested"]').clear().type(4000).blur();
 
     cy.get('input[name="agreeToTerms"]').check({ force: true });
   } else {
-    cy.get('input[name="advanceRequested"][value="false"]').check({ force: true });
+    cy.get('input[name="hasRequestedAdvance"][value="false"]').check({ force: true });
   }
 
   navigateFromAdvancesPageToReviewPage(isMobile);
@@ -146,7 +146,7 @@ export function navigateFromAdvancesPageToReviewPage(isMobile = false) {
   // when navigating through an existing PPM that requested an advance, we must agree to the terms again to proceed
   // using cypress get or contains would result in an assertion failure for the case where advance requested is No
   cy.get('body').then(($body) => {
-    if ($body.find('input[name="advanceRequested"][value="true"]:checked').length) {
+    if ($body.find('input[name="hasRequestedAdvance"][value="true"]:checked').length) {
       cy.get('input[name="agreeToTerms"]').check({ force: true });
     }
   });
