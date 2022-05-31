@@ -71,18 +71,14 @@ const About = () => {
             )}
             <div className={closingPageStyles['closing-section']}>
               <p>Finish moving this PPM before you start documenting it.</p>
-              <p>
-                To complete your PPM, you will:
-                <ul>
-                  <li>Upload weight tickets for each trip</li>
-                  <li>Upload receipts to document any expenses</li>
-                  <li>Upload receipts if you used short-term storage, so you can request reimbursement</li>
-                  <li>
-                    Upload any other documentation (such as proof of ownership for a trailer, if you used your own)
-                  </li>
-                  <li>Complete your PPM to send it to a counselor for review</li>
-                </ul>
-              </p>
+              <p>To complete your PPM, you will:</p>
+              <ul>
+                <li>Upload weight tickets for each trip</li>
+                <li>Upload receipts to document any expenses</li>
+                <li>Upload receipts if you used short-term storage, so you can request reimbursement</li>
+                <li>Upload any other documentation (such as proof of ownership for a trailer, if you used your own)</li>
+                <li>Complete your PPM to send it to a counselor for review</li>
+              </ul>
             </div>
             <AboutForm
               mtoShipment={mtoShipment}
