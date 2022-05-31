@@ -108,8 +108,6 @@ export const PPMShipmentShape = shape({
   spouseProGearWeight: number,
   estimatedWeight: number,
   estimatedIncentive: number,
-  advance: number,
-  advanceRequested: bool,
   hasRequestedAdvance: bool,
   advanceAmountRequested: number,
   hasReceivedAdvance: bool,

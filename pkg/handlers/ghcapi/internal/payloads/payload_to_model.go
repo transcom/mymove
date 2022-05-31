@@ -414,8 +414,10 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
-		Advance:                        handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
 		AdvanceRequested:               ppmShipment.AdvanceRequested,
+		HasRequestedAdvance:            ppmShipment.AdvanceRequested,
+		Advance:                        handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
+		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
