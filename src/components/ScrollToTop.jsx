@@ -16,10 +16,8 @@ const ScrollToTop = ({ otherDep = null }) => {
   return null;
 };
 
-const otherDepShape = PropTypes.any;
-
 ScrollToTop.propTypes = {
-  otherDep: otherDepShape,
+  otherDep: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
 };
 
 ScrollToTop.defaultProps = {
