@@ -64,6 +64,8 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 					OfficeUser: payloads.OfficeUser(&officeUser),
 				}
 				decoratePayloadWithRoles(appCtx.Session(), &userPayload)
+				decoratePayloadWithPermissions(appCtx.Session(), &userPayload)
+
 				return userop.NewShowLoggedInUserOK().WithPayload(&userPayload), nil
 			}
 
