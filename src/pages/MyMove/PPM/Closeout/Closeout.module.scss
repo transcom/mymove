@@ -6,6 +6,7 @@
   ul {
     @include u-padding-left(2.5);
     margin-top: 0;
+    font-size: 1rem;
   }
 
   p:last-of-type {
