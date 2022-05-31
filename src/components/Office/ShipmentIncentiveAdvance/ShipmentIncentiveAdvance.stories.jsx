@@ -28,7 +28,7 @@ export default {
 };
 
 export const advanceNotRequested = () => (
-  <Formik initialValues={{ advanceRequested: false }}>
+  <Formik initialValues={{ hasRequestedAdvance: false }}>
     {() => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
@@ -40,7 +40,7 @@ export const advanceNotRequested = () => (
 );
 
 export const advanceRequested = () => (
-  <Formik initialValues={{ advanceRequested: true, amountRequested: '5000' }}>
+  <Formik initialValues={{ hasRequestedAdvance: true, advanceAmountRequested: '5000' }}>
     {() => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
@@ -52,7 +52,7 @@ export const advanceRequested = () => (
 );
 
 export const advanceRequestedWithError = () => (
-  <Formik initialValues={{ advanceRequested: true, amountRequested: '7000' }}>
+  <Formik initialValues={{ hasRequestedAdvance: true, advanceAmountRequested: '7000' }}>
     {() => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
