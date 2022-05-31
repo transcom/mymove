@@ -30,6 +30,7 @@ type ClientCert struct {
 	AllowNavyOrdersRead         bool      `db:"allow_navy_orders_read"`
 	AllowNavyOrdersWrite        bool      `db:"allow_navy_orders_write"`
 	AllowPrime                  bool      `db:"allow_prime"`
+	UserID                      uuid.UUID `db:"user_id"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
