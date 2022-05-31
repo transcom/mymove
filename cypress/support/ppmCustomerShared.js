@@ -96,11 +96,11 @@ export function navigateFromEstimatedWeightsPageToEstimatedIncentivePage() {
 
   cy.wait('@patchShipment');
 
-  //   cy.location().should((loc) => {
-  //     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
-  //   });
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
+  });
 
-  //   cy.get('h1').should('contain', 'Estimated incentive');
+  cy.get('h1').should('contain', 'Estimated incentive');
 }
 
 export function generalVerifyEstimatedIncentivePage(isMobile = false) {
