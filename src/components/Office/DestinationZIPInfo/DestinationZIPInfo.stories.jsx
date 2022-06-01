@@ -7,7 +7,7 @@ import { ordersInfo } from '../RequestedShipments/RequestedShipmentsTestData';
 
 import DestinationZIPInfo from './DestinationZIPInfo';
 
-import { ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
+import { ZIP5_CODE_REGEX, InvalidZIPTypeError, UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
@@ -25,10 +25,10 @@ export const DestinationZIPInfoExample = () => (
     }}
     validationSchema={validationSchema}
   >
-    {({ setFieldValue }) => {
+    {() => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
-          <DestinationZIPInfo setFieldValue={setFieldValue} dutyZip="90210" />
+          <DestinationZIPInfo dutyZip="90210" postalCodeValidator={() => {}} />
         </Form>
       );
     }}
@@ -43,10 +43,28 @@ export const DestinationZIPInfoWithDataExample = () => (
     }}
     validationSchema={validationSchema}
   >
-    {({ setFieldValue }) => {
+    {() => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
-          <DestinationZIPInfo setFieldValue={setFieldValue} dutyZip="90210" />
+          <DestinationZIPInfo dutyZip="90210" postalCodeValidator={() => {}} />
+        </Form>
+      );
+    }}
+  </Formik>
+);
+
+export const DestinationZIPInfoWithValidationErrorExample = () => (
+  <Formik
+    initialValues={{
+      destinationPostalCode: '',
+      secondDestinationPostalCode: '',
+    }}
+    validationSchema={validationSchema}
+  >
+    {() => {
+      return (
+        <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
+          <DestinationZIPInfo dutyZip="90210" postalCodeValidator={() => UnsupportedZipCodePPMErrorMsg} />
         </Form>
       );
     }}

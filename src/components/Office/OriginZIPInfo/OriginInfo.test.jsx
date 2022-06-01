@@ -15,8 +15,8 @@ describe('OriginZIPInfo component', () => {
           secondPickupPostalCode: '',
         }}
       >
-        {({ setFieldValue }) => {
-          return <OriginZIPInfo currentZip="90210" setFieldValue={setFieldValue} />;
+        {() => {
+          return <OriginZIPInfo currentZip="90210" postalCodeValidator={() => {}} />;
         }}
       </Formik>,
     );
@@ -35,8 +35,8 @@ describe('OriginZIPInfo component', () => {
           secondPickupPostalCode: '',
         }}
       >
-        {({ setFieldValue }) => {
-          return <OriginZIPInfo currentZip="90210" setFieldValue={setFieldValue} />;
+        {() => {
+          return <OriginZIPInfo currentZip="90210" postalCodeValidator={() => {}} />;
         }}
       </Formik>,
     );

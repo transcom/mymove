@@ -14,7 +14,7 @@ describe('DestinationZIPInfo component', () => {
           secondDestinationPostalCode: '',
         }}
       >
-        <DestinationZIPInfo dutyZip="90210" />
+        <DestinationZIPInfo dutyZip="90210" postalCodeValidator={() => {}} />
       </Formik>,
     );
     expect(await screen.getByRole('heading', { level: 2, name: 'Destination info' })).toBeInTheDocument();
@@ -30,8 +30,8 @@ describe('DestinationZIPInfo component', () => {
           secondDestinationPostalCode: '',
         }}
       >
-        {({ setFieldValue }) => {
-          return <DestinationZIPInfo dutyZip="90210" setFieldValue={setFieldValue} />;
+        {() => {
+          return <DestinationZIPInfo dutyZip="90210" postalCodeValidator={() => {}} />;
         }}
       </Formik>,
     );

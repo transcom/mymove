@@ -1,20 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PropTypes } from 'prop-types';
+import { useField } from 'formik';
 
 import styles from './OriginZIPInfo.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
+import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 
-const OriginZIPInfo = ({ setFieldValue, currentZip }) => {
+const OriginZIPInfo = ({ currentZip, postalCodeValidator }) => {
+  const [postalCodeValid, setPostalCodeValid] = useState({});
+  const [, , postalCodeHelperProps] = useField('pickupPostalCode');
+  const [, , checkBoxHelperProps] = useField('useResidentialAddressZIP');
+
   const setOriginZipToCurrentZip = (isChecked) => {
-    setFieldValue('useResidentialAddressZIP', isChecked);
     if (isChecked) {
-      setFieldValue('pickupPostalCode', currentZip);
-    } else {
-      setFieldValue('pickupPostalCode', '');
+      postalCodeHelperProps.setValue(currentZip);
+      checkBoxHelperProps.setValue('checked');
     }
+  };
+
+  const postalCodeValidate = async (value, location, name) => {
+    if (value?.length !== 5) {
+      return undefined;
+    }
+    // only revalidate if the value has changed, editing other fields will re-validate unchanged ones
+    if (postalCodeValid[`${name}`]?.value !== value) {
+      const response = await postalCodeValidator(value, location, UnsupportedZipCodePPMErrorMsg);
+      setPostalCodeValid((state) => {
+        return {
+          ...state,
+          [name]: { value, isValid: !response },
+        };
+      });
+      return response;
+    }
+    return postalCodeValid[`${name}`]?.isValid ? undefined : UnsupportedZipCodePPMErrorMsg;
   };
 
   return (
@@ -22,7 +44,13 @@ const OriginZIPInfo = ({ setFieldValue, currentZip }) => {
       <h2>Origin info</h2>
       <DatePickerInput label="Planned departure date" name="expectedDepartureDate" required />
       <div className="display-inline-block">
-        <TextField label="Origin ZIP" id="pickupPostalCode" name="pickupPostalCode" maxLength={5} />
+        <TextField
+          label="Origin ZIP"
+          id="pickupPostalCode"
+          name="pickupPostalCode"
+          maxLength={5}
+          validate={(value) => postalCodeValidate(value, 'origin', 'pickupPostalCode')}
+        />
       </div>
       <CheckboxField
         id="useResidentialAddressZIP"
@@ -36,6 +64,7 @@ const OriginZIPInfo = ({ setFieldValue, currentZip }) => {
           id="secondPickupPostalCode"
           name="secondPickupPostalCode"
           maxLength={5}
+          validate={(value) => postalCodeValidate(value, 'origin', 'secondaryPickupPostalCode')}
         />
       </div>
     </SectionWrapper>
@@ -43,8 +72,8 @@ const OriginZIPInfo = ({ setFieldValue, currentZip }) => {
 };
 
 OriginZIPInfo.propTypes = {
-  setFieldValue: PropTypes.func.isRequired,
   currentZip: PropTypes.string,
+  postalCodeValidator: PropTypes.func.isRequired,
 };
 
 OriginZIPInfo.defaultProps = {
