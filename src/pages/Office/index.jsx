@@ -107,8 +107,7 @@ export class OfficeApp extends Component {
     const {
       activeRole,
       userIsLoggedIn,
-      // eslint-disable-next-line no-unused-vars
-      userPermissions, // Will use this when the BE is ready to provide permissions
+      userPermissions,
       userRoles,
       location: { pathname },
       hasRecentError,
@@ -173,18 +172,8 @@ export class OfficeApp extends Component {
       [`site--fullscreen`]: isFullscreenPage,
     });
 
-    // TODO: Remove this and use `userPermissions` when BE is ready to provide permissions for user
-    const tempHardcodedPermissions = userRoles.some(
-      (role) =>
-        role.roleType === roleTypes.TOO ||
-        role.roleType === roleTypes.TIO ||
-        role.roleType === roleTypes.SERVICES_COUNSELOR,
-    )
-      ? ['update.financial_review_flag']
-      : [];
-
     return (
-      <PermissionProvider permissions={tempHardcodedPermissions}>
+      <PermissionProvider permissions={userPermissions}>
         <div id="app-root">
           <div className={siteClasses}>
             <BypassBlock />
