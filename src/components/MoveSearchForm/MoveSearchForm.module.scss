@@ -1,0 +1,50 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/colors';
+@import 'styles/office.scss';
+
+.MoveSearchForm {
+  max-width: 1358px;
+  @include u-padding-y(3);
+  @include u-padding-x(4);
+  @include u-margin-x(1);
+  @include u-bg('white');
+  @include u-radius(4px);
+  border: 1px solid $border-color;
+
+  :global(.usa-radio__input:checked) + :global(.usa-radio__label::before) {
+    background-color: $link;
+    box-shadow:0 0 0 2px $link, inset 0 0 0 2px white;
+  }
+  p {
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 16px;
+    color: $base-darker;
+    @include u-margin-top(0);
+    @include u-margin-bottom(1);
+  }
+
+  .searchBar {
+    @include u-margin-top(2);
+    display: flex;
+    label {
+      @include u-margin-top(0);
+      @include u-margin-bottom(1);
+      line-height: 16px;
+    }
+  }
+  .searchButton {
+    height: 43px;
+    align-self: flex-end;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    background-color: $link;
+  }
+  .searchButton:hover {
+    background-color: $primary-dark;
+  }
+  :global(.usa-search__input) {
+    height: 43px;
+    width: 356px;
+  }
+}

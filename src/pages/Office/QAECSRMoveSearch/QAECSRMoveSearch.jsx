@@ -1,16 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { Formik, Field } from 'formik';
 import { withRouter } from 'react-router-dom';
-import { Button, Radio } from '@trussworks/react-uswds';
-import * as Yup from 'yup';
-import classnames from 'classnames';
 
 import styles from './QAECSRMoveSearch.module.scss';
 
 import { HistoryShape } from 'types/router';
-import formStyles from 'styles/form.module.scss';
-import { Form } from 'components/form/Form';
-import TextField from 'components/form/fields/TextField/TextField';
 import { createHeader } from 'components/Table/utils';
 import { useQAECSRMoveSearchQueries } from 'hooks/queries';
 import { serviceMemberAgencyLabel } from 'utils/formatters';
@@ -18,6 +11,7 @@ import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheck
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS, MOVE_STATUS_LABELS } from 'constants/queues';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
+import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
@@ -88,18 +82,6 @@ const columns = (showBranchFilter = true) => [
   ),
   createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
 ];
-const validationSchema = Yup.object().shape({
-  searchType: Yup.string().required('searchtype error'),
-  searchText: Yup.string().when('searchType', {
-    is: 'moveCode',
-    then: Yup.string().length(6, 'Move Code must be exactly 6 characters'),
-    otherwise: Yup.string().when('searchType', {
-      is: 'dodID',
-      then: Yup.string().length(10, 'DOD ID must be exactly 10 characters'),
-      otherwise: Yup.string().min(1, 'pls type something'),
-    }),
-  }),
-});
 
 const QAECSRMoveSearch = ({ history }) => {
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
@@ -137,67 +119,10 @@ const QAECSRMoveSearch = ({ history }) => {
   return (
     <div className={styles.QAECSRMoveSearchPage}>
       <h1>Search for a move</h1>
-      <Formik
-        initialValues={{ searchType: 'moveCode', searchText: '' }}
-        onSubmit={onSubmit}
-        validationSchema={validationSchema}
-      >
-        {(formik) => {
-          return (
-            <Form
-              className={classnames(formStyles.form, styles.QAECSRMoveSearch)}
-              onSubmit={formik.handleSubmit}
-              role="search"
-            >
-              <p>What do you want to search for?</p>
-              <div role="group" className={formStyles.radioGroup}>
-                <Field
-                  as={Radio}
-                  id="radio-picked-movecode"
-                  type="radio"
-                  name="searchType"
-                  value="moveCode"
-                  title="Move Code"
-                  label="Move Code"
-                />
-                <Field
-                  as={Radio}
-                  id="radio-picked-dodid"
-                  type="radio"
-                  name="searchType"
-                  value="dodID"
-                  title="DOD ID"
-                  label="DOD ID"
-                />
-                <Field
-                  as={Radio}
-                  id="radio-picked-customername"
-                  type="radio"
-                  name="searchType"
-                  value="customerName"
-                  title="Customer Name"
-                  label="Customer Name"
-                />
-              </div>
-              <div className={classnames(styles.searchBar)}>
-                <TextField
-                  id="searchText"
-                  className="usa-search__input"
-                  label="Search"
-                  name="searchText"
-                  type="search"
-                />
-                <Button className={classnames(styles.searchButton)} type="submit" disabled={!formik.isValid}>
-                  Search
-                </Button>
-              </div>
-            </Form>
-          );
-        }}
-      </Formik>
+      <MoveSearchForm onSubmit={onSubmit} />
       {isLoading && <LoadingPlaceholder />}
-      {isError && <SomethingWentWrong />}
-      {searchHappened && (
+      {!isLoading && isError && <SomethingWentWrong />}
+      {!isLoading && !isError && searchHappened && (
         <SearchResultsTable
           showFilters
           showPagination
