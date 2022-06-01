@@ -3951,10 +3951,10 @@
     react-visibility-sensor "^5.0.2"
     three "0.137.0"
 
-"@trussworks/react-uswds@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-2.1.0.tgz#d82ca1a93363b17a22d66fccb7b30493bc3ec974"
-  integrity sha512-pGVybVYVNjV7H4apnpkk8GIZ4OqlXk9OOmnFeV+n0DrSEt0rqJ99mPsXp5O3ZuJhJ9ymqGp+iw7gYxK+i9FPVg==
+"@trussworks/react-uswds@2.9.0":
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-2.9.0.tgz#32b2476f98ac27cf610db9a71ac9bd8527619fef"
+  integrity sha512-qv5twPgzLJulWsZew3No3W45FTp3WrYGwG/3B+w/mPFuAMHmAX7VAiigmg+k2kHFvrpjyAiKZHREpHyhkZIbig==
 
 "@types/aria-query@^4.2.0":
   version "4.2.2"
@@ -13237,7 +13237,7 @@ lodash.curry@^4.0.1:
   resolved "https://registry.yarnpkg.com/lodash.curry/-/lodash.curry-4.1.1.tgz#248e36072ede906501d75966200a86dab8b23170"
   integrity sha1-JI42By7ekGUB11lmIAqG2riyMXA=
 
-lodash.debounce@^4.0.7, lodash.debounce@^4.0.8:
+lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
@@ -20614,16 +20614,15 @@ use@^3.1.0:
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
-uswds@2.10.3:
-  version "2.10.3"
-  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.10.3.tgz#16d34cee81897762d6d69d3ac83aa55129826fa6"
-  integrity sha512-krNRzx1jRzOJpuH/qtmQhd5zxnXTaDVqrPNYT99sJbxzWUqjb1zZHh3jFNo+xKDpNuiO0XMPwZwlaSp2YdZ3Ag==
+uswds@2.11.2:
+  version "2.11.2"
+  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.11.2.tgz#bf5ff132f6324c0939d01b7eefebde340c22dcec"
+  integrity sha512-JISTXCjPIlrufbObIifjrMDn5jF9bbLu7UYhGWmEs9iqB6Z2KDCXHVoBUyzMmIrIjW/UWWYHZzPqOOHO6/IMCQ==
   dependencies:
     classlist-polyfill "^1.0.3"
     del "^6.0.0"
     domready "^1.0.8"
     elem-dataset "^2.0.0"
-    lodash.debounce "^4.0.7"
     object-assign "^4.1.1"
     receptor "^1.0.0"
     resolve-id-refs "^0.1.0"

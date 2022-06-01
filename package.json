@@ -7,7 +7,7 @@
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.2",
     "@trussworks/react-file-viewer": "git+https://github.com/trussworks/react-file-viewer",
-    "@trussworks/react-uswds": "^2.1.0",
+    "@trussworks/react-uswds": "2.9.0",
     "bytes": "^3.1.1",
     "classnames": "^2.3.1",
     "connected-react-router": "^6.9.2",
@@ -70,7 +70,7 @@
     "sass": "^1.49.9",
     "swagger-client": "^3.18.3",
     "swagger-ui-dist": "^4.11.1",
-    "uswds": "2.10.3",
+    "uswds": "2.11.2",
     "uuid": "^8.3.2",
     "yup": "^0.32.11"
   },
