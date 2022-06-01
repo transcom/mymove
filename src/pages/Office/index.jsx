@@ -33,6 +33,7 @@ import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
 import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
+import PermissionProvider from 'components/Restricted/PermissionProvider';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -106,6 +107,8 @@ export class OfficeApp extends Component {
     const {
       activeRole,
       userIsLoggedIn,
+      // eslint-disable-next-line no-unused-vars
+      userPermissions, // Will use this when the BE is ready to provide permissions
       userRoles,
       location: { pathname },
       hasRecentError,
@@ -170,8 +173,18 @@ export class OfficeApp extends Component {
       [`site--fullscreen`]: isFullscreenPage,
     });
 
+    // TODO: Remove this and use `userPermissions` when BE is ready to provide permissions for user
+    const tempHardcodedPermissions = userRoles.some(
+      (role) =>
+        role.roleType === roleTypes.TOO ||
+        role.roleType === roleTypes.TIO ||
+        role.roleType === roleTypes.SERVICES_COUNSELOR,
+    )
+      ? ['update.financial_review_flag']
+      : [];
+
     return (
-      <>
+      <PermissionProvider permissions={tempHardcodedPermissions}>
         <div id="app-root">
           <div className={siteClasses}>
             <BypassBlock />
@@ -341,7 +354,7 @@ export class OfficeApp extends Component {
           </div>
         </div>
         <div id="modal-root" />
-      </>
+      </PermissionProvider>
     );
   }
 }
@@ -352,6 +365,7 @@ OfficeApp.propTypes = {
   loadUser: PropTypes.func.isRequired,
   location: LocationShape,
   userIsLoggedIn: PropTypes.bool,
+  userPermissions: PropTypes.arrayOf(PropTypes.string),
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
@@ -366,6 +380,7 @@ OfficeApp.propTypes = {
 OfficeApp.defaultProps = {
   location: { pathname: '' },
   userIsLoggedIn: false,
+  userPermissions: [],
   userRoles: [],
   activeRole: null,
   history: {
@@ -379,6 +394,7 @@ const mapStateToProps = (state) => {
   return {
     swaggerError: state.swaggerInternal.hasErrored,
     userIsLoggedIn: selectIsLoggedIn(state),
+    userPermissions: user?.permissions || [],
     userRoles: user?.roles || [],
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
