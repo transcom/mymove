@@ -989,5 +989,30 @@ describe('MoveDetails page', () => {
 
       expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
     });
+
+    it('renders edit orders button when user has permission', async () => {
+      render(
+        <MockProviders
+          initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}
+          permissions={[permissionTypes.updateOrders]}
+        >
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByRole('link', { name: 'Edit orders' })).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'View orders' })).not.toBeInTheDocument();
+    });
+
+    it('renders view orders button if user does not have permission to update', async () => {
+      render(
+        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByRole('link', { name: 'View orders' })).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Edit orders' })).not.toBeInTheDocument();
+    });
   });
 });

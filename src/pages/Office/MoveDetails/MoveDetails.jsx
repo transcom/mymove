@@ -367,9 +367,18 @@ const MoveDetails = ({
               title="Orders"
               tag={hasAmendedOrders ? 'NEW' : ''}
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
-                  Edit orders
-                </Link>
+                <Restricted
+                  to={permissionTypes.updateOrders}
+                  fallback={
+                    <Link className="usa-button usa-button--secondary" data-testid="view-orders" to="orders">
+                      View orders
+                    </Link>
+                  }
+                >
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                    Edit orders
+                  </Link>
+                </Restricted>
               }
             >
               <OrdersList ordersInfo={ordersInfo} />

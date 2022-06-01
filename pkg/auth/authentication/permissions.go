@@ -20,17 +20,17 @@ type RolePermissions struct {
 
 var TOO = RolePermissions{
 	RoleType:    roles.RoleTypeTOO,
-	Permissions: []string{"update.financial_review_flag"},
+	Permissions: []string{"update.financial_review_flag", "update.orders"},
 }
 
 var TIO = RolePermissions{
 	RoleType:    roles.RoleTypeTIO,
-	Permissions: []string{"update.financial_review_flag"},
+	Permissions: []string{"update.financial_review_flag", "update.orders"},
 }
 
 var ServicesCounselor = RolePermissions{
 	RoleType:    roles.RoleTypeServicesCounselor,
-	Permissions: []string{"update.financial_review_flag"},
+	Permissions: []string{"update.financial_review_flag", "update.orders"},
 }
 
 var QAECSR = RolePermissions{
