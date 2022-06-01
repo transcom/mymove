@@ -2,4 +2,5 @@
 export const permissionTypes = {
   updateFinancialReviewFlag: 'update.financial_review_flag',
   updateOrders: 'update.orders',
+  updateAllowances: 'update.allowances',
 };

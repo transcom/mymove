@@ -388,9 +388,18 @@ const MoveDetails = ({
             <DetailsPanel
               title="Allowances"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
-                  Edit allowances
-                </Link>
+                <Restricted
+                  to={permissionTypes.updateAllowances}
+                  fallback={
+                    <Link className="usa-button usa-button--secondary" data-testid="view-allowances" to="allowances">
+                      View allowances
+                    </Link>
+                  }
+                >
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                    Edit allowances
+                  </Link>
+                </Restricted>
               }
             >
               <AllowancesList info={allowancesInfo} />

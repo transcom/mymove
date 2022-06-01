@@ -1014,5 +1014,30 @@ describe('MoveDetails page', () => {
       expect(await screen.getByRole('link', { name: 'View orders' })).toBeInTheDocument();
       expect(screen.queryByRole('link', { name: 'Edit orders' })).not.toBeInTheDocument();
     });
+
+    it('renders edit allowances button when user has permission', async () => {
+      render(
+        <MockProviders
+          initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}
+          permissions={[permissionTypes.updateAllowances]}
+        >
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'View allowances' })).not.toBeInTheDocument();
+    });
+
+    it('renders view allowances button if user does not have permission to update', async () => {
+      render(
+        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByRole('link', { name: 'View allowances' })).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
+    });
   });
 });
