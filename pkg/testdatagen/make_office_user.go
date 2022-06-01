@@ -98,7 +98,8 @@ func MakeDefaultOfficeUser(db *pop.Connection) models.OfficeUser {
 
 // MakeTIOOfficeUser makes an OfficeUser with the TIO role
 func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
-	tioRole, _ := LookupRole(db, roles.RoleTypeTIO)
+
+	tioRole, _ := LookupOrMakeRole(db, roles.RoleTypeTIO, "Transportation Invoicing Officer")
 
 	tioUser := models.User{
 		Roles: []roles.Role{tioRole},
@@ -205,7 +206,7 @@ func MakePPMOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 
 // MakeQAECSROfficeUser makes an OfficeUser with the QAECSR role
 func MakeQAECSROfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
-	qaeCsrRole, _ := LookupRole(db, roles.RoleTypeQaeCsr)
+	qaeCsrRole, _ := LookupOrMakeRole(db, roles.RoleTypeQaeCsr, "Quality Assurance and Customer Service")
 
 	qaeCsrUser := models.User{
 		Roles: []roles.Role{qaeCsrRole},
