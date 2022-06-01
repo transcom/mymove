@@ -10,10 +10,12 @@ import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
-import { selectMTOShipmentById } from 'store/entities/selectors';
+import { selectCurrentOrders, selectMTOShipmentById } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ScrollToTop from 'components/ScrollToTop';
+import { matchesOrdersType } from 'utils/orders';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const Advance = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -21,6 +23,7 @@ const Advance = () => {
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+  const orders = useSelector((state) => selectCurrentOrders(state));
 
   const handleBack = () => {
     history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
@@ -61,9 +64,11 @@ const Advance = () => {
       });
   };
 
-  if (!mtoShipment) {
+  if (!mtoShipment && !orders) {
     return <LoadingPlaceholder />;
   }
+
+  const isRetireeOrSeparatee = matchesOrdersType(orders, ORDERS_TYPE.RETIREMENT, ORDERS_TYPE.SEPARATION);
 
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
@@ -73,6 +78,12 @@ const Advance = () => {
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
             <h1>Advances</h1>
+            {isRetireeOrSeparatee && (
+              <Alert slim type="info">
+                People retiring or separating from the military typically do not receive advances. Please address any
+                questions to your counselor.
+              </Alert>
+            )}
             {errorMessage && (
               <Alert slim type="error">
                 {errorMessage}

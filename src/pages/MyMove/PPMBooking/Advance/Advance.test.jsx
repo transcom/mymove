@@ -11,8 +11,9 @@ import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { updateMTOShipment } from 'store/entities/actions';
 import { setFlashMessage } from 'store/flash/actions';
-import { selectMTOShipmentById } from 'store/entities/selectors';
+import { selectCurrentOrders, selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const mockPush = jest.fn();
 
@@ -48,6 +49,18 @@ const mockMTOShipment = {
     advanceRequested: null,
   },
   eTag: btoa(new Date()),
+};
+
+const mockOrders = {
+  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+};
+
+const mockOrdersRetiree = {
+  orders_type: ORDERS_TYPE.RETIREMENT,
+};
+
+const mockOrdersSeparatee = {
+  orders_type: ORDERS_TYPE.SEPARATION,
 };
 
 const mockMTOShipmentWithAdvance = {
@@ -88,6 +101,7 @@ jest.mock('services/internalApi', () => ({
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn().mockImplementation(() => mockMTOShipment),
+  selectCurrentOrders: jest.fn().mockImplementation(() => mockOrders),
 }));
 
 beforeEach(() => {
@@ -139,6 +153,24 @@ describe('Advance page', () => {
         expect(advanceRequestedYesInput.checked).toBe(false);
         expect(advanceRequestedNoInput.checked).toBe(true);
         expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+      }
+    },
+  );
+
+  it.each([[mockOrders], [mockOrdersRetiree], [mockOrdersSeparatee]])(
+    'displays info alert guidance for advance to retirees and separatees',
+    async (orders) => {
+      selectCurrentOrders.mockImplementation(() => orders);
+
+      render(<Advance />, { wrapper: MockProviders });
+
+      const nonPCSOrdersAdvanceText =
+        'People retiring or separating from the military typically do not receive advances. Please address any questions to your counselor.';
+
+      if (orders.orders_type === ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION) {
+        expect(screen.queryByText(nonPCSOrdersAdvanceText)).not.toBeInTheDocument();
+      } else {
+        expect(screen.getByText(nonPCSOrdersAdvanceText)).toBeInTheDocument();
       }
     },
   );
