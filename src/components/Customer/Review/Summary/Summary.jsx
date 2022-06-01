@@ -285,7 +285,7 @@ export class Summary extends Component {
                 unstyled
                 className={styles.buttonRight}
               >
-                <FontAwesomeIcon icon={['far', 'question-circle']} />
+                <FontAwesomeIcon icon={['far', 'circle-question']} />
               </Button>
             </Grid>
           </Grid>

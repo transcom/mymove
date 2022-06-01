@@ -62,7 +62,7 @@ class PPMPaymentRequestIntro extends Component {
               <li>
                 <strong>Weight tickets,</strong> both empty & full, for <em>each</em> vehicle and trip{' '}
                 <Link className="weight-ticket-examples-link usa-link" to="/weight-ticket-examples">
-                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon="question-circle" />
+                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon="circle-question" />
                 </Link>
               </li>
               <li>

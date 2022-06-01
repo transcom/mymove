@@ -65,7 +65,7 @@ const ShipmentDisplay = ({
           )}
 
           {allowApproval && !isSubmitted && (
-            <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />
+            <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
           )}
           <div className={styles.headingTagWrapper}>
             <h3>
