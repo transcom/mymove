@@ -64,11 +64,11 @@ const Advance = () => {
       });
   };
 
+  const isRetireeOrSeparatee = matchesOrdersType(orders, ORDERS_TYPE.RETIREMENT, ORDERS_TYPE.SEPARATION);
+
   if (!mtoShipment && !orders) {
     return <LoadingPlaceholder />;
   }
-
-  const isRetireeOrSeparatee = matchesOrdersType(orders, ORDERS_TYPE.RETIREMENT, ORDERS_TYPE.SEPARATION);
 
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>

@@ -30,6 +30,9 @@ const estimatedIncentivePath = generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATE
   mtoShipmentId: mockMTOShipmentId,
 });
 
+const mockShipmentETag = Buffer.from(new Date()).toString('base64');
+const mockPPMShipmentETag = Buffer.from(new Date()).toString('base64');
+
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   moveTaskOrderID: mockMoveId,
@@ -40,7 +43,7 @@ const mockMTOShipment = {
     destinationPostalCode: '20004',
     sitExpected: false,
     expectedDepartureDate: '2022-12-31',
-    eTag: btoa(new Date()),
+    eTag: mockPPMShipmentETag,
     estimatedIncentive: 1000000,
     estimatedWeight: 4000,
     hasProGear: false,
@@ -48,7 +51,7 @@ const mockMTOShipment = {
     spouseProGearWeight: null,
     advanceRequested: null,
   },
-  eTag: btoa(new Date()),
+  eTag: mockShipmentETag,
 };
 
 const mockOrders = {
@@ -69,9 +72,9 @@ const mockMTOShipmentWithAdvance = {
     ...mockMTOShipment.ppmShipment,
     advance: 40000,
     advanceRequested: true,
-    eTag: btoa(new Date()),
+    eTag: mockPPMShipmentETag,
   },
-  eTag: btoa(new Date()),
+  eTag: mockShipmentETag,
 };
 
 const mockDispatch = jest.fn();
