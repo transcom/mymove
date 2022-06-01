@@ -1,7 +1,8 @@
 package authentication
 
 import (
-	"fmt"
+	"github.com/spf13/cast"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 
@@ -39,29 +40,34 @@ var AllRolesPermissions = []RolePermissions{TOO, TIO, QAECSR}
 // check if a [user.role] has permissions on a given object
 func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
 
+	logger := appCtx.Logger()
 	userPermissions, err := getPermissionsForUser(appCtx, session.UserID)
 
 	if err != nil {
+		logger.Error("Error while looking up permissions: ", zap.String("permission error", err.Error()))
 		return false, err
 	}
 
 	for _, perm := range userPermissions {
 		if permission == perm {
-			fmt.Println("PERMISSION GRANTED: ", permission)
+			logger.Info("PERMISSION GRANTED: ", zap.String("permission", permission))
 			return true, nil
 		}
 	}
 
+	logger.Warn("Permission not granted for user, ", zap.String("permission denied to user with session IDToken: ", session.IDToken))
 	return false, nil
 }
 
 // for a given user return the permissions associated with their roles
 func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]string, error) {
+	logger := appCtx.Logger()
 	var userPermissions []string
 
 	//check the users roles
 	userRoles, err := getRolesForUser(appCtx, userID)
 	if err != nil {
+		logger.Error("Error while looking up user roles: ", zap.String("permission error", err.Error()))
 		return nil, err
 	}
 
@@ -80,6 +86,7 @@ func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]st
 // load the [user.role] given a valid user ID
 // what we care about here is the string, so we can look it up for permissions --> roles.role_type
 func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.RoleType, error) {
+	logger := appCtx.Logger()
 	var userRoleTypes []roles.RoleType
 
 	err := appCtx.DB().RawQuery(`SELECT roles.role_type
@@ -88,7 +95,12 @@ func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.Ro
 			    ON roles.id = ur.role_id
 			WHERE ur.deleted_at IS NULL AND ur.user_id = ?`, userID).All(&userRoleTypes)
 
-	fmt.Printf("USER ROLESS: %+v\n", userRoleTypes)
+	if err != nil {
+		logger.Warn("Error while looking up user roles: ", zap.String("user role lookup error: ", err.Error()))
+		return nil, err
+	}
+
+	logger.Info("User has the following roles: ", zap.String("user roles", cast.ToString(userRoleTypes)))
 
 	return userRoleTypes, err
 }
