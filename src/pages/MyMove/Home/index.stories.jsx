@@ -92,7 +92,7 @@ const withShipmentProps = {
       createdAt: '24 December 2020',
       ppmShipment: {
         id: 'ppmShipmentIncomplete',
-        advanceRequested: null,
+        hasRequestedAdvance: null,
       },
     },
     {
@@ -101,7 +101,7 @@ const withShipmentProps = {
       createdAt: '24 December 2020',
       ppmShipment: {
         id: 'ppmShipmentComplete',
-        advanceRequested: true,
+        hasRequestedAdvance: true,
       },
     },
   ],

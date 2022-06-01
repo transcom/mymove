@@ -98,7 +98,7 @@ describe('Home component', () => {
           shipmentType: SHIPMENT_OPTIONS.PPM,
           ppmShipment: {
             id: '0001',
-            advanceRequested: false,
+            hasRequestedAdvance: false,
           },
         },
         { id: '4323', createdAt: moment().add(2, 'days'), shipmentType: SHIPMENT_OPTIONS.HHG },
@@ -110,7 +110,7 @@ describe('Home component', () => {
           shipmentType: SHIPMENT_OPTIONS.PPM,
           ppmShipment: {
             id: '0001',
-            advanceRequested: null,
+            hasRequestedAdvance: null,
           },
         },
       ],
@@ -226,7 +226,7 @@ describe('Home component', () => {
           shipmentType: SHIPMENT_OPTIONS.PPM,
           ppmShipment: {
             id: '0001',
-            advanceRequested: true,
+            hasRequestedAdvance: true,
           },
         },
       ],
@@ -263,7 +263,7 @@ describe('Home component', () => {
           shipmentType: SHIPMENT_OPTIONS.PPM,
           ppmShipment: {
             id: '0001',
-            advanceRequested: null,
+            hasRequestedAdvance: null,
           },
         },
       ],
@@ -359,7 +359,7 @@ describe('Home component', () => {
   describe('if the user has orders and a ppm but has not submitted their move', () => {
     const wrapper = mountHomeWithProviders({
       orders: { id: 'testOrder123', new_duty_location: { name: 'Test Duty Location' } },
-      mtoShipments: [{ id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', advanceRequested: false } }],
+      mtoShipments: [{ id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', hasRequestedAdvance: false } }],
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
     });
 
@@ -379,7 +379,7 @@ describe('Home component', () => {
       const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
       const move = { id: 'testMoveId', status: 'SUBMITTED' };
       const mtoShipments = [
-        { id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', advanceRequested: false } },
+        { id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', hasRequestedAdvance: false } },
       ];
 
       const wrapper = mountHomeWithProviders({
@@ -503,7 +503,7 @@ describe('Home component', () => {
       const move = { id: 'testMoveId', status: 'SUBMITTED', submitted_at: submittedAt };
       const mtoShipments = [
         { id: 'test122', shipmentType: 'HHG' },
-        { id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', advanceRequested: false } },
+        { id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', hasRequestedAdvance: false } },
       ];
 
       const wrapper = mount(
@@ -568,7 +568,7 @@ describe('Home component', () => {
       const uploadedAmendedOrderDocuments = [{ id: 'testDocument987', filename: 'testOrder2.pdf' }];
       const move = { id: 'testMoveId', status: 'APPROVALS REQUESTED', submitted_at: submittedAt };
       const mtoShipments = [
-        { id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', advanceRequested: false } },
+        { id: 'test123', shipmentType: 'PPM', ppmShipment: { id: 'ppm', hasRequestedAdvance: false } },
       ];
 
       const wrapper = mount(
