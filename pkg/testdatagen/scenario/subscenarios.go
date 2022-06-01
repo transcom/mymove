@@ -108,9 +108,10 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
 		createNeedsServicesCounselingWithoutCompletedOrders(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypePPM, nil, "SCPPM1")
-
+		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader)
+		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx, userUploader)
 	}
 }
 
@@ -169,6 +170,48 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 	}
 }
 
+func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
+	return func() {
+		// Move with a couple of customer support remarks
+		remarkMove := testdatagen.MakeMove(appCtx.DB(),
+			testdatagen.Assertions{
+				Move: models.Move{
+					Locator: "SPTRMK",
+					Status:  models.MoveStatusSUBMITTED,
+				},
+			},
+		)
+		_ = testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
+			MoveTaskOrderID: remarkMove.ID,
+			Status:          models.MTOShipmentStatusSubmitted,
+		}})
+
+		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
+			CustomerSupportRemark: models.CustomerSupportRemark{
+				Content: "This is a customer support remark. It can have text content like this." +
+					"This comment has some length to it because sometimes people type a lot of thoughts." +
+					"For example during this move the customer perhaps called and explained a unique situation" +
+					"that they have to me, leading me to leave this note. Hopefully that could turn into " +
+					"some sort of helpful action that leads to a resolution that makes things swell for them." +
+					"Here's some more text just to make sure I've gotten all my thoughts out, though I do realize" +
+					"how meta this whole thing sounds." +
+					"Also Grace Griffin told me to write this.",
+				OfficeUserID: officeUser.ID,
+				MoveID:       remarkMove.ID,
+			},
+		})
+		officeUser2 := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
+			CustomerSupportRemark: models.CustomerSupportRemark{
+				Content:      "The customer mentioned that there was some damage done to their grandfather clock.",
+				OfficeUserID: officeUser2.ID,
+				MoveID:       remarkMove.ID,
+			},
+		})
+	}
+}
+
 func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createTOO(appCtx)
@@ -178,6 +221,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		createServicesCounselor(appCtx)
 		createTXOServicesCounselor(appCtx)
 		createTXOServicesUSMCCounselor(appCtx)
+		createQaeCsr(appCtx)
 
 		// TXO Queues
 		createNTSMove(appCtx)

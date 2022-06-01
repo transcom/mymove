@@ -6,10 +6,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -120,10 +121,8 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, *zap.Logger, error) {
 
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) {
-		verbose := cli.LogLevelIsDebug(v)
-		c, errorConfig := cli.GetAWSConfig(v, verbose)
-		if errorConfig != nil {
-			logger.Fatal("error creating aws config", zap.Error(errorConfig))
+		c := &aws.Config{
+			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
 		}
 		s, errorSession := awssession.NewSession(c)
 		if errorSession != nil {

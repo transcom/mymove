@@ -119,6 +119,9 @@ type MTOShipment struct {
 	//
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
+	// ppm shipment
+	PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
+
 	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
 	// Example: 4500
 	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
@@ -239,6 +242,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
+		PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
+
 		PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
 
 		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
@@ -343,6 +348,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	// pointOfContact
 	result.PointOfContact = data.PointOfContact
 
+	// ppmShipment
+	result.PpmShipment = data.PpmShipment
+
 	// primeActualWeight
 	result.PrimeActualWeight = data.PrimeActualWeight
 
@@ -434,6 +442,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
+		PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
+
 		PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
 
 		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
@@ -500,6 +510,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		PickupAddress: m.PickupAddress,
 
 		PointOfContact: m.PointOfContact,
+
+		PpmShipment: m.PpmShipment,
 
 		PrimeActualWeight: m.PrimeActualWeight,
 
@@ -592,6 +604,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -789,6 +805,25 @@ func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
 func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.PickupAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validatePpmShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmShipment) { // not required
+		return nil
+	}
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -1048,6 +1083,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidatePrimeEstimatedWeightRecordedDate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1223,6 +1262,22 @@ func (m *MTOShipment) contextValidateMtoServiceItems(ctx context.Context, format
 }
 
 func (m *MTOShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
+			}
+			return err
+		}
+	}
 
 	return nil
 }

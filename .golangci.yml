@@ -16,12 +16,12 @@ linters-settings:
             reason: "MilMove is now on Pop v5, do not use older versions of this module"
         - github.com/gobuffalo/pop:
             recommendations:
-              - github.com/gobuffalo/pop/v5
-            reason: "MilMove is now on Pop v5, do not use older versions of this module"
+              - github.com/gobuffalo/pop/v6
+            reason: "MilMove is now on Pop v6, do not use older versions of this module"
         - github.com/gobuffalo/pop/soda:
             recommendations:
-              - github.com/gobuffalo/pop/v5/soda
-            reason: "MilMove is now on Pop v5, do not use older versions of this module"
+              - github.com/gobuffalo/pop/v6/soda
+            reason: "MilMove is now on Pop v6, do not use older versions of this module"
         - github.com/facebookgo/clock:
             recommendations:
               - github.com/benbjohnson/clock

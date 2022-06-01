@@ -3,7 +3,6 @@ package supportapi
 import (
 	"fmt"
 	"net/http/httptest"
-	"testing"
 	"time"
 
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -28,46 +27,61 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			Status:       models.MTOShipmentStatusSubmitted,
-			ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
-		},
-	})
-	// Populate the reServices table with codes needed by the
-	// HHG_LONGHAUL_DOMESTIC shipment type
-	reServiceCodes := []models.ReServiceCode{
-		models.ReServiceCodeDLH,
-		models.ReServiceCodeFSC,
-		models.ReServiceCodeDOP,
-		models.ReServiceCodeDDP,
-		models.ReServiceCodeDPK,
-		models.ReServiceCodeDUPK,
-	}
-	for _, serviceCode := range reServiceCodes {
-		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code:      serviceCode,
-				Name:      "test",
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
+	setupTestData := func() models.MTOShipment {
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				Status:       models.MTOShipmentStatusSubmitted,
+				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
 			},
 		})
+		// Populate the reServices table with codes needed by the
+		// HHG_LONGHAUL_DOMESTIC shipment type
+		reServiceCodes := []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDUPK,
+		}
+		for _, serviceCode := range reServiceCodes {
+			testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code:      serviceCode,
+					Name:      "test",
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
+			})
+		}
+
+		return mtoShipment
 	}
 
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+	setupParams := func(shipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentStatusParams {
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
 
-	params := mtoshipmentops.UpdateMTOShipmentStatusParams{
-		HTTPRequest:   req,
-		MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
-		Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "APPROVED"},
-		IfMatch:       eTag,
+		return mtoshipmentops.UpdateMTOShipmentStatusParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "APPROVED"},
+			IfMatch:       eTag,
+		}
 	}
 
 	// Used for all tests except 500 error:
@@ -86,28 +100,21 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(1000, nil)
-
-	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
-		MaxDaysTransitTime: 12,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     10000,
-		DistanceMilesLower: 0,
-		DistanceMilesUpper: 10000,
-	}
-	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
-
 	updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, siCreator, planner)
-	handler := UpdateMTOShipmentStatusHandlerFunc{
-		handlers.NewHandlerContext(suite.DB(), suite.Logger()),
-		fetcher,
-		updater,
+
+	setupHandler := func() UpdateMTOShipmentStatusHandlerFunc {
+		return UpdateMTOShipmentStatusHandlerFunc{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			fetcher,
+			updater,
+		}
 	}
 
-	suite.T().Run("Patch failure - 500", func(t *testing.T) {
+	suite.Run("Patch failure - 500", func() {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 		mockHandler := UpdateMTOShipmentStatusHandlerFunc{
-			handlers.NewHandlerContext(suite.DB(), suite.Logger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
 			&mockFetcher,
 			&mockUpdater,
 		}
@@ -122,7 +129,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			mock.Anything,
 		).Return(nil, internalServerErr)
 
-		response := mockHandler.Handle(params)
+		response := mockHandler.Handle(setupParams(setupTestData()))
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusInternalServerError{}, response)
 
 		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusInternalServerError)
@@ -130,29 +137,32 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 	})
 
-	suite.T().Run("Patch failure - 404", func(t *testing.T) {
+	suite.Run("Patch failure - 404", func() {
+		params := setupParams(setupTestData())
 		notFoundParams := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: strfmt.UUID(uuid.Nil.String()),
 			Body:          params.Body,
 			IfMatch:       params.IfMatch,
 		}
-		response := handler.Handle(notFoundParams)
+		response := setupHandler().Handle(notFoundParams)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusNotFound{}, response)
 	})
 
-	suite.T().Run("Patch failure - 412", func(t *testing.T) {
+	suite.Run("Patch failure - 412", func() {
+		params := setupParams(setupTestData())
 		preconditionParams := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: params.MtoShipmentID,
 			Body:          params.Body,
 			IfMatch:       "eTag",
 		}
-		response := handler.Handle(preconditionParams)
+		response := setupHandler().Handle(preconditionParams)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Patch failure - 422", func(t *testing.T) {
+	suite.Run("Patch failure - 422", func() {
+		params := setupParams(setupTestData())
 		invalidInputParams := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: params.MtoShipmentID,
@@ -165,11 +175,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 	// Second to last because many of the above tests fail because of a conflict error with APPROVED/REJECTED shipments
 	// first:
-	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
+	suite.Run("Successful patch - Integration Test", func() {
+		mtoShipment := setupTestData()
 		move := mtoShipment.MoveTaskOrder
 		move.Status = models.MoveStatusAPPROVED
 		_ = suite.DB().Save(&move)
-		response := handler.Handle(params)
+
+		params := setupParams(mtoShipment)
+		response := setupHandler().Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusOK)
@@ -178,19 +191,20 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	})
 
 	// Last because the shipment has to be either APPROVED or REJECTED before triggering this conflict:
-	suite.T().Run("Patch failure - 409", func(t *testing.T) {
+	suite.Run("Patch failure - 409", func() {
+		params := setupParams(setupTestData())
 		conflictParams := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: params.MtoShipmentID,
 			Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "SUBMITTED"},
 			IfMatch:       params.IfMatch,
 		}
-		response := handler.Handle(conflictParams)
+		response := setupHandler().Handle(conflictParams)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusConflict{}, response)
 	})
 
 	// Test Successful Cancellation Request
-	suite.T().Run("Successful patch - Integration Test for CANCELLATION_REQUESTED", func(t *testing.T) {
+	suite.Run("Successful patch - Integration Test for CANCELLATION_REQUESTED", func() {
 		// Under test: updateMTOShipmentHandler function
 		// Mocked:     none
 		// Setup: We create a new mtoShipment, then try to update the status from Approved to Cancellation_Requested
@@ -205,15 +219,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			},
 		})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+
+		baseParams := setupParams(mtoShipment)
 		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
-			HTTPRequest:   req,
+			HTTPRequest:   baseParams.HTTPRequest,
 			MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
 			Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "CANCELLATION_REQUESTED"},
 			IfMatch:       eTag,
 		}
 
 		suite.NoError(params.Body.Validate(strfmt.Default))
-		response := handler.Handle(params)
+		response := setupHandler().Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusOK)

@@ -50,6 +50,10 @@ properties:
   requestedDeliveryDate:
     format: date
     type: string
+  requiredDeliveryDate:
+    x-nullable: true
+    format: date
+    type: string
   approvedDate:
     format: date-time
     type: string
@@ -138,3 +142,5 @@ properties:
   storageFacility:
     x-nullable: true
     $ref: 'StorageFacility.yaml'
+  ppmShipment:
+    $ref: 'PPMShipment.yaml'

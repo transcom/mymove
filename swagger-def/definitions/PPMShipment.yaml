@@ -1,0 +1,201 @@
+description: A personally procured move is a type of shipment that a service members moves themselves.
+x-nullable: true
+properties:
+  id:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  shipmentId:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  createdAt:
+    format: date-time
+    type: string
+    readOnly: true
+  updatedAt:
+    format: date-time
+    type: string
+    readOnly: true
+  status:
+    $ref: 'PPMShipmentStatus.yaml'
+  expectedDepartureDate:
+    description: >
+      Date the customer expects to move.
+    format: date
+    type: string
+  actualMoveDate:
+    format: date
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  submittedAt:
+    format: date-time
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  reviewedAt:
+    format: date-time
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  approvedAt:
+    format: date-time
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  pickupPostalCode:
+    description: zip code
+    format: zip
+    type: string
+    title: ZIP
+    example: '90210'
+    pattern: ^(\d{5})$
+  secondaryPickupPostalCode:
+    format: zip
+    type: string
+    title: ZIP
+    example: '90210'
+    pattern: ^(\d{5})$
+    x-nullable: true
+    x-omitempty: false
+  actualPickupPostalCode:
+    description: >
+      The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
+    format: zip
+    type: string
+    title: ZIP
+    example: '90210'
+    pattern: ^(\d{5})$
+    x-nullable: true
+    x-omitempty: false
+  destinationPostalCode:
+    format: zip
+    type: string
+    title: ZIP
+    example: '90210'
+    pattern: ^(\d{5})$
+  secondaryDestinationPostalCode:
+    format: zip
+    type: string
+    title: ZIP
+    example: '90210'
+    pattern: ^(\d{5})$
+    x-nullable: true
+    x-omitempty: false
+  actualDestinationPostalCode:
+    description: >
+      The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
+    format: zip
+    type: string
+    title: ZIP
+    example: '90210'
+    pattern: ^(\d{5})$
+    x-nullable: true
+    x-omitempty: false
+  sitExpected:
+    type: boolean
+  estimatedWeight:
+    type: integer
+    example: 4200
+    x-nullable: true
+    x-omitempty: false
+  netWeight:
+    description: >
+      The net weight of the shipment once it has been weight
+    type: integer
+    example: 4300
+    x-nullable: true
+    x-omitempty: false
+  hasProGear:
+    description: >
+      Indicates whether PPM shipment has pro gear.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  proGearWeight:
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+  spouseProGearWeight:
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+  estimatedIncentive:
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  hasRequestedAdvance:
+    description: >
+      Indicates whether an advance has been requested for the PPM shipment.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  advanceAmountRequested:
+    description: >
+      The amount requested for an advance, or null if no advance is requested
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  hasReceivedAdvance:
+    description: >
+      Indicates whether an advance was received for the PPM shipment.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  advanceAmountReceived:
+    description: >
+      The amount received for an advance, or null if no advance is received.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  deletedAt:
+    format: date-time
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  sitLocation:
+    allOf:
+      - $ref: 'SITLocationType.yaml'
+      - x-nullable: true
+      - x-omitempty: false
+  sitEstimatedWeight:
+    type: integer
+    example: 2000
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedEntryDate:
+    format: date
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedDepartureDate:
+    format: date
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedCost:
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  eTag:
+    description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+    type: string
+    readOnly: true
+required:
+  - id
+  - shipmentId
+  - createdAt
+  - updatedAt
+  - status
+  - expectedDepartureDate
+  - pickupPostalCode
+  - destinationPostalCode
+  - sitExpected
+  - eTag

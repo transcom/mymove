@@ -6,6 +6,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -27,7 +29,7 @@ func NewFuelSurchargePricer() services.FuelSurchargePricer {
 }
 
 // Price determines the price for a counseling service
-func (p fuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+func (p fuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -35,7 +37,7 @@ func (p fuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDat
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
-	if weight < minDomesticWeight {
+	if !isPPM && weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
 	if fscWeightBasedDistanceMultiplier == 0 {
@@ -65,17 +67,21 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 	}
 
 	var paymentServiceItem models.PaymentServiceItem
-	err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return unit.Cents(0), nil, apperror.NewNotFoundError(params[0].PaymentServiceItemID, "looking for PaymentServiceItem")
-		default:
-			return unit.Cents(0), nil, apperror.NewQueryError("PaymentServiceItem", err, "")
+	mtoShipment := params[0].PaymentServiceItem.MTOServiceItem.MTOShipment
+
+	if mtoShipment.ID == uuid.Nil {
+		err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return unit.Cents(0), nil, apperror.NewNotFoundError(params[0].PaymentServiceItemID, "looking for PaymentServiceItem")
+			default:
+				return unit.Cents(0), nil, apperror.NewQueryError("PaymentServiceItem", err, "")
+			}
 		}
+		mtoShipment = paymentServiceItem.MTOServiceItem.MTOShipment
 	}
 
-	mtoShipment := paymentServiceItem.MTOServiceItem.MTOShipment
 	distance := *mtoShipment.Distance
 
 	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
@@ -93,5 +99,13 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, actualPickupDate, distance, unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
+	var isPPM = false
+	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypePPM {
+		// PPMs do not require minimums for a shipment's weight
+		// this flag is passed into the Price function to ensure the weight min
+		// are not enforced for PPMs
+		isPPM = true
+	}
+
+	return p.Price(appCtx, actualPickupDate, distance, unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), isPPM)
 }

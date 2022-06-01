@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -76,6 +76,16 @@ func MakeTIORole(db *pop.Connection) roles.Role {
 		Role: roles.Role{
 			RoleType: roles.RoleTypeTIO,
 			RoleName: "Transportation Invoicing Officer",
+		},
+	})
+}
+
+// MakeQaeCsrRole creates a single quality assurance and customer service role.
+func MakeQaeCsrRole(db *pop.Connection) roles.Role {
+	return MakeRole(db, Assertions{
+		Role: roles.Role{
+			RoleType: roles.RoleTypeQaeCsr,
+			RoleName: "Quality Assurance and Customer Service",
 		},
 	})
 }

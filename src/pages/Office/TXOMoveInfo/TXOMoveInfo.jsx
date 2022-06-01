@@ -17,6 +17,7 @@ const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/
 const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrder'));
 const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
 const ReviewBillableWeight = lazy(() => import('pages/Office/ReviewBillableWeight/ReviewBillableWeight'));
+const CustomerSupportRemarks = lazy(() => import('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
@@ -115,6 +116,10 @@ const TXOMoveInfo = () => {
 
           <Route path="/moves/:moveCode/billable-weight" exact>
             <ReviewBillableWeight />
+          </Route>
+
+          <Route path="/moves/:moveCode/customer-support-remarks" exact>
+            <CustomerSupportRemarks />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>

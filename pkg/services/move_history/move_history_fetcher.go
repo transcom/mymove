@@ -27,14 +27,20 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			moves.*
 		FROM
 			moves
-		WHERE locator = $1
+		WHERE
+			locator = $1
 	),
 	shipments AS (
 		SELECT
 			mto_shipments.*
 		FROM
 			mto_shipments
-		WHERE move_id = (SELECT moves.id FROM moves)
+		WHERE
+			move_id = (
+				SELECT
+					moves.id
+				FROM
+					moves)
 	),
 	shipment_logs AS (
 		SELECT
@@ -62,7 +68,12 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		FROM
 			orders
 		JOIN moves ON moves.orders_id = orders.id
-		WHERE orders.id = (SELECT moves.orders_id FROM moves)
+	WHERE
+		orders.id = (
+			SELECT
+				moves.orders_id
+			FROM
+				moves)
 	),
 	-- Context is null if empty, {}, object
     -- Joining the jsonb changed_data for every record to surface duty location ids.
@@ -114,38 +125,159 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	pickup_address_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			json_agg(
+				json_build_object(
+					'address_type', 'pickupAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+				)::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
 		JOIN shipments ON shipments.pickup_address_id = audit_history.object_id
 			AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
 	),
 	destination_address_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			json_agg(
+				json_build_object(
+					'address_type', 'destinationAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+			)::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
 		JOIN shipments ON shipments.destination_address_id = audit_history.object_id
 			AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
 	),
 	entitlements AS (
 		SELECT
 			entitlements.*
 		FROM
 			entitlements
-		WHERE entitlements.id = (SELECT entitlement_id FROM orders)
+	WHERE
+		entitlements.id = (
+			SELECT
+				entitlement_id
+			FROM
+				orders)
 	),
-	entitlements_logs as (
-		SELECT audit_history.*,
+	entitlements_logs AS (
+		SELECT
+			audit_history.*,
 			NULL AS context,
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN entitlements ON entitlements.id = audit_history.object_id
-			AND audit_history."table_name" = 'entitlements'
+			JOIN entitlements ON entitlements.id = audit_history.object_id
+				AND audit_history. "table_name" = 'entitlements'
+	),
+	payment_requests AS (
+		SELECT
+			json_agg(json_build_object('name',
+					re_services.name,
+					'price',
+					payment_service_items.price_cents::TEXT,
+					'status',
+					payment_service_items.status))::TEXT AS context,
+			payment_requests.id AS id,
+			payment_requests.move_id,
+			payment_requests.payment_request_number
+		FROM
+			payment_requests
+		JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
+		JOIN mto_service_items ON mto_service_items.id = mto_service_item_id
+		JOIN re_services ON mto_service_items.re_service_id = re_services.id
+	WHERE
+		payment_requests.move_id = (
+			SELECT
+				moves.id
+			FROM
+				moves)
+		GROUP BY
+			payment_requests.id
+	),
+	payment_requests_logs AS (
+		SELECT DISTINCT
+			audit_history.*,
+			context AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+			JOIN payment_requests ON payment_requests.id = audit_history.object_id
+				AND audit_history. "table_name" = 'payment_requests'
+	),
+	proof_of_service_docs AS (
+		SELECT
+			proof_of_service_docs.*,
+			json_agg(json_build_object(
+				'payment_request_number',
+				payment_requests.payment_request_number::TEXT))::TEXT AS context
+		FROM
+			proof_of_service_docs
+				JOIN payment_requests ON proof_of_service_docs.payment_request_id = payment_requests.id
+		GROUP BY proof_of_service_docs.id
+	),
+	proof_of_service_docs_logs AS (
+		SELECT
+			audit_history.*,
+			context,
+			NULL AS context_id
+		FROM
+			audit_history
+			JOIN proof_of_service_docs ON proof_of_service_docs.id = audit_history.object_id
+				AND audit_history. "table_name" = 'proof_of_service_docs'
+	),
+	agents AS (
+		SELECT
+			mto_agents.id,
+			json_agg(json_build_object(
+				'shipment_type',
+				shipments.shipment_type))::TEXT AS context
+		FROM
+			mto_agents
+			JOIN shipments ON mto_agents.mto_shipment_id = shipments.id
+		GROUP BY
+			mto_agents.id
+	),
+	agents_logs AS (
+		SELECT
+			audit_history.*,
+			context,
+			NULL AS context_id
+		FROM
+			audit_history
+			JOIN agents ON agents.id = audit_history.object_id
+				AND audit_history."table_name" = 'mto_agents'
+	),
+	reweighs AS (
+		SELECT
+			reweighs.id,
+			json_agg(json_build_object('shipment_type',
+				shipments.shipment_type,
+				'payment_request_number',
+				payment_requests.payment_request_number))::TEXT AS context
+		FROM
+			reweighs
+			JOIN shipments ON reweighs.shipment_id = shipments.id
+			LEFT JOIN payment_requests ON shipments.move_id = payment_requests.move_id
+		GROUP BY
+			reweighs.id
+	),
+	reweigh_logs as (
+		SELECT audit_history.*,
+			context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN reweighs ON reweighs.id = audit_history.object_id
+			AND audit_history."table_name" = 'reweighs'
 	),
 	combined_logs AS (
 		SELECT
@@ -176,7 +308,27 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		SELECT
 			*
 		FROM
+			reweigh_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
 			orders_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			agents_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			payment_requests_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			proof_of_service_docs_logs
 		UNION ALL
 		SELECT
 			*
@@ -196,7 +348,8 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 				OR roles.role_type = 'transportation_invoicing_officer'
 				OR roles.role_type = 'ppm_office_users'
 				OR role_type = 'services_counselor'
-				OR role_type = 'contracting_officer')
+				OR role_type = 'contracting_officer'
+				OR role_type = 'qae_csr')
 		LEFT JOIN office_users ON office_users.user_id = session_userid
 	ORDER BY
 		action_tstamp_tx DESC`

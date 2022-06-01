@@ -24,7 +24,8 @@ type SyncadaSftpReaderSuite struct {
 func TestSyncadaSftpReaderSuite(t *testing.T) {
 
 	ts := &SyncadaSftpReaderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("syncada_sftp_reader")),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("syncada_sftp_reader"),
+			testingsuite.WithPerTestTransaction()),
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

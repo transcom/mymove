@@ -23,7 +23,7 @@ import (
 
 // CreatePaymentRequestHandler is the handler for creating payment requests
 type CreatePaymentRequestHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestCreator
 }
 
@@ -83,7 +83,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload), err
 			}
 
-			createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(appCtx, &paymentRequest)
+			createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
 			if err != nil {
 				appCtx.Logger().Error("Error creating payment request", zap.Error(err))
 				switch e := err.(type) {

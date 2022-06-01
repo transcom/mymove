@@ -1,25 +1,17 @@
 package internalapi
 
 import (
-	"fmt"
-
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
-
-	"github.com/go-openapi/swag"
-
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -29,9 +21,8 @@ import (
 
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
-	handlers.HandlerContext
-	mtoShipmentCreator services.MTOShipmentCreator
-	ppmShipmentCreator services.PPMShipmentCreator
+	handlers.HandlerConfig
+	shipmentCreator services.ShipmentCreator
 }
 
 // Handle creates the mto shipment
@@ -53,16 +44,8 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 			var err error
-			var ppmShipment *models.PPMShipment
-			if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
-				// Return a PPM Shipment with an MTO Shipment inside
-				ppmShipment, err = h.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, mtoShipment.PPMShipment)
-			} else {
-				// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
-				mtoShipment.Status = models.MTOShipmentStatusSubmitted
-				serviceItemsList := make(models.MTOServiceItems, 0)
-				mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, serviceItemsList)
-			}
+
+			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
@@ -111,10 +94,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
-			if payload.ShipmentType != nil && *payload.ShipmentType == internalmessages.MTOShipmentTypePPM {
-				// Return an mtoShipment that has a ppmShipment
-				mtoShipment = &ppmShipment.Shipment
-			}
 			returnPayload := payloads.MTOShipment(mtoShipment)
 			return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload), nil
 		})
@@ -126,9 +105,8 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
-	handlers.HandlerContext
-	mtoShipmentUpdater services.MTOShipmentUpdater
-	ppmShipmentUpdater services.PPMShipmentUpdater
+	handlers.HandlerConfig
+	shipmentUpdater services.ShipmentUpdater
 }
 
 // Handle updates the mto shipment
@@ -168,23 +146,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						h.GetTraceIDFromRequest(params.HTTPRequest))), invalidShipmentStatusErr
 			}
 
-			var updatedMTOShipment *models.MTOShipment
-			var updatedPPMShipment *models.PPMShipment
-			var err error
-			// We should move this logic out of the handler and into a composable service object
-			err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-				updatedMTOShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(txnAppCtx, mtoShipment, params.IfMatch)
-				if err != nil {
-					return err
-				}
-
-				updatedPPMShipment, err = h.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment, mtoShipment.ID)
-				if err != nil {
-					return err
-				}
-
-				return nil
-			})
+			updatedMTOShipment, err := h.shipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
@@ -250,7 +212,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				}
 			}
 
-			updatedMTOShipment.PPMShipment = updatedPPMShipment
 			returnPayload := payloads.MTOShipment(updatedMTOShipment)
 
 			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload), nil
@@ -263,9 +224,8 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 // ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
-	handlers.HandlerContext
-	services.ListFetcher
-	services.Fetcher
+	handlers.HandlerConfig
+	services.MTOShipmentFetcher
 }
 
 // Handle listing mto shipments for the move task order
@@ -274,55 +234,26 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			if appCtx.Session() == nil || (!appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil) {
-				noSessionErr := apperror.NewSessionError("No session or service memeber ID")
+				noSessionErr := apperror.NewSessionError("No session or service member ID")
 				return mtoshipmentops.NewListMTOShipmentsUnauthorized(), noSessionErr
 			}
 
-			moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
+			moveID, err := uuid.FromString(params.MoveTaskOrderID.String())
 			// return any parsing error
 			if err != nil {
-				appCtx.Logger().Error("Invalid request: move task order ID not valid")
+				appCtx.Logger().Error("Invalid request: move ID not valid")
 				return mtoshipmentops.NewListMTOShipmentsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 					"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			// check if move task order exists first
-			queryFilters := []services.QueryFilter{
-				query.NewQueryFilter("id", "=", moveTaskOrderID.String()),
-				query.NewQueryFilter("show", "=", "TRUE"),
-			}
-
-			moveTaskOrder := &models.Move{}
-			err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
+			// Search for shipments
+			shipments, err := h.MTOShipmentFetcher.ListMTOShipments(appCtx, moveID)
 			if err != nil {
-				appCtx.Logger().Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
-				return mtoshipmentops.NewListMTOShipmentsNotFound(), err
-			}
-
-			queryFilters = []services.QueryFilter{
-				query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
-				query.NewQueryFilter("deleted_at", "IS NULL", nil),
-			}
-
-			// TODO: In some places, we used this unbound eager call accidentally and loaded all associations when the
-			//   intention was to load no associations. In this instance, we get E2E failures if we change this to load
-			//   no associations, so we'll keep it as is and can revisit later if we want to optimize further.  This is
-			//   just loading shipments for a specific move (likely only 1 or 2 in most cases), so the impact of the
-			//   additional loading shouldn't be too dramatic.
-			queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{})
-
-			queryOrder := query.NewQueryOrder(swag.String("created_at"), swag.Bool(true))
-
-			var shipments models.MTOShipments
-			err = h.ListFetcher.FetchRecordList(appCtx, &shipments, queryFilters, queryAssociations, nil, queryOrder)
-			// return any errors
-			if err != nil {
-				appCtx.Logger().Error("Error fetching mto shipments : ", zap.Error(err))
-
+				appCtx.Logger().Error("internalapi.ListMTOShipmentsHandler", zap.Error(err))
 				return mtoshipmentops.NewListMTOShipmentsInternalServerError(), err
 			}
 
-			payload := payloads.MTOShipments(&shipments)
+			payload := payloads.MTOShipments((*models.MTOShipments)(&shipments))
 			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil
 		})
 }
@@ -333,7 +264,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 
 // DeleteShipmentHandler soft deletes a shipment
 type DeleteShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentDeleter
 }
 

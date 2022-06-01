@@ -68,6 +68,39 @@ func Move(move *models.Move) *ghcmessages.Move {
 	return payload
 }
 
+// CustomerSupportRemark payload
+func CustomerSupportRemark(customerSupportRemark *models.CustomerSupportRemark) *ghcmessages.CustomerSupportRemark {
+	if customerSupportRemark == nil {
+		return nil
+	}
+	id := strfmt.UUID(customerSupportRemark.ID.String())
+	moveID := strfmt.UUID(customerSupportRemark.MoveID.String())
+	officeUserID := strfmt.UUID(customerSupportRemark.OfficeUserID.String())
+
+	payload := &ghcmessages.CustomerSupportRemark{
+		Content:             &customerSupportRemark.Content,
+		ID:                  &id,
+		CreatedAt:           strfmt.DateTime(customerSupportRemark.CreatedAt),
+		UpdatedAt:           strfmt.DateTime(customerSupportRemark.UpdatedAt),
+		MoveID:              &moveID,
+		OfficeUserEmail:     customerSupportRemark.OfficeUser.Email,
+		OfficeUserFirstName: customerSupportRemark.OfficeUser.FirstName,
+		OfficeUserID:        &officeUserID,
+		OfficeUserLastName:  customerSupportRemark.OfficeUser.LastName,
+	}
+	return payload
+}
+
+// CustomerSupportRemarks payload
+func CustomerSupportRemarks(customerSupportRemarks models.CustomerSupportRemarks) ghcmessages.CustomerSupportRemarks {
+	payload := make(ghcmessages.CustomerSupportRemarks, len(customerSupportRemarks))
+	for i, v := range customerSupportRemarks {
+		customerSupportRemark := v
+		payload[i] = CustomerSupportRemark(&customerSupportRemark)
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{
@@ -456,6 +489,56 @@ func SITStatuses(shipmentSITStatuses map[string]services.SITStatus) map[string]*
 	return sitStatuses
 }
 
+// PPMShipment payload
+func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
+	if ppmShipment == nil || ppmShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadPPMShipment := &ghcmessages.PPMShipment{
+		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
+		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
+		Status:                         ghcmessages.PPMShipmentStatus(ppmShipment.Status),
+		ExpectedDepartureDate:          handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
+		ActualMoveDate:                 handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
+		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
+		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
+		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
+		PickupPostalCode:               &ppmShipment.PickupPostalCode,
+		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
+		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
+		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
+		SitExpected:                    ppmShipment.SITExpected,
+		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
+		HasProGear:                     ppmShipment.HasProGear,
+		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
+		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
+		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
+		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
+		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
+		DeletedAt:                      handlers.FmtDateTimePtr(ppmShipment.DeletedAt),
+		SitEstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
+		SitEstimatedEntryDate:          handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
+		SitEstimatedDepartureDate:      handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
+		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
+		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+	}
+
+	if ppmShipment.SITLocation != nil {
+		sitLocation := ghcmessages.SITLocationType(*ppmShipment.SITLocation)
+		payloadPPMShipment.SitLocation = &sitLocation
+	}
+
+	return payloadPPMShipment
+}
+
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
@@ -490,6 +573,7 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
+		PpmShipment:                 PPMShipment(mtoShipment.PPMShipment),
 	}
 
 	if sitStatusPayload != nil {
@@ -518,6 +602,10 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 
 	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
 		payload.RequestedDeliveryDate = *handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
+	}
+
+	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
+		payload.RequiredDeliveryDate = handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate)
 	}
 
 	if mtoShipment.ScheduledPickupDate != nil {
@@ -864,7 +952,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
 			// though there can never be more than one GBLOC for a move.
-			gbloc = ghcmessages.GBLOC(move.ShipmentGBLOC[0].GBLOC)
+			if move.ShipmentGBLOC[0].GBLOC != nil {
+				gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
+			}
 		} else {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
@@ -928,6 +1018,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 	for i, paymentRequest := range *paymentRequests {
 		moveTaskOrder := paymentRequest.MoveTaskOrder
 		orders := moveTaskOrder.Orders
+		var gbloc ghcmessages.GBLOC
+		if moveTaskOrder.ShipmentGBLOC[0].GBLOC != nil {
+			gbloc = ghcmessages.GBLOC(*moveTaskOrder.ShipmentGBLOC[0].GBLOC)
+		}
 
 		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
 			ID:                 *handlers.FmtUUID(paymentRequest.ID),
@@ -937,7 +1031,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			Age:                math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
 			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:            moveTaskOrder.Locator,
-			OriginGBLOC:        ghcmessages.GBLOC(moveTaskOrder.ShipmentGBLOC[0].GBLOC),
+			OriginGBLOC:        gbloc,
 			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
 		}
 
@@ -966,6 +1060,48 @@ func Reweigh(reweigh *models.Reweigh, sitStatusPayload *ghcmessages.SITStatus) *
 	}
 
 	return payload
+}
+
+// SearchMoves payload
+func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
+	searchMoves := make(ghcmessages.SearchMoves, len(moves))
+	for i, move := range moves {
+		customer := move.Orders.ServiceMember
+
+		var validMTOShipments []models.MTOShipment
+		var earliestRequestedPickup *time.Time
+		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
+		// TODO do we need this for this page as well?
+		for _, shipment := range move.MTOShipments {
+			if shipment.Status != models.MTOShipmentStatusDraft {
+				if earliestRequestedPickup == nil {
+					earliestRequestedPickup = shipment.RequestedPickupDate
+				} else if shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
+					earliestRequestedPickup = shipment.RequestedPickupDate
+				}
+				validMTOShipments = append(validMTOShipments, shipment)
+			}
+		}
+
+		var deptIndicator ghcmessages.DeptIndicator
+		if move.Orders.DepartmentIndicator != nil {
+			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
+		}
+
+		searchMoves[i] = &ghcmessages.SearchMove{
+			Customer:                Customer(&customer),
+			Status:                  ghcmessages.MoveStatus(move.Status),
+			ID:                      *handlers.FmtUUID(move.ID),
+			Locator:                 move.Locator,
+			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
+			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
+			DepartmentIndicator:     &deptIndicator,
+			ShipmentsCount:          int64(len(validMTOShipments)),
+			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
+			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
+		}
+	}
+	return &searchMoves
 }
 
 // ShipmentPaymentSITBalance payload

@@ -18,7 +18,7 @@ import (
 
 // PostRevisionHandler adds a Revision to Orders matching the provided search parameters
 type PostRevisionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle (params ordersoperations.PostRevisionParams) responds to POST /orders

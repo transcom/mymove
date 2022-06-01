@@ -13,7 +13,7 @@ import (
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/rickar/cal/v2"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"

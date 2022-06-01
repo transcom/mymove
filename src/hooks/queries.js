@@ -15,6 +15,8 @@ import {
   getMovePaymentRequests,
   getCustomer,
   getShipmentsPaymentSITBalance,
+  getCustomerSupportRemarksForMove,
+  searchMoves,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
@@ -36,6 +38,8 @@ import {
   SHIPMENTS_PAYMENT_SIT_BALANCE,
   PRIME_SIMULATOR_AVAILABLE_MOVES,
   PRIME_SIMULATOR_MOVE,
+  CUSTOMER_SUPPORT_REMARKS,
+  QAE_CSR_MOVE_SEARCH,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -112,6 +116,20 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
     paymentServiceItems,
     mtoShipments,
     shipmentsPaymentSITBalance,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useCustomerSupportRemarksQueries = (moveCode) => {
+  const { data: customerSupportRemarks, ...customerSupportRemarksQuery } = useQuery(
+    [CUSTOMER_SUPPORT_REMARKS, moveCode],
+    getCustomerSupportRemarksForMove,
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([customerSupportRemarksQuery]);
+  return {
+    customerSupportRemarks,
     isLoading,
     isError,
     isSuccess,
@@ -442,6 +460,19 @@ export const useGHCGetMoveHistory = ({
   const { historyRecords, ...dataProps } = data;
   return {
     queueResult: { data: historyRecords, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useQAECSRMoveSearchQueries = ({ moveCode, dodID }) => {
+  const queryResult = useQuery([QAE_CSR_MOVE_SEARCH, moveCode, dodID], searchMoves, { enabled: !!moveCode || !!dodID });
+  const { data = {}, ...moveSearchQuery } = queryResult;
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveSearchQuery]);
+  const searchMovesResult = data.searchMoves;
+  return {
+    searchResult: { data: searchMovesResult, page: data.page, perPage: data.perPage, totalCount: data.totalCount },
     isLoading,
     isError,
     isSuccess,

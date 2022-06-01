@@ -25,7 +25,7 @@ import (
 
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	mtoShipmentCreator     services.MTOShipmentCreator
 	mtoAvailabilityChecker services.MoveTaskOrderChecker
 }
@@ -110,7 +110,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	mtoShipmentUpdater services.MTOShipmentUpdater
 }
 
@@ -148,7 +148,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-			mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentPrime(appCtx, mtoShipment, params.IfMatch)
+			mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipment(appCtx, mtoShipment, params.IfMatch)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {
@@ -309,7 +309,7 @@ func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.T
 
 // UpdateMTOShipmentStatusHandler is the handler to update MTO Shipments' status
 type UpdateMTOShipmentStatusHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	checker services.MTOShipmentUpdater
 	updater services.MTOShipmentStatusUpdater
 }

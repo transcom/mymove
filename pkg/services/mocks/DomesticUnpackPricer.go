@@ -10,6 +10,8 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
+	testing "testing"
+
 	time "time"
 
 	unit "github.com/transcom/mymove/pkg/unit"
@@ -20,20 +22,20 @@ type DomesticUnpackPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest
-func (_m *DomesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest)
+// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM
+func (_m *DomesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int) unit.Cents); ok {
-		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) unit.Cents); ok {
+		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 services.PricingDisplayParams
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, int) services.PricingDisplayParams); ok {
-		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
@@ -41,8 +43,8 @@ func (_m *DomesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, int) error); ok {
-		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) error); ok {
+		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -78,4 +80,14 @@ func (_m *DomesticUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, p
 	}
 
 	return r0, r1, r2
+}
+
+// NewDomesticUnpackPricer creates a new instance of DomesticUnpackPricer. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewDomesticUnpackPricer(t testing.TB) *DomesticUnpackPricer {
+	mock := &DomesticUnpackPricer{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

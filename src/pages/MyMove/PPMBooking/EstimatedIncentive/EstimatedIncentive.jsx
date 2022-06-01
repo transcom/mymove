@@ -6,20 +6,21 @@ import classnames from 'classnames';
 
 import styles from './EstimatedIncentive.module.scss';
 
-import ppmBookingStyles from 'components/Customer/PPMBooking/PPMBooking.module.scss';
+import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
-import EstimatedIncentiveDetails from 'components/Customer/PPMBooking/EstimatedIncentiveDetails/EstimatedIncentiveDetails';
+import EstimatedIncentiveDetails from 'components/Customer/PPM/Booking/EstimatedIncentiveDetails/EstimatedIncentiveDetails';
+import ScrollToTop from 'components/ScrollToTop';
 
 const EstimatedIncentive = () => {
   const history = useHistory();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const shipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const handleBack = () => {
-    history.goBack();
+    history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, { moveId, mtoShipmentId }));
   };
 
   const handleNext = () => {
@@ -28,17 +29,18 @@ const EstimatedIncentive = () => {
 
   return (
     <div className={classnames(ppmBookingPageStyles.PPMBookingPage, styles.EstimatedIncentive)}>
+      <ScrollToTop />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
             <h1>Estimated incentive</h1>
             <EstimatedIncentiveDetails shipment={shipment} />
-            <div className={ppmBookingStyles.buttonContainer}>
-              <Button className={ppmBookingStyles.backButton} type="button" onClick={handleBack} secondary outline>
+            <div className={ppmStyles.buttonContainer}>
+              <Button className={ppmStyles.backButton} type="button" onClick={handleBack} secondary outline>
                 Back
               </Button>
-              <Button className={ppmBookingStyles.saveButton} type="button" onClick={handleNext}>
+              <Button className={ppmStyles.saveButton} type="button" onClick={handleNext}>
                 Next
               </Button>
             </div>

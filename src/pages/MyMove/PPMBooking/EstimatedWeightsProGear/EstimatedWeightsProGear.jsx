@@ -5,7 +5,7 @@ import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { customerRoutes } from 'constants/routes';
-import EstimatedWeightsProGearForm from 'components/Customer/PPMBooking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
+import EstimatedWeightsProGearForm from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
@@ -15,6 +15,8 @@ import {
   selectMTOShipmentById,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import ScrollToTop from 'components/ScrollToTop';
 
 const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -36,6 +38,7 @@ const EstimatedWeightsProGear = () => {
     const hasProGear = values.hasProGear === 'true';
 
     const payload = {
+      shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
         estimatedWeight: Number(values.estimatedWeight),
@@ -53,13 +56,17 @@ const EstimatedWeightsProGear = () => {
       })
       .catch((err) => {
         setSubmitting(false);
-
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
       });
   };
 
+  if (!serviceMember || !orders || !mtoShipment) {
+    return <LoadingPlaceholder />;
+  }
+
   return (
     <div className={ppmBookingPageStyles.PPMBookingPage}>
+      <ScrollToTop otherDep={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

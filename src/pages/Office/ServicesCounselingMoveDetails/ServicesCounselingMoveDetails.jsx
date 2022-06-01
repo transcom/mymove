@@ -63,6 +63,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     HHG: ['counselorRemarks'],
     HHG_INTO_NTS_DOMESTIC: ['counselorRemarks', 'tacType', 'sacType'],
     HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'counselorRemarks', 'tacType', 'sacType'],
+    PPM: ['counselorRemarks'],
   };
   const errorIfMissing = { HHG_OUTOF_NTS_DOMESTIC: ['storageFacility'] };
 
@@ -337,6 +338,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     <option test-dataid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
                       HHG
                     </option>
+                    <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                   </ButtonDropdown>

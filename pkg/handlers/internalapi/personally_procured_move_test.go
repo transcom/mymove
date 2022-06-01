@@ -17,9 +17,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/rateengine"
-	"github.com/transcom/mymove/pkg/services/mocks"
-
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/strfmt"
@@ -187,7 +184,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 		HTTPRequest:                         request,
 	}
 
-	handler := CreatePersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := CreatePersonallyProcuredMoveHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	response := handler.Handle(newPPMParams)
 	// assert we got back the 201 response
 	createdResponse := response.(*ppmop.CreatePersonallyProcuredMoveCreated)
@@ -240,7 +237,7 @@ func (suite *HandlerSuite) TestSubmitPPMHandler() {
 	}
 
 	// submit the PPM
-	handler := SubmitPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := SubmitPersonallyProcuredMoveHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	response := handler.Handle(submitPPMParams)
 	okResponse := response.(*ppmop.SubmitPersonallyProcuredMoveOK)
 	submitPPMPayload := okResponse.Payload
@@ -310,7 +307,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -329,156 +326,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
 	suite.Nil(patchPPMPayload.AdditionalPickupPostalCode, "AdditionalPickupPostalCode should have been updated to nil.")
 	suite.Equal(*(*time.Time)(patchPPMPayload.OriginalMoveDate), newMoveDate, "MoveDate should have been updated.")
-}
-
-func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
-	appCtx := suite.AppContextForTest()
-	scenario.RunRateEngineScenario1(appCtx)
-	suite.setupPersonallyProcuredMoveTest()
-
-	initialWeight := unit.Pound(4100)
-	newWeight := swag.Int64(4105)
-
-	// Date picked essentially at random, but needs to be within TestYear
-	newMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
-	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
-
-	destinationPostalCode := swag.String("12345")
-	hasAdditionalPostalCode := swag.Bool(true)
-	newHasAdditionalPostalCode := swag.Bool(false)
-	additionalPickupPostalCode := swag.String("90210")
-
-	hasSit := swag.Bool(false)
-	newHasSit := swag.Bool(true)
-	daysInStorage := swag.Int64(3)
-	newPickupPostalCode := swag.String("32168")
-	newSitCost := swag.Int64(60)
-
-	dutyLocationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "test address1",
-			City:           "charleston",
-			State:          "SC",
-			PostalCode:     "29401",
-			Country:        swag.String("United States"),
-		},
-	})
-
-	newDutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			Name:      "test duty location",
-			AddressID: dutyLocationAddress.ID,
-			Address:   dutyLocationAddress,
-		},
-	})
-
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			NewDutyLocationID: newDutyLocation.ID,
-			NewDutyLocation:   newDutyLocation,
-		},
-	})
-
-	newAdvanceWorksheet := models.Document{
-		ServiceMember:   move.Orders.ServiceMember,
-		ServiceMemberID: move.Orders.ServiceMemberID,
-	}
-	suite.MustSave(&newAdvanceWorksheet)
-
-	ppm1 := models.PersonallyProcuredMove{
-		MoveID:                     move.ID,
-		Move:                       move,
-		WeightEstimate:             &initialWeight,
-		OriginalMoveDate:           &initialMoveDate,
-		HasAdditionalPostalCode:    hasAdditionalPostalCode,
-		AdditionalPickupPostalCode: additionalPickupPostalCode,
-		DestinationPostalCode:      destinationPostalCode,
-		HasSit:                     hasSit,
-		DaysInStorage:              daysInStorage,
-		Status:                     models.PPMStatusDRAFT,
-		AdvanceWorksheet:           newAdvanceWorksheet,
-		AdvanceWorksheetID:         &newAdvanceWorksheet.ID,
-	}
-	suite.MustSave(&ppm1)
-
-	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-
-	payload := internalmessages.PatchPersonallyProcuredMovePayload{
-		WeightEstimate:          newWeight,
-		OriginalMoveDate:        handlers.FmtDatePtr(&newMoveDate),
-		HasAdditionalPostalCode: newHasAdditionalPostalCode,
-		PickupPostalCode:        newPickupPostalCode,
-		DestinationPostalCode:   destinationPostalCode,
-		HasSit:                  newHasSit,
-		TotalSitCost:            newSitCost,
-	}
-
-	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
-		HTTPRequest:                        req,
-		MoveID:                             strfmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
-		PatchPersonallyProcuredMovePayload: &payload,
-	}
-
-	mileage := 900
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
-	planner := &routemocks.Planner{}
-	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(mileage, nil)
-	handler.SetPlanner(planner)
-	response := handler.Handle(patchPPMParams)
-
-	// assert we got back the 201 response
-	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveOK)
-	patchPPMPayload := okResponse.Payload
-
-	suite.Equal(patchPPMPayload.WeightEstimate, newWeight, "Weight should have been updated.")
-	suite.Equal(patchPPMPayload.TotalSitCost, newSitCost, "Total sit cost should have been updated.")
-	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
-	suite.Nil(patchPPMPayload.AdditionalPickupPostalCode, "AdditionalPickupPostalCode should have been updated to nil.")
-	suite.Equal(*(*time.Time)(patchPPMPayload.OriginalMoveDate), newMoveDate, "MoveDate should have been updated.")
-
-	updatePPMEstimateParams := ppmop.UpdatePersonallyProcuredMoveEstimateParams{
-		HTTPRequest:              req,
-		MoveID:                   strfmt.UUID(move.ID.String()),
-		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
-	}
-
-	mockedSitCharge := int64(55000)
-	linehaulCosts := rateengine.LinehaulCostComputation{
-		Mileage: mileage,
-	}
-	mockedCost := rateengine.CostComputation{
-		LinehaulCostComputation: linehaulCosts,
-		SITFee:                  255246,
-		SITMax:                  552344,
-		GCC:                     unit.Cents(4355223),
-		LHDiscount:              unit.DiscountRate(.51),
-		SITDiscount:             unit.DiscountRate(.50),
-		Weight:                  unit.Pound(*newWeight),
-	}
-	estimateCalculator := &mocks.EstimateCalculator{}
-	estimateCalculator.On("CalculateEstimates",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.PersonallyProcuredMove"), move.ID).Return(mockedSitCharge, mockedCost, nil).Once()
-	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), estimateCalculator}
-	updatePPMEstimateHandler.SetPlanner(planner)
-	updatePPMEstimateResponse := updatePPMEstimateHandler.Handle(updatePPMEstimateParams)
-
-	// assert we got back the 201 response
-	updatePPMEstimateOkResponse := updatePPMEstimateResponse.(*ppmop.UpdatePersonallyProcuredMoveEstimateOK)
-	updatePPMEstimatePayload := updatePPMEstimateOkResponse.Payload
-
-	suite.Assertions.Equal(int64(4137462), *updatePPMEstimatePayload.IncentiveEstimateMin)
-	suite.Assertions.Equal(int64(4572984), *updatePPMEstimatePayload.IncentiveEstimateMax)
-	suite.Assertions.Equal(int64(900), *updatePPMEstimatePayload.Mileage)
-	suite.Assertions.Equal(int64(255246), *updatePPMEstimatePayload.PlannedSitMax)
-	suite.Assertions.Equal(int64(552344), *updatePPMEstimatePayload.SitMax)
-	suite.Assertions.Equal("$550.00", *updatePPMEstimatePayload.EstimatedStorageReimbursement)
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
@@ -533,7 +380,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		mock.Anything,
 	).Return(900, nil)
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	handler.SetPlanner(planner)
 	response := handler.Handle(patchPPMParams)
 
@@ -594,7 +441,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	response := handler.Handle(patchPPMParams)
 
 	suite.CheckResponseForbidden(response)
@@ -647,7 +494,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	response := handler.Handle(patchPPMParams)
 	suite.CheckResponseForbidden(response)
 }
@@ -684,7 +531,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the badrequest response
@@ -733,7 +580,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	response := handler.Handle(patchPPMParams)
 
 	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
@@ -795,7 +642,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(patchPPMParams)
 
 	suite.CheckResponseBadRequest(response)
@@ -866,7 +713,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
 	}
 
-	handler := RequestPPMPaymentHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := RequestPPMPaymentHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	response := handler.Handle(requestPaymentParams)
 
 	created, ok := response.(*ppmop.RequestPPMPaymentOK)
@@ -909,7 +756,7 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
 	}
 
-	handler := RequestPPMExpenseSummaryHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger())}
+	handler := RequestPPMExpenseSummaryHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
 	response := handler.Handle(requestExpenseSumParams)
 
 	expenseSummary, ok := response.(*ppmop.RequestPPMExpenseSummaryOK)

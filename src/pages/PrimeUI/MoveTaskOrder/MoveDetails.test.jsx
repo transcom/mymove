@@ -1,10 +1,12 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import MoveDetails from './MoveDetails';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders, renderWithRouter } from 'testUtils';
+import { completeCounseling } from 'services/primeApi';
 
 const mockUseHistoryPush = jest.fn();
 const mockRequestedMoveCode = 'LN4T89';
@@ -22,8 +24,7 @@ jest.mock('hooks/queries', () => ({
 }));
 
 jest.mock('services/primeApi', () => ({
-  ...jest.requireActual('services/primeApi'),
-  moveDetails: jest.fn(),
+  completeCounseling: jest.fn(),
 }));
 
 const moveTaskOrder = {
@@ -71,6 +72,29 @@ const moveReturnValue = {
   isError: false,
 };
 
+const moveTaskOrderCounselingReady = {
+  id: '1',
+  moveCode: mockRequestedMoveCode,
+  shipmentType: 'PPM',
+};
+
+const moveTaskOrderCounselingReadyReturnValue = {
+  moveTaskOrder: moveTaskOrderCounselingReady,
+  isLoading: false,
+  isError: false,
+};
+
+const moveTaskOrderCounselingCompleted = {
+  ...moveTaskOrderCounselingReady,
+  primeCounselingCompletedAt: '2022-05-24T21:06:35.890Z',
+};
+
+const moveCounselingCompletedReturnValue = {
+  moveTaskOrder: moveTaskOrderCounselingCompleted,
+  isLoading: false,
+  isError: false,
+};
+
 describe('PrimeUI MoveDetails page', () => {
   describe('check move details page load', () => {
     it('displays payment requests information', async () => {
@@ -86,6 +110,75 @@ describe('PrimeUI MoveDetails page', () => {
 
       const uploadButton = screen.getByText(/Upload Document/, { selector: 'a.usa-button' });
       expect(uploadButton).toBeInTheDocument();
+    });
+
+    it('counseling ready to be completed', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveTaskOrderCounselingReadyReturnValue);
+      renderWithRouter(
+        <MockProviders>
+          <MoveDetails />
+        </MockProviders>,
+      );
+
+      const completeCounselingButton = screen.getByText(/Complete Counseling/, { selector: 'button' });
+      expect(completeCounselingButton).toBeInTheDocument();
+
+      const field = screen.queryByText('Prime Counseling Completed At:');
+      expect(field).not.toBeInTheDocument();
+    });
+
+    it('counseling already completed', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveCounselingCompletedReturnValue);
+      renderWithRouter(
+        <MockProviders>
+          <MoveDetails />
+        </MockProviders>,
+      );
+
+      const completeCounselingButton = screen.queryByText(/Complete Counseling/, { selector: 'button' });
+      expect(completeCounselingButton).not.toBeInTheDocument();
+
+      const field = screen.getByText('Prime Counseling Completed At:');
+      expect(field).toBeInTheDocument();
+      expect(field.nextElementSibling.textContent).toBe(moveTaskOrderCounselingCompleted.primeCounselingCompletedAt);
+    });
+
+    it('success when completing counseling', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveTaskOrderCounselingReadyReturnValue);
+      renderWithRouter(
+        <MockProviders>
+          <MoveDetails />
+        </MockProviders>,
+      );
+
+      const completeCounselingButton = screen.getByText(/Complete Counseling/, { selector: 'button' });
+      expect(completeCounselingButton).toBeInTheDocument();
+      userEvent.click(completeCounselingButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Successfully completed counseling')).toBeInTheDocument();
+      });
+    });
+
+    it('error when completing counseling', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveTaskOrderCounselingReadyReturnValue);
+      completeCounseling.mockRejectedValue({
+        response: { body: { title: 'Error title', detail: 'Error detail' } },
+      });
+
+      renderWithRouter(
+        <MockProviders>
+          <MoveDetails />
+        </MockProviders>,
+      );
+
+      const completeCounselingButton = screen.getByText(/Complete Counseling/, { selector: 'button' });
+      userEvent.click(completeCounselingButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Error title/)).toBeInTheDocument();
+        expect(screen.getByText('Error detail')).toBeInTheDocument();
+      });
     });
   });
 });

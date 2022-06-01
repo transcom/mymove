@@ -142,7 +142,7 @@ func (suite *ModelSuite) TestFetchMostRecentFuelPrices() {
 	suite.Equal(expectedNumFuelPrices, len(fuelPrices))
 
 	// if the day is after the 15th
-	currentTime = currentTime.Add(time.Hour * 24 * 20)
+	clock.Add(time.Hour * 24 * 20)
 	fuelPrices, err = models.FetchMostRecentFuelPrices(suite.DB(), clock, 12)
 	expectedNumFuelPrices = 12
 	suite.NoError(err)

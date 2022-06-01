@@ -31,7 +31,7 @@ import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
-import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes } from 'constants/routes';
+import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
@@ -69,6 +69,9 @@ const PrimeSimulatorUploadPaymentRequestDocuments = lazy(() =>
 const PrimeSimulatorCreateServiceItem = lazy(() => import('pages/PrimeUI/CreateServiceItem/CreateServiceItem'));
 const PrimeUIShipmentUpdateAddress = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateAddress'));
 const PrimeUIShipmentUpdateReweigh = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateReweigh'));
+
+const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
+
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -155,7 +158,7 @@ export class OfficeApp extends Component {
         key="txoMoveInfoRoute"
         path="/moves/:moveCode"
         component={TXOMoveInfo}
-        requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
+        requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE_CSR]}
       />,
     ];
 
@@ -295,6 +298,14 @@ export class OfficeApp extends Component {
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 
+                    {/* QAE/CSR */}
+                    <PrivateRoute
+                      key="qaeCSRMoveSearchPath"
+                      path={qaeCSRRoutes.MOVE_SEARCH_PATH}
+                      component={QAECSRMoveSearch}
+                      requiredRoles={[roleTypes.QAE_CSR]}
+                    />
+
                     {/* PPM & TXO conflicting routes - select based on user role */}
                     {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
 
@@ -315,6 +326,8 @@ export class OfficeApp extends Component {
                             return <ServicesCounselingQueue {...routeProps} />;
                           case roleTypes.PRIME_SIMULATOR:
                             return <PrimeSimulatorAvailableMoves {...routeProps} />;
+                          case roleTypes.QAE_CSR:
+                            return <QAECSRMoveSearch {...routeProps} />;
                           default:
                             // User has unknown role or shouldn't have access
                             return <div />;

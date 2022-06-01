@@ -3,7 +3,7 @@ package ghcapi
 import (
 	"github.com/go-openapi/swag"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -22,7 +22,7 @@ import (
 
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
 type GetMovesQueueHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.OrderFetcher
 }
 
@@ -92,7 +92,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 
 // GetPaymentRequestsQueueHandler returns the payment requests for the TIO queue user via GET /queues/payment-requests
 type GetPaymentRequestsQueueHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestListFetcher
 }
 
@@ -161,7 +161,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 
 // GetServicesCounselingQueueHandler returns the moves for the Service Counselor queue user via GET /queues/counselor
 type GetServicesCounselingQueueHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.OrderFetcher
 }
 

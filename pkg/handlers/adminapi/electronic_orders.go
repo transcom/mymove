@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -27,7 +28,7 @@ func payloadForElectronicOrderModel(o models.ElectronicOrder) *adminmessages.Ele
 
 // IndexElectronicOrdersHandler returns an index of electronic orders
 type IndexElectronicOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ElectronicOrderListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -35,35 +36,37 @@ type IndexElectronicOrdersHandler struct {
 
 // Handle returns an index of electronic orders
 func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElectronicOrdersParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	queryFilters := []services.QueryFilter{}
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			queryFilters := []services.QueryFilter{}
 
-	pagination := h.NewPagination(params.Page, params.PerPage)
-	ordering := query.NewQueryOrder(params.Sort, params.Order)
+			pagination := h.NewPagination(params.Page, params.PerPage)
+			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(appCtx, queryFilters, nil, pagination, ordering)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(appCtx, queryFilters, nil, pagination, ordering)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	totalElectronicOrdersCount, err := h.ElectronicOrderListFetcher.FetchElectronicOrderCount(appCtx, queryFilters)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
+			totalElectronicOrdersCount, err := h.ElectronicOrderListFetcher.FetchElectronicOrderCount(appCtx, queryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-	queriedOfficeUsersCount := len(electronicOrders)
+			queriedOfficeUsersCount := len(electronicOrders)
 
-	payload := make(adminmessages.ElectronicOrders, queriedOfficeUsersCount)
-	for i, s := range electronicOrders {
-		payload[i] = payloadForElectronicOrderModel(s)
-	}
+			payload := make(adminmessages.ElectronicOrders, queriedOfficeUsersCount)
+			for i, s := range electronicOrders {
+				payload[i] = payloadForElectronicOrderModel(s)
+			}
 
-	return electronicorderop.NewIndexElectronicOrdersOK().WithContentRange(fmt.Sprintf("electronic_orders %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalElectronicOrdersCount)).WithPayload(payload)
+			return electronicorderop.NewIndexElectronicOrdersOK().WithContentRange(fmt.Sprintf("electronic_orders %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalElectronicOrdersCount)).WithPayload(payload), nil
+		})
 }
 
 // GetElectronicOrdersTotalsHandler returns totals of electronic orders
 type GetElectronicOrdersTotalsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ElectronicOrderCategoryCountFetcher
 	services.NewQueryFilter
 }
@@ -93,51 +96,53 @@ func translateComparator(s string) string {
 
 // Handle returns electronic orders totals
 func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetElectronicOrdersTotalsParams) middleware.Responder {
-	appCtx := h.AppContextFromRequest(params.HTTPRequest)
-	comparator := ""
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			comparator := ""
 
-	andQueryFilters := make([]services.QueryFilter, len(params.AndFilter))
-	queryFilters := make([]services.QueryFilter, len(params.Filter))
+			andQueryFilters := make([]services.QueryFilter, len(params.AndFilter))
+			queryFilters := make([]services.QueryFilter, len(params.Filter))
 
-	// Default behavior for this handler is going to be returning counts for each of the component services as categories
-	if len(params.Filter) == 0 {
-		queryFilters = []services.QueryFilter{
-			h.NewQueryFilter("issuer", "=", models.IssuerAirForce),
-			h.NewQueryFilter("issuer", "=", models.IssuerArmy),
-			h.NewQueryFilter("issuer", "=", models.IssuerCoastGuard),
-			h.NewQueryFilter("issuer", "=", models.IssuerNavy),
-			h.NewQueryFilter("issuer", "=", models.IssuerMarineCorps),
-		}
-	} else {
-		for i, filter := range params.Filter {
-			queryFilterSplit := strings.FieldsFunc(filter, split)
-			comparator = translateComparator(queryFilterSplit[1])
-			queryFilters[i] = h.NewQueryFilter(queryFilterSplit[0], comparator, queryFilterSplit[2])
-		}
-	}
+			// Default behavior for this handler is going to be returning counts for each of the component services as categories
+			if len(params.Filter) == 0 {
+				queryFilters = []services.QueryFilter{
+					h.NewQueryFilter("issuer", "=", models.IssuerAirForce),
+					h.NewQueryFilter("issuer", "=", models.IssuerArmy),
+					h.NewQueryFilter("issuer", "=", models.IssuerCoastGuard),
+					h.NewQueryFilter("issuer", "=", models.IssuerNavy),
+					h.NewQueryFilter("issuer", "=", models.IssuerMarineCorps),
+				}
+			} else {
+				for i, filter := range params.Filter {
+					queryFilterSplit := strings.FieldsFunc(filter, split)
+					comparator = translateComparator(queryFilterSplit[1])
+					queryFilters[i] = h.NewQueryFilter(queryFilterSplit[0], comparator, queryFilterSplit[2])
+				}
+			}
 
-	if params.AndFilter != nil {
-		for i, andFilter := range params.AndFilter {
-			andFilterSplit := strings.FieldsFunc(andFilter, split)
-			comparator = translateComparator(andFilterSplit[1])
-			andQueryFilters[i] = h.NewQueryFilter(andFilterSplit[0], comparator, andFilterSplit[2])
-		}
-	}
+			if params.AndFilter != nil {
+				for i, andFilter := range params.AndFilter {
+					andFilterSplit := strings.FieldsFunc(andFilter, split)
+					comparator = translateComparator(andFilterSplit[1])
+					andQueryFilters[i] = h.NewQueryFilter(andFilterSplit[0], comparator, andFilterSplit[2])
+				}
+			}
 
-	counts, err := h.ElectronicOrderCategoryCountFetcher.FetchElectronicOrderCategoricalCounts(appCtx, queryFilters, &andQueryFilters)
-	if err != nil {
-		return handlers.ResponseForError(appCtx.Logger(), err)
-	}
-	payload := adminmessages.ElectronicOrdersTotals{}
-	for key, count := range counts {
-		count64 := int64(count)
-		stringKey := fmt.Sprintf("%v", key)
-		totalCount := adminmessages.ElectronicOrdersTotal{
-			Category: stringKey,
-			Count:    &count64,
-		}
-		payload = append(payload, &totalCount)
-	}
+			counts, err := h.ElectronicOrderCategoryCountFetcher.FetchElectronicOrderCategoricalCounts(appCtx, queryFilters, &andQueryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			payload := adminmessages.ElectronicOrdersTotals{}
+			for key, count := range counts {
+				count64 := int64(count)
+				stringKey := fmt.Sprintf("%v", key)
+				totalCount := adminmessages.ElectronicOrdersTotal{
+					Category: stringKey,
+					Count:    &count64,
+				}
+				payload = append(payload, &totalCount)
+			}
 
-	return electronicorderop.NewGetElectronicOrdersTotalsOK().WithPayload(payload)
+			return electronicorderop.NewGetElectronicOrdersTotalsOK().WithPayload(payload), nil
+		})
 }

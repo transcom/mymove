@@ -2,7 +2,6 @@ package invoice
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"testing"
 	"time"
@@ -31,16 +30,10 @@ type GHCInvoiceSuite struct {
 	icnSequencer sequence.Sequencer
 }
 
-func (suite *GHCInvoiceSuite) SetupTest() {
-	errTruncateAll := suite.TruncateAll()
-	if errTruncateAll != nil {
-		log.Panicf("failed to truncate database: %#v", errTruncateAll)
-	}
-}
-
 func TestGHCInvoiceSuite(t *testing.T) {
 	ts := &GHCInvoiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("ghcinvoice")),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("ghcinvoice"),
+			testingsuite.WithPerTestTransaction()),
 	}
 	ts.icnSequencer = sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 

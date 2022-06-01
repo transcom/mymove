@@ -1629,6 +1629,64 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
+  /moves/{locator}/customer-support-remarks:
+    parameters:
+      - description: move code to identify a move for customer support remarks
+        format: string
+        in: path
+        name: locator
+        required: true
+        type: string
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateCustomerSupportRemark'
+      responses:
+        '200':
+          description: Successfully created customer support remark
+          schema:
+            $ref: '#/definitions/CustomerSupportRemark'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - customerSupportRemarks
+      description: Creates a customer support remark for a move
+      operationId: createCustomerSupportRemarkForMove
+      summary: Creates a customer support remark for a move
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: '#/definitions/CustomerSupportRemarks'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - customerSupportRemarks
+      description: Fetches customer support remarks for a move
+      operationId: getCustomerSupportRemarksForMove
+      summary: Fetches customer support remarks using the move code (locator).
   /moves/{locator}/payment-requests:
     parameters:
       - description: move code to identify a move for payment requests
@@ -2099,6 +2157,45 @@ paths:
           description: Successfully returned all moves matching the criteria
           schema:
             $ref: '#/definitions/QueuePaymentRequestsResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
+  /moves/search:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Search moves by locator, DOD ID, or customer name
+      description: >
+        Search moves by locator, DOD ID, or customer name. Used by QAE and CSR
+        users.
+      operationId: searchMoves
+      tags:
+        - move
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              locator:
+                description: Move locator
+                type: string
+                minLength: 6
+                maxLength: 6
+                x-nullable: true
+              dodID:
+                description: DOD ID
+                type: string
+                minLength: 10
+                maxLength: 10
+                x-nullable: true
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/SearchMovesResult'
         '403':
           $ref: '#/responses/PermissionDenied'
         '500':
@@ -3365,6 +3462,101 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
+      ppmShipment:
+        $ref: '#/definitions/UpdatePPMShipment'
+  UpdatePPMShipment:
+    type: object
+    properties:
+      expectedDepartureDate:
+        description: |
+          Date the customer expects to move.
+        format: date
+        type: string
+        x-nullable: true
+      actualMoveDate:
+        format: date
+        type: string
+        x-nullable: true
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryPickupPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      sitExpected:
+        type: boolean
+        x-nullable: true
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+      sitEstimatedWeight:
+        type: integer
+        example: 2000
+        x-nullable: true
+      sitEstimatedEntryDate:
+        format: date
+        type: string
+        x-nullable: true
+      sitEstimatedDepartureDate:
+        format: date
+        type: string
+        x-nullable: true
+      estimatedWeight:
+        type: integer
+        example: 4200
+        x-nullable: true
+      netWeight:
+        description: |
+          The net weight of the shipment once it has been weighed
+        type: integer
+        example: 4300
+        x-nullable: true
+      hasProGear:
+        description: |
+          Indicates whether PPM shipment has pro gear.
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        type: integer
+        x-nullable: true
+      spouseProGearWeight:
+        type: integer
+        x-nullable: true
+      advance:
+        description: |
+          The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      advanceRequested:
+        description: |
+          Indicates whether an advance has been requested for the PPM shipment.
+        type: boolean
+        x-nullable: true
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -3461,10 +3653,86 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
+      ppmShipment:
+        $ref: '#/definitions/CreatePPMShipment'
     required:
       - moveTaskOrderID
-      - pickupAddress
-      - destinationAddress
+      - shipmentType
+  CreatePPMShipment:
+    description: >-
+      A personally procured move is a type of shipment that a service members
+      moves themselves.
+    properties:
+      expectedDepartureDate:
+        description: |
+          Date the customer expects to move.
+        format: date
+        type: string
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      secondaryPickupPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      sitExpected:
+        type: boolean
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+      sitEstimatedWeight:
+        type: integer
+        example: 2000
+        x-nullable: true
+      sitEstimatedEntryDate:
+        format: date
+        type: string
+        x-nullable: true
+      sitEstimatedDepartureDate:
+        format: date
+        type: string
+        x-nullable: true
+      estimatedWeight:
+        type: integer
+        example: 4200
+      hasProGear:
+        description: |
+          Indicates whether PPM shipment has pro gear.
+        type: boolean
+      proGearWeight:
+        type: integer
+        x-nullable: true
+      spouseProGearWeight:
+        type: integer
+        x-nullable: true
+    required:
+      - expectedDepartureDate
+      - pickupPostalCode
+      - destinationPostalCode
+      - sitExpected
+      - estimatedWeight
+      - hasProGear
   RejectShipment:
     properties:
       rejectionReason:
@@ -3716,6 +3984,49 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+  SearchMoves:
+    type: array
+    items:
+      $ref: '#/definitions/SearchMove'
+  SearchMove:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      customer:
+        $ref: '#/definitions/Customer'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      locator:
+        type: string
+      submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      requestedMoveDate:
+        format: date
+        type: string
+        x-nullable: true
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      shipmentsCount:
+        type: integer
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+  SearchMovesResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchMoves:
+        $ref: '#/definitions/SearchMoves'
   GBLOC:
     type: string
     enum:
@@ -3741,6 +4052,26 @@ definitions:
       - MBFL
       - MLNQ
       - XXXX
+  CreateCustomerSupportRemark:
+    type: object
+    description: >-
+      A text remark written by an customer support user that is associated with
+      a specific move.
+    required:
+      - locator
+      - content
+      - officeUserID
+    properties:
+      locator:
+        type: string
+        example: 1K43AR
+      content:
+        example: This is a remark about a move.
+        type: string
+      officeUserID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
   Address:
     description: A postal address
     type: object
@@ -4183,12 +4514,14 @@ definitions:
       - HHG_OUTOF_NTS_DOMESTIC
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
+      - PPM
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
       HHG_INTO_NTS_DOMESTIC: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
+      PPM: PPM
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -4224,6 +4557,12 @@ definitions:
       eTag:
         type: string
         readOnly: true
+  SITLocationType:
+    description: The list of SIT location types.
+    type: string
+    enum:
+      - ORIGIN
+      - DESTINATION
   MTOShipmentStatus:
     type: string
     title: Shipment Status
@@ -4369,6 +4708,225 @@ definitions:
         x-nullable: true
       pastSITServiceItems:
         $ref: '#/definitions/MTOServiceItems'
+  PPMShipmentStatus:
+    type: string
+    readOnly: true
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - WAITING_ON_CUSTOMER
+      - NEEDS_ADVANCE_APPROVAL
+      - NEEDS_PAYMENT_APPROVAL
+      - PAYMENT_APPROVED
+  PPMShipment:
+    description: >-
+      A personally procured move is a type of shipment that a service members
+      moves themselves.
+    x-nullable: true
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      status:
+        $ref: '#/definitions/PPMShipmentStatus'
+      expectedDepartureDate:
+        description: |
+          Date the customer expects to move.
+        format: date
+        type: string
+      actualMoveDate:
+        format: date
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      reviewedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      secondaryPickupPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      actualPickupPostalCode:
+        description: >
+          The actual postal code where the PPM shipment started. To be filled
+          once the customer has moved the shipment.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      actualDestinationPostalCode:
+        description: >
+          The actual postal code where the PPM shipment ended. To be filled once
+          the customer has moved the shipment.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      sitExpected:
+        type: boolean
+      estimatedWeight:
+        type: integer
+        example: 4200
+        x-nullable: true
+        x-omitempty: false
+      netWeight:
+        description: |
+          The net weight of the shipment once it has been weight
+        type: integer
+        example: 4300
+        x-nullable: true
+        x-omitempty: false
+      hasProGear:
+        description: |
+          Indicates whether PPM shipment has pro gear.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      proGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      spouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      estimatedIncentive:
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      hasRequestedAdvance:
+        description: |
+          Indicates whether an advance has been requested for the PPM shipment.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      advanceAmountRequested:
+        description: >
+          The amount requested for an advance, or null if no advance is
+          requested
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      hasReceivedAdvance:
+        description: |
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      advanceAmountReceived:
+        description: |
+          The amount received for an advance, or null if no advance is received.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      deletedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+          - x-omitempty: false
+      sitEstimatedWeight:
+        type: integer
+        example: 2000
+        x-nullable: true
+        x-omitempty: false
+      sitEstimatedEntryDate:
+        format: date
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      sitEstimatedDepartureDate:
+        format: date
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      sitEstimatedCost:
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
+    required:
+      - id
+      - shipmentId
+      - createdAt
+      - updatedAt
+      - status
+      - expectedDepartureDate
+      - pickupPostalCode
+      - destinationPostalCode
+      - sitExpected
+      - eTag
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -4423,6 +4981,10 @@ definitions:
         format: date
         type: string
       requestedDeliveryDate:
+        format: date
+        type: string
+      requiredDeliveryDate:
+        x-nullable: true
         format: date
         type: string
       approvedDate:
@@ -4516,6 +5078,8 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
+      ppmShipment:
+        $ref: '#/definitions/PPMShipment'
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -4611,6 +5175,57 @@ definitions:
       - SYSTEM
       - PRICER
       - PAYMENT_REQUEST
+  CustomerSupportRemark:
+    type: object
+    description: >-
+      A text remark written by an office user that is associated with a specific
+      move.
+    required:
+      - id
+      - moveID
+      - officeUserID
+      - content
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      officeUserID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      content:
+        example: This is a remark about a move.
+        type: string
+      officeUserFirstName:
+        example: Grace
+        type: string
+        readOnly: true
+      officeUserLastName:
+        example: Griffin
+        type: string
+        readOnly: true
+      officeUserEmail:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        readOnly: true
+  CustomerSupportRemarks:
+    type: array
+    items:
+      $ref: '#/definitions/CustomerSupportRemark'
 responses:
   InvalidRequest:
     description: The request payload is invalid

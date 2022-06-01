@@ -1,9 +1,8 @@
 {
-  "plugins": ["cypress", "prettier", "security", "no-only-tests"],
-  "extends": ["react-app", "plugin:cypress/recommended", "plugin:prettier/recommended", "plugin:security/recommended"],
+  "plugins": ["prettier", "security", "no-only-tests"],
+  "extends": ["react-app", "plugin:prettier/recommended", "plugin:security/recommended"],
   "rules": {
     "consistent-return": "error",
-    "cypress/require-data-selectors": "warn",
     "react/no-access-state-in-setstate": "error",
     "prettier/prettier": "error",
     "no-only-tests/no-only-tests": "error",

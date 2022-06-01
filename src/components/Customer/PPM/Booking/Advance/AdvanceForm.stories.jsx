@@ -1,0 +1,68 @@
+import React from 'react';
+import { action } from '@storybook/addon-actions';
+// eslint-disable-next-line import/order
+import { Grid, GridContainer } from '@trussworks/react-uswds';
+// import { within, userEvent } from '@storybook/testing-library';
+
+import AdvanceForm from 'components/Customer/PPM/Booking/Advance/AdvanceForm';
+
+export default {
+  title: 'Customer Components / PPM Booking / Advance Form',
+  component: AdvanceForm,
+  decorators: [
+    (Story) => (
+      <GridContainer>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Story />
+          </Grid>
+        </Grid>
+      </GridContainer>
+    ),
+  ],
+};
+
+const Template = (args) => <AdvanceForm {...args} />;
+
+export const BlankAdvanceForm = Template.bind({});
+BlankAdvanceForm.args = {
+  onSubmit: action('submit button clicked'),
+  onBack: action('back button clicked'),
+  mtoShipment: {
+    id: '123',
+    ppmShipment: {
+      id: '123',
+      estimatedIncentive: 1000000,
+    },
+  },
+};
+
+export const PreFilledAdvanceForm = Template.bind({});
+PreFilledAdvanceForm.args = {
+  onSubmit: action('submit button clicked'),
+  onBack: action('back button clicked'),
+  mtoShipment: {
+    id: '123',
+    ppmShipment: {
+      id: '123',
+      estimatedIncentive: 1000000,
+      hasRequestedAdvance: true,
+      advanceAmountRequested: 30000,
+    },
+  },
+};
+
+export const MaxRequestedExceededAdvanceForm = Template.bind({});
+MaxRequestedExceededAdvanceForm.args = {
+  onSubmit: action('submit button clicked'),
+  onBack: action('back button clicked'),
+  mtoShipment: {
+    id: '123',
+    ppmShipment: {
+      id: '123',
+      estimatedIncentive: 1000000,
+      hasRequestedAdvance: true,
+      advanceAmountRequested: 300000000,
+    },
+  },
+};

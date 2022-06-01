@@ -52,7 +52,15 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
+		isPPM := false
+		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice, isPPM)
+		suite.NoError(err)
+		suite.Equal(fscPriceCents, priceCents)
+	})
+
+	suite.Run("success without PaymentServiceItemParams when shipment is PPM with < 500 lb weight", func() {
+		isPPM := true
+		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, unit.Pound(250), fscWeightDistanceMultiplier, fscFuelPrice, isPPM)
 		suite.NoError(err)
 		suite.Equal(fscPriceCents, priceCents)
 	})
@@ -60,6 +68,22 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	suite.Run("sending PaymentServiceItemParams without expected param", func() {
 		_, _, err := fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
+	})
+
+	suite.Run("sucess using PaymentServiceItemParams with below minimum weight for a PPM shipment", func() {
+		paymentServiceItem := suite.setupFuelSurchargeServiceItem()
+		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
+		weightBilledIndex := 3
+		if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
+			suite.FailNow("failed", "Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
+		}
+		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
+		paramsWithBelowMinimumWeight[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
+
+		priceCents, _, err := fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
+		suite.NoError(err)
+		suite.Equal(fscPriceCents, priceCents)
+
 	})
 
 	suite.Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilled", func() {
@@ -70,7 +94,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 			suite.FailNow("failed", "Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
 		}
 		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
-
 		priceCents, _, err := fuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
 		if suite.Error(err) {
 			suite.Equal("Weight must be a minimum of 500", err.Error())
@@ -79,34 +102,37 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	})
 
 	suite.Run("FSC is negative if fuel price from EIA is below $2.50", func() {
-		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 242400)
+		isPPM := false
+		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 242400, isPPM)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(-721), priceCents)
 	})
 
 	suite.Run("Price validation errors", func() {
+		isPPM := false
+
 		// No actual pickup date
-		_, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), time.Time{}, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
+		_, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), time.Time{}, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice, isPPM)
 		suite.Error(err)
 		suite.Equal("ActualPickupDate is required", err.Error())
 
 		// No distance
-		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, unit.Miles(0), fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, unit.Miles(0), fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice, isPPM)
 		suite.Error(err)
 		suite.Equal("Distance must be greater than 0", err.Error())
 
 		// No weight
-		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, unit.Pound(0), fscWeightDistanceMultiplier, fscFuelPrice)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, unit.Pound(0), fscWeightDistanceMultiplier, fscFuelPrice, isPPM)
 		suite.Error(err)
 		suite.Equal(fmt.Sprintf("Weight must be a minimum of %d", minDomesticWeight), err.Error())
 
 		// No weight based distance multiplier
-		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, 0, fscFuelPrice)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, 0, fscFuelPrice, isPPM)
 		suite.Error(err)
 		suite.Equal("WeightBasedDistanceMultiplier is required", err.Error())
 
 		// No EIA fuel price
-		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 0)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 0, isPPM)
 		suite.Error(err)
 		suite.Equal("EIAFuelPrice is required", err.Error())
 	})
@@ -204,11 +230,13 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 	err := suite.DB().Eager("MTOShipment").Find(&mtoServiceItem, model.MTOServiceItemID)
 	suite.NoError(err)
 
-	mtoShipment := mtoServiceItem.MTOShipment
 	distance := fscTestDistance
-	mtoShipment.Distance = &distance
-	err = suite.DB().Save(&mtoShipment)
+	mtoServiceItem.MTOShipment.Distance = &distance
+	err = suite.DB().Save(&mtoServiceItem.MTOShipment)
 	suite.NoError(err)
+
+	// the testdatagen factory has some dirty shipment data that we don't want to pass through to the pricer in the test
+	model.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem = models.MTOServiceItem{}
 
 	return model
 }

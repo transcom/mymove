@@ -8,6 +8,8 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
+	testing "testing"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -37,4 +39,14 @@ func (_m *ShipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext
 	}
 
 	return r0, r1
+}
+
+// NewShipmentDiversionRequester creates a new instance of ShipmentDiversionRequester. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
+func NewShipmentDiversionRequester(t testing.TB) *ShipmentDiversionRequester {
+	mock := &ShipmentDiversionRequester{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
 }

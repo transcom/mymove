@@ -21,6 +21,8 @@ references:
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
   postgres: &postgres circleci/postgres:12.7-ram
 
+  redis: &redis redis:5.0.6
+
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
   # in dp3-env (loadtest, demo, exp), or
@@ -99,8 +101,20 @@ executors:
         environment:
           GOPATH: /home/circleci/go
 
+  mymove_compiler_xlarge:
+    # xlarge and no ram disk
+    resource_class: xlarge
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          GOPATH: /home/circleci/go
+
   mymove_ramdisk_compiler:
-    # large and no ram disk
+    # large with ram disk
     resource_class: large
     working_directory: /mnt/ramdisk
     docker:
@@ -112,7 +126,7 @@ executors:
           GOPATH: /home/circleci/go
 
   mymove_ramdisk_compiler_xlarge:
-    # large and no ram disk
+    # xlarge with ram disk
     resource_class: xlarge
     working_directory: /mnt/ramdisk
     docker:
@@ -140,6 +154,10 @@ executors:
         environment:
           POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: test_db
+      - image: *redis
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
 
   milmove_integration_tester:
     resource_class: large
@@ -614,10 +632,21 @@ commands:
             docker cp cypress:/home/circleci/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
             docker cp cypress:/home/circleci/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
 
+  # this custom step has some duplication with
+  # scripts/run-e2e-mtls-test-docker because we want to run some of the
+  # steps below in parallel
   e2e_tests_mtls:
     steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run:
-          name: make e2e_mtls_test_docker
+          name: setup docker for server
+          command: |
+            docker network create e2e_mtls
+            docker build -t milmove_mtls:local -f Dockerfile.e2e .
+      - run:
+          background: true
+          name: run server
           command: |
             echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
             echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
@@ -626,16 +655,15 @@ commands:
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
             source $BASH_ENV
-            make e2e_mtls_test_docker
-          environment:
-            # Env vars needed for the webserver to run inside docker
-            APPLICATION: app
-            LOGIN_GOV_CALLBACK_PROTOCOL: http
-            LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
-            LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
-            LOGIN_GOV_ADMIN_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:adminmovemillocal
-            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            docker-compose -f docker-compose.mtls.yml up
+      - run:
+          name: run e2e mtls tests
+          command: |
+            docker run \
+            --name prime_api_client \
+            --network e2e_mtls \
+            --entrypoint /scripts/run-e2e-mtls-test \
+            milmove_mtls:local
 
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
@@ -688,10 +716,6 @@ jobs:
       - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
-      - save_cache:
-          key: go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-          paths:
-            - '~/go'
       - announce_failure
 
   # `anti_virus` uses virus detection software to scan the source code
@@ -730,15 +754,6 @@ jobs:
       - restore_cache:
           keys:
             - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-      - run:
-          name: Output processes and resource usage every 5 seconds while job is running
-          command: |
-            while true; do
-              sleep 5
-              ps auxwwf
-              echo "======"
-            done
-          background: true
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install Frozen YARN dependencies
@@ -771,10 +786,6 @@ jobs:
           name: Run DangerJS checks
           command: yarn danger ci --failOnErrors
       # `v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
-      - run:
-          name: Output maximum memory usage in Bytes
-          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
-          when: always
       - save_cache:
           key: v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
@@ -844,8 +855,8 @@ jobs:
   # separate the integration tests by site so that if there is a flaky
   # test, we only have to re-run part of the integration tests
   integration_tests_admin:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 2 files here
-    parallelism: 2
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
+    parallelism: 4
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
@@ -866,8 +877,8 @@ jobs:
       - announce_failure
 
   integration_tests_office:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
-    parallelism: 4
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 12 files here
+    parallelism: 12
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
@@ -909,8 +920,8 @@ jobs:
 
   # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
   integration_tests_mymove:
-    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 4 files here
-    parallelism: 4
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 8 files here
+    parallelism: 8
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
@@ -931,6 +942,8 @@ jobs:
       - announce_failure
 
   integration_tests_milmove:
+    # parallelism requires enough files to divide by the # of parallel threads. So you need at least 6 files here
+    parallelism: 6
     executor: milmove_integration_tester
     steps:
       - attach_workspace:
@@ -961,34 +974,12 @@ jobs:
   # `integration_tests_mtls` runs integration tests using
   # prime-api-client.
   #
-  # This could almost certainly be sped up in a manner similar to the
-  # integration_tests, but this test is short enough it isn't urgent
-  # right now
   integration_tests_mtls:
     executor: mymove_compiler
     steps:
-      - aws_vars_transcom_gov_dev
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - restore_cache:
-          keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - restore_cache:
-          keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
-      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
-      - run: make server_generate
-      - run: rm -f bin/generate-test-data && make bin/generate-test-data
-      - run: rm -f bin/prime-api-client && make bin/prime-api-client
-      - run:
-          name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+          at: .
       - e2e_tests_mtls
-      - store_test_results:
-          path: cypress/results
       - announce_failure
 
   # `server_test` runs the server side Go tests
@@ -1107,6 +1098,7 @@ jobs:
             - Dockerfile.webhook_client
             - Dockerfile.webhook_client_dp3
             - docker-compose.e2e.yml
+            - docker-compose.mtls.yml
             - bin
             - config
             - migrations
@@ -1123,8 +1115,15 @@ jobs:
   # items are in the workspace, we don't even have to checkout the
   # code again
   #
-  # the babel/terser cache below takes the compile from ~6-7m to ~4-5m !!
+  # the babel/terser cache below takes the compile step from ~6-7m to ~4-5m !!
   compile_app_client:
+    # ahobson tested this and saw 75% of the 16GB being used
+    # (according to the resources tab on CircleCI)
+    # if it starts running out of memory, we should move away from
+    # using a ramdisk
+    #
+    # This entire step takes ~6 minutes with xlarge ramdisk
+    # This entire step takes ~7 minutes without xlarge ramdisk
     executor: mymove_ramdisk_compiler_xlarge
     steps:
       - checkout
@@ -1141,14 +1140,23 @@ jobs:
       # cacheDirectory
       #
       # see https://www.npmjs.com/package/terser-webpack-plugin/v/1.4.4#cache
+      #
+      # use the yarn.lock as a key so that PRs with the same
+      # dependencies will use the same cache
       - restore_cache:
           keys:
-            - v1-node-modules-cache
+            - v2-node-modules-cache-{{ checksum "yarn.lock" }}
       - run: make client_build
-      - save_cache:
-          key: v1-node-modules-cache
-          paths:
-            - ./node_modules/.cache
+      # only save the cache on master builds so that PRs don't pollute
+      # the cache
+      - when:
+          condition:
+            equal: [ master, << pipeline.git.branch >>]
+          steps:
+            save_cache:
+              key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
+              paths:
+                - ./node_modules/.cache
       - persist_to_workspace:
           root: .
           paths:
@@ -1725,13 +1733,11 @@ workflows:
               ignore: *integration-ignore-branch
 
       - integration_tests_mtls:
+          # mtls integration tests use the same server image as the
+          # e2e cypress tests and so needs the client build
           requires:
-            - pre_deps_golang
-            - check_generated_code
-            - push_app_gov_dev
-            - push_app_stg
-            - push_migrations_gov_dev
-            - push_migrations_stg
+            - compile_app_server
+            - compile_app_client
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:

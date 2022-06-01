@@ -2,14 +2,15 @@ package mtoserviceitem
 
 import (
 	"fmt"
-	"testing"
 	"time"
+
+	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/gobuffalo/validate/v3"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -17,19 +18,27 @@ import (
 )
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
+
 	// Set up the data needed for updateMTOServiceItemData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker()
-	oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 	now := time.Now()
-
-	// Set up service item models for successful and unsuccessful tests
-	successServiceItem := oldServiceItem
-	errorServiceItem := oldServiceItem
+	setupTestData := func() (models.MTOServiceItem, models.MTOServiceItem) {
+		// Create a service item to serve as the old object
+		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		// Shallow copy service item to create the "updated" object
+		updatedServiceItem := oldServiceItem
+		return oldServiceItem, updatedServiceItem
+	}
 
 	// Test successful check for linked IDs
-	suite.T().Run("checkLinkedIDs - success", func(t *testing.T) {
+	suite.Run("checkLinkedIDs - success", func() {
+		// Under test:  checkLinkedIDs function, which checks that two linked
+		//              service items have the same move, shipment, or reService IDs
+		// Set up:      Create a service item and compare against another
+		// Expected outcome: PreconditionFailedError
+		oldServiceItem, newServiceItem := setupTestData()
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: successServiceItem, // as-is, should succeed
+			updatedServiceItem: newServiceItem, // as-is, should succeed
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
@@ -40,14 +49,15 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test unsuccessful check for linked IDs
-	suite.T().Run("checkLinkedIDs - failure", func(t *testing.T) {
+	suite.Run("checkLinkedIDs - failure", func() {
+		oldServiceItem, newServiceItem := setupTestData()
 		fakeUUID := uuid.FromStringOrNil("00010001-0001-0001-0001-000100010001")
-		errorServiceItem.MoveTaskOrderID = fakeUUID
-		errorServiceItem.MTOShipmentID = &fakeUUID
-		errorServiceItem.ReServiceID = fakeUUID
+		newServiceItem.MoveTaskOrderID = fakeUUID
+		newServiceItem.MTOShipmentID = &fakeUUID
+		newServiceItem.ReServiceID = fakeUUID
 
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: errorServiceItem,
+			updatedServiceItem: newServiceItem,
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
@@ -61,11 +71,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test successful check for Prime availability
-	suite.T().Run("checkPrimeAvailability - success", func(t *testing.T) {
+	suite.Run("checkPrimeAvailability - success", func() {
 		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: testdatagen.MakeAvailableMove(suite.DB()),
 		})
-		newServiceItemPrime := oldServiceItemPrime
+		newServiceItemPrime := oldServiceItemPrime // Shallow copy model
 
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem:  newServiceItemPrime,
@@ -80,9 +90,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test unsuccessful check for Prime availability
-	suite.T().Run("checkPrimeAvailability - failure", func(t *testing.T) {
+	suite.Run("checkPrimeAvailability - failure", func() {
+		oldServiceItem, newServiceItem := setupTestData()
+
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem:  errorServiceItem, // the default errorServiceItem should not be Prime-available
+			updatedServiceItem:  newServiceItem, // the default errorServiceItem should not be Prime-available
 			oldServiceItem:      oldServiceItem,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
@@ -95,9 +107,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test successful check for non-Prime fields
-	suite.T().Run("checkNonPrimeFields - success", func(t *testing.T) {
+	suite.Run("checkNonPrimeFields - success", func() {
+		oldServiceItem, newServiceItem := setupTestData() // These
+
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: successServiceItem, // as-is, should succeed because all the values are the same
+			updatedServiceItem: newServiceItem, // as-is, should succeed because all the values are the same
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
@@ -108,15 +122,17 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test unsuccessful check for non-Prime fields
-	suite.T().Run("checkNonPrimeFields - failure", func(t *testing.T) {
+	suite.Run("checkNonPrimeFields - failure", func() {
 		// Update the non-updateable fields:
-		errorServiceItem.Status = models.MTOServiceItemStatusApproved
-		errorServiceItem.RejectionReason = handlers.FmtString("reason")
-		errorServiceItem.ApprovedAt = &now
-		errorServiceItem.RejectedAt = &now
+		oldServiceItem, newServiceItem := setupTestData() // These
+
+		newServiceItem.Status = models.MTOServiceItemStatusApproved
+		newServiceItem.RejectionReason = handlers.FmtString("reason")
+		newServiceItem.ApprovedAt = &now
+		newServiceItem.RejectedAt = &now
 
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: errorServiceItem,
+			updatedServiceItem: newServiceItem,
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
@@ -131,9 +147,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test successful check for SIT departure service item - not updating SITDepartureDate
-	suite.T().Run("checkSITDeparture w/ no SITDepartureDate update - success", func(t *testing.T) {
+	suite.Run("checkSITDeparture w/ no SITDepartureDate update - success", func() {
+		oldServiceItem, newServiceItem := setupTestData() // These
+
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: successServiceItem, // default is not DDDSIT/DOPSIT
+			updatedServiceItem: newServiceItem, // default is not DDDSIT/DOPSIT
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
@@ -144,11 +162,17 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test successful check for SIT departure service item - DDDSIT
-	suite.T().Run("checkSITDeparture w/ DDDSIT - success", func(t *testing.T) {
+	suite.Run("checkSITDeparture w/ DDDSIT - success", func() {
+		// Under test:  checkSITDeparture checks that the service item is a
+		//			    DDDSIT or DOPSIT if the user is trying to update the
+		// 			    SITDepartureDate
+		// Set up:      Create an old and new DDDSIT, with a new date and try to update.
+		// Expected outcome: Success if both are DDDSIT
 		oldDDDSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDDDSIT,
 			},
+			Stub: true,
 		})
 		newDDDSIT := oldDDDSIT
 		newDDDSIT.SITDepartureDate = &now
@@ -165,11 +189,23 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test unsuccessful check for SIT departure service item - not a departure SIT item
-	suite.T().Run("checkSITDeparture w/ non-departure SIT - failure", func(t *testing.T) {
-		errorServiceItem.SITDepartureDate = &now
+	suite.Run("checkSITDeparture w/ non-departure SIT - failure", func() {
+		// Under test:  checkSITDeparture checks that the service item is a
+		//			    DDDSIT or DOPSIT if the user is trying to update the
+		// 			    SITDepartureDate
+		// Set up:      Create any non DDDSIT service item
+		// Expected outcome: Conflict Error
+		oldDOFSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+			Stub: true,
+		})
+		newDOFSIT := oldDOFSIT
+		newDOFSIT.SITDepartureDate = &now
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: errorServiceItem, // default is not DDDSIT/DOPSIT
-			oldServiceItem:     oldServiceItem,
+			updatedServiceItem: newDOFSIT, // default is not DDDSIT/DOPSIT
+			oldServiceItem:     oldDOFSIT,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
@@ -181,9 +217,15 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test successful check for service item w/out payment request
-	suite.T().Run("checkPaymentRequests - success", func(t *testing.T) {
+	suite.Run("checkPaymentRequests - success", func() {
+		// Under test:  checkPaymentRequests checks if there are payment requests
+		//			    associated with this service item and returns a conflict error if so
+		// Set up:      Create any service item with no payment requests
+		// Expected outcome: No error
+		oldServiceItem, newServiceItem := setupTestData() // These
+
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: successServiceItem, // as-is, should succeed
+			updatedServiceItem: newServiceItem, // as-is, should succeed
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
@@ -194,15 +236,22 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test unsuccessful check service item with an existing payment request
-	suite.T().Run("checkPaymentRequests - failure", func(t *testing.T) {
+	suite.Run("checkPaymentRequests - failure", func() {
+		// Under test:  checkPaymentRequests checks if there are payment requests
+		//			    associated with this service item and returns a conflict error if so
+		// Set up:      Create any service item with associated payment requests
+		// Expected outcome: ConflictError
+		oldServiceItem, newServiceItem := setupTestData() // These
+		newServiceItem.Description = swag.String("1234")
+
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: paymentRequest,
-			MTOServiceItem: errorServiceItem,
+			MTOServiceItem: oldServiceItem,
 		})
 
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: errorServiceItem,
+			updatedServiceItem: newServiceItem,
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
@@ -215,9 +264,14 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test getVerrs for successful example
-	suite.T().Run("getVerrs - success", func(t *testing.T) {
+	suite.Run("getVerrs - success", func() {
+		// Under test:  getVerrs returns a list of validation errors
+		// Set up:      Create a service item, run 2 validations that should pass
+		// Expected outcome: No errors
+		oldServiceItem, newServiceItem := setupTestData()
+
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: successServiceItem, // as-is, should succeed
+			updatedServiceItem: newServiceItem,
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
@@ -230,34 +284,56 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test getVerrs for unsuccessful example
-	suite.T().Run("getVerrs - failure", func(t *testing.T) {
+	suite.Run("getVerrs - failure", func() {
+		// Under test:  getVerrs returns a list of validation errors
+		// Set up:      Create a service item, edit the non-prime fields and linked ids
+		//              Run 2 validations that should fail
+		// Expected outcome: InvalidInput error
+
+		oldServiceItem, newServiceItem := setupTestData()
+
+		// Change non prime fields
+		newServiceItem.Status = models.MTOServiceItemStatusApproved
+		newServiceItem.RejectionReason = handlers.FmtString("reason")
+		newServiceItem.ApprovedAt = &now
+		newServiceItem.RejectedAt = &now
+
+		// Change linked ids
+		fakeUUID := uuid.FromStringOrNil("00010001-0001-0001-0001-000100010001")
+		newServiceItem.MoveTaskOrderID = fakeUUID
+		newServiceItem.MTOShipmentID = &fakeUUID
+		newServiceItem.ReServiceID = fakeUUID
+
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: errorServiceItem, // as-is, should fail
+			updatedServiceItem: newServiceItem, // as-is, should fail
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest()) // this test should pass regardless of potential errors here
+		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest())
 		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.True(serviceItemData.verrs.HasAny())
+		suite.Equal(7, serviceItemData.verrs.Count())
 	})
 
 	// Test setNewMTOServiceItem for successful example
-	suite.T().Run("setNewMTOServiceItem - success", func(t *testing.T) {
-		successServiceItem.Description = handlers.FmtString("testing update service item validators")
-		successServiceItem.Reason = handlers.FmtString("")
-		successServiceItem.SITEntryDate = &now
-		successServiceItem.ApprovedAt = new(time.Time) // this is the zero time, what we need to nullify the field
+	suite.Run("setNewMTOServiceItem - success", func() {
+		oldServiceItem, editServiceItem := setupTestData() // These
+
+		editServiceItem.Description = handlers.FmtString("testing update service item validators")
+		editServiceItem.Reason = handlers.FmtString("")
+		editServiceItem.SITEntryDate = &now
+		editServiceItem.ApprovedAt = new(time.Time) // this is the zero time, what we need to nullify the field
 		actualWeight := int64(4000)
 		estimatedWeight := int64(4200)
-		successServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
-		successServiceItem.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
+		editServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
+		editServiceItem.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
 
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: successServiceItem,
+			updatedServiceItem: editServiceItem,
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
@@ -266,8 +342,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.NoVerrs(serviceItemData.verrs)
 		suite.Nil(newServiceItem.Reason)
 		suite.Nil(newServiceItem.ApprovedAt)
-		suite.Equal(newServiceItem.SITEntryDate, successServiceItem.SITEntryDate)
-		suite.Equal(newServiceItem.Description, successServiceItem.Description)
+		suite.Equal(newServiceItem.SITEntryDate, editServiceItem.SITEntryDate)
+		suite.Equal(newServiceItem.Description, editServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, oldServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, serviceItemData.oldServiceItem.Description)
 	})

@@ -23,7 +23,7 @@ import (
 
 // GetOrdersHandler fetches the information of a specific order
 type GetOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.OrderFetcher
 }
 
@@ -49,7 +49,7 @@ func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Respo
 
 // UpdateOrderHandler updates an order via PATCH /orders/{orderId}
 type UpdateOrderHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	orderUpdater services.OrderUpdater
 	moveUpdater  services.MoveTaskOrderUpdater
 }
@@ -106,7 +106,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 
 // CounselingUpdateOrderHandler updates an order via PATCH /counseling/orders/{orderId}
 type CounselingUpdateOrderHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	orderUpdater services.OrderUpdater
 }
 
@@ -162,7 +162,7 @@ func (h CounselingUpdateOrderHandler) Handle(
 
 // UpdateAllowanceHandler updates an order and entitlements via PATCH /orders/{orderId}/allowances
 type UpdateAllowanceHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	orderUpdater services.OrderUpdater
 }
 
@@ -216,7 +216,7 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 
 // CounselingUpdateAllowanceHandler updates an order and entitlements via PATCH /counseling/orders/{orderId}/allowances
 type CounselingUpdateAllowanceHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	orderUpdater services.OrderUpdater
 }
 
@@ -272,7 +272,7 @@ func (h CounselingUpdateAllowanceHandler) Handle(
 
 // UpdateBillableWeightHandler updates the max billable weight on an order's entitlements via PATCH /orders/{orderId}/update-billable-weight
 type UpdateBillableWeightHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	excessWeightRiskManager services.ExcessWeightRiskManager
 }
 
@@ -329,7 +329,7 @@ func (h UpdateBillableWeightHandler) Handle(
 
 // UpdateMaxBillableWeightAsTIOHandler updates the max billable weight on an order's entitlements via PATCH /orders/{orderId}/update-billable-weight/tio
 type UpdateMaxBillableWeightAsTIOHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	excessWeightRiskManager services.ExcessWeightRiskManager
 }
 
@@ -388,7 +388,7 @@ func (h UpdateMaxBillableWeightAsTIOHandler) Handle(
 
 // AcknowledgeExcessWeightRiskHandler is called when a TOO dismissed the alert to acknowledge the excess weight risk via POST /orders/{orderId}/acknowledge-excess-weight-risk
 type AcknowledgeExcessWeightRiskHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	excessWeightRiskManager services.ExcessWeightRiskManager
 }
 

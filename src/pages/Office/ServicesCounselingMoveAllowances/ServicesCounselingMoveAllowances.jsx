@@ -105,7 +105,7 @@ const ServicesCounselingMoveAllowances = () => {
       storageInTransit: Number(storageInTransit),
       organizationalClothingAndIndividualEquipment,
     };
-    mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
+    return mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
   const { entitlement, grade, agency } = order;

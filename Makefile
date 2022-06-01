@@ -207,7 +207,7 @@ bin/gin: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
 bin/soda: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
-	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/v5/soda
+	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/v6/soda
 
 # No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
 bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
@@ -279,9 +279,6 @@ bin/webhook-client: $(wildcard cmd/webhook-client/**/*.go) $(PKG_GOSRC)
 
 bin/read-alb-logs: $(wildcard cmd/read-alb-logs/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
-
-bin/report-ecs: $(wildcard cmd/report-ecs/**/*.go) $(PKG_GOSRC)
-	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
 bin/send-to-gex: $(wildcard cmd/send-to-gex/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
@@ -381,7 +378,6 @@ build_tools: bin/gin \
 	bin/prime-api-client \
 	bin/webhook-client \
 	bin/read-alb-logs \
-	bin/report-ecs \
 	bin/send-to-gex \
 	bin/tls-checker ## Build all tools
 

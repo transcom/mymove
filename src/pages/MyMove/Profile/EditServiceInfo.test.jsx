@@ -137,6 +137,8 @@ describe('EditServiceInfo page', () => {
       weight_allotment: {
         total_weight_self: 7000,
         total_weight_self_plus_dependents: 9000,
+        pro_gear_weight: 2000,
+        pro_gear_weight_spouse: 500,
       },
     };
 
@@ -165,6 +167,8 @@ describe('EditServiceInfo page', () => {
       weight_allotment: {
         total_weight_self: 5000,
         total_weight_self_plus_dependents: 8000,
+        pro_gear_weight: 2000,
+        pro_gear_weight_spouse: 500,
       },
     };
 
@@ -231,6 +235,8 @@ describe('EditServiceInfo page', () => {
       weight_allotment: {
         total_weight_self: 7000,
         total_weight_self_plus_dependents: 9000,
+        pro_gear_weight: 2000,
+        pro_gear_weight_spouse: 500,
       },
     };
 

@@ -26,7 +26,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	}
 	builder := officeuser.NewOfficeUserFetcherPop()
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), builder}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger()), builder}
 
 	response := handler.Handle(params)
 
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 			HTTPRequest: req,
 		}
 		builder := officeuser.NewOfficeUserFetcherPop()
-		handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.Logger()), builder}
+		handler := ShowLoggedInUserHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger()), builder}
 
 		response := handler.Handle(params)
 
@@ -80,9 +80,9 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		}
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		builder := officeuser.NewOfficeUserFetcherPop()
-		context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
-		context.SetFileStorer(fakeS3)
-		handler := ShowLoggedInUserHandler{context, builder}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig.SetFileStorer(fakeS3)
+		handler := ShowLoggedInUserHandler{handlerConfig, builder}
 
 		response := handler.Handle(params)
 
@@ -108,11 +108,11 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.Logger())
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 
 	builder := officeuser.NewOfficeUserFetcherPop()
 
-	handler := ShowLoggedInUserHandler{context, builder}
+	handler := ShowLoggedInUserHandler{handlerConfig, builder}
 
 	response := handler.Handle(params)
 

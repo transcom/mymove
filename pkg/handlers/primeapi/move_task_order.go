@@ -23,7 +23,7 @@ import (
 
 // ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
 type ListMovesHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveTaskOrderFetcher
 }
 
@@ -53,7 +53,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 
 // GetMoveTaskOrderHandler returns the details for a particular move
 type GetMoveTaskOrderHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
@@ -94,7 +94,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 
 // CreateExcessWeightRecordHandler uploads an excess weight record file
 type CreateExcessWeightRecordHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	uploader services.MoveExcessWeightUploader
 }
 
@@ -145,7 +145,7 @@ func (h CreateExcessWeightRecordHandler) Handle(params movetaskorderops.CreateEx
 
 // UpdateMTOPostCounselingInformationHandler updates the move with post-counseling information
 type UpdateMTOPostCounselingInformationHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.Fetcher
 	services.MoveTaskOrderUpdater
 	mtoAvailabilityChecker services.MoveTaskOrderChecker
@@ -157,7 +157,6 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 			eTag := params.IfMatch
-			appCtx.Logger().Info("primeapi.UpdateMTOPostCounselingInformationHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
 			mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, mtoID)
 
@@ -174,7 +173,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 					handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", mtoID), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(appCtx, mtoID, params.Body, eTag)
+			mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(appCtx, mtoID, eTag)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
 				switch e := err.(type) {
@@ -184,6 +183,9 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 				case apperror.PreconditionFailedError:
 					return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed().WithPayload(
 						payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.ConflictError:
+					return movetaskorderops.NewUpdateMTOPostCounselingInformationConflict().WithPayload(
+						payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.InvalidInputError:
 					return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
 						payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
