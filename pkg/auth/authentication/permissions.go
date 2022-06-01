@@ -19,13 +19,14 @@ type RolePermissions struct {
 }
 
 var TOO = RolePermissions{
-	RoleType:    roles.RoleTypeTOO,
-	Permissions: []string{"update.financial_review_flag"},
+	RoleType: roles.RoleTypeTOO,
+	Permissions: []string{"update.move", "create.serviceItem",
+		"update.shipment", "update.financial_review_flag"},
 }
 
 var TIO = RolePermissions{
 	RoleType:    roles.RoleTypeTIO,
-	Permissions: []string{"update.financial_review_flag"},
+	Permissions: []string{"create.serviceItem", "update.shipment", "update.financial_review_flag"},
 }
 
 var ServicesCounselor = RolePermissions{
