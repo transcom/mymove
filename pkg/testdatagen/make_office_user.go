@@ -203,6 +203,25 @@ func MakePPMOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 	return officeUser
 }
 
+// MakeQAECSROfficeUser makes an OfficeUser with the QAECSR role
+func MakeQAECSROfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	qaeCsrRole, _ := LookupRole(db, roles.RoleTypeQaeCsr)
+
+	qaeCsrUser := models.User{
+		Roles: []roles.Role{qaeCsrRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
+			User: qaeCsrUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
 // MakeOfficeUserWithUSMCGBLOC makes an OfficeUser tied to the USMC GBLOC
 func MakeOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
 	officeUUID, _ := uuid.NewV4()

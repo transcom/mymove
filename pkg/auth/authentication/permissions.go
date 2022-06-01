@@ -29,7 +29,12 @@ var TIO = RolePermissions{
 	Permissions: []string{"create.serviceItem", "update.shipment"},
 }
 
-var AllRolesPermissions = []RolePermissions{TOO, TIO}
+var QAECSR = RolePermissions{
+	RoleType:    roles.RoleTypeQaeCsr,
+	Permissions: []string{"read.move"},
+}
+
+var AllRolesPermissions = []RolePermissions{TOO, TIO, QAECSR}
 
 // check if a [user.role] has permissions on a given object
 func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
