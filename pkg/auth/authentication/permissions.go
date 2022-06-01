@@ -19,17 +19,26 @@ type RolePermissions struct {
 }
 
 var TOO = RolePermissions{
-	RoleType: roles.RoleTypeTOO,
-	Permissions: []string{"update.move", "create.serviceItem",
-		"update.shipment"},
+	RoleType:    roles.RoleTypeTOO,
+	Permissions: []string{"update.financial_review_flag"},
 }
 
 var TIO = RolePermissions{
 	RoleType:    roles.RoleTypeTIO,
-	Permissions: []string{"create.serviceItem", "update.shipment"},
+	Permissions: []string{"update.financial_review_flag"},
 }
 
-var AllRolesPermissions = []RolePermissions{TOO, TIO}
+var ServicesCounselor = RolePermissions{
+	RoleType:    roles.RoleTypeServicesCounselor,
+	Permissions: []string{"update.financial_review_flag"},
+}
+
+var QAECSR = RolePermissions{
+	RoleType:    roles.RoleTypeQaeCsr,
+	Permissions: []string{},
+}
+
+var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR}
 
 // check if a [user.role] has permissions on a given object
 func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
