@@ -37,7 +37,7 @@ func MakeDevClientCert(db *pop.Connection, assertions Assertions) {
 		mustCreate(db, &clientCert, false)
 	} else if err == nil && existingCert != nil {
 		// client cert already exists; update existing client cert
-		mergeModels(&existingCert, clientCert)
-		MustSave(db, &existingCert)
+		mergeModels(existingCert, clientCert)
+		MustSave(db, existingCert)
 	}
 }
