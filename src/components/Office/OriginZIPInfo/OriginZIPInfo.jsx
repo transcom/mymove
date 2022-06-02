@@ -18,6 +18,9 @@ const OriginZIPInfo = ({ currentZip, postalCodeValidator }) => {
     if (isChecked) {
       postalCodeHelperProps.setValue(currentZip);
       checkBoxHelperProps.setValue('checked');
+    } else {
+      postalCodeHelperProps.setValue('');
+      checkBoxHelperProps.setValue('');
     }
   };
 

@@ -18,6 +18,9 @@ const DestinationZIPInfo = ({ dutyZip, postalCodeValidator }) => {
     if (isChecked) {
       postalCodeHelperProps.setValue(dutyZip);
       checkBoxHelperProps.setValue('checked');
+    } else {
+      postalCodeHelperProps.setValue('');
+      checkBoxHelperProps.setValue('');
     }
   };
 
