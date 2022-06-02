@@ -195,4 +195,11 @@ describe('About page', () => {
 
     expect(screen.getByText(mockErrorMsg)).toBeInTheDocument();
   });
+
+  it('expect loadingPlaceholder when mtoShipment is falsy', () => {
+    selectMTOShipmentById.mockReturnValue(null);
+
+    render(<About />, { wrapper: MockProviders });
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');
+  });
 });
