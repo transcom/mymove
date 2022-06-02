@@ -1,6 +1,7 @@
 // eslint-disable-next-line import/prefer-default-export
 export const permissionTypes = {
+  updateAllowances: 'update.allowances',
   updateFinancialReviewFlag: 'update.financialReviewFlag',
   updateOrders: 'update.orders',
-  updateAllowances: 'update.allowances',
+  updateShipment: 'update.shipment',
 };

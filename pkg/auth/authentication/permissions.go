@@ -32,7 +32,7 @@ var TIO = RolePermissions{
 
 var ServicesCounselor = RolePermissions{
 	RoleType:    roles.RoleTypeServicesCounselor,
-	Permissions: []string{"update.financialReviewFlag", "update.orders", "update.allowances"},
+	Permissions: []string{"update.financialReviewFlag", "update.shipment", "update.orders", "update.allowances"},
 }
 
 var QAECSR = RolePermissions{
